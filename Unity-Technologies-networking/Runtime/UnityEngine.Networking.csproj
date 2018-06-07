@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5F1B8F9B-4500-4D09-808B-F43E8337DF05}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UnityEngine.Networking</RootNamespace>
+    <AssemblyName>UnityEngine.Networking</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;ENABLE_UNET;ENABLE_UNET_HOST_MIGRATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;ENABLE_UNET;ENABLE_UNET_HOST_MIGRATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\lib\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChannelBuffer.cs" />
+    <Compile Include="ChannelPacket.cs" />
+    <Compile Include="ClientScene.cs" />
+    <Compile Include="ConnectionArray.cs" />
+    <Compile Include="CustomAttributes.cs" />
+    <Compile Include="DotNetCompatibility.cs" />
+    <Compile Include="LocalConnections.cs" />
+    <Compile Include="LogFilter.cs" />
+    <Compile Include="Messages.cs" />
+    <Compile Include="NetworkAnimator.cs" />
+    <Compile Include="NetworkBuffer.cs" />
+    <Compile Include="NetworkCRC.cs" />
+    <Compile Include="NetworkDiscovery.cs" />
+    <Compile Include="NetworkHash128.cs" />
+    <Compile Include="NetworkInstanceId.cs" />
+    <Compile Include="NetworkLobbyManager.cs" />
+    <Compile Include="NetworkLobbyPlayer.cs" />
+    <Compile Include="NetworkMessageHandlers.cs" />
+    <Compile Include="NetworkProximityChecker.cs" />
+    <Compile Include="NetworkScene.cs" />
+    <Compile Include="NetworkSceneId.cs" />
+    <Compile Include="NetworkStartPosition.cs" />
+    <Compile Include="NetworkTranformChild.cs" />
+    <Compile Include="NetworkTransform.cs" />
+    <Compile Include="NetworkTransformVisualizer.cs" />
+    <Compile Include="PlayerController.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="NetworkClient.cs" />
+    <Compile Include="NetworkConnection.cs" />
+    <Compile Include="LocalClient.cs" />
+    <Compile Include="NetworkManager.cs" />
+    <Compile Include="NetworkManagerHUD.cs" />
+    <Compile Include="NetworkBehaviour.cs" />
+    <Compile Include="NetworkIdentity.cs" />
+    <Compile Include="UNetwork.cs" />
+    <Compile Include="NetworkReader.cs" />
+    <Compile Include="NetworkServer.cs" />
+    <Compile Include="SyncList.cs" />
+    <Compile Include="NetworkWriter.cs" />
+    <Compile Include="NetworkMigrationManager.cs" />
+    <Compile Include="NetworkServerSimple.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="AfterBuild">
+    <MakeDir Directories="$(ProjectDir)..\Output\Standalone" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).dll" />
+    <Copy Condition="'$(Configuration)' == 'Debug' And '$(OS)' == 'Unix'" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).dll.mdb" />
+    <Copy Condition="'$(Configuration)' == 'Debug' And '$(OS)' != 'Unix'" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).pdb" />
+    <!--Uncomment the block below and change the destination to copy the built dll into your unity install directory-->
+    <!--<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="C:\Program Files\Unity\Editor\Data\UnityExtensions\Unity\Networking\Standalone\$(TargetName).dll"/>
+    <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="$(TargetDir)$(TargetName).mdb" DestinationFiles="C:\Program Files\Unity\Editor\Data\UnityExtensions\Unity\Networking\Standalone\$(TargetName).mdb"/>-->
+    <!--<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/Standalone/$(TargetName).dll"/>
+    <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/Standalone/$(TargetName).dll.mdb"/>-->
+  </Target>
+</Project>
