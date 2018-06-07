@@ -172,6 +172,7 @@ namespace UnityEngine.Networking
 
         void Awake()
         {
+            Debug.Log("Thank you for using HLAPI Pro! https://forum.unity3d.com/threads/unet-hlapi-pro-taking-unet-to-the-next-level.425437/");
             InitializeSingleton();
         }
 
