@@ -1,0 +1,43 @@
+# =============== #
+# Unity generated #
+# =============== #
+Source/Temp/
+Source/Library/
+
+# ===================================== #
+# Project specific #
+# ===================================== #
+Database.sqlite
+Database/
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+obj/
+*.svd
+*.userprefs
+/*.csproj
+Source/Assembly-CSharp.csproj
+Source/Assembly-CSharp-Editor.csproj
+Source/Assembly-CSharp-firstpass.csproj
+Source/Source.sln
+*.pidb
+*.suo
+/*.sln
+*.user
+*.unityproj
+*.booproj
+Output/
+bin/
+
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
