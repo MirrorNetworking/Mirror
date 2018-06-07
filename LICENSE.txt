@@ -1,0 +1,5 @@
+HLAPI Pro License:
+This is a preview for testing purposes only.
+All rights reserved.
+
+-> Do not copy/fork/redistribute etc. until I come up with a proper license.
