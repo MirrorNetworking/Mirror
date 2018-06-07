@@ -26,7 +26,7 @@ namespace Unity.UNetWeaver
         List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
         List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
 
-        const int k_SyncVarLimit = 32;
+        const int k_SyncVarLimit = 64; // ulong = 64 bytes
         int m_QosChannel;
 
         TypeDefinition m_td;
@@ -593,7 +593,7 @@ namespace Unity.UNetWeaver
 
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
-                serWorker.Append(serWorker.Create(OpCodes.Ldc_I4, 1 << dirtyBit));
+                serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit)); // 8 bytes = long
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
@@ -654,7 +654,7 @@ namespace Unity.UNetWeaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked64));
             if (reset)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
@@ -957,12 +957,12 @@ namespace Unity.UNetWeaver
 
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyBitsLocal = new VariableDefinition(Weaver.int32Type);
+            VariableDefinition dirtyBitsLocal = new VariableDefinition(Weaver.int64Type);
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked64));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
@@ -973,7 +973,7 @@ namespace Unity.UNetWeaver
 
                 // check if dirty bit is set
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldc_I4, 1 << dirtyBit));
+                serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit));
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
@@ -1977,7 +1977,7 @@ namespace Unity.UNetWeaver
             return get;
         }
 
-        MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, int dirtyBit, FieldDefinition netFieldId)
+        MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
@@ -1998,7 +1998,7 @@ namespace Unity.UNetWeaver
             setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
 
             // dirty bit
-            setWorker.Append(setWorker.Create(OpCodes.Ldc_I4, dirtyBit));
+            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
 
             MethodDefinition hookFunctionMethod;
             CheckForHookFunction(fd, out hookFunctionMethod);
@@ -2057,7 +2057,7 @@ namespace Unity.UNetWeaver
             return set;
         }
 
-        void ProcessSyncVar(FieldDefinition fd, int dirtyBit)
+        void ProcessSyncVar(FieldDefinition fd, long dirtyBit)
         {
             string originalName = fd.Name;
 
@@ -2139,7 +2139,7 @@ namespace Unity.UNetWeaver
             return cmd;
         }
 
-        FieldDefinition ProcessSyncList(FieldDefinition fd, int dirtyBit)
+        FieldDefinition ProcessSyncList(FieldDefinition fd, long dirtyBit)
         {
             MethodDefinition syncListFunc = ProcessSyncListInvoke(fd);
             m_SyncListInvocationFuncs.Add(syncListFunc);
@@ -2233,7 +2233,7 @@ namespace Unity.UNetWeaver
 
                         m_SyncVars.Add(fd);
 
-                        ProcessSyncVar(fd, 1 << dirtyBitCounter);
+                        ProcessSyncVar(fd, 1L << dirtyBitCounter);
                         dirtyBitCounter += 1;
                         numSyncVars += 1;
 
@@ -2265,7 +2265,7 @@ namespace Unity.UNetWeaver
 
                     m_SyncVars.Add(fd);
                     m_SyncLists.Add(fd);
-                    listFields.Add(ProcessSyncList(fd, 1 << dirtyBitCounter));
+                    listFields.Add(ProcessSyncList(fd, 1L << dirtyBitCounter));
                     dirtyBitCounter += 1;
                     numSyncVars += 1;
 

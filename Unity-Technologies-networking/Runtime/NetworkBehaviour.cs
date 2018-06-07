@@ -9,7 +9,7 @@ namespace UnityEngine.Networking
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        uint m_SyncVarDirtyBits;
+        ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
         // this prevents recursion when SyncVar hook functions are called.
@@ -24,7 +24,7 @@ namespace UnityEngine.Networking
         public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
         public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
         public short playerControllerId { get { return myView.playerControllerId; } }
-        protected uint syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
         internal NetworkIdentity netIdentity { get { return myView; } }
@@ -497,7 +497,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Helpers  --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, uint dirtyBit, ref NetworkInstanceId netIdField)
+        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref NetworkInstanceId netIdField)
         {
             if (m_SyncVarGuard)
                 return;
@@ -532,7 +532,7 @@ namespace UnityEngine.Networking
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SetSyncVar<T>(T value, ref T fieldValue, uint dirtyBit)
+        protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
             bool changed = false;
             if (value == null)
@@ -553,7 +553,7 @@ namespace UnityEngine.Networking
         }
 
         // these are masks, not bit numbers, ie. 0x004 not 2
-        public void SetDirtyBit(uint dirtyBit)
+        public void SetDirtyBit(ulong dirtyBit)
         {
             m_SyncVarDirtyBits |= dirtyBit;
         }
@@ -561,14 +561,14 @@ namespace UnityEngine.Networking
         public void ClearAllDirtyBits()
         {
             m_LastSendTime = Time.time;
-            m_SyncVarDirtyBits = 0;
+            m_SyncVarDirtyBits = 0L;
         }
 
         internal int GetDirtyChannel()
         {
             if (Time.time - m_LastSendTime > GetNetworkSendInterval())
             {
-                if (m_SyncVarDirtyBits != 0)
+                if (m_SyncVarDirtyBits != 0L)
                 {
                     return GetNetworkChannel();
                 }
@@ -580,7 +580,7 @@ namespace UnityEngine.Networking
         {
             if (!initialState)
             {
-                writer.WritePackedUInt32(0);
+                writer.WritePackedUInt64(0);
             }
             return false;
         }
@@ -589,7 +589,7 @@ namespace UnityEngine.Networking
         {
             if (!initialState)
             {
-                reader.ReadPackedUInt32();
+                reader.ReadPackedUInt64();
             }
         }
 
