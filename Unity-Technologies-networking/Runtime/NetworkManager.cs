@@ -256,6 +256,20 @@ namespace UnityEngine.Networking
                     m_GlobalConfig.ThreadAwakeTimeout = 1;
                 }
             }
+
+            // vis2k
+            // Channels.DefaultReliable = 0 and Unreliable = 1, so we have to
+            // force some kind of reliable to channel 0 and unreliable to 1.
+            // Otherwise the HLAPI code will assume a wrong channel for a lot of
+            // built-in functions.
+            //
+            // Changing them would result in chaos. Using anything != Fragmented
+            // would fail to send bigger messages too.
+            if (channels.Count < 1 || !NetworkConnection.IsReliableQoS(channels[0]))
+                Debug.LogWarning("NetworkManager: First channel needs to be Reliable because in the code Channels.DefaultReliable is 0.");
+
+            if (channels.Count < 2 || !NetworkConnection.IsUnreliableQoS(channels[1]))
+                Debug.LogWarning("NetworkManager: Second channel needs to be Unreliable because in the code Channels.DefaultReliable is 1.");
         }
 
         internal void RegisterServerMessages()
