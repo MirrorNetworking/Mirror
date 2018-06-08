@@ -56,7 +56,7 @@ namespace UnityEngine.Networking
                 return m_LocalConnections[Mathf.Abs(connId) - 1];
             }
 
-            if (connId < 0 || connId > m_Connections.Count)
+            if (connId >= connections.Count)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("ConnectionArray Get invalid index " + connId); }
                 return null;
@@ -68,7 +68,7 @@ namespace UnityEngine.Networking
         // call this if the connection may not exist (in disconnect handler)
         public NetworkConnection GetUnsafe(int connId)
         {
-            if (connId < 0 || connId > m_Connections.Count)
+            if (connId < 0 || connId >= m_Connections.Count)
             {
                 return null;
             }
@@ -83,7 +83,7 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            if (connId < 0 || connId > m_Connections.Count)
+            if (connId < 0 || connId >= m_Connections.Count)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("ConnectionArray Remove invalid index " + connId); }
                 return;
