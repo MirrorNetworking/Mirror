@@ -340,13 +340,8 @@ namespace UnityEngine.Networking.NetworkSystem
             netId = reader.ReadNetworkId();
             assetId = reader.ReadNetworkHash128();
             position = reader.ReadVector3();
+            rotation = reader.ReadQuaternion();
             payload = reader.ReadBytesAndSize();
-
-            uint extraPayloadSize = sizeof(uint) * 4;
-            if ((reader.Length - reader.Position) >= extraPayloadSize)
-            {
-                rotation = reader.ReadQuaternion();
-            }
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -354,9 +349,8 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(netId);
             writer.Write(assetId);
             writer.Write(position);
-            writer.WriteBytesFull(payload);
-
             writer.Write(rotation);
+            writer.WriteBytesFull(payload);
         }
     }
 
