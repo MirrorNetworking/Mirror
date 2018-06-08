@@ -736,27 +736,27 @@ namespace UnityEngine.Networking
             conn.TransportReceive(m_SimpleServerSimple.messageBuffer, receivedSize, channelId);
         }
 
-        private void GenerateConnectError(int error)
+        private void GenerateConnectError(byte error)
         {
             if (LogFilter.logError) { Debug.LogError("UNet Server Connect Error: " + error); }
             GenerateError(null, error);
         }
 
-        private void GenerateDataError(NetworkConnection conn, int error)
+        private void GenerateDataError(NetworkConnection conn, byte error)
         {
             NetworkError dataError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Server Data Error: " + dataError); }
             GenerateError(conn, error);
         }
 
-        private void GenerateDisconnectError(NetworkConnection conn, int error)
+        private void GenerateDisconnectError(NetworkConnection conn, byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId); }
             GenerateError(conn, error);
         }
 
-        private void GenerateError(NetworkConnection conn, int error)
+        private void GenerateError(NetworkConnection conn, byte error)
         {
             if (handlers.ContainsKey(MsgType.Error))
             {

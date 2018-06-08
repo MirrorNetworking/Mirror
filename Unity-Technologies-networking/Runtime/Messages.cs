@@ -84,16 +84,16 @@ namespace UnityEngine.Networking.NetworkSystem
 
     public class ErrorMessage : MessageBase
     {
-        public int errorCode;
+        public byte errorCode; // byte instead of int because NetworkServer uses byte anyway. saves bandwidth.
 
         public override void Deserialize(NetworkReader reader)
         {
-            errorCode = reader.ReadUInt16();
+            errorCode = reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write((ushort)errorCode);
+            writer.Write(errorCode);
         }
     }
 

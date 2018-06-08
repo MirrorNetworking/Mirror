@@ -796,27 +796,27 @@ namespace UnityEngine.Networking
                 m_Connection.FlushChannels();
         }
 
-        void GenerateConnectError(int error)
+        void GenerateConnectError(byte error)
         {
             if (LogFilter.logError) { Debug.LogError("UNet Client Error Connect Error: " + error); }
             GenerateError(error);
         }
 
-        void GenerateDataError(int error)
+        void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Client Data Error: " + dataError); }
             GenerateError(error);
         }
 
-        void GenerateDisconnectError(int error)
+        void GenerateDisconnectError(byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Client Disconnect Error: " + disconnectError); }
             GenerateError(error);
         }
 
-        void GenerateError(int error)
+        void GenerateError(byte error)
         {
             NetworkMessageDelegate msgDelegate = m_MessageHandlers.GetHandler(MsgType.Error);
             if (msgDelegate == null)
