@@ -380,16 +380,16 @@ namespace UnityEngine.Networking.NetworkSystem
 
     class ObjectSpawnFinishedMessage : MessageBase
     {
-        public uint state;
+        public byte state; // byte because it's always 0 or 1
 
         public override void Deserialize(NetworkReader reader)
         {
-            state = reader.ReadPackedUInt32();
+            state = reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32(state);
+            writer.Write(state);
         }
     }
 
