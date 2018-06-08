@@ -19,9 +19,8 @@ namespace UnityEngine.Networking
         bool m_IsBroken;
         int m_MaxPendingPacketCount;
 
-        const int k_MaxFreePacketCount = 512; //  this is for all connections. maybe make this configurable
-        public const int MaxPendingPacketCount = 16;  // this is per connection. each is around 1400 bytes (MTU)
-        public const int MaxBufferedPackets = 512;
+        const int k_MaxFreePacketCount = 512; //  this is for all connections. maybe make this configurable (this is the pooling size!)
+        public const int MaxBufferedPackets = 512; // this is per connection. each is around 1400 bytes (MTU)
 
         Queue<ChannelPacket> m_PendingPackets;
         static List<ChannelPacket> s_FreePackets;
@@ -56,7 +55,7 @@ namespace UnityEngine.Networking
             m_CurrentPacket = new ChannelPacket(m_MaxPacketSize, isReliable);
 
             m_ChannelId = cid;
-            m_MaxPendingPacketCount = MaxPendingPacketCount;
+            m_MaxPendingPacketCount = MaxBufferedPackets;
             m_IsReliable = isReliable;
             m_AllowFragmentation = (isReliable && isSequenced);
             if (isReliable)

@@ -46,7 +46,7 @@ namespace UnityEngine.Networking
         [SerializeField] int m_SimulatedLatency = 1;
         [SerializeField] float m_PacketLossPercentage;
 
-        [SerializeField] int m_MaxBufferedPackets = ChannelBuffer.MaxPendingPacketCount;
+        [SerializeField] int m_MaxBufferedPackets = ChannelBuffer.MaxBufferedPackets;
         [SerializeField] bool m_AllowFragmentation = true;
 
         // matchmaking configuration
