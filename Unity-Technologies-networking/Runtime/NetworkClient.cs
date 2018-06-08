@@ -295,21 +295,9 @@ namespace UnityEngine.Networking
 
         static bool IsValidIpV6(string address)
         {
-            for (int i = 0; i < address.Length; i++)
-            {
-                var c = address[i];
-                if (
-                    (c == ':') ||
-                    (c >= '0' && c <= '9') ||
-                    (c >= 'a' && c <= 'f') ||
-                    (c >= 'A' && c <= 'F')
-                    )
-                {
-                    continue;
-                }
-                return false;
-            }
-            return true;
+            // use C# built-in method
+            IPAddress temp;
+            return IPAddress.TryParse(address, out temp) && temp.AddressFamily == AddressFamily.InterNetworkV6;
         }
 
         public void Connect(string serverIp, int serverPort)
