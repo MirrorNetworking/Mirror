@@ -728,7 +728,7 @@ namespace UnityEngine.Networking
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + netId); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
             }
         }
 
