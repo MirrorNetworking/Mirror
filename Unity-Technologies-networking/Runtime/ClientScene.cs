@@ -118,7 +118,14 @@ namespace UnityEngine.Networking
             // But, the player structures are not cleaned up, we'll just replace the old player
             var newPlayer = new PlayerController {gameObject = view.gameObject, playerControllerId = playerControllerId, unetView = view};
             s_LocalPlayers[playerControllerId] = newPlayer;
-            s_ReadyConnection.SetPlayerController(newPlayer);
+            if (s_ReadyConnection == null)
+            {
+                if (LogFilter.logWarn) { Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer"); }
+            }
+            else
+            {
+                s_ReadyConnection.SetPlayerController(newPlayer);
+            }
         }
 
         // use this if already ready

@@ -261,18 +261,15 @@ namespace UnityEngine.Networking
             GameObject prefab;
             if (ThisIsAPrefab())
             {
-                if (LogFilter.logDev) { Debug.Log("This is a prefab: " + gameObject.name); }
                 ForceSceneId(0);
                 AssignAssetID(gameObject);
             }
             else if (ThisIsASceneObjectWithPrefabParent(out prefab))
             {
-                if (LogFilter.logDev) { Debug.Log("This is a scene object with prefab link: " + gameObject.name); }
                 AssignAssetID(prefab);
             }
             else
             {
-                if (LogFilter.logDev) { Debug.Log("This is a pure scene object: " + gameObject.name); }
                 m_AssetId.Reset();
             }
         }
