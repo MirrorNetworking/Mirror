@@ -176,7 +176,9 @@ namespace UnityEngine.Networking
 
         public void Disconnect()
         {
-            address = "";
+            // don't clear address so we can still access it in NetworkManager.OnServerDisconnect
+            // => it's reset in Initialize anyway and there is no address empty check anywhere either
+            //address = "";
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
             if (hostId == -1)
