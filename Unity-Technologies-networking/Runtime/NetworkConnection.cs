@@ -144,14 +144,19 @@ namespace UnityEngine.Networking
             m_Disposed = true;
         }
 
-        static bool IsSequencedQoS(QosType qos)
+        public static bool IsSequencedQoS(QosType qos)
         {
             return (qos == QosType.ReliableSequenced || qos == QosType.UnreliableSequenced);
         }
 
-        static bool IsReliableQoS(QosType qos)
+        public static bool IsReliableQoS(QosType qos)
         {
             return (qos == QosType.Reliable || qos == QosType.ReliableFragmented || qos == QosType.ReliableSequenced || qos == QosType.ReliableStateUpdate);
+        }
+
+        public static bool IsUnreliableQoS(QosType qos)
+        {
+            return (qos == QosType.Unreliable || qos == QosType.UnreliableFragmented || qos == QosType.UnreliableSequenced || qos == QosType.StateUpdate);
         }
 
         public bool SetChannelOption(int channelId, ChannelOption option, int value)
