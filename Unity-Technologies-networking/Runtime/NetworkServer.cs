@@ -1307,6 +1307,7 @@ namespace UnityEngine.Networking
             if (uv.serverOnly)
                 return;
 
+            if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
             if (uv.sceneId.IsEmpty())
             {
                 ObjectSpawnMessage msg = new ObjectSpawnMessage();

@@ -600,7 +600,13 @@ namespace UnityEngine.Networking
             NetworkIdentity spawnedId = SpawnSceneObject(s_ObjectSpawnSceneMessage.sceneId);
             if (spawnedId == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Spawn scene object not found for " + s_ObjectSpawnSceneMessage.sceneId); }
+                if (LogFilter.logError)
+                {
+                    Debug.LogError("Spawn scene object not found for " + s_ObjectSpawnSceneMessage.sceneId + " SpawnableObjects.Count=" + s_SpawnableObjects.Count);
+                    // dump the whole spawnable objects dict for easier debugging
+                    foreach (var kvp in s_SpawnableObjects)
+                        Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
+                }
                 return;
             }
 
