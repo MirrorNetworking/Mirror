@@ -1017,9 +1017,16 @@ namespace UnityEngine.Networking
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayersForConnection(conn);
-            if (conn.lastError != NetworkError.Ok)
+
+            // note: timeouts happen all the time, no need to throw an error there.
+            if (conn.lastError == NetworkError.Ok || conn.lastError == NetworkError.Timeout)
             {
-                if (LogFilter.logError) { Debug.LogError("ServerDisconnected due to error: " + conn.lastError); }
+                if (LogFilter.logDebug) { Debug.Log("OnServerDisconnect: client disconnected:" + conn); }
+            }
+            else
+            {
+                // a client disconnected, let's show a message
+                if (LogFilter.logError) { Debug.LogError("OnServerDisconnect: Client disconnected with error: " + conn.lastError); }
             }
         }
 
