@@ -446,13 +446,66 @@ namespace UnityEngine.Networking
             return true;
         }
 
+        // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
+        // -> OnSerialize writes length,componentData,length,componentData,...
+        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
+        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
+        //    -> we can properly track down errors
+        internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        {
+            // serialize into a temporary writer
+            NetworkWriter temp = new NetworkWriter();
+            bool result = false;
+            try
+            {
+                result = comp.OnSerialize(temp, initialState);
+            }
+            catch (Exception e)
+            {
+                // show a detailed error and let the user know what went wrong
+                Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
+            }
+            byte[] bytes = temp.ToArray();
+            if (LogFilter.logDebug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+
+            // serialize length,data into the real writer, untouched by user code
+            writer.WriteBytesAndSize(bytes, bytes.Length); // length,data
+            return result;
+        }
+
+        internal void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
+        {
+            foreach (NetworkBehaviour comp in components)
+            {
+                // extract data length and data safely, untouched by user code
+                // -> returns empty array if length is 0, so .Length is always the proper length
+                byte[] bytes = reader.ReadBytesAndSize();
+                if (LogFilter.logDebug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+
+                // call OnDeserialize with a temporary reader, so that the
+                // original one can't be messed with. we also wrap it in a
+                // try-catch block so there's no way to mess up another
+                // component's deserialization
+                try
+                {
+                    comp.OnDeserialize(new NetworkReader(bytes), initialState);
+                }
+                catch (Exception e)
+                {
+                    // show a detailed error and let the user know what went wrong
+                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + bytes.Length +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
+                }
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////
+
         // happens on server
         internal void UNetSerializeAllVars(NetworkWriter writer)
         {
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
-                comp.OnSerialize(writer, true);
+                OnSerializeSafely(comp, writer, true);
             }
         }
 
@@ -699,11 +752,11 @@ namespace UnityEngine.Networking
                         if (comp.GetDirtyChannel() != channelId)
                         {
                             // component could write more than one dirty-bits, so call the serialize func
-                            comp.OnSerialize(s_UpdateWriter, false);
+                            OnSerializeSafely(comp, s_UpdateWriter, false);
                             continue;
                         }
 
-                        if (comp.OnSerialize(s_UpdateWriter, false))
+                        if (OnSerializeSafely(comp, s_UpdateWriter, false))
                         {
                             comp.ClearAllDirtyBits();
 
@@ -739,25 +792,8 @@ namespace UnityEngine.Networking
             {
                 m_NetworkBehaviours = GetComponents<NetworkBehaviour>();
             }
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-            {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
 
-
-#if UNITY_EDITOR
-                var oldReadPos = reader.Position;
-#endif
-                comp.OnDeserialize(reader, initialState);
-#if UNITY_EDITOR
-                if (reader.Position - oldReadPos > 1)
-                {
-                    //MakeFloatGizmo("Received Vars " + comp.GetType().Name + " bytes:" + (reader.Position - oldReadPos), Color.white);
-                    UnityEditor.NetworkDetailStats.IncrementStat(
-                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        MsgType.UpdateVars, comp.GetType().Name, 1);
-                }
-#endif
-            }
+            OnDeserializeAllSafely(m_NetworkBehaviours, reader, initialState);
         }
 
         internal void SetLocalPlayer(short localPlayerControllerId)
