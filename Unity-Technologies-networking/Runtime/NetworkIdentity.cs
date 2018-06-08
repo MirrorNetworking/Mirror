@@ -741,7 +741,7 @@ namespace UnityEngine.Networking
                     s_UpdateWriter.Write(netId);
 
                     bool wroteData = false;
-                    short oldPos;
+                    int oldPos;
                     for (int i = 0; i < m_NetworkBehaviours.Length; i++)
                     {
                         oldPos = s_UpdateWriter.Position;

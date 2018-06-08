@@ -35,7 +35,20 @@ namespace UnityEngine.Networking
             }
         }
 
-        public short Position { get { return (short)m_Buffer.Position; } }
+        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
+        // 'uint' is exact but we serialize/deserialize array.Lengths often which are int's, so 'int' is easier and big enough too.
+        public int Position 
+        { 
+            get 
+            {
+                // uint to int conversion check. better safe than sorry.
+                if (m_Buffer.Position > Int32.MaxValue)
+                {
+                    if (LogFilter.logError) { Debug.LogError("NetworkWriter.Position exceeds Int32.MaxValue"); }
+                }
+                return (int)m_Buffer.Position; 
+            } 
+        } 
 
         public byte[] ToArray()
         {
