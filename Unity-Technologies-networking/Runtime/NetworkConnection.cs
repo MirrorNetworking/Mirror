@@ -13,7 +13,6 @@ namespace UnityEngine.Networking
     {
         ChannelBuffer[] m_Channels;
         List<PlayerController> m_PlayerControllers = new List<PlayerController>();
-        NetworkMessage m_NetMsg = new NetworkMessage();
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
         NetworkWriter m_Writer;
@@ -465,11 +464,23 @@ namespace UnityEngine.Networking
                 }
                 if (msgDelegate != null)
                 {
-                    m_NetMsg.msgType = msgType;
-                    m_NetMsg.reader = msgReader;
-                    m_NetMsg.conn = this;
-                    m_NetMsg.channelId = channelId;
-                    msgDelegate(m_NetMsg);
+                    // create message here instead of caching it. so we can add it to queue more easily.
+                    NetworkMessage msg = new NetworkMessage();
+                    msg.msgType = msgType;
+                    msg.reader = msgReader;
+                    msg.conn = this;
+                    msg.channelId = channelId;
+
+                    // add to queue while paused, otherwise process directly
+                    if (pauseQueue != null)
+                    {
+                        pauseQueue.Enqueue(msg);
+                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + MsgType.MsgTypeToString(msgType) + " queue size=" + pauseQueue.Count); }
+                    }
+                    else
+                    {
+                        msgDelegate(msg);
+                    }
                     lastMessageTime = Time.time;
 
 #if UNITY_EDITOR
@@ -611,6 +622,35 @@ namespace UnityEngine.Networking
         internal static void OnFragment(NetworkMessage netMsg)
         {
             netMsg.conn.HandleFragment(netMsg.reader, netMsg.channelId);
+        }
+
+        // vis2k: pause mode
+        // problem: if we handle packets (calling the msgDelegates) while a scene load is in progress, then all the
+        //          handled data and state will be lost as soon as the scene load is finished, causing state bugs.
+        // solution: call Pause, message handling keeps messages in a queue, Resume handles them all.
+        //
+        // this is the only safe way to do it. otherwise all delegate functions have to check if a scene is loading,
+        // which is way too complicated and risky.
+        Queue<NetworkMessage> pauseQueue;
+
+        internal void PauseHandling()
+        {
+            pauseQueue = new Queue<NetworkMessage>();
+        }
+
+        internal void ResumeHandling()
+        {
+            // pauseQueue is null if Resume called without pausing, make sure to only do something if paused before.
+            if (pauseQueue != null)
+            {
+                foreach (NetworkMessage msg in pauseQueue)
+                {
+                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + MsgType.MsgTypeToString(msg.msgType)); }
+                    var msgDelegate = m_MessageHandlersDict[msg.msgType];
+                    msgDelegate(msg);
+                }
+                pauseQueue = null;
+            }
         }
     }
 }

@@ -131,7 +131,7 @@ namespace UnityEngine.Networking
         }
 
         // runtime data
-        static public string networkSceneName = "";
+        static public string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
         public bool isNetworkActive;
         public NetworkClient client;
         static List<Transform> s_StartPositions = new List<Transform>();
@@ -706,6 +706,15 @@ namespace UnityEngine.Networking
                 }
             }
 
+            // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
+            // the sate as soon as the load is finishing, causing all kinds of bugs because of missing state.
+            // (client may be null after StopClient etc.)
+            if (client != null)
+            {
+                if (LogFilter.logDebug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
+                client.connection.PauseHandling();
+            }
+
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
             networkSceneName = newSceneName;
         }
@@ -716,6 +725,10 @@ namespace UnityEngine.Networking
 
             if (client != null)
             {
+                // process queued messages that we received while loading the scene
+                if (LogFilter.logDebug) { Debug.Log("FinishLoadScene: resuming handlers after scene was loading."); }
+                client.connection.ResumeHandling();
+
                 if (s_ClientReadyConnection != null)
                 {
                     m_ClientLoadedScene = true;
