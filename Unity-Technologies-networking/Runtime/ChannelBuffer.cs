@@ -120,7 +120,7 @@ namespace UnityEngine.Networking
                     }
                     if (value < 0 || value >= MaxBufferedPackets)
                     {
-                        if (LogFilter.logError) { Debug.LogError("Invalid MaxPendingBuffers for channel " + m_ChannelId + ". Must be greater than zero and less than " + k_MaxFreePacketCount); }
+                        if (LogFilter.logError) { Debug.LogError("Invalid MaxPendingBuffers for channel " + m_ChannelId + ". Must be greater than zero and less than " + MaxBufferedPackets); }
                         return false;
                     }
                     m_MaxPendingPacketCount = value;
