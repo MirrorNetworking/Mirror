@@ -119,19 +119,9 @@ namespace UnityEngine.Networking
         // called hiding and showing objects on the host
         public override void OnSetLocalVisibility(bool vis)
         {
-            SetVis(gameObject, vis);
-        }
-
-        static void SetVis(GameObject go, bool vis)
-        {
-            foreach (var r in go.GetComponents<Renderer>())
+            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
             {
-                r.enabled = vis;
-            }
-            for (int i = 0; i < go.transform.childCount; i++)
-            {
-                var t = go.transform.GetChild(i);
-                SetVis(t.gameObject, vis);
+                rend.enabled = vis;
             }
         }
     }
