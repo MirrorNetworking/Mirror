@@ -43,30 +43,9 @@ namespace UnityEngine.Networking
 
         void OnValidate()
         {
-            if (m_MaxPlayers <= 0)
-            {
-                m_MaxPlayers = 1;
-            }
-
-            if (m_MaxPlayersPerConnection <= 0)
-            {
-                m_MaxPlayersPerConnection = 1;
-            }
-
-            if (m_MaxPlayersPerConnection > maxPlayers)
-            {
-                m_MaxPlayersPerConnection = maxPlayers;
-            }
-
-            if (m_MinPlayers < 0)
-            {
-                m_MinPlayers = 0;
-            }
-
-            if (m_MinPlayers > m_MaxPlayers)
-            {
-                m_MinPlayers = m_MaxPlayers;
-            }
+            m_MaxPlayers = Mathf.Max(m_MaxPlayers, 1); // > 1
+            m_MaxPlayersPerConnection = Mathf.Clamp(m_MaxPlayersPerConnection, 1, maxPlayers); // [1, maxPlayers]
+            m_MinPlayers = Mathf.Clamp(m_MinPlayers, 0, m_MaxPlayers); // [0, maxPlayers]
 
             if (m_LobbyPlayerPrefab != null)
             {
