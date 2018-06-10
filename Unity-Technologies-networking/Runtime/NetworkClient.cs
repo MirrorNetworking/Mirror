@@ -37,9 +37,6 @@ namespace UnityEngine.Networking
 
         EndPoint m_RemoteEndPoint;
 
-        // static message objects to avoid runtime-allocations
-        static CRCMessage s_CRCMessage = new CRCMessage();
-
         NetworkMessageHandlers m_MessageHandlers = new NetworkMessageHandlers();
         protected NetworkConnection m_Connection;
 
@@ -891,8 +888,9 @@ namespace UnityEngine.Networking
 
         void OnCRC(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_CRCMessage);
-            NetworkCRC.Validate(s_CRCMessage.scripts, numChannels);
+            CRCMessage msg = new CRCMessage();
+            netMsg.ReadMessage(msg);
+            NetworkCRC.Validate(msg.scripts, numChannels);
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
