@@ -19,11 +19,9 @@ namespace UnityEngine.Networking
         bool m_IsBroken;
         int m_MaxPendingPacketCount;
 
-        const int k_MaxFreePacketCount = 512; //  this is for all connections. maybe make this configurable (this is the pooling size!)
         public const int MaxBufferedPackets = 512; // this is per connection. each is around 1400 bytes (MTU)
 
         Queue<ChannelPacket> m_PendingPackets;
-        static List<ChannelPacket> s_FreePackets;
         static internal int pendingPacketCount; // this is across all connections. only used for profiler metrics.
 
         // config
@@ -61,10 +59,6 @@ namespace UnityEngine.Networking
             if (isReliable)
             {
                 m_PendingPackets = new Queue<ChannelPacket>();
-                if (s_FreePackets == null)
-                {
-                    s_FreePackets = new List<ChannelPacket>();
-                }
             }
         }
 
@@ -89,16 +83,7 @@ namespace UnityEngine.Networking
                 {
                     if (m_PendingPackets != null)
                     {
-                        while (m_PendingPackets.Count > 0)
-                        {
-                            pendingPacketCount -= 1;
-
-                            ChannelPacket packet = m_PendingPackets.Dequeue();
-                            if (s_FreePackets.Count < k_MaxFreePacketCount)
-                            {
-                                s_FreePackets.Add(packet);
-                            }
-                        }
+                        pendingPacketCount = 0;
                         m_PendingPackets.Clear();
                     }
                 }
@@ -335,41 +320,10 @@ namespace UnityEngine.Networking
         {
             pendingPacketCount += 1;
             m_PendingPackets.Enqueue(m_CurrentPacket);
-            m_CurrentPacket = AllocPacket();
-        }
 
-        ChannelPacket AllocPacket()
-        {
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.SetStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.HLAPIPending, "msg", pendingPacketCount);
-#endif
-            if (s_FreePackets.Count == 0)
-            {
-                return new ChannelPacket(m_MaxPacketSize, m_IsReliable);
-            }
-
-            var packet = s_FreePackets[s_FreePackets.Count - 1];
-            s_FreePackets.RemoveAt(s_FreePackets.Count - 1);
-
-            packet.Reset();
-            return packet;
-        }
-
-        static void FreePacket(ChannelPacket packet)
-        {
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.SetStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.HLAPIPending, "msg", pendingPacketCount);
-#endif
-            if (s_FreePackets.Count >= k_MaxFreePacketCount)
-            {
-                // just discard this packet, already tracking too many free packets
-                return;
-            }
-            s_FreePackets.Add(packet);
+            // create new m_currentPacket so that the one in the queue isn't touched anymore
+            // (calling .Reset would reset it in the queue too)
+            m_CurrentPacket = new ChannelPacket(m_MaxPacketSize, m_IsReliable);
         }
 
         public bool SendInternalBuffer()
@@ -391,7 +345,6 @@ namespace UnityEngine.Networking
                         break;
                     }
                     pendingPacketCount -= 1;
-                    FreePacket(packet);
 
                     if (m_IsBroken && m_PendingPackets.Count < (m_MaxPendingPacketCount / 2))
                     {
