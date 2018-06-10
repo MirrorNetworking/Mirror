@@ -42,26 +42,16 @@ namespace UnityEngine.Networking
         public bool SendToTransport(NetworkConnection conn, int channelId)
         {
             byte error;
-
-            bool result = true;
-            if (!conn.TransportSend(m_Buffer, (ushort)m_Position, channelId, out error))
+            if (conn.TransportSend(m_Buffer, (ushort)m_Position, channelId, out error))
             {
-                if (m_IsReliable && error == (int)NetworkError.NoResources)
-                {
-                    // handled below
-                }
-                else
-                {
-                    if (LogFilter.logError) { Debug.LogError("Failed to send internal buffer channel:" + channelId + " bytesToSend:" + m_Position); }
-                    result = false;
-                }
+                m_Position = 0;
+                return true;
             }
-            if (error != 0)
+            else
             {
-                if (m_IsReliable && error == (int)NetworkError.NoResources)
+                // NoResources and reliable? Then it will be resent, so don't reset position, just return false.
+                if (error == (int)NetworkError.NoResources && m_IsReliable)
                 {
-                    // this packet will be buffered by the containing ChannelBuffer, so this is not an error
-
 #if UNITY_EDITOR
                     UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
@@ -70,11 +60,11 @@ namespace UnityEngine.Networking
                     return false;
                 }
 
-                if (LogFilter.logError) { Debug.LogError("Send Error: " + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + m_Position); }
-                result = false;
+                // otherwise something unexpected happened. log the error, reset position and return.
+                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + m_Position); }
+                m_Position = 0;
+                return false;
             }
-            m_Position = 0;
-            return result;
         }
     }
 }
