@@ -33,9 +33,6 @@ namespace UnityEngine.Networking
         // this is cached here for easy access when checking the size of state update packets in NetworkIdentity
         static internal ushort maxPacketSize;
 
-        // static message objects to avoid runtime-allocations
-        static RemovePlayerMessage s_RemovePlayerMessage = new RemovePlayerMessage();
-
         static public List<NetworkConnection> localConnections { get { return instance.m_LocalConnectionsFakeList; } }
 
         static public int listenPort { get { return instance.m_SimpleServerSimple.listenPort; } }
@@ -1219,18 +1216,19 @@ namespace UnityEngine.Networking
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_RemovePlayerMessage);
+            RemovePlayerMessage msg = new RemovePlayerMessage();
+            netMsg.ReadMessage(msg);
 
             PlayerController player = null;
-            netMsg.conn.GetPlayerController(s_RemovePlayerMessage.playerControllerId, out player);
+            netMsg.conn.GetPlayerController(msg.playerControllerId, out player);
             if (player != null)
             {
-                netMsg.conn.RemovePlayerController(s_RemovePlayerMessage.playerControllerId);
+                netMsg.conn.RemovePlayerController(msg.playerControllerId);
                 Destroy(player.gameObject);
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Received remove player message but could not find the player ID: " + s_RemovePlayerMessage.playerControllerId); }
+                if (LogFilter.logError) { Debug.LogError("Received remove player message but could not find the player ID: " + msg.playerControllerId); }
             }
         }
 
