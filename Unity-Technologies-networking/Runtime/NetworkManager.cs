@@ -214,14 +214,9 @@ namespace UnityEngine.Networking
 
         void OnValidate()
         {
-            if (m_SimulatedLatency < 1) m_SimulatedLatency = 1;
-            if (m_SimulatedLatency > 500) m_SimulatedLatency = 500;
-
-            if (m_PacketLossPercentage < 0) m_PacketLossPercentage = 0;
-            if (m_PacketLossPercentage > 99) m_PacketLossPercentage = 99;
-
-            if (m_MaxConnections <= 0) m_MaxConnections = 1;
-            if (m_MaxConnections > 32000) m_MaxConnections = 32000;
+            m_SimulatedLatency = Mathf.Clamp(m_SimulatedLatency, 1, 500); // [1, 500]
+            m_PacketLossPercentage = Mathf.Clamp(m_PacketLossPercentage, 0, 99); // [0, 99]
+            m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
 
             if (m_MaxBufferedPackets <= 0) m_MaxBufferedPackets = 0;
             if (m_MaxBufferedPackets > ChannelBuffer.MaxBufferedPackets)
