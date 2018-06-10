@@ -5,9 +5,7 @@ using UnityEngine;
 
 namespace UnityEngine.Networking
 {
-    /*
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
-        */
     public class NetworkWriter
     {
         const int k_MaxStringLength = 1024 * 32;
