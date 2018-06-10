@@ -342,10 +342,7 @@ namespace UnityEngine.Networking
 
         internal void OnStartClient()
         {
-            if (!m_IsClient)
-            {
-                m_IsClient = true;
-            }
+            m_IsClient = true;
             CacheBehaviours();
 
             if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
