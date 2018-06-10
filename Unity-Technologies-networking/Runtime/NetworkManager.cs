@@ -27,7 +27,7 @@ namespace UnityEngine.Networking
         [SerializeField] bool m_RunInBackground = true;
         [SerializeField] bool m_ScriptCRCCheck = true;
         [SerializeField] float m_MaxDelay = 0.01f;
-        [SerializeField] LogFilter.FilterLevel m_LogLevel = (LogFilter.FilterLevel)LogFilter.Info;
+        [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
         [SerializeField] bool m_AutoCreatePlayer = true;
         [SerializeField] PlayerSpawnMethod m_PlayerSpawnMethod;
@@ -76,7 +76,7 @@ namespace UnityEngine.Networking
         public bool sendPeerInfo             { get { return false; } set {} }
 
         public float maxDelay                { get { return m_MaxDelay; }  set { m_MaxDelay = value; } }
-        public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = (int)value; } }
+        public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
         public bool autoCreatePlayer         { get { return m_AutoCreatePlayer; } set { m_AutoCreatePlayer = value; } }
         public PlayerSpawnMethod playerSpawnMethod { get { return m_PlayerSpawnMethod; } set { m_PlayerSpawnMethod = value; } }
@@ -179,8 +179,7 @@ namespace UnityEngine.Networking
             }
 
             // do this early
-            var logLevel = (int)m_LogLevel;
-            if (logLevel != LogFilter.SetInScripting)
+            if (logLevel != LogFilter.FilterLevel.SetInScripting)
             {
                 LogFilter.currentLogLevel = logLevel;
             }

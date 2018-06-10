@@ -98,7 +98,7 @@ namespace UnityEditor
 
             if (EditorGUILayout.PropertyField(m_LogLevelProperty))
             {
-                LogFilter.currentLogLevel = (int)m_NetworkManager.logLevel;
+                LogFilter.currentLogLevel = m_NetworkManager.logLevel;
             }
 
             ShowLobbyScenes();

@@ -17,27 +17,14 @@ namespace UnityEngine.Networking
             SetInScripting = -1
         };
 
-        internal const int Developer = 0;
-        internal const int SetInScripting = -1;
+        static public FilterLevel currentLogLevel = FilterLevel.Info;
 
-        public const int Debug = 1;
-        public const int Info = 2;
-        public const int Warn = 3;
-        public const int Error = 4;
-        public const int Fatal = 5;
-
-        [Obsolete("Use LogFilter.currentLogLevel instead")]
-        static public FilterLevel current = FilterLevel.Info;
-
-        static int s_CurrentLogLevel = Info;
-        static public int currentLogLevel { get { return s_CurrentLogLevel; } set { s_CurrentLogLevel = value; } }
-
-        static internal bool logDev { get { return s_CurrentLogLevel <= Developer; } }
-        static public bool logDebug { get { return s_CurrentLogLevel <= Debug; } }
-        static public bool logInfo  { get { return s_CurrentLogLevel <= Info; } }
-        static public bool logWarn  { get { return s_CurrentLogLevel <= Warn; } }
-        static public bool logError  { get { return s_CurrentLogLevel <= Error; } }
-        static public bool logFatal { get { return s_CurrentLogLevel <= Fatal; } }
+        static internal bool logDev { get { return currentLogLevel <= FilterLevel.Developer; } }
+        static public bool logDebug { get { return currentLogLevel <= FilterLevel.Debug; } }
+        static public bool logInfo  { get { return currentLogLevel <= FilterLevel.Info; } }
+        static public bool logWarn  { get { return currentLogLevel <= FilterLevel.Warn; } }
+        static public bool logError  { get { return currentLogLevel <= FilterLevel.Error; } }
+        static public bool logFatal { get { return currentLogLevel <= FilterLevel.Fatal; } }
     }
 }
 #endif //ENABLE_UNET
