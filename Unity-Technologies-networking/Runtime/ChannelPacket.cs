@@ -7,6 +7,10 @@ namespace UnityEngine.Networking
     // Unreliable channels have a single ChannelPacket, Reliable channels have single "current" packet and a list of buffered ChannelPackets
     struct ChannelPacket
     {
+        int m_Position;
+        byte[] m_Buffer;
+        bool m_IsReliable;
+
         public ChannelPacket(int packetSize, bool isReliable)
         {
             m_Position = 0;
@@ -72,10 +76,6 @@ namespace UnityEngine.Networking
             m_Position = 0;
             return result;
         }
-
-        int m_Position;
-        byte[] m_Buffer;
-        bool m_IsReliable;
     }
 }
 #endif //ENABLE_UNET
