@@ -15,11 +15,6 @@ namespace UnityEngine.Networking
         [SerializeField] Animator   m_Animator;
         [SerializeField] uint       m_ParameterSendBits;
 
-        // static message objects to avoid runtime-allocations
-        static AnimationMessage s_AnimationMessage = new AnimationMessage();
-        static AnimationParametersMessage s_AnimationParametersMessage = new AnimationParametersMessage();
-        static AnimationTriggerMessage s_AnimationTriggerMessage = new AnimationTriggerMessage();
-
         // properties
         public Animator animator
         {
@@ -372,11 +367,11 @@ namespace UnityEngine.Networking
 
         static internal void OnAnimationServerMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationMessage);
+            AnimationMessage msg = new AnimationMessage();
+            netMsg.ReadMessage(msg);
+            if (LogFilter.logDev) { Debug.Log("OnAnimationMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
-            if (LogFilter.logDev) { Debug.Log("OnAnimationMessage for netId=" + s_AnimationMessage.netId + " conn=" + netMsg.conn); }
-
-            GameObject go = NetworkServer.FindLocalObject(s_AnimationMessage.netId);
+            GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -384,20 +379,21 @@ namespace UnityEngine.Networking
             NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                NetworkReader reader = new NetworkReader(s_AnimationMessage.parameters);
-                animSync.HandleAnimMsg(s_AnimationMessage, reader);
+                NetworkReader reader = new NetworkReader(msg.parameters);
+                animSync.HandleAnimMsg(msg, reader);
 
-                NetworkServer.SendToReady(go, MsgType.Animation, s_AnimationMessage);
+                NetworkServer.SendToReady(go, MsgType.Animation, msg);
             }
         }
 
         static internal void OnAnimationParametersServerMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationParametersMessage);
+            AnimationParametersMessage msg = new AnimationParametersMessage();
+            netMsg.ReadMessage(msg);
 
-            if (LogFilter.logDev) { Debug.Log("OnAnimationParametersMessage for netId=" + s_AnimationParametersMessage.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.logDev) { Debug.Log("OnAnimationParametersMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
-            GameObject go = NetworkServer.FindLocalObject(s_AnimationParametersMessage.netId);
+            GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -405,19 +401,19 @@ namespace UnityEngine.Networking
             NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                NetworkReader reader = new NetworkReader(s_AnimationParametersMessage.parameters);
-                animSync.HandleAnimParamsMsg(s_AnimationParametersMessage, reader);
-                NetworkServer.SendToReady(go, MsgType.AnimationParameters, s_AnimationParametersMessage);
+                NetworkReader reader = new NetworkReader(msg.parameters);
+                animSync.HandleAnimParamsMsg(msg, reader);
+                NetworkServer.SendToReady(go, MsgType.AnimationParameters, msg);
             }
         }
 
         static internal void OnAnimationTriggerServerMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationTriggerMessage);
+            AnimationTriggerMessage msg = new AnimationTriggerMessage();
+            netMsg.ReadMessage(msg);
+            if (LogFilter.logDev) { Debug.Log("OnAnimationTriggerMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
-            if (LogFilter.logDev) { Debug.Log("OnAnimationTriggerMessage for netId=" + s_AnimationTriggerMessage.netId + " conn=" + netMsg.conn); }
-
-            GameObject go = NetworkServer.FindLocalObject(s_AnimationTriggerMessage.netId);
+            GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -425,9 +421,9 @@ namespace UnityEngine.Networking
             NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                animSync.HandleAnimTriggerMsg(s_AnimationTriggerMessage.hash);
+                animSync.HandleAnimTriggerMsg(msg.hash);
 
-                NetworkServer.SendToReady(go, MsgType.AnimationTrigger, s_AnimationTriggerMessage);
+                NetworkServer.SendToReady(go, MsgType.AnimationTrigger, msg);
             }
         }
 
@@ -435,8 +431,10 @@ namespace UnityEngine.Networking
 
         static internal void OnAnimationClientMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationMessage);
-            GameObject go = ClientScene.FindLocalObject(s_AnimationMessage.netId);
+            AnimationMessage msg = new AnimationMessage();
+            netMsg.ReadMessage(msg);
+
+            GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -444,15 +442,17 @@ namespace UnityEngine.Networking
             var animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                var reader = new NetworkReader(s_AnimationMessage.parameters);
-                animSync.HandleAnimMsg(s_AnimationMessage, reader);
+                var reader = new NetworkReader(msg.parameters);
+                animSync.HandleAnimMsg(msg, reader);
             }
         }
 
         static internal void OnAnimationParametersClientMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationParametersMessage);
-            GameObject go = ClientScene.FindLocalObject(s_AnimationParametersMessage.netId);
+            AnimationParametersMessage msg = new AnimationParametersMessage();
+            netMsg.ReadMessage(msg);
+
+            GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -460,15 +460,17 @@ namespace UnityEngine.Networking
             var animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                var reader = new NetworkReader(s_AnimationParametersMessage.parameters);
-                animSync.HandleAnimParamsMsg(s_AnimationParametersMessage, reader);
+                var reader = new NetworkReader(msg.parameters);
+                animSync.HandleAnimParamsMsg(msg, reader);
             }
         }
 
         static internal void OnAnimationTriggerClientMessage(NetworkMessage netMsg)
         {
-            netMsg.ReadMessage(s_AnimationTriggerMessage);
-            GameObject go = ClientScene.FindLocalObject(s_AnimationTriggerMessage.netId);
+            AnimationTriggerMessage msg = new AnimationTriggerMessage();
+            netMsg.ReadMessage(msg);
+
+            GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
             {
                 return;
@@ -476,7 +478,7 @@ namespace UnityEngine.Networking
             var animSync = go.GetComponent<NetworkAnimator>();
             if (animSync != null)
             {
-                animSync.HandleAnimTriggerMsg(s_AnimationTriggerMessage.hash);
+                animSync.HandleAnimTriggerMsg(msg.hash);
             }
         }
     }
