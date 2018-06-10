@@ -143,11 +143,6 @@ namespace UnityEngine.Networking
         public List<MatchInfoSnapshot> matches;
         public static NetworkManager singleton;
 
-        // static message objects to avoid runtime-allocations
-        static AddPlayerMessage s_AddPlayerMessage = new AddPlayerMessage();
-        static RemovePlayerMessage s_RemovePlayerMessage = new RemovePlayerMessage();
-        static ErrorMessage s_ErrorMessage = new ErrorMessage();
-
         static AsyncOperation s_LoadingSceneAsync;
         static NetworkConnection s_ClientReadyConnection;
 
@@ -894,16 +889,17 @@ namespace UnityEngine.Networking
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnServerAddPlayerMessageInternal"); }
 
-            netMsg.ReadMessage(s_AddPlayerMessage);
+            AddPlayerMessage msg = new AddPlayerMessage();
+            netMsg.ReadMessage(msg);
 
-            if (s_AddPlayerMessage.msgSize != 0)
+            if (msg.msgSize != 0)
             {
-                var reader = new NetworkReader(s_AddPlayerMessage.msgData);
-                OnServerAddPlayer(netMsg.conn, s_AddPlayerMessage.playerControllerId, reader);
+                var reader = new NetworkReader(msg.msgData);
+                OnServerAddPlayer(netMsg.conn, msg.playerControllerId, reader);
             }
             else
             {
-                OnServerAddPlayer(netMsg.conn, s_AddPlayerMessage.playerControllerId);
+                OnServerAddPlayer(netMsg.conn, msg.playerControllerId);
             }
 
 #if ENABLE_UNET_HOST_MIGRATION
@@ -918,12 +914,13 @@ namespace UnityEngine.Networking
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
 
-            netMsg.ReadMessage(s_RemovePlayerMessage);
+            RemovePlayerMessage msg = new RemovePlayerMessage();
+            netMsg.ReadMessage(msg);
 
             PlayerController player;
-            netMsg.conn.GetPlayerController(s_RemovePlayerMessage.playerControllerId, out player);
+            netMsg.conn.GetPlayerController(msg.playerControllerId, out player);
             OnServerRemovePlayer(netMsg.conn, player);
-            netMsg.conn.RemovePlayerController(s_RemovePlayerMessage.playerControllerId);
+            netMsg.conn.RemovePlayerController(msg.playerControllerId);
 
 #if ENABLE_UNET_HOST_MIGRATION
             if (m_MigrationManager != null)
@@ -937,8 +934,9 @@ namespace UnityEngine.Networking
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
-            netMsg.ReadMessage(s_ErrorMessage);
-            OnServerError(netMsg.conn, s_ErrorMessage.errorCode);
+            ErrorMessage msg = new ErrorMessage();
+            netMsg.ReadMessage(msg);
+            OnServerError(netMsg.conn, msg.errorCode);
         }
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
@@ -1005,8 +1003,9 @@ namespace UnityEngine.Networking
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
-            netMsg.ReadMessage(s_ErrorMessage);
-            OnClientError(netMsg.conn, s_ErrorMessage.errorCode);
+            ErrorMessage msg = new ErrorMessage();
+            netMsg.ReadMessage(msg);
+            OnClientError(netMsg.conn, msg.errorCode);
         }
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)
