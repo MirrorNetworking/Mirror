@@ -43,20 +43,7 @@ namespace UnityEngine.Networking
         bool                        m_Reset = false;
         // properties
         public bool isClient        { get { return m_IsClient; } }
-
-        public bool isServer
-        {
-            get
-            {
-                if (!m_IsServer)
-                {
-                    return false;
-                }
-                // if server has stopped, should not still return true here
-                return NetworkServer.active && m_IsServer;
-            }
-        }
-
+        public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
         public NetworkInstanceId netId { get { return m_NetId; } }
