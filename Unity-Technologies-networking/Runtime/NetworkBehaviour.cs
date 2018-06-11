@@ -80,11 +80,7 @@ namespace UnityEngine.Networking
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            if (InvokeCommandDelegate(cmdHash, reader))
-            {
-                return true;
-            }
-            return false;
+            return InvokeCommandDelegate(cmdHash, reader);
         }
 
         // ----------------------------- Client RPCs --------------------------------
@@ -133,11 +129,7 @@ namespace UnityEngine.Networking
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRPC(int cmdHash, NetworkReader reader)
         {
-            if (InvokeRpcDelegate(cmdHash, reader))
-            {
-                return true;
-            }
-            return false;
+            return InvokeRpcDelegate(cmdHash, reader);
         }
 
         // ----------------------------- Sync Events --------------------------------
@@ -164,11 +156,7 @@ namespace UnityEngine.Networking
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncEvent(int cmdHash, NetworkReader reader)
         {
-            if (InvokeSyncEventDelegate(cmdHash, reader))
-            {
-                return true;
-            }
-            return false;
+            return InvokeSyncEventDelegate(cmdHash, reader);
         }
 
         // ----------------------------- Sync Lists --------------------------------
@@ -176,11 +164,7 @@ namespace UnityEngine.Networking
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncList(int cmdHash, NetworkReader reader)
         {
-            if (InvokeSyncListDelegate(cmdHash, reader))
-            {
-                return true;
-            }
-            return false;
+            return InvokeSyncListDelegate(cmdHash, reader);
         }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
@@ -204,9 +188,7 @@ namespace UnityEngine.Networking
 
             public string DebugString()
             {
-                return invokeType + ":" +
-                    invokeClass + ":" +
-                    invokeFunction.GetMethodName();
+                return invokeType + ":" + invokeClass + ":" + invokeFunction.GetMethodName();
             }
         };
 
@@ -464,7 +446,7 @@ namespace UnityEngine.Networking
                 return cmdHash.ToString();
             }
             Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            var name = inv.invokeFunction.GetMethodName();
+            string name = inv.invokeFunction.GetMethodName();
 
             int index = name.IndexOf(prefix);
             if (index > -1)
@@ -534,17 +516,9 @@ namespace UnityEngine.Networking
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
-            bool changed = false;
-            if (value == null)
-            {
-                if (fieldValue != null)
-                    changed = true;
-            }
-            else
-            {
-                changed = !value.Equals(fieldValue);
-            }
-            if (changed)
+            // newly initialized or changed value?
+            if ((value == null && fieldValue != null) ||
+                (value != null && !value.Equals(fieldValue)))
             {
                 if (LogFilter.logDev) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
                 SetDirtyBit(dirtyBit);
