@@ -130,8 +130,6 @@ namespace UnityEngine.Networking
             return new NetworkInstanceId(s_NextNetworkId++);
         }
 
-        static NetworkWriter s_UpdateWriter = new NetworkWriter();
-
         void CacheBehaviours()
         {
             if (m_NetworkBehaviours == null)
@@ -702,23 +700,24 @@ namespace UnityEngine.Networking
             {
                 if ((dirtyChannelBits & (uint)(1 << channelId)) != 0)
                 {
-                    s_UpdateWriter.StartMessage(MsgType.UpdateVars);
-                    s_UpdateWriter.Write(netId);
+                    NetworkWriter writer = new NetworkWriter();
+                    writer.StartMessage(MsgType.UpdateVars);
+                    writer.Write(netId);
 
                     bool wroteData = false;
                     int oldPos;
                     for (int i = 0; i < m_NetworkBehaviours.Length; i++)
                     {
-                        oldPos = s_UpdateWriter.Position;
+                        oldPos = writer.Position;
                         NetworkBehaviour comp = m_NetworkBehaviours[i];
                         if (comp.GetDirtyChannel() != channelId)
                         {
                             // component could write more than one dirty-bits, so call the serialize func
-                            OnSerializeSafely(comp, s_UpdateWriter, false);
+                            OnSerializeSafely(comp, writer, false);
                             continue;
                         }
 
-                        if (OnSerializeSafely(comp, s_UpdateWriter, false))
+                        if (OnSerializeSafely(comp, writer, false))
                         {
                             comp.ClearAllDirtyBits();
 
@@ -730,9 +729,9 @@ namespace UnityEngine.Networking
 
                             wroteData = true;
                         }
-                        if (s_UpdateWriter.Position - oldPos > NetworkServer.maxPacketSize)
+                        if (writer.Position - oldPos > NetworkServer.maxPacketSize)
                         {
-                            if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + (s_UpdateWriter.Position - oldPos) + " bytes for netId:" + netId + " from script:" + comp); }
+                            if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + (writer.Position - oldPos) + " bytes for netId:" + netId + " from script:" + comp); }
                         }
                     }
 
@@ -742,8 +741,8 @@ namespace UnityEngine.Networking
                         continue;
                     }
 
-                    s_UpdateWriter.FinishMessage();
-                    NetworkServer.SendWriterToReady(gameObject, s_UpdateWriter, channelId);
+                    writer.FinishMessage();
+                    NetworkServer.SendWriterToReady(gameObject, writer, channelId);
                 }
             }
         }
