@@ -93,10 +93,7 @@ namespace UnityEngine.Networking
 
         public bool isConnected { get { return m_AsyncConnect == ConnectState.Connected; }}
 
-        public Type networkConnectionClass
-        {
-            get { return m_NetworkConnectionClass; }
-        }
+        public Type networkConnectionClass { get { return m_NetworkConnectionClass; } }
 
         public void SetNetworkConnectionClass<T>() where T : NetworkConnection
         {
@@ -306,7 +303,7 @@ namespace UnityEngine.Networking
             string hostnameOrIp = serverIp;
             m_ServerPort = serverPort;
 
-            if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
                 m_ServerIp = hostnameOrIp;
                 m_AsyncConnect = ConnectState.Resolved;
@@ -415,11 +412,7 @@ namespace UnityEngine.Networking
 
             if (m_UseSimulator)
             {
-                int minTimeout = (m_SimulatedLatency / 3) - 1;
-                if (minTimeout < 1)
-                {
-                    minTimeout = 1;
-                }
+                int minTimeout = Mathf.Max((m_SimulatedLatency / 3) - 1, 1);
                 int maxTimeout = m_SimulatedLatency * 3;
 
                 if (LogFilter.logDebug) { Debug.Log("AddHost Using Simulator " + minTimeout + "/" + maxTimeout); }
@@ -465,11 +458,7 @@ namespace UnityEngine.Networking
             // regular non-relay connect
             if (m_UseSimulator)
             {
-                int simLatency = m_SimulatedLatency / 3;
-                if (simLatency < 1)
-                {
-                    simLatency = 1;
-                }
+                int simLatency = Mathf.Max(m_SimulatedLatency / 3, 1);
 
                 if (LogFilter.logDebug) { Debug.Log("Connect Using Simulator " + (m_SimulatedLatency / 3) + "/" + m_SimulatedLatency); }
                 var simConfig = new ConnectionSimulatorConfig(
