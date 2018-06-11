@@ -10,35 +10,20 @@ namespace UnityEngine.Networking
         NetBuffer m_buf;
 
         const int k_MaxStringLength = 1024 * 32;
-        const int k_InitialStringBufferSize = 1024;
-        static byte[] s_StringReaderBuffer;
-        static Encoding s_Encoding;
 
         public NetworkReader()
         {
             m_buf = new NetBuffer();
-            Initialize();
         }
 
         public NetworkReader(NetworkWriter writer)
         {
             m_buf = new NetBuffer(writer.AsArray());
-            Initialize();
         }
 
         public NetworkReader(byte[] buffer)
         {
             m_buf = new NetBuffer(buffer);
-            Initialize();
-        }
-
-        static void Initialize()
-        {
-            if (s_Encoding == null)
-            {
-                s_StringReaderBuffer = new byte[k_InitialStringBufferSize];
-                s_Encoding = new UTF8Encoding();
-            }
         }
 
         public uint Position { get { return m_buf.Position; } }
@@ -296,14 +281,12 @@ namespace UnityEngine.Networking
                 throw new IndexOutOfRangeException("ReadString() too long: " + numBytes);
             }
 
-            while (numBytes > s_StringReaderBuffer.Length)
-            {
-                s_StringReaderBuffer = new byte[s_StringReaderBuffer.Length * 2];
-            }
+            Encoding encoding = new UTF8Encoding();
+            byte[] stringReaderBuffer = new byte[numBytes];
 
-            m_buf.ReadBytes(s_StringReaderBuffer, numBytes);
+            m_buf.ReadBytes(stringReaderBuffer, numBytes);
 
-            char[] chars = s_Encoding.GetChars(s_StringReaderBuffer, 0, numBytes);
+            char[] chars = encoding.GetChars(stringReaderBuffer, 0, numBytes);
             return new string(chars);
         }
 
