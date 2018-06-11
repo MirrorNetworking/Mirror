@@ -286,8 +286,7 @@ namespace UnityEngine.Networking
 
             m_buf.ReadBytes(stringReaderBuffer, numBytes);
 
-            char[] chars = encoding.GetChars(stringReaderBuffer, 0, numBytes);
-            return new string(chars);
+            return encoding.GetString(stringReaderBuffer);
         }
 
         public char ReadChar()
