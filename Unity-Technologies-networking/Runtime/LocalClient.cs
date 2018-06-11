@@ -145,10 +145,7 @@ namespace UnityEngine.Networking
             m_InternalMsgs.Clear();
 
             // add any newly generated msgs in m_InternalMsgs2 and clear it
-            for (int ii = 0; ii < m_InternalMsgs2.Count; ii++)
-            {
-                m_InternalMsgs.Add(m_InternalMsgs2[ii]);
-            }
+            m_InternalMsgs.AddRange(m_InternalMsgs2);
             m_InternalMsgs2.Clear();
         }
 
