@@ -65,13 +65,6 @@ namespace UnityEngine.Networking
         public int serverPort { get { return m_ServerPort; } }
         public NetworkConnection connection { get { return m_Connection; } }
 
-#if ENABLE_UNET_HOST_MIGRATION
-        [Obsolete("Moved to NetworkMigrationManager.")]
-#else
-        [Obsolete("Removed")]
-#endif
-        public PeerInfoMessage[] peers { get { return null; } }
-
         internal int hostId { get { return m_ClientId; } }
         public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers.GetHandlers(); } }
         public int numChannels { get { return m_HostTopology.DefaultConfig.ChannelCount; } }

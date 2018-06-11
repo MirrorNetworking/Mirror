@@ -73,9 +73,6 @@ namespace UnityEngine.Networking
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
         public bool scriptCRCCheck           { get { return m_ScriptCRCCheck; } set { m_ScriptCRCCheck = value;  }}
 
-        [Obsolete("moved to NetworkMigrationManager")]
-        public bool sendPeerInfo             { get { return false; } set {} }
-
         public float maxDelay                { get { return m_MaxDelay; }  set { m_MaxDelay = value; } }
         public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
