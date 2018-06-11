@@ -144,17 +144,12 @@ namespace UnityEngine.Networking
 
         static internal bool GetPrefab(NetworkHash128 assetId, out GameObject prefab)
         {
-            if (!assetId.IsValid())
+            prefab = null;
+            if (assetId.IsValid() && guidToPrefab.ContainsKey(assetId) && guidToPrefab[assetId] != null)
             {
-                prefab = null;
-                return false;
-            }
-            if (s_GuidToPrefab.ContainsKey(assetId) && s_GuidToPrefab[assetId] != null)
-            {
-                prefab = s_GuidToPrefab[assetId];
+                prefab = guidToPrefab[assetId];
                 return true;
             }
-            prefab = null;
             return false;
         }
 
