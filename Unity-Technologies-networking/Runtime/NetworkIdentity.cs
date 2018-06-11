@@ -120,19 +120,14 @@ namespace UnityEngine.Networking
         {
             get
             {
-                if (m_Observers == null)
-                    return null;
-
-                return new ReadOnlyCollection<NetworkConnection>(m_Observers);
+                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers) : null;
             }
         }
 
         static uint s_NextNetworkId = 1;
         static internal NetworkInstanceId GetNextNetworkId()
         {
-            uint newId = s_NextNetworkId;
-            s_NextNetworkId += 1;
-            return new NetworkInstanceId(newId);
+            return new NetworkInstanceId(s_NextNetworkId++);
         }
 
         static NetworkWriter s_UpdateWriter = new NetworkWriter();
@@ -300,11 +295,7 @@ namespace UnityEngine.Networking
             }
             else
             {
-                if (allowNonZeroNetId)
-                {
-                    //allowed
-                }
-                else
+                if (!allowNonZeroNetId)
                 {
                     if (LogFilter.logError) { Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject); }
                     return;
@@ -506,25 +497,15 @@ namespace UnityEngine.Networking
         bool GetInvokeComponent(int cmdHash, Type invokeClass, out NetworkBehaviour invokeComponent)
         {
             // dont use GetComponent(), already have a list - avoids an allocation
-            NetworkBehaviour foundComp = null;
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-            {
-                var comp = m_NetworkBehaviours[i];
-                if (comp.GetType() == invokeClass || comp.GetType().IsSubclassOf(invokeClass))
-                {
-                    // found matching class
-                    foundComp = comp;
-                    break;
-                }
-            }
-            if (foundComp == null)
+            invokeComponent = Array.Find(m_NetworkBehaviours,
+                comp => comp.GetType() == invokeClass || comp.GetType().IsSubclassOf(invokeClass)
+            );
+            if (invokeComponent == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
                 if (LogFilter.logError) { Debug.LogError("Found no behaviour for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
-                invokeComponent = null;
                 return false;
             }
-            invokeComponent = foundComp;
             return true;
         }
 
@@ -816,9 +797,7 @@ namespace UnityEngine.Networking
 
         internal void OnNetworkDestroy()
         {
-            for (int i = 0;
-                 m_NetworkBehaviours != null && i < m_NetworkBehaviours.Length;
-                 i++)
+            for (int i = 0; m_NetworkBehaviours != null && i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
                 comp.OnNetworkDestroy();
@@ -833,8 +812,7 @@ namespace UnityEngine.Networking
                 int count = m_Observers.Count;
                 for (int i = 0; i < count; i++)
                 {
-                    var c = m_Observers[i];
-                    c.RemoveFromVisList(this, true);
+                    m_Observers[i].RemoveFromVisList(this, true);
                 }
                 m_Observers.Clear();
                 m_ObserverConnections.Clear();
@@ -897,16 +875,14 @@ namespace UnityEngine.Networking
                     for (int i = 0; i < NetworkServer.connections.Count; i++)
                     {
                         var conn = NetworkServer.connections[i];
-                        if (conn == null) continue;
-                        if (conn.isReady)
+                        if (conn != null && conn.isReady)
                             AddObserver(conn);
                     }
 
                     for (int i = 0; i < NetworkServer.localConnections.Count; i++)
                     {
                         var conn = NetworkServer.localConnections[i];
-                        if (conn == null) continue;
-                        if (conn.isReady)
+                        if (conn != null && conn.isReady)
                             AddObserver(conn);
                     }
                 }
@@ -959,16 +935,16 @@ namespace UnityEngine.Networking
                 }
             }
 
-            if (!changed)
-                return;
-
-            m_Observers = new List<NetworkConnection>(newObservers);
-
-            // rebuild hashset once we have the final set of new observers
-            m_ObserverConnections.Clear();
-            for (int i = 0; i < m_Observers.Count; i++)
+            if (changed)
             {
-                m_ObserverConnections.Add(m_Observers[i].connectionId);
+                m_Observers = new List<NetworkConnection>(newObservers);
+
+                // rebuild hashset once we have the final set of new observers
+                m_ObserverConnections.Clear();
+                for (int i = 0; i < m_Observers.Count; i++)
+                {
+                    m_ObserverConnections.Add(m_Observers[i].connectionId);
+                }
             }
         }
 
@@ -1098,7 +1074,6 @@ namespace UnityEngine.Networking
         {
             NetworkManager.OnDomainReload();
         }
-
 #endif
 
         // this is invoked by the UnityEngine
