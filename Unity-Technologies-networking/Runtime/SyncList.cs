@@ -18,18 +18,6 @@ namespace UnityEngine.Networking
             return reader.ReadString();
         }
 
-        [System.Obsolete("ReadReference is now used instead")]
-        static public SyncListString ReadInstance(NetworkReader reader)
-        {
-            ushort count = reader.ReadUInt16();
-            var result = new SyncListString();
-            for (ushort i = 0; i < count; i++)
-            {
-                result.AddInternal(reader.ReadString());
-            }
-            return result;
-        }
-
         static public void ReadReference(NetworkReader reader, SyncListString syncList)
         {
             ushort count = reader.ReadUInt16();
@@ -62,18 +50,6 @@ namespace UnityEngine.Networking
             return reader.ReadSingle();
         }
 
-        [System.Obsolete("ReadReference is now used instead")]
-        static public SyncListFloat ReadInstance(NetworkReader reader)
-        {
-            ushort count = reader.ReadUInt16();
-            var result = new SyncListFloat();
-            for (ushort i = 0; i < count; i++)
-            {
-                result.AddInternal(reader.ReadSingle());
-            }
-            return result;
-        }
-
         static public void ReadReference(NetworkReader reader, SyncListFloat syncList)
         {
             ushort count = reader.ReadUInt16();
@@ -104,18 +80,6 @@ namespace UnityEngine.Networking
         protected override int DeserializeItem(NetworkReader reader)
         {
             return (int)reader.ReadPackedUInt32();
-        }
-
-        [System.Obsolete("ReadReference is now used instead")]
-        static public SyncListInt ReadInstance(NetworkReader reader)
-        {
-            ushort count = reader.ReadUInt16();
-            var result = new SyncListInt();
-            for (ushort i = 0; i < count; i++)
-            {
-                result.AddInternal((int)reader.ReadPackedUInt32());
-            }
-            return result;
         }
 
         static public void ReadReference(NetworkReader reader, SyncListInt syncList)
@@ -151,18 +115,6 @@ namespace UnityEngine.Networking
             return reader.ReadPackedUInt32();
         }
 
-        [System.Obsolete("ReadReference is now used instead")]
-        static public SyncListUInt ReadInstance(NetworkReader reader)
-        {
-            ushort count = reader.ReadUInt16();
-            var result = new SyncListUInt();
-            for (ushort i = 0; i < count; i++)
-            {
-                result.AddInternal(reader.ReadPackedUInt32());
-            }
-            return result;
-        }
-
         static public void ReadReference(NetworkReader reader, SyncListUInt syncList)
         {
             ushort count = reader.ReadUInt16();
@@ -193,18 +145,6 @@ namespace UnityEngine.Networking
         protected override bool DeserializeItem(NetworkReader reader)
         {
             return reader.ReadBoolean();
-        }
-
-        [System.Obsolete("ReadReference is now used instead")]
-        static public SyncListBool ReadInstance(NetworkReader reader)
-        {
-            ushort count = reader.ReadUInt16();
-            var result = new SyncListBool();
-            for (ushort i = 0; i < count; i++)
-            {
-                result.AddInternal(reader.ReadBoolean());
-            }
-            return result;
         }
 
         static public void ReadReference(NetworkReader reader, SyncListBool syncList)
