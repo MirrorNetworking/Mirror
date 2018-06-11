@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Linq;
 using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
@@ -66,7 +67,7 @@ namespace UnityEngine.Networking
         // properties
         public int networkPort               { get { return m_NetworkPort; } set { m_NetworkPort = value; } }
         public bool serverBindToIP           { get { return m_ServerBindToIP; } set { m_ServerBindToIP = value; }}
-        public string serverBindAddress  { get { return m_ServerBindAddress; } set { m_ServerBindAddress = value; }}
+        public string serverBindAddress      { get { return m_ServerBindAddress; } set { m_ServerBindAddress = value; }}
         public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
         public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
@@ -111,22 +112,15 @@ namespace UnityEngine.Networking
         {
             get
             {
-                int numPlayers = 0;
-                for (int i = 0; i < NetworkServer.connections.Count; i++)
+                int amount = 0;
+                foreach (NetworkConnection conn in NetworkServer.connections)
                 {
-                    var conn = NetworkServer.connections[i];
-                    if (conn == null)
-                        continue;
-
-                    for (int ii = 0; ii < conn.playerControllers.Count; ii++)
+                    if (conn != null)
                     {
-                        if (conn.playerControllers[ii].IsValid)
-                        {
-                            numPlayers += 1;
-                        }
+                        amount += conn.playerControllers.Count(pc => pc.IsValid);
                     }
                 }
-                return numPlayers;
+                return amount;
             }
         }
 
@@ -162,7 +156,6 @@ namespace UnityEngine.Networking
         {
             s_PendingSingleton = this;
         }
-
 #endif
 
         void Awake()
@@ -202,6 +195,7 @@ namespace UnityEngine.Networking
                 singleton = this;
             }
 
+            // persistent network address between scene changes
             if (m_NetworkAddress != "")
             {
                 s_Address = m_NetworkAddress;
@@ -276,7 +270,6 @@ namespace UnityEngine.Networking
         {
             m_MigrationManager = man;
         }
-
 #endif
 
         public bool StartServer(ConnectionConfig config, int maxConnections)
@@ -444,7 +437,7 @@ namespace UnityEngine.Networking
 
             if (config != null)
             {
-                if ((config.UsePlatformSpecificProtocols) && (UnityEngine.Application.platform != RuntimePlatform.PS4) && (UnityEngine.Application.platform != RuntimePlatform.PSP2))
+                if ((config.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
                     throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
 
                 client.Configure(config, 1);
@@ -458,7 +451,7 @@ namespace UnityEngine.Networking
                     {
                         m_ConnectionConfig.AddChannel(m_Channels[i]);
                     }
-                    if ((m_ConnectionConfig.UsePlatformSpecificProtocols) && (UnityEngine.Application.platform != RuntimePlatform.PS4) && (UnityEngine.Application.platform != RuntimePlatform.PSP2))
+                    if ((m_ConnectionConfig.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
                         throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
                     client.Configure(m_ConnectionConfig, m_MaxConnections);
                 }
@@ -578,7 +571,7 @@ namespace UnityEngine.Networking
         public void StopHost()
         {
 #if ENABLE_UNET_HOST_MIGRATION
-            var serverWasActive = NetworkServer.active;
+            bool serverWasActive = NetworkServer.active;
 #endif
             OnStopHost();
 
@@ -760,7 +753,7 @@ namespace UnityEngine.Networking
                 var uvs = FindObjectsOfType<NetworkIdentity>();
                 foreach (var uv in uvs)
                 {
-                    GameObject.Destroy(uv.gameObject);
+                    Destroy(uv.gameObject);
                 }
 
                 singleton.StopHost();
@@ -1093,14 +1086,7 @@ namespace UnityEngine.Networking
         public Transform GetStartPosition()
         {
             // first remove any dead transforms
-            if (s_StartPositions.Count > 0)
-            {
-                for (int i = s_StartPositions.Count - 1; i >= 0; i--)
-                {
-                    if (s_StartPositions[i] == null)
-                        s_StartPositions.RemoveAt(i);
-                }
-            }
+            s_StartPositions.RemoveAll(t => t == null);
 
             if (m_PlayerSpawnMethod == PlayerSpawnMethod.Random && s_StartPositions.Count > 0)
             {
@@ -1175,29 +1161,14 @@ namespace UnityEngine.Networking
             // always become ready.
             ClientScene.Ready(conn);
 
-            if (!m_AutoCreatePlayer)
+            // vis2k: replaced all this weird code with something more simple
+            if (m_AutoCreatePlayer)
             {
-                return;
-            }
-
-            bool addPlayer = (ClientScene.localPlayers.Count == 0);
-            bool foundPlayer = false;
-            for (int i = 0; i < ClientScene.localPlayers.Count; i++)
-            {
-                if (ClientScene.localPlayers[i].gameObject != null)
+                // add player if all existing ones are null (or if list is empty, then .All returns true)
+                if (ClientScene.localPlayers.All(pc => pc.gameObject == null))
                 {
-                    foundPlayer = true;
-                    break;
+                    ClientScene.AddPlayer(0);
                 }
-            }
-            if (!foundPlayer)
-            {
-                // there are players, but their game objects have all been deleted
-                addPlayer = true;
-            }
-            if (addPlayer)
-            {
-                ClientScene.AddPlayer(0);
             }
         }
 
@@ -1236,11 +1207,7 @@ namespace UnityEngine.Networking
             {
                 newHost = "localhost";
             }
-            string prefix = "http://";
-            if (https)
-            {
-                prefix = "https://";
-            }
+            string prefix = https ? "https://" : "http://";
 
             if (newHost.StartsWith("http://"))
             {
