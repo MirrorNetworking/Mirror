@@ -70,14 +70,8 @@ namespace UnityEngine.Networking
 
         Byte FindSlot()
         {
-            for (byte i = 0; i < maxPlayers; i++)
-            {
-                if (lobbySlots[i] == null)
-                {
-                    return i;
-                }
-            }
-            return Byte.MaxValue;
+            int index = Array.FindIndex(lobbySlots, sl => sl == null);
+            return index != -1 ? (byte)index : Byte.MaxValue;
         }
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
@@ -129,20 +123,10 @@ namespace UnityEngine.Networking
 
         static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
         {
-            int countPlayers = 0;
-            for (int i = 0; i < conn.playerControllers.Count; i++)
-            {
-                var player = conn.playerControllers[i];
-                if (player.IsValid)
-                {
-                    var lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
-                    if (lobbyPlayer.readyToBegin)
-                    {
-                        countPlayers += 1;
-                    }
-                }
-            }
-            return countPlayers;
+            return conn.playerControllers.Count(
+                pc => pc.IsValid &&
+                pc.gameObject.GetComponent<NetworkLobbyPlayer>().readyToBegin
+            );
         }
 
         public void CheckReadyToBegin()
@@ -159,12 +143,11 @@ namespace UnityEngine.Networking
             for (int i = 0; i < NetworkServer.connections.Count; i++)
             {
                 var conn = NetworkServer.connections[i];
-
-                if (conn == null)
-                    continue;
-
-                playerCount += 1;
-                readyCount += CheckConnectionIsReadyToBegin(conn);
+                if (conn != null)
+                {
+                    playerCount += 1;
+                    readyCount += CheckConnectionIsReadyToBegin(conn);
+                }
             }
             if (m_MinPlayers > 0 && readyCount < m_MinPlayers)
             {
@@ -198,11 +181,11 @@ namespace UnityEngine.Networking
             for (int i = 0; i < lobbySlots.Length; i++)
             {
                 var player = lobbySlots[i];
-                if (player == null)
-                    continue;
-
-                player.readyToBegin = false;
-                player.OnClientEnterLobby();
+                if (player != null)
+                {
+                    player.readyToBegin = false;
+                    player.OnClientEnterLobby();
+                }
             }
         }
 
@@ -212,23 +195,22 @@ namespace UnityEngine.Networking
             for (int i = 0; i < lobbySlots.Length; i++)
             {
                 var player = lobbySlots[i];
-                if (player == null)
-                    continue;
-
-                player.OnClientExitLobby();
+                if (player != null)
+                {
+                    player.OnClientExitLobby();
+                }
             }
         }
 
         public bool SendReturnToLobby()
         {
-            if (client == null || !client.isConnected)
+            if (client != null && client.isConnected)
             {
-                return false;
+                var msg = new EmptyMessage();
+                client.Send(MsgType.LobbyReturnToLobby, msg);
+                return true;
             }
-
-            var msg = new EmptyMessage();
-            client.Send(MsgType.LobbyReturnToLobby, msg);
-            return true;
+            return false;
         }
 
         // ------------------------ server handlers ------------------------
@@ -274,13 +256,13 @@ namespace UnityEngine.Networking
             for (int i = 0; i < lobbySlots.Length; i++)
             {
                 var player = lobbySlots[i];
-                if (player == null)
-                    continue;
-
-                if (player.connectionToClient == conn)
+                if (player != null)
                 {
-                    lobbySlots[i] = null;
-                    NetworkServer.Destroy(player.gameObject);
+                    if (player.connectionToClient == conn)
+                    {
+                        lobbySlots[i] = null;
+                        NetworkServer.Destroy(player.gameObject);
+                    }
                 }
             }
 
@@ -296,19 +278,12 @@ namespace UnityEngine.Networking
             }
 
             // check MaxPlayersPerConnection
-            int numPlayersForConnection = 0;
-            for (int i = 0; i < conn.playerControllers.Count; i++)
-            {
-                if (conn.playerControllers[i].IsValid)
-                    numPlayersForConnection += 1;
-            }
-
+            int numPlayersForConnection = conn.playerControllers.Count(pc => pc.IsValid);
             if (numPlayersForConnection >= maxPlayersPerConnection)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("NetworkLobbyManager no more players for this connection."); }
 
-                var errorMsg = new EmptyMessage();
-                conn.Send(MsgType.LobbyAddPlayerFailed, errorMsg);
+                conn.Send(MsgType.LobbyAddPlayerFailed, new EmptyMessage());
                 return;
             }
 
@@ -317,8 +292,7 @@ namespace UnityEngine.Networking
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("NetworkLobbyManager no space for more players"); }
 
-                var errorMsg = new EmptyMessage();
-                conn.Send(MsgType.LobbyAddPlayerFailed, errorMsg);
+                conn.Send(MsgType.LobbyAddPlayerFailed, new EmptyMessage());
                 return;
             }
 
@@ -366,23 +340,23 @@ namespace UnityEngine.Networking
                 for (int i = 0; i < lobbySlots.Length; i++)
                 {
                     var lobbyPlayer = lobbySlots[i];
-                    if (lobbyPlayer == null)
-                        continue;
-
-                    // find the game-player object for this connection, and destroy it
-                    var uv = lobbyPlayer.GetComponent<NetworkIdentity>();
-
-                    PlayerController playerController;
-                    if (uv.connectionToClient.GetPlayerController(uv.playerControllerId, out playerController))
+                    if (lobbyPlayer != null)
                     {
-                        NetworkServer.Destroy(playerController.gameObject);
-                    }
+                        // find the game-player object for this connection, and destroy it
+                        var uv = lobbyPlayer.GetComponent<NetworkIdentity>();
 
-                    if (NetworkServer.active)
-                    {
-                        // re-add the lobby object
-                        lobbyPlayer.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(uv.connectionToClient, lobbyPlayer.gameObject, uv.playerControllerId);
+                        PlayerController playerController;
+                        if (uv.connectionToClient.GetPlayerController(uv.playerControllerId, out playerController))
+                        {
+                            NetworkServer.Destroy(playerController.gameObject);
+                        }
+
+                        if (NetworkServer.active)
+                        {
+                            // re-add the lobby object
+                            lobbyPlayer.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
+                            NetworkServer.ReplacePlayerForConnection(uv.connectionToClient, lobbyPlayer.gameObject, uv.playerControllerId);
+                        }
                     }
                 }
             }
@@ -412,7 +386,7 @@ namespace UnityEngine.Networking
             netMsg.ReadMessage(msg);
 
             PlayerController lobbyController;
-            if (!netMsg.conn.GetPlayerController((short)msg.slotId, out lobbyController))
+            if (!netMsg.conn.GetPlayerController(msg.slotId, out lobbyController))
             {
                 if (LogFilter.logError) { Debug.LogError("NetworkLobbyManager OnServerReadyToBeginMessage invalid playerControllerId " + msg.slotId); }
                 return;
