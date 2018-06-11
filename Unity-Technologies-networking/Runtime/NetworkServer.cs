@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
@@ -246,14 +247,14 @@ namespace UnityEngine.Networking
             // setup server objects
             foreach (var uv in ClientScene.objects.Values)
             {
-                if (uv == null || uv.gameObject == null)
-                    continue;
+                if (uv != null && uv.gameObject != null)
+                {
+                    NetworkIdentity.AddNetworkId(uv.netId.Value);
 
-                NetworkIdentity.AddNetworkId(uv.netId.Value);
-
-                //NOTE: have to pass false to isServer here so that onStartServer sets object up properly.
-                m_NetworkScene.SetLocalObject(uv.netId, uv.gameObject, false, false);
-                uv.OnStartServer(true);
+                    //NOTE: have to pass false to isServer here so that onStartServer sets object up properly.
+                    m_NetworkScene.SetLocalObject(uv.netId, uv.gameObject, false, false);
+                    uv.OnStartServer(true);
+                }
             }
 
             // reset the client peer info(?)
@@ -318,14 +319,8 @@ namespace UnityEngine.Networking
 
         internal void RemoveLocalClient(NetworkConnection localClientConnection)
         {
-            for (int i = 0; i < m_LocalConnectionsFakeList.Count; ++i)
-            {
-                if (m_LocalConnectionsFakeList[i].connectionId == localClientConnection.connectionId)
-                {
-                    m_LocalConnectionsFakeList.RemoveAt(i);
-                    break;
-                }
-            }
+            m_LocalConnectionsFakeList.RemoveAll(conn => conn.connectionId == localClientConnection.connectionId);
+
 
             if (m_LocalConnection != null)
             {
@@ -380,24 +375,22 @@ namespace UnityEngine.Networking
             return result;
         }
 
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
         static bool SendToObservers(GameObject contextObj, short msgType, MessageBase msg)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
-            bool result = true;
             var uv = contextObj.GetComponent<NetworkIdentity>();
-            if (uv == null || uv.observers == null)
-                return false;
-
-            int count = uv.observers.Count;
-            for (int i = 0; i < count; i++)
+            if (uv != null && uv.observers != null)
             {
-                var conn = uv.observers[i];
-                result &= conn.Send(msgType, msg);
+                bool result = true;
+                for (int i = 0; i < uv.observers.Count; ++i)
+                {
+                    var conn = uv.observers[i];
+                    result &= conn.Send(msgType, msg);
+                }
+                return result;
             }
-            return result;
+            return false;
         }
 
         static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
@@ -417,21 +410,21 @@ namespace UnityEngine.Networking
                 return true;
             }
 
-            bool result = true;
             var uv = contextObj.GetComponent<NetworkIdentity>();
-            if (uv == null || uv.observers == null)
-                return false;
-
-            int count = uv.observers.Count;
-            for (int i = 0; i < count; i++)
+            if (uv != null && uv.observers != null)
             {
-                var conn = uv.observers[i];
-                if (!conn.isReady)
-                    continue;
-
-                result &= conn.Send(msgType, msg);
+                bool result = true;
+                for (int i = 0; i < uv.observers.Count; ++i)
+                {
+                    var conn = uv.observers[i];
+                    if (conn.isReady)
+                    {
+                        result &= conn.Send(msgType, msg);
+                    }
+                }
+                return result;
             }
-            return result;
+            return false;
         }
 
         static public void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
@@ -471,16 +464,15 @@ namespace UnityEngine.Networking
             try
             {
                 bool success = true;
-                int count = uv.observers.Count;
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < uv.observers.Count; ++i)
                 {
                     var conn = uv.observers[i];
-                    if (!conn.isReady)
-                        continue;
-
-                    if (!conn.SendBytes(buffer, numBytes, channelId))
+                    if (conn.isReady)
                     {
-                        success = false;
+                        if (!conn.SendBytes(buffer, numBytes, channelId))
+                        {
+                            success = false;
+                        }
                     }
                 }
                 if (!success)
@@ -500,15 +492,15 @@ namespace UnityEngine.Networking
             for (int i = 0; i < connections.Count; i++)
             {
                 var conn = connections[i];
-                if (conn == null)
-                    continue;
-
-                for (int j = 0; j < conn.playerControllers.Count; j++)
+                if (conn != null)
                 {
-                    if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
+                    for (int j = 0; j < conn.playerControllers.Count; j++)
                     {
-                        conn.SendBytes(buffer, numBytes, channelId);
-                        break;
+                        if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
+                        {
+                            conn.SendBytes(buffer, numBytes, channelId);
+                            break;
+                        }
                     }
                 }
             }
@@ -552,10 +544,10 @@ namespace UnityEngine.Networking
             for (int i = 0; i < count; i++)
             {
                 var conn = uv.observers[i];
-                if (!conn.isReady)
-                    continue;
-
-                result &= conn.SendUnreliable(msgType, msg);
+                if (conn.isReady)
+                {
+                    result &= conn.SendUnreliable(msgType, msg);
+                }
             }
             return result;
         }
@@ -599,10 +591,10 @@ namespace UnityEngine.Networking
             for (int i = 0; i < count; i++)
             {
                 var conn = uv.observers[i];
-                if (!conn.isReady)
-                    continue;
-
-                result &= conn.SendByChannel(msgType, msg, channelId);
+                if (conn.isReady)
+                {
+                    result &= conn.SendByChannel(msgType, msg, channelId);
+                }
             }
             return result;
         }
@@ -685,13 +677,10 @@ namespace UnityEngine.Networking
         {
             conn.InvokeHandlerNoData(MsgType.Disconnect);
 
-            for (int i = 0; i < conn.playerControllers.Count; i++)
+            if (conn.playerControllers.Any(pc => pc.gameObject != null))
             {
-                if (conn.playerControllers[i].gameObject != null)
-                {
-                    //NOTE: should there be default behaviour here to destroy the associated player?
-                    if (LogFilter.logWarn) { Debug.LogWarning("Player not destroyed when connection disconnected."); }
-                }
+                //NOTE: should there be default behaviour here to destroy the associated player?
+                if (LogFilter.logWarn) { Debug.LogWarning("Player not destroyed when connection disconnected."); }
             }
 
             if (LogFilter.logDebug) { Debug.Log("Server lost client:" + conn.connectionId); }
@@ -1229,17 +1218,10 @@ namespace UnityEngine.Networking
             }
 
             // Commands can be for player objects, OR other objects with client-authority
-            bool foundOwner = false;
-            for (int i = 0; i < netMsg.conn.playerControllers.Count; i++)
-            {
-                var p = netMsg.conn.playerControllers[i];
-                if (p.gameObject != null && p.gameObject.GetComponent<NetworkIdentity>().netId == uv.netId)
-                {
-                    foundOwner = true;
-                    break;
-                }
-            }
-            if (!foundOwner)
+            // => check if there is no owner
+            if (!netMsg.conn.playerControllers.Any(
+                pc => pc.gameObject != null &&
+                pc.gameObject.GetComponent<NetworkIdentity>().netId == uv.netId))
             {
                 if (uv.clientAuthorityOwner != netMsg.conn)
                 {
@@ -1464,12 +1446,10 @@ namespace UnityEngine.Networking
 
         static public void Spawn(GameObject obj)
         {
-            if (!VerifyCanSpawn(obj))
+            if (VerifyCanSpawn(obj))
             {
-                return;
+                instance.SpawnObject(obj);
             }
-
-            instance.SpawnObject(obj);
         }
 
         static bool CheckForPrefab(GameObject obj)
@@ -1546,17 +1526,15 @@ namespace UnityEngine.Networking
 
         static public void Spawn(GameObject obj, NetworkHash128 assetId)
         {
-            if (!VerifyCanSpawn(obj))
+            if (VerifyCanSpawn(obj))
             {
-                return;
+                NetworkIdentity id;
+                if (GetNetworkIdentity(obj, out id))
+                {
+                    id.SetDynamicAssetId(assetId);
+                }
+                instance.SpawnObject(obj);
             }
-
-            NetworkIdentity id;
-            if (GetNetworkIdentity(obj, out id))
-            {
-                id.SetDynamicAssetId(assetId);
-            }
-            instance.SpawnObject(obj);
         }
 
         static public void Destroy(GameObject obj)
