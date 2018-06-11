@@ -10,27 +10,15 @@ namespace UnityEngine.Networking
     {
         const int k_MaxStringLength = 1024 * 32;
         NetBuffer m_Buffer;
-        static Encoding s_Encoding;
-        static byte[] s_StringWriteBuffer;
 
         public NetworkWriter()
         {
             m_Buffer = new NetBuffer();
-            if (s_Encoding == null)
-            {
-                s_Encoding = new UTF8Encoding();
-                s_StringWriteBuffer = new byte[k_MaxStringLength];
-            }
         }
 
         public NetworkWriter(byte[] buffer)
         {
             m_Buffer = new NetBuffer(buffer);
-            if (s_Encoding == null)
-            {
-                s_Encoding = new UTF8Encoding();
-                s_StringWriteBuffer = new byte[k_MaxStringLength];
-            }
         }
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
@@ -300,7 +288,10 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            int len = s_Encoding.GetByteCount(value);
+            Encoding encoding = new UTF8Encoding();
+            byte[] stringWriteBuffer = new byte[k_MaxStringLength];
+
+            int len = encoding.GetByteCount(value);
 
             if (len >= k_MaxStringLength)
             {
@@ -308,8 +299,8 @@ namespace UnityEngine.Networking
             }
 
             Write((ushort)(len));
-            int numBytes = s_Encoding.GetBytes(value, 0, value.Length, s_StringWriteBuffer, 0);
-            m_Buffer.WriteBytes(s_StringWriteBuffer, (ushort)numBytes);
+            int numBytes = encoding.GetBytes(value, 0, value.Length, stringWriteBuffer, 0);
+            m_Buffer.WriteBytes(stringWriteBuffer, (ushort)numBytes);
         }
 
         public void Write(bool value)
