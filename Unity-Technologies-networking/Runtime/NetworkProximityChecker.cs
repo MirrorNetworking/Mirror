@@ -48,21 +48,15 @@ namespace UnityEngine.Networking
                 return false;
 
             // this cant use newObserver.playerControllers[0]. must iterate to find a valid player.
-            GameObject player = null;
-            for (int i = 0; i < newObserver.playerControllers.Count; i++)
+            PlayerController controller = newObserver.playerControllers.Find(
+                pc => pc != null && pc.gameObject != null
+            );
+            if (controller != null)
             {
-                var p = newObserver.playerControllers[i];
-                if (p != null && p.gameObject != null)
-                {
-                    player = p.gameObject;
-                    break;
-                }
+                GameObject player = controller.gameObject;
+                return Vector3.Distance(player.transform.position, transform.position) < visRange;
             }
-            if (player == null)
-                return false;
-
-            var pos = player.transform.position;
-            return (pos - transform.position).magnitude < visRange;
+            return false;
         }
 
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
