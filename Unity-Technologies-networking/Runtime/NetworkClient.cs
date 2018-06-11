@@ -803,16 +803,12 @@ namespace UnityEngine.Networking
                 msg.errorCode = error;
 
                 // write the message to a local buffer
-                byte[] errorBuffer = new byte[200];
-                NetworkWriter writer = new NetworkWriter(errorBuffer);
+                NetworkWriter writer = new NetworkWriter();
                 msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(errorBuffer);
 
                 NetworkMessage netMsg = new NetworkMessage();
                 netMsg.msgType = MsgType.Error;
-                netMsg.reader = reader;
+                netMsg.reader = new NetworkReader(writer.ToArray());
                 netMsg.conn = m_Connection;
                 netMsg.channelId = 0;
                 msgDelegate(netMsg);
