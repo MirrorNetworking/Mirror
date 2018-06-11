@@ -113,7 +113,7 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = (short)reader.ReadUInt16();
+            playerControllerId = reader.ReadInt16();
             msgData = reader.ReadBytesAndSize();
             if (msgData == null)
             {
@@ -127,7 +127,7 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write((ushort)playerControllerId);
+            writer.Write(playerControllerId);
             writer.WriteBytesAndSize(msgData, msgSize);
         }
     }
@@ -138,12 +138,12 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = (short)reader.ReadUInt16();
+            playerControllerId = reader.ReadInt16();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write((ushort)playerControllerId);
+            writer.Write(playerControllerId);
         }
     }
 
@@ -195,15 +195,12 @@ namespace UnityEngine.Networking.NetworkSystem
             uint numPlayers = reader.ReadPackedUInt32();
             if (numPlayers > 0)
             {
-                List<PeerInfoPlayer> ids = new List<PeerInfoPlayer>();
-                for (uint i = 0; i < numPlayers; i++)
+                playerIds = new PeerInfoPlayer[numPlayers];
+                for (int i = 0; i < playerIds.Length; ++i)
                 {
-                    PeerInfoPlayer info;
-                    info.netId = reader.ReadNetworkId();
-                    info.playerControllerId = (short)reader.ReadPackedUInt32();
-                    ids.Add(info);
+                    playerIds[i].netId = reader.ReadNetworkId();
+                    playerIds[i].playerControllerId = (short)reader.ReadPackedUInt32();
                 }
-                playerIds = ids.ToArray();
             }
         }
 
@@ -243,7 +240,7 @@ namespace UnityEngine.Networking.NetworkSystem
         public override void Deserialize(NetworkReader reader)
         {
             oldServerConnectionId = (int)reader.ReadPackedUInt32();
-            int numPeers = reader.ReadUInt16();
+            ushort numPeers = reader.ReadUInt16();
             peers = new PeerInfoMessage[numPeers];
             for (int i = 0; i < peers.Length; ++i)
             {
@@ -332,8 +329,8 @@ namespace UnityEngine.Networking.NetworkSystem
         public NetworkInstanceId netId;
         public NetworkHash128 assetId;
         public Vector3 position;
-        public byte[] payload;
         public Quaternion rotation;
+        public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
         {
@@ -488,18 +485,14 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(netId);
             writer.WritePackedUInt32((uint)stateHash);
             writer.Write(normalizedTime);
-
-            if (parameters == null)
-                writer.WriteBytesAndSize(parameters, 0);
-            else
-                writer.WriteBytesAndSize(parameters, parameters.Length);
+            writer.WriteBytesAndSize(parameters, parameters != null ? parameters.Length : 0);
         }
     }
 
     class AnimationParametersMessage : MessageBase
     {
         public NetworkInstanceId netId;
-        public byte[]   parameters;
+        public byte[] parameters;
 
         public override void Deserialize(NetworkReader reader)
         {
@@ -510,18 +503,14 @@ namespace UnityEngine.Networking.NetworkSystem
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(netId);
-
-            if (parameters == null)
-                writer.WriteBytesAndSize(parameters, 0);
-            else
-                writer.WriteBytesAndSize(parameters, parameters.Length);
+            writer.WriteBytesAndSize(parameters, parameters != null ? parameters.Length : 0);
         }
     }
 
     class AnimationTriggerMessage : MessageBase
     {
         public NetworkInstanceId netId;
-        public int      hash;
+        public int hash;
 
         public override void Deserialize(NetworkReader reader)
         {
@@ -570,10 +559,8 @@ namespace UnityEngine.Networking.NetworkSystem
             scripts = new CRCMessageEntry[numScripts];
             for (int i = 0; i < scripts.Length; ++i)
             {
-                var entry = new CRCMessageEntry();
-                entry.name = reader.ReadString();
-                entry.channel = reader.ReadByte();
-                scripts[i] = entry;
+                scripts[i].name = reader.ReadString();
+                scripts[i].channel = reader.ReadByte();
             }
         }
 
