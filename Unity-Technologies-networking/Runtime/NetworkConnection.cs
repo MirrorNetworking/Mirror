@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace UnityEngine.Networking
 {
@@ -15,7 +16,7 @@ namespace UnityEngine.Networking
         List<PlayerController> m_PlayerControllers = new List<PlayerController>();
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
-        NetworkWriter m_Writer;
+        NetworkWriter m_Writer = new NetworkWriter();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlersDict;
         NetworkMessageHandlers m_MessageHandlers;
@@ -82,7 +83,7 @@ namespace UnityEngine.Networking
             int numChannels = hostTopology.DefaultConfig.ChannelCount;
             int packetSize = hostTopology.DefaultConfig.PacketSize;
 
-            if ((hostTopology.DefaultConfig.UsePlatformSpecificProtocols) && (UnityEngine.Application.platform != RuntimePlatform.PS4) && (UnityEngine.Application.platform != RuntimePlatform.PSP2))
+            if ((hostTopology.DefaultConfig.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
                 throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
 
             m_Channels = new ChannelBuffer[numChannels];
@@ -167,11 +168,6 @@ namespace UnityEngine.Networking
                 return false;
 
             return m_Channels[channelId].SetOption(option, value);
-        }
-
-        public NetworkConnection()
-        {
-            m_Writer = new NetworkWriter();
         }
 
         public void Disconnect()
@@ -294,20 +290,8 @@ namespace UnityEngine.Networking
         // Get player controller from connection's list
         internal bool GetPlayerController(short playerControllerId, out PlayerController playerController)
         {
-            playerController = null;
-            if (playerControllers.Count > 0)
-            {
-                for (int i = 0; i < playerControllers.Count; i++)
-                {
-                    if (playerControllers[i].IsValid && playerControllers[i].playerControllerId == playerControllerId)
-                    {
-                        playerController = playerControllers[i];
-                        return true;
-                    }
-                }
-                return false;
-            }
-            return false;
+            playerController = playerControllers.Find(pc => pc.IsValid && pc.playerControllerId == playerControllerId);
+            return playerController != null;
         }
 
         public void FlushChannels()
@@ -419,21 +403,14 @@ namespace UnityEngine.Networking
 #endif
         }
 
-        protected void HandleBytes(
-            byte[] buffer,
-            int receivedSize,
-            int channelId)
+        protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
             // build the stream form the buffer passed in
             NetworkReader reader = new NetworkReader(buffer);
-
             HandleReader(reader, receivedSize, channelId);
         }
 
-        protected void HandleReader(
-            NetworkReader reader,
-            int receivedSize,
-            int channelId)
+        protected void HandleReader(NetworkReader reader, int receivedSize, int channelId)
         {
             // read until size is reached.
             // NOTE: stream.Capacity is 1300, NOT the size of the available data
