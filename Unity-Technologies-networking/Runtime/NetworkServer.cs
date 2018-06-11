@@ -26,9 +26,6 @@ namespace UnityEngine.Networking
         ServerSimpleWrapper m_SimpleServerSimple;
 
         float m_MaxDelay = 0.1f;
-        HashSet<NetworkInstanceId> m_RemoveList;
-        int m_RemoveListCount;
-        const int k_RemoveListInterval = 100;
 
         // this is cached here for easy access when checking the size of state update packets in NetworkIdentity
         static internal ushort maxPacketSize;
@@ -93,7 +90,6 @@ namespace UnityEngine.Networking
         {
             NetworkTransport.Init();
             if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
-            m_RemoveList = new HashSet<NetworkInstanceId>();
             m_ExternalConnections = new HashSet<int>();
             m_NetworkScene = new NetworkScene();
             m_SimpleServerSimple = new ServerSimpleWrapper(this);
@@ -639,45 +635,25 @@ namespace UnityEngine.Networking
 
         void UpdateServerObjects()
         {
-            foreach (var uv in objects.Values)
+            // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
+            // probably even slower than removing null entries each time (hence less iterations next time).
+            List<NetworkInstanceId> remove = new List<NetworkInstanceId>();
+            foreach (var kvp in objects)
             {
-                try
+                if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
-                    uv.UNetUpdate();
+                    kvp.Value.UNetUpdate();
                 }
-                catch (NullReferenceException)
+                else
                 {
-                    //ignore nulls here.. they will be cleaned up by CheckForNullObjects below
-                }
-                catch (MissingReferenceException)
-                {
-                    //ignore missing ref here.. they will be cleaned up by CheckForNullObjects below
+                    remove.Add(kvp.Key); 
                 }
             }
 
-            // check for nulls in this list every N updates. doing it every frame is expensive and unneccessary
-            if (m_RemoveListCount++ % k_RemoveListInterval == 0)
-                CheckForNullObjects();
-        }
-
-        void CheckForNullObjects()
-        {
-            // cant iterate through Values here, since we need the keys of null objects to add to remove list.
-            foreach (var k in objects.Keys)
+            // now remove
+            foreach (NetworkInstanceId key in remove)
             {
-                var uv = objects[k];
-                if (uv == null || uv.gameObject == null)
-                {
-                    m_RemoveList.Add(k);
-                }
-            }
-            if (m_RemoveList.Count > 0)
-            {
-                foreach (var remove in m_RemoveList)
-                {
-                    objects.Remove(remove);
-                }
-                m_RemoveList.Clear();
+                objects.Remove(key);
             }
         }
 
