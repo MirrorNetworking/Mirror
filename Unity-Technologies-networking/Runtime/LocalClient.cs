@@ -5,8 +5,6 @@ namespace UnityEngine.Networking
 {
     sealed class LocalClient : NetworkClient
     {
-        const int k_InitialFreeMessagePoolSize = 64;
-
         struct InternalMsg
         {
             internal byte[] buffer;
@@ -15,7 +13,6 @@ namespace UnityEngine.Networking
 
         List<InternalMsg> m_InternalMsgs = new List<InternalMsg>();
         List<InternalMsg> m_InternalMsgs2 = new List<InternalMsg>();
-        Stack<InternalMsg> m_FreeMessages;
 
         NetworkServer m_LocalServer;
         bool m_Connected;
@@ -35,16 +32,6 @@ namespace UnityEngine.Networking
 
         internal void InternalConnectLocalServer(bool generateConnectMsg)
         {
-            if (m_FreeMessages == null)
-            {
-                m_FreeMessages = new Stack<InternalMsg>();
-                for (int i = 0; i < k_InitialFreeMessagePoolSize; i++)
-                {
-                    InternalMsg msg = new InternalMsg();
-                    m_FreeMessages.Push(msg);
-                }
-            }
-
             m_LocalServer = NetworkServer.instance;
             m_Connection = new ULocalConnectionToServer(m_LocalServer);
             SetHandlers(m_Connection);
@@ -84,15 +71,7 @@ namespace UnityEngine.Networking
 
         private void PostInternalMessage(byte[] buffer, int channelId)
         {
-            InternalMsg msg;
-            if (m_FreeMessages.Count == 0)
-            {
-                msg = new InternalMsg(); // grow forever?
-            }
-            else
-            {
-                msg = m_FreeMessages.Pop();
-            }
+            InternalMsg msg = new InternalMsg();
             msg.buffer = buffer;
             msg.channelId = channelId;
             m_InternalMsgs.Add(msg);
@@ -136,7 +115,6 @@ namespace UnityEngine.Networking
                 s_InternalMessage.msgType = s_InternalMessage.reader.ReadInt16();
 
                 m_Connection.InvokeHandler(s_InternalMessage);
-                m_FreeMessages.Push(msg);
                 connection.lastMessageTime = Time.time;
             }
 
