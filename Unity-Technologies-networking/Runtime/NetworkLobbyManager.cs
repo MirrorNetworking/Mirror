@@ -68,10 +68,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        Byte FindSlot()
+        int FindSlot()
         {
-            int index = Array.FindIndex(lobbySlots, sl => sl == null);
-            return index != -1 ? (byte)index : Byte.MaxValue;
+            return Array.FindIndex(lobbySlots, sl => sl == null);
         }
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
@@ -287,8 +286,9 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            byte slot = FindSlot();
-            if (slot == Byte.MaxValue)
+            // find empty slot and make sure that it's within byte range for packet
+            int slot = FindSlot();
+            if (slot == -1 || slot > byte.MaxValue)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("NetworkLobbyManager no space for more players"); }
 
@@ -303,7 +303,7 @@ namespace UnityEngine.Networking
             }
 
             var newLobbyPlayer = newLobbyGameObject.GetComponent<NetworkLobbyPlayer>();
-            newLobbyPlayer.slot = slot;
+            newLobbyPlayer.slot = (byte)slot;
             lobbySlots[slot] = newLobbyPlayer;
 
             NetworkServer.AddPlayerForConnection(conn, newLobbyGameObject, playerControllerId);
