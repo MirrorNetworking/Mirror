@@ -260,14 +260,14 @@ namespace UnityEngine.Networking
 
         public float ReadSingle()
         {
-            uint value = ReadUInt32();
-            return FloatConversion.ToSingle(value);
+            byte[] bytes = ReadBytes(sizeof(float));
+            return BitConverter.ToSingle(bytes, 0);
         }
 
         public double ReadDouble()
         {
-            ulong value = ReadUInt64();
-            return FloatConversion.ToDouble(value);
+            byte[] bytes = ReadBytes(sizeof(double));
+            return BitConverter.ToDouble(bytes, 0);
         }
 
         public string ReadString()

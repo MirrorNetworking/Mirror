@@ -188,61 +188,6 @@ namespace UnityEngine.Networking
             return String.Format("NetBuf sz:{0} pos:{1}", m_Buffer.Length, m_Pos);
         }
     } // end NetBuffer
-
-    // -- helpers for float conversion --
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct UIntFloat
-    {
-        [FieldOffset(0)]
-        public float floatValue;
-
-        [FieldOffset(0)]
-        public uint intValue;
-
-        [FieldOffset(0)]
-        public double doubleValue;
-
-        [FieldOffset(0)]
-        public ulong longValue;
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct UIntDecimal
-    {
-        [FieldOffset(0)]
-        public ulong longValue1;
-
-        [FieldOffset(8)]
-        public ulong longValue2;
-
-        [FieldOffset(0)]
-        public decimal decimalValue;
-    }
-
-    internal class FloatConversion
-    {
-        public static float ToSingle(uint value)
-        {
-            UIntFloat uf = new UIntFloat();
-            uf.intValue = value;
-            return uf.floatValue;
-        }
-
-        public static double ToDouble(ulong value)
-        {
-            UIntFloat uf = new UIntFloat();
-            uf.longValue = value;
-            return uf.doubleValue;
-        }
-
-        public static decimal ToDecimal(ulong value1, ulong value2)
-        {
-            UIntDecimal uf = new UIntDecimal();
-            uf.longValue1 = value1;
-            uf.longValue2 = value2;
-            return uf.decimalValue;
-        }
-    }
 }
 
 #endif

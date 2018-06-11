@@ -257,18 +257,16 @@ namespace UnityEngine.Networking
                 (byte)((value >> 56) & 0xff));
         }
 
-        static UIntFloat s_FloatConverter;
-
         public void Write(float value)
         {
-            s_FloatConverter.floatValue = value;
-            Write(s_FloatConverter.intValue);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Write(bytes, bytes.Length);
         }
 
         public void Write(double value)
         {
-            s_FloatConverter.doubleValue = value;
-            Write(s_FloatConverter.longValue);
+            byte[] bytes = BitConverter.GetBytes(value);
+            Write(bytes, bytes.Length);
         }
 
         public void Write(decimal value)
