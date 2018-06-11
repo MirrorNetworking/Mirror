@@ -139,9 +139,6 @@ namespace UnityEngine.Networking
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            // dirty flag
-            writer.WritePackedUInt32(1);
-
             writer.Write(m_Slot);
             writer.Write(m_ReadyToBegin);
             return true;
@@ -149,10 +146,6 @@ namespace UnityEngine.Networking
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            var dirty = reader.ReadPackedUInt32();
-            if (dirty == 0)
-                return;
-
             m_Slot = reader.ReadByte();
             m_ReadyToBegin = reader.ReadBoolean();
         }
