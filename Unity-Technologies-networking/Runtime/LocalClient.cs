@@ -16,7 +16,6 @@ namespace UnityEngine.Networking
 
         NetworkServer m_LocalServer;
         bool m_Connected;
-        NetworkMessage s_InternalMessage = new NetworkMessage();
 
         public override void Disconnect()
         {
@@ -101,20 +100,14 @@ namespace UnityEngine.Networking
             for (int i = 0; i < tmp.Count; i++)
             {
                 var msg = tmp[i];
-                if (s_InternalMessage.reader == null)
-                {
-                    s_InternalMessage.reader = new NetworkReader(msg.buffer);
-                }
-                else
-                {
-                    s_InternalMessage.reader.Replace(msg.buffer);
-                }
-                s_InternalMessage.reader.ReadInt16(); //size
-                s_InternalMessage.channelId = msg.channelId;
-                s_InternalMessage.conn = connection;
-                s_InternalMessage.msgType = s_InternalMessage.reader.ReadInt16();
+                NetworkMessage internalMessage = new NetworkMessage();
+                internalMessage.reader = new NetworkReader(msg.buffer);
+                internalMessage.reader.ReadInt16(); //size
+                internalMessage.channelId = msg.channelId;
+                internalMessage.conn = connection;
+                internalMessage.msgType = internalMessage.reader.ReadInt16();
 
-                m_Connection.InvokeHandler(s_InternalMessage);
+                m_Connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
             }
 
