@@ -254,7 +254,7 @@ namespace UnityEngine.Networking
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 MsgType.HLAPIMsg, "msg", 1);
 #endif
-            if (bytesToSend >= UInt16.MaxValue)
+            if (bytesToSend > UInt16.MaxValue)
             {
                 if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
                 return false;

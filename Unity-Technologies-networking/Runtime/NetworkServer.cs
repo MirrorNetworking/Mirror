@@ -443,7 +443,7 @@ namespace UnityEngine.Networking
 
         static public void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
         {
-            if (writer.AsArraySegment().Count > short.MaxValue)
+            if (writer.Position > UInt16.MaxValue)
             {
                 throw new UnityException("NetworkWriter used buffer is too big!");
             }
