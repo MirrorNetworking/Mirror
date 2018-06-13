@@ -1375,7 +1375,7 @@ namespace UnityEngine.Networking
         {
             if (conn.playerControllers.Count == 0)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Empty player list given to NetworkServer.Destroy(), nothing to do."); }
+                // list is empty if players are still in a lobby etc., no need to show a warning
                 return;
             }
 
