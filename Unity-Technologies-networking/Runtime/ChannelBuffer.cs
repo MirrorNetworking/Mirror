@@ -40,9 +40,6 @@ namespace UnityEngine.Networking
         public int numBufferedPerSecond { get; private set; }
         public int lastBufferedPerSecond { get; private set; }
 
-        static NetworkWriter s_SendWriter = new NetworkWriter();
-        static NetworkWriter s_FragmentWriter = new NetworkWriter();
-
         // We need to reserve some space for header information, this will be taken off the total channel buffer size
         const int k_PacketHeaderReserveSize = 100;
 
@@ -170,12 +167,13 @@ namespace UnityEngine.Networking
         public bool Send(short msgType, MessageBase msg)
         {
             // build the stream
-            s_SendWriter.StartMessage(msgType);
-            msg.Serialize(s_SendWriter);
-            s_SendWriter.FinishMessage();
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage(msgType);
+            msg.Serialize(writer);
+            writer.FinishMessage();
 
             numMsgsOut += 1;
-            return SendWriter(s_SendWriter);
+            return SendWriter(writer);
         }
 
         internal NetBuffer fragmentBuffer = new NetBuffer();
@@ -213,21 +211,24 @@ namespace UnityEngine.Networking
                 byte[] buffer = new byte[diff];
                 Array.Copy(bytes, pos, buffer, 0, diff);
 
-                s_FragmentWriter.StartMessage(MsgType.Fragment);
-                s_FragmentWriter.Write((byte)0);
-                s_FragmentWriter.WriteBytesFull(buffer);
-                s_FragmentWriter.FinishMessage();
-                SendWriter(s_FragmentWriter);
+                // send fragment
+                NetworkWriter fragmentWriter = new NetworkWriter();
+                fragmentWriter.StartMessage(MsgType.Fragment);
+                fragmentWriter.Write((byte)0);
+                fragmentWriter.WriteBytesFull(buffer);
+                fragmentWriter.FinishMessage();
+                SendWriter(fragmentWriter);
 
                 pos += diff;
                 bytesToSend -= diff;
             }
 
             // send finish
-            s_FragmentWriter.StartMessage(MsgType.Fragment);
-            s_FragmentWriter.Write((byte)1);
-            s_FragmentWriter.FinishMessage();
-            SendWriter(s_FragmentWriter);
+            NetworkWriter finishWriter = new NetworkWriter();
+            finishWriter.StartMessage(MsgType.Fragment);
+            finishWriter.Write((byte)1);
+            finishWriter.FinishMessage();
+            SendWriter(finishWriter);
 
             return true;
         }
