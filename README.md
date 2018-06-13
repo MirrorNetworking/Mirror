@@ -1,6 +1,6 @@
-# HLAPI Pro by vis2k
+# HLAPI Community Edition by vis2k
 About, Usage Guide, Dll Download, Changelog, Forum:
-https://forum.unity3d.com/threads/unet-hlapi-pro-taking-unet-to-the-next-level.425437/
+https://forum.unity.com/threads/unet-hlapi-community-edition.425437/
 
 Original HLAPI Source:
 https://bitbucket.org/Unity-Technologies/networking
