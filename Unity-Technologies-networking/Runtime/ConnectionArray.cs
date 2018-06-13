@@ -1,6 +1,7 @@
 #if ENABLE_UNET
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UnityEngine.Networking
 {
@@ -68,11 +69,7 @@ namespace UnityEngine.Networking
         // call this if the connection may not exist (in disconnect handler)
         public NetworkConnection GetUnsafe(int connId)
         {
-            if (connId < 0 || connId >= m_Connections.Count)
-            {
-                return null;
-            }
-            return m_Connections[connId];
+            return (0 <= connId && connId < connections.Count) ? m_Connections[connId] : null;
         }
 
         public void Remove(int connId)
@@ -83,7 +80,7 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            if (connId < 0 || connId >= m_Connections.Count)
+            if (connId >= m_Connections.Count)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("ConnectionArray Remove invalid index " + connId); }
                 return;
@@ -108,15 +105,9 @@ namespace UnityEngine.Networking
             for (int i = LocalIndex; i < m_Connections.Count; i++)
             {
                 conn = Get(i);
-                if (conn != null)
+                if (conn != null && conn.playerControllers.Any(pc => pc.IsValid && pc.gameObject == player))
                 {
-                    for (int j = 0; j < conn.playerControllers.Count; j++)
-                    {
-                        if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
             return false;
