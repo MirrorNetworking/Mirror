@@ -228,12 +228,7 @@ namespace UnityEngine.Networking
             for (int i = 0; i < s_Peers.Length; i++)
             {
                 var peer = s_Peers[i];
-                if (peer.playerIds == null)
-                {
-                    // this could be empty if this peer had no players
-                    continue;
-                }
-                if (peer.connectionId == s_ReconnectId)
+                if (peer.playerIds != null && peer.connectionId == s_ReconnectId)
                 {
                     for (int pid = 0; pid < peer.playerIds.Length; pid++)
                     {
@@ -344,21 +339,14 @@ namespace UnityEngine.Networking
             for (int i = 0; i < uvs.Length; i++)
             {
                 var uv = uvs[i];
-                if (uv.gameObject.activeSelf)
+                // not spawned yet etc.?
+                if (!uv.gameObject.activeSelf && 
+                    uv.gameObject.hideFlags != HideFlags.NotEditable && uv.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+                    !uv.sceneId.IsEmpty())
                 {
-                    // already active, cannot spawn it
-                    continue;
+                    s_SpawnableObjects[uv.sceneId] = uv;
+                    if (LogFilter.logDebug) { Debug.Log("ClientScene::PrepareSpawnObjects sceneId:" + uv.sceneId); }
                 }
-
-                if (uv.gameObject.hideFlags == HideFlags.NotEditable || uv.gameObject.hideFlags == HideFlags.HideAndDontSave)
-                    continue;
-
-                if (uv.sceneId.IsEmpty())
-                    continue;
-
-                s_SpawnableObjects[uv.sceneId] = uv;
-
-                if (LogFilter.logDebug) { Debug.Log("ClientScene::PrepareSpawnObjects sceneId:" + uv.sceneId); }
             }
         }
 
