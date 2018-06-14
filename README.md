@@ -5,4 +5,4 @@ https://forum.unity.com/threads/unet-hlapi-community-edition.425437/
 Original HLAPI Source:
 https://bitbucket.org/Unity-Technologies/networking
 
-This is a preview for testing purposes only, see License.txt!
+Please respect the LICENSE.txt.

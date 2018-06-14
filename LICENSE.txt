@@ -1,5 +1,7 @@
-HLAPI Pro License:
-This is a preview for testing purposes only.
-All rights reserved.
+HLAPI Community Edition License
 
--> Do not copy/fork/redistribute etc. until I come up with a proper license.
+You may incorporate and embed the HLAPI Community Edition compiled DLL files
+into your electronic games and interactive media and distribute such electronic
+games and media.
+
+All rights reserved to the HLAPI Community Edition source code.
