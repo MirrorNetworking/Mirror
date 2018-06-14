@@ -210,14 +210,12 @@ namespace UnityEngine.Networking
             while (bytesToSend > 0)
             {
                 int diff = Math.Min(bytesToSend, m_MaxPacketSize - fragmentHeaderSize);
-                byte[] buffer = new byte[diff];
-                Array.Copy(bytes, pos, buffer, 0, diff);
 
                 // send fragment
                 NetworkWriter fragmentWriter = new NetworkWriter();
                 fragmentWriter.StartMessage(MsgType.Fragment);
                 fragmentWriter.Write((byte)0);
-                fragmentWriter.WriteBytesAndSize(buffer);
+                fragmentWriter.WriteBytesAndSize(bytes, pos, diff);
                 fragmentWriter.FinishMessage();
                 SendWriter(fragmentWriter);
 
