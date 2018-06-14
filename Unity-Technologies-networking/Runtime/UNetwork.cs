@@ -61,9 +61,6 @@ namespace UnityEngine.Networking
         public const short LobbySceneLoaded = 44;
         public const short LobbyAddPlayerFailed = 45;
         public const short LobbyReturnToLobby = 46;
-#if ENABLE_UNET_HOST_MIGRATION
-        public const short ReconnectPlayer = 47;
-#endif
 
         //NOTE: update msgLabels below if this is changed.
         public const short Highest = 47;
@@ -117,9 +114,6 @@ namespace UnityEngine.Networking
             "LobbySceneLoaded",
             "LobbyAddPlayerFailed", // 45
             "LobbyReturnToLobby", // 46
-#if ENABLE_UNET_HOST_MIGRATION
-            "ReconnectPlayer", // 47
-#endif
         };
 
         static public string MsgTypeToString(short value)

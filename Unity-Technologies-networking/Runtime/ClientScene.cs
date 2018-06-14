@@ -15,22 +15,6 @@ namespace UnityEngine.Networking
         static bool s_IsSpawnFinished;
         static NetworkScene s_NetworkScene = new NetworkScene();
 
-#if ENABLE_UNET_HOST_MIGRATION
-        public const int ReconnectIdInvalid = -1;
-        public const int ReconnectIdHost = 0;
-        static int s_ReconnectId = ReconnectIdInvalid;
-        static PeerInfoMessage[] s_Peers;
-        static bool hasMigrationPending() { return s_ReconnectId != ReconnectIdInvalid; }
-
-        static public void SetReconnectId(int newReconnectId, PeerInfoMessage[] peers)
-        {
-            s_ReconnectId = newReconnectId;
-            s_Peers = peers;
-
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::SetReconnectId: " + newReconnectId); }
-        }
-#endif
-
         static internal void SetNotReady()
         {
             s_IsReady = false;
@@ -47,10 +31,6 @@ namespace UnityEngine.Networking
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
-#if ENABLE_UNET_HOST_MIGRATION
-        public static int reconnectId { get { return s_ReconnectId; }}
-#endif
-
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
@@ -65,9 +45,7 @@ namespace UnityEngine.Networking
             s_ReadyConnection = null;
             s_IsReady = false;
             s_IsSpawnFinished = false;
-#if ENABLE_UNET_HOST_MIGRATION
-            s_ReconnectId = ReconnectIdInvalid;
-#endif
+
             NetworkTransport.Shutdown();
             NetworkTransport.Init();
         }
@@ -181,10 +159,6 @@ namespace UnityEngine.Networking
 
             if (LogFilter.logDebug) { Debug.Log("ClientScene::AddPlayer() for ID " + playerControllerId + " called with connection [" + s_ReadyConnection + "]"); }
 
-#if ENABLE_UNET_HOST_MIGRATION
-            if (!hasMigrationPending())
-            {
-#endif
             var msg = new AddPlayerMessage();
             msg.playerControllerId = playerControllerId;
             if (extraMessage != null)
@@ -194,64 +168,8 @@ namespace UnityEngine.Networking
                 msg.msgData = writer.ToArray();
             }
             s_ReadyConnection.Send(MsgType.AddPlayer, msg);
-#if ENABLE_UNET_HOST_MIGRATION
-        }
-
-        else
-        {
-            return SendReconnectMessage(extraMessage);
-        }
-#endif
             return true;
         }
-
-#if ENABLE_UNET_HOST_MIGRATION
-        public static bool SendReconnectMessage(MessageBase extraMessage)
-        {
-            if (!hasMigrationPending())
-                return false;
-
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::AddPlayer reconnect " + s_ReconnectId);           }
-
-            if (s_Peers == null)
-            {
-                SetReconnectId(ReconnectIdInvalid, null);
-                if (LogFilter.logError)
-                {
-                    Debug.LogError("ClientScene::AddPlayer: reconnecting, but no peers.");
-                }
-                return false;
-            }
-
-            // reconnect all the players
-            for (int i = 0; i < s_Peers.Length; i++)
-            {
-                var peer = s_Peers[i];
-                if (peer.playerIds != null && peer.connectionId == s_ReconnectId)
-                {
-                    for (int pid = 0; pid < peer.playerIds.Length; pid++)
-                    {
-                        var msg = new ReconnectMessage();
-                        msg.oldConnectionId = s_ReconnectId;
-                        msg.netId = peer.playerIds[pid].netId;
-                        msg.playerControllerId = peer.playerIds[pid].playerControllerId;
-                        if (extraMessage != null)
-                        {
-                            var writer = new NetworkWriter();
-                            extraMessage.Serialize(writer);
-                            msg.msgData = writer.ToArray();
-                        }
-
-                        s_ReadyConnection.Send(MsgType.ReconnectPlayer, msg);
-                    }
-                }
-            }
-            // this should only be done once.
-            SetReconnectId(ReconnectIdInvalid, null);
-            return true;
-        }
-
-#endif
 
         public static bool RemovePlayer(short playerControllerId)
         {
@@ -305,21 +223,6 @@ namespace UnityEngine.Networking
             return newClient;
         }
 
-#if ENABLE_UNET_HOST_MIGRATION
-        static internal NetworkClient ReconnectLocalServer()
-        {
-            LocalClient newClient = new LocalClient();
-            NetworkServer.instance.ActivateLocalClientScene();
-            newClient.InternalConnectLocalServer(false);
-            return newClient;
-        }
-
-        static internal void ClearLocalPlayers()
-        {
-            s_LocalPlayers.Clear();
-        }
-
-#endif
         static internal void HandleClientDisconnect(NetworkConnection conn)
         {
             if (s_ReadyConnection == conn && s_IsReady)

@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;UNITY_EDITOR;ENABLE_UNET;ENABLE_UNET_HOST_MIGRATION</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;UNITY_EDITOR;ENABLE_UNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -25,7 +25,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>True</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;UNITY_EDITOR;ENABLE_UNET;ENABLE_UNET_HOST_MIGRATION</DefineConstants>
+    <DefineConstants>TRACE;UNITY_EDITOR;ENABLE_UNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -78,7 +78,6 @@
     <Compile Include="..\Runtime\NetworkServer.cs" />
     <Compile Include="..\Runtime\SyncList.cs" />
     <Compile Include="..\Runtime\NetworkWriter.cs" />
-    <Compile Include="..\Runtime\NetworkMigrationManager.cs" />
     <Compile Include="..\Runtime\NetworkServerSimple.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
