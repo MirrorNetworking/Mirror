@@ -1191,6 +1191,27 @@ namespace Unity.UNetWeaver
             return null;
         }
 
+        // System.Byte[] arguments need a version with a string
+        static MethodReference ResolveMethodWithArg(TypeReference t, string name, string argTypeFullName)
+        {
+            foreach (var methodRef in t.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    if (methodRef.Parameters.Count == 1)
+                    {
+                        if (methodRef.Parameters[0].ParameterType.FullName == argTypeFullName)
+                        {
+                            return scriptDef.MainModule.ImportReference(methodRef);
+                        }
+                    }
+                }
+            }
+            Log.Error("ResolveMethodWithArg failed " + t.Name + "::" + name + " " + argTypeFullName);
+            fail = true;
+            return null;
+        }
+
         static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
@@ -1541,7 +1562,7 @@ namespace Unity.UNetWeaver
                 { NetworkInstanceIdType.FullName, NetworkWriterWriteNetworkInstanceId },
                 { NetworkSceneIdType.FullName, NetworkWriterWriteNetworkSceneId },
                 { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
-                { "System.Byte[]", ResolveMethod(NetworkWriterType, "WriteBytesFull") },
+                { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") },
                 { SyncListFloatType.FullName, SyncListFloatWriteType },
                 { SyncListIntType.FullName, SyncListIntWriteType },
                 { SyncListUIntType.FullName, SyncListUIntWriteType },

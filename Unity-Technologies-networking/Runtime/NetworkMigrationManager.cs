@@ -454,7 +454,7 @@ namespace UnityEngine.Networking
 
 
             NetworkReader extraDataReader = null;
-            if (msg.msgSize != 0)
+            if (msg.msgData != null && msg.msgData.Length > 0)
             {
                 extraDataReader = new NetworkReader(msg.msgData);
             }

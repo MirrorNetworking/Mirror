@@ -49,7 +49,6 @@
     <Compile Include="LogFilter.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="NetworkAnimator.cs" />
-    <Compile Include="NetworkBuffer.cs" />
     <Compile Include="NetworkCRC.cs" />
     <Compile Include="NetworkDiscovery.cs" />
     <Compile Include="NetworkHash128.cs" />

@@ -1,47 +1,66 @@
 #if ENABLE_UNET
 using System;
-using System.Text;
-using UnityEngine;
+using System.IO;
 
 namespace UnityEngine.Networking
 {
     public class NetworkReader
     {
-        NetBuffer m_buf;
-
-        const int k_MaxStringLength = 1024 * 32;
-
-        public NetworkReader()
-        {
-            m_buf = new NetBuffer();
-        }
-
-        public NetworkReader(NetworkWriter writer)
-        {
-            m_buf = new NetBuffer(writer.AsArray());
-        }
+        BinaryReader reader;
 
         public NetworkReader(byte[] buffer)
         {
-            m_buf = new NetBuffer(buffer);
+            reader = new BinaryReader(new MemoryStream(buffer));
         }
 
-        public uint Position { get { return m_buf.Position; } }
-        public int Length { get { return m_buf.Length; } }
+        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
+        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
+        public int Length { get { return (int)reader.BaseStream.Length; } }
 
         public void SeekZero()
         {
-            m_buf.SeekZero();
+            reader.BaseStream.Position = 0;
         }
 
-        internal void Replace(byte[] buffer)
+        public byte ReadByte() { return reader.ReadByte(); }
+        public sbyte ReadSByte() { return (sbyte)reader.ReadByte(); }
+        public char ReadChar() { return reader.ReadChar(); }
+        public bool ReadBoolean() { return reader.ReadBoolean(); }
+        public short ReadInt16() { return reader.ReadInt16(); }
+        public ushort ReadUInt16() { return reader.ReadUInt16(); }
+        public int ReadInt32() { return reader.ReadInt32(); }
+        public uint ReadUInt32() { return reader.ReadUInt32(); }
+        public long ReadInt64() { return reader.ReadInt64(); }
+        public ulong ReadUInt64() { return reader.ReadUInt64(); }
+        public decimal ReadDecimal() { return reader.ReadDecimal(); }
+        public float ReadSingle() { return reader.ReadSingle(); }
+        public double ReadDouble() { return reader.ReadDouble(); }
+
+        public string ReadString()
         {
-            m_buf.Replace(buffer);
+            return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
+        }
+
+        public byte[] ReadBytes(int count)
+        {
+            return reader.ReadBytes(count);
+        }
+
+        public byte[] ReadBytesAndSize()
+        {
+            // notNull? (see NetworkWriter)
+            bool notNull = reader.ReadBoolean();
+            if (notNull) 
+            {
+                ushort size = ReadUInt16();
+                return reader.ReadBytes(size);
+            }
+            return null;
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
-
         public UInt32 ReadPackedUInt32()
         {
             byte a0 = ReadByte();
@@ -79,27 +98,30 @@ namespace UnityEngine.Networking
             {
                 return a0;
             }
+
             byte a1 = ReadByte();
             if (a0 >= 241 && a0 <= 248)
             {
                 return 240 + 256 * (a0 - ((UInt64)241)) + a1;
             }
+
             byte a2 = ReadByte();
             if (a0 == 249)
             {
                 return 2288 + (((UInt64)256) * a1) + a2;
             }
+
             byte a3 = ReadByte();
             if (a0 == 250)
             {
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16);
             }
+
             byte a4 = ReadByte();
             if (a0 == 251)
             {
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24);
             }
-
 
             byte a5 = ReadByte();
             if (a0 == 252)
@@ -107,13 +129,11 @@ namespace UnityEngine.Networking
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32);
             }
 
-
             byte a6 = ReadByte();
             if (a0 == 253)
             {
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40);
             }
-
 
             byte a7 = ReadByte();
             if (a0 == 254)
@@ -121,12 +141,12 @@ namespace UnityEngine.Networking
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40) + (((UInt64)a7) << 48);
             }
 
-
             byte a8 = ReadByte();
             if (a0 == 255)
             {
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40) + (((UInt64)a7) << 48)  + (((UInt64)a8) << 56);
             }
+
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
 
@@ -138,186 +158,6 @@ namespace UnityEngine.Networking
         public NetworkSceneId ReadSceneId()
         {
             return new NetworkSceneId(ReadPackedUInt32());
-        }
-
-        public byte ReadByte()
-        {
-            return m_buf.ReadByte();
-        }
-
-        public sbyte ReadSByte()
-        {
-            return (sbyte)m_buf.ReadByte();
-        }
-
-        public short ReadInt16()
-        {
-            ushort value = 0;
-            value |= m_buf.ReadByte();
-            value |= (ushort)(m_buf.ReadByte() << 8);
-            return (short)value;
-        }
-
-        public ushort ReadUInt16()
-        {
-            ushort value = 0;
-            value |= m_buf.ReadByte();
-            value |= (ushort)(m_buf.ReadByte() << 8);
-            return value;
-        }
-
-        public int ReadInt32()
-        {
-            uint value = 0;
-            value |= m_buf.ReadByte();
-            value |= (uint)(m_buf.ReadByte() << 8);
-            value |= (uint)(m_buf.ReadByte() << 16);
-            value |= (uint)(m_buf.ReadByte() << 24);
-            return (int)value;
-        }
-
-        public uint ReadUInt32()
-        {
-            uint value = 0;
-            value |= m_buf.ReadByte();
-            value |= (uint)(m_buf.ReadByte() << 8);
-            value |= (uint)(m_buf.ReadByte() << 16);
-            value |= (uint)(m_buf.ReadByte() << 24);
-            return value;
-        }
-
-        public long ReadInt64()
-        {
-            ulong value = 0;
-
-            ulong other = m_buf.ReadByte();
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 8;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 16;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 24;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 32;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 40;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 48;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 56;
-            value |= other;
-
-            return (long)value;
-        }
-
-        public ulong ReadUInt64()
-        {
-            ulong value = 0;
-            ulong other = m_buf.ReadByte();
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 8;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 16;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 24;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 32;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 40;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 48;
-            value |= other;
-
-            other = ((ulong)m_buf.ReadByte()) << 56;
-            value |= other;
-            return value;
-        }
-
-        public decimal ReadDecimal()
-        {
-            Int32[] bits = new Int32[4];
-
-            bits[0] = ReadInt32();
-            bits[1] = ReadInt32();
-            bits[2] = ReadInt32();
-            bits[3] = ReadInt32();
-
-            return new decimal(bits);
-        }
-
-        public float ReadSingle()
-        {
-            byte[] bytes = ReadBytes(sizeof(float));
-            return BitConverter.ToSingle(bytes, 0);
-        }
-
-        public double ReadDouble()
-        {
-            byte[] bytes = ReadBytes(sizeof(double));
-            return BitConverter.ToDouble(bytes, 0);
-        }
-
-        public string ReadString()
-        {
-            UInt16 numBytes = ReadUInt16();
-            if (numBytes == 0)
-                return "";
-
-            if (numBytes >= k_MaxStringLength)
-            {
-                throw new IndexOutOfRangeException("ReadString() too long: " + numBytes);
-            }
-
-            Encoding encoding = new UTF8Encoding();
-            byte[] stringReaderBuffer = new byte[numBytes];
-
-            m_buf.ReadBytes(stringReaderBuffer, numBytes);
-
-            return encoding.GetString(stringReaderBuffer);
-        }
-
-        public char ReadChar()
-        {
-            return (char)m_buf.ReadByte();
-        }
-
-        public bool ReadBoolean()
-        {
-            int value = m_buf.ReadByte();
-            return value == 1;
-        }
-
-        public byte[] ReadBytes(int count)
-        {
-            if (count < 0)
-            {
-                throw new IndexOutOfRangeException("NetworkReader ReadBytes " + count);
-            }
-            byte[] value = new byte[count];
-            m_buf.ReadBytes(value, (uint)count);
-            return value;
-        }
-
-        public byte[] ReadBytesAndSize()
-        {
-            ushort sz = ReadUInt16();
-            if (sz == 0)
-                return new byte[0];
-
-            return ReadBytes(sz);
         }
 
         public Vector2 ReadVector2()
@@ -478,7 +318,7 @@ namespace UnityEngine.Networking
 
         public override string ToString()
         {
-            return m_buf.ToString();
+            return reader.ToString();
         }
 
         public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()

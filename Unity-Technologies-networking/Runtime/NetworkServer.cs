@@ -425,7 +425,8 @@ namespace UnityEngine.Networking
             {
                 throw new UnityException("NetworkWriter used buffer is too big!");
             }
-            SendBytesToReady(contextObj, writer.AsArraySegment().Array, writer.AsArraySegment().Count, channelId);
+            // send relevant data, which is until .Position
+            SendBytesToReady(contextObj, writer.ToArray(), writer.Position, channelId);
         }
 
         static public void SendBytesToReady(GameObject contextObj, byte[] buffer, int numBytes, int channelId)
@@ -722,7 +723,7 @@ namespace UnityEngine.Networking
                 msg.Serialize(writer);
 
                 // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
                 conn.InvokeHandler(MsgType.Error, reader, 0);
             }
         }
@@ -1565,7 +1566,7 @@ namespace UnityEngine.Networking
                 msg.Serialize(writer);
 
                 // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
 
                 // this must be invoked with the connection to the client, not the client's connection to the server
                 m_LocalConnection.InvokeHandler(msgType, reader, channelId);

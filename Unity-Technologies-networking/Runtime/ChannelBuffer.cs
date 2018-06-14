@@ -1,5 +1,6 @@
 #if ENABLE_UNET
 using System;
+using System.IO;
 using System.Collections.Generic;
 
 namespace UnityEngine.Networking
@@ -161,7 +162,8 @@ namespace UnityEngine.Networking
 
         public bool SendWriter(NetworkWriter writer)
         {
-            return SendBytes(writer.AsArraySegment().Array, writer.AsArraySegment().Count);
+            // write relevant data, which is until .Position
+            return SendBytes(writer.ToArray(), writer.Position);
         }
 
         public bool Send(short msgType, MessageBase msg)
@@ -176,7 +178,7 @@ namespace UnityEngine.Networking
             return SendWriter(writer);
         }
 
-        internal NetBuffer fragmentBuffer = new NetBuffer();
+        internal MemoryStream fragmentBuffer = new MemoryStream();
         bool readingFragment = false;
 
         internal bool HandleFragment(NetworkReader reader)
@@ -186,12 +188,12 @@ namespace UnityEngine.Networking
             {
                 if (readingFragment == false)
                 {
-                    fragmentBuffer.SeekZero();
+                    fragmentBuffer.Position = 0;
                     readingFragment = true;
                 }
 
                 byte[] data = reader.ReadBytesAndSize();
-                fragmentBuffer.WriteBytes(data, (ushort)data.Length);
+                fragmentBuffer.Write(data, 0, data.Length);
                 return false;
             }
             else
@@ -215,7 +217,7 @@ namespace UnityEngine.Networking
                 NetworkWriter fragmentWriter = new NetworkWriter();
                 fragmentWriter.StartMessage(MsgType.Fragment);
                 fragmentWriter.Write((byte)0);
-                fragmentWriter.WriteBytesFull(buffer);
+                fragmentWriter.WriteBytesAndSize(buffer);
                 fragmentWriter.FinishMessage();
                 SendWriter(fragmentWriter);
 

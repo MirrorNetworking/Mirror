@@ -82,7 +82,7 @@ namespace UnityEngine.Networking
             writer.StartMessage(msgType);
             writer.FinishMessage();
 
-            PostInternalMessage(writer.AsArray(), 0);
+            PostInternalMessage(writer.ToArray(), 0);
         }
 
         private void ProcessInternalMessages()
@@ -129,7 +129,7 @@ namespace UnityEngine.Networking
             msg.Serialize(writer);
             writer.FinishMessage();
 
-            InvokeBytesOnClient(writer.AsArray(), channelId);
+            InvokeBytesOnClient(writer.ToArray(), channelId);
         }
 
         // called by the server, to bypass network

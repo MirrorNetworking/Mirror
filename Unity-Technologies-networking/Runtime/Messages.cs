@@ -108,27 +108,18 @@ namespace UnityEngine.Networking.NetworkSystem
     public class AddPlayerMessage : MessageBase
     {
         public short playerControllerId;
-        public int msgSize;
         public byte[] msgData;
 
         public override void Deserialize(NetworkReader reader)
         {
             playerControllerId = reader.ReadInt16();
             msgData = reader.ReadBytesAndSize();
-            if (msgData == null)
-            {
-                msgSize = 0;
-            }
-            else
-            {
-                msgSize = msgData.Length;
-            }
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(playerControllerId);
-            writer.WriteBytesAndSize(msgData, msgSize);
+            writer.WriteBytesAndSize(msgData);
         }
     }
 
@@ -267,7 +258,6 @@ namespace UnityEngine.Networking.NetworkSystem
         public int oldConnectionId;
         public short playerControllerId;
         public NetworkInstanceId netId;
-        public int msgSize;
         public byte[] msgData;
 
         public override void Deserialize(NetworkReader reader)
@@ -276,7 +266,6 @@ namespace UnityEngine.Networking.NetworkSystem
             playerControllerId = (short)reader.ReadPackedUInt32();
             netId = reader.ReadNetworkId();
             msgData = reader.ReadBytesAndSize();
-            msgSize = msgData.Length;
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -284,7 +273,7 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.WritePackedUInt32((uint)oldConnectionId);
             writer.WritePackedUInt32((uint)playerControllerId);
             writer.Write(netId);
-            writer.WriteBytesAndSize(msgData, msgSize);
+            writer.WriteBytesAndSize(msgData);
         }
     }
 #endif
@@ -347,7 +336,7 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(assetId);
             writer.Write(position);
             writer.Write(rotation);
-            writer.WriteBytesFull(payload);
+            writer.WriteBytesAndSize(payload);
         }
     }
 
@@ -371,7 +360,7 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(netId);
             writer.Write(sceneId);
             writer.Write(position);
-            writer.WriteBytesFull(payload);
+            writer.WriteBytesAndSize(payload);
         }
     }
 
@@ -459,7 +448,7 @@ namespace UnityEngine.Networking.NetworkSystem
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(netId);
-            writer.WriteBytesFull(payload);
+            writer.WriteBytesAndSize(payload);
             writer.Write(teleport);
             writer.WritePackedUInt32((uint)time);
         }
@@ -485,7 +474,7 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(netId);
             writer.WritePackedUInt32((uint)stateHash);
             writer.Write(normalizedTime);
-            writer.WriteBytesAndSize(parameters, parameters != null ? parameters.Length : 0);
+            writer.WriteBytesAndSize(parameters);
         }
     }
 
@@ -503,7 +492,7 @@ namespace UnityEngine.Networking.NetworkSystem
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(netId);
-            writer.WriteBytesAndSize(parameters, parameters != null ? parameters.Length : 0);
+            writer.WriteBytesAndSize(parameters);
         }
     }
 

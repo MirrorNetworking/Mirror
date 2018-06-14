@@ -45,7 +45,7 @@ namespace UnityEngine.Networking
 
         public override bool SendWriter(NetworkWriter writer, int channelId)
         {
-            m_LocalClient.InvokeBytesOnClient(writer.AsArray(), channelId);
+            m_LocalClient.InvokeBytesOnClient(writer.ToArray(), channelId);
             return true;
         }
 
@@ -105,7 +105,8 @@ namespace UnityEngine.Networking
 
         public override bool SendWriter(NetworkWriter writer, int channelId)
         {
-            return m_LocalServer.InvokeBytes(this, writer.AsArray(), (short)writer.AsArray().Length, channelId);
+            // write relevant data, which is until .Position
+            return m_LocalServer.InvokeBytes(this, writer.ToArray(), (short)writer.Position, channelId);
         }
 
         public override void GetStatsOut(out int numMsgs, out int numBufferedMsgs, out int numBytes, out int lastBufferedPerSecond)

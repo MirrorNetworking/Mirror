@@ -245,7 +245,7 @@ namespace UnityEngine.Networking
             var channel = m_Channels[channelId];
             if (channel.HandleFragment(reader))
             {
-                NetworkReader msgReader = new NetworkReader(channel.fragmentBuffer.AsArraySegment().Array);
+                NetworkReader msgReader = new NetworkReader(channel.fragmentBuffer.ToArray());
                 msgReader.ReadInt16(); // size
                 short msgType = msgReader.ReadInt16();
                 InvokeHandler(msgType, msgReader, channelId);

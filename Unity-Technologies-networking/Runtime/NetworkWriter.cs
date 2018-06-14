@@ -1,60 +1,95 @@
 #if ENABLE_UNET
 using System;
-using System.Text;
-using UnityEngine;
+using System.IO;
 
 namespace UnityEngine.Networking
 {
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter
     {
-        const int k_MaxStringLength = 1024 * 32;
-        NetBuffer m_Buffer;
-
-        public NetworkWriter()
-        {
-            m_Buffer = new NetBuffer();
-        }
-
-        public NetworkWriter(byte[] buffer)
-        {
-            m_Buffer = new NetBuffer(buffer);
-        }
+        // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
+        public BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
-        // 'uint' is exact but we serialize/deserialize array.Lengths often which are int's, so 'int' is easier and big enough too.
-        public int Position 
-        { 
-            get 
-            {
-                // uint to int conversion check. better safe than sorry.
-                if (m_Buffer.Position > Int32.MaxValue)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkWriter.Position exceeds Int32.MaxValue"); }
-                }
-                return (int)m_Buffer.Position; 
-            } 
-        } 
+        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
 
+        // MemoryStream.ToArray() ignores .Position, but HLAPI's .ToArray() expects only the valid data until .Position.
+        // .ToArray() is often used for payloads or sends, we don't unnecessary old data in there (bandwidth etc.)
+        //   Example:
+        //     HLAPI writes 10 bytes, sends them
+        //     HLAPI sets .Position = 0
+        //     HLAPI writes 5 bytes, sends them
+        //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
         public byte[] ToArray()
         {
-            var newArray = new byte[m_Buffer.AsArraySegment().Count];
-            Array.Copy(m_Buffer.AsArraySegment().Array, newArray, m_Buffer.AsArraySegment().Count);
-            return newArray;
+            byte[] slice = new byte[Position];
+            Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
+            return slice;
         }
 
-        public byte[] AsArray()
+        public void Write(byte value)  { writer.Write(value); }
+        public void Write(sbyte value) { writer.Write(value); }
+        public void Write(char value) { writer.Write(value); }
+        public void Write(bool value) { writer.Write(value); }
+        public void Write(short value) { writer.Write(value); }
+        public void Write(ushort value) { writer.Write(value); }
+        public void Write(int value) { writer.Write(value); }
+        public void Write(uint value) { writer.Write(value); }
+        public void Write(long value) { writer.Write(value); }
+        public void Write(ulong value) { writer.Write(value); }
+        public void Write(float value) { writer.Write(value); }
+        public void Write(double value) { writer.Write(value); }
+        public void Write(decimal value) { writer.Write(value); }
+
+        public void Write(string value) 
         {
-            return AsArraySegment().Array;
+            // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
+            // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
+            //        should also be null on the client)
+            writer.Write(value != null);
+            if (value != null) writer.Write(value); 
         }
 
-        internal ArraySegment<byte> AsArraySegment()
+        // for byte arrays with consistent size, where the reader knows how many to read
+        // (like a packet opcode that's always the same)
+        public void Write(byte[] buffer, int offset, int count)
         {
-            return m_Buffer.AsArraySegment();
+            // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
+            writer.Write(buffer, offset, count);
+        }
+
+        // for byte arrays with dynamic size, where the reader doesn't know how many will come
+        // (like an inventory with different items etc.)
+        public void WriteBytesAndSize(byte[] buffer, int offset, int count)
+        {
+            // null is supported because [SyncVar]s might be structs with null byte[] arrays
+            // (writing a size=0 empty array is not the same, the server and client would be out of sync)
+            // (using size=-1 for null would limit max size to 32kb instead of 64kb)
+            if (buffer == null)
+            {
+                writer.Write(false); // notNull?
+                return;
+            }
+            if (count > UInt16.MaxValue)
+            {
+                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: size is too large (" + count + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
+                return;
+            }
+            writer.Write(true); // notNull?
+            writer.Write((UInt16)count);
+            writer.Write(buffer, offset, count);
+        }
+
+        // UNETWeaver needs a write function with just one byte[] parameter
+        // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
+        public void WriteBytesAndSize(byte[] buffer)
+        {
+            // buffer might be null, so we can't use .Length in that case
+            WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
-
         public void WritePackedUInt32(UInt32 value)
         {
             if (value <= 240)
@@ -185,183 +220,6 @@ namespace UnityEngine.Networking
         public void Write(NetworkSceneId value)
         {
             WritePackedUInt32(value.Value);
-        }
-
-        public void Write(char value)
-        {
-            m_Buffer.WriteByte((byte)value);
-        }
-
-        public void Write(byte value)
-        {
-            m_Buffer.WriteByte(value);
-        }
-
-        public void Write(sbyte value)
-        {
-            m_Buffer.WriteByte((byte)value);
-        }
-
-        public void Write(short value)
-        {
-            m_Buffer.WriteByte2((byte)(value & 0xff), (byte)((value >> 8) & 0xff));
-        }
-
-        public void Write(ushort value)
-        {
-            m_Buffer.WriteByte2((byte)(value & 0xff), (byte)((value >> 8) & 0xff));
-        }
-
-        public void Write(int value)
-        {
-            // little endian...
-            m_Buffer.WriteByte4(
-                (byte)(value & 0xff),
-                (byte)((value >> 8) & 0xff),
-                (byte)((value >> 16) & 0xff),
-                (byte)((value >> 24) & 0xff));
-        }
-
-        public void Write(uint value)
-        {
-            m_Buffer.WriteByte4(
-                (byte)(value & 0xff),
-                (byte)((value >> 8) & 0xff),
-                (byte)((value >> 16) & 0xff),
-                (byte)((value >> 24) & 0xff));
-        }
-
-        public void Write(long value)
-        {
-            m_Buffer.WriteByte8(
-                (byte)(value & 0xff),
-                (byte)((value >> 8) & 0xff),
-                (byte)((value >> 16) & 0xff),
-                (byte)((value >> 24) & 0xff),
-                (byte)((value >> 32) & 0xff),
-                (byte)((value >> 40) & 0xff),
-                (byte)((value >> 48) & 0xff),
-                (byte)((value >> 56) & 0xff));
-        }
-
-        public void Write(ulong value)
-        {
-            m_Buffer.WriteByte8(
-                (byte)(value & 0xff),
-                (byte)((value >> 8) & 0xff),
-                (byte)((value >> 16) & 0xff),
-                (byte)((value >> 24) & 0xff),
-                (byte)((value >> 32) & 0xff),
-                (byte)((value >> 40) & 0xff),
-                (byte)((value >> 48) & 0xff),
-                (byte)((value >> 56) & 0xff));
-        }
-
-        public void Write(float value)
-        {
-            byte[] bytes = BitConverter.GetBytes(value);
-            Write(bytes, bytes.Length);
-        }
-
-        public void Write(double value)
-        {
-            byte[] bytes = BitConverter.GetBytes(value);
-            Write(bytes, bytes.Length);
-        }
-
-        public void Write(decimal value)
-        {
-            Int32[] bits = decimal.GetBits(value);
-            Write(bits[0]);
-            Write(bits[1]);
-            Write(bits[2]);
-            Write(bits[3]);
-        }
-
-        public void Write(string value)
-        {
-            if (value == null)
-            {
-                m_Buffer.WriteByte2(0, 0);
-                return;
-            }
-
-            Encoding encoding = new UTF8Encoding();
-            byte[] stringWriteBuffer = new byte[k_MaxStringLength];
-
-            int len = encoding.GetByteCount(value);
-
-            if (len >= k_MaxStringLength)
-            {
-                throw new IndexOutOfRangeException("Serialize(string) too long: " + value.Length);
-            }
-
-            Write((ushort)(len));
-            int numBytes = encoding.GetBytes(value, 0, value.Length, stringWriteBuffer, 0);
-            m_Buffer.WriteBytes(stringWriteBuffer, (ushort)numBytes);
-        }
-
-        public void Write(bool value)
-        {
-            if (value)
-                m_Buffer.WriteByte(1);
-            else
-                m_Buffer.WriteByte(0);
-        }
-
-        public void Write(byte[] buffer, int count)
-        {
-            if (count > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter Write: buffer is too large (" + count + ") bytes. The maximum buffer size is 64K bytes."); }
-                return;
-            }
-            m_Buffer.WriteBytes(buffer, (UInt16)count);
-        }
-
-        public void Write(byte[] buffer, int offset, int count)
-        {
-            if (count > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter Write: buffer is too large (" + count + ") bytes. The maximum buffer size is 64K bytes."); }
-                return;
-            }
-            m_Buffer.WriteBytesAtOffset(buffer, (ushort)offset, (ushort)count);
-        }
-
-        public void WriteBytesAndSize(byte[] buffer, int count)
-        {
-            if (buffer == null || count == 0)
-            {
-                Write((UInt16)0);
-                return;
-            }
-
-            if (count > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: buffer is too large (" + count + ") bytes. The maximum buffer size is 64K bytes."); }
-                return;
-            }
-
-            Write((UInt16)count);
-            m_Buffer.WriteBytes(buffer, (UInt16)count);
-        }
-
-        //NOTE: this will write the entire buffer.. including trailing empty space!
-        public void WriteBytesFull(byte[] buffer)
-        {
-            if (buffer == null)
-            {
-                Write((UInt16)0);
-                return;
-            }
-            if (buffer.Length > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytes: buffer is too large (" + buffer.Length + ") bytes. The maximum buffer size is 64K bytes."); }
-                return;
-            }
-            Write((UInt16)buffer.Length);
-            m_Buffer.WriteBytes(buffer, (UInt16)buffer.Length);
         }
 
         public void Write(Vector2 value)
@@ -524,7 +382,7 @@ namespace UnityEngine.Networking
 
         public void SeekZero()
         {
-            m_Buffer.SeekZero();
+            writer.BaseStream.Position = 0;
         }
 
         public void StartMessage(short msgType)
@@ -532,7 +390,7 @@ namespace UnityEngine.Networking
             SeekZero();
 
             // two bytes for size, will be filled out in FinishMessage
-            m_Buffer.WriteByte2(0, 0);
+            writer.Write((UInt16)0);
 
             // two bytes for message type
             Write(msgType);
@@ -540,8 +398,13 @@ namespace UnityEngine.Networking
 
         public void FinishMessage()
         {
-            // writes correct size into space at start of buffer
-            m_Buffer.FinishMessage();
+            // jump to zero, replace size (ushort) in header, jump back
+            long oldPosition = Position;
+            ushort size = (ushort)(Position - (sizeof(UInt16) * 2)); // length - two shorts header (size, msgType)
+
+            SeekZero();
+            Write(size);
+            writer.BaseStream.Position = oldPosition;
         }
     };
 }

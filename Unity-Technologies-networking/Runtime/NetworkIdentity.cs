@@ -439,7 +439,7 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // serialize length,data into the real writer, untouched by user code
-            writer.WriteBytesAndSize(bytes, bytes.Length); // length,data
+            writer.WriteBytesAndSize(bytes);
             return result;
         }
 

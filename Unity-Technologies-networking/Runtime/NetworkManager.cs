@@ -876,7 +876,7 @@ namespace UnityEngine.Networking
             AddPlayerMessage msg = new AddPlayerMessage();
             netMsg.ReadMessage(msg);
 
-            if (msg.msgSize != 0)
+            if (msg.msgData != null && msg.msgData.Length > 0)
             {
                 var reader = new NetworkReader(msg.msgData);
                 OnServerAddPlayer(netMsg.conn, msg.playerControllerId, reader);

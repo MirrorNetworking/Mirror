@@ -192,7 +192,6 @@ namespace UnityEngine.Networking
                 var writer = new NetworkWriter();
                 extraMessage.Serialize(writer);
                 msg.msgData = writer.ToArray();
-                msg.msgSize = writer.Position;
             }
             s_ReadyConnection.Send(MsgType.AddPlayer, msg);
 #if ENABLE_UNET_HOST_MIGRATION
@@ -241,7 +240,6 @@ namespace UnityEngine.Networking
                             var writer = new NetworkWriter();
                             extraMessage.Serialize(writer);
                             msg.msgData = writer.ToArray();
-                            msg.msgSize = writer.Position;
                         }
 
                         s_ReadyConnection.Send(MsgType.ReconnectPlayer, msg);
