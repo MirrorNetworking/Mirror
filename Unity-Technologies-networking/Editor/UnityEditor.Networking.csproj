@@ -38,9 +38,6 @@
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>..\Output\Standalone\UnityEngine.Networking.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetworkAnimatorEditor.cs" />
@@ -60,6 +57,12 @@
     <Compile Include="NetworkScenePostProcess.cs" />
     <Compile Include="NetworkIdentityEditor.cs" />
     <Compile Include="NetworkMigrationManagerEditor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Runtime\UnityEngine.Networking.csproj">
+      <Project>{5F1B8F9B-4500-4D09-808B-F43E8337DF05}</Project>
+      <Name>UnityEngine.Networking</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
