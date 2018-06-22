@@ -263,8 +263,6 @@ namespace UnityEngine.Networking
                 }
             }
             while (networkEvent != NetworkEventType.Nothing);
-
-            UpdateConnections();
         }
 
         public NetworkConnection FindConnection(int connectionId)

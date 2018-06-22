@@ -560,12 +560,10 @@ namespace UnityEngine.Networking
 
         internal void InternalUpdate()
         {
+            // Update, then UpdateConnections because Update() will return if serverId==-1, which is the case while in
+            // dontListen mode. But we still need to update connections in dontListen mode.
             m_SimpleServerSimple.Update();
-
-            if (m_DontListen)
-            {
-                m_SimpleServerSimple.UpdateConnections();
-            }
+            m_SimpleServerSimple.UpdateConnections();
 
             UpdateServerObjects();
         }
