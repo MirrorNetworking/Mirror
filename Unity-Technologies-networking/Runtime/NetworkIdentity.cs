@@ -301,7 +301,7 @@ namespace UnityEngine.Networking
             }
 
             if (LogFilter.logDev) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
-            NetworkServer.instance.SetLocalObjectOnServer(netId, gameObject);
+            NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {

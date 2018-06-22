@@ -218,7 +218,7 @@ namespace UnityEngine.Networking
         static public NetworkClient ConnectLocalServer()
         {
             var newClient = new LocalClient();
-            NetworkServer.instance.ActivateLocalClientScene();
+            NetworkServer.ActivateLocalClientScene();
             newClient.InternalConnectLocalServer(true);
             return newClient;
         }

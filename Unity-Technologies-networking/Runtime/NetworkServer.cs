@@ -12,27 +12,26 @@ namespace UnityEngine.Networking
     {
 
         static bool s_Active;
-        static volatile NetworkServer s_Instance;
         static object s_Sync = new Object();
-        static bool m_DontListen;
+        static bool s_DontListen;
         static bool s_LocalClientActive;
-        ULocalConnectionToClient m_LocalConnection;
+        static ULocalConnectionToClient s_LocalConnection;
 
-        static NetworkScene s_NetworkScene;
-        static HashSet<int> s_ExternalConnections;
+        static NetworkScene s_NetworkScene = new NetworkScene();
+        static HashSet<int> s_ExternalConnections = new HashSet<int>();
 
-        float m_MaxDelay = 0.1f;
+        static float s_MaxDelay = 0.1f;
 
-        NetworkMessageHandlers m_MessageHandlers = new NetworkMessageHandlers();
-        List<NetworkConnection> m_Connections = new List<NetworkConnection>();
+        static NetworkMessageHandlers s_MessageHandlers = new NetworkMessageHandlers();
+        static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
 
-        int m_ServerHostId = -1;
-        int m_ServerPort = -1;
-        int m_RelaySlotId = -1;
-        HostTopology m_HostTopology;
-        byte[] m_MsgBuffer;
-        bool m_UseWebSockets;
-        bool m_Initialized = false;
+        static int s_ServerHostId = -1;
+        static int s_ServerPort = -1;
+        static int s_RelaySlotId = -1;
+        static HostTopology s_HostTopology;
+        static byte[] s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
+        static bool s_UseWebSockets;
+        static bool s_Initialized = false;
 
         // this is cached here for easy access when checking the size of state update packets in NetworkIdentity
         static internal ushort maxPacketSize;
@@ -40,59 +39,30 @@ namespace UnityEngine.Networking
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConection now!
-        static public NetworkConnection localConnection { get { return (NetworkConnection)instance.m_LocalConnection; } }
+        public static NetworkConnection localConnection { get { return (NetworkConnection)s_LocalConnection; } }
 
-        static public int listenPort { get { return instance.m_ServerPort; } }
-        static public int serverHostId { get { return instance.m_ServerHostId; } }
+        public static int listenPort { get { return s_ServerPort; } }
+        public static int serverHostId { get { return s_ServerHostId; } }
 
-        public static List<NetworkConnection> connections { get { return instance.m_Connections; } }
-        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return instance.m_MessageHandlers.GetHandlers(); } }
-        public static HostTopology hostTopology { get { return instance.m_HostTopology; }}
+        public static List<NetworkConnection> connections { get { return s_Connections; } }
+        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers.GetHandlers(); } }
+        public static HostTopology hostTopology { get { return s_HostTopology; }}
 
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
-        public static bool dontListen { get { return m_DontListen; } set { m_DontListen = value; } }
-        public static bool useWebSockets { get { return instance.m_UseWebSockets; } set { instance.m_UseWebSockets = value; } }
-
-        internal static NetworkServer instance
-        {
-            get
-            {
-                if (s_Instance == null)
-                {
-                    lock (s_Sync)
-                    {
-                        if (s_Instance == null)
-                        {
-                            s_Instance = new NetworkServer();
-                        }
-                    }
-                }
-                return s_Instance;
-            }
-        }
+        public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
+        public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
-        public static int numChannels { get { return instance.m_HostTopology.DefaultConfig.ChannelCount; } }
-        public static float maxDelay { get { return instance.m_MaxDelay; } set { instance.InternalSetMaxDelay(value); } }
+        public static int numChannels { get { return s_HostTopology.DefaultConfig.ChannelCount; } }
+        public static float maxDelay { get { return s_MaxDelay; } set { InternalSetMaxDelay(value); } }
 
 
         static Type s_NetworkConnectionClass = typeof(NetworkConnection);
-
         public static Type networkConnectionClass { get { return s_NetworkConnectionClass; } }
-
         static public void SetNetworkConnectionClass<T>() where T : NetworkConnection
         {
             s_NetworkConnectionClass = typeof(T);
-        }
-
-        NetworkServer()
-        {
-            NetworkTransport.Init();
-            if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
-            s_ExternalConnections = new HashSet<int>();
-            s_NetworkScene = new NetworkScene();
-            m_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
         }
 
         static public bool Configure(ConnectionConfig config, int maxConnections)
@@ -103,7 +73,7 @@ namespace UnityEngine.Networking
 
         static public bool Configure(HostTopology topology)
         {
-            instance.m_HostTopology = topology;
+            s_HostTopology = topology;
             return true;
         }
 
@@ -114,48 +84,48 @@ namespace UnityEngine.Networking
 #endif
             NetworkTransport.Shutdown();
             NetworkTransport.Init();
-            s_Instance = null;
             s_Active = false;
         }
 
         public static void Shutdown()
         {
-            if (s_Instance != null)
+            if (s_Initialized)
             {
-                s_Instance.InternalDisconnectAll();
+                InternalDisconnectAll();
 
-                if (m_DontListen)
+                if (s_DontListen)
                 {
                     // was never started, so dont stop
                 }
                 else
                 {
-                    NetworkTransport.RemoveHost(s_Instance.m_ServerHostId);
-                    s_Instance.m_ServerHostId = -1;
+                    NetworkTransport.RemoveHost(s_ServerHostId);
+                    s_ServerHostId = -1;
                 }
 
-                s_Instance = null;
+                s_Initialized = false;
             }
-            m_DontListen = false;
+            s_DontListen = false;
             s_Active = false;
         }
 
-        public void Initialize()
+        public static void Initialize()
         {
-            if (m_Initialized)
+            if (s_Initialized)
                 return;
 
-            m_Initialized = true;
+            s_Initialized = true;
             NetworkTransport.Init();
+            if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
 
-            m_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
+            s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
 
-            if (m_HostTopology == null)
+            if (s_HostTopology == null)
             {
                 var config = new ConnectionConfig();
                 config.AddChannel(QosType.ReliableSequenced);
                 config.AddChannel(QosType.Unreliable);
-                m_HostTopology = new HostTopology(config, 8);
+                s_HostTopology = new HostTopology(config, 8);
             }
 
             if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
@@ -164,23 +134,23 @@ namespace UnityEngine.Networking
         static public bool Listen(MatchInfo matchInfo, int listenPort)
         {
             if (!matchInfo.usingRelay)
-                return instance.InternalListen(null, listenPort);
+                return InternalListen(null, listenPort);
 
-            instance.InternalListenRelay(matchInfo.address, matchInfo.port, matchInfo.networkId, Utility.GetSourceID(), matchInfo.nodeId);
+            InternalListenRelay(matchInfo.address, matchInfo.port, matchInfo.networkId, Utility.GetSourceID(), matchInfo.nodeId);
             return true;
         }
 
-        internal void RegisterMessageHandlers()
+        static internal void RegisterMessageHandlers()
         {
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.Ready, OnClientReadyMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.Command, OnCommandMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.RemovePlayer, OnRemovePlayerMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
-            m_MessageHandlers.RegisterHandlerSafe(MsgType.Fragment, NetworkConnection.OnFragment);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.Ready, OnClientReadyMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.Command, OnCommandMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.RemovePlayer, OnRemovePlayerMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
+            s_MessageHandlers.RegisterHandlerSafe(MsgType.Fragment, NetworkConnection.OnFragment);
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
@@ -188,21 +158,21 @@ namespace UnityEngine.Networking
 
         static public void ListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
         {
-            instance.InternalListenRelay(relayIp, relayPort, netGuid, sourceId, nodeId);
+            InternalListenRelay(relayIp, relayPort, netGuid, sourceId, nodeId);
         }
 
-        internal void InternalListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
+        static internal void InternalListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
         {
             Initialize();
 
-            m_ServerHostId = NetworkTransport.AddHost(m_HostTopology, listenPort);
-            if (LogFilter.logDebug) { Debug.Log("Server Host Slot Id: " + m_ServerHostId); }
+            s_ServerHostId = NetworkTransport.AddHost(s_HostTopology, listenPort);
+            if (LogFilter.logDebug) { Debug.Log("Server Host Slot Id: " + s_ServerHostId); }
 
             Update();
 
             byte error;
             NetworkTransport.ConnectAsNetworkHost(
-                m_ServerHostId,
+                s_ServerHostId,
                 relayIp,
                 relayPort,
                 netGuid,
@@ -210,8 +180,8 @@ namespace UnityEngine.Networking
                 nodeId,
                 out error);
 
-            m_RelaySlotId = 0;
-            if (LogFilter.logDebug) { Debug.Log("Relay Slot Id: " + m_RelaySlotId); }
+            s_RelaySlotId = 0;
+            if (LogFilter.logDebug) { Debug.Log("Relay Slot Id: " + s_RelaySlotId); }
 
             s_Active = true;
             RegisterMessageHandlers();
@@ -219,39 +189,39 @@ namespace UnityEngine.Networking
 
         static public bool Listen(int serverPort)
         {
-            return instance.InternalListen(null, serverPort);
+            return InternalListen(null, serverPort);
         }
 
         static public bool Listen(string ipAddress, int serverPort)
         {
-            return instance.InternalListen(ipAddress, serverPort);
+            return InternalListen(ipAddress, serverPort);
         }
 
-        internal bool InternalListen(string ipAddress, int serverPort)
+        static internal bool InternalListen(string ipAddress, int serverPort)
         {
             Initialize();
 
             // only start server if we want to listen. otherwise this mode uses external connections instead
-            if (!m_DontListen) 
+            if (!s_DontListen) 
             {
                 Initialize();
-                m_ServerPort = serverPort;
+                s_ServerPort = serverPort;
 
-                if (m_UseWebSockets)
+                if (s_UseWebSockets)
                 {
-                    m_ServerHostId = NetworkTransport.AddWebsocketHost(m_HostTopology, serverPort, ipAddress);
+                    s_ServerHostId = NetworkTransport.AddWebsocketHost(s_HostTopology, serverPort, ipAddress);
                 }
                 else
                 {
-                    m_ServerHostId = NetworkTransport.AddHost(m_HostTopology, serverPort, ipAddress);
+                    s_ServerHostId = NetworkTransport.AddHost(s_HostTopology, serverPort, ipAddress);
                 }
 
-                if (m_ServerHostId == -1)
+                if (s_ServerHostId == -1)
                 {
                     return false;
                 }
 
-                if (LogFilter.logDebug) { Debug.Log("Server listen: " + ipAddress + ":" + m_ServerPort); }
+                if (LogFilter.logDebug) { Debug.Log("Server listen: " + ipAddress + ":" + s_ServerPort); }
             }
 
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
@@ -260,7 +230,7 @@ namespace UnityEngine.Networking
             return true;
         }
 
-        void InternalSetMaxDelay(float seconds)
+        static void InternalSetMaxDelay(float seconds)
         {
             // set on existing connections
             for (int i = 0; i < connections.Count; i++)
@@ -271,73 +241,73 @@ namespace UnityEngine.Networking
             }
 
             // save for future connections
-            m_MaxDelay = seconds;
+            s_MaxDelay = seconds;
         }
 
-        public bool SetConnectionAtIndex(NetworkConnection conn)
+        public static bool SetConnectionAtIndex(NetworkConnection conn)
         {
-            while (m_Connections.Count <= conn.connectionId)
+            while (s_Connections.Count <= conn.connectionId)
             {
-                m_Connections.Add(null);
+                s_Connections.Add(null);
             }
 
-            if (m_Connections[conn.connectionId] != null)
+            if (s_Connections[conn.connectionId] != null)
             {
                 // already a connection at this index
                 return false;
             }
 
-            m_Connections[conn.connectionId] = conn;
-            conn.SetHandlers(m_MessageHandlers);
+            s_Connections[conn.connectionId] = conn;
+            conn.SetHandlers(s_MessageHandlers);
             return true;
         }
 
-        public bool RemoveConnectionAtIndex(int connectionId)
+        public static bool RemoveConnectionAtIndex(int connectionId)
         {
-            if (connectionId < 0 || connectionId >= m_Connections.Count)
+            if (connectionId < 0 || connectionId >= s_Connections.Count)
                 return false;
-            m_Connections.RemoveAt(connectionId);
+            s_Connections.RemoveAt(connectionId);
             return true;
         }
 
         // called by LocalClient to add itself. dont call directly.
-        internal int AddLocalClient(LocalClient localClient)
+        static internal int AddLocalClient(LocalClient localClient)
         {
-            if (m_LocalConnection != null)
+            if (s_LocalConnection != null)
             {
                 Debug.LogError("Local Connection already exists");
                 return -1;
             }
 
-            m_LocalConnection = new ULocalConnectionToClient(localClient);
-            m_LocalConnection.connectionId = 0;
-            SetConnectionAtIndex(m_LocalConnection);
+            s_LocalConnection = new ULocalConnectionToClient(localClient);
+            s_LocalConnection.connectionId = 0;
+            SetConnectionAtIndex(s_LocalConnection);
 
-            m_LocalConnection.InvokeHandlerNoData(MsgType.Connect);
+            s_LocalConnection.InvokeHandlerNoData(MsgType.Connect);
 
             return 0;
         }
 
-        internal void RemoveLocalClient(NetworkConnection localClientConnection)
+        static internal void RemoveLocalClient(NetworkConnection localClientConnection)
         {
-            if (m_LocalConnection != null)
+            if (s_LocalConnection != null)
             {
-                m_LocalConnection.Disconnect();
-                m_LocalConnection.Dispose();
-                m_LocalConnection = null;
+                s_LocalConnection.Disconnect();
+                s_LocalConnection.Dispose();
+                s_LocalConnection = null;
             }
             s_LocalClientActive = false;
             RemoveConnectionAtIndex(0);
         }
 
-        internal void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
+        static internal void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
         {
             if (LogFilter.logDev) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
             s_NetworkScene.SetLocalObject(netId, obj, false, true);
         }
 
-        internal void ActivateLocalClientScene()
+        static internal void ActivateLocalClientScene()
         {
             if (s_LocalClientActive)
                 return;
@@ -602,10 +572,10 @@ namespace UnityEngine.Networking
 
         static public void DisconnectAll()
         {
-            instance.InternalDisconnectAll();
+            InternalDisconnectAll();
         }
 
-        public void DisconnectAllConnections()
+        public static void DisconnectAllConnections()
         {
             for (int i = 0; i < connections.Count; i++)
             {
@@ -618,15 +588,15 @@ namespace UnityEngine.Networking
             }
         }
 
-        internal void InternalDisconnectAll()
+        static internal void InternalDisconnectAll()
         {
             DisconnectAllConnections();
 
-            if (m_LocalConnection != null)
+            if (s_LocalConnection != null)
             {
-                m_LocalConnection.Disconnect();
-                m_LocalConnection.Dispose();
-                m_LocalConnection = null;
+                s_LocalConnection.Disconnect();
+                s_LocalConnection.Dispose();
+                s_LocalConnection = null;
             }
 
             s_Active = false;
@@ -634,13 +604,12 @@ namespace UnityEngine.Networking
         }
 
         // The user should never need to pump the update loop manually
-        internal static void Update()
+        static internal void Update()
         {
-            if (s_Instance != null)
-                s_Instance.InternalUpdate();
+            InternalUpdate();
         }
 
-        void UpdateServerObjects()
+        static void UpdateServerObjects()
         {
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
@@ -665,7 +634,7 @@ namespace UnityEngine.Networking
         }
 
         // this can be used independantly of Update() - such as when using external connections and not listening.
-        public void UpdateConnections()
+        public static void UpdateConnections()
         {
             for (int i = 0; i < connections.Count; i++)
             {
@@ -675,9 +644,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        internal void InternalUpdate()
+        static internal void InternalUpdate()
         {
-            if (m_ServerHostId == -1)
+            if (s_ServerHostId == -1)
                 return;
 
             int connectionId;
@@ -686,9 +655,9 @@ namespace UnityEngine.Networking
             byte error;
 
             var networkEvent = NetworkEventType.DataEvent;
-            if (m_RelaySlotId != -1)
+            if (s_RelaySlotId != -1)
             {
-                networkEvent = NetworkTransport.ReceiveRelayEventFromHost(m_ServerHostId, out error);
+                networkEvent = NetworkTransport.ReceiveRelayEventFromHost(s_ServerHostId, out error);
                 if (NetworkEventType.Nothing != networkEvent)
                 {
                     if (LogFilter.logDebug) { Debug.Log("NetGroup event:" + networkEvent); }
@@ -705,10 +674,10 @@ namespace UnityEngine.Networking
 
             do
             {
-                networkEvent = NetworkTransport.ReceiveFromHost(m_ServerHostId, out connectionId, out channelId, m_MsgBuffer, (ushort)m_MsgBuffer.Length, out receivedSize, out error);
+                networkEvent = NetworkTransport.ReceiveFromHost(s_ServerHostId, out connectionId, out channelId, s_MsgBuffer, (ushort)s_MsgBuffer.Length, out receivedSize, out error);
                 if (networkEvent != NetworkEventType.Nothing)
                 {
-                    if (LogFilter.logDev) { Debug.Log("Server event: host=" + m_ServerHostId + " event=" + networkEvent + " error=" + error); }
+                    if (LogFilter.logDev) { Debug.Log("Server event: host=" + s_ServerHostId + " event=" + networkEvent + " error=" + error); }
                 }
 
                 switch (networkEvent)
@@ -743,14 +712,14 @@ namespace UnityEngine.Networking
 
             UpdateConnections();
 
-            if (m_DontListen)
+            if (s_DontListen)
             {
                 UpdateConnections();
             }
             UpdateServerObjects();
         }
 
-        void HandleConnect(int connectionId, byte error)
+        static void HandleConnect(int connectionId, byte error)
         {
             if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + connectionId); }
 
@@ -765,38 +734,38 @@ namespace UnityEngine.Networking
             NetworkID networkId;
             NodeID node;
             byte error2;
-            NetworkTransport.GetConnectionInfo(m_ServerHostId, connectionId, out address, out port, out networkId, out node, out error2);
+            NetworkTransport.GetConnectionInfo(s_ServerHostId, connectionId, out address, out port, out networkId, out node, out error2);
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
-            conn.SetHandlers(m_MessageHandlers);
-            conn.Initialize(address, m_ServerHostId, connectionId, m_HostTopology);
-            conn.SetMaxDelay(m_MaxDelay);
+            conn.SetHandlers(s_MessageHandlers);
+            conn.Initialize(address, s_ServerHostId, connectionId, s_HostTopology);
+            conn.SetMaxDelay(s_MaxDelay);
             conn.lastError = (NetworkError)error2;
 
             // add connection at correct index
-            while (m_Connections.Count <= connectionId)
+            while (s_Connections.Count <= connectionId)
             {
-                m_Connections.Add(null);
+                s_Connections.Add(null);
             }
-            m_Connections[connectionId] = conn;
+            s_Connections[connectionId] = conn;
 
             OnConnected(conn);
         }
 
-        void OnConnected(NetworkConnection conn)
+        static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + conn.connectionId); }
 
             // add player info
-            conn.SetMaxDelay(m_MaxDelay);
+            conn.SetMaxDelay(s_MaxDelay);
 
             conn.InvokeHandlerNoData(MsgType.Connect);
 
             SendCrc(conn);
         }
 
-        void HandleDisconnect(int connectionId, byte error)
+        static void HandleDisconnect(int connectionId, byte error)
         {
             if (LogFilter.logDebug) { Debug.Log("Server disconnect client:" + connectionId); }
 
@@ -811,20 +780,20 @@ namespace UnityEngine.Networking
             {
                 if ((NetworkError)error != NetworkError.Timeout)
                 {
-                    m_Connections[connectionId] = null;
+                    s_Connections[connectionId] = null;
                     if (LogFilter.logError) { Debug.LogError("Server client disconnect error, connectionId: " + connectionId + " error: " + (NetworkError)error); }
                     return;
                 }
             }
 
             conn.Disconnect();
-            m_Connections[connectionId] = null;
+            s_Connections[connectionId] = null;
             if (LogFilter.logDebug) { Debug.Log("Server lost client:" + connectionId); }
 
             OnDisconnected(conn);
         }
 
-        void OnDisconnected(NetworkConnection conn)
+        static void OnDisconnected(NetworkConnection conn)
         {
             conn.InvokeHandlerNoData(MsgType.Disconnect);
 
@@ -839,15 +808,15 @@ namespace UnityEngine.Networking
             conn.Dispose();
         }
 
-        public NetworkConnection FindConnection(int connectionId)
+        public static NetworkConnection FindConnection(int connectionId)
         {
-            if (connectionId < 0 || connectionId >= m_Connections.Count)
+            if (connectionId < 0 || connectionId >= s_Connections.Count)
                 return null;
 
-            return m_Connections[connectionId];
+            return s_Connections[connectionId];
         }
 
-        void HandleData(int connectionId, int channelId, int receivedSize, byte error)
+        static void HandleData(int connectionId, int channelId, int receivedSize, byte error)
         {
             var conn = FindConnection(connectionId);
             if (conn == null)
@@ -866,37 +835,37 @@ namespace UnityEngine.Networking
             OnData(conn, receivedSize, channelId);
         }
 
-        void OnData(NetworkConnection conn, int receivedSize, int channelId)
+        static void OnData(NetworkConnection conn, int receivedSize, int channelId)
         {
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
                 MsgType.LLAPIMsg, "msg", 1);
 #endif
-            conn.TransportReceive(m_MsgBuffer, receivedSize, channelId);
+            conn.TransportReceive(s_MsgBuffer, receivedSize, channelId);
         }
 
-        private void GenerateConnectError(byte error)
+        static void GenerateConnectError(byte error)
         {
             if (LogFilter.logError) { Debug.LogError("UNet Server Connect Error: " + error); }
             GenerateError(null, error);
         }
 
-        private void GenerateDataError(NetworkConnection conn, byte error)
+        static void GenerateDataError(NetworkConnection conn, byte error)
         {
             NetworkError dataError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Server Data Error: " + dataError); }
             GenerateError(conn, error);
         }
 
-        private void GenerateDisconnectError(NetworkConnection conn, byte error)
+        static void GenerateDisconnectError(NetworkConnection conn, byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
             if (LogFilter.logError) { Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId); }
             GenerateError(conn, error);
         }
 
-        private void GenerateError(NetworkConnection conn, byte error)
+        static void GenerateError(NetworkConnection conn, byte error)
         {
             if (handlers.ContainsKey(MsgType.Error))
             {
@@ -915,17 +884,17 @@ namespace UnityEngine.Networking
 
         static public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            instance.m_MessageHandlers.RegisterHandler(msgType, handler);
+            s_MessageHandlers.RegisterHandler(msgType, handler);
         }
 
         static public void UnregisterHandler(short msgType)
         {
-            instance.m_MessageHandlers.UnregisterHandler(msgType);
+            s_MessageHandlers.UnregisterHandler(msgType);
         }
 
         static public void ClearHandlers()
         {
-            instance.m_MessageHandlers.ClearMessageHandlers();
+            s_MessageHandlers.ClearMessageHandlers();
         }
 
         static public void ClearSpawners()
@@ -1023,12 +992,12 @@ namespace UnityEngine.Networking
             {
                 id.SetDynamicAssetId(assetId);
             }
-            return instance.InternalReplacePlayerForConnection(conn, player, playerControllerId);
+            return InternalReplacePlayerForConnection(conn, player, playerControllerId);
         }
 
         static public bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
         {
-            return instance.InternalReplacePlayerForConnection(conn, player, playerControllerId);
+            return InternalReplacePlayerForConnection(conn, player, playerControllerId);
         }
 
         static public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
@@ -1038,15 +1007,15 @@ namespace UnityEngine.Networking
             {
                 id.SetDynamicAssetId(assetId);
             }
-            return instance.InternalAddPlayerForConnection(conn, player, playerControllerId);
+            return InternalAddPlayerForConnection(conn, player, playerControllerId);
         }
 
         static public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
         {
-            return instance.InternalAddPlayerForConnection(conn, player, playerControllerId);
+            return InternalAddPlayerForConnection(conn, player, playerControllerId);
         }
 
-        internal bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        static internal bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -1114,7 +1083,7 @@ namespace UnityEngine.Networking
             return true;
         }
 
-        bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, PlayerController newPlayerController)
+        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, PlayerController newPlayerController)
         {
             if (LogFilter.logDev) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
 
@@ -1162,7 +1131,7 @@ namespace UnityEngine.Networking
             conn.Send(MsgType.Owner, owner);
         }
 
-        internal bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        static internal bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -1223,10 +1192,10 @@ namespace UnityEngine.Networking
 
         static public void SetClientReady(NetworkConnection conn)
         {
-            instance.SetClientReadyInternal(conn);
+            SetClientReadyInternal(conn);
         }
 
-        internal void SetClientReadyInternal(NetworkConnection conn)
+        static internal void SetClientReadyInternal(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId); }
 
@@ -1308,7 +1277,7 @@ namespace UnityEngine.Networking
         static internal void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
         {
             if (conn.isReady)
-                instance.SendSpawnMessage(uv, conn);
+                SendSpawnMessage(uv, conn);
         }
 
         static internal void HideForConnection(NetworkIdentity uv, NetworkConnection conn)
@@ -1333,10 +1302,10 @@ namespace UnityEngine.Networking
 
         static public void SetClientNotReady(NetworkConnection conn)
         {
-            instance.InternalSetClientNotReady(conn);
+            InternalSetClientNotReady(conn);
         }
 
-        internal void InternalSetClientNotReady(NetworkConnection conn)
+        static internal void InternalSetClientNotReady(NetworkConnection conn)
         {
             if (conn.isReady)
             {
@@ -1412,7 +1381,7 @@ namespace UnityEngine.Networking
             uv.HandleCommand(cmdHash, netMsg.reader);
         }
 
-        internal void SpawnObject(GameObject obj)
+        static internal void SpawnObject(GameObject obj)
         {
             if (!NetworkServer.active)
             {
@@ -1436,7 +1405,7 @@ namespace UnityEngine.Networking
             //SendSpawnMessage(objNetworkIdentity, null);
         }
 
-        internal void SendSpawnMessage(NetworkIdentity uv, NetworkConnection conn)
+        static internal void SendSpawnMessage(NetworkIdentity uv, NetworkConnection conn)
         {
             if (uv.serverOnly)
                 return;
@@ -1626,7 +1595,7 @@ namespace UnityEngine.Networking
         {
             if (VerifyCanSpawn(obj))
             {
-                instance.SpawnObject(obj);
+                SpawnObject(obj);
             }
         }
 
@@ -1711,7 +1680,7 @@ namespace UnityEngine.Networking
                 {
                     id.SetDynamicAssetId(assetId);
                 }
-                instance.SpawnObject(obj);
+                SpawnObject(obj);
             }
         }
 
@@ -1725,26 +1694,26 @@ namespace UnityEngine.Networking
             UnSpawnObject(obj);
         }
 
-        internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int numBytes, int channelId)
+        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int numBytes, int channelId)
         {
             NetworkReader reader = new NetworkReader(buffer);
 
             reader.ReadInt16(); // size
             short msgType = reader.ReadInt16();
 
-            if (handlers.ContainsKey(msgType) && m_LocalConnection != null)
+            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
             {
                 // this must be invoked with the connection to the client, not the client's connection to the server
-                m_LocalConnection.InvokeHandler(msgType, reader, channelId);
+                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
                 return true;
             }
             return false;
         }
 
         // invoked for local clients
-        internal bool InvokeHandlerOnServer(ULocalConnectionToServer conn, short msgType, MessageBase msg, int channelId)
+        static internal bool InvokeHandlerOnServer(ULocalConnectionToServer conn, short msgType, MessageBase msg, int channelId)
         {
-            if (handlers.ContainsKey(msgType) && m_LocalConnection != null)
+            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
             {
                 // write the message to a local buffer
                 NetworkWriter writer = new NetworkWriter();
@@ -1754,7 +1723,7 @@ namespace UnityEngine.Networking
                 NetworkReader reader = new NetworkReader(writer.ToArray());
 
                 // this must be invoked with the connection to the client, not the client's connection to the server
-                m_LocalConnection.InvokeHandler(msgType, reader, channelId);
+                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
                 return true;
             }
             if (LogFilter.logError) { Debug.LogError("Local invoke: Failed to find local connection to invoke handler on [connectionId=" + conn.connectionId + "] for MsgId:" + msgType); }
@@ -1808,10 +1777,10 @@ namespace UnityEngine.Networking
 
         static public bool AddExternalConnection(NetworkConnection conn)
         {
-            return instance.AddExternalConnectionInternal(conn);
+            return AddExternalConnectionInternal(conn);
         }
 
-        bool AddExternalConnectionInternal(NetworkConnection conn)
+        static bool AddExternalConnectionInternal(NetworkConnection conn)
         {
             if (conn.connectionId < 0)
                 return false;
@@ -1832,10 +1801,10 @@ namespace UnityEngine.Networking
 
         static public void RemoveExternalConnection(int connectionId)
         {
-            instance.RemoveExternalConnectionInternal(connectionId);
+            RemoveExternalConnectionInternal(connectionId);
         }
 
-        bool RemoveExternalConnectionInternal(int connectionId)
+        static bool RemoveExternalConnectionInternal(int connectionId)
         {
             if (!s_ExternalConnections.Contains(connectionId))
             {
@@ -1849,7 +1818,7 @@ namespace UnityEngine.Networking
             {
                 conn.RemoveObservers();
             }
-            m_Connections.RemoveAt(connectionId);
+            s_Connections.RemoveAt(connectionId);
 
             return true;
         }

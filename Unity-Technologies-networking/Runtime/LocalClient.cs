@@ -14,7 +14,6 @@ namespace UnityEngine.Networking
         List<InternalMsg> m_InternalMsgs = new List<InternalMsg>();
         List<InternalMsg> m_InternalMsgs2 = new List<InternalMsg>();
 
-        NetworkServer m_LocalServer;
         bool m_Connected;
 
         public override void Disconnect()
@@ -26,15 +25,14 @@ namespace UnityEngine.Networking
                 m_Connected = false;
             }
             m_AsyncConnect = ConnectState.Disconnected;
-            m_LocalServer.RemoveLocalClient(m_Connection);
+            NetworkServer.RemoveLocalClient(m_Connection);
         }
 
         internal void InternalConnectLocalServer(bool generateConnectMsg)
         {
-            m_LocalServer = NetworkServer.instance;
-            m_Connection = new ULocalConnectionToServer(m_LocalServer);
+            m_Connection = new ULocalConnectionToServer();
             SetHandlers(m_Connection);
-            m_Connection.connectionId = m_LocalServer.AddLocalClient(this);
+            m_Connection.connectionId = NetworkServer.AddLocalClient(this);
             m_AsyncConnect = ConnectState.Connected;
 
             SetActive(true);
