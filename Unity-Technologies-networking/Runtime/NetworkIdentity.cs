@@ -878,11 +878,9 @@ namespace UnityEngine.Networking
                             AddObserver(conn);
                     }
 
-                    for (int i = 0; i < NetworkServer.localConnections.Count; i++)
+                    if (NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
                     {
-                        var conn = NetworkServer.localConnections[i];
-                        if (conn != null && conn.isReady)
-                            AddObserver(conn);
+                        AddObserver(NetworkServer.localConnection);
                     }
                 }
                 return;
@@ -925,12 +923,9 @@ namespace UnityEngine.Networking
             // special case for local client.
             if (initialize)
             {
-                for (int i = 0; i < NetworkServer.localConnections.Count; i++)
+                if (!newObservers.Contains(NetworkServer.localConnection))
                 {
-                    if (!newObservers.Contains(NetworkServer.localConnections[i]))
-                    {
-                        OnSetLocalVisibility(false);
-                    }
+                    OnSetLocalVisibility(false);
                 }
             }
 

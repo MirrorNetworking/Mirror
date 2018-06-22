@@ -17,10 +17,7 @@ namespace UnityEngine.Networking
         static object s_Sync = new Object();
         static bool m_DontListen;
         bool m_LocalClientActive;
-
-        // only used for localConnection accessor
-        List<NetworkConnection> m_LocalConnectionsFakeList = new List<NetworkConnection>();
-        ULocalConnectionToClient m_LocalConnection = null;
+        ULocalConnectionToClient m_LocalConnection;
 
         NetworkScene m_NetworkScene;
         HashSet<int> m_ExternalConnections;
@@ -31,7 +28,10 @@ namespace UnityEngine.Networking
         // this is cached here for easy access when checking the size of state update packets in NetworkIdentity
         static internal ushort maxPacketSize;
 
-        static public List<NetworkConnection> localConnections { get { return instance.m_LocalConnectionsFakeList; } }
+        // original HLAPI has .localConnections list with only m_LocalConnection in it
+        // (for downwards compatibility because they removed the real localConnections list a while ago)
+        // => removed it for easier code. use .localConection now!
+        static public NetworkConnection localConnection { get { return (NetworkConnection)instance.m_LocalConnection; } }
 
         static public int listenPort { get { return instance.m_SimpleServerSimple.listenPort; } }
         static public int serverHostId { get { return instance.m_SimpleServerSimple.serverHostId; } }
@@ -213,7 +213,7 @@ namespace UnityEngine.Networking
         // called by LocalClient to add itself. dont call directly.
         internal int AddLocalClient(LocalClient localClient)
         {
-            if (m_LocalConnectionsFakeList.Count != 0)
+            if (m_LocalConnection != null)
             {
                 Debug.LogError("Local Connection already exists");
                 return -1;
@@ -223,9 +223,6 @@ namespace UnityEngine.Networking
             m_LocalConnection.connectionId = 0;
             m_SimpleServerSimple.SetConnectionAtIndex(m_LocalConnection);
 
-            // this is for backwards compatibility with localConnections property
-            m_LocalConnectionsFakeList.Add(m_LocalConnection);
-
             m_LocalConnection.InvokeHandlerNoData(MsgType.Connect);
 
             return 0;
@@ -233,9 +230,6 @@ namespace UnityEngine.Networking
 
         internal void RemoveLocalClient(NetworkConnection localClientConnection)
         {
-            m_LocalConnectionsFakeList.RemoveAll(conn => conn.connectionId == localClientConnection.connectionId);
-
-
             if (m_LocalConnection != null)
             {
                 m_LocalConnection.Disconnect();
