@@ -36,42 +36,34 @@ namespace UnityEditor
 
         void Init()
         {
-            if (m_Initialized)
+            if (!m_Initialized || m_BroadcastPortProperty == null)
             {
-                if (m_BroadcastPortProperty == null)
-                {
-                    // need to re-init
-                }
-                else
-                {
-                    return;
-                }
+
+                m_Initialized = true;
+                m_Discovery = target as NetworkDiscovery;
+
+                m_BroadcastPortProperty = serializedObject.FindProperty("m_BroadcastPort");
+                m_BroadcastKeyProperty = serializedObject.FindProperty("m_BroadcastKey");
+                m_BroadcastVersionProperty = serializedObject.FindProperty("m_BroadcastVersion");
+                m_BroadcastSubVersionProperty = serializedObject.FindProperty("m_BroadcastSubVersion");
+                m_BroadcastIntervalProperty = serializedObject.FindProperty("m_BroadcastInterval");
+                m_UseNetworkManagerProperty = serializedObject.FindProperty("m_UseNetworkManager");
+                m_BroadcastDataProperty = serializedObject.FindProperty("m_BroadcastData");
+                m_ShowGUIProperty = serializedObject.FindProperty("m_ShowGUI");
+                m_OffsetXProperty = serializedObject.FindProperty("m_OffsetX");
+                m_OffsetYProperty = serializedObject.FindProperty("m_OffsetY");
+
+                m_BroadcastPortLabel = new GUIContent("Broadcast Port", "The network port to broadcast to, and listen on.");
+                m_BroadcastKeyLabel = new GUIContent("Broadcast Key", "The key to broadcast. This key typically identifies the application.");
+                m_BroadcastVersionLabel = new GUIContent("Broadcast Version", "The version of the application to broadcast. This is used to match versions of the same application.");
+                m_BroadcastSubVersionLabel = new GUIContent("Broadcast SubVersion", "The sub-version of the application to broadcast.");
+                m_BroadcastIntervalLabel = new GUIContent("Broadcast Interval", "How often in milliseconds to broadcast when running as a server.");
+                m_UseNetworkManagerLabel = new GUIContent("Use NetworkManager", "Broadcast information from the NetworkManager, and auto-join matching games using the NetworkManager.");
+                m_BroadcastDataLabel = new GUIContent("Broadcast Data", "The data to broadcast when not using the NetworkManager");
+                m_ShowGUILabel = new GUIContent("Show GUI", "Enable to draw the default broadcast control UI.");
+                m_OffsetXLabel = new GUIContent("Offset X", "The horizonal offset of the GUI.");
+                m_OffsetYLabel = new GUIContent("Offset Y", "The vertical offset of the GUI.");
             }
-
-            m_Initialized = true;
-            m_Discovery = target as NetworkDiscovery;
-
-            m_BroadcastPortProperty = serializedObject.FindProperty("m_BroadcastPort");
-            m_BroadcastKeyProperty = serializedObject.FindProperty("m_BroadcastKey");
-            m_BroadcastVersionProperty = serializedObject.FindProperty("m_BroadcastVersion");
-            m_BroadcastSubVersionProperty = serializedObject.FindProperty("m_BroadcastSubVersion");
-            m_BroadcastIntervalProperty = serializedObject.FindProperty("m_BroadcastInterval");
-            m_UseNetworkManagerProperty = serializedObject.FindProperty("m_UseNetworkManager");
-            m_BroadcastDataProperty = serializedObject.FindProperty("m_BroadcastData");
-            m_ShowGUIProperty = serializedObject.FindProperty("m_ShowGUI");
-            m_OffsetXProperty = serializedObject.FindProperty("m_OffsetX");
-            m_OffsetYProperty = serializedObject.FindProperty("m_OffsetY");
-
-            m_BroadcastPortLabel = new GUIContent("Broadcast Port", "The network port to broadcast to, and listen on.");
-            m_BroadcastKeyLabel = new GUIContent("Broadcast Key", "The key to broadcast. This key typically identifies the application.");
-            m_BroadcastVersionLabel = new GUIContent("Broadcast Version", "The version of the application to broadcast. This is used to match versions of the same application.");
-            m_BroadcastSubVersionLabel = new GUIContent("Broadcast SubVersion", "The sub-version of the application to broadcast.");
-            m_BroadcastIntervalLabel = new GUIContent("Broadcast Interval", "How often in milliseconds to broadcast when running as a server.");
-            m_UseNetworkManagerLabel = new GUIContent("Use NetworkManager", "Broadcast information from the NetworkManager, and auto-join matching games using the NetworkManager.");
-            m_BroadcastDataLabel = new GUIContent("Broadcast Data", "The data to broadcast when not using the NetworkManager");
-            m_ShowGUILabel = new GUIContent("Show GUI", "Enable to draw the default broadcast control UI.");
-            m_OffsetXLabel = new GUIContent("Offset X", "The horizonal offset of the GUI.");
-            m_OffsetYLabel = new GUIContent("Offset Y", "The vertical offset of the GUI.");
         }
 
         public override void OnInspectorGUI()
