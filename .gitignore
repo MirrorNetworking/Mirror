@@ -30,6 +30,7 @@ Source/Source.sln
 *.booproj
 Output/
 bin/
+.vs/
 
 # ============ #
 # OS generated #
