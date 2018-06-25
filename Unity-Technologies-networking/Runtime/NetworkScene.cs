@@ -59,26 +59,17 @@ namespace UnityEngine.Networking
         // object references can be serialized transparently.
         internal GameObject FindLocalObject(NetworkInstanceId netId)
         {
-            if (m_LocalObjects.ContainsKey(netId))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(netId, out identity))
             {
-                var uv = m_LocalObjects[netId];
-                if (uv != null)
-                {
-                    return uv.gameObject;
-                }
+                return identity.gameObject;
             }
-            return null;
+            return null;                   
         }
 
         internal bool GetNetworkIdentity(NetworkInstanceId netId, out NetworkIdentity uv)
         {
-            if (m_LocalObjects.ContainsKey(netId) && m_LocalObjects[netId] != null)
-            {
-                uv = m_LocalObjects[netId];
-                return true;
-            }
-            uv = null;
-            return false;
+            return m_LocalObjects.TryGetValue(netId, out uv) && uv != null;
         }
 
         internal bool RemoveLocalObject(NetworkInstanceId netId)
