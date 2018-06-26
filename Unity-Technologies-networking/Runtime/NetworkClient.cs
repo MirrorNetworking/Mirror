@@ -947,12 +947,13 @@ namespace UnityEngine.Networking
 
         static internal void UpdateClients()
         {
+            // remove null clients first
+            s_Clients.RemoveAll(cl => cl == null);
+
+            // now updating valid clients
             for (int i = 0; i < s_Clients.Count; ++i)
             {
-                if (s_Clients[i] != null)
-                    s_Clients[i].Update();
-                else
-                    s_Clients.RemoveAt(i);
+                s_Clients[i].Update();
             }
         }
 
