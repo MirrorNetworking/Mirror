@@ -64,7 +64,7 @@ namespace UnityEngine.Networking
             {
                 return identity.gameObject;
             }
-            return null;                   
+            return null;
         }
 
         internal bool GetNetworkIdentity(NetworkInstanceId netId, out NetworkIdentity uv)
