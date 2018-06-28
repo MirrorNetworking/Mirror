@@ -165,18 +165,16 @@ namespace UnityEngine.Networking
             }
 
             // ensure valid ready connection
-            if (readyConn == null)
-            {
-                if (!s_IsReady)
-                {
-                    if (LogFilter.logError) { Debug.LogError("Must call AddPlayer() with a connection the first time to become ready."); }
-                    return false;
-                }
-            }
-            else
+            if (readyConn != null)
             {
                 s_IsReady = true;
                 s_ReadyConnection = readyConn;
+            }
+
+            if (!s_IsReady)
+            {
+                if (LogFilter.logError) { Debug.LogError("Must call AddPlayer() with a connection the first time to become ready."); }
+                return false;
             }
 
             PlayerController existingPlayerController;
