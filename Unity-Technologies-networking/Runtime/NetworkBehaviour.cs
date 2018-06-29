@@ -345,20 +345,12 @@ namespace UnityEngine.Networking
                 return false;
             }
 
-            if (GetType() != inv.invokeClass)
+            if (inv.invokeClass.IsInstanceOfType(this))
             {
-                if (GetType().IsSubclassOf(inv.invokeClass))
-                {
-                    // allowed, commands function is on a base class.
-                }
-                else
-                {
-                    return false;
-                }
+                inv.invokeFunction(this, reader);
+                return true;
             }
-
-            inv.invokeFunction(this, reader);
-            return true;
+            return false;
         }
 
         internal bool InvokeRpcDelegate(int cmdHash, NetworkReader reader)
@@ -374,20 +366,12 @@ namespace UnityEngine.Networking
                 return false;
             }
 
-            if (GetType() != inv.invokeClass)
+            if (inv.invokeClass.IsInstanceOfType(this))
             {
-                if (GetType().IsSubclassOf(inv.invokeClass))
-                {
-                    // allowed, rpc function is on a base class.
-                }
-                else
-                {
-                    return false;
-                }
+                inv.invokeFunction(this, reader);
+                return true;
             }
-
-            inv.invokeFunction(this, reader);
-            return true;
+            return false;
         }
 
         internal bool InvokeSyncEventDelegate(int cmdHash, NetworkReader reader)
