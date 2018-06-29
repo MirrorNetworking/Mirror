@@ -345,6 +345,7 @@ namespace UnityEngine.Networking
                 return false;
             }
 
+            // 'this' instance of invokeClass?
             if (inv.invokeClass.IsInstanceOfType(this))
             {
                 inv.invokeFunction(this, reader);
@@ -366,6 +367,7 @@ namespace UnityEngine.Networking
                 return false;
             }
 
+            // 'this' instance of invokeClass?
             if (inv.invokeClass.IsInstanceOfType(this))
             {
                 inv.invokeFunction(this, reader);
