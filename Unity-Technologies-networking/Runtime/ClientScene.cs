@@ -415,6 +415,7 @@ namespace UnityEngine.Networking
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localNetworkIdentity))
             {
                 // this object already exists (was in the scene), just apply the update to existing object
+                localNetworkIdentity.Reset();
                 ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, null);
                 return;
             }
@@ -481,6 +482,7 @@ namespace UnityEngine.Networking
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localNetworkIdentity))
             {
                 // this object already exists (was in the scene)
+                localNetworkIdentity.Reset();
                 ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, localNetworkIdentity.gameObject);
                 return;
             }
@@ -499,6 +501,7 @@ namespace UnityEngine.Networking
             }
 
             if (LogFilter.logDebug) { Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name); }
+            spawnedId.Reset();
             ApplySpawnPayload(spawnedId, msg.position, msg.payload, msg.netId, spawnedId.gameObject);
         }
 
