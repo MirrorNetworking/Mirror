@@ -270,17 +270,7 @@ namespace UnityEngine.Networking
                 return;
             }
             m_IsServer = true;
-
-            if (m_LocalPlayerAuthority)
-            {
-                // local player on server has NO authority
-                m_HasAuthority = false;
-            }
-            else
-            {
-                // enemy on server has authority
-                m_HasAuthority = true;
-            }
+            m_HasAuthority = !m_LocalPlayerAuthority;
 
             m_Observers = new List<NetworkConnection>();
             m_ObserverConnections = new HashSet<int>();
