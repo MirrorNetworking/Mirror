@@ -10,9 +10,7 @@ namespace UnityEngine.Networking
 {
     public sealed class NetworkServer
     {
-
         static bool s_Active;
-        static object s_Sync = new Object();
         static bool s_DontListen;
         static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
