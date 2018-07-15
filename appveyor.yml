@@ -1,5 +1,8 @@
 version: '{branch}-{build}'
 
+before_build:
+  - nuget restore Unity-Technologies-networking/Networking.sln
+
 build:
   project: Unity-Technologies-networking/Networking.sln
   verbosity: minimal
