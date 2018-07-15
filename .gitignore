@@ -31,6 +31,7 @@ Source/Source.sln
 Output/
 bin/
 .vs/
+Unity-Technologies-networking/packages
 
 # ============ #
 # OS generated #
@@ -42,3 +43,6 @@ bin/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+
