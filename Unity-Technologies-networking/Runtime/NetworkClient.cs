@@ -378,26 +378,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool Send(short msgType, MessageBase msg)
-        {
-            if (m_Connection != null)
-            {
-                if (m_AsyncConnect != ConnectState.Connected)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient Send when not connected to a server"); }
-                    return false;
-                }
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
-#endif
-                return m_Connection.Send(msgType, msg);
-            }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient Send with no connection"); }
-            return false;
-        }
-
         public bool SendWriter(NetworkWriter writer, int channelId)
         {
             if (m_Connection != null)
@@ -428,26 +408,6 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        public bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            if (m_Connection != null)
-            {
-                if (m_AsyncConnect != ConnectState.Connected)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient SendUnreliable when not connected to a server"); }
-                    return false;
-                }
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
-#endif
-                return m_Connection.SendUnreliable(msgType, msg);
-            }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient SendUnreliable with no connection"); }
-            return false;
-        }
-
         public bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
 #if UNITY_EDITOR
@@ -467,6 +427,8 @@ namespace UnityEngine.Networking
             if (LogFilter.logError) { Debug.LogError("NetworkClient SendByChannel with no connection"); }
             return false;
         }
+        public bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         public void SetMaxDelay(float seconds)
         {
