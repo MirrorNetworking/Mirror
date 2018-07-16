@@ -49,7 +49,7 @@ namespace UnityEngine.Networking
         }
 
         // convert 32 length hex string like "042acbef..." to byte array
-        // (each byte is represented with 2 characters, e.g. 0xFF => "FF"
+        // (each byte is represented with 2 characters, e.g. 0xFF => "FF")
         public static NetworkHash128 Parse(string text)
         {
             // AssetDatabase.AssetPathToGUID always returns 32 length strings
