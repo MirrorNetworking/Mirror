@@ -250,7 +250,7 @@ namespace UnityEngine.Networking
             }
             else
             {
-                m_AssetId.Reset();
+                m_AssetId = new NetworkHash128();
             }
         }
 
