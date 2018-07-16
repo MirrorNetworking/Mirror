@@ -344,40 +344,6 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
-        {
-            if (LogFilter.logDev) { Debug.Log("Server.SendToReady id:" + msgType); }
-
-            if (contextObj == null)
-            {
-                for (int i = 0; i < connections.Count; i++)
-                {
-                    NetworkConnection conn = connections[i];
-                    if (conn != null && conn.isReady)
-                    {
-                        conn.Send(msgType, msg);
-                    }
-                }
-                return true;
-            }
-
-            var uv = contextObj.GetComponent<NetworkIdentity>();
-            if (uv != null && uv.observers != null)
-            {
-                bool result = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
-                {
-                    var conn = uv.observers[i];
-                    if (conn.isReady)
-                    {
-                        result &= conn.Send(msgType, msg);
-                    }
-                }
-                return result;
-            }
-            return false;
-        }
-
         static public void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
         {
             if (writer.Position > UInt16.MaxValue)
@@ -458,38 +424,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        static public bool SendUnreliableToReady(GameObject contextObj, short msgType, MessageBase msg)
-        {
-            if (LogFilter.logDev) { Debug.Log("Server.SendUnreliableToReady id:" + msgType); }
-
-            if (contextObj == null)
-            {
-                // no context.. send to all ready connections
-                for (int i = 0; i < connections.Count; i++)
-                {
-                    var conn = connections[i];
-                    if (conn != null && conn.isReady)
-                    {
-                        conn.SendUnreliable(msgType, msg);
-                    }
-                }
-                return true;
-            }
-
-            bool result = true;
-            var uv = contextObj.GetComponent<NetworkIdentity>();
-            int count = uv.observers.Count;
-            for (int i = 0; i < count; i++)
-            {
-                var conn = uv.observers[i];
-                if (conn.isReady)
-                {
-                    result &= conn.SendUnreliable(msgType, msg);
-                }
-            }
-            return result;
-        }
-
         static public bool SendByChannelToAll(short msgType, MessageBase msg, int channelId)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToAll id:" + msgType); }
@@ -515,7 +449,7 @@ namespace UnityEngine.Networking
                 // no context.. send to all ready connections
                 for (int i = 0; i < connections.Count; i++)
                 {
-                    var conn = connections[i];
+                    NetworkConnection conn = connections[i];
                     if (conn != null && conn.isReady)
                     {
                         conn.SendByChannel(msgType, msg, channelId);
@@ -524,19 +458,24 @@ namespace UnityEngine.Networking
                 return true;
             }
 
-            bool result = true;
-            var uv = contextObj.GetComponent<NetworkIdentity>();
-            int count = uv.observers.Count;
-            for (int i = 0; i < count; i++)
+            NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
+            if (uv != null && uv.observers != null)
             {
-                var conn = uv.observers[i];
-                if (conn.isReady)
+                bool result = true;
+                for (int i = 0; i < uv.observers.Count; ++i)
                 {
-                    result &= conn.SendByChannel(msgType, msg, channelId);
+                    NetworkConnection conn = uv.observers[i];
+                    if (conn.isReady)
+                    {
+                        result &= conn.SendByChannel(msgType, msg, channelId);
+                    }
                 }
+                return result;
             }
-            return result;
+            return false;
         }
+        static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg) { return SendByChannelToReady(contextObj, msgType, msg, Channels.DefaultReliable); }
+        static public bool SendUnreliableToReady(GameObject contextObj, short msgType, MessageBase msg) { return SendByChannelToReady(contextObj, msgType, msg, Channels.DefaultUnreliable); }
 
         static public void DisconnectAll()
         {
