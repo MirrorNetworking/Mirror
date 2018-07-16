@@ -66,9 +66,10 @@ We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New fea
 =======
 # HLAPI Community Edition
 
-[![Build status](https://img.shields.io/appveyor/ci/vis2k/hlapi-community-edition.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/branch/master)
-[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k/hlapi-community-edition.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/build/tests)
+[![Build status](https://img.shields.io/appveyor/ci/vis2k/hlapi-community-edition/features.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/branch/features)
+[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k/hlapi-community-edition/features.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/branch/features/tests)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discord.gg/wvesC6)
+[![Codecov](https://codecov.io/bb/vis2k/hlapi-community-edition/branch/features/graph/badge.svg)](https://codecov.io/bb/vis2k/hlapi-community-edition/branch/features)
 
 Unity is the best game engine in the world, which should make UNET the best multiplayer game development solution in the world, but it's not.
 
