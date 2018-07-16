@@ -30,5 +30,13 @@ namespace UnityEngine.Networking.Tests
             Assert.That(hash.i14, Is.EqualTo(0xdc));
             Assert.That(hash.i15, Is.EqualTo(0xba));
         }
+
+        [Test]
+        public void TestToString()
+        {
+            string guid = "0123456789abcdef9876543210fedcba";
+            NetworkHash128 hash = NetworkHash128.Parse(guid);
+            Assert.That(hash.ToString(), Is.EqualTo(guid));
+        }
     }
 }
