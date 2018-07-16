@@ -36,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetworkWriterTest.cs" />
+    <Compile Include="NetworkHash128Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
