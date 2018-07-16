@@ -324,23 +324,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        static public bool SendToAll(short msgType, MessageBase msg)
-        {
-            if (LogFilter.logDev) { Debug.Log("Server.SendToAll msgType:" + msgType); }
-
-            bool result = true;
-
-            // remote connections
-            for (int i = 0; i < connections.Count; i++)
-            {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                    result &= conn.Send(msgType, msg);
-            }
-
-            return result;
-        }
-
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static bool SendToObservers(GameObject contextObj, short msgType, MessageBase msg)
@@ -475,20 +458,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        static public bool SendUnreliableToAll(short msgType, MessageBase msg)
-        {
-            if (LogFilter.logDev) { Debug.Log("Server.SendUnreliableToAll msgType:" + msgType); }
-
-            bool result = true;
-            for (int i = 0; i < connections.Count; i++)
-            {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                    result &= conn.SendUnreliable(msgType, msg);
-            }
-            return result;
-        }
-
         static public bool SendUnreliableToReady(GameObject contextObj, short msgType, MessageBase msg)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendUnreliableToReady id:" + msgType); }
@@ -526,15 +495,16 @@ namespace UnityEngine.Networking
             if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToAll id:" + msgType); }
 
             bool result = true;
-
             for (int i = 0; i < connections.Count; i++)
             {
-                var conn = connections[i];
+                NetworkConnection conn = connections[i];
                 if (conn != null)
                     result &= conn.SendByChannel(msgType, msg, channelId);
             }
             return result;
         }
+        static public bool SendToAll(short msgType, MessageBase msg) { return SendByChannelToAll(msgType, msg, Channels.DefaultReliable); }
+        static public bool SendUnreliableToAll(short msgType, MessageBase msg) { return SendByChannelToAll(msgType, msg, Channels.DefaultUnreliable); }
 
         static public bool SendByChannelToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId)
         {
