@@ -1,7 +1,0 @@
-HLAPI Community Edition License
-
-You may incorporate and embed the HLAPI Community Edition compiled DLL files
-into your electronic games and interactive media and distribute such electronic
-games and media.
-
-All rights reserved to the HLAPI Community Edition source code.
