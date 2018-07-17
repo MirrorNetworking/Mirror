@@ -16,7 +16,6 @@ namespace UnityEngine.Networking
         List<PlayerController> m_PlayerControllers = new List<PlayerController>();
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
-        NetworkWriter m_Writer = new NetworkWriter();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlersDict;
         NetworkMessageHandlers m_MessageHandlers;
@@ -75,7 +74,6 @@ namespace UnityEngine.Networking
 
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId, HostTopology hostTopology)
         {
-            m_Writer = new NetworkWriter();
             address = networkAddress;
             hostId = networkHostId;
             connectionId = networkConnectionId;
@@ -330,10 +328,11 @@ namespace UnityEngine.Networking
 
         public virtual bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
-            m_Writer.StartMessage(msgType);
-            msg.Serialize(m_Writer);
-            m_Writer.FinishMessage();
-            return SendWriter(m_Writer, channelId);
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage(msgType);
+            msg.Serialize(writer);
+            writer.FinishMessage();
+            return SendWriter(writer, channelId);
         }
 
         public virtual bool SendBytes(byte[] bytes, int numBytes, int channelId)
