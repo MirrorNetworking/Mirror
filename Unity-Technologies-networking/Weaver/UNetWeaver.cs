@@ -67,7 +67,6 @@ namespace Unity.UNetWeaver
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
-        public static TypeReference NetworkCRCType;
 
         public static TypeReference NetworkReaderType;
         public static TypeDefinition NetworkReaderDef;
@@ -89,7 +88,6 @@ namespace Unity.UNetWeaver
 
         public static TypeReference ClientSceneType;
         public static MethodReference FindLocalObjectReference;
-        public static MethodReference RegisterBehaviourReference;
         public static MethodReference ReadyConnectionReference;
 
         public static TypeReference ComponentType;
@@ -1296,7 +1294,6 @@ namespace Unity.UNetWeaver
             hashType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkHash128");
             NetworkClientType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkClient");
             NetworkServerType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkServer");
-            NetworkCRCType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkCRC");
 
             SyncVarType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncVarAttribute");
             CommandType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.CommandAttribute");
@@ -1445,7 +1442,6 @@ namespace Unity.UNetWeaver
             ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.ClientScene");
             FindLocalObjectReference = ResolveMethod(ClientSceneType, "FindLocalObject");
-            RegisterBehaviourReference = ResolveMethod(NetworkCRCType, "RegisterBehaviour");
             ReadyConnectionReference = ResolveMethod(ClientSceneType, "get_readyConnection");
 
             // get specialized GetComponent<NetworkIdentity>()

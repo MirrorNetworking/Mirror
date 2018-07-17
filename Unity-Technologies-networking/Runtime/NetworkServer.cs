@@ -18,8 +18,6 @@ namespace UnityEngine.Networking
         static NetworkScene s_NetworkScene = new NetworkScene();
         static HashSet<int> s_ExternalConnections = new HashSet<int>();
 
-        static float s_MaxDelay = 0.1f;
-
         static NetworkMessageHandlers s_MessageHandlers = new NetworkMessageHandlers();
         static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
 
@@ -53,8 +51,6 @@ namespace UnityEngine.Networking
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
         public static int numChannels { get { return s_HostTopology.DefaultConfig.ChannelCount; } }
-        public static float maxDelay { get { return s_MaxDelay; } set { InternalSetMaxDelay(value); } }
-
 
         static Type s_NetworkConnectionClass = typeof(NetworkConnection);
         public static Type networkConnectionClass { get { return s_NetworkConnectionClass; } }
@@ -148,7 +144,6 @@ namespace UnityEngine.Networking
             s_MessageHandlers.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
             s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
             s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Fragment, NetworkConnection.OnFragment);
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
@@ -226,20 +221,6 @@ namespace UnityEngine.Networking
             s_Active = true;
             RegisterMessageHandlers();
             return true;
-        }
-
-        static void InternalSetMaxDelay(float seconds)
-        {
-            // set on existing connections
-            for (int i = 0; i < connections.Count; i++)
-            {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                    conn.SetMaxDelay(seconds);
-            }
-
-            // save for future connections
-            s_MaxDelay = seconds;
         }
 
         public static bool SetConnectionAtIndex(NetworkConnection conn)
@@ -540,17 +521,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        // this can be used independantly of Update() - such as when using external connections and not listening.
-        public static void UpdateConnections()
-        {
-            for (int i = 0; i < connections.Count; i++)
-            {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                    conn.FlushChannels();
-            }
-        }
-
         static internal void InternalUpdate()
         {
             if (s_ServerHostId == -1)
@@ -617,12 +587,6 @@ namespace UnityEngine.Networking
             }
             while (networkEvent != NetworkEventType.Nothing);
 
-            UpdateConnections();
-
-            if (s_DontListen)
-            {
-                UpdateConnections();
-            }
             UpdateServerObjects();
         }
 
@@ -647,7 +611,6 @@ namespace UnityEngine.Networking
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
             conn.SetHandlers(s_MessageHandlers);
             conn.Initialize(address, s_ServerHostId, connectionId, s_HostTopology);
-            conn.SetMaxDelay(s_MaxDelay);
             conn.lastError = (NetworkError)error2;
 
             // add connection at correct index
@@ -663,13 +626,7 @@ namespace UnityEngine.Networking
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + conn.connectionId); }
-
-            // add player info
-            conn.SetMaxDelay(s_MaxDelay);
-
             conn.InvokeHandlerNoData(MsgType.Connect);
-
-            SendCrc(conn);
         }
 
         static void HandleDisconnect(int connectionId, byte error)
@@ -807,53 +764,6 @@ namespace UnityEngine.Networking
         static public void ClearSpawners()
         {
             NetworkScene.ClearSpawners();
-        }
-
-        static public void GetStatsOut(out int numMsgs, out int numBufferedMsgs, out int numBytes, out int lastBufferedPerSecond)
-        {
-            numMsgs = 0;
-            numBufferedMsgs = 0;
-            numBytes = 0;
-            lastBufferedPerSecond = 0;
-
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    int snumMsgs;
-                    int snumBufferedMsgs;
-                    int snumBytes;
-                    int slastBufferedPerSecond;
-
-                    conn.GetStatsOut(out snumMsgs, out snumBufferedMsgs, out snumBytes, out slastBufferedPerSecond);
-
-                    numMsgs += snumMsgs;
-                    numBufferedMsgs += snumBufferedMsgs;
-                    numBytes += snumBytes;
-                    lastBufferedPerSecond += slastBufferedPerSecond;
-                }
-            }
-        }
-
-        static public void GetStatsIn(out int numMsgs, out int numBytes)
-        {
-            numMsgs = 0;
-            numBytes = 0;
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    int cnumMsgs;
-                    int cnumBytes;
-
-                    conn.GetStatsIn(out cnumMsgs, out cnumBytes);
-
-                    numMsgs += cnumMsgs;
-                    numBytes += cnumBytes;
-                }
-            }
         }
 
         // send this message to the player only
@@ -1642,46 +1552,6 @@ namespace UnityEngine.Networking
             return s_NetworkScene.FindLocalObject(netId);
         }
 
-        static public Dictionary<short, NetworkConnection.PacketStat> GetConnectionStats()
-        {
-            Dictionary<short, NetworkConnection.PacketStat> stats = new Dictionary<short, NetworkConnection.PacketStat>();
-
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    foreach (short k in conn.packetStats.Keys)
-                    {
-                        if (stats.ContainsKey(k))
-                        {
-                            NetworkConnection.PacketStat s = stats[k];
-                            s.count += conn.packetStats[k].count;
-                            s.bytes += conn.packetStats[k].bytes;
-                            stats[k] = s;
-                        }
-                        else
-                        {
-                            stats[k] = new NetworkConnection.PacketStat(conn.packetStats[k]);
-                        }
-                    }
-                }
-            }
-            return stats;
-        }
-
-        static public void ResetConnectionStats()
-        {
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    conn.ResetStats();
-                }
-            }
-        }
-
         static public bool AddExternalConnection(NetworkConnection conn)
         {
             return AddExternalConnectionInternal(conn);
@@ -1775,30 +1645,6 @@ namespace UnityEngine.Networking
                 netId.ForceAuthority(true);
             }
             return true;
-        }
-
-        static void SendCrc(NetworkConnection targetConnection)
-        {
-            if (NetworkCRC.singleton == null)
-                return;
-
-            if (NetworkCRC.scriptCRCCheck == false)
-                return;
-
-            CRCMessage crcMsg = new CRCMessage();
-
-            // build entries
-            List<CRCMessageEntry> entries = new List<CRCMessageEntry>();
-            foreach (var name in NetworkCRC.singleton.scripts.Keys)
-            {
-                CRCMessageEntry entry = new CRCMessageEntry();
-                entry.name = name;
-                entry.channel = (byte)NetworkCRC.singleton.scripts[name];
-                entries.Add(entry);
-            }
-            crcMsg.scripts = entries.ToArray();
-
-            targetConnection.Send(MsgType.CRC, crcMsg);
         }
     };
 }

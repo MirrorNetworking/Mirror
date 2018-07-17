@@ -40,8 +40,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Runtime\ChannelBuffer.cs" />
-    <Compile Include="..\Runtime\ChannelPacket.cs" />
     <Compile Include="..\Runtime\ClientScene.cs" />
     <Compile Include="..\Runtime\ConnectionArray.cs" />
     <Compile Include="..\Runtime\CustomAttributes.cs" />
@@ -50,7 +48,6 @@
     <Compile Include="..\Runtime\LogFilter.cs" />
     <Compile Include="..\Runtime\Messages.cs" />
     <Compile Include="..\Runtime\NetworkAnimator.cs" />
-    <Compile Include="..\Runtime\NetworkCRC.cs" />
     <Compile Include="..\Runtime\NetworkDiscovery.cs" />
     <Compile Include="..\Runtime\NetworkHash128.cs" />
     <Compile Include="..\Runtime\NetworkInstanceId.cs" />

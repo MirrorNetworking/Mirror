@@ -33,8 +33,6 @@ namespace UnityEngine.Networking
         int m_ClientConnectionId = -1;
         //int m_RelaySlotId = -1;
 
-        int m_StatResetTime;
-
         EndPoint m_RemoteEndPoint;
 
         NetworkMessageHandlers m_MessageHandlers = new NetworkMessageHandlers();
@@ -430,16 +428,6 @@ namespace UnityEngine.Networking
         public bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public void SetMaxDelay(float seconds)
-        {
-            if (m_Connection == null)
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("SetMaxDelay failed, not connected."); }
-                return;
-            }
-            m_Connection.SetMaxDelay(seconds);
-        }
-
         public void Shutdown()
         {
             if (LogFilter.logDebug) Debug.Log("Shutting down client " + m_ClientId);
@@ -483,15 +471,6 @@ namespace UnityEngine.Networking
                 case ConnectState.Connected:
                 {
                     break;
-                }
-            }
-
-            if (m_Connection != null)
-            {
-                if ((int)Time.time != m_StatResetTime)
-                {
-                    m_Connection.ResetStats();
-                    m_StatResetTime = (int)Time.time;
                 }
             }
 
@@ -583,9 +562,6 @@ namespace UnityEngine.Networking
                 }
             }
             while (networkEvent != NetworkEventType.Nothing);
-
-            if (m_Connection != null &&  m_AsyncConnect == ConnectState.Connected)
-                m_Connection.FlushChannels();
         }
 
         void GenerateConnectError(byte error)
@@ -633,46 +609,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        public void GetStatsOut(out int numMsgs, out int numBufferedMsgs, out int numBytes, out int lastBufferedPerSecond)
-        {
-            numMsgs = 0;
-            numBufferedMsgs = 0;
-            numBytes = 0;
-            lastBufferedPerSecond = 0;
-
-            if (m_Connection != null)
-            {
-                m_Connection.GetStatsOut(out numMsgs, out numBufferedMsgs, out numBytes, out lastBufferedPerSecond);
-            }
-        }
-
-        public void GetStatsIn(out int numMsgs, out int numBytes)
-        {
-            numMsgs = 0;
-            numBytes = 0;
-
-            if (m_Connection != null)
-            {
-                m_Connection.GetStatsIn(out numMsgs, out numBytes);
-            }
-        }
-
-        public Dictionary<short, NetworkConnection.PacketStat> GetConnectionStats()
-        {
-            if (m_Connection == null)
-                return null;
-
-            return m_Connection.packetStats;
-        }
-
-        public void ResetConnectionStats()
-        {
-            if (m_Connection == null)
-                return;
-
-            m_Connection.ResetStats();
-        }
-
         public int GetRTT()
         {
             if (m_ClientId == -1)
@@ -685,15 +621,6 @@ namespace UnityEngine.Networking
         internal void RegisterSystemHandlers(bool localClient)
         {
             ClientScene.RegisterSystemHandlers(this, localClient);
-            RegisterHandlerSafe(MsgType.CRC, OnCRC);
-            RegisterHandlerSafe(MsgType.Fragment, NetworkConnection.OnFragment);
-        }
-
-        void OnCRC(NetworkMessage netMsg)
-        {
-            CRCMessage msg = new CRCMessage();
-            netMsg.ReadMessage(msg);
-            NetworkCRC.Validate(msg.scripts, numChannels);
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
@@ -709,31 +636,6 @@ namespace UnityEngine.Networking
         public void UnregisterHandler(short msgType)
         {
             m_MessageHandlers.UnregisterHandler(msgType);
-        }
-
-        static public Dictionary<short, NetworkConnection.PacketStat> GetTotalConnectionStats()
-        {
-            Dictionary<short, NetworkConnection.PacketStat> stats = new Dictionary<short, NetworkConnection.PacketStat>();
-            for (int i = 0; i < s_Clients.Count; i++)
-            {
-                var client = s_Clients[i];
-                var clientStats = client.GetConnectionStats();
-                foreach (short k in clientStats.Keys)
-                {
-                    if (stats.ContainsKey(k))
-                    {
-                        NetworkConnection.PacketStat s = stats[k];
-                        s.count += clientStats[k].count;
-                        s.bytes += clientStats[k].bytes;
-                        stats[k] = s;
-                    }
-                    else
-                    {
-                        stats[k] = new NetworkConnection.PacketStat(clientStats[k]);
-                    }
-                }
-            }
-            return stats;
         }
 
         internal static void AddClient(NetworkClient client)

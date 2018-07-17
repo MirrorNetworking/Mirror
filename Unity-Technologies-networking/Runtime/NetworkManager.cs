@@ -26,7 +26,7 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ScriptCRCCheck = true;
+        [SerializeField] bool m_ScriptCRCCheck = true; // not used anymore, but keep for compatibility
         [SerializeField] float m_MaxDelay = 0.01f;
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
@@ -47,8 +47,8 @@ namespace UnityEngine.Networking
         [SerializeField] int m_SimulatedLatency = 1;
         [SerializeField] float m_PacketLossPercentage;
 
-        [SerializeField] int m_MaxBufferedPackets = ChannelBuffer.MaxBufferedPackets;
-        [SerializeField] bool m_AllowFragmentation = true;
+        [SerializeField] int m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
+        [SerializeField] bool m_AllowFragmentation = true; // not used anymore, but keep it for compatibility
 
         // matchmaking configuration
         [SerializeField] string m_MatchHost = "mm.unet.unity3d.com";
@@ -201,12 +201,7 @@ namespace UnityEngine.Networking
             m_PacketLossPercentage = Mathf.Clamp(m_PacketLossPercentage, 0, 99); // [0, 99]
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
 
-            if (m_MaxBufferedPackets <= 0) m_MaxBufferedPackets = 0;
-            if (m_MaxBufferedPackets > ChannelBuffer.MaxBufferedPackets)
-            {
-                m_MaxBufferedPackets = ChannelBuffer.MaxBufferedPackets;
-                if (LogFilter.logError) { Debug.LogError("NetworkManager - MaxBufferedPackets cannot be more than " + ChannelBuffer.MaxBufferedPackets); }
-            }
+            m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
 
             if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
             {
@@ -237,10 +232,10 @@ namespace UnityEngine.Networking
             //
             // Changing them would result in chaos. Using anything != Fragmented
             // would fail to send bigger messages too.
-            if (channels.Count < 1 || !NetworkConnection.IsReliableQoS(channels[0]))
+            if (channels.Count < 1 || !Channels.IsReliableQoS(channels[0]))
                 Debug.LogWarning("NetworkManager: First channel needs to be Reliable because in the code Channels.DefaultReliable is 0.");
 
-            if (channels.Count < 2 || !NetworkConnection.IsUnreliableQoS(channels[1]))
+            if (channels.Count < 2 || !Channels.IsUnreliableQoS(channels[1]))
                 Debug.LogWarning("NetworkManager: Second channel needs to be Unreliable because in the code Channels.DefaultReliable is 1.");
         }
 
@@ -278,7 +273,6 @@ namespace UnityEngine.Networking
             if (m_RunInBackground)
                 Application.runInBackground = true;
 
-            NetworkCRC.scriptCRCCheck = scriptCRCCheck;
             NetworkServer.useWebSockets = m_UseWebSockets;
 
             if (m_GlobalConfig != null)
@@ -765,24 +759,6 @@ namespace UnityEngine.Networking
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
 
-            netMsg.conn.SetMaxDelay(m_MaxDelay);
-
-            if (m_MaxBufferedPackets != ChannelBuffer.MaxBufferedPackets)
-            {
-                for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
-                {
-                    netMsg.conn.SetChannelOption(channelId, ChannelOption.MaxPendingBuffers, m_MaxBufferedPackets);
-                }
-            }
-
-            if (!m_AllowFragmentation)
-            {
-                for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
-                {
-                    netMsg.conn.SetChannelOption(channelId, ChannelOption.AllowFragmentation, 0);
-                }
-            }
-
             if (networkSceneName != "" && networkSceneName != m_OfflineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
@@ -849,8 +825,6 @@ namespace UnityEngine.Networking
         internal void OnClientConnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.logDebug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
-
-            netMsg.conn.SetMaxDelay(m_MaxDelay);
 
             string loadedSceneName = SceneManager.GetSceneAt(0).name;
             if (string.IsNullOrEmpty(m_OnlineScene) || (m_OnlineScene == m_OfflineScene) || (loadedSceneName == m_OnlineScene))
