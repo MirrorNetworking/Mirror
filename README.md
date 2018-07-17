@@ -61,10 +61,10 @@ You'll find it
 
 We have multiple yet sometimes conflicting goals. Thus we are developing HLAPI in several branches:
 
-* master: 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
-* 2018.1: 2018.1 patch. Can be rebased to latest 'master' all the time.
-* improvements: the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
-* features: this branch is for new features that could be useful. We can go crazy with features here, as long as we all agree that a given feature is a good idea to add. We can discuss features in Discord.
+* [master](https://bitbucket.org/vis2k/hlapi-community-edition/src/master/): 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
+* [2018.1](https://bitbucket.org/vis2k/hlapi-community-edition/src/2018.1/): 2018.1 patch. Can be rebased to latest 'master' all the time.
+* [Improvements](https://bitbucket.org/vis2k/hlapi-community-edition/src/Improvements/): the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
+* [features](https://bitbucket.org/vis2k/hlapi-community-edition/src/features/): this branch is for new features that could be useful. We can go crazy with features here, as long as we all agree that a given feature is a good idea to add. We can discuss features in Discord.
 
 
 If you submit pull requests, please submit them to the proper branch. 
