@@ -93,7 +93,7 @@ namespace UnityEngine.Networking
                 {
                     actualPacketSize = hostTopology.DefaultConfig.FragmentSize * 128;
                 }
-                m_Channels[i] = new ChannelBuffer(this, actualPacketSize, (byte)i, IsReliableQoS(qos.QOS), IsSequencedQoS(qos.QOS));
+                m_Channels[i] = new ChannelBuffer(this, actualPacketSize, (byte)i, Channels.IsReliableQoS(qos.QOS), Channels.IsSequencedQoS(qos.QOS));
             }
         }
 
@@ -140,21 +140,6 @@ namespace UnityEngine.Networking
             m_ClientOwnedObjects = null;
 
             m_Disposed = true;
-        }
-
-        public static bool IsSequencedQoS(QosType qos)
-        {
-            return (qos == QosType.ReliableSequenced || qos == QosType.UnreliableSequenced);
-        }
-
-        public static bool IsReliableQoS(QosType qos)
-        {
-            return (qos == QosType.Reliable || qos == QosType.ReliableFragmented || qos == QosType.ReliableSequenced || qos == QosType.ReliableStateUpdate);
-        }
-
-        public static bool IsUnreliableQoS(QosType qos)
-        {
-            return (qos == QosType.Unreliable || qos == QosType.UnreliableFragmented || qos == QosType.UnreliableSequenced || qos == QosType.StateUpdate);
         }
 
         public bool SetChannelOption(int channelId, ChannelOption option, int value)

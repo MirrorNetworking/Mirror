@@ -173,6 +173,22 @@ namespace UnityEngine.Networking
     {
         public const int DefaultReliable = 0;
         public const int DefaultUnreliable = 1;
+    
+        // moved IsSequenced etc. functions here because it's better than in NetworkConnection
+        public static bool IsSequencedQoS(QosType qos)
+        {
+            return (qos == QosType.ReliableSequenced || qos == QosType.UnreliableSequenced);
+        }
+    
+        public static bool IsReliableQoS(QosType qos)
+        {
+            return (qos == QosType.Reliable || qos == QosType.ReliableFragmented || qos == QosType.ReliableSequenced || qos == QosType.ReliableStateUpdate);
+        }
+    
+        public static bool IsUnreliableQoS(QosType qos)
+        {
+            return (qos == QosType.Unreliable || qos == QosType.UnreliableFragmented || qos == QosType.UnreliableSequenced || qos == QosType.StateUpdate);
+        }
     }
 
     public enum ChannelOption

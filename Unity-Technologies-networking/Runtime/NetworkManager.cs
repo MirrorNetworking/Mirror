@@ -237,10 +237,10 @@ namespace UnityEngine.Networking
             //
             // Changing them would result in chaos. Using anything != Fragmented
             // would fail to send bigger messages too.
-            if (channels.Count < 1 || !NetworkConnection.IsReliableQoS(channels[0]))
+            if (channels.Count < 1 || !Channels.IsReliableQoS(channels[0]))
                 Debug.LogWarning("NetworkManager: First channel needs to be Reliable because in the code Channels.DefaultReliable is 0.");
 
-            if (channels.Count < 2 || !NetworkConnection.IsUnreliableQoS(channels[1]))
+            if (channels.Count < 2 || !Channels.IsUnreliableQoS(channels[1]))
                 Debug.LogWarning("NetworkManager: Second channel needs to be Unreliable because in the code Channels.DefaultReliable is 1.");
         }
 
