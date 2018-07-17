@@ -316,16 +316,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        public virtual bool Send(short msgType, MessageBase msg)
-        {
-            return SendByChannel(msgType, msg, Channels.DefaultReliable);
-        }
-
-        public virtual bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            return SendByChannel(msgType, msg, Channels.DefaultUnreliable);
-        }
-
         public virtual bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             NetworkWriter writer = new NetworkWriter();
@@ -334,6 +324,8 @@ namespace UnityEngine.Networking
             writer.FinishMessage();
             return SendWriter(writer, channelId);
         }
+        public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         public virtual bool SendBytes(byte[] bytes, int numBytes, int channelId)
         {
