@@ -50,7 +50,32 @@ namespace UnityEngine.Networking.Tests
             Assert.That(writer.ToArray().Length, Is.EqualTo(4));
         }
 
+        [Test]
+        public void TestPackedUInt32()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)1337);
+            writer.WritePackedUInt32(0);
+            writer.WritePackedUInt32(234);
+            writer.WritePackedUInt32(2284);
+            writer.WritePackedUInt32(67821);
+            writer.WritePackedUInt32(16777210);
+            writer.WritePackedUInt32(16777219);
+            writer.WritePackedUInt32(UInt16.MaxValue);
 
+            writer.FinishMessage();
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            reader.ReadInt16();
+            Assert.That(reader.ReadUInt16(), Is.EqualTo(1337)); // contentSize (messasge.size - 4 bytes header)
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(0));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(234));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(2284));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(67821));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777210));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777219));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(UInt16.MaxValue));
+        }
 
         [Test]
         public void TestWritingAndReading()
@@ -121,5 +146,6 @@ namespace UnityEngine.Networking.Tests
             Assert.That(reader.Position, Is.Zero);
 
         }
+
     }
 }
