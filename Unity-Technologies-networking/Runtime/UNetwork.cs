@@ -190,14 +190,6 @@ namespace UnityEngine.Networking
             return (qos == QosType.Unreliable || qos == QosType.UnreliableFragmented || qos == QosType.UnreliableSequenced || qos == QosType.StateUpdate);
         }
     }
-
-    public enum ChannelOption
-    {
-        MaxPendingBuffers = 1,
-        AllowFragmentation = 2,
-        MaxPacketSize = 3
-            // maybe add an InitialCapacity for Pending Buffers list if needed in the future
-    }
 }
 
 

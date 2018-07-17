@@ -40,8 +40,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Runtime\ChannelBuffer.cs" />
-    <Compile Include="..\Runtime\ChannelPacket.cs" />
     <Compile Include="..\Runtime\ClientScene.cs" />
     <Compile Include="..\Runtime\ConnectionArray.cs" />
     <Compile Include="..\Runtime\CustomAttributes.cs" />

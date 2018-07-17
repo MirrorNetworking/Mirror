@@ -48,20 +48,6 @@ namespace UnityEngine.Networking
             m_LocalClient.InvokeBytesOnClient(writer.ToArray(), channelId);
             return true;
         }
-
-        public override void GetStatsOut(out int numMsgs, out int numBufferedMsgs, out int numBytes, out int lastBufferedPerSecond)
-        {
-            numMsgs = 0;
-            numBufferedMsgs = 0;
-            numBytes = 0;
-            lastBufferedPerSecond = 0;
-        }
-
-        public override void GetStatsIn(out int numMsgs, out int numBytes)
-        {
-            numMsgs = 0;
-            numBytes = 0;
-        }
     }
 
     // a localClient's connection TO a server.
@@ -104,20 +90,6 @@ namespace UnityEngine.Networking
         {
             // write relevant data, which is until .Position
             return NetworkServer.InvokeBytes(this, writer.ToArray(), (short)writer.Position, channelId);
-        }
-
-        public override void GetStatsOut(out int numMsgs, out int numBufferedMsgs, out int numBytes, out int lastBufferedPerSecond)
-        {
-            numMsgs = 0;
-            numBufferedMsgs = 0;
-            numBytes = 0;
-            lastBufferedPerSecond = 0;
-        }
-
-        public override void GetStatsIn(out int numMsgs, out int numBytes)
-        {
-            numMsgs = 0;
-            numBytes = 0;
         }
     }
 }
