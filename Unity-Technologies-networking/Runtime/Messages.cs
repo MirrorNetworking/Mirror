@@ -391,37 +391,5 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.Write(readyState);
         }
     }
-
-    struct CRCMessageEntry
-    {
-        public string name;
-        public byte channel;
-    }
-
-    class CRCMessage : MessageBase
-    {
-        public CRCMessageEntry[] scripts;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            int numScripts = reader.ReadUInt16();
-            scripts = new CRCMessageEntry[numScripts];
-            for (int i = 0; i < scripts.Length; ++i)
-            {
-                scripts[i].name = reader.ReadString();
-                scripts[i].channel = reader.ReadByte();
-            }
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.Write((ushort)scripts.Length);
-            for (int i = 0; i < scripts.Length; i++)
-            {
-                writer.Write(scripts[i].name);
-                writer.Write(scripts[i].channel);
-            }
-        }
-    }
 }
 #endif //ENABLE_UNET

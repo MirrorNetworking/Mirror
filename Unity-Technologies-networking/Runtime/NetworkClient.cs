@@ -685,15 +685,7 @@ namespace UnityEngine.Networking
         internal void RegisterSystemHandlers(bool localClient)
         {
             ClientScene.RegisterSystemHandlers(this, localClient);
-            RegisterHandlerSafe(MsgType.CRC, OnCRC);
             RegisterHandlerSafe(MsgType.Fragment, NetworkConnection.OnFragment);
-        }
-
-        void OnCRC(NetworkMessage netMsg)
-        {
-            CRCMessage msg = new CRCMessage();
-            netMsg.ReadMessage(msg);
-            NetworkCRC.Validate(msg.scripts, numChannels);
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)

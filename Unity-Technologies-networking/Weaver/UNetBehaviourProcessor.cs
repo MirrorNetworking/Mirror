@@ -330,12 +330,6 @@ namespace Unity.UNetWeaver
                 syncListIndex += 1;
             }
 
-            // register CRC entry
-            // "NetworkCRC.RegisterBehaviour('MyScript', 2);"
-            cctorWorker.Append(cctorWorker.Create(OpCodes.Ldstr, m_td.Name));
-            cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, m_QosChannel));
-            cctorWorker.Append(cctorWorker.Create(OpCodes.Call, Weaver.RegisterBehaviourReference));
-
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
             if (!cctorFound)
             {

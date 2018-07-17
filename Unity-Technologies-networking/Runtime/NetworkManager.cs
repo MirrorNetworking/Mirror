@@ -26,7 +26,7 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ScriptCRCCheck = true;
+        [SerializeField] bool m_ScriptCRCCheck = true; // not used anymore, but keep for compatibility
         [SerializeField] float m_MaxDelay = 0.01f;
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
@@ -278,7 +278,6 @@ namespace UnityEngine.Networking
             if (m_RunInBackground)
                 Application.runInBackground = true;
 
-            NetworkCRC.scriptCRCCheck = scriptCRCCheck;
             NetworkServer.useWebSockets = m_UseWebSockets;
 
             if (m_GlobalConfig != null)

@@ -668,8 +668,6 @@ namespace UnityEngine.Networking
             conn.SetMaxDelay(s_MaxDelay);
 
             conn.InvokeHandlerNoData(MsgType.Connect);
-
-            SendCrc(conn);
         }
 
         static void HandleDisconnect(int connectionId, byte error)
@@ -1775,30 +1773,6 @@ namespace UnityEngine.Networking
                 netId.ForceAuthority(true);
             }
             return true;
-        }
-
-        static void SendCrc(NetworkConnection targetConnection)
-        {
-            if (NetworkCRC.singleton == null)
-                return;
-
-            if (NetworkCRC.scriptCRCCheck == false)
-                return;
-
-            CRCMessage crcMsg = new CRCMessage();
-
-            // build entries
-            List<CRCMessageEntry> entries = new List<CRCMessageEntry>();
-            foreach (var name in NetworkCRC.singleton.scripts.Keys)
-            {
-                CRCMessageEntry entry = new CRCMessageEntry();
-                entry.name = name;
-                entry.channel = (byte)NetworkCRC.singleton.scripts[name];
-                entries.Add(entry);
-            }
-            crcMsg.scripts = entries.ToArray();
-
-            targetConnection.Send(MsgType.CRC, crcMsg);
         }
     };
 }
