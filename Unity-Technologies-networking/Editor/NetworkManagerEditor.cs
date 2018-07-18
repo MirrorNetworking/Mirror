@@ -15,15 +15,11 @@ namespace UnityEditor
     {
         protected SerializedProperty m_DontDestroyOnLoadProperty;
         protected SerializedProperty m_RunInBackgroundProperty;
-        protected SerializedProperty m_ScriptCRCCheckProperty;
         SerializedProperty m_NetworkAddressProperty;
 
         SerializedProperty m_NetworkPortProperty;
         SerializedProperty m_ServerBindToIPProperty;
         SerializedProperty m_ServerBindAddressProperty;
-        SerializedProperty m_MaxDelayProperty;
-        SerializedProperty m_MaxBufferedPacketsProperty;
-        SerializedProperty m_AllowFragmentationProperty;
 
         protected SerializedProperty m_LogLevelProperty;
         SerializedProperty m_MatchHostProperty;
@@ -53,7 +49,6 @@ namespace UnityEditor
         GUIContent m_OnlineSceneLabel;
         protected GUIContent m_DontDestroyOnLoadLabel;
         protected GUIContent m_RunInBackgroundLabel;
-        protected GUIContent m_ScriptCRCCheckLabel;
 
         GUIContent m_MaxConnectionsLabel;
         GUIContent m_MinUpdateTimeoutLabel;
@@ -66,8 +61,6 @@ namespace UnityEditor
         GUIContent m_ReactorMaximumReceivedMessagesLabel;
         GUIContent m_ReactorMaximumSentMessagesLabel;
 
-        GUIContent m_MaxBufferedPacketsLabel;
-        GUIContent m_AllowFragmentationLabel;
         GUIContent m_UseWebSocketsLabel;
         GUIContent m_UseSimulatorLabel;
         GUIContent m_LatencyLabel;
@@ -110,8 +103,7 @@ namespace UnityEditor
             m_OnlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
             m_DontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             m_RunInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
-            m_ScriptCRCCheckLabel = new GUIContent("Script CRC Check", "Enable to cause a CRC check between server and client that ensures the NetworkBehaviour scripts match.\n\nThis may not be appropriate in some cases, such as when the client and server are different Unity projects.");
-
+            
             m_MaxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
             m_MinUpdateTimeoutLabel = new GUIContent("Min Update Timeout", "Minimum time network thread waits for events");
             m_ConnectTimeoutLabel = new GUIContent("Connect Timeout", "Time to wait for timeout on connecting");
@@ -123,8 +115,6 @@ namespace UnityEditor
             m_ReactorMaximumReceivedMessagesLabel = new GUIContent("Reactor Max Recv Messages", "Defines maximum amount of messages in the receive queue");
             m_ReactorMaximumSentMessagesLabel = new GUIContent("Reactor Max Sent Messages", "Defines maximum message count in sent queue");
 
-            m_MaxBufferedPacketsLabel = new GUIContent("Max Buffered Packets", "The maximum number of packets that can be buffered by a NetworkConnection for each channel. This corresponds to the 'ChannelOption.MaxPendingBuffers' channel option.");
-            m_AllowFragmentationLabel = new GUIContent("Packet Fragmentation", "Enable to allow NetworkConnection instances to fragment packets that are larger than the maxPacketSize, up to a maximum size of 64K.\n\nThis can cause delays when sending large packets.");
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
             m_UseSimulatorLabel = new GUIContent("Use Network Simulator", "This simulates network latency and packet loss on clients. Useful for testing under internet-like conditions");
             m_LatencyLabel = new GUIContent("Simulated Average Latency", "The amount of delay in milliseconds to add to network packets");
@@ -146,7 +136,6 @@ namespace UnityEditor
             // top-level properties
             m_DontDestroyOnLoadProperty = serializedObject.FindProperty("m_DontDestroyOnLoad");
             m_RunInBackgroundProperty = serializedObject.FindProperty("m_RunInBackground");
-            m_ScriptCRCCheckProperty = serializedObject.FindProperty("m_ScriptCRCCheck");
             m_LogLevelProperty = serializedObject.FindProperty("m_LogLevel");
 
             // network foldout properties
@@ -154,9 +143,6 @@ namespace UnityEditor
             m_NetworkPortProperty = serializedObject.FindProperty("m_NetworkPort");
             m_ServerBindToIPProperty = serializedObject.FindProperty("m_ServerBindToIP");
             m_ServerBindAddressProperty = serializedObject.FindProperty("m_ServerBindAddress");
-            m_MaxDelayProperty = serializedObject.FindProperty("m_MaxDelay");
-            m_MaxBufferedPacketsProperty = serializedObject.FindProperty("m_MaxBufferedPackets");
-            m_AllowFragmentationProperty = serializedObject.FindProperty("m_AllowFragmentation");
             m_MatchHostProperty =  serializedObject.FindProperty("m_MatchHost");
             m_MatchPortProperty =  serializedObject.FindProperty("m_MatchPort");
             m_MatchNameProperty =  serializedObject.FindProperty("matchName");
@@ -386,10 +372,6 @@ namespace UnityEditor
                 EditorGUILayout.PropertyField(m_ServerBindAddressProperty, m_ServerBindAddressLabel);
                 EditorGUI.indentLevel -= 1;
             }
-            EditorGUILayout.PropertyField(m_ScriptCRCCheckProperty, m_ScriptCRCCheckLabel);
-            EditorGUILayout.PropertyField(m_MaxDelayProperty, m_MaxDelayLabel);
-            EditorGUILayout.PropertyField(m_MaxBufferedPacketsProperty, m_MaxBufferedPacketsLabel);
-            EditorGUILayout.PropertyField(m_AllowFragmentationProperty, m_AllowFragmentationLabel);
             EditorGUILayout.PropertyField(m_MatchHostProperty, m_MatchHostLabel);
             EditorGUILayout.PropertyField(m_MatchPortProperty, m_MatchPortLabel);
             EditorGUILayout.PropertyField(m_MatchNameProperty, m_MatchNameLabel);

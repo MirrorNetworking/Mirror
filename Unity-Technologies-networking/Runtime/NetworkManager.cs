@@ -26,8 +26,8 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ScriptCRCCheck = true; // not used anymore, but keep for compatibility
-        [SerializeField] float m_MaxDelay = 0.01f;
+        [SerializeField] bool m_ScriptCRCCheck = true; // keep to preserve original HLAPI serialization
+        [SerializeField] float m_MaxDelay = 0.01f; // keep to preserve original HLAPI serialization
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
         [SerializeField] bool m_AutoCreatePlayer = true;
@@ -47,8 +47,8 @@ namespace UnityEngine.Networking
         [SerializeField] int m_SimulatedLatency = 1;
         [SerializeField] float m_PacketLossPercentage;
 
-        [SerializeField] int m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
-        [SerializeField] bool m_AllowFragmentation = true; // not used anymore, but keep it for compatibility
+        [SerializeField] int m_MaxBufferedPackets = 0; // keep to preserve original HLAPI serialization
+        [SerializeField] bool m_AllowFragmentation = true; // keep to preserve original HLAPI serialization
 
         // matchmaking configuration
         [SerializeField] string m_MatchHost = "mm.unet.unity3d.com";
@@ -200,8 +200,6 @@ namespace UnityEngine.Networking
             m_SimulatedLatency = Mathf.Clamp(m_SimulatedLatency, 1, 500); // [1, 500]
             m_PacketLossPercentage = Mathf.Clamp(m_PacketLossPercentage, 0, 99); // [0, 99]
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
-
-            m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
 
             if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
             {
