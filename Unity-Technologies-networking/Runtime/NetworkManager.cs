@@ -26,8 +26,10 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ScriptCRCCheck = true; // keep to preserve original HLAPI serialization
-        [SerializeField] float m_MaxDelay = 0.01f; // keep to preserve original HLAPI serialization
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] bool m_ScriptCRCCheck = true;
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] float m_MaxDelay = 0.01f;
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
         [SerializeField] bool m_AutoCreatePlayer = true;
@@ -47,9 +49,13 @@ namespace UnityEngine.Networking
         [SerializeField] int m_SimulatedLatency = 1;
         [SerializeField] float m_PacketLossPercentage;
 
-        [SerializeField] int m_MaxBufferedPackets = 0; // keep to preserve original HLAPI serialization
-        [SerializeField] bool m_AllowFragmentation = true; // keep to preserve original HLAPI serialization
-
+        #pragma warning disable 0169
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] int m_MaxBufferedPackets; 
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] bool m_AllowFragmentation;
+        #pragma warning restore 0169
+        
         // matchmaking configuration
         [SerializeField] string m_MatchHost = "mm.unet.unity3d.com";
         [SerializeField] int m_MatchPort = 443;
@@ -66,8 +72,10 @@ namespace UnityEngine.Networking
         public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
         public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         public bool scriptCRCCheck           { get { return m_ScriptCRCCheck; } set { m_ScriptCRCCheck = value;  }}
 
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         public float maxDelay                { get { return m_MaxDelay; }  set { m_MaxDelay = value; } }
         public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
