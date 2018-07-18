@@ -1,7 +1,6 @@
 # HLAPI Community Edition
 
-[![Build status](https://img.shields.io/appveyor/ci/vis2k/hlapi-community-edition.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/branch/master)
-[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k/hlapi-community-edition.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/build/tests)
+[![Build status](https://img.shields.io/appveyor/ci/vis2k/hlapi-community-edition/fixes.svg)](https://ci.appveyor.com/project/vis2k/hlapi-community-edition/branch/fixes)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discord.gg/wvesC6)
 
 Unity is the best game engine in the world, which should make UNET the best multiplayer game development solution in the world, but it's not.
@@ -61,9 +60,9 @@ You'll find it
 
 We have multiple yet sometimes conflicting goals. Thus we are developing HLAPI in several branches:
 
-* [master](https://bitbucket.org/vis2k/hlapi-community-edition/src/master/): 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
+* [fixes](https://bitbucket.org/vis2k/hlapi-community-edition/src/fixes/): 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
 * [2018.1](https://bitbucket.org/vis2k/hlapi-community-edition/src/2018.1/): 2018.1 patch. Can be rebased to latest 'master' all the time.
-* [Improvements](https://bitbucket.org/vis2k/hlapi-community-edition/src/Improvements/): the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
+* [improvements](https://bitbucket.org/vis2k/hlapi-community-edition/src/improvements/): the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
 * [features](https://bitbucket.org/vis2k/hlapi-community-edition/src/features/): this branch is for new features that could be useful. We can go crazy with features here, as long as we all agree that a given feature is a good idea to add. We can discuss features in Discord.
 
 
