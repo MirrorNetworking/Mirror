@@ -30,7 +30,7 @@ namespace UnityEngine.Networking
 
             if (!manager.IsClientConnected() && !NetworkServer.active && manager.matchMaker == null)
             {
-                if (UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
+                if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
                     if (Input.GetKeyDown(KeyCode.S))
                     {
@@ -81,7 +81,7 @@ namespace UnityEngine.Networking
             {
                 if (noConnection)
                 {
-                    if (UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
+                    if (Application.platform != RuntimePlatform.WebGLPlayer)
                     {
                         if (GUI.Button(new Rect(xpos, ypos, 200, 20), "LAN Host(H)"))
                         {
@@ -98,7 +98,7 @@ namespace UnityEngine.Networking
                     manager.networkAddress = GUI.TextField(new Rect(xpos + 100, ypos, 95, 20), manager.networkAddress);
                     ypos += spacing;
 
-                    if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+                    if (Application.platform == RuntimePlatform.WebGLPlayer)
                     {
                         // cant be a server in webgl build
                         GUI.Box(new Rect(xpos, ypos, 200, 25), "(  WebGL cannot be server  )");
@@ -171,7 +171,7 @@ namespace UnityEngine.Networking
             {
                 ypos += 10;
 
-                if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
                 {
                     GUI.Box(new Rect(xpos - 5, ypos, 220, 25), "(WebGL cannot use Match Maker)");
                     return;
