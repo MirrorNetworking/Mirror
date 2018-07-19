@@ -26,7 +26,6 @@ namespace UnityEngine.Networking
         int m_ServerPort;
         int m_ClientId = -1;
         int m_ClientConnectionId = -1;
-        //int m_RelaySlotId = -1;
 
         EndPoint m_RemoteEndPoint;
 

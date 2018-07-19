@@ -22,7 +22,6 @@ namespace UnityEngine.Networking
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
-        static int s_RelaySlotId = -1;
         static HostTopology s_HostTopology;
         static byte[] s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
         static bool s_UseWebSockets;
@@ -137,37 +136,6 @@ namespace UnityEngine.Networking
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
-        }
-
-        static public void ListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
-        {
-            InternalListenRelay(relayIp, relayPort, netGuid, sourceId, nodeId);
-        }
-
-        static internal void InternalListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
-        {
-            Initialize();
-
-            s_ServerHostId = NetworkTransport.AddHost(s_HostTopology, listenPort);
-            if (LogFilter.logDebug) { Debug.Log("Server Host Slot Id: " + s_ServerHostId); }
-
-            Update();
-
-            byte error;
-            NetworkTransport.ConnectAsNetworkHost(
-                s_ServerHostId,
-                relayIp,
-                relayPort,
-                netGuid,
-                sourceId,
-                nodeId,
-                out error);
-
-            s_RelaySlotId = 0;
-            if (LogFilter.logDebug) { Debug.Log("Relay Slot Id: " + s_RelaySlotId); }
-
-            s_Active = true;
-            RegisterMessageHandlers();
         }
 
         static public bool Listen(int serverPort)
@@ -522,22 +490,6 @@ namespace UnityEngine.Networking
             byte error;
 
             var networkEvent = NetworkEventType.DataEvent;
-            if (s_RelaySlotId != -1)
-            {
-                networkEvent = NetworkTransport.ReceiveRelayEventFromHost(s_ServerHostId, out error);
-                if (NetworkEventType.Nothing != networkEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup event:" + networkEvent); }
-                }
-                if (networkEvent == NetworkEventType.ConnectEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup server connected"); }
-                }
-                if (networkEvent == NetworkEventType.DisconnectEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup server disconnected"); }
-                }
-            }
 
             do
             {
