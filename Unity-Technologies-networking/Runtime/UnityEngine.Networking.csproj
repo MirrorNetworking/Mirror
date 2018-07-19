@@ -49,7 +49,6 @@
     <Compile Include="NetworkDiscovery.cs" />
     <Compile Include="NetworkHash128.cs" />
     <Compile Include="NetworkInstanceId.cs" />
-    <Compile Include="NetworkMessageHandlers.cs" />
     <Compile Include="NetworkProximityChecker.cs" />
     <Compile Include="NetworkScene.cs" />
     <Compile Include="NetworkSceneId.cs" />

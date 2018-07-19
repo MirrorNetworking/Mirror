@@ -246,31 +246,31 @@ namespace UnityEngine.Networking
         {
             if (localClient)
             {
-                client.RegisterHandlerSafe(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.ObjectHide, OnLocalClientObjectHide);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawn, OnLocalClientObjectSpawn);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawnScene, OnLocalClientObjectSpawnScene);
-                client.RegisterHandlerSafe(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler(MsgType.ObjectSpawn, OnLocalClientObjectSpawn);
+                client.RegisterHandler(MsgType.ObjectSpawnScene, OnLocalClientObjectSpawnScene);
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
             else
             {
                 // LocalClient shares the sim/scene with the server, no need for these events
-                client.RegisterHandlerSafe(MsgType.ObjectSpawn, OnObjectSpawn);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawnScene, OnObjectSpawnScene);
-                client.RegisterHandlerSafe(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandlerSafe(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.ObjectHide, OnObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.UpdateVars, OnUpdateVarsMessage);
-                client.RegisterHandlerSafe(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandlerSafe(MsgType.SyncList, OnSyncListMessage);
-                client.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
-                client.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
-                client.RegisterHandlerSafe(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.ObjectSpawn, OnObjectSpawn);
+                client.RegisterHandler(MsgType.ObjectSpawnScene, OnObjectSpawnScene);
+                client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
+                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler(MsgType.SyncList, OnSyncListMessage);
+                client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
+                client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
 
-            client.RegisterHandlerSafe(MsgType.Rpc, OnRPCMessage);
-            client.RegisterHandlerSafe(MsgType.SyncEvent, OnSyncEventMessage);
-            client.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
+            client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
+            client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
+            client.RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
         }
 
         // ------------------------ NetworkScene pass-throughs ---------------------

@@ -16,8 +16,7 @@ namespace UnityEngine.Networking
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlersDict;
-        NetworkMessageHandlers m_MessageHandlers;
+        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
 
@@ -93,15 +92,9 @@ namespace UnityEngine.Networking
             RemoveObservers();
         }
 
-        internal void SetHandlers(NetworkMessageHandlers handlers)
+        internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
-            m_MessageHandlersDict = handlers.GetHandlers();
-        }
-
-        public bool CheckHandler(short msgType)
-        {
-            return m_MessageHandlersDict.ContainsKey(msgType);
         }
 
         public bool InvokeHandlerNoData(short msgType)
@@ -111,15 +104,15 @@ namespace UnityEngine.Networking
 
         public bool InvokeHandler(short msgType, NetworkReader reader, int channelId)
         {
-            if (m_MessageHandlersDict.ContainsKey(msgType))
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
                 NetworkMessage message = new NetworkMessage();
                 message.msgType = msgType;
                 message.conn = this;
                 message.reader = reader;
                 message.channelId = channelId;
-
-                NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[msgType];
+                
                 msgDelegate(message);
                 return true;
             }
@@ -129,24 +122,27 @@ namespace UnityEngine.Networking
 
         public bool InvokeHandler(NetworkMessage netMsg)
         {
-            if (m_MessageHandlersDict.ContainsKey(netMsg.msgType))
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out msgDelegate))
             {
-                NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[netMsg.msgType];
                 msgDelegate(netMsg);
                 return true;
             }
-            if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + netMsg.msgType); }
             return false;
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            m_MessageHandlers.RegisterHandler(msgType, handler);
+            if (m_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+            }
+            m_MessageHandlers[msgType] = handler;
         }
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.UnregisterHandler(msgType);
+            m_MessageHandlers.Remove(msgType);
         }
 
         internal void SetPlayerController(PlayerController player)
@@ -277,12 +273,8 @@ namespace UnityEngine.Networking
                     Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + msg);
                 }
 
-                NetworkMessageDelegate msgDelegate = null;
-                if (m_MessageHandlersDict.ContainsKey(msgType))
-                {
-                    msgDelegate = m_MessageHandlersDict[msgType];
-                }
-                if (msgDelegate != null)
+                NetworkMessageDelegate msgDelegate;
+                if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
                 {
                     // create message here instead of caching it. so we can add it to queue more easily.
                     NetworkMessage msg = new NetworkMessage();
@@ -417,7 +409,7 @@ namespace UnityEngine.Networking
                 foreach (NetworkMessage msg in pauseQueue)
                 {
                     if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + MsgType.MsgTypeToString(msg.msgType)); }
-                    var msgDelegate = m_MessageHandlersDict[msg.msgType];
+                    var msgDelegate = m_MessageHandlers[msg.msgType];
                     msgDelegate(msg);
                 }
                 pauseQueue = null;

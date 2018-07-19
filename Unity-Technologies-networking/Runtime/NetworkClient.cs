@@ -29,7 +29,7 @@ namespace UnityEngine.Networking
 
         EndPoint m_RemoteEndPoint;
 
-        NetworkMessageHandlers m_MessageHandlers = new NetworkMessageHandlers();
+        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         byte[] m_MsgBuffer;
@@ -58,7 +58,7 @@ namespace UnityEngine.Networking
         public NetworkConnection connection { get { return m_Connection; } }
 
         internal int hostId { get { return m_ClientId; } }
-        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers.GetHandlers(); } }
+        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
         public int numChannels { get { return m_HostTopology.DefaultConfig.ChannelCount; } }
         public HostTopology hostTopology { get { return m_HostTopology; }}
         public int hostPort
@@ -512,12 +512,8 @@ namespace UnityEngine.Networking
 
         void GenerateError(byte error)
         {
-            NetworkMessageDelegate msgDelegate = m_MessageHandlers.GetHandler(MsgType.Error);
-            if (msgDelegate == null)
-            {
-                msgDelegate = m_MessageHandlers.GetHandler(MsgType.Error);
-            }
-            if (msgDelegate != null)
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.errorCode = error;
@@ -551,17 +547,16 @@ namespace UnityEngine.Networking
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            m_MessageHandlers.RegisterHandler(msgType, handler);
-        }
-
-        public void RegisterHandlerSafe(short msgType, NetworkMessageDelegate handler)
-        {
-            m_MessageHandlers.RegisterHandlerSafe(msgType, handler);
+            if (m_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+            }
+            m_MessageHandlers[msgType] = handler;
         }
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.UnregisterHandler(msgType);
+            m_MessageHandlers.Remove(msgType);
         }
 
         internal static void AddClient(NetworkClient client)

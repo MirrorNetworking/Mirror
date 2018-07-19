@@ -17,7 +17,7 @@ namespace UnityEngine.Networking
         static NetworkScene s_NetworkScene = new NetworkScene();
         static HashSet<int> s_ExternalConnections = new HashSet<int>();
 
-        static NetworkMessageHandlers s_MessageHandlers = new NetworkMessageHandlers();
+        static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
 
         static int s_ServerHostId = -1;
@@ -39,7 +39,7 @@ namespace UnityEngine.Networking
         public static int serverHostId { get { return s_ServerHostId; } }
 
         public static List<NetworkConnection> connections { get { return s_Connections; } }
-        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers.GetHandlers(); } }
+        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
         public static HostTopology hostTopology { get { return s_HostTopology; }}
 
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
@@ -125,14 +125,14 @@ namespace UnityEngine.Networking
 
         static internal void RegisterMessageHandlers()
         {
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Ready, OnClientReadyMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Command, OnCommandMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.RemovePlayer, OnRemovePlayerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
+            RegisterHandler(MsgType.Ready, OnClientReadyMessage);
+            RegisterHandler(MsgType.Command, OnCommandMessage);
+            RegisterHandler(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
+            RegisterHandler(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
+            RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
+            RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
+            RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
@@ -675,17 +675,21 @@ namespace UnityEngine.Networking
 
         static public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            s_MessageHandlers.RegisterHandler(msgType, handler);
+            if (s_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
+            }
+            s_MessageHandlers[msgType] = handler;
         }
 
         static public void UnregisterHandler(short msgType)
         {
-            s_MessageHandlers.UnregisterHandler(msgType);
+            s_MessageHandlers.Remove(msgType);
         }
 
         static public void ClearHandlers()
         {
-            s_MessageHandlers.ClearMessageHandlers();
+            s_MessageHandlers.Clear();
         }
 
         static public void ClearSpawners()
