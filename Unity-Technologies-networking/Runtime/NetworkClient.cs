@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
@@ -121,12 +120,6 @@ namespace UnityEngine.Networking
             //      effectively the number of _clients_.
             m_HostTopology = topology;
             return true;
-        }
-
-        public void Connect(MatchInfo matchInfo)
-        {
-            PrepareForConnect();
-            ConnectWithRelay(matchInfo);
         }
 
         static bool IsValidIpV6(string address)
@@ -291,31 +284,6 @@ namespace UnityEngine.Networking
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);
-        }
-
-        void ConnectWithRelay(MatchInfo info)
-        {
-            m_AsyncConnect = ConnectState.Connecting;
-
-            Update();
-
-            byte error;
-            m_ClientConnectionId = NetworkTransport.ConnectToNetworkPeer(
-                    m_ClientId,
-                    info.address,
-                    info.port,
-                    0,
-                    0,
-                    info.networkId,
-                    Utility.GetSourceID(),
-                    info.nodeId,
-                    out error);
-
-            m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
-            m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(info.address, m_ClientId, m_ClientConnectionId, m_HostTopology);
-
-            if (error != 0) { Debug.LogError("ConnectToNetworkPeer Error: " + error); }
         }
 
         public virtual void Disconnect()

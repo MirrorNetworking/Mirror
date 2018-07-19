@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
 
@@ -123,15 +122,6 @@ namespace UnityEngine.Networking
             }
 
             if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
-        }
-
-        static public bool Listen(MatchInfo matchInfo, int listenPort)
-        {
-            if (!matchInfo.usingRelay)
-                return InternalListen(null, listenPort);
-
-            InternalListenRelay(matchInfo.address, matchInfo.port, matchInfo.networkId, Utility.GetSourceID(), matchInfo.nodeId);
-            return true;
         }
 
         static internal void RegisterMessageHandlers()
