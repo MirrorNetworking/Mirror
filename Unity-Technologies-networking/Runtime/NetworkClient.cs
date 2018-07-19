@@ -337,7 +337,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
+                (short)MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
 #endif
             if (m_Connection != null)
             {
@@ -430,7 +430,7 @@ namespace UnityEngine.Networking
                         }
 
                         m_AsyncConnect = ConnectState.Connected;
-                        m_Connection.InvokeHandlerNoData(MsgType.Connect);
+                        m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
                         break;
 
                     case NetworkEventType.DataEvent:
@@ -443,7 +443,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                         UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        MsgType.LLAPIMsg, "msg", 1);
+                        (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
 
                         m_MsgReader.SeekZero();
@@ -465,7 +465,7 @@ namespace UnityEngine.Networking
                         ClientScene.HandleClientDisconnect(m_Connection);
                         if (m_Connection != null)
                         {
-                            m_Connection.InvokeHandlerNoData(MsgType.Disconnect);
+                            m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
                         }
                         break;
 
@@ -513,7 +513,7 @@ namespace UnityEngine.Networking
         void GenerateError(byte error)
         {
             NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue(MsgType.Error, out msgDelegate))
+            if (m_MessageHandlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.errorCode = error;
@@ -523,7 +523,7 @@ namespace UnityEngine.Networking
                 msg.Serialize(writer);
 
                 NetworkMessage netMsg = new NetworkMessage();
-                netMsg.msgType = MsgType.Error;
+                netMsg.msgType = (short)MsgType.Error;
                 netMsg.reader = new NetworkReader(writer.ToArray());
                 netMsg.conn = m_Connection;
                 netMsg.channelId = 0;

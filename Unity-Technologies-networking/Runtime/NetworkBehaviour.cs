@@ -73,7 +73,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.Command, cmdName, 1);
+                (short)MsgType.Command, cmdName, 1);
 #endif
         }
 
@@ -101,7 +101,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.Rpc, rpcName, 1);
+                (short)MsgType.Rpc, rpcName, 1);
 #endif
         }
 
@@ -122,7 +122,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.Rpc, rpcName, 1);
+                (short)MsgType.Rpc, rpcName, 1);
 #endif
         }
 
@@ -149,7 +149,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.SyncEvent, eventName, 1);
+                (short)MsgType.SyncEvent, eventName, 1);
 #endif
         }
 

@@ -125,14 +125,14 @@ namespace UnityEngine.Networking
 
         static internal void RegisterMessageHandlers()
         {
-            RegisterHandler(MsgType.Ready, OnClientReadyMessage);
-            RegisterHandler(MsgType.Command, OnCommandMessage);
-            RegisterHandler(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            RegisterHandler(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
-            RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
-            RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
-            RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
-            RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
+            RegisterHandler((short)MsgType.Ready, OnClientReadyMessage);
+            RegisterHandler((short)MsgType.Command, OnCommandMessage);
+            RegisterHandler((short)MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
+            RegisterHandler((short)MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            RegisterHandler((short)MsgType.RemovePlayer, OnRemovePlayerMessage);
+            RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
+            RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
+            RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
@@ -220,7 +220,7 @@ namespace UnityEngine.Networking
             s_LocalConnection.connectionId = 0;
             SetConnectionAtIndex(s_LocalConnection);
 
-            s_LocalConnection.InvokeHandlerNoData(MsgType.Connect);
+            s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
 
             return 0;
         }
@@ -553,7 +553,7 @@ namespace UnityEngine.Networking
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + conn.connectionId); }
-            conn.InvokeHandlerNoData(MsgType.Connect);
+            conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
         static void HandleDisconnect(int connectionId, byte error)
@@ -586,7 +586,7 @@ namespace UnityEngine.Networking
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandlerNoData(MsgType.Disconnect);
+            conn.InvokeHandlerNoData((short)MsgType.Disconnect);
 
             if (conn.playerControllers.Any(pc => pc.gameObject != null))
             {
@@ -631,7 +631,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.LLAPIMsg, "msg", 1);
+                (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
             conn.TransportReceive(s_MsgBuffer, receivedSize, channelId);
         }
@@ -658,7 +658,7 @@ namespace UnityEngine.Networking
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
-            if (handlers.ContainsKey(MsgType.Error))
+            if (handlers.ContainsKey((short)MsgType.Error))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.errorCode = error;
@@ -669,7 +669,7 @@ namespace UnityEngine.Networking
 
                 // pass a reader (attached to local buffer) to handler
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler(MsgType.Error, reader, 0);
+                conn.InvokeHandler((short)MsgType.Error, reader, 0);
             }
         }
 
@@ -876,7 +876,7 @@ namespace UnityEngine.Networking
             OwnerMessage owner = new OwnerMessage();
             owner.netId = uv.netId;
             owner.playerControllerId = uv.playerControllerId;
-            conn.Send(MsgType.Owner, owner);
+            conn.Send((short)MsgType.Owner, owner);
         }
 
         static internal bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
@@ -995,7 +995,7 @@ namespace UnityEngine.Networking
 
             ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
             msg.state = 0;
-            conn.Send(MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, msg);
 
             foreach (NetworkIdentity uv in objects.Values)
             {
@@ -1019,7 +1019,7 @@ namespace UnityEngine.Networking
             }
 
             msg.state = 1;
-            conn.Send(MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, msg);
         }
 
         static internal void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
@@ -1032,7 +1032,7 @@ namespace UnityEngine.Networking
         {
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;
-            conn.Send(MsgType.ObjectHide, msg);
+            conn.Send((short)MsgType.ObjectHide, msg);
         }
 
         // call this to make all the clients not ready, such as when changing levels.
@@ -1062,7 +1062,7 @@ namespace UnityEngine.Networking
                 conn.RemoveObservers();
 
                 NotReadyMessage msg = new NotReadyMessage();
-                conn.Send(MsgType.NotReady, msg);
+                conn.Send((short)MsgType.NotReady, msg);
             }
         }
 
@@ -1177,17 +1177,17 @@ namespace UnityEngine.Networking
 
                 if (conn != null)
                 {
-                    conn.Send(MsgType.ObjectSpawn, msg);
+                    conn.Send((short)MsgType.ObjectSpawn, msg);
                 }
                 else
                 {
-                    SendToReady(uv.gameObject, MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawn, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.ObjectSpawn, uv.assetId.ToString(), 1);
+                    (short)MsgType.ObjectSpawn, uv.assetId.ToString(), 1);
 #endif
             }
             else
@@ -1207,17 +1207,17 @@ namespace UnityEngine.Networking
 
                 if (conn != null)
                 {
-                    conn.Send(MsgType.ObjectSpawnScene, msg);
+                    conn.Send((short)MsgType.ObjectSpawnScene, msg);
                 }
                 else
                 {
-                    SendToReady(uv.gameObject, MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawn, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.ObjectSpawnScene, "sceneId", 1);
+                    (short)MsgType.ObjectSpawnScene, "sceneId", 1);
 #endif
             }
         }
@@ -1312,12 +1312,12 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.ObjectDestroy, uv.assetId.ToString(), 1);
+                (short)MsgType.ObjectDestroy, uv.assetId.ToString(), 1);
 #endif
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;
-            SendToObservers(uv.gameObject, MsgType.ObjectDestroy, msg);
+            SendToObservers(uv.gameObject, (short)MsgType.ObjectDestroy, msg);
 
             uv.ClearObservers();
             if (NetworkClient.active && s_LocalClientActive)
@@ -1502,7 +1502,7 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("AddExternalConnection external connection " + conn.connectionId); }
             SetConnectionAtIndex(conn);
             s_ExternalConnections.Add(conn.connectionId);
-            conn.InvokeHandlerNoData(MsgType.Connect);
+            conn.InvokeHandlerNoData((short)MsgType.Connect);
 
             return true;
         }

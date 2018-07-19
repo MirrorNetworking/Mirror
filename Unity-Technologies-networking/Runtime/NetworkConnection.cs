@@ -198,7 +198,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.HLAPIMsg, "msg", 1);
+                (short)MsgType.HLAPIMsg, "msg", 1);
 #endif
             if (bytesToSend > UInt16.MaxValue)
             {
@@ -287,7 +287,7 @@ namespace UnityEngine.Networking
                     if (pauseQueue != null)
                     {
                         pauseQueue.Enqueue(msg);
-                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + MsgType.MsgTypeToString(msgType) + " queue size=" + pauseQueue.Count); }
+                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
                     }
                     else
                     {
@@ -298,13 +298,13 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                     UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        MsgType.HLAPIMsg, "msg", 1);
+                        (short)MsgType.HLAPIMsg, "msg", 1);
 
-                    if (msgType > MsgType.Highest)
+                    if (msgType > (short)MsgType.Highest)
                     {
                         UnityEditor.NetworkDetailStats.IncrementStat(
                             UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                            MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
+                            (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
                     }
 #endif
                 }
@@ -408,7 +408,7 @@ namespace UnityEngine.Networking
             {
                 foreach (NetworkMessage msg in pauseQueue)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + MsgType.MsgTypeToString(msg.msgType)); }
+                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + msg.msgType); }
                     var msgDelegate = m_MessageHandlers[msg.msgType];
                     msgDelegate(msg);
                 }

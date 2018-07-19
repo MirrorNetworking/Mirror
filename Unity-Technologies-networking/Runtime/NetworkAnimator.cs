@@ -114,7 +114,7 @@ namespace UnityEngine.Networking
             WriteParameters(m_ParameterWriter, false);
             animMsg.parameters = m_ParameterWriter.ToArray();
 
-            SendMessage(MsgType.Animation, animMsg);
+            SendMessage((short)MsgType.Animation, animMsg);
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
@@ -165,7 +165,7 @@ namespace UnityEngine.Networking
                 WriteParameters(m_ParameterWriter, true);
                 animMsg.parameters = m_ParameterWriter.ToArray();
 
-                SendMessage(MsgType.AnimationParameters, animMsg);
+                SendMessage((short)MsgType.AnimationParameters, animMsg);
             }
         }
 
@@ -351,7 +351,7 @@ namespace UnityEngine.Networking
                     var client = ClientScene.readyConnection;
                     if (client != null)
                     {
-                        client.Send(MsgType.AnimationTrigger, animMsg);
+                        client.Send((short)MsgType.AnimationTrigger, animMsg);
                     }
                 }
                 return;
@@ -359,7 +359,7 @@ namespace UnityEngine.Networking
 
             if (isServer && !localPlayerAuthority)
             {
-                NetworkServer.SendToReady(gameObject, MsgType.AnimationTrigger, animMsg);
+                NetworkServer.SendToReady(gameObject, (short)MsgType.AnimationTrigger, animMsg);
             }
         }
 
@@ -382,7 +382,7 @@ namespace UnityEngine.Networking
                 NetworkReader reader = new NetworkReader(msg.parameters);
                 animSync.HandleAnimMsg(msg, reader);
 
-                NetworkServer.SendToReady(go, MsgType.Animation, msg);
+                NetworkServer.SendToReady(go, (short)MsgType.Animation, msg);
             }
         }
 
@@ -403,7 +403,7 @@ namespace UnityEngine.Networking
             {
                 NetworkReader reader = new NetworkReader(msg.parameters);
                 animSync.HandleAnimParamsMsg(msg, reader);
-                NetworkServer.SendToReady(go, MsgType.AnimationParameters, msg);
+                NetworkServer.SendToReady(go, (short)MsgType.AnimationParameters, msg);
             }
         }
 
@@ -423,7 +423,7 @@ namespace UnityEngine.Networking
             {
                 animSync.HandleAnimTriggerMsg(msg.hash);
 
-                NetworkServer.SendToReady(go, MsgType.AnimationTrigger, msg);
+                NetworkServer.SendToReady(go, (short)MsgType.AnimationTrigger, msg);
             }
         }
 

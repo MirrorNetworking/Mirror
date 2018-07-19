@@ -391,7 +391,7 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            m_LocalTransformWriter.StartMessage(MsgType.LocalChildTransform);
+            m_LocalTransformWriter.StartMessage((short)MsgType.LocalChildTransform);
             m_LocalTransformWriter.Write(netId);
             m_LocalTransformWriter.WritePackedUInt32(m_ChildIndex);
             SerializeModeTransform(m_LocalTransformWriter);
@@ -405,7 +405,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
+                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
             ClientScene.readyConnection.SendWriter(m_LocalTransformWriter, GetNetworkChannel());
         }
@@ -418,7 +418,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
+                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
 
             GameObject foundObj = NetworkServer.FindLocalObject(netId);

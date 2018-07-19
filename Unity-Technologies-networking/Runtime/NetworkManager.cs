@@ -226,12 +226,12 @@ namespace UnityEngine.Networking
 
         internal void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Ready, OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Connect, OnServerConnectInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Disconnect, OnServerDisconnectInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Ready, OnServerReadyMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Error, OnServerErrorInternal);
         }
 
         public bool StartServer()
@@ -309,11 +309,11 @@ namespace UnityEngine.Networking
 
         internal void RegisterClientMessages(NetworkClient client)
         {
-            client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
-            client.RegisterHandler(MsgType.Disconnect, OnClientDisconnectInternal);
-            client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
-            client.RegisterHandler(MsgType.Error, OnClientErrorInternal);
-            client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
+            client.RegisterHandler((short)MsgType.Connect, OnClientConnectInternal);
+            client.RegisterHandler((short)MsgType.Disconnect, OnClientDisconnectInternal);
+            client.RegisterHandler((short)MsgType.NotReady, OnClientNotReadyMessageInternal);
+            client.RegisterHandler((short)MsgType.Error, OnClientErrorInternal);
+            client.RegisterHandler((short)MsgType.Scene, OnClientSceneInternal);
 
             if (m_PlayerPrefab != null)
             {
@@ -525,7 +525,7 @@ namespace UnityEngine.Networking
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             StringMessage msg = new StringMessage(networkSceneName);
-            NetworkServer.SendToAll(MsgType.Scene, msg);
+            NetworkServer.SendToAll((short)MsgType.Scene, msg);
 
             s_StartPositionIndex = 0;
             s_StartPositions.Clear();
@@ -693,7 +693,7 @@ namespace UnityEngine.Networking
             if (networkSceneName != "" && networkSceneName != m_OfflineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
-                netMsg.conn.Send(MsgType.Scene, msg);
+                netMsg.conn.Send((short)MsgType.Scene, msg);
             }
 
             OnServerConnect(netMsg.conn);

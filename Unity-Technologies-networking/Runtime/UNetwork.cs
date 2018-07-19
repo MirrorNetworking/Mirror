@@ -14,121 +14,58 @@ namespace UnityEngine.Networking
     public delegate void UnSpawnDelegate(GameObject spawned);
 
     // built-in system network messages
-    public class MsgType
+    // original HLAPI uses short, so let's keep short to not break packet header etc.
+    // => use .ToString() to get the field name from the field value
+    // => we specify the short values so it's easier to look up opcodes when debugging packets
+    public enum MsgType : short
     {
         // internal system messages - cannot be replaced by user code
-        public const short ObjectDestroy = 1;
-        public const short Rpc = 2;
-        public const short ObjectSpawn = 3;
-        public const short Owner = 4;
-        public const short Command = 5;
-        public const short LocalPlayerTransform = 6;
-        public const short SyncEvent = 7;
-        public const short UpdateVars = 8;
-        public const short SyncList = 9;
-        public const short ObjectSpawnScene = 10;
-        public const short NetworkInfo = 11;
-        public const short SpawnFinished = 12;
-        public const short ObjectHide = 13;
-        public const short CRC = 14;
-        public const short LocalClientAuthority = 15;
-        public const short LocalChildTransform = 16;
-        public const short Fragment = 17;
-        public const short PeerClientAuthority = 18;
+        ObjectDestroy = 1,
+        Rpc = 2,
+        ObjectSpawn = 3,
+        Owner = 4,
+        Command = 5,
+        LocalPlayerTransform = 6,
+        SyncEvent = 7,
+        UpdateVars = 8,
+        SyncList = 9,
+        ObjectSpawnScene = 10,
+        NetworkInfo = 11,
+        SpawnFinished = 12,
+        ObjectHide = 13,
+        CRC = 14,
+        LocalClientAuthority = 15,
+        LocalChildTransform = 16,
+        Fragment = 17,
+        PeerClientAuthority = 18,
 
         // used for profiling
-        internal const short UserMessage = 0;
-        internal const short HLAPIMsg = 28;
-        internal const short LLAPIMsg = 29;
-        internal const short HLAPIResend = 30;
-        internal const short HLAPIPending = 31;
+        UserMessage = 0,
+        HLAPIMsg = 28,
+        LLAPIMsg = 29,
+        HLAPIResend = 30,
+        HLAPIPending = 31,
 
-        public const short InternalHighest = 31;
+        InternalHighest = 31,
 
         // public system messages - can be replaced by user code
-        public const short Connect = 32;
-        public const short Disconnect = 33;
-        public const short Error = 34;
-        public const short Ready = 35;
-        public const short NotReady = 36;
-        public const short AddPlayer = 37;
-        public const short RemovePlayer = 38;
-        public const short Scene = 39;
-        public const short Animation = 40;
-        public const short AnimationParameters = 41;
-        public const short AnimationTrigger = 42;
-        public const short LobbyReadyToBegin = 43;
-        public const short LobbySceneLoaded = 44;
-        public const short LobbyAddPlayerFailed = 45;
-        public const short LobbyReturnToLobby = 46;
+        Connect = 32,
+        Disconnect = 33,
+        Error = 34,
+        Ready = 35,
+        NotReady = 36,
+        AddPlayer = 37,
+        RemovePlayer = 38,
+        Scene = 39,
+        Animation = 40,
+        AnimationParameters = 41,
+        AnimationTrigger = 42,
+        LobbyReadyToBegin = 43,
+        LobbySceneLoaded = 44,
+        LobbyAddPlayerFailed = 45,
+        LobbyReturnToLobby = 46,
 
-        //NOTE: update msgLabels below if this is changed.
-        public const short Highest = 47;
-
-        static internal string[] msgLabels =
-        {
-            "none",
-            "ObjectDestroy",
-            "Rpc",
-            "ObjectSpawn",
-            "Owner",
-            "Command",
-            "LocalPlayerTransform",
-            "SyncEvent",
-            "UpdateVars",
-            "SyncList",
-            "ObjectSpawnScene", // 10
-            "NetworkInfo",
-            "SpawnFinished",
-            "ObjectHide",
-            "CRC",
-            "LocalClientAuthority",
-            "LocalChildTransform",
-            "Fragment",
-            "PeerClientAuthority",
-            "",
-            "", // 20
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "", // 30
-            "", // - SystemInternalHighest
-            "Connect", // 32,
-            "Disconnect",
-            "Error",
-            "Ready",
-            "NotReady",
-            "AddPlayer",
-            "RemovePlayer",
-            "Scene",
-            "Animation", // 40
-            "AnimationParams",
-            "AnimationTrigger",
-            "LobbyReadyToBegin",
-            "LobbySceneLoaded",
-            "LobbyAddPlayerFailed", // 45
-            "LobbyReturnToLobby", // 46
-        };
-
-        static public string MsgTypeToString(short value)
-        {
-            if (value < 0 || value > Highest)
-            {
-                return String.Empty;
-            }
-            string result =  msgLabels[value];
-            if (string.IsNullOrEmpty(result))
-            {
-                result = "[" + value + "]";
-            }
-            return result;
-        }
+        Highest = 47
     }
 
     public class NetworkMessage

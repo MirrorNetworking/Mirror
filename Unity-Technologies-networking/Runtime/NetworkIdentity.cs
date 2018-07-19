@@ -536,7 +536,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.SyncEvent, NetworkBehaviour.GetCmdHashEventName(cmdHash), 1);
+                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashEventName(cmdHash), 1);
 #endif
         }
 
@@ -579,7 +579,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.SyncList, NetworkBehaviour.GetCmdHashListName(cmdHash), 1);
+                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashListName(cmdHash), 1);
 #endif
         }
 
@@ -622,7 +622,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.Command, NetworkBehaviour.GetCmdHashCmdName(cmdHash), 1);
+                (short)MsgType.Command, NetworkBehaviour.GetCmdHashCmdName(cmdHash), 1);
 #endif
         }
 
@@ -665,7 +665,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.Rpc, NetworkBehaviour.GetCmdHashRpcName(cmdHash), 1);
+                (short)MsgType.Rpc, NetworkBehaviour.GetCmdHashRpcName(cmdHash), 1);
 #endif
         }
 
@@ -691,7 +691,7 @@ namespace UnityEngine.Networking
                 if ((dirtyChannelBits & (uint)(1 << channelId)) != 0)
                 {
                     NetworkWriter writer = new NetworkWriter();
-                    writer.StartMessage(MsgType.UpdateVars);
+                    writer.StartMessage((short)MsgType.UpdateVars);
                     writer.Write(netId);
 
                     bool wroteData = false;
@@ -714,7 +714,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                             UnityEditor.NetworkDetailStats.IncrementStat(
                                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                                MsgType.UpdateVars, comp.GetType().Name, 1);
+                                (short)MsgType.UpdateVars, comp.GetType().Name, 1);
 #endif
 
                             wroteData = true;
@@ -968,7 +968,7 @@ namespace UnityEngine.Networking
             var msg = new ClientAuthorityMessage();
             msg.netId = netId;
             msg.authority = false;
-            conn.Send(MsgType.LocalClientAuthority, msg);
+            conn.Send((short)MsgType.LocalClientAuthority, msg);
 
             if (clientAuthorityCallback != null)
             {
@@ -1012,7 +1012,7 @@ namespace UnityEngine.Networking
             var msg = new ClientAuthorityMessage();
             msg.netId = netId;
             msg.authority = true;
-            conn.Send(MsgType.LocalClientAuthority, msg);
+            conn.Send((short)MsgType.LocalClientAuthority, msg);
 
             if (clientAuthorityCallback != null)
             {

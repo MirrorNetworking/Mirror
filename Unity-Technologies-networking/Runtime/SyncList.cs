@@ -250,7 +250,7 @@ namespace UnityEngine.Networking
             }
 
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(MsgType.SyncList);
+            writer.StartMessage((short)MsgType.SyncList);
             writer.Write(uv.netId);
             writer.WritePackedUInt32((uint)m_CmdHash);
             writer.Write((byte)op);
@@ -263,7 +263,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.SyncList, op.ToString(), 1);
+                (short)MsgType.SyncList, op.ToString(), 1);
 #endif
 
             // ensure it is invoked on host

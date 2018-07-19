@@ -21,7 +21,7 @@ namespace UnityEngine.Networking
             ClientScene.HandleClientDisconnect(m_Connection);
             if (m_Connected)
             {
-                PostInternalMessage(MsgType.Disconnect);
+                PostInternalMessage((short)MsgType.Disconnect);
                 m_Connected = false;
             }
             m_AsyncConnect = ConnectState.Disconnected;
@@ -40,7 +40,7 @@ namespace UnityEngine.Networking
 
             if (generateConnectMsg)
             {
-                PostInternalMessage(MsgType.Connect);
+                PostInternalMessage((short)MsgType.Connect);
             }
             m_Connected = true;
         }
