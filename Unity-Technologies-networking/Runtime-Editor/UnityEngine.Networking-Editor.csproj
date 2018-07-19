@@ -50,8 +50,6 @@
     <Compile Include="..\Runtime\NetworkDiscovery.cs" />
     <Compile Include="..\Runtime\NetworkHash128.cs" />
     <Compile Include="..\Runtime\NetworkInstanceId.cs" />
-    <Compile Include="..\Runtime\NetworkLobbyManager.cs" />
-    <Compile Include="..\Runtime\NetworkLobbyPlayer.cs" />
     <Compile Include="..\Runtime\NetworkMessageHandlers.cs" />
     <Compile Include="..\Runtime\NetworkProximityChecker.cs" />
     <Compile Include="..\Runtime\NetworkScene.cs" />
