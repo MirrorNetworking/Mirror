@@ -120,14 +120,10 @@ namespace UnityEngine.Networking
                 m_MessageInfo.channelId = channelId;
 
                 NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[msgType];
-                if (msgDelegate == null)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
-                    return false;
-                }
                 msgDelegate(m_MessageInfo);
                 return true;
             }
+            if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
             return false;
         }
 
@@ -139,6 +135,7 @@ namespace UnityEngine.Networking
                 msgDelegate(netMsg);
                 return true;
             }
+            if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + netMsg.msgType); }
             return false;
         }
 
