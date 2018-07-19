@@ -20,7 +20,6 @@ namespace UnityEngine.Networking
         NetworkMessageHandlers m_MessageHandlers;
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
-        NetworkMessage m_MessageInfo = new NetworkMessage();
 
         const int k_MaxMessageLogSize = 150;
         private NetworkError error;
@@ -114,13 +113,14 @@ namespace UnityEngine.Networking
         {
             if (m_MessageHandlersDict.ContainsKey(msgType))
             {
-                m_MessageInfo.msgType = msgType;
-                m_MessageInfo.conn = this;
-                m_MessageInfo.reader = reader;
-                m_MessageInfo.channelId = channelId;
+                NetworkMessage message = new NetworkMessage();
+                message.msgType = msgType;
+                message.conn = this;
+                message.reader = reader;
+                message.channelId = channelId;
 
                 NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[msgType];
-                msgDelegate(m_MessageInfo);
+                msgDelegate(message);
                 return true;
             }
             if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
