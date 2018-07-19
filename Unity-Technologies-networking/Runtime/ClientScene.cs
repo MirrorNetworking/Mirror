@@ -50,24 +50,6 @@ namespace UnityEngine.Networking
             NetworkTransport.Init();
         }
 
-        internal static bool GetPlayerController(short playerControllerId, out PlayerController player)
-        {
-            player = null;
-            if (playerControllerId >= localPlayers.Count)
-            {
-                if (LogFilter.logWarn) { Debug.Log("ClientScene::GetPlayer: no local player found for: " + playerControllerId); }
-                return false;
-            }
-
-            if (localPlayers[playerControllerId] == null)
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientScene::GetPlayer: local player is null for: " + playerControllerId); }
-                return false;
-            }
-            player = localPlayers[playerControllerId];
-            return player.gameObject != null;
-        }
-
         // this is called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity view, short playerControllerId)
         {

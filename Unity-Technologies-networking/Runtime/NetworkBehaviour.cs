@@ -286,7 +286,7 @@ namespace UnityEngine.Networking
             return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeClass, out invokeFunction);
         }
 
-        static bool GetInvokerForHash(int cmdHash, NetworkBehaviour.UNetInvokeType invokeType, out Type invokeClass, out CmdDelegate invokeFunction)
+        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Type invokeClass, out CmdDelegate invokeFunction)
         {
             Invoker invoker = null;
             if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))

@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Runtime\ClientScene.cs" />
-    <Compile Include="..\Runtime\ConnectionArray.cs" />
     <Compile Include="..\Runtime\CustomAttributes.cs" />
     <Compile Include="..\Runtime\DotNetCompatibility.cs" />
     <Compile Include="..\Runtime\LocalConnections.cs" />

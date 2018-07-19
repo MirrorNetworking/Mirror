@@ -26,7 +26,9 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ScriptCRCCheck = true; // not used anymore, but keep for compatibility
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] bool m_ScriptCRCCheck = true;
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         [SerializeField] float m_MaxDelay = 0.01f;
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
@@ -43,13 +45,14 @@ namespace UnityEngine.Networking
         [SerializeField] List<QosType> m_Channels = new List<QosType>();
 
         [SerializeField] bool m_UseWebSockets;
-        [SerializeField] bool m_UseSimulator;
-        [SerializeField] int m_SimulatedLatency = 1;
-        [SerializeField] float m_PacketLossPercentage;
 
-        [SerializeField] int m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
-        [SerializeField] bool m_AllowFragmentation = true; // not used anymore, but keep it for compatibility
-
+        #pragma warning disable 0169
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] int m_MaxBufferedPackets; 
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
+        [SerializeField] bool m_AllowFragmentation;
+        #pragma warning restore 0169
+        
         // matchmaking configuration
         [SerializeField] string m_MatchHost = "mm.unet.unity3d.com";
         [SerializeField] int m_MatchPort = 443;
@@ -66,8 +69,10 @@ namespace UnityEngine.Networking
         public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
         public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         public bool scriptCRCCheck           { get { return m_ScriptCRCCheck; } set { m_ScriptCRCCheck = value;  }}
 
+        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         public float maxDelay                { get { return m_MaxDelay; }  set { m_MaxDelay = value; } }
         public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
@@ -88,9 +93,6 @@ namespace UnityEngine.Networking
         public EndPoint secureTunnelEndpoint { get { return m_EndPoint; } set { m_EndPoint = value; } }
 
         public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
-        public bool useSimulator             { get { return m_UseSimulator; } set { m_UseSimulator = value; }}
-        public int simulatedLatency          { get { return m_SimulatedLatency; } set { m_SimulatedLatency = value; } }
-        public float packetLossPercentage    { get { return m_PacketLossPercentage; } set { m_PacketLossPercentage = value; } }
 
         public string matchHost              { get { return m_MatchHost; } set { m_MatchHost = value; } }
         public int matchPort                 { get { return m_MatchPort; } set { m_MatchPort = value; } }
@@ -197,11 +199,7 @@ namespace UnityEngine.Networking
 
         void OnValidate()
         {
-            m_SimulatedLatency = Mathf.Clamp(m_SimulatedLatency, 1, 500); // [1, 500]
-            m_PacketLossPercentage = Mathf.Clamp(m_PacketLossPercentage, 0, 99); // [0, 99]
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
-
-            m_MaxBufferedPackets = 0; // not used anymore, but keep it for compatibility
 
             if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
             {
@@ -453,14 +451,7 @@ namespace UnityEngine.Networking
                 }
                 if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
 
-                if (m_UseSimulator)
-                {
-                    client.ConnectWithSimulator(m_NetworkAddress, m_NetworkPort, m_SimulatedLatency, m_PacketLossPercentage);
-                }
-                else
-                {
-                    client.Connect(m_NetworkAddress, m_NetworkPort);
-                }
+                client.Connect(m_NetworkAddress, m_NetworkPort);
             }
 
             OnStartClient(client);

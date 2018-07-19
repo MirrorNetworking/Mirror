@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientScene.cs" />
-    <Compile Include="ConnectionArray.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="DotNetCompatibility.cs" />
     <Compile Include="LocalConnections.cs" />

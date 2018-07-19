@@ -9,8 +9,6 @@ namespace UnityEngine.Networking
     // The client has player instances as member variables (should this be removed and just go though the connection like the server does?)
     public class PlayerController
     {
-        internal const short kMaxLocalPlayers = 8;
-
         public short playerControllerId = -1;
         public NetworkIdentity unetView;
         public GameObject gameObject;

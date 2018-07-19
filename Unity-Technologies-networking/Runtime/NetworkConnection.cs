@@ -37,10 +37,6 @@ namespace UnityEngine.Networking
 
         public NetworkError lastError { get { return error; } internal set { error = value; } }
 
-#if UNITY_EDITOR
-        static int s_MaxPacketStats = 255;//the same as maximum message types
-#endif
-
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId, HostTopology hostTopology)
         {
             address = networkAddress;

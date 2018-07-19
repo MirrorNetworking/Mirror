@@ -135,7 +135,6 @@ namespace UnityEditor
             ShowNetworkInfo();
             ShowSpawnInfo();
             ShowConfigInfo();
-            ShowSimulatorInfo();
             serializedObject.ApplyModifiedProperties();
 
             ShowDerivedProperties(typeof(NetworkLobbyManager), typeof(NetworkManager));

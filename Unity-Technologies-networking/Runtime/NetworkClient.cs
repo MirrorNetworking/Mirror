@@ -23,10 +23,6 @@ namespace UnityEngine.Networking
         HostTopology m_HostTopology;
         int m_HostPort;
 
-        bool m_UseSimulator;
-        int m_SimulatedLatency;
-        float m_PacketLoss;
-
         string m_ServerIp = "";
         int m_ServerPort;
         int m_ClientId = -1;
@@ -131,14 +127,6 @@ namespace UnityEngine.Networking
         {
             PrepareForConnect();
             ConnectWithRelay(matchInfo);
-        }
-
-        public void ConnectWithSimulator(string serverIp, int serverPort, int latency, float packetLoss)
-        {
-            m_UseSimulator = true;
-            m_SimulatedLatency = latency;
-            m_PacketLoss = packetLoss;
-            Connect(serverIp, serverPort);
         }
 
         static bool IsValidIpV6(string address)
@@ -264,18 +252,7 @@ namespace UnityEngine.Networking
                 m_HostTopology = new HostTopology(config, 8);
             }
 
-            if (m_UseSimulator)
-            {
-                int minTimeout = Mathf.Max((m_SimulatedLatency / 3) - 1, 1);
-                int maxTimeout = m_SimulatedLatency * 3;
-
-                if (LogFilter.logDebug) { Debug.Log("AddHost Using Simulator " + minTimeout + "/" + maxTimeout); }
-                m_ClientId = NetworkTransport.AddHostWithSimulator(m_HostTopology, minTimeout, maxTimeout, m_HostPort);
-            }
-            else
-            {
-                m_ClientId = NetworkTransport.AddHost(m_HostTopology, m_HostPort);
-            }
+            m_ClientId = NetworkTransport.AddHost(m_HostTopology, m_HostPort);
         }
 
         // this called in another thread! Cannot call Update() here.
@@ -310,25 +287,7 @@ namespace UnityEngine.Networking
         {
             byte error;
             // regular non-relay connect
-            if (m_UseSimulator)
-            {
-                int simLatency = Mathf.Max(m_SimulatedLatency / 3, 1);
-
-                if (LogFilter.logDebug) { Debug.Log("Connect Using Simulator " + (m_SimulatedLatency / 3) + "/" + m_SimulatedLatency); }
-                var simConfig = new ConnectionSimulatorConfig(
-                        simLatency,
-                        m_SimulatedLatency,
-                        simLatency,
-                        m_SimulatedLatency,
-                        m_PacketLoss);
-
-                m_ClientConnectionId = NetworkTransport.ConnectWithSimulator(m_ClientId, m_ServerIp, m_ServerPort, 0, out error, simConfig);
-            }
-            else
-            {
-                m_ClientConnectionId = NetworkTransport.Connect(m_ClientId, m_ServerIp, m_ServerPort, 0, out error);
-            }
-
+            m_ClientConnectionId = NetworkTransport.Connect(m_ClientId, m_ServerIp, m_ServerPort, 0, out error);
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);

@@ -24,7 +24,7 @@ namespace UnityEngine.Networking
         }
 
         public byte ReadByte() { return reader.ReadByte(); }
-        public sbyte ReadSByte() { return (sbyte)reader.ReadByte(); }
+        public sbyte ReadSByte() { return reader.ReadSByte(); }
         public char ReadChar() { return reader.ReadChar(); }
         public bool ReadBoolean() { return reader.ReadBoolean(); }
         public short ReadInt16() { return reader.ReadInt16(); }
