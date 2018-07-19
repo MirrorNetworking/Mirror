@@ -30,23 +30,15 @@ namespace UnityEngine.Networking
         UpdateVars = 8,
         SyncList = 9,
         ObjectSpawnScene = 10,
-        NetworkInfo = 11,
         SpawnFinished = 12,
         ObjectHide = 13,
-        CRC = 14,
         LocalClientAuthority = 15,
         LocalChildTransform = 16,
-        Fragment = 17,
-        PeerClientAuthority = 18,
 
         // used for profiling
         UserMessage = 0,
         HLAPIMsg = 28,
         LLAPIMsg = 29,
-        HLAPIResend = 30,
-        HLAPIPending = 31,
-
-        InternalHighest = 31,
 
         // public system messages - can be replaced by user code
         Connect = 32,
@@ -60,10 +52,6 @@ namespace UnityEngine.Networking
         Animation = 40,
         AnimationParameters = 41,
         AnimationTrigger = 42,
-        LobbyReadyToBegin = 43,
-        LobbySceneLoaded = 44,
-        LobbyAddPlayerFailed = 45,
-        LobbyReturnToLobby = 46,
 
         Highest = 47
     }
