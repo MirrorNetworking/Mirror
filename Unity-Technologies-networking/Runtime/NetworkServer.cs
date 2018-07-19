@@ -325,7 +325,9 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        static public void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
+        // End users should not send random bytes
+        // because the other side might interpret them as messages
+        static internal void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
         {
             if (writer.Position > UInt16.MaxValue)
             {
@@ -335,7 +337,9 @@ namespace UnityEngine.Networking
             SendBytesToReady(contextObj, writer.ToArray(), writer.Position, channelId);
         }
 
-        static public void SendBytesToReady(GameObject contextObj, byte[] buffer, int numBytes, int channelId)
+        // End users should not send random bytes
+        // because the other side might interpret them as messages
+        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int numBytes, int channelId)
         {
             if (contextObj == null)
             {
@@ -383,25 +387,6 @@ namespace UnityEngine.Networking
             {
                 // observers may be null if object has not been spawned
                 if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady object " + contextObj + " has not been spawned"); }
-            }
-        }
-
-        public static void SendBytesToPlayer(GameObject player, byte[] buffer, int numBytes, int channelId)
-        {
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    for (int j = 0; j < conn.playerControllers.Count; j++)
-                    {
-                        if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
-                        {
-                            conn.SendBytes(buffer, numBytes, channelId);
-                            break;
-                        }
-                    }
-                }
             }
         }
 
