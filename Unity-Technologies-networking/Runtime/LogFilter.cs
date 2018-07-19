@@ -13,7 +13,6 @@ namespace UnityEngine.Networking
             Info = 2,
             Warn = 3,
             Error = 4,
-            Fatal = 5,
             SetInScripting = -1
         };
 
@@ -24,7 +23,6 @@ namespace UnityEngine.Networking
         static public bool logInfo  { get { return currentLogLevel <= FilterLevel.Info; } }
         static public bool logWarn  { get { return currentLogLevel <= FilterLevel.Warn; } }
         static public bool logError  { get { return currentLogLevel <= FilterLevel.Error; } }
-        static public bool logFatal { get { return currentLogLevel <= FilterLevel.Fatal; } }
     }
 }
 #endif //ENABLE_UNET
