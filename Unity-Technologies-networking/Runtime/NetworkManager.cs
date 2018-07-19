@@ -45,9 +45,6 @@ namespace UnityEngine.Networking
         [SerializeField] List<QosType> m_Channels = new List<QosType>();
 
         [SerializeField] bool m_UseWebSockets;
-        [SerializeField] bool m_UseSimulator;
-        [SerializeField] int m_SimulatedLatency = 1;
-        [SerializeField] float m_PacketLossPercentage;
 
         #pragma warning disable 0169
         [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
@@ -96,9 +93,6 @@ namespace UnityEngine.Networking
         public EndPoint secureTunnelEndpoint { get { return m_EndPoint; } set { m_EndPoint = value; } }
 
         public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
-        public bool useSimulator             { get { return m_UseSimulator; } set { m_UseSimulator = value; }}
-        public int simulatedLatency          { get { return m_SimulatedLatency; } set { m_SimulatedLatency = value; } }
-        public float packetLossPercentage    { get { return m_PacketLossPercentage; } set { m_PacketLossPercentage = value; } }
 
         public string matchHost              { get { return m_MatchHost; } set { m_MatchHost = value; } }
         public int matchPort                 { get { return m_MatchPort; } set { m_MatchPort = value; } }
@@ -205,8 +199,6 @@ namespace UnityEngine.Networking
 
         void OnValidate()
         {
-            m_SimulatedLatency = Mathf.Clamp(m_SimulatedLatency, 1, 500); // [1, 500]
-            m_PacketLossPercentage = Mathf.Clamp(m_PacketLossPercentage, 0, 99); // [0, 99]
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
 
             if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
@@ -459,14 +451,7 @@ namespace UnityEngine.Networking
                 }
                 if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
 
-                if (m_UseSimulator)
-                {
-                    client.ConnectWithSimulator(m_NetworkAddress, m_NetworkPort, m_SimulatedLatency, m_PacketLossPercentage);
-                }
-                else
-                {
-                    client.Connect(m_NetworkAddress, m_NetworkPort);
-                }
+                client.Connect(m_NetworkAddress, m_NetworkPort);
             }
 
             OnStartClient(client);

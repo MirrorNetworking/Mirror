@@ -35,9 +35,6 @@ namespace UnityEditor
         SerializedProperty m_CustomConfigProperty;
 
         SerializedProperty m_UseWebSocketsProperty;
-        SerializedProperty m_UseSimulatorProperty;
-        SerializedProperty m_SimulatedLatencyProperty;
-        SerializedProperty m_PacketLossPercentageProperty;
 
         SerializedProperty m_ChannelListProperty;
         ReorderableList m_ChannelList;
@@ -62,9 +59,6 @@ namespace UnityEditor
         GUIContent m_ReactorMaximumSentMessagesLabel;
 
         GUIContent m_UseWebSocketsLabel;
-        GUIContent m_UseSimulatorLabel;
-        GUIContent m_LatencyLabel;
-        GUIContent m_PacketLossPercentageLabel;
         GUIContent m_MatchHostLabel;
         GUIContent m_MatchPortLabel;
         GUIContent m_MatchNameLabel;
@@ -116,9 +110,6 @@ namespace UnityEditor
             m_ReactorMaximumSentMessagesLabel = new GUIContent("Reactor Max Sent Messages", "Defines maximum message count in sent queue");
 
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
-            m_UseSimulatorLabel = new GUIContent("Use Network Simulator", "This simulates network latency and packet loss on clients. Useful for testing under internet-like conditions");
-            m_LatencyLabel = new GUIContent("Simulated Average Latency", "The amount of delay in milliseconds to add to network packets");
-            m_PacketLossPercentageLabel = new GUIContent("Simulated Packet Loss", "The percentage of packets that should be dropped");
             m_MatchHostLabel = new GUIContent("MatchMaker Host URI", "The hostname of the matchmaking server.\n\nThe default is mm.unet.unity3d.com, which will connect a client to the nearest data center geographically.");
             m_MatchPortLabel = new GUIContent("MatchMaker Port", "The port of the matchmaking service.");
             m_MatchNameLabel = new GUIContent("Match Name", "The name that will be used when creating a match in MatchMaker.");
@@ -177,11 +168,8 @@ namespace UnityEditor
             m_ChannelList.onReorderCallback = ChannelChanged;
             m_ChannelList.onAddCallback = ChannelChanged;
 
-            // Network Simulator
+            // web sockets
             m_UseWebSocketsProperty = serializedObject.FindProperty("m_UseWebSockets");
-            m_UseSimulatorProperty = serializedObject.FindProperty("m_UseSimulator");
-            m_SimulatedLatencyProperty = serializedObject.FindProperty("m_SimulatedLatency");
-            m_PacketLossPercentageProperty = serializedObject.FindProperty("m_PacketLossPercentage");
         }
 
         static void ShowPropertySuffix(GUIContent content, SerializedProperty prop, string suffix)
@@ -190,49 +178,6 @@ namespace UnityEditor
             EditorGUILayout.PropertyField(prop, content);
             GUILayout.Label(suffix, EditorStyles.miniLabel, GUILayout.Width(64));
             EditorGUILayout.EndHorizontal();
-        }
-
-        protected void ShowSimulatorInfo()
-        {
-            EditorGUILayout.PropertyField(m_UseSimulatorProperty, m_UseSimulatorLabel);
-
-            if (m_UseSimulatorProperty.boolValue)
-            {
-                EditorGUI.indentLevel += 1;
-
-                if (Application.isPlaying && m_NetworkManager.client != null)
-                {
-                    // read only at runtime
-                    EditorGUILayout.LabelField(m_LatencyLabel, new GUIContent(m_NetworkManager.simulatedLatency + " milliseconds"));
-                    EditorGUILayout.LabelField(m_PacketLossPercentageLabel, new GUIContent(m_NetworkManager.packetLossPercentage + "%"));
-                }
-                else
-                {
-                    // Latency
-                    int oldLatency = m_NetworkManager.simulatedLatency;
-                    EditorGUILayout.BeginHorizontal();
-                    int newLatency = EditorGUILayout.IntSlider(m_LatencyLabel, oldLatency, 1, 400);
-                    GUILayout.Label("millsec", EditorStyles.miniLabel, GUILayout.Width(64));
-                    EditorGUILayout.EndHorizontal();
-                    if (newLatency != oldLatency)
-                    {
-                        m_SimulatedLatencyProperty.intValue = newLatency;
-                    }
-
-                    // Packet Loss
-                    float oldPacketLoss = m_NetworkManager.packetLossPercentage;
-                    EditorGUILayout.BeginHorizontal();
-                    float newPacketLoss = EditorGUILayout.Slider(m_PacketLossPercentageLabel, oldPacketLoss, 0f, 20f);
-                    GUILayout.Label("%", EditorStyles.miniLabel, GUILayout.Width(64));
-                    EditorGUILayout.EndHorizontal();
-                    if (newPacketLoss != oldPacketLoss)
-                    {
-                        m_PacketLossPercentageProperty.floatValue = newPacketLoss;
-                    }
-                }
-
-                EditorGUI.indentLevel -= 1;
-            }
         }
 
         protected void ShowConfigInfo()
@@ -498,7 +443,6 @@ namespace UnityEditor
             ShowNetworkInfo();
             ShowSpawnInfo();
             ShowConfigInfo();
-            ShowSimulatorInfo();
             serializedObject.ApplyModifiedProperties();
 
             ShowDerivedProperties(typeof(NetworkManager), null);
