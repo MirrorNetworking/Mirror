@@ -19,23 +19,13 @@ namespace UnityEngine.Networking
             m_LocalClient = localClient;
         }
 
-        public override bool Send(short msgType, MessageBase msg)
-        {
-            m_LocalClient.InvokeHandlerOnClient(msgType, msg, Channels.DefaultReliable);
-            return true;
-        }
-
-        public override bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            m_LocalClient.InvokeHandlerOnClient(msgType, msg, Channels.DefaultUnreliable);
-            return true;
-        }
-
         public override bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             m_LocalClient.InvokeHandlerOnClient(msgType, msg, channelId);
             return true;
         }
+        public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         public override bool SendBytes(byte[] bytes, int numBytes, int channelId)
         {
@@ -61,20 +51,12 @@ namespace UnityEngine.Networking
             address = "localServer";
         }
 
-        public override bool Send(short msgType, MessageBase msg)
-        {
-            return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, Channels.DefaultReliable);
-        }
-
-        public override bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, Channels.DefaultUnreliable);
-        }
-
         public override bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, channelId);
         }
+        public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         public override bool SendBytes(byte[] bytes, int numBytes, int channelId)
         {
