@@ -1987,8 +1987,12 @@ namespace Mirror.Weaver
             m_SyncVarNetIds.Clear();
             List<FieldDefinition> listFields = new List<FieldDefinition>();
 
+            // sort fields by type
+            // this way we serialize all boolean togethers to take
+            // advantage of the BitWriter
+            IEnumerable<FieldDefinition> sortedFields = m_td.Fields.OrderBy(fd => fd.FieldType.FullName);
             // find syncvars
-            foreach (FieldDefinition fd in m_td.Fields)
+            foreach (FieldDefinition fd in sortedFields)
             {
                 foreach (var ca in fd.CustomAttributes)
                 {

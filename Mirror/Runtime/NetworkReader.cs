@@ -6,11 +6,11 @@ namespace Mirror
 {
     public class NetworkReader
     {
-        BinaryReader reader;
+        BitReader reader;
 
         public NetworkReader(byte[] buffer)
         {
-            reader = new BinaryReader(new MemoryStream(buffer));
+            reader = new BitReader(new MemoryStream(buffer));
         }
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
@@ -37,9 +37,24 @@ namespace Mirror
             return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
         }
 
+        public char[] ReadChars(int count)
+        {
+            return reader.ReadChars(count);
+        }
+
+        public int Read(char[] buffer, int index, int count)
+        {
+            return reader.Read(buffer, index, count);
+        }
+
         public byte[] ReadBytes(int count)
         {
             return reader.ReadBytes(count);
+        }
+
+        public int Read(byte[] buffer, int index, int count)
+        {
+            return reader.Read(buffer, index, count);
         }
 
         public byte[] ReadBytesAndSize()
