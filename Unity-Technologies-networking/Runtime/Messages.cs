@@ -173,7 +173,7 @@ namespace UnityEngine.Networking.NetworkSystem
 
     // ---------- Internal System Messages -------------------
 
-    class ObjectSpawnMessage : MessageBase
+    class SpawnPrefabMessage : MessageBase
     {
         public NetworkInstanceId netId;
         public NetworkHash128 assetId;
@@ -200,7 +200,7 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
-    class ObjectSpawnSceneMessage : MessageBase
+    class SpawnSceneObjectMessage : MessageBase
     {
         public NetworkInstanceId netId;
         public NetworkSceneId sceneId;

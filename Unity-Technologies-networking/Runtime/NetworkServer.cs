@@ -1151,7 +1151,7 @@ namespace UnityEngine.Networking
             // 'uv' is a prefab that should be spawned
             if (uv.sceneId.IsEmpty())
             {
-                ObjectSpawnMessage msg = new ObjectSpawnMessage();
+                SpawnPrefabMessage msg = new SpawnPrefabMessage();
                 msg.netId = uv.netId;
                 msg.assetId = uv.assetId;
                 msg.position = uv.transform.position;
@@ -1165,24 +1165,24 @@ namespace UnityEngine.Networking
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send((short)MsgType.ObjectSpawn, msg);
+                    conn.Send((short)MsgType.SpawnPrefab, msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.ObjectSpawn, uv.assetId.ToString(), 1);
+                    (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
 #endif
             }
             // 'uv' is a scene object that should be spawned again
             else
             {
-                ObjectSpawnSceneMessage msg = new ObjectSpawnSceneMessage();
+                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
                 msg.netId = uv.netId;
                 msg.sceneId = uv.sceneId;
                 msg.position = uv.transform.position;
@@ -1195,18 +1195,18 @@ namespace UnityEngine.Networking
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send((short)MsgType.ObjectSpawnScene, msg);
+                    conn.Send((short)MsgType.SpawnSceneObject, msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawnScene, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.ObjectSpawnScene, "sceneId", 1);
+                    (short)MsgType.SpawnSceneObject, "sceneId", 1);
 #endif
             }
         }
