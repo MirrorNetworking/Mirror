@@ -8,7 +8,7 @@ build:
   verbosity: minimal
   
 artifacts:
-  - path: Unity-Technologies-networking/Output/**/*
+  - path: Unity-Technologies-networking/Output
 
 image: Visual Studio 2017
 
