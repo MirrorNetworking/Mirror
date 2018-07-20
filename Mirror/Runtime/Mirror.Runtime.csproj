@@ -61,6 +61,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BitReader.cs" />
+    <Compile Include="BitWriter.cs" />
     <Compile Include="ClientScene.cs" />
     <Compile Include="CustomAttributes.cs" />
     <Compile Include="DotNetCompatibility.cs" />
