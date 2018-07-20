@@ -8,7 +8,7 @@ namespace UnityEngine.Networking
     public class NetworkWriter
     {
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        public BinaryWriter writer = new BinaryWriter(new MemoryStream());
+        public BitWriter writer = new BitWriter(new MemoryStream());
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
@@ -31,6 +31,7 @@ namespace UnityEngine.Networking
         public void Write(byte value)  { writer.Write(value); }
         public void Write(sbyte value) { writer.Write(value); }
         public void Write(char value) { writer.Write(value); }
+        public void Write(char[] value) { writer.Write(value); }
         public void Write(bool value) { writer.Write(value); }
         public void Write(short value) { writer.Write(value); }
         public void Write(ushort value) { writer.Write(value); }
@@ -49,6 +50,12 @@ namespace UnityEngine.Networking
             //        should also be null on the client)
             writer.Write(value != null);
             if (value != null) writer.Write(value); 
+        }
+
+        // for char arrays with consistent size
+        public void Write(char[] buffer, int offset, int count)
+        {
+            writer.Write(buffer, offset, count);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read

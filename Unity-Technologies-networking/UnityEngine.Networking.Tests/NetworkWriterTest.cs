@@ -200,5 +200,82 @@ namespace UnityEngine.Networking.Tests
             Assert.That(reader.Position, Is.Zero);
         }
 
+        [Test]
+        public void TestWritingAndReadingCoupleBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)1337);
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write((byte)2);
+            writer.FinishMessage();
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            reader.ReadUInt16();    // message length
+            reader.ReadUInt16();   // message type
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TestWritingAndReadingBytesBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)1337);
+            writer.Write((byte)1);
+            writer.Write(false);
+            writer.Write((byte)2);
+            writer.Write(true);
+            writer.Write((byte)3);
+            writer.FinishMessage();
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            reader.ReadUInt16();    // message length
+            reader.ReadUInt16();   // message type
+            Assert.That(reader.ReadByte(), Is.EqualTo(1));
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadByte(), Is.EqualTo(2));
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void TestWritingAndReadingLotBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)1337);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(true);
+            writer.Write(false);
+            writer.FinishMessage();
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            reader.ReadUInt16();    // message length
+            reader.ReadUInt16();   // message type
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+        }
     }
 }

@@ -40,6 +40,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Runtime\BitReader.cs" />
+    <Compile Include="..\Runtime\BitWriter.cs" />
     <Compile Include="..\Runtime\ClientScene.cs" />
     <Compile Include="..\Runtime\CustomAttributes.cs" />
     <Compile Include="..\Runtime\DotNetCompatibility.cs" />
