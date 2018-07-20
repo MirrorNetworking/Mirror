@@ -1,3 +1,5 @@
+// vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
+// confusion if someone accidentally presses one.
 using System;
 using System.ComponentModel;
 
@@ -11,55 +13,13 @@ namespace UnityEngine.Networking
     public class NetworkManagerHUD : MonoBehaviour
     {
         public NetworkManager manager;
-        [SerializeField] public bool showGUI = true;
-        [SerializeField] public int offsetX;
-        [SerializeField] public int offsetY;
+        public bool showGUI = true;
+        public int offsetX;
+        public int offsetY;
 
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
-        }
-
-        void Update()
-        {
-            if (!showGUI)
-                return;
-
-            if (!manager.IsClientConnected() && !NetworkServer.active)
-            {
-                if (Application.platform != RuntimePlatform.WebGLPlayer)
-                {
-                    if (Input.GetKeyDown(KeyCode.S))
-                    {
-                        manager.StartServer();
-                    }
-                    if (Input.GetKeyDown(KeyCode.H))
-                    {
-                        manager.StartHost();
-                    }
-                }
-                if (Input.GetKeyDown(KeyCode.C))
-                {
-                    manager.StartClient();
-                }
-            }
-            if (NetworkServer.active)
-            {
-                if (manager.IsClientConnected())
-                {
-                    if (Input.GetKeyDown(KeyCode.X))
-                    {
-                        manager.StopHost();
-                    }
-                }
-                else
-                {
-                    if (Input.GetKeyDown(KeyCode.X))
-                    {
-                        manager.StopServer();
-                    }
-                }
-            }
         }
 
         void OnGUI()
@@ -67,56 +27,48 @@ namespace UnityEngine.Networking
             if (!showGUI)
                 return;
 
-            int xpos = 10 + offsetX;
-            int ypos = 40 + offsetY;
-            const int spacing = 24;
-
             bool noConnection = (manager.client == null || manager.client.connection == null ||
                                  manager.client.connection.connectionId == -1);
 
+            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
             if (!manager.IsClientConnected() && !NetworkServer.active)
             {
                 if (noConnection)
                 {
+                    // LAN Host
                     if (Application.platform != RuntimePlatform.WebGLPlayer)
                     {
-                        if (GUI.Button(new Rect(xpos, ypos, 200, 20), "LAN Host(H)"))
+                        if (GUILayout.Button("LAN Host"))
                         {
                             manager.StartHost();
                         }
-                        ypos += spacing;
                     }
 
-                    if (GUI.Button(new Rect(xpos, ypos, 105, 20), "LAN Client(C)"))
+                    // LAN Client + IP
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button("LAN Client"))
                     {
                         manager.StartClient();
                     }
+                    manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                    GUILayout.EndHorizontal();
 
-                    manager.networkAddress = GUI.TextField(new Rect(xpos + 100, ypos, 95, 20), manager.networkAddress);
-                    ypos += spacing;
-
+                    // LAN Server Only
                     if (Application.platform == RuntimePlatform.WebGLPlayer)
                     {
                         // cant be a server in webgl build
-                        GUI.Box(new Rect(xpos, ypos, 200, 25), "(  WebGL cannot be server  )");
-                        ypos += spacing;
+                        GUILayout.Box("(  WebGL cannot be server  )");
                     }
                     else
                     {
-                        if (GUI.Button(new Rect(xpos, ypos, 200, 20), "LAN Server Only(S)"))
-                        {
-                            manager.StartServer();
-                        }
-                        ypos += spacing;
+                        if (GUILayout.Button("LAN Server Only")) manager.StartServer();
                     }
                 }
                 else
                 {
-                    GUI.Label(new Rect(xpos, ypos, 200, 20), "Connecting to " + manager.networkAddress + ":" + manager.networkPort + "..");
-                    ypos += spacing;
-
-
-                    if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Cancel Connection Attempt"))
+                    // Connecting
+                    GUILayout.Label("Connecting to " + manager.networkAddress + ":" + manager.networkPort + "..");
+                    if (GUILayout.Button("Cancel Connection Attempt"))
                     {
                         manager.StopClient();
                     }
@@ -124,6 +76,7 @@ namespace UnityEngine.Networking
             }
             else
             {
+                // server / client status message
                 if (NetworkServer.active)
                 {
                     string serverMsg = "Server: port=" + manager.networkPort;
@@ -131,19 +84,19 @@ namespace UnityEngine.Networking
                     {
                         serverMsg += " (Using WebSockets)";
                     }
-                    GUI.Label(new Rect(xpos, ypos, 300, 20), serverMsg);
-                    ypos += spacing;
+
+                    GUILayout.Label(serverMsg);
                 }
                 if (manager.IsClientConnected())
                 {
-                    GUI.Label(new Rect(xpos, ypos, 300, 20), "Client: address=" + manager.networkAddress + " port=" + manager.networkPort);
-                    ypos += spacing;
+                    GUILayout.Label("Client: address=" + manager.networkAddress + " port=" + manager.networkPort);
                 }
             }
 
+            // client ready
             if (manager.IsClientConnected() && !ClientScene.ready)
             {
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Client Ready"))
+                if (GUILayout.Button("Client Ready"))
                 {
                     ClientScene.Ready(manager.client.connection);
 
@@ -152,17 +105,18 @@ namespace UnityEngine.Networking
                         ClientScene.AddPlayer(0);
                     }
                 }
-                ypos += spacing;
             }
 
+            // stop
             if (NetworkServer.active || manager.IsClientConnected())
             {
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Stop (X)"))
+                if (GUILayout.Button("Stop"))
                 {
                     manager.StopHost();
                 }
-                ypos += spacing;
             }
+
+            GUILayout.EndArea();
         }
     }
 }
