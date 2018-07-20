@@ -1158,10 +1158,7 @@ namespace UnityEngine.Networking
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
                 uv.UNetSerializeAllVars(writer);
-                if (writer.Position > 0)
-                {
-                    msg.payload = writer.ToArray();
-                }
+                msg.payload = writer.ToArray();
 
                 if (conn != null)
                 {
@@ -1188,10 +1185,7 @@ namespace UnityEngine.Networking
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
                 uv.UNetSerializeAllVars(writer);
-                if (writer.Position > 0)
-                {
-                    msg.payload = writer.ToArray();
-                }
+                msg.payload = writer.ToArray();
 
                 if (conn != null)
                 {
