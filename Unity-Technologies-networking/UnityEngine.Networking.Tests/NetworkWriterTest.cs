@@ -51,6 +51,25 @@ namespace UnityEngine.Networking.Tests
         }
 
         [Test]
+        public void TestToArray()
+        {
+            // write 2 bytes
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write((byte)1);
+            writer.Write((byte)2);
+
+            // .ToArray() length is 2?
+            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
+
+            // set position back by one
+            writer.Position = 1;
+
+            // .ToArray() length is 1, even though the internal array contains 2 bytes?
+            // (see .ToArray() function comments)
+            Assert.That(writer.ToArray().Length, Is.EqualTo(1));
+        }
+
+        [Test]
         public void TestPackedUInt32()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -179,7 +198,6 @@ namespace UnityEngine.Networking.Tests
 
             reader.SeekZero();
             Assert.That(reader.Position, Is.Zero);
-
         }
 
     }
