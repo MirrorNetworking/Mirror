@@ -1238,7 +1238,7 @@ namespace UnityEngine.Networking
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
 #endif
-            ClientScene.readyConnection.SendWriter(writer, GetNetworkChannel());
+            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
         }
 
         static public void HandleTransform(NetworkMessage netMsg)

@@ -302,21 +302,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            if (m_Connection != null)
-            {
-                if (m_AsyncConnect != ConnectState.Connected)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient SendWriter when not connected to a server"); }
-                    return false;
-                }
-                return m_Connection.SendWriter(writer, channelId);
-            }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient SendWriter with no connection"); }
-            return false;
-        }
-
         public bool SendBytes(byte[] data, int channelId)
         {
             if (m_Connection != null)

@@ -68,7 +68,7 @@ namespace UnityEngine.Networking
             }
 
             writer.FinishMessage();
-            ClientScene.readyConnection.SendWriter(writer, channelId);
+            ClientScene.readyConnection.SendBytes(writer.ToArray(), channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -96,7 +96,7 @@ namespace UnityEngine.Networking
             }
 
             writer.FinishMessage();
-            NetworkServer.SendWriterToReady(gameObject, writer, channelId);
+            NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -117,7 +117,7 @@ namespace UnityEngine.Networking
 
             writer.FinishMessage();
 
-            conn.SendWriter(writer, channelId);
+            conn.SendBytes(writer.ToArray(), channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -144,7 +144,7 @@ namespace UnityEngine.Networking
             }
 
             writer.FinishMessage();
-            NetworkServer.SendWriterToReady(gameObject, writer, channelId);
+            NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(

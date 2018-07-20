@@ -258,7 +258,7 @@ namespace UnityEngine.Networking
             SerializeItem(writer, item);
             writer.FinishMessage();
 
-            NetworkServer.SendWriterToReady(uv.gameObject, writer, m_Behaviour.GetNetworkChannel());
+            NetworkServer.SendBytesToReady(uv.gameObject, writer.ToArray(), m_Behaviour.GetNetworkChannel());
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(

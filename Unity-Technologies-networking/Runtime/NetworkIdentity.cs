@@ -732,7 +732,7 @@ namespace UnityEngine.Networking
                     }
 
                     writer.FinishMessage();
-                    NetworkServer.SendWriterToReady(gameObject, writer, channelId);
+                    NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
                 }
             }
         }

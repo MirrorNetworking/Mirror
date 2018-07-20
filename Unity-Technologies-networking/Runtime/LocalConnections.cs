@@ -32,12 +32,6 @@ namespace UnityEngine.Networking
             m_LocalClient.InvokeBytesOnClient(bytes, channelId);
             return true;
         }
-
-        public override bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            m_LocalClient.InvokeBytesOnClient(writer.ToArray(), channelId);
-            return true;
-        }
     }
 
     // a localClient's connection TO a server.
@@ -66,12 +60,6 @@ namespace UnityEngine.Networking
                 return false;
             }
             return NetworkServer.InvokeBytes(this, bytes, channelId);
-        }
-
-        public override bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            // write relevant data, which is until .Position
-            return NetworkServer.InvokeBytes(this, writer.ToArray(), channelId);
         }
     }
 }

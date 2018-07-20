@@ -400,7 +400,7 @@ namespace UnityEngine.Networking
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
-            ClientScene.readyConnection.SendWriter(writer, GetNetworkChannel());
+            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
         }
 
         static internal void HandleChildTransform(NetworkMessage netMsg)

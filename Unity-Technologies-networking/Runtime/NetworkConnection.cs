@@ -183,7 +183,7 @@ namespace UnityEngine.Networking
             writer.StartMessage(msgType);
             msg.Serialize(writer);
             writer.FinishMessage();
-            return SendWriter(writer, channelId);
+            return SendBytes(writer.ToArray(), channelId);
         }
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
@@ -215,12 +215,6 @@ namespace UnityEngine.Networking
 
             byte error;
             return TransportSend(bytes, channelId, out error);
-        }
-
-        public virtual bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            // write relevant data, which is until .Position
-            return SendBytes(writer.ToArray(), channelId);
         }
 
         void LogSend(byte[] bytes)

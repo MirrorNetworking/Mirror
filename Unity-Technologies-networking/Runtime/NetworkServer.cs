@@ -285,18 +285,6 @@ namespace UnityEngine.Networking
 
         // End users should not send random bytes
         // because the other side might interpret them as messages
-        static internal void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
-        {
-            if (writer.Position > UInt16.MaxValue)
-            {
-                throw new UnityException("NetworkWriter used buffer is too big!");
-            }
-            // send relevant data, which is until .Position
-            SendBytesToReady(contextObj, writer.ToArray(), channelId);
-        }
-
-        // End users should not send random bytes
-        // because the other side might interpret them as messages
         static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int channelId)
         {
             if (contextObj == null)
