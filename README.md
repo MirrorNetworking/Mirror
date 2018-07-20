@@ -62,15 +62,15 @@ You'll find it
 
 We have multiple yet sometimes conflicting goals. Thus we are developing HLAPI in several branches:
 
-* [fixes](https://bitbucket.org/vis2k/hlapi-community-edition/src/fixes/): 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
-* [2018.1](https://bitbucket.org/vis2k/hlapi-community-edition/src/2018.1/): 2018.1 patch. Can be rebased to latest 'master' all the time.
-* [improvements](https://bitbucket.org/vis2k/hlapi-community-edition/src/improvements/): the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
-* [features](https://bitbucket.org/vis2k/hlapi-community-edition/src/features/): this branch is for new features that could be useful. We can go crazy with features here, as long as we all agree that a given feature is a good idea to add. We can discuss features in Discord.
+* [fixes](https://github.com/vis2k/HLAPI-Community-Edition/tree/fixes): 2017.4 HLAPI + bug fixes. No unnecessary code changes to guarantee 100% compatibility with original HLAPI, for those who need it.
+* [2018.1](https://github.com/vis2k/HLAPI-Community-Edition/tree/2018.1): 2018.1 patch. Can be rebased to latest 'master' all the time.
+* [improvements](https://github.com/vis2k/HLAPI-Community-Edition/tree/improvements): the #1 goal of this branch is to make HLAPI more simple and easier to maintain. The original code is way too complicated and if we end up with 10.000 lines instead of 20.000 lines, then that would be huge. The #2 goal of this branch is to improve CCU and only add features that are completely obviously necessary (SyncVarToOwner etc.).
+* [features](https://github.com/vis2k/HLAPI-Community-Edition/tree/features): this branch is for new features that could be useful. We can go crazy with features here, as long as we all agree that a given feature is a good idea to add. We can discuss features in Discord.
 
 
 If you submit pull requests, please submit them to the proper branch. 
 For example, 99% of the features submitted to 'improvements' will most likely be rejected, 
 because the goal is to make this branch more simple. 
 Submit new features to 'features' branch instead. 
-If you want to submit a bug fix that applies to everything, then submit it to 'master', and so on.
+If you want to submit a bug fix that applies to everything, then submit it to 'fixes', and so on.
 
