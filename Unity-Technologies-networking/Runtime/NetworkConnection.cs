@@ -112,7 +112,7 @@ namespace UnityEngine.Networking
                 message.conn = this;
                 message.reader = reader;
                 message.channelId = channelId;
-                
+
                 msgDelegate(message);
                 return true;
             }
@@ -188,25 +188,25 @@ namespace UnityEngine.Networking
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public virtual bool SendBytes(byte[] bytes, int bytesToSend, int channelId)
+        public virtual bool SendBytes(byte[] bytes, int channelId)
         {
             if (logNetworkMessages)
             {
                 LogSend(bytes);
             }
-            
+
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 (short)MsgType.HLAPIMsg, "msg", 1);
 #endif
-            if (bytesToSend > UInt16.MaxValue)
+            if (bytes.Length > UInt16.MaxValue)
             {
                 if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
                 return false;
             }
 
-            if (bytesToSend <= 0)
+            if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
                 if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send zero bytes"); }
@@ -214,13 +214,13 @@ namespace UnityEngine.Networking
             }
 
             byte error;
-            return TransportSend(bytes, bytesToSend, channelId, out error);
+            return TransportSend(bytes, channelId, out error);
         }
 
         public virtual bool SendWriter(NetworkWriter writer, int channelId)
         {
             // write relevant data, which is until .Position
-            return SendBytes(writer.ToArray(), writer.Position, channelId);
+            return SendBytes(writer.ToArray(), channelId);
         }
 
         void LogSend(byte[] bytes)
@@ -239,7 +239,7 @@ namespace UnityEngine.Networking
             }
             Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + msgSize + " msgId:" + msgId + " " + msg);
         }
-        
+
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
             // build the stream form the buffer passed in
@@ -355,16 +355,16 @@ namespace UnityEngine.Networking
             HandleBytes(bytes, numBytes, channelId);
         }
 
-        public virtual bool TransportSend(byte[] bytes, int numBytes, int channelId, out byte error)
+        public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
         {
-            if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, numBytes, out error))
+            if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, bytes.Length, out error))
             {
                 return true;
             }
             else
             {
                 // ChannelPacket used to log errors. we do it here now.
-                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + numBytes); }
+                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
                 return false;
             }
         }

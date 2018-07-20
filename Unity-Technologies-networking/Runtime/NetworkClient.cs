@@ -317,7 +317,7 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        public bool SendBytes(byte[] data, int numBytes, int channelId)
+        public bool SendBytes(byte[] data, int channelId)
         {
             if (m_Connection != null)
             {
@@ -326,7 +326,7 @@ namespace UnityEngine.Networking
                     if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes when not connected to a server"); }
                     return false;
                 }
-                return m_Connection.SendBytes(data, numBytes, channelId);
+                return m_Connection.SendBytes(data, channelId);
             }
             if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes with no connection"); }
             return false;

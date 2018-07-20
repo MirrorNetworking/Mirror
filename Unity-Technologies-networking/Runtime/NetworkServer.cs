@@ -153,7 +153,7 @@ namespace UnityEngine.Networking
             Initialize();
 
             // only start server if we want to listen. otherwise this mode uses external connections instead
-            if (!s_DontListen) 
+            if (!s_DontListen)
             {
                 Initialize();
                 s_ServerPort = serverPort;
@@ -292,12 +292,12 @@ namespace UnityEngine.Networking
                 throw new UnityException("NetworkWriter used buffer is too big!");
             }
             // send relevant data, which is until .Position
-            SendBytesToReady(contextObj, writer.ToArray(), writer.Position, channelId);
+            SendBytesToReady(contextObj, writer.ToArray(), channelId);
         }
 
         // End users should not send random bytes
         // because the other side might interpret them as messages
-        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int numBytes, int channelId)
+        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int channelId)
         {
             if (contextObj == null)
             {
@@ -308,7 +308,7 @@ namespace UnityEngine.Networking
                     NetworkConnection conn = connections[i];
                     if (conn != null && conn.isReady)
                     {
-                        if (!conn.SendBytes(buffer, numBytes, channelId))
+                        if (!conn.SendBytes(buffer, channelId))
                         {
                             success = false;
                         }
@@ -330,7 +330,7 @@ namespace UnityEngine.Networking
                     var conn = uv.observers[i];
                     if (conn.isReady)
                     {
-                        if (!conn.SendBytes(buffer, numBytes, channelId))
+                        if (!conn.SendBytes(buffer, channelId))
                         {
                             success = false;
                         }
@@ -453,7 +453,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    remove.Add(kvp.Key); 
+                    remove.Add(kvp.Key);
                 }
             }
 
@@ -1442,7 +1442,7 @@ namespace UnityEngine.Networking
             UnSpawnObject(obj);
         }
 
-        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int numBytes, int channelId)
+        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int channelId)
         {
             NetworkReader reader = new NetworkReader(buffer);
 
