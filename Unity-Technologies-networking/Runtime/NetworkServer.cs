@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
 
@@ -18,12 +17,11 @@ namespace UnityEngine.Networking
         static NetworkScene s_NetworkScene = new NetworkScene();
         static HashSet<int> s_ExternalConnections = new HashSet<int>();
 
-        static NetworkMessageHandlers s_MessageHandlers = new NetworkMessageHandlers();
+        static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
-        static int s_RelaySlotId = -1;
         static HostTopology s_HostTopology;
         static byte[] s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
         static bool s_UseWebSockets;
@@ -41,7 +39,7 @@ namespace UnityEngine.Networking
         public static int serverHostId { get { return s_ServerHostId; } }
 
         public static List<NetworkConnection> connections { get { return s_Connections; } }
-        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers.GetHandlers(); } }
+        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
         public static HostTopology hostTopology { get { return s_HostTopology; }}
 
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
@@ -125,59 +123,19 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
         }
 
-        static public bool Listen(MatchInfo matchInfo, int listenPort)
-        {
-            if (!matchInfo.usingRelay)
-                return InternalListen(null, listenPort);
-
-            InternalListenRelay(matchInfo.address, matchInfo.port, matchInfo.networkId, Utility.GetSourceID(), matchInfo.nodeId);
-            return true;
-        }
-
         static internal void RegisterMessageHandlers()
         {
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Ready, OnClientReadyMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Command, OnCommandMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.RemovePlayer, OnRemovePlayerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
-            s_MessageHandlers.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
+            RegisterHandler((short)MsgType.Ready, OnClientReadyMessage);
+            RegisterHandler((short)MsgType.Command, OnCommandMessage);
+            RegisterHandler((short)MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
+            RegisterHandler((short)MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            RegisterHandler((short)MsgType.RemovePlayer, OnRemovePlayerMessage);
+            RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
+            RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
+            RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
 
             // also setup max packet size.
             maxPacketSize = hostTopology.DefaultConfig.PacketSize;
-        }
-
-        static public void ListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
-        {
-            InternalListenRelay(relayIp, relayPort, netGuid, sourceId, nodeId);
-        }
-
-        static internal void InternalListenRelay(string relayIp, int relayPort, NetworkID netGuid, SourceID sourceId, NodeID nodeId)
-        {
-            Initialize();
-
-            s_ServerHostId = NetworkTransport.AddHost(s_HostTopology, listenPort);
-            if (LogFilter.logDebug) { Debug.Log("Server Host Slot Id: " + s_ServerHostId); }
-
-            Update();
-
-            byte error;
-            NetworkTransport.ConnectAsNetworkHost(
-                s_ServerHostId,
-                relayIp,
-                relayPort,
-                netGuid,
-                sourceId,
-                nodeId,
-                out error);
-
-            s_RelaySlotId = 0;
-            if (LogFilter.logDebug) { Debug.Log("Relay Slot Id: " + s_RelaySlotId); }
-
-            s_Active = true;
-            RegisterMessageHandlers();
         }
 
         static public bool Listen(int serverPort)
@@ -195,7 +153,7 @@ namespace UnityEngine.Networking
             Initialize();
 
             // only start server if we want to listen. otherwise this mode uses external connections instead
-            if (!s_DontListen) 
+            if (!s_DontListen)
             {
                 Initialize();
                 s_ServerPort = serverPort;
@@ -262,7 +220,7 @@ namespace UnityEngine.Networking
             s_LocalConnection.connectionId = 0;
             SetConnectionAtIndex(s_LocalConnection);
 
-            s_LocalConnection.InvokeHandlerNoData(MsgType.Connect);
+            s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
 
             return 0;
         }
@@ -325,17 +283,9 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        static public void SendWriterToReady(GameObject contextObj, NetworkWriter writer, int channelId)
-        {
-            if (writer.Position > UInt16.MaxValue)
-            {
-                throw new UnityException("NetworkWriter used buffer is too big!");
-            }
-            // send relevant data, which is until .Position
-            SendBytesToReady(contextObj, writer.ToArray(), writer.Position, channelId);
-        }
-
-        static public void SendBytesToReady(GameObject contextObj, byte[] buffer, int numBytes, int channelId)
+        // End users should not send random bytes
+        // because the other side might interpret them as messages
+        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int channelId)
         {
             if (contextObj == null)
             {
@@ -346,7 +296,7 @@ namespace UnityEngine.Networking
                     NetworkConnection conn = connections[i];
                     if (conn != null && conn.isReady)
                     {
-                        if (!conn.SendBytes(buffer, numBytes, channelId))
+                        if (!conn.SendBytes(buffer, channelId))
                         {
                             success = false;
                         }
@@ -368,7 +318,7 @@ namespace UnityEngine.Networking
                     var conn = uv.observers[i];
                     if (conn.isReady)
                     {
-                        if (!conn.SendBytes(buffer, numBytes, channelId))
+                        if (!conn.SendBytes(buffer, channelId))
                         {
                             success = false;
                         }
@@ -383,25 +333,6 @@ namespace UnityEngine.Networking
             {
                 // observers may be null if object has not been spawned
                 if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady object " + contextObj + " has not been spawned"); }
-            }
-        }
-
-        public static void SendBytesToPlayer(GameObject player, byte[] buffer, int numBytes, int channelId)
-        {
-            for (int i = 0; i < connections.Count; i++)
-            {
-                var conn = connections[i];
-                if (conn != null)
-                {
-                    for (int j = 0; j < conn.playerControllers.Count; j++)
-                    {
-                        if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
-                        {
-                            conn.SendBytes(buffer, numBytes, channelId);
-                            break;
-                        }
-                    }
-                }
             }
         }
 
@@ -510,7 +441,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    remove.Add(kvp.Key); 
+                    remove.Add(kvp.Key);
                 }
             }
 
@@ -532,22 +463,6 @@ namespace UnityEngine.Networking
             byte error;
 
             var networkEvent = NetworkEventType.DataEvent;
-            if (s_RelaySlotId != -1)
-            {
-                networkEvent = NetworkTransport.ReceiveRelayEventFromHost(s_ServerHostId, out error);
-                if (NetworkEventType.Nothing != networkEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup event:" + networkEvent); }
-                }
-                if (networkEvent == NetworkEventType.ConnectEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup server connected"); }
-                }
-                if (networkEvent == NetworkEventType.DisconnectEvent)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("NetGroup server disconnected"); }
-                }
-            }
 
             do
             {
@@ -626,7 +541,7 @@ namespace UnityEngine.Networking
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + conn.connectionId); }
-            conn.InvokeHandlerNoData(MsgType.Connect);
+            conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
         static void HandleDisconnect(int connectionId, byte error)
@@ -659,7 +574,7 @@ namespace UnityEngine.Networking
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandlerNoData(MsgType.Disconnect);
+            conn.InvokeHandlerNoData((short)MsgType.Disconnect);
 
             if (conn.playerControllers.Any(pc => pc.gameObject != null))
             {
@@ -704,7 +619,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.LLAPIMsg, "msg", 1);
+                (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
             conn.TransportReceive(s_MsgBuffer, receivedSize, channelId);
         }
@@ -731,7 +646,7 @@ namespace UnityEngine.Networking
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
-            if (handlers.ContainsKey(MsgType.Error))
+            if (handlers.ContainsKey((short)MsgType.Error))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.errorCode = error;
@@ -742,23 +657,27 @@ namespace UnityEngine.Networking
 
                 // pass a reader (attached to local buffer) to handler
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler(MsgType.Error, reader, 0);
+                conn.InvokeHandler((short)MsgType.Error, reader, 0);
             }
         }
 
         static public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            s_MessageHandlers.RegisterHandler(msgType, handler);
+            if (s_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
+            }
+            s_MessageHandlers[msgType] = handler;
         }
 
         static public void UnregisterHandler(short msgType)
         {
-            s_MessageHandlers.UnregisterHandler(msgType);
+            s_MessageHandlers.Remove(msgType);
         }
 
         static public void ClearHandlers()
         {
-            s_MessageHandlers.ClearMessageHandlers();
+            s_MessageHandlers.Clear();
         }
 
         static public void ClearSpawners()
@@ -945,7 +864,7 @@ namespace UnityEngine.Networking
             OwnerMessage owner = new OwnerMessage();
             owner.netId = uv.netId;
             owner.playerControllerId = uv.playerControllerId;
-            conn.Send(MsgType.Owner, owner);
+            conn.Send((short)MsgType.Owner, owner);
         }
 
         static internal bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
@@ -1064,7 +983,7 @@ namespace UnityEngine.Networking
 
             ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
             msg.state = 0;
-            conn.Send(MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, msg);
 
             foreach (NetworkIdentity uv in objects.Values)
             {
@@ -1088,7 +1007,7 @@ namespace UnityEngine.Networking
             }
 
             msg.state = 1;
-            conn.Send(MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, msg);
         }
 
         static internal void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
@@ -1101,7 +1020,7 @@ namespace UnityEngine.Networking
         {
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;
-            conn.Send(MsgType.ObjectHide, msg);
+            conn.Send((short)MsgType.ObjectHide, msg);
         }
 
         // call this to make all the clients not ready, such as when changing levels.
@@ -1131,7 +1050,7 @@ namespace UnityEngine.Networking
                 conn.RemoveObservers();
 
                 NotReadyMessage msg = new NotReadyMessage();
-                conn.Send(MsgType.NotReady, msg);
+                conn.Send((short)MsgType.NotReady, msg);
             }
         }
 
@@ -1228,9 +1147,11 @@ namespace UnityEngine.Networking
                 return;
 
             if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+
+            // 'uv' is a prefab that should be spawned
             if (uv.sceneId.IsEmpty())
             {
-                ObjectSpawnMessage msg = new ObjectSpawnMessage();
+                SpawnPrefabMessage msg = new SpawnPrefabMessage();
                 msg.netId = uv.netId;
                 msg.assetId = uv.assetId;
                 msg.position = uv.transform.position;
@@ -1239,29 +1160,29 @@ namespace UnityEngine.Networking
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
                 uv.UNetSerializeAllVars(writer);
-                if (writer.Position > 0)
-                {
-                    msg.payload = writer.ToArray();
-                }
+                msg.payload = writer.ToArray();
 
+                // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send(MsgType.ObjectSpawn, msg);
+                    conn.Send((short)MsgType.SpawnPrefab, msg);
                 }
+                // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.ObjectSpawn, uv.assetId.ToString(), 1);
+                    (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
 #endif
             }
+            // 'uv' is a scene object that should be spawned again
             else
             {
-                ObjectSpawnSceneMessage msg = new ObjectSpawnSceneMessage();
+                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
                 msg.netId = uv.netId;
                 msg.sceneId = uv.sceneId;
                 msg.position = uv.transform.position;
@@ -1269,24 +1190,23 @@ namespace UnityEngine.Networking
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
                 uv.UNetSerializeAllVars(writer);
-                if (writer.Position > 0)
-                {
-                    msg.payload = writer.ToArray();
-                }
+                msg.payload = writer.ToArray();
 
+                // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send(MsgType.ObjectSpawnScene, msg);
+                    conn.Send((short)MsgType.SpawnSceneObject, msg);
                 }
+                // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
                 }
 
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    MsgType.ObjectSpawnScene, "sceneId", 1);
+                    (short)MsgType.SpawnSceneObject, "sceneId", 1);
 #endif
             }
         }
@@ -1381,12 +1301,12 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.ObjectDestroy, uv.assetId.ToString(), 1);
+                (short)MsgType.ObjectDestroy, uv.assetId.ToString(), 1);
 #endif
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;
-            SendToObservers(uv.gameObject, MsgType.ObjectDestroy, msg);
+            SendToObservers(uv.gameObject, (short)MsgType.ObjectDestroy, msg);
 
             uv.ClearObservers();
             if (NetworkClient.active && s_LocalClientActive)
@@ -1511,7 +1431,7 @@ namespace UnityEngine.Networking
             UnSpawnObject(obj);
         }
 
-        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int numBytes, int channelId)
+        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int channelId)
         {
             NetworkReader reader = new NetworkReader(buffer);
 
@@ -1571,7 +1491,7 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("AddExternalConnection external connection " + conn.connectionId); }
             SetConnectionAtIndex(conn);
             s_ExternalConnections.Add(conn.connectionId);
-            conn.InvokeHandlerNoData(MsgType.Connect);
+            conn.InvokeHandlerNoData((short)MsgType.Connect);
 
             return true;
         }

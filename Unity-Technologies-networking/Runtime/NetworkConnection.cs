@@ -16,11 +16,9 @@ namespace UnityEngine.Networking
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlersDict;
-        NetworkMessageHandlers m_MessageHandlers;
+        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
-        NetworkMessage m_MessageInfo = new NetworkMessage();
 
         const int k_MaxMessageLogSize = 150;
         private NetworkError error;
@@ -94,15 +92,9 @@ namespace UnityEngine.Networking
             RemoveObservers();
         }
 
-        internal void SetHandlers(NetworkMessageHandlers handlers)
+        internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
-            m_MessageHandlersDict = handlers.GetHandlers();
-        }
-
-        public bool CheckHandler(short msgType)
-        {
-            return m_MessageHandlersDict.ContainsKey(msgType);
         }
 
         public bool InvokeHandlerNoData(short msgType)
@@ -112,30 +104,27 @@ namespace UnityEngine.Networking
 
         public bool InvokeHandler(short msgType, NetworkReader reader, int channelId)
         {
-            if (m_MessageHandlersDict.ContainsKey(msgType))
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
-                m_MessageInfo.msgType = msgType;
-                m_MessageInfo.conn = this;
-                m_MessageInfo.reader = reader;
-                m_MessageInfo.channelId = channelId;
+                NetworkMessage message = new NetworkMessage();
+                message.msgType = msgType;
+                message.conn = this;
+                message.reader = reader;
+                message.channelId = channelId;
 
-                NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[msgType];
-                if (msgDelegate == null)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
-                    return false;
-                }
-                msgDelegate(m_MessageInfo);
+                msgDelegate(message);
                 return true;
             }
+            if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
             return false;
         }
 
         public bool InvokeHandler(NetworkMessage netMsg)
         {
-            if (m_MessageHandlersDict.ContainsKey(netMsg.msgType))
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out msgDelegate))
             {
-                NetworkMessageDelegate msgDelegate = m_MessageHandlersDict[netMsg.msgType];
                 msgDelegate(netMsg);
                 return true;
             }
@@ -144,12 +133,16 @@ namespace UnityEngine.Networking
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            m_MessageHandlers.RegisterHandler(msgType, handler);
+            if (m_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+            }
+            m_MessageHandlers[msgType] = handler;
         }
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.UnregisterHandler(msgType);
+            m_MessageHandlers.Remove(msgType);
         }
 
         internal void SetPlayerController(PlayerController player)
@@ -190,30 +183,30 @@ namespace UnityEngine.Networking
             writer.StartMessage(msgType);
             msg.Serialize(writer);
             writer.FinishMessage();
-            return SendWriter(writer, channelId);
+            return SendBytes(writer.ToArray(), channelId);
         }
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public virtual bool SendBytes(byte[] bytes, int bytesToSend, int channelId)
+        public virtual bool SendBytes(byte[] bytes, int channelId)
         {
             if (logNetworkMessages)
             {
                 LogSend(bytes);
             }
-            
+
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.HLAPIMsg, "msg", 1);
+                (short)MsgType.HLAPIMsg, "msg", 1);
 #endif
-            if (bytesToSend > UInt16.MaxValue)
+            if (bytes.Length > UInt16.MaxValue)
             {
                 if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
                 return false;
             }
 
-            if (bytesToSend <= 0)
+            if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
                 if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send zero bytes"); }
@@ -221,13 +214,7 @@ namespace UnityEngine.Networking
             }
 
             byte error;
-            return TransportSend(bytes, bytesToSend, channelId, out error);
-        }
-
-        public virtual bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            // write relevant data, which is until .Position
-            return SendBytes(writer.ToArray(), writer.Position, channelId);
+            return TransportSend(bytes, channelId, out error);
         }
 
         void LogSend(byte[] bytes)
@@ -246,7 +233,7 @@ namespace UnityEngine.Networking
             }
             Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + msgSize + " msgId:" + msgId + " " + msg);
         }
-        
+
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
             // build the stream form the buffer passed in
@@ -280,12 +267,8 @@ namespace UnityEngine.Networking
                     Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + msg);
                 }
 
-                NetworkMessageDelegate msgDelegate = null;
-                if (m_MessageHandlersDict.ContainsKey(msgType))
-                {
-                    msgDelegate = m_MessageHandlersDict[msgType];
-                }
-                if (msgDelegate != null)
+                NetworkMessageDelegate msgDelegate;
+                if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
                 {
                     // create message here instead of caching it. so we can add it to queue more easily.
                     NetworkMessage msg = new NetworkMessage();
@@ -298,7 +281,7 @@ namespace UnityEngine.Networking
                     if (pauseQueue != null)
                     {
                         pauseQueue.Enqueue(msg);
-                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + MsgType.MsgTypeToString(msgType) + " queue size=" + pauseQueue.Count); }
+                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
                     }
                     else
                     {
@@ -309,13 +292,13 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                     UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        MsgType.HLAPIMsg, "msg", 1);
+                        (short)MsgType.HLAPIMsg, "msg", 1);
 
-                    if (msgType > MsgType.Highest)
+                    if (msgType > (short)MsgType.Highest)
                     {
                         UnityEditor.NetworkDetailStats.IncrementStat(
                             UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                            MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
+                            (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
                     }
 #endif
                 }
@@ -366,16 +349,16 @@ namespace UnityEngine.Networking
             HandleBytes(bytes, numBytes, channelId);
         }
 
-        public virtual bool TransportSend(byte[] bytes, int numBytes, int channelId, out byte error)
+        public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
         {
-            if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, numBytes, out error))
+            if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, bytes.Length, out error))
             {
                 return true;
             }
             else
             {
                 // ChannelPacket used to log errors. we do it here now.
-                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + numBytes); }
+                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
                 return false;
             }
         }
@@ -419,8 +402,8 @@ namespace UnityEngine.Networking
             {
                 foreach (NetworkMessage msg in pauseQueue)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + MsgType.MsgTypeToString(msg.msgType)); }
-                    var msgDelegate = m_MessageHandlersDict[msg.msgType];
+                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + msg.msgType); }
+                    var msgDelegate = m_MessageHandlers[msg.msgType];
                     msgDelegate(msg);
                 }
                 pauseQueue = null;

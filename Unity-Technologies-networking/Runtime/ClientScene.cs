@@ -147,7 +147,7 @@ namespace UnityEngine.Networking
                 extraMessage.Serialize(writer);
                 msg.msgData = writer.ToArray();
             }
-            s_ReadyConnection.Send(MsgType.AddPlayer, msg);
+            s_ReadyConnection.Send((short)MsgType.AddPlayer, msg);
             return true;
         }
 
@@ -160,7 +160,7 @@ namespace UnityEngine.Networking
             {
                 var msg = new RemovePlayerMessage();
                 msg.playerControllerId = playerControllerId;
-                s_ReadyConnection.Send(MsgType.RemovePlayer, msg);
+                s_ReadyConnection.Send((short)MsgType.RemovePlayer, msg);
 
                 s_ReadyConnection.RemovePlayerController(playerControllerId);
                 s_LocalPlayers[playerControllerId] = new PlayerController();
@@ -185,7 +185,7 @@ namespace UnityEngine.Networking
             if (conn != null)
             {
                 var msg = new ReadyMessage();
-                conn.Send(MsgType.Ready, msg);
+                conn.Send((short)MsgType.Ready, msg);
                 s_IsReady = true;
                 s_ReadyConnection = conn;
                 s_ReadyConnection.isReady = true;
@@ -221,7 +221,7 @@ namespace UnityEngine.Networking
             {
                 var uv = uvs[i];
                 // not spawned yet etc.?
-                if (!uv.gameObject.activeSelf && 
+                if (!uv.gameObject.activeSelf &&
                     uv.gameObject.hideFlags != HideFlags.NotEditable && uv.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                     !uv.sceneId.IsEmpty())
                 {
@@ -246,31 +246,31 @@ namespace UnityEngine.Networking
         {
             if (localClient)
             {
-                client.RegisterHandlerSafe(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.ObjectHide, OnLocalClientObjectHide);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawn, OnLocalClientObjectSpawn);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawnScene, OnLocalClientObjectSpawnScene);
-                client.RegisterHandlerSafe(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler((short)MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
+                client.RegisterHandler((short)MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler((short)MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
+                client.RegisterHandler((short)MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
+                client.RegisterHandler((short)MsgType.LocalClientAuthority, OnClientAuthority);
             }
             else
             {
                 // LocalClient shares the sim/scene with the server, no need for these events
-                client.RegisterHandlerSafe(MsgType.ObjectSpawn, OnObjectSpawn);
-                client.RegisterHandlerSafe(MsgType.ObjectSpawnScene, OnObjectSpawnScene);
-                client.RegisterHandlerSafe(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandlerSafe(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.ObjectHide, OnObjectDestroy);
-                client.RegisterHandlerSafe(MsgType.UpdateVars, OnUpdateVarsMessage);
-                client.RegisterHandlerSafe(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandlerSafe(MsgType.SyncList, OnSyncListMessage);
-                client.RegisterHandlerSafe(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
-                client.RegisterHandlerSafe(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
-                client.RegisterHandlerSafe(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler((short)MsgType.SpawnPrefab, OnSpawnPrefab);
+                client.RegisterHandler((short)MsgType.SpawnSceneObject, OnSpawnSceneObject);
+                client.RegisterHandler((short)MsgType.SpawnFinished, OnObjectSpawnFinished);
+                client.RegisterHandler((short)MsgType.ObjectDestroy, OnObjectDestroy);
+                client.RegisterHandler((short)MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler((short)MsgType.UpdateVars, OnUpdateVarsMessage);
+                client.RegisterHandler((short)MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler((short)MsgType.SyncList, OnSyncListMessage);
+                client.RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
+                client.RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
+                client.RegisterHandler((short)MsgType.LocalClientAuthority, OnClientAuthority);
             }
 
-            client.RegisterHandlerSafe(MsgType.Rpc, OnRPCMessage);
-            client.RegisterHandlerSafe(MsgType.SyncEvent, OnSyncEventMessage);
-            client.RegisterHandlerSafe(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
+            client.RegisterHandler((short)MsgType.Rpc, OnRPCMessage);
+            client.RegisterHandler((short)MsgType.SyncEvent, OnSyncEventMessage);
+            client.RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
         }
 
         // ------------------------ NetworkScene pass-throughs ---------------------
@@ -373,9 +373,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        static void OnObjectSpawn(NetworkMessage netMsg)
+        static void OnSpawnPrefab(NetworkMessage netMsg)
         {
-            ObjectSpawnMessage msg = new ObjectSpawnMessage();
+            SpawnPrefabMessage msg = new SpawnPrefabMessage();
             netMsg.ReadMessage(msg);
 
             if (!msg.assetId.IsValid())
@@ -388,7 +388,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.ObjectSpawn, GetStringForAssetId(msg.assetId), 1);
+                (short)MsgType.SpawnPrefab, GetStringForAssetId(msg.assetId), 1);
 #endif
 
             NetworkIdentity localNetworkIdentity;
@@ -444,9 +444,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        static void OnObjectSpawnScene(NetworkMessage netMsg)
+        static void OnSpawnSceneObject(NetworkMessage netMsg)
         {
-            ObjectSpawnSceneMessage msg = new ObjectSpawnSceneMessage();
+            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
             netMsg.ReadMessage(msg);
 
             if (LogFilter.logDebug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
@@ -455,7 +455,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.ObjectSpawnScene, "sceneId", 1);
+                (short)MsgType.SpawnSceneObject, "sceneId", 1);
 #endif
 
             NetworkIdentity localNetworkIdentity;
@@ -521,7 +521,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                 UnityEditor.NetworkDetailStats.IncrementStat(
                     UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                    MsgType.ObjectDestroy, GetStringForAssetId(localObject.assetId), 1);
+                    (short)MsgType.ObjectDestroy, GetStringForAssetId(localObject.assetId), 1);
 #endif
                 localObject.OnNetworkDestroy();
 
@@ -570,9 +570,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        static void OnLocalClientObjectSpawn(NetworkMessage netMsg)
+        static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
         {
-            ObjectSpawnMessage msg = new ObjectSpawnMessage();
+            SpawnPrefabMessage msg = new SpawnPrefabMessage();
             netMsg.ReadMessage(msg);
 
             NetworkIdentity localObject;
@@ -582,9 +582,9 @@ namespace UnityEngine.Networking
             }
         }
 
-        static void OnLocalClientObjectSpawnScene(NetworkMessage netMsg)
+        static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
         {
-            ObjectSpawnSceneMessage msg = new ObjectSpawnSceneMessage();
+            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
             netMsg.ReadMessage(msg);
 
             NetworkIdentity localObject;
@@ -652,7 +652,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
 #endif
         }
 
@@ -676,7 +676,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
 #endif
         }
 

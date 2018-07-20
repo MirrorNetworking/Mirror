@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Linq;
-using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
 using UnityEngine.SceneManagement;
@@ -53,12 +52,6 @@ namespace UnityEngine.Networking
         [SerializeField] bool m_AllowFragmentation;
         #pragma warning restore 0169
         
-        // matchmaking configuration
-        [SerializeField] string m_MatchHost = "mm.unet.unity3d.com";
-        [SerializeField] int m_MatchPort = 443;
-        [SerializeField] public string matchName = "default";
-        [SerializeField] public uint matchSize = 4;
-
         private EndPoint m_EndPoint;
         bool m_ClientLoadedScene;
 
@@ -94,8 +87,6 @@ namespace UnityEngine.Networking
 
         public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
 
-        public string matchHost              { get { return m_MatchHost; } set { m_MatchHost = value; } }
-        public int matchPort                 { get { return m_MatchPort; } set { m_MatchPort = value; } }
         public bool clientLoadedScene        { get { return m_ClientLoadedScene; } set { m_ClientLoadedScene = value; } }
 
         // only really valid on the server
@@ -122,10 +113,6 @@ namespace UnityEngine.Networking
         static List<Transform> s_StartPositions = new List<Transform>();
         static int s_StartPositionIndex;
 
-        // matchmaking runtime data
-        public MatchInfo matchInfo;
-        public NetworkMatch matchMaker;
-        public List<MatchInfoSnapshot> matches;
         public static NetworkManager singleton;
 
         static AsyncOperation s_LoadingSceneAsync;
@@ -239,30 +226,20 @@ namespace UnityEngine.Networking
 
         internal void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Ready, OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
-        }
-
-        public bool StartServer(ConnectionConfig config, int maxConnections)
-        {
-            return StartServer(null, config, maxConnections);
+            NetworkServer.RegisterHandler((short)MsgType.Connect, OnServerConnectInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Disconnect, OnServerDisconnectInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Ready, OnServerReadyMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
+            NetworkServer.RegisterHandler((short)MsgType.Error, OnServerErrorInternal);
         }
 
         public bool StartServer()
         {
-            return StartServer(null);
+            return StartServer(null, -1);
         }
 
-        public bool StartServer(MatchInfo info)
-        {
-            return StartServer(info, null, -1);
-        }
-
-        bool StartServer(MatchInfo info, ConnectionConfig config, int maxConnections)
+        bool StartServer(ConnectionConfig config, int maxConnections)
         {
             InitializeSingleton();
 
@@ -294,31 +271,20 @@ namespace UnityEngine.Networking
                 NetworkServer.Configure(config, maxConnections);
             }
 
-            if (info != null)
+            if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
             {
-                if (!NetworkServer.Listen(info, m_NetworkPort))
+                if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort))
                 {
-                    if (LogFilter.logError) { Debug.LogError("StartServer listen failed."); }
+                    if (LogFilter.logError) { Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed."); }
                     return false;
                 }
             }
             else
             {
-                if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
+                if (!NetworkServer.Listen(m_NetworkPort))
                 {
-                    if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort))
-                    {
-                        if (LogFilter.logError) { Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed."); }
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (!NetworkServer.Listen(m_NetworkPort))
-                    {
-                        if (LogFilter.logError) { Debug.LogError("StartServer listen failed."); }
-                        return false;
-                    }
+                    if (LogFilter.logError) { Debug.LogError("StartServer listen failed."); }
+                    return false;
                 }
             }
 
@@ -343,11 +309,11 @@ namespace UnityEngine.Networking
 
         internal void RegisterClientMessages(NetworkClient client)
         {
-            client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
-            client.RegisterHandler(MsgType.Disconnect, OnClientDisconnectInternal);
-            client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
-            client.RegisterHandler(MsgType.Error, OnClientErrorInternal);
-            client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
+            client.RegisterHandler((short)MsgType.Connect, OnClientConnectInternal);
+            client.RegisterHandler((short)MsgType.Disconnect, OnClientDisconnectInternal);
+            client.RegisterHandler((short)MsgType.NotReady, OnClientNotReadyMessageInternal);
+            client.RegisterHandler((short)MsgType.Error, OnClientErrorInternal);
+            client.RegisterHandler((short)MsgType.Scene, OnClientSceneInternal);
 
             if (m_PlayerPrefab != null)
             {
@@ -391,11 +357,10 @@ namespace UnityEngine.Networking
             s_Address = m_NetworkAddress;
         }
 
-        public NetworkClient StartClient(MatchInfo info, ConnectionConfig config, int hostPort)
+        public NetworkClient StartClient(ConnectionConfig config, int hostPort)
         {
             InitializeSingleton();
 
-            matchInfo = info;
             if (m_RunInBackground)
                 Application.runInBackground = true;
 
@@ -432,12 +397,7 @@ namespace UnityEngine.Networking
             }
 
             RegisterClientMessages(client);
-            if (matchInfo != null)
-            {
-                if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient match: " + matchInfo); }
-                client.Connect(matchInfo);
-            }
-            else if (m_EndPoint != null)
+            if (m_EndPoint != null)
             {
                 if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient using provided SecureTunnel"); }
                 client.Connect(m_EndPoint);
@@ -459,19 +419,14 @@ namespace UnityEngine.Networking
             return client;
         }
 
-        public NetworkClient StartClient(MatchInfo matchInfo)
-        {
-            return StartClient(matchInfo, null);
-        }
-
         public NetworkClient StartClient()
         {
-            return StartClient(null, null);
+            return StartClient(null);
         }
 
-        public NetworkClient StartClient(MatchInfo info, ConnectionConfig config)
+        public NetworkClient StartClient(ConnectionConfig config)
         {
-            return StartClient(info, config, 0);
+            return StartClient(config, 0);
         }
 
         public virtual NetworkClient StartHost(ConnectionConfig config, int maxConnections)
@@ -481,19 +436,6 @@ namespace UnityEngine.Networking
             {
                 var client = ConnectLocalClient();
                 OnServerConnect(client.connection);
-                OnStartClient(client);
-                return client;
-            }
-            return null;
-        }
-
-        public virtual NetworkClient StartHost(MatchInfo info)
-        {
-            OnStartHost();
-            matchInfo = info;
-            if (StartServer(info))
-            {
-                var client = ConnectLocalClient();
                 OnStartClient(client);
                 return client;
             }
@@ -539,7 +481,6 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("NetworkManager StopServer"); }
             isNetworkActive = false;
             NetworkServer.Shutdown();
-            StopMatchMaker();
             if (!string.IsNullOrEmpty(m_OfflineScene))
             {
                 ServerChangeScene(m_OfflineScene);
@@ -560,7 +501,6 @@ namespace UnityEngine.Networking
                 client.Shutdown();
                 client = null;
             }
-            StopMatchMaker();
 
             ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(m_OfflineScene))
@@ -585,7 +525,7 @@ namespace UnityEngine.Networking
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             StringMessage msg = new StringMessage(networkSceneName);
-            NetworkServer.SendToAll(MsgType.Scene, msg);
+            NetworkServer.SendToAll((short)MsgType.Scene, msg);
 
             s_StartPositionIndex = 0;
             s_StartPositions.Clear();
@@ -753,7 +693,7 @@ namespace UnityEngine.Networking
             if (networkSceneName != "" && networkSceneName != m_OfflineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
-                netMsg.conn.Send(MsgType.Scene, msg);
+                netMsg.conn.Send((short)MsgType.Scene, msg);
             }
 
             OnServerConnect(netMsg.conn);
@@ -837,12 +777,6 @@ namespace UnityEngine.Networking
             if (!string.IsNullOrEmpty(m_OfflineScene))
             {
                 ClientChangeScene(m_OfflineScene, false);
-            }
-
-            // If we have a valid connection here drop the client in the matchmaker before shutting down below
-            if (matchMaker != null && matchInfo != null && matchInfo.networkId != NetworkID.Invalid && matchInfo.nodeId != NodeID.Invalid)
-            {
-                matchMaker.DropConnection(matchInfo.networkId, matchInfo.nodeId, matchInfo.domain, OnDropConnection);
             }
 
             OnClientDisconnect(netMsg.conn);
@@ -1044,60 +978,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        // ----------------------------- Matchmaker --------------------------------
-
-        public void StartMatchMaker()
-        {
-            if (LogFilter.logDebug) { Debug.Log("NetworkManager StartMatchMaker"); }
-            SetMatchHost(m_MatchHost, m_MatchPort, m_MatchPort == 443);
-        }
-
-        public void StopMatchMaker()
-        {
-            // If we have a valid connection here drop the client in the matchmaker before shutting down below
-            if (matchMaker != null && matchInfo != null && matchInfo.networkId != NetworkID.Invalid && matchInfo.nodeId != NodeID.Invalid)
-            {
-                matchMaker.DropConnection(matchInfo.networkId, matchInfo.nodeId, matchInfo.domain, OnDropConnection);
-            }
-
-            if (matchMaker != null)
-            {
-                Destroy(matchMaker);
-                matchMaker = null;
-            }
-            matchInfo = null;
-            matches = null;
-        }
-
-        public void SetMatchHost(string newHost, int port, bool https)
-        {
-            if (matchMaker == null)
-            {
-                matchMaker = gameObject.AddComponent<NetworkMatch>();
-            }
-            if (newHost == "127.0.0.1")
-            {
-                newHost = "localhost";
-            }
-            string prefix = https ? "https://" : "http://";
-
-            if (newHost.StartsWith("http://"))
-            {
-                newHost = newHost.Replace("http://", "");
-            }
-            if (newHost.StartsWith("https://"))
-            {
-                newHost = newHost.Replace("https://", "");
-            }
-
-            m_MatchHost = newHost;
-            m_MatchPort = port;
-
-            string fullURI = prefix + m_MatchHost + ":" + m_MatchPort;
-            if (LogFilter.logDebug) { Debug.Log("SetMatchHost:" + fullURI); }
-            matchMaker.baseUri = new Uri(fullURI);
-        }
-
         //------------------------------ Start & Stop callbacks -----------------------------------
 
         // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
@@ -1126,46 +1006,6 @@ namespace UnityEngine.Networking
 
         public virtual void OnStopHost()
         {
-        }
-
-        //------------------------------ Matchmaker callbacks -----------------------------------
-
-        public virtual void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnMatchCreate Success:{0}, ExtendedInfo:{1}, matchInfo:{2}", success, extendedInfo, matchInfo); }
-
-            if (success)
-                StartHost(matchInfo);
-        }
-
-        public virtual void OnMatchList(bool success, string extendedInfo, List<MatchInfoSnapshot> matchList)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnMatchList Success:{0}, ExtendedInfo:{1}, matchList.Count:{2}", success, extendedInfo, matchList.Count); }
-
-            matches = matchList;
-        }
-
-        public virtual void OnMatchJoined(bool success, string extendedInfo, MatchInfo matchInfo)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnMatchJoined Success:{0}, ExtendedInfo:{1}, matchInfo:{2}", success, extendedInfo, matchInfo); }
-
-            if (success)
-                StartClient(matchInfo);
-        }
-
-        public virtual void OnDestroyMatch(bool success, string extendedInfo)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnDestroyMatch Success:{0}, ExtendedInfo:{1}", success, extendedInfo); }
-        }
-
-        public virtual void OnDropConnection(bool success, string extendedInfo)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnDropConnection Success:{0}, ExtendedInfo:{1}", success, extendedInfo); }
-        }
-
-        public virtual void OnSetMatchAttributes(bool success, string extendedInfo)
-        {
-            if (LogFilter.logDebug) { Debug.LogFormat("NetworkManager OnSetMatchAttributes Success:{0}, ExtendedInfo:{1}", success, extendedInfo); }
         }
     }
 }

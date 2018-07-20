@@ -19,33 +19,17 @@ namespace UnityEngine.Networking
             m_LocalClient = localClient;
         }
 
-        public override bool Send(short msgType, MessageBase msg)
-        {
-            m_LocalClient.InvokeHandlerOnClient(msgType, msg, Channels.DefaultReliable);
-            return true;
-        }
-
-        public override bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            m_LocalClient.InvokeHandlerOnClient(msgType, msg, Channels.DefaultUnreliable);
-            return true;
-        }
-
         public override bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             m_LocalClient.InvokeHandlerOnClient(msgType, msg, channelId);
             return true;
         }
+        public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public override bool SendBytes(byte[] bytes, int numBytes, int channelId)
+        public override bool SendBytes(byte[] bytes, int channelId)
         {
             m_LocalClient.InvokeBytesOnClient(bytes, channelId);
-            return true;
-        }
-
-        public override bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            m_LocalClient.InvokeBytesOnClient(writer.ToArray(), channelId);
             return true;
         }
     }
@@ -61,35 +45,21 @@ namespace UnityEngine.Networking
             address = "localServer";
         }
 
-        public override bool Send(short msgType, MessageBase msg)
-        {
-            return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, Channels.DefaultReliable);
-        }
-
-        public override bool SendUnreliable(short msgType, MessageBase msg)
-        {
-            return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, Channels.DefaultUnreliable);
-        }
-
         public override bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             return NetworkServer.InvokeHandlerOnServer(this, msgType, msg, channelId);
         }
+        public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
+        public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public override bool SendBytes(byte[] bytes, int numBytes, int channelId)
+        public override bool SendBytes(byte[] bytes, int channelId)
         {
-            if (numBytes <= 0)
+            if (bytes.Length == 0)
             {
                 if (LogFilter.logError) { Debug.LogError("LocalConnection:SendBytes cannot send zero bytes"); }
                 return false;
             }
-            return NetworkServer.InvokeBytes(this, bytes, numBytes, channelId);
-        }
-
-        public override bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            // write relevant data, which is until .Position
-            return NetworkServer.InvokeBytes(this, writer.ToArray(), (short)writer.Position, channelId);
+            return NetworkServer.InvokeBytes(this, bytes, channelId);
         }
     }
 }

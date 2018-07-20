@@ -357,78 +357,74 @@ namespace UnityEngine.Networking
             if (!m_ShowGUI)
                 return;
 
-            int xpos = 10 + m_OffsetX;
-            int ypos = 40 + m_OffsetY;
-            const int spacing = 24;
-
-            if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
-                GUI.Box(new Rect(xpos, ypos, 200, 20), "( WebGL cannot broadcast )");
-                return;
-            }
-
-            if (m_MsgInBuffer == null)
-            {
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Initialize Broadcast"))
-                {
-                    Initialize();
-                }
-                return;
-            }
-            string suffix = "";
-            if (m_IsServer)
-                suffix = " (server)";
-            if (m_IsClient)
-                suffix = " (client)";
-
-            GUI.Label(new Rect(xpos, ypos, 200, 20), "initialized" + suffix);
-            ypos += spacing;
-
-            if (m_Running)
-            {
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Stop"))
-                {
-                    StopBroadcast();
-                }
-                ypos += spacing;
-
-                if (m_BroadcastsReceived != null)
-                {
-                    foreach (var addr in m_BroadcastsReceived.Keys)
-                    {
-                        var value = m_BroadcastsReceived[addr];
-                        if (GUI.Button(new Rect(xpos, ypos + 20, 200, 20), "Game at " + addr) && m_UseNetworkManager)
-                        {
-                            string dataString = BytesToString(value.broadcastData);
-                            var items = dataString.Split(':');
-                            if (items.Length == 3 && items[0] == "NetworkManager")
-                            {
-                                if (NetworkManager.singleton != null && NetworkManager.singleton.client == null)
-                                {
-                                    NetworkManager.singleton.networkAddress = items[1];
-                                    NetworkManager.singleton.networkPort = Convert.ToInt32(items[2]);
-                                    NetworkManager.singleton.StartClient();
-                                }
-                            }
-                        }
-                        ypos += spacing;
-                    }
-                }
+                GUILayout.Box("( WebGL cannot broadcast )");
             }
             else
             {
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Start Broadcasting"))
+                if (m_MsgInBuffer == null)
                 {
-                    StartAsServer();
+                    if (GUILayout.Button("Initialize Broadcast"))
+                    {
+                        Initialize();
+                    }
                 }
-                ypos += spacing;
+                else
+                {
+                    string suffix = "";
+                    if (m_IsServer)
+                        suffix = " (server)";
+                    if (m_IsClient)
+                        suffix = " (client)";
 
-                if (GUI.Button(new Rect(xpos, ypos, 200, 20), "Listen for Broadcast"))
-                {
-                    StartAsClient();
+                    GUILayout.Label("initialized" + suffix);
+
+                    if (m_Running)
+                    {
+                        if (GUILayout.Button("Stop"))
+                        {
+                            StopBroadcast();
+                        }
+
+                        if (m_BroadcastsReceived != null)
+                        {
+                            foreach (var addr in m_BroadcastsReceived.Keys)
+                            {
+                                var value = m_BroadcastsReceived[addr];
+                                if (GUILayout.Button("Game at " + addr) && m_UseNetworkManager)
+                                {
+                                    string dataString = BytesToString(value.broadcastData);
+                                    var items = dataString.Split(':');
+                                    if (items.Length == 3 && items[0] == "NetworkManager")
+                                    {
+                                        if (NetworkManager.singleton != null && NetworkManager.singleton.client == null)
+                                        {
+                                            NetworkManager.singleton.networkAddress = items[1];
+                                            NetworkManager.singleton.networkPort = Convert.ToInt32(items[2]);
+                                            NetworkManager.singleton.StartClient();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (GUILayout.Button("Start Broadcasting"))
+                        {
+                            StartAsServer();
+                        }
+
+                        if (GUILayout.Button("Listen for Broadcast"))
+                        {
+                            StartAsClient();
+                        }
+                    }
                 }
-                ypos += spacing;
             }
+            GUILayout.EndArea();
         }
     }
 }

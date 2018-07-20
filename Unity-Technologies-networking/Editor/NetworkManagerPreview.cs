@@ -74,7 +74,7 @@ namespace UnityEditor.Networking
 
             foreach (var handler in NetworkServer.handlers)
             {
-                GUI.Label(new Rect(r.xMin + k_Padding * 4, posY, 400, k_RowHeight), MsgType.MsgTypeToString(handler.Key));
+                GUI.Label(new Rect(r.xMin + k_Padding * 4, posY, 400, k_RowHeight), ((MsgType)handler.Key).ToString());
                 GUI.Label(new Rect(r.xMin + k_Padding * 4 + k_ColumnWidth, posY, 400, k_RowHeight), FormatHandler(handler));
                 posY += k_RowHeight;
             }
@@ -95,7 +95,7 @@ namespace UnityEditor.Networking
 
             foreach (var handler in client.handlers)
             {
-                GUI.Label(new Rect(r.xMin + k_Padding * 4, posY, 400, k_RowHeight), MsgType.MsgTypeToString(handler.Key));
+                GUI.Label(new Rect(r.xMin + k_Padding * 4, posY, 400, k_RowHeight), ((MsgType)handler.Key).ToString());
                 GUI.Label(new Rect(r.xMin + k_Padding * 4 + k_ColumnWidth, posY, 400, k_RowHeight), FormatHandler(handler));
                 posY += k_RowHeight;
             }

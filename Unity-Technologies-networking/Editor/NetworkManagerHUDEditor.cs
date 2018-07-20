@@ -21,7 +21,6 @@ namespace UnityEditor
         protected GUIContent m_ShowServerObjectsLabel;
         protected GUIContent m_ShowClientLabel;
         protected GUIContent m_ShowClientObjectsLabel;
-        protected GUIContent m_ShowMatchMakerLabel;
         protected GUIContent m_ShowControlsLabel;
         protected GUIContent m_ShowRuntimeGuiLabel;
         protected GUIContent m_OffsetXLabel;
@@ -32,7 +31,6 @@ namespace UnityEditor
         bool m_ShowServerObjects;
         bool m_ShowClient;
         bool m_ShowClientObjects;
-        bool m_ShowMatchMaker;
 
         bool m_ShowControls;
 
@@ -71,7 +69,6 @@ namespace UnityEditor
             m_ShowServerObjectsLabel = new GUIContent("Server Objects", "Networked objects spawned by the server");
             m_ShowClientLabel = new GUIContent("Client Info", "Details of internal client state");
             m_ShowClientObjectsLabel = new GUIContent("Client Objects", "Networked objects created on the client");
-            m_ShowMatchMakerLabel = new GUIContent("MatchMaker Info", "Details about the matchmaker state");
             m_ShowControlsLabel = new GUIContent("Runtime Controls", "Buttons for controlling network state at runtime");
             m_ShowRuntimeGuiLabel = new GUIContent("Show Runtime GUI", "Show the default network control GUI when the game is running");
             m_OffsetXLabel = new GUIContent("GUI Horizontal Offset", "Horizontal offset of runtime GUI");
@@ -272,28 +269,6 @@ namespace UnityEditor
             EditorGUI.indentLevel -= 1;
         }
 
-        void ShowMatchMakerInfo()
-        {
-            if (m_Manager == null || m_Manager.matchMaker == null)
-            {
-                return;
-            }
-
-            m_ShowMatchMaker = EditorGUILayout.Foldout(m_ShowMatchMaker, m_ShowMatchMakerLabel);
-            if (!m_ShowMatchMaker)
-            {
-                return;
-            }
-
-            EditorGUI.indentLevel += 1;
-            EditorGUILayout.BeginVertical();
-
-            EditorGUILayout.LabelField("Match Information", m_Manager.matchInfo == null ? "None" : m_Manager.matchInfo.ToString());
-
-            EditorGUILayout.EndVertical();
-            EditorGUI.indentLevel -= 1;
-        }
-
         static UnityObject GetSceneObject(string sceneObjectName)
         {
             if (string.IsNullOrEmpty(sceneObjectName))
@@ -333,7 +308,7 @@ namespace UnityEditor
             }
             EditorGUILayout.Separator();
 
-            if (!NetworkClient.active && !NetworkServer.active && m_Manager.matchMaker == null)
+            if (!NetworkClient.active && !NetworkServer.active)
             {
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Toggle(false, "LAN Host", EditorStyles.miniButton))
@@ -347,11 +322,6 @@ namespace UnityEditor
                 if (GUILayout.Toggle(false, "LAN Client", EditorStyles.miniButton))
                 {
                     m_Manager.StartClient();
-                }
-                if (GUILayout.Toggle(false, "Start Matchmaker", EditorStyles.miniButton))
-                {
-                    m_Manager.StartMatchMaker();
-                    m_ShowMatchMaker = true;
                 }
                 EditorGUILayout.EndHorizontal();
             }
@@ -375,64 +345,6 @@ namespace UnityEditor
                 {
                     m_Manager.StopServer();
                     m_Manager.StopClient();
-                }
-            }
-            if (!NetworkServer.active && !NetworkClient.active)
-            {
-                EditorGUILayout.Separator();
-                if (m_Manager.matchMaker != null)
-                {
-                    if (m_Manager.matchInfo == null)
-                    {
-                        if (m_Manager.matches == null)
-                        {
-                            EditorGUILayout.BeginHorizontal();
-                            if (GUILayout.Toggle(false, "Create Internet Match", EditorStyles.miniButton))
-                            {
-                                m_Manager.matchMaker.CreateMatch(m_Manager.matchName, m_Manager.matchSize, true, "", "", "", 0, 0, m_Manager.OnMatchCreate);
-                            }
-                            if (GUILayout.Toggle(false, "Find Internet Match", EditorStyles.miniButton))
-                            {
-                                m_Manager.matchMaker.ListMatches(0, 20, "", false, 0, 0, m_Manager.OnMatchList);
-                            }
-                            if (GUILayout.Toggle(false, "Stop MatchMaker", EditorStyles.miniButton))
-                            {
-                                m_Manager.StopMatchMaker();
-                            }
-                            EditorGUILayout.EndHorizontal();
-                            m_Manager.matchName = EditorGUILayout.TextField("Room Name:", m_Manager.matchName);
-                            m_Manager.matchSize = (uint)EditorGUILayout.IntField("Room Size:", (int)m_Manager.matchSize);
-
-                            EditorGUILayout.BeginHorizontal();
-                            if (GUILayout.Toggle(false, "Use Local Relay", EditorStyles.miniButton))
-                            {
-                                m_Manager.SetMatchHost("localhost", 1337, false);
-                            }
-                            if (GUILayout.Toggle(false, "Use Internet Relay", EditorStyles.miniButton))
-                            {
-                                m_Manager.SetMatchHost("mm.unet.unity3d.com", 443, true);
-                            }
-                            EditorGUILayout.EndHorizontal();
-
-                            EditorGUILayout.Separator();
-                        }
-                        else
-                        {
-                            foreach (var match in m_Manager.matches)
-                            {
-                                if (GUI.Button(GetButtonRect(), "Join Match:" + match.name))
-                                {
-                                    m_Manager.matchName = match.name;
-                                    m_Manager.matchSize = (uint)match.currentSize;
-                                    m_Manager.matchMaker.JoinMatch(match.networkId, "", "", "", 0, 0, m_Manager.OnMatchJoined);
-                                }
-                            }
-                            if (GUI.Button(GetButtonRect(), "Stop MatchMaker"))
-                            {
-                                m_Manager.StopMatchMaker();
-                            }
-                        }
-                    }
                 }
             }
 
@@ -463,7 +375,6 @@ namespace UnityEditor
             ShowControls();
             ShowServerInfo();
             ShowClientInfo();
-            ShowMatchMakerInfo();
         }
     }
 }

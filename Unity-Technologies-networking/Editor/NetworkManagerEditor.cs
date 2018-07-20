@@ -1,4 +1,4 @@
-#if ENABLE_UNET
+﻿#if ENABLE_UNET
 using System;
 using System.IO;
 using System.Reflection;
@@ -22,10 +22,6 @@ namespace UnityEditor
         SerializedProperty m_ServerBindAddressProperty;
 
         protected SerializedProperty m_LogLevelProperty;
-        SerializedProperty m_MatchHostProperty;
-        SerializedProperty m_MatchPortProperty;
-        SerializedProperty m_MatchNameProperty;
-        SerializedProperty m_MatchSizeProperty;
 
         SerializedProperty m_PlayerPrefabProperty;
         SerializedProperty m_AutoCreatePlayerProperty;
@@ -59,16 +55,11 @@ namespace UnityEditor
         GUIContent m_ReactorMaximumSentMessagesLabel;
 
         GUIContent m_UseWebSocketsLabel;
-        GUIContent m_MatchHostLabel;
-        GUIContent m_MatchPortLabel;
-        GUIContent m_MatchNameLabel;
-        GUIContent m_MatchSizeLabel;
 
         GUIContent m_NetworkAddressLabel;
         GUIContent m_NetworkPortLabel;
         GUIContent m_ServerBindToIPLabel;
         GUIContent m_ServerBindAddressLabel;
-        GUIContent m_MaxDelayLabel;
 
         GUIContent m_PlayerPrefabLabel;
         GUIContent m_AutoCreatePlayerLabel;
@@ -110,15 +101,10 @@ namespace UnityEditor
             m_ReactorMaximumSentMessagesLabel = new GUIContent("Reactor Max Sent Messages", "Defines maximum message count in sent queue");
 
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
-            m_MatchHostLabel = new GUIContent("MatchMaker Host URI", "The hostname of the matchmaking server.\n\nThe default is mm.unet.unity3d.com, which will connect a client to the nearest data center geographically.");
-            m_MatchPortLabel = new GUIContent("MatchMaker Port", "The port of the matchmaking service.");
-            m_MatchNameLabel = new GUIContent("Match Name", "The name that will be used when creating a match in MatchMaker.");
-            m_MatchSizeLabel = new GUIContent("Maximum Match Size", "The maximum size for the match. This value is compared to the maximum size specified in the service configuration at multiplayer.unity3d.com and the lower of the two is enforced. It must be greater than 1. This is typically used to override the match size for various game modes.");
             m_NetworkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
             m_NetworkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
             m_ServerBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
             m_ServerBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
-            m_MaxDelayLabel = new GUIContent("Max Delay", "The maximum delay before sending packets on connections.");
             m_PlayerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
             m_AutoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
             m_PlayerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
@@ -134,10 +120,6 @@ namespace UnityEditor
             m_NetworkPortProperty = serializedObject.FindProperty("m_NetworkPort");
             m_ServerBindToIPProperty = serializedObject.FindProperty("m_ServerBindToIP");
             m_ServerBindAddressProperty = serializedObject.FindProperty("m_ServerBindAddress");
-            m_MatchHostProperty =  serializedObject.FindProperty("m_MatchHost");
-            m_MatchPortProperty =  serializedObject.FindProperty("m_MatchPort");
-            m_MatchNameProperty =  serializedObject.FindProperty("matchName");
-            m_MatchSizeProperty =  serializedObject.FindProperty("matchSize");
 
             // spawn foldout properties
             m_PlayerPrefabProperty = serializedObject.FindProperty("m_PlayerPrefab");
@@ -255,12 +237,7 @@ namespace UnityEditor
 
             EditorGUI.indentLevel += 1;
 
-            //The NetworkLobbyManager doesnt use playerPrefab, it has its own player prefab slots, so dont show this
-            if (!typeof(NetworkLobbyManager).IsAssignableFrom(m_NetworkManager.GetType()))
-            {
-                EditorGUILayout.PropertyField(m_PlayerPrefabProperty, m_PlayerPrefabLabel);
-            }
-
+            EditorGUILayout.PropertyField(m_PlayerPrefabProperty, m_PlayerPrefabLabel);
             EditorGUILayout.PropertyField(m_AutoCreatePlayerProperty, m_AutoCreatePlayerLabel);
             EditorGUILayout.PropertyField(m_PlayerSpawnMethodProperty, m_PlayerSpawnMethodLabel);
 
@@ -317,10 +294,6 @@ namespace UnityEditor
                 EditorGUILayout.PropertyField(m_ServerBindAddressProperty, m_ServerBindAddressLabel);
                 EditorGUI.indentLevel -= 1;
             }
-            EditorGUILayout.PropertyField(m_MatchHostProperty, m_MatchHostLabel);
-            EditorGUILayout.PropertyField(m_MatchPortProperty, m_MatchPortLabel);
-            EditorGUILayout.PropertyField(m_MatchNameProperty, m_MatchNameLabel);
-            EditorGUILayout.PropertyField(m_MatchSizeProperty, m_MatchSizeLabel);
 
             EditorGUI.indentLevel -= 1;
         }

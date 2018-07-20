@@ -84,8 +84,6 @@ namespace UnityEngine.Networking
         const float     k_LocalVelocityThreshold = 0.00001f;
         const float     k_MoveAheadRatio = 0.1f;
 
-        NetworkWriter   m_LocalTransformWriter;
-
         // settings
 
         public TransformSyncMode    transformSyncMode { get { return m_TransformSyncMode; } set { m_TransformSyncMode = value; } }
@@ -167,12 +165,6 @@ namespace UnityEngine.Networking
             m_PrevPosition = transform.position;
             m_PrevRotation = transform.rotation;
             m_PrevVelocity = 0;
-
-            // cache these to avoid per-frame allocations.
-            if (localPlayerAuthority)
-            {
-                m_LocalTransformWriter = new NetworkWriter();
-            }
         }
 
         public override void OnStartServer()
@@ -1189,8 +1181,9 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            m_LocalTransformWriter.StartMessage(MsgType.LocalPlayerTransform);
-            m_LocalTransformWriter.Write(netId);
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)MsgType.LocalPlayerTransform);
+            writer.Write(netId);
 
             switch (transformSyncMode)
             {
@@ -1200,22 +1193,22 @@ namespace UnityEngine.Networking
                 }
                 case TransformSyncMode.SyncTransform:
                 {
-                    SerializeModeTransform(m_LocalTransformWriter);
+                    SerializeModeTransform(writer);
                     break;
                 }
                 case TransformSyncMode.SyncRigidbody3D:
                 {
-                    SerializeMode3D(m_LocalTransformWriter);
+                    SerializeMode3D(writer);
                     break;
                 }
                 case TransformSyncMode.SyncRigidbody2D:
                 {
-                    SerializeMode2D(m_LocalTransformWriter);
+                    SerializeMode2D(writer);
                     break;
                 }
                 case TransformSyncMode.SyncCharacterController:
                 {
-                    SerializeModeCharacterController(m_LocalTransformWriter);
+                    SerializeModeCharacterController(writer);
                     break;
                 }
             }
@@ -1238,14 +1231,14 @@ namespace UnityEngine.Networking
                 m_PrevRotation = transform.rotation;
             }
 
-            m_LocalTransformWriter.FinishMessage();
+            writer.FinishMessage();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
+                (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
 #endif
-            ClientScene.readyConnection.SendWriter(m_LocalTransformWriter, GetNetworkChannel());
+            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
         }
 
         static public void HandleTransform(NetworkMessage netMsg)
@@ -1255,7 +1248,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
+                (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
 #endif
 
             GameObject foundObj = NetworkServer.FindLocalObject(netId);

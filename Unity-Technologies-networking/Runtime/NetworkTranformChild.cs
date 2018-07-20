@@ -38,8 +38,6 @@ namespace UnityEngine.Networking
         const float     k_LocalMovementThreshold = 0.00001f;
         const float     k_LocalRotationThreshold = 0.00001f;
 
-        NetworkWriter   m_LocalTransformWriter;
-
         // settings
         public Transform                            target { get {return m_Target; } set { m_Target = value; OnValidate(); } }
         public uint                                 childIndex { get { return m_ChildIndex; }}
@@ -140,12 +138,6 @@ namespace UnityEngine.Networking
         {
             m_PrevPosition = m_Target.localPosition;
             m_PrevRotation = m_Target.localRotation;
-
-            // cache these to avoid per-frame allocations.
-            if (localPlayerAuthority)
-            {
-                m_LocalTransformWriter = new NetworkWriter();
-            }
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
@@ -391,23 +383,24 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            m_LocalTransformWriter.StartMessage(MsgType.LocalChildTransform);
-            m_LocalTransformWriter.Write(netId);
-            m_LocalTransformWriter.WritePackedUInt32(m_ChildIndex);
-            SerializeModeTransform(m_LocalTransformWriter);
+            NetworkWriter writer = new NetworkWriter();
+            writer.StartMessage((short)MsgType.LocalChildTransform);
+            writer.Write(netId);
+            writer.WritePackedUInt32(m_ChildIndex);
+            SerializeModeTransform(writer);
 
             m_PrevPosition = m_Target.localPosition;
             m_PrevRotation = m_Target.localRotation;
 
 
-            m_LocalTransformWriter.FinishMessage();
+            writer.FinishMessage();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
+                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
-            ClientScene.readyConnection.SendWriter(m_LocalTransformWriter, GetNetworkChannel());
+            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
         }
 
         static internal void HandleChildTransform(NetworkMessage netMsg)
@@ -418,7 +411,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
+                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
 
             GameObject foundObj = NetworkServer.FindLocalObject(netId);

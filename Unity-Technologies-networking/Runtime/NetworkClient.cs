@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine.Networking.Match;
 using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
@@ -27,11 +26,10 @@ namespace UnityEngine.Networking
         int m_ServerPort;
         int m_ClientId = -1;
         int m_ClientConnectionId = -1;
-        //int m_RelaySlotId = -1;
 
         EndPoint m_RemoteEndPoint;
 
-        NetworkMessageHandlers m_MessageHandlers = new NetworkMessageHandlers();
+        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         byte[] m_MsgBuffer;
@@ -60,7 +58,7 @@ namespace UnityEngine.Networking
         public NetworkConnection connection { get { return m_Connection; } }
 
         internal int hostId { get { return m_ClientId; } }
-        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers.GetHandlers(); } }
+        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
         public int numChannels { get { return m_HostTopology.DefaultConfig.ChannelCount; } }
         public HostTopology hostTopology { get { return m_HostTopology; }}
         public int hostPort
@@ -121,12 +119,6 @@ namespace UnityEngine.Networking
             //      effectively the number of _clients_.
             m_HostTopology = topology;
             return true;
-        }
-
-        public void Connect(MatchInfo matchInfo)
-        {
-            PrepareForConnect();
-            ConnectWithRelay(matchInfo);
         }
 
         static bool IsValidIpV6(string address)
@@ -293,31 +285,6 @@ namespace UnityEngine.Networking
             m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);
         }
 
-        void ConnectWithRelay(MatchInfo info)
-        {
-            m_AsyncConnect = ConnectState.Connecting;
-
-            Update();
-
-            byte error;
-            m_ClientConnectionId = NetworkTransport.ConnectToNetworkPeer(
-                    m_ClientId,
-                    info.address,
-                    info.port,
-                    0,
-                    0,
-                    info.networkId,
-                    Utility.GetSourceID(),
-                    info.nodeId,
-                    out error);
-
-            m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
-            m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(info.address, m_ClientId, m_ClientConnectionId, m_HostTopology);
-
-            if (error != 0) { Debug.LogError("ConnectToNetworkPeer Error: " + error); }
-        }
-
         public virtual void Disconnect()
         {
             m_AsyncConnect = ConnectState.Disconnected;
@@ -335,22 +302,7 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool SendWriter(NetworkWriter writer, int channelId)
-        {
-            if (m_Connection != null)
-            {
-                if (m_AsyncConnect != ConnectState.Connected)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient SendWriter when not connected to a server"); }
-                    return false;
-                }
-                return m_Connection.SendWriter(writer, channelId);
-            }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient SendWriter with no connection"); }
-            return false;
-        }
-
-        public bool SendBytes(byte[] data, int numBytes, int channelId)
+        public bool SendBytes(byte[] data, int channelId)
         {
             if (m_Connection != null)
             {
@@ -359,7 +311,7 @@ namespace UnityEngine.Networking
                     if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes when not connected to a server"); }
                     return false;
                 }
-                return m_Connection.SendBytes(data, numBytes, channelId);
+                return m_Connection.SendBytes(data, channelId);
             }
             if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes with no connection"); }
             return false;
@@ -370,7 +322,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
+                (short)MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
 #endif
             if (m_Connection != null)
             {
@@ -463,7 +415,7 @@ namespace UnityEngine.Networking
                         }
 
                         m_AsyncConnect = ConnectState.Connected;
-                        m_Connection.InvokeHandlerNoData(MsgType.Connect);
+                        m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
                         break;
 
                     case NetworkEventType.DataEvent:
@@ -476,7 +428,7 @@ namespace UnityEngine.Networking
 #if UNITY_EDITOR
                         UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        MsgType.LLAPIMsg, "msg", 1);
+                        (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
 
                         m_MsgReader.SeekZero();
@@ -498,7 +450,7 @@ namespace UnityEngine.Networking
                         ClientScene.HandleClientDisconnect(m_Connection);
                         if (m_Connection != null)
                         {
-                            m_Connection.InvokeHandlerNoData(MsgType.Disconnect);
+                            m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
                         }
                         break;
 
@@ -545,12 +497,8 @@ namespace UnityEngine.Networking
 
         void GenerateError(byte error)
         {
-            NetworkMessageDelegate msgDelegate = m_MessageHandlers.GetHandler(MsgType.Error);
-            if (msgDelegate == null)
-            {
-                msgDelegate = m_MessageHandlers.GetHandler(MsgType.Error);
-            }
-            if (msgDelegate != null)
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.errorCode = error;
@@ -560,7 +508,7 @@ namespace UnityEngine.Networking
                 msg.Serialize(writer);
 
                 NetworkMessage netMsg = new NetworkMessage();
-                netMsg.msgType = MsgType.Error;
+                netMsg.msgType = (short)MsgType.Error;
                 netMsg.reader = new NetworkReader(writer.ToArray());
                 netMsg.conn = m_Connection;
                 netMsg.channelId = 0;
@@ -584,17 +532,16 @@ namespace UnityEngine.Networking
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            m_MessageHandlers.RegisterHandler(msgType, handler);
-        }
-
-        public void RegisterHandlerSafe(short msgType, NetworkMessageDelegate handler)
-        {
-            m_MessageHandlers.RegisterHandlerSafe(msgType, handler);
+            if (m_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.logDebug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+            }
+            m_MessageHandlers[msgType] = handler;
         }
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.UnregisterHandler(msgType);
+            m_MessageHandlers.Remove(msgType);
         }
 
         internal static void AddClient(NetworkClient client)
