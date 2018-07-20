@@ -1147,6 +1147,8 @@ namespace UnityEngine.Networking
                 return;
 
             if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+
+            // 'uv' is a prefab that should be spawned
             if (uv.sceneId.IsEmpty())
             {
                 ObjectSpawnMessage msg = new ObjectSpawnMessage();
@@ -1160,10 +1162,12 @@ namespace UnityEngine.Networking
                 uv.UNetSerializeAllVars(writer);
                 msg.payload = writer.ToArray();
 
+                // conn is != null when spawning it for a client
                 if (conn != null)
                 {
                     conn.Send((short)MsgType.ObjectSpawn, msg);
                 }
+                // conn is == null when spawning it for the local player
                 else
                 {
                     SendToReady(uv.gameObject, (short)MsgType.ObjectSpawn, msg);
@@ -1175,6 +1179,7 @@ namespace UnityEngine.Networking
                     (short)MsgType.ObjectSpawn, uv.assetId.ToString(), 1);
 #endif
             }
+            // 'uv' is a scene object that should be spawned again
             else
             {
                 ObjectSpawnSceneMessage msg = new ObjectSpawnSceneMessage();
@@ -1187,13 +1192,15 @@ namespace UnityEngine.Networking
                 uv.UNetSerializeAllVars(writer);
                 msg.payload = writer.ToArray();
 
+                // conn is != null when spawning it for a client
                 if (conn != null)
                 {
                     conn.Send((short)MsgType.ObjectSpawnScene, msg);
                 }
+                // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, (short)MsgType.ObjectSpawnScene, msg);
                 }
 
 #if UNITY_EDITOR
