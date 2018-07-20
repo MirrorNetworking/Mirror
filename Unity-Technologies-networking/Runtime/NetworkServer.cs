@@ -1360,7 +1360,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    SendToReady(uv.gameObject, MsgType.ObjectSpawn, msg);
+                    SendToReady(uv.gameObject, MsgType.ObjectSpawnScene, msg);
                 }
 
 #if UNITY_EDITOR
