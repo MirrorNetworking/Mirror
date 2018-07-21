@@ -429,6 +429,13 @@ namespace UnityEngine.Networking
             byte[] bytes = temp.ToArray();
             if (LogFilter.logDebug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
+            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
+            // be useful for debugging.
+            if (bytes.Length > NetworkServer.maxPacketSize)
+            {
+                if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp); }
+            }
+
             // serialize length,data into the real writer, untouched by user code
             writer.WriteBytesAndSize(bytes);
             return result;
@@ -684,10 +691,8 @@ namespace UnityEngine.Networking
                     writer.Write(netId);
 
                     bool wroteData = false;
-                    int oldPos;
                     for (int i = 0; i < m_NetworkBehaviours.Length; i++)
                     {
-                        oldPos = writer.Position;
                         NetworkBehaviour comp = m_NetworkBehaviours[i];
                         if (comp.GetDirtyChannel() != channelId)
                         {
@@ -707,10 +712,6 @@ namespace UnityEngine.Networking
 #endif
 
                             wroteData = true;
-                        }
-                        if (writer.Position - oldPos > NetworkServer.maxPacketSize)
-                        {
-                            if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + (writer.Position - oldPos) + " bytes for netId:" + netId + " from script:" + comp); }
                         }
                     }
 
