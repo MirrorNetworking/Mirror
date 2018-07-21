@@ -23,6 +23,7 @@ namespace UnityEngine.Networking
         //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
         public byte[] ToArray()
         {
+            writer.Flush();
             byte[] slice = new byte[Position];
             Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
             return slice;
@@ -382,6 +383,7 @@ namespace UnityEngine.Networking
 
         public void SeekZero()
         {
+            writer.Flush();
             writer.BaseStream.Position = 0;
         }
 
@@ -398,6 +400,7 @@ namespace UnityEngine.Networking
 
         public void FinishMessage()
         {
+            writer.Flush();
             // size has to fit into ushort
             if (Position > UInt16.MaxValue)
             {
