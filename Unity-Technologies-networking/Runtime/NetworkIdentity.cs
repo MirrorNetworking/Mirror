@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine.Networking.NetworkSystem;
 
 #if UNITY_EDITOR
@@ -672,23 +673,11 @@ namespace UnityEngine.Networking
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            // check if any behaviours are ready to send
-            uint dirtyChannelBits = 0;
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-            {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
-                int channelId = comp.GetDirtyChannel();
-                if (channelId != -1)
-                {
-                    dirtyChannelBits |= (uint)(1 << channelId);
-                }
-            }
-            if (dirtyChannelBits == 0)
-                return;
-
+            // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                if ((dirtyChannelBits & (uint)(1 << channelId)) != 0)
+                // is any component with this channel dirty? then call OnSerialize for all of them.
+                if (m_NetworkBehaviours.Any(comp => comp.GetDirtyChannel() == channelId))
                 {
                     NetworkWriter writer = new NetworkWriter();
                     writer.StartMessage((short)MsgType.UpdateVars);
