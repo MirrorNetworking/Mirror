@@ -1,0 +1,25 @@
+version: '{branch}-{build}'
+
+before_build:
+  - nuget restore Unity-Technologies-networking/Networking.sln
+
+build:
+  project: Unity-Technologies-networking/Networking.sln
+  verbosity: minimal
+  
+artifacts:
+  - path: Unity-Technologies-networking/Output
+    name: HLAPI_CE_2017.4_fixes
+
+image: Visual Studio 2017
+
+deploy:
+  description: 'HLAPI community edition 2017.4 fixes'
+  provider: GitHub
+  auth_token:
+    secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
+  artifact: Unity-Technologies-networking\HLAPI_CE_2017.4_fixes.zip            # upload all NuGet packages to release assets
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only
