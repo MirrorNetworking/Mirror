@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine.Networking.NetworkSystem;
 
 #if UNITY_EDITOR
@@ -428,6 +429,13 @@ namespace UnityEngine.Networking
             byte[] bytes = temp.ToArray();
             if (LogFilter.logDebug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
+            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
+            // be useful for debugging.
+            if (bytes.Length > NetworkServer.maxPacketSize)
+            {
+                if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp); }
+            }
+
             // serialize length,data into the real writer, untouched by user code
             writer.WriteBytesAndSize(bytes);
             return result;
@@ -672,33 +680,19 @@ namespace UnityEngine.Networking
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            // check if any behaviours are ready to send
-            uint dirtyChannelBits = 0;
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-            {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
-                int channelId = comp.GetDirtyChannel();
-                if (channelId != -1)
-                {
-                    dirtyChannelBits |= (uint)(1 << channelId);
-                }
-            }
-            if (dirtyChannelBits == 0)
-                return;
-
+            // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                if ((dirtyChannelBits & (uint)(1 << channelId)) != 0)
+                // is any component with this channel dirty? then call OnSerialize for all of them.
+                if (m_NetworkBehaviours.Any(comp => comp.GetDirtyChannel() == channelId))
                 {
                     NetworkWriter writer = new NetworkWriter();
                     writer.StartMessage((short)MsgType.UpdateVars);
                     writer.Write(netId);
 
                     bool wroteData = false;
-                    int oldPos;
                     for (int i = 0; i < m_NetworkBehaviours.Length; i++)
                     {
-                        oldPos = writer.Position;
                         NetworkBehaviour comp = m_NetworkBehaviours[i];
                         if (comp.GetDirtyChannel() != channelId)
                         {
@@ -718,10 +712,6 @@ namespace UnityEngine.Networking
 #endif
 
                             wroteData = true;
-                        }
-                        if (writer.Position - oldPos > NetworkServer.maxPacketSize)
-                        {
-                            if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + (writer.Position - oldPos) + " bytes for netId:" + netId + " from script:" + comp); }
                         }
                     }
 
