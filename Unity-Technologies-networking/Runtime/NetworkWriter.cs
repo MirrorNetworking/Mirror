@@ -12,7 +12,10 @@ namespace UnityEngine.Networking
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
+
+        // There is no way to use Position safely if NetworkWriter does any sort of data transformation 
+        // such as compression, encryption or bitpacking.  Thus Position should not be accessible outside this class
+        private int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
 
         // MemoryStream.ToArray() ignores .Position, but HLAPI's .ToArray() expects only the valid data until .Position.
         // .ToArray() is often used for payloads or sends, we don't unnecessary old data in there (bandwidth etc.)
