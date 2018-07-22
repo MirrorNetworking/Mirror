@@ -451,6 +451,9 @@ namespace UnityEngine.Networking
             }
         }
 
+        // extra version that uses m_NetworkBehaviours so we can call it from the outside
+        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState); }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
@@ -483,17 +486,10 @@ namespace UnityEngine.Networking
             }
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // extra version that uses m_NetworkBehaviours so we can call it from the outside
+        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState) { OnDeserializeAllSafely(m_NetworkBehaviours, reader, initialState); }
 
-        // happens on server
-        internal void UNetSerializeAllVars(NetworkWriter writer)
-        {
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-            {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
-                OnSerializeSafely(comp, writer, true);
-            }
-        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // happens on client
         internal void HandleClientAuthority(bool authority)
