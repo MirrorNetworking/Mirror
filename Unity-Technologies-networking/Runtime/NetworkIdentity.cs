@@ -407,6 +407,8 @@ namespace UnityEngine.Networking
             return true;
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
         // -> OnSerialize writes length,componentData,length,componentData,...
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
@@ -441,31 +443,47 @@ namespace UnityEngine.Networking
             return result;
         }
 
+        internal void OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState)
+        {
+            foreach (NetworkBehaviour comp in components)
+            {
+                OnSerializeSafely(comp, writer, initialState);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
+        {
+            // extract data length and data safely, untouched by user code
+            // -> returns empty array if length is 0, so .Length is always the proper length
+            byte[] bytes = reader.ReadBytesAndSize();
+            if (LogFilter.logDebug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+
+            // call OnDeserialize with a temporary reader, so that the
+            // original one can't be messed with. we also wrap it in a
+            // try-catch block so there's no way to mess up another
+            // component's deserialization
+            try
+            {
+                comp.OnDeserialize(new NetworkReader(bytes), initialState);
+            }
+            catch (Exception e)
+            {
+                // show a detailed error and let the user know what went wrong
+                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + bytes.Length +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
+            }
+        }
+
         internal void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
         {
             foreach (NetworkBehaviour comp in components)
             {
-                // extract data length and data safely, untouched by user code
-                // -> returns empty array if length is 0, so .Length is always the proper length
-                byte[] bytes = reader.ReadBytesAndSize();
-                if (LogFilter.logDebug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
-
-                // call OnDeserialize with a temporary reader, so that the
-                // original one can't be messed with. we also wrap it in a
-                // try-catch block so there's no way to mess up another
-                // component's deserialization
-                try
-                {
-                    comp.OnDeserialize(new NetworkReader(bytes), initialState);
-                }
-                catch (Exception e)
-                {
-                    // show a detailed error and let the user know what went wrong
-                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + bytes.Length +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
-                }
+                OnDeserializeSafely(comp, reader, initialState);
             }
         }
-        ////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // happens on server
         internal void UNetSerializeAllVars(NetworkWriter writer)
