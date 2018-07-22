@@ -1157,9 +1157,9 @@ namespace UnityEngine.Networking
                 msg.position = uv.transform.position;
                 msg.rotation = uv.transform.rotation;
 
-                // include synch data
+                // serialize all components with initialState = true
                 NetworkWriter writer = new NetworkWriter();
-                uv.UNetSerializeAllVars(writer);
+                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -1189,7 +1189,7 @@ namespace UnityEngine.Networking
 
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
-                uv.UNetSerializeAllVars(writer);
+                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
