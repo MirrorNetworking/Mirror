@@ -443,16 +443,52 @@ namespace UnityEngine.Networking
             return result;
         }
 
-        internal void OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState)
+        // serialize all components (or only dirty ones for channelId if not initial state)
+        // -> returns TRUE if any date other than dirtyMask was written!
+        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState, int channelId)
         {
-            foreach (NetworkBehaviour comp in components)
+            if (components.Length > 64)
             {
-                OnSerializeSafely(comp, writer, initialState);
+                if (LogFilter.logError) Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
+                return false;
             }
+
+            // loop through all components only once and then write dirty+payload into the writer afterwards
+            ulong dirtyComponentsMask = 0L;
+            NetworkWriter payload = new NetworkWriter();
+            for (int i = 0; i < components.Length; ++i)
+            {
+                // is this component dirty on this channel?
+                // -> always serialize if initialState so all components with all channels are included in spawn packet
+                // -> note: GetDirtyChannel() is -1 if the component isn't dirty or sendInterval isn't elapsed yet
+                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                if (initialState || comp.GetDirtyChannel() == channelId)
+                {
+                    // set bit #i to 1 in dirty mask
+                    dirtyComponentsMask |= (ulong)(1L << i);
+
+                    // serialize and clear dirty bits in any case, since the component was clearly dirty if we got here
+                    if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState + " channelId=" + channelId); }
+                    OnSerializeSafely(comp, payload, initialState);
+                    comp.ClearAllDirtyBits();
+                }
+            }
+
+            // did we write anything? then write dirty, payload and return true
+            if (dirtyComponentsMask != 0L)
+            {
+                byte[] payloadBytes = payload.ToArray();
+                writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+                writer.Write(payloadBytes, 0, payloadBytes.Length);
+                return true;
+            }
+
+            // didn't write anything, return false
+            return false;
         }
 
         // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState); }
+        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState, int channelId) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState, channelId); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -480,9 +516,18 @@ namespace UnityEngine.Networking
 
         internal void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
         {
-            foreach (NetworkBehaviour comp in components)
+            // read component dirty mask
+            ulong dirtyComponentsMask = reader.ReadPackedUInt64();
+
+            // loop through all components and deserialize the dirty ones
+            for (int i = 0; i < components.Length; ++i)
             {
-                OnDeserializeSafely(comp, reader, initialState);
+                // is the dirty bit at position 'i' set to 1?
+                ulong dirtyBit = (ulong)(1L << i);
+                if ((dirtyComponentsMask & dirtyBit) != 0L)
+                {
+                    OnDeserializeSafely(components[i], reader, initialState);
+                }
             }
         }
 
@@ -697,44 +742,20 @@ namespace UnityEngine.Networking
             // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                // is any component with this channel dirty? then call OnSerialize for all of them.
-                if (m_NetworkBehaviours.Any(comp => comp.GetDirtyChannel() == channelId))
+                // prepare message header
+                NetworkWriter writer = new NetworkWriter();
+                writer.StartMessage((short)MsgType.UpdateVars);
+                writer.Write(netId);
+
+                // serialize all the dirty components and send (if any were dirty)
+                if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
                 {
-                    NetworkWriter writer = new NetworkWriter();
-                    writer.StartMessage((short)MsgType.UpdateVars);
-                    writer.Write(netId);
-
-                    bool wroteData = false;
-                    for (int i = 0; i < m_NetworkBehaviours.Length; i++)
-                    {
-                        NetworkBehaviour comp = m_NetworkBehaviours[i];
-                        if (comp.GetDirtyChannel() != channelId)
-                        {
-                            // component could write more than one dirty-bits, so call the serialize func
-                            OnSerializeSafely(comp, writer, false);
-                            continue;
-                        }
-
-                        if (OnSerializeSafely(comp, writer, false))
-                        {
-                            comp.ClearAllDirtyBits();
-
 #if UNITY_EDITOR
                             UnityEditor.NetworkDetailStats.IncrementStat(
                                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                                (short)MsgType.UpdateVars, comp.GetType().Name, 1);
+                                (short)MsgType.UpdateVars, name, 1);
 #endif
-
-                            wroteData = true;
-                        }
-                    }
-
-                    if (!wroteData)
-                    {
-                        // nothing to send.. this could be a script with no OnSerialize function setting dirty bits
-                        continue;
-                    }
-
+                    // finish message and send
                     writer.FinishMessage();
                     NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
                 }
