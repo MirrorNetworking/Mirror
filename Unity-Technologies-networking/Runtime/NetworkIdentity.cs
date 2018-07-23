@@ -460,9 +460,9 @@ namespace UnityEngine.Networking
             {
                 // is this component dirty on this channel?
                 // -> always serialize if initialState so all components with all channels are included in spawn packet
-                // -> note: GetDirtyChannel() is -1 if the component isn't dirty or sendInterval isn't elapsed yet
+                // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
-                if (initialState || comp.GetDirtyChannel() == channelId)
+                if (initialState || (comp.IsDirty() && comp.GetNetworkChannel() == channelId))
                 {
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);

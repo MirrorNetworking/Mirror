@@ -524,16 +524,11 @@ namespace UnityEngine.Networking
             m_SyncVarDirtyBits = 0L;
         }
 
-        internal int GetDirtyChannel()
+        internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > GetNetworkSendInterval())
-            {
-                if (m_SyncVarDirtyBits != 0L)
-                {
-                    return GetNetworkChannel();
-                }
-            }
-            return -1;
+            return 
+                (Time.time - m_LastSendTime > GetNetworkSendInterval()) 
+                && m_SyncVarDirtyBits != 0L;
         }
 
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
