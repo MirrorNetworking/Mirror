@@ -112,13 +112,13 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = reader.ReadInt16();
+            playerControllerId = (short)reader.ReadPackedUInt32();
             msgData = reader.ReadBytesAndSize();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(playerControllerId);
+            writer.WritePackedUInt32((uint)playerControllerId);
             writer.WriteBytesAndSize(msgData);
         }
     }
@@ -129,12 +129,12 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = reader.ReadInt16();
+            playerControllerId = (short)reader.ReadPackedUInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(playerControllerId);
+            writer.WritePackedUInt32((uint)playerControllerId);
         }
     }
 
