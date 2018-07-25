@@ -349,5 +349,26 @@ namespace UnityEngine.Networking.NetworkSystem
             writer.WritePackedUInt32((uint)hash);
         }
     }
+
+    class LocalChildTransformMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public uint childIndex;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            childIndex = reader.ReadPackedUInt32();
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.WritePackedUInt32(childIndex);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
 }
 #endif //ENABLE_UNET
