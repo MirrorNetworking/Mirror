@@ -506,8 +506,9 @@ namespace Unity.UNetWeaver
 
 
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
 
+            // loc_0,  this local variable is to determine if any variable was dirty
+            VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
             // call base class
@@ -517,6 +518,7 @@ namespace Unity.UNetWeaver
                 MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "OnSerialize");
                 if (baseSerialize != null)
                 {
+                    // loc_1, this local variable is to determine if the base class was dirty
                     VariableDefinition baseResult = new VariableDefinition(Weaver.boolType);
                     serialize.Body.Variables.Add(baseResult);
 
@@ -533,12 +535,14 @@ namespace Unity.UNetWeaver
             {
                 if (baseClassSerialize)
                 {
+                    // generate: return dirtyLocal | baseresult
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc_1));
                     serWorker.Append(serWorker.Create(OpCodes.Or));
                 }
                 else
                 {
+                    // generate: return dirtyLocal
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 }
                 serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -546,15 +550,16 @@ namespace Unity.UNetWeaver
                 return;
             }
 
-            // Generates: if (initialState);
+            // Generates: if (forceAll);
             Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                // Generates a writer call for each sync variable
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
@@ -569,35 +574,41 @@ namespace Unity.UNetWeaver
                 }
             }
 
+            // always return true if forceAll
+
+            // Generates: return true
             serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            // Generates: end if (initialState);
+            // Generates: end if (forceAll);
             serWorker.Append(initialStateLabel);
 
+            // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
             serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked64));
 
-            // write syncvars
-            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); // start at number of syncvars in parent
+            // generate a writer call for any dirty variable in this class
+
+            // start at number of syncvars in parent
+            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); 
             long dirtyMask = 0L;
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
                 // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
                 serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit)); // 8 bytes = long
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
                 // Generates a call to the writer for that field
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                
                 MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
@@ -624,22 +635,26 @@ namespace Unity.UNetWeaver
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
 
-            // Generates: (base.get_syncVarDirtyBits() & 7uL) != 0uL
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+            // find out wether any variable was dirty
+
+            // Generates: dirtylocal = (base.get_syncVarDirtyBits() & 7uL) != 0uL
+            // Note the disassembler may simplify this in just a return statement
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
             serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, dirtyMask)); // 8 bytes = long
             serWorker.Append(serWorker.Create(OpCodes.And));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
+            serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); //dirtylocal
 
             if (baseClassSerialize)
             {
-                // Generates:  ||  
+                // generate: return dirtyLocal | baseresult
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_1));
                 serWorker.Append(serWorker.Create(OpCodes.Or));
             }
             else
             {
+                // generate: return dirtyLocal
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
             }
 
