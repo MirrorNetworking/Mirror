@@ -203,6 +203,27 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
+    class SyncListMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public int syncListHash;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            syncListHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(syncListHash);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
     /* These are not used directly but manually serialized, these are here for reference.
     internal class SyncListMessage<T> where T: struct
     {

@@ -657,25 +657,24 @@ namespace UnityEngine.Networking
 
         static void OnSyncListMessage(NetworkMessage netMsg)
         {
-            var netId = netMsg.reader.ReadNetworkId();
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
+            SyncListMessage message = netMsg.ReadMessage<SyncListMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleSyncList(cmdHash, netMsg.reader);
+                uv.HandleSyncList(message.syncListHash, new NetworkReader(message.payload));
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + netId); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + message.netId); }
             }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(message.syncListHash), 1);
 #endif
         }
 
