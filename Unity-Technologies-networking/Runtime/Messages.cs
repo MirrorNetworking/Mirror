@@ -182,14 +182,28 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
-    /* These are not used directly but manually serialized, these are here for reference.
-    public struct SyncEventMessage
+    class SyncEventMessage : MessageBase
     {
-        public NetworkId netId;
-        public int cmdHash;
-        public byte[] payload;
+        public NetworkInstanceId netId;
+        public int eventHash;
+        public byte[] payload; // the parameters for the Rpc function
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            eventHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(eventHash);
+            writer.WriteBytesAndSize(payload);
+        }
     }
 
+    /* These are not used directly but manually serialized, these are here for reference.
     internal class SyncListMessage<T> where T: struct
     {
         public NetworkId netId;

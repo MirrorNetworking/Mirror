@@ -150,7 +150,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(NetworkWriter writer, int channelId, string eventName)
+        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
         {
             if (!NetworkServer.active)
             {
@@ -158,8 +158,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
-            NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
+            // construct the message
+            SyncEventMessage message = new SyncEventMessage();
+            message.netId = netId;
+            message.eventHash = eventHash;
+            message.payload = writer.ToArray();
+
+            NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(

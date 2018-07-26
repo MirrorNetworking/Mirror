@@ -633,25 +633,24 @@ namespace UnityEngine.Networking
 
         static void OnSyncEventMessage(NetworkMessage netMsg)
         {
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            SyncEventMessage message = netMsg.ReadMessage<SyncEventMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncEventMessage " + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncEventMessage " + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleSyncEvent(cmdHash, netMsg.reader);
+                uv.HandleSyncEvent(message.eventHash, new NetworkReader(message.payload));
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + netId); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId); }
             }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(message.eventHash), 1);
 #endif
         }
 

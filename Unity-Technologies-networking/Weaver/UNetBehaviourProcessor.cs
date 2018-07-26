@@ -1826,29 +1826,13 @@ namespace Unity.UNetWeaver
 
             WriteCreateWriter(evtWorker);
 
-            WriteMessageSize(evtWorker);
-
-            WriteMessageId(evtWorker, 7); //UNetwork.SYSTEM_SYNCEVENT
-
-            // create the command id constant
+            // create the syncevent id constant
             FieldDefinition evtConstant = new FieldDefinition("kEvent" + ed.Name,
                     FieldAttributes.Static | FieldAttributes.Private,
                     Weaver.int32Type);
             m_td.Fields.Add(evtConstant);
 
-            // write command constant
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // networkWriter
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant));
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write this.unetView.netId
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // networkWriter
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getComponentReference)); // unetView
-            // load and write netId field
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference)); // netId
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteNetworkInstanceId));   // networkWriter.Write(this.unetView.netId)
-
+            // write all the arguments that the user passed to the syncevent
             if (!WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
                 return null;
 
@@ -1864,6 +1848,7 @@ namespace Unity.UNetWeaver
 
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant)); // eventHash
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
