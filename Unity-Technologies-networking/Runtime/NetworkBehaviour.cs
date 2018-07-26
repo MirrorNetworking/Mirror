@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
 {
@@ -52,7 +53,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(NetworkWriter writer, int channelId, string cmdName)
+        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -67,8 +68,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
-            ClientScene.readyConnection.SendBytes(writer.ToArray(), channelId);
+            // construct the message
+            CommandMessage message = new CommandMessage();
+            message.netId = netId;
+            message.cmdHash = cmdHash;
+            message.payload = writer.ToArray();
+
+            ClientScene.readyConnection.SendByChannel((short)MsgType.Command, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(

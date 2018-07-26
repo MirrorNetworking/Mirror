@@ -1129,13 +1129,9 @@ namespace Unity.UNetWeaver
                 }
 
                 NetworkWriter networkWriter = new NetworkWriter();
-                networkWriter.Write(0);
-                networkWriter.Write((ushort)MsgType.SYSTEM_COMMAND);
-                networkWriter.WritePackedUInt32((uint)ShipControl.kCmdCmdThrust);
-                networkWriter.WritePackedUInt32((uint)playerId);
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(networkWriter);
+                base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, channelId, cmdName);
             }
         */
         MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
@@ -1180,11 +1176,8 @@ namespace Unity.UNetWeaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
             cmdWorker.Append(localClientLabel);
 
+            // NetworkWriter writer = new NetworkWriter();
             WriteCreateWriter(cmdWorker);
-
-            WriteMessageSize(cmdWorker);
-
-            WriteMessageId(cmdWorker, 5); //UNetwork.SYSTEM_COMMAND
 
             // create the command id constant
             FieldDefinition cmdConstant = new FieldDefinition("kCmd" + md.Name,
@@ -1192,22 +1185,7 @@ namespace Unity.UNetWeaver
                     Weaver.int32Type);
             m_td.Fields.Add(cmdConstant);
 
-            // write command constant
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write playerId from this NetworkBehaviour
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            // load unetviewfield
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getComponentReference));
-            // load and write netId field
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference));
-
-            var writeFunc = Weaver.GetWriteFunc(Weaver.NetworkInstanceIdType);
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, writeFunc));
-
+            // write all the arguments that the user passed to the Cmd call
             if (!WriteArguments(cmdWorker, md, "Command", false))
                 return null;
 
@@ -1229,8 +1207,9 @@ namespace Unity.UNetWeaver
             }
 
             // invoke interal send and return
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant)); // cmdHash
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));

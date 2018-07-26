@@ -139,14 +139,29 @@ namespace UnityEngine.Networking.NetworkSystem
     }
 
     // ---------- System Messages requried for code gen path -------------------
-    /* These are not used directly but manually serialized, these are here for reference.
 
-    public struct CommandMessage
+    class CommandMessage : MessageBase
     {
+        public NetworkInstanceId netId;
         public int cmdHash;
-        public string cmdName;
-        public byte[] payload;
+        public byte[] payload; // the parameters for the Cmd function
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            cmdHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(cmdHash);
+            writer.WriteBytesAndSize(payload);
+        }
     }
+
+    /* These are not used directly but manually serialized, these are here for reference.
     public struct RPCMessage
     {
         public NetworkId netId;
@@ -168,8 +183,7 @@ namespace UnityEngine.Networking.NetworkSystem
         public int itemIndex;
         public T item;
     }
-
-*/
+    */
 
     // ---------- Internal System Messages -------------------
 

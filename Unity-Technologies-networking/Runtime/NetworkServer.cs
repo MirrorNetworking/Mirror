@@ -1083,20 +1083,19 @@ namespace UnityEngine.Networking
         // Handle command from specific player, this could be one of multiple players on a single client
         static  void OnCommandMessage(NetworkMessage netMsg)
         {
-            int cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            var cmdObject = FindLocalObject(netId);
+            var cmdObject = FindLocalObject(message.netId);
             if (cmdObject == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Instance not found when handling Command message [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]"); }
                 return;
             }
 
             var uv = cmdObject.GetComponent<NetworkIdentity>();
             if (uv == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]"); }
                 return;
             }
 
@@ -1108,13 +1107,13 @@ namespace UnityEngine.Networking
             {
                 if (uv.clientAuthorityOwner != netMsg.conn)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Command for object without authority [netId=" + netId + "]"); }
+                    if (LogFilter.logWarn) { Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]"); }
                     return;
                 }
             }
 
-            if (LogFilter.logDev) { Debug.Log("OnCommandMessage for netId=" + netId + " conn=" + netMsg.conn); }
-            uv.HandleCommand(cmdHash, netMsg.reader);
+            if (LogFilter.logDev) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
+            uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
         static internal void SpawnObject(GameObject obj)
