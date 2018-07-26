@@ -112,12 +112,12 @@ namespace Unity.UNetWeaver
             // create writer
             worker.Append(worker.Create(OpCodes.Newobj, Weaver.NetworkWriterCtor));
             worker.Append(worker.Create(OpCodes.Stloc_0));
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
         }
 
         static void WriteMessageSize(ILProcessor worker)
         {
             //write size
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
         }
