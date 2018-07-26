@@ -333,6 +333,24 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
+    class UpdateVarsMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
     class AnimationMessage : MessageBase
     {
         public NetworkInstanceId netId;

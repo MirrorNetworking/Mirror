@@ -742,12 +742,8 @@ namespace UnityEngine.Networking
             // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                // prepare message header
-                NetworkWriter writer = new NetworkWriter();
-                writer.StartMessage((short)MsgType.UpdateVars);
-                writer.Write(netId);
-
                 // serialize all the dirty components and send (if any were dirty)
+                NetworkWriter writer = new NetworkWriter();
                 if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
                 {
 #if UNITY_EDITOR
@@ -755,9 +751,12 @@ namespace UnityEngine.Networking
                                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                                 (short)MsgType.UpdateVars, name, 1);
 #endif
-                    // finish message and send
-                    writer.FinishMessage();
-                    NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
+                    // construct message and send
+                    UpdateVarsMessage message = new UpdateVarsMessage();
+                    message.netId = netId;
+                    message.payload = writer.ToArray();
+
+                    NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.UpdateVars, message, channelId);
                 }
             }
         }

@@ -596,17 +596,18 @@ namespace UnityEngine.Networking
 
         static void OnUpdateVarsMessage(NetworkMessage netMsg)
         {
-            NetworkInstanceId netId = netMsg.reader.ReadNetworkId();
-            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + netId + " channel:" + netMsg.channelId); }
+            UpdateVarsMessage message = netMsg.ReadMessage<UpdateVarsMessage>();
+
+            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId + " channel:" + netMsg.channelId); }
 
             NetworkIdentity localObject;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out localObject))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out localObject))
             {
-                localObject.OnUpdateVars(netMsg.reader, false);
+                localObject.OnUpdateVars(new NetworkReader(message.payload), false);
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
             }
         }
 
