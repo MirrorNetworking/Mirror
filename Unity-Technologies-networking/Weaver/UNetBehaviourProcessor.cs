@@ -117,7 +117,7 @@ namespace Unity.UNetWeaver
         static void WriteMessageSize(ILProcessor worker)
         {
             //write size
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc_0)); // load 'writer.'
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
         }
@@ -125,7 +125,7 @@ namespace Unity.UNetWeaver
         static void WriteMessageId(ILProcessor worker, int msgId)
         {
             // write msg id
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc_0)); // load 'writer.'
             worker.Append(worker.Create(OpCodes.Ldc_I4, msgId));
             worker.Append(worker.Create(OpCodes.Conv_U2));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
