@@ -1,6 +1,17 @@
 @echo off
 cd %~dp0
-set /p UNITY_BASE_DIR="Please enter the location of your Unity Installation (do not include the Editor folder suffix): "
+
+:: find out where unity is installed
+if exists "C:\Program Files\Unity" (
+  set UNITY_BASE_DIR="C:\Program Files\Unity"
+)
+else if exists "C:\Program Files (x86)\Unity" (
+  set UNITY_BASE_DIR="C:\Program Files (x86)\Unity"
+)
+else (
+  set /p UNITY_BASE_DIR="Please enter the location of your Unity Installation (do not include the Editor folder suffix): "
+)
+
 echo Okay, installing into %UNITY_BASE_DIR%. Sit tight - if you get access denied errors, please run this again as Administrator.
 echo Copying base DLLs
 copy /v /y .\Unity-Technologies-networking\Output\UnityEngine.Networking.* "%UNITY_BASE_DIR%\Editor\Data\UnityExtensions\Unity\Networking"
