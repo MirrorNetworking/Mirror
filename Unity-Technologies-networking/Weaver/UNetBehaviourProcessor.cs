@@ -1278,6 +1278,20 @@ namespace Unity.UNetWeaver
             return rpc;
         }
 
+        /* generates code like:
+        public void CallTargetTest (NetworkConnection conn, int param)
+        {
+            if (!NetworkServer.get_active ()) {
+                Debug.LogError((object)"TargetRPC Function TargetTest called on client.");
+            } else if (((?)conn) is ULocalConnectionToServer) {
+                Debug.LogError((object)"TargetRPC Function TargetTest called on connection to server");
+            } else {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32 ((uint)param);
+                base.SendTargetRPCInternal (conn, Player.kTargetRpcTargetTest, val, 0, "TargetTest");
+            }
+        }
+        */
         MethodDefinition ProcessTargetRpcCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
@@ -1311,34 +1325,17 @@ namespace Unity.UNetWeaver
 
             WriteCreateWriter(rpcWorker);
 
-            WriteMessageSize(rpcWorker);
-
-            WriteMessageId(rpcWorker, 2); // UNetwork.SYSTEM_RPC
-
-            // create the command id constant
+            // create the targetrpc id constant
             FieldDefinition rpcConstant = new FieldDefinition("kTargetRpc" + md.Name,
                     FieldAttributes.Static | FieldAttributes.Private,
                     Weaver.int32Type);
             m_td.Fields.Add(rpcConstant);
 
-            // write command constant
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write this.unetView.netId
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            // load unetviewfield
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getComponentReference));
-            // load and write netId field
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteNetworkInstanceId));
-
+            // write all the arguments that the user passed to the TargetRpc call
             if (!WriteArguments(rpcWorker, md, "TargetRPC", true))
                 return null;
 
-            // find channel for SyncEvent
+            // find channel for TargetRpc
             int channel = 0;
             foreach (var field in ca.Fields)
             {
@@ -1358,6 +1355,7 @@ namespace Unity.UNetWeaver
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));

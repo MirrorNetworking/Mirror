@@ -117,7 +117,7 @@ namespace UnityEngine.Networking
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -126,9 +126,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
+            // construct the message
+            RpcMessage message = new RpcMessage();
+            message.netId = netId;
+            message.rpcHash = rpcHash;
+            message.payload = writer.ToArray();
 
-            conn.SendBytes(writer.ToArray(), channelId);
+            conn.SendByChannel((short)MsgType.Rpc, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
