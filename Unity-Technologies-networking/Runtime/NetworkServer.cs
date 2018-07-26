@@ -283,59 +283,6 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        // End users should not send random bytes
-        // because the other side might interpret them as messages
-        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int channelId)
-        {
-            if (contextObj == null)
-            {
-                // no context.. send to all ready connections
-                bool success = true;
-                for (int i = 0; i < connections.Count; i++)
-                {
-                    NetworkConnection conn = connections[i];
-                    if (conn != null && conn.isReady)
-                    {
-                        if (!conn.SendBytes(buffer, channelId))
-                        {
-                            success = false;
-                        }
-                    }
-                }
-                if (!success)
-                {
-                    if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady failed"); }
-                }
-                return;
-            }
-
-            var uv = contextObj.GetComponent<NetworkIdentity>();
-            try
-            {
-                bool success = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
-                {
-                    var conn = uv.observers[i];
-                    if (conn.isReady)
-                    {
-                        if (!conn.SendBytes(buffer, channelId))
-                        {
-                            success = false;
-                        }
-                    }
-                }
-                if (!success)
-                {
-                    if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady failed for " + contextObj); }
-                }
-            }
-            catch (NullReferenceException)
-            {
-                // observers may be null if object has not been spawned
-                if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady object " + contextObj + " has not been spawned"); }
-            }
-        }
-
         static public bool SendByChannelToAll(short msgType, MessageBase msg, int channelId)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToAll id:" + msgType); }
