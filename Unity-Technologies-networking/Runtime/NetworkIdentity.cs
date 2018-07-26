@@ -460,9 +460,9 @@ namespace UnityEngine.Networking
             {
                 // is this component dirty on this channel?
                 // -> always serialize if initialState so all components with all channels are included in spawn packet
-                // -> note: GetDirtyChannel() is -1 if the component isn't dirty or sendInterval isn't elapsed yet
+                // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
-                if (initialState || comp.GetDirtyChannel() == channelId)
+                if (initialState || (comp.IsDirty() && comp.GetNetworkChannel() == channelId))
                 {
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
@@ -742,12 +742,8 @@ namespace UnityEngine.Networking
             // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                // prepare message header
-                NetworkWriter writer = new NetworkWriter();
-                writer.StartMessage((short)MsgType.UpdateVars);
-                writer.Write(netId);
-
                 // serialize all the dirty components and send (if any were dirty)
+                NetworkWriter writer = new NetworkWriter();
                 if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
                 {
 #if UNITY_EDITOR
@@ -755,9 +751,12 @@ namespace UnityEngine.Networking
                                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                                 (short)MsgType.UpdateVars, name, 1);
 #endif
-                    // finish message and send
-                    writer.FinishMessage();
-                    NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
+                    // construct message and send
+                    UpdateVarsMessage message = new UpdateVarsMessage();
+                    message.netId = netId;
+                    message.payload = writer.ToArray();
+
+                    NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.UpdateVars, message, channelId);
                 }
             }
         }

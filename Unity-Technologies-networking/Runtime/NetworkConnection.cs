@@ -188,7 +188,9 @@ namespace UnityEngine.Networking
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public virtual bool SendBytes(byte[] bytes, int channelId)
+        // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
+        // would be detected as some kind of message. send messages instead.
+        protected virtual bool SendBytes(byte[] bytes, int channelId)
         {
             if (logNetworkMessages)
             {

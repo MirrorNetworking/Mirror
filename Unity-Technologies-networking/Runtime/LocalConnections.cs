@@ -27,7 +27,7 @@ namespace UnityEngine.Networking
         public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public override bool SendBytes(byte[] bytes, int channelId)
+        protected override bool SendBytes(byte[] bytes, int channelId)
         {
             m_LocalClient.InvokeBytesOnClient(bytes, channelId);
             return true;
@@ -52,7 +52,7 @@ namespace UnityEngine.Networking
         public override bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public override bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public override bool SendBytes(byte[] bytes, int channelId)
+        protected override bool SendBytes(byte[] bytes, int channelId)
         {
             if (bytes.Length == 0)
             {

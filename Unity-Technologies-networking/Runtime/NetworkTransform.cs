@@ -1,6 +1,7 @@
 #if ENABLE_UNET
 using System;
 using UnityEngine;
+using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
 {
@@ -1182,9 +1183,6 @@ namespace UnityEngine.Networking
             }
 
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)MsgType.LocalPlayerTransform);
-            writer.Write(netId);
-
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
@@ -1231,19 +1229,21 @@ namespace UnityEngine.Networking
                 m_PrevRotation = transform.rotation;
             }
 
-            writer.FinishMessage();
+            LocalPlayerTransformMessage message = new LocalPlayerTransformMessage();
+            message.netId = netId;
+            message.payload = writer.ToArray();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
 #endif
-            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
+            ClientScene.readyConnection.SendByChannel((short)MsgType.LocalPlayerTransform, message, GetNetworkChannel());
         }
 
         static public void HandleTransform(NetworkMessage netMsg)
         {
-            NetworkInstanceId netId = netMsg.reader.ReadNetworkId();
+            LocalPlayerTransformMessage message = netMsg.ReadMessage<LocalPlayerTransformMessage>();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -1251,7 +1251,7 @@ namespace UnityEngine.Networking
                 (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
 #endif
 
-            GameObject foundObj = NetworkServer.FindLocalObject(netId);
+            GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)
             {
                 if (LogFilter.logError) { Debug.LogError("Received NetworkTransform data for GameObject that doesn't exist"); }
@@ -1274,8 +1274,9 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            if (netMsg.conn.clientOwnedObjects.Contains(netId))
+            if (netMsg.conn.clientOwnedObjects.Contains(message.netId))
             {
+                NetworkReader reader = new NetworkReader(message.payload);
                 switch (foundSync.transformSyncMode)
                 {
                     case TransformSyncMode.SyncNone:
@@ -1284,22 +1285,22 @@ namespace UnityEngine.Networking
                     }
                     case TransformSyncMode.SyncTransform:
                     {
-                        foundSync.UnserializeModeTransform(netMsg.reader, false);
+                        foundSync.UnserializeModeTransform(reader, false);
                         break;
                     }
                     case TransformSyncMode.SyncRigidbody3D:
                     {
-                        foundSync.UnserializeMode3D(netMsg.reader, false);
+                        foundSync.UnserializeMode3D(reader, false);
                         break;
                     }
                     case TransformSyncMode.SyncRigidbody2D:
                     {
-                        foundSync.UnserializeMode2D(netMsg.reader, false);
+                        foundSync.UnserializeMode2D(reader, false);
                         break;
                     }
                     case TransformSyncMode.SyncCharacterController:
                     {
-                        foundSync.UnserializeModeCharacterController(netMsg.reader, false);
+                        foundSync.UnserializeModeCharacterController(reader, false);
                         break;
                     }
                 }
@@ -1307,7 +1308,7 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            if (LogFilter.logWarn) { Debug.LogWarning("HandleTransform netId:" + netId + " is not for a valid player"); }
+            if (LogFilter.logWarn) { Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player"); }
         }
 
         // --------------------- Compression Helper functions ------------------------

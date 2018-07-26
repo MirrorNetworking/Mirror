@@ -596,87 +596,85 @@ namespace UnityEngine.Networking
 
         static void OnUpdateVarsMessage(NetworkMessage netMsg)
         {
-            NetworkInstanceId netId = netMsg.reader.ReadNetworkId();
-            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + netId + " channel:" + netMsg.channelId); }
+            UpdateVarsMessage message = netMsg.ReadMessage<UpdateVarsMessage>();
+
+            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId + " channel:" + netMsg.channelId); }
 
             NetworkIdentity localObject;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out localObject))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out localObject))
             {
-                localObject.OnUpdateVars(netMsg.reader, false);
+                localObject.OnUpdateVars(new NetworkReader(message.payload), false);
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
             }
         }
 
         static void OnRPCMessage(NetworkMessage netMsg)
         {
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            RpcMessage message = netMsg.ReadMessage<RpcMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnRPCMessage hash:" + cmdHash + " netId:" + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnRPCMessage hash:" + message.rpcHash + " netId:" + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleRPC(cmdHash, netMsg.reader);
+                uv.HandleRPC(message.rpcHash, new NetworkReader(message.payload));
             }
             else
             {
                 if (LogFilter.logWarn)
                 {
-                    string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                    Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", netId, errorCmdName);
+                    string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(message.rpcHash);
+                    Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", message.netId, errorRpcName);
                 }
             }
         }
 
         static void OnSyncEventMessage(NetworkMessage netMsg)
         {
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            SyncEventMessage message = netMsg.ReadMessage<SyncEventMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncEventMessage " + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncEventMessage " + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleSyncEvent(cmdHash, netMsg.reader);
+                uv.HandleSyncEvent(message.eventHash, new NetworkReader(message.payload));
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + netId); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId); }
             }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(message.eventHash), 1);
 #endif
         }
 
         static void OnSyncListMessage(NetworkMessage netMsg)
         {
-            var netId = netMsg.reader.ReadNetworkId();
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
+            SyncListMessage message = netMsg.ReadMessage<SyncListMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleSyncList(cmdHash, netMsg.reader);
+                uv.HandleSyncList(message.syncListHash, new NetworkReader(message.payload));
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + netId); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + message.netId); }
             }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(cmdHash), 1);
+                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(message.syncListHash), 1);
 #endif
         }
 
