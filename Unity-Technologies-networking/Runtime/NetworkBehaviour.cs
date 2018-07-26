@@ -526,8 +526,8 @@ namespace UnityEngine.Networking
 
         internal bool IsDirty()
         {
-            return 
-                (Time.time - m_LastSendTime > GetNetworkSendInterval()) 
+            return
+                (Time.time - m_LastSendTime > GetNetworkSendInterval())
                 && m_SyncVarDirtyBits != 0L;
         }
 
