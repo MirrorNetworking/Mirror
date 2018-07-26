@@ -612,22 +612,21 @@ namespace UnityEngine.Networking
 
         static void OnRPCMessage(NetworkMessage netMsg)
         {
-            var cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            RpcMessage message = netMsg.ReadMessage<RpcMessage>();
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnRPCMessage hash:" + cmdHash + " netId:" + netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnRPCMessage hash:" + message.rpcHash + " netId:" + message.netId); }
 
             NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(netId, out uv))
+            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleRPC(cmdHash, netMsg.reader);
+                uv.HandleRPC(message.rpcHash, new NetworkReader(message.payload));
             }
             else
             {
                 if (LogFilter.logWarn)
                 {
-                    string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                    Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", netId, errorCmdName);
+                    string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(message.rpcHash);
+                    Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", message.netId, errorRpcName);
                 }
             }
         }
