@@ -641,6 +641,11 @@ namespace Unity.UNetWeaver
             // Note the disassembler may simplify this in just a return statement
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+
+            // this produces the & 7ul part.  The reason for this, is that there
+            // may be more variables in parent or child classes. 
+            // we mask the dirty bits to ensure we are only checking the
+            // dirty variables in this class.
             serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, dirtyMask)); // 8 bytes = long
             serWorker.Append(serWorker.Create(OpCodes.And));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); //dirtylocal
