@@ -37,4 +37,3 @@ echo Copying Weaver DLLs
 copy /v /y %~dp0\Unity-Technologies-networking\Output\Weaver\*.* "%UNITY_BASE_DIR%"\Editor\Data\Managed
 echo If there are no errors, installation is complete. Otherwise, please check the base directory you entered.
 pause
-exit
