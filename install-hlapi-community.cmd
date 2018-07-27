@@ -18,22 +18,48 @@ if exist "C:\Program Files\Unity" (
 :: ask for unity base dir,  but default to the detected one
 set /p UNITY_BASE_DIR="Enter Unity installation path or press [ENTER] for default [%UNITY_BASE_DIR%]: " 
 
+set UNITY_NETWORKING="%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking"
+set UNITY_MANAGED="%UNITY_BASE_DIR%"\Editor\Data\Managed"
+
+:: check the installation folder
 if not exist %UNITY_BASE_DIR% (
   echo "Could not find unity"
   pause
   exit /B 1
 )
 
+if not exist %UNITY_NETWORKING% (
+  echo "Invalid unity installation folder"
+  pause
+  exit /B 1
+)
+
+if not exist %UNITY_MANAGED% (
+  echo "Invalid unity installation folder"
+  pause
+  exit /B 1
+)
+
+:: Backup original files so that we can restore them later
+if not exist "%UNITY_NETWORKING%"\UnityEngine.Networking.dll.orig (
+  echo Creating backup of original HLAPI
+  copy "%UNITY_NETWORKING%"\UnityEngine.Networking.dll  "%UNITY_NETWORKING%"\UnityEngine.Networking.dll.orig
+  copy "%UNITY_NETWORKING%"\Editor\UnityEditor.Networking.dll  "%UNITY_NETWORKING%"\Editor\UnityEditor.Networking.dll.orig
+  copy "%UNITY_NETWORKING%"\Standalone\UnityEngine.Networking.dll  "%UNITY_NETWORKING%"\Standalone\UnityEngine.Networking.dll.orig
+  copy "%UNITY_MANAGED%"\Unity.UnetWeaver.dll  "%UNITY_MANAGED%"\Unity.UnetWeaver.dll.orig
+)
+   
+
 :: Install files in unity folder
 echo Okay, installing into %UNITY_BASE_DIR%.
 echo Sit tight - if you get access denied errors, please run this again as Administrator.
 echo Copying base DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\UnityEngine.Networking.* "%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking
+copy /v /y %~dp0\Unity-Technologies-networking\Output\UnityEngine.Networking.* "%UNITY_NETWORKING%"
 echo Copying Editor DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Editor\*.* "%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking\Editor
+copy /v /y %~dp0\Unity-Technologies-networking\Output\Editor\*.* "%UNITY_NETWORKING%"\Editor
 echo Copying Standalone DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Standalone\*.* "%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking\Standalone
+copy /v /y %~dp0\Unity-Technologies-networking\Output\Standalone\*.* "%UNITY_NETWORKING%"\Standalone
 echo Copying Weaver DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Weaver\*.* "%UNITY_BASE_DIR%"\Editor\Data\Managed
+copy /v /y %~dp0\Unity-Technologies-networking\Output\Weaver\*.* "%UNITY_MANAGED%"
 echo If there are no errors, installation is complete. Otherwise, please check the base directory you entered.
 pause
