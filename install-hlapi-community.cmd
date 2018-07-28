@@ -17,25 +17,25 @@ if exist "C:\Program Files\Unity" (
 
 :: ask for unity base dir,  but default to the detected one
 set /p UNITY_BASE_DIR="Enter Unity installation path or press [ENTER] for default [%UNITY_BASE_DIR%]: " 
-
-set UNITY_NETWORKING="%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking"
-set UNITY_MANAGED="%UNITY_BASE_DIR%"\Editor\Data\Managed"
+set UNITY_NETWORKING="%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking
+set UNITY_MANAGED="%UNITY_BASE_DIR%"\Editor\Data\Managed
 
 :: check the installation folder
-if not exist %UNITY_BASE_DIR% (
-  echo "Could not find unity"
+if not exist "%UNITY_BASE_DIR%" (
+  echo "Couldn't find Unity, is it even installed?"
   pause
   exit /B 1
 )
 
+:: 
 if not exist %UNITY_NETWORKING% (
-  echo "Invalid unity installation folder"
+  echo "Couldn't find Unity's Network Folder, is this a broken Editor installation?"
   pause
   exit /B 1
 )
 
 if not exist %UNITY_MANAGED% (
-  echo "Invalid unity installation folder"
+  echo "Couldn't find Unity's Managed Data Folder, is this a broken Editor installation?"
   pause
   exit /B 1
 )
@@ -48,7 +48,6 @@ if not exist "%UNITY_NETWORKING%"\UnityEngine.Networking.dll.orig (
   copy "%UNITY_NETWORKING%"\Standalone\UnityEngine.Networking.dll  "%UNITY_NETWORKING%"\Standalone\UnityEngine.Networking.dll.orig
   copy "%UNITY_MANAGED%"\Unity.UnetWeaver.dll  "%UNITY_MANAGED%"\Unity.UnetWeaver.dll.orig
 )
-   
 
 :: Install files in unity folder
 echo Okay, installing into %UNITY_BASE_DIR%.
@@ -62,4 +61,5 @@ copy /v /y %~dp0\Unity-Technologies-networking\Output\Standalone\*.* "%UNITY_NET
 echo Copying Weaver DLLs
 copy /v /y %~dp0\Unity-Technologies-networking\Output\Weaver\*.* "%UNITY_MANAGED%"
 echo If there are no errors, installation is complete. Otherwise, please check the base directory you entered.
+echo Thank you for choosing HLAPI Community Edition. Happy developing!
 pause
