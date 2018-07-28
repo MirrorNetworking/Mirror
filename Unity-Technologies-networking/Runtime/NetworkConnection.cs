@@ -353,14 +353,18 @@ namespace UnityEngine.Networking
 
         public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
         {
+            // try sending
             if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, bytes.Length, out error))
             {
                 return true;
             }
             else
             {
-                // ChannelPacket used to log errors. we do it here now.
-                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
+                // log error, but ignore disconnect errors. they are expected, people quit sometimes.
+                if ((NetworkError)error != NetworkError.WrongConnection && (NetworkError)error != NetworkError.Timeout)
+                {
+                    if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
+                }
                 return false;
             }
         }
