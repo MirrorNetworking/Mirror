@@ -36,6 +36,8 @@ namespace Unity.UNetWeaver
         const string k_RpcPrefix = "InvokeRpc";
         const string k_TargetRpcPrefix = "InvokeTargetRpc";
 
+        public enum SyncTarget { Observers, Owner };
+
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
             Weaver.DLog(td, "NetworkBehaviourProcessor");
@@ -1902,6 +1904,26 @@ namespace Unity.UNetWeaver
             return get;
         }
 
+        SyncTarget GetSyncVarSyncTarget(FieldDefinition fd)
+        {
+            foreach (CustomAttribute attr in fd.CustomAttributes)
+            {
+                if (attr.AttributeType.FullName == Weaver.SyncVarType.FullName)
+                {
+                    foreach (var field in attr.Fields)
+                    {
+                        if (field.Name == "target") // SyncVar.target == SyncTarget.XYZ
+                        {
+                            // SyncTarget enum: 0 == Observers, 1 == Owner
+                            return (SyncTarget)field.Argument.Value;
+                        }
+                    }
+                }
+            }
+
+            return SyncTarget.Observers;
+        }
+
         MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
@@ -2010,7 +2032,6 @@ namespace Unity.UNetWeaver
             {
                 GetMethod = get, SetMethod = set
             };
-
             //add the methods and property to the type.
             m_td.Methods.Add(get);
             m_td.Methods.Add(set);
@@ -2075,6 +2096,52 @@ namespace Unity.UNetWeaver
                 Weaver.int32Type);
         }
 
+        void GenerateOwnerMaskProperty(long ownerMask)
+        {
+            // no new variables are owners,  
+            // no need to override syncVarOwnerMask
+            if (ownerMask == 0L)
+                return;
+            
+            //Create the get method
+            MethodDefinition get = new MethodDefinition(
+                "get_syncVarOwnerMask", MethodAttributes.Family |
+                MethodAttributes.SpecialName |
+                MethodAttributes.HideBySig |
+                MethodAttributes.Virtual,
+                Weaver.uint64Type);
+
+            ILProcessor getWorker = get.Body.GetILProcessor();
+
+            // generate:  return (0xabc | base.syncVarOwnerMask);
+            getWorker.Append(getWorker.Create(OpCodes.Ldc_I8, ownerMask)); // 8 byte integer aka long
+
+            if (m_td.BaseType.FullName != Weaver.NetworkBehaviourType.FullName)
+            {
+                MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "get_syncVarOwnerMask");
+                if (baseSerialize != null)
+                {
+                    getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // base
+                    getWorker.Append(getWorker.Create(OpCodes.Call, baseSerialize));
+                    getWorker.Append(getWorker.Create(OpCodes.Or)); 
+                }
+            }
+
+            getWorker.Append(getWorker.Create(OpCodes.Ret));
+
+            get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
+
+
+            PropertyDefinition propertyDefinition = new PropertyDefinition("syncVarOwnerMask", PropertyAttributes.None, Weaver.uint64Type)
+            {
+                GetMethod = get
+            };
+            //add the methods and property to the type.
+            m_td.Methods.Add(get);
+            m_td.Properties.Add(propertyDefinition);
+
+        }
+
         void ProcessSyncVars()
         {
             int numSyncVars = 0;
@@ -2082,6 +2149,9 @@ namespace Unity.UNetWeaver
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
             int dirtyBitCounter = Weaver.GetSyncVarStart(m_td.BaseType.FullName);
+
+            // mask that determines which of these bits are sync to owner
+            long ownerMask = 0;
 
             m_SyncVarNetIds.Clear();
             List<FieldDefinition> listFields = new List<FieldDefinition>();
@@ -2150,9 +2220,17 @@ namespace Unity.UNetWeaver
                             return;
                         }
 
+                        // at this point this is either a list or a syncvar and has
+                        // the [SyncVar] attribute.   Check if it is SyncToOwner
+                        // and adjust the mask
+                        if (GetSyncVarSyncTarget(fd) == SyncTarget.Owner)
+                        {
+                            ownerMask |= 1L << dirtyBitCounter;
+                        }
+
+
                         if (Helpers.InheritsFromSyncList(fd.FieldType))
                         {
-                            Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", m_td.FullName, fd.Name));
                             break;
                         }
 
@@ -2218,6 +2296,8 @@ namespace Unity.UNetWeaver
             {
                 m_td.Methods.Add(func);
             }
+
+            GenerateOwnerMaskProperty(ownerMask);
 
             Weaver.SetNumSyncVars(m_td.FullName, numSyncVars);
         }
