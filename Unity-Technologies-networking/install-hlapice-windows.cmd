@@ -20,6 +20,15 @@ set /p UNITY_BASE_DIR="Enter Unity installation path or press [ENTER] for defaul
 set UNITY_NETWORKING="%UNITY_BASE_DIR%"\Editor\Data\UnityExtensions\Unity\Networking
 set UNITY_MANAGED="%UNITY_BASE_DIR%"\Editor\Data\Managed
 
+:: is this a release or development build of HLAPICE?
+:: the script might be in the root directory with the "Unity-Technologies-networking"
+:: subfolder, so adapt accordingly automatically.
+if not exist "%~dp0\Unity-Technologies-networking" (
+	set HLAPICE_SOURCE="%~dp0"
+) else (
+	set HLAPICE_SOURCE="%~dp0\Unity-Technologies-networking\Output"
+)
+
 :: check the installation folder
 if not exist "%UNITY_BASE_DIR%" (
   echo "Couldn't find Unity, is it even installed?"
@@ -27,13 +36,14 @@ if not exist "%UNITY_BASE_DIR%" (
   exit /B 1
 )
 
-:: 
+:: check networking folder
 if not exist %UNITY_NETWORKING% (
   echo "Couldn't find Unity's Network Folder, is this a broken Editor installation?"
   pause
   exit /B 1
 )
 
+:: check managed dlls folder
 if not exist %UNITY_MANAGED% (
   echo "Couldn't find Unity's Managed Data Folder, is this a broken Editor installation?"
   pause
@@ -53,13 +63,13 @@ if not exist "%UNITY_NETWORKING%"\UnityEngine.Networking.dll.orig (
 echo Okay, installing into %UNITY_BASE_DIR%.
 echo Sit tight - if you get access denied errors, please run this again as Administrator.
 echo Copying base DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\UnityEngine.Networking.* "%UNITY_NETWORKING%"
+copy /v /y %HLAPICE_SOURCE%\UnityEngine.Networking.* "%UNITY_NETWORKING%"
 echo Copying Editor DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Editor\*.* "%UNITY_NETWORKING%"\Editor
+copy /v /y %HLAPICE_SOURCE%\Editor\*.* "%UNITY_NETWORKING%"\Editor
 echo Copying Standalone DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Standalone\*.* "%UNITY_NETWORKING%"\Standalone
+copy /v /y %HLAPICE_SOURCE%\Standalone\*.* "%UNITY_NETWORKING%"\Standalone
 echo Copying Weaver DLLs
-copy /v /y %~dp0\Unity-Technologies-networking\Output\Weaver\*.* "%UNITY_MANAGED%"
+copy /v /y %HLAPICE_SOURCE%\Weaver\*.* "%UNITY_MANAGED%"
 echo If there are no errors, installation is complete. Otherwise, please check the base directory you entered.
 echo Thank you for choosing HLAPI Community Edition. Happy developing!
 pause
