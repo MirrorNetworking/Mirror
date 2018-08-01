@@ -548,6 +548,12 @@ namespace UnityEngine.Networking
             m_SyncVarDirtyBits = 0L;
         }
 
+        public void SetAllDirtyBits()
+        {
+            m_LastSendTime = float.MinValue;
+            m_SyncVarDirtyBits = ~0uL;
+        }
+
         internal bool IsDirty()
         {
             return

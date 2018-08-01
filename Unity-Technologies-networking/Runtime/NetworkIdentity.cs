@@ -467,6 +467,10 @@ namespace UnityEngine.Networking
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
 
+                    if (initialState)
+                    {
+                        comp.SetAllDirtyBits();
+                    }
                     // serialize and clear dirty bits in any case, since the component was clearly dirty if we got here
                     if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState + " channelId=" + channelId); }
                     OnSerializeSafely(comp, payload, initialState);
