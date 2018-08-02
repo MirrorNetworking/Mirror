@@ -20,7 +20,6 @@ namespace UnityEngine.Networking
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
 
-        const int k_MaxMessageLogSize = 150;
         private NetworkError error;
 
         public int hostId = -1;
@@ -192,10 +191,7 @@ namespace UnityEngine.Networking
         // would be detected as some kind of message. send messages instead.
         protected virtual bool SendBytes(byte[] bytes, int channelId)
         {
-            if (logNetworkMessages)
-            {
-                LogSend(bytes);
-            }
+            if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -217,23 +213,6 @@ namespace UnityEngine.Networking
 
             byte error;
             return TransportSend(bytes, channelId, out error);
-        }
-
-        void LogSend(byte[] bytes)
-        {
-            NetworkReader reader = new NetworkReader(bytes);
-            var msgSize = reader.ReadUInt16();
-            var msgId = reader.ReadUInt16();
-
-            const int k_PayloadStartPosition = 4;
-
-            StringBuilder msg = new StringBuilder();
-            for (int i = k_PayloadStartPosition; i < k_PayloadStartPosition + msgSize; i++)
-            {
-                msg.AppendFormat("{0:X2}", bytes[i]);
-                if (i > k_MaxMessageLogSize) break;
-            }
-            Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + msgSize + " msgId:" + msgId + " " + msg);
         }
 
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
@@ -258,16 +237,7 @@ namespace UnityEngine.Networking
                 byte[] msgBuffer = reader.ReadBytes(sz);
                 NetworkReader msgReader = new NetworkReader(msgBuffer);
 
-                if (logNetworkMessages)
-                {
-                    StringBuilder msg = new StringBuilder();
-                    for (int i = 0; i < sz; i++)
-                    {
-                        msg.AppendFormat("{0:X2}", msgBuffer[i]);
-                        if (i > k_MaxMessageLogSize) break;
-                    }
-                    Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + msg);
-                }
+                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + BitConverter.ToString(msgBuffer)); }
 
                 NetworkMessageDelegate msgDelegate;
                 if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
