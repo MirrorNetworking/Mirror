@@ -495,6 +495,7 @@ namespace UnityEngine.Networking
                 // if it is initializing,  channel does not matter,  they all go to reliable channel
                 // otherwise,  only send the component if we are looking at the right channel.
                 // note that if we are spawning,  we expect all varibles to be dirty
+                // except for the owner bits if we are talking about observers
                 if (comp.IsDirty() && (comp.GetNetworkChannel() == channelId || initialState))
                 {
                     // set bit #i to 1 in dirty mask
