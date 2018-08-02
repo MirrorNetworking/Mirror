@@ -740,10 +740,6 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
-            {
-                playerNetworkIdentity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -782,12 +778,17 @@ namespace UnityEngine.Networking
                     // so dont spawn it again.
                     uv.OnStartServer(true);
                 }
+                // paul: The owner must be set before we rebuild observers
+                // during rebuild observers spawn messages might be sent 
+                //and if we don't have the owner,  we won't receive owner data
+                uv.SetClientOwner(conn);
+
                 uv.RebuildObservers(true);
                 SendSpawnMessage(uv, null);
 
                 // Set up local player instance on the client instance and update local object map
                 localConnection.localClient.AddLocalPlayer(newPlayerController);
-                uv.SetClientOwner(conn);
+
 
                 // Trigger OnAuthority
                 uv.ForceAuthority(true);
@@ -805,7 +806,7 @@ namespace UnityEngine.Networking
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
-                Spawn(playerGameObject);
+                Spawn(playerGameObject, conn);
             }
 
             OwnerMessage owner = new OwnerMessage();
@@ -855,10 +856,6 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
-            {
-                playerNetworkIdentity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -1063,7 +1060,7 @@ namespace UnityEngine.Networking
             uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
-        static internal void SpawnObject(GameObject obj)
+        static internal void SpawnObject(GameObject obj, NetworkConnection conn = null)
         {
             if (!NetworkServer.active)
             {
@@ -1082,6 +1079,13 @@ namespace UnityEngine.Networking
             objNetworkIdentity.OnStartServer(false);
 
             if (LogFilter.logDebug) { Debug.Log("SpawnObject instance ID " + objNetworkIdentity.netId + " asset ID " + objNetworkIdentity.assetId); }
+
+            // paul: we must set the owner before rebuilding observers or we won't be sending 
+            // owner data to the owner
+            if (objNetworkIdentity.localPlayerAuthority && conn != null)
+            {
+                objNetworkIdentity.SetClientOwner(conn);
+            }
 
             objNetworkIdentity.RebuildObservers(true);
             //SendSpawnMessage(objNetworkIdentity, null);
@@ -1308,11 +1312,11 @@ namespace UnityEngine.Networking
             objects.Clear();
         }
 
-        static public void Spawn(GameObject obj)
+        static public void Spawn(GameObject obj, NetworkConnection conn = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj);
+                SpawnObject(obj, conn);
             }
         }
 
@@ -1362,7 +1366,7 @@ namespace UnityEngine.Networking
                 return false;
             }
 
-            Spawn(obj);
+            Spawn(obj, conn);
 
             var uv = obj.GetComponent<NetworkIdentity>();
             if (uv == null || !uv.isServer)
@@ -1376,7 +1380,7 @@ namespace UnityEngine.Networking
 
         static public bool SpawnWithClientAuthority(GameObject obj, NetworkHash128 assetId, NetworkConnection conn)
         {
-            Spawn(obj, assetId);
+            Spawn(obj, assetId, conn);
 
             var uv = obj.GetComponent<NetworkIdentity>();
             if (uv == null || !uv.isServer)
@@ -1388,7 +1392,7 @@ namespace UnityEngine.Networking
             return uv.AssignClientAuthority(conn);
         }
 
-        static public void Spawn(GameObject obj, NetworkHash128 assetId)
+        static public void Spawn(GameObject obj, NetworkHash128 assetId, NetworkConnection conn = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1397,7 +1401,7 @@ namespace UnityEngine.Networking
                 {
                     id.SetDynamicAssetId(assetId);
                 }
-                SpawnObject(obj);
+                SpawnObject(obj, conn);
             }
         }
 
