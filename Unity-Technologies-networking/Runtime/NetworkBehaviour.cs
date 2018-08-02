@@ -25,8 +25,12 @@ namespace UnityEngine.Networking
         public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
         public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
         public short playerControllerId { get { return myView.playerControllerId; } }
-        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        public ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } set { m_SyncVarDirtyBits = value; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
+        // determine which variables are SyncToOwner
+        // to get dirty owners, we do syncVarDirtyBits & syncVarOwnerMask
+        // by default it is 0 because none of the variables are synctowoner
+        protected virtual ulong syncVarOwnerMask { get { return 0; } }
 
         internal NetworkIdentity netIdentity { get { return myView; } }
 
@@ -542,6 +546,17 @@ namespace UnityEngine.Networking
         {
             m_LastSendTime = Time.time;
             m_SyncVarDirtyBits = 0L;
+        }
+
+        public void ClearOwnerDirtyBits()
+        {
+            m_SyncVarDirtyBits = m_SyncVarDirtyBits & (~syncVarOwnerMask);
+        }
+
+        public void SetAllDirtyBits()
+        {
+            m_LastSendTime = float.MinValue;
+            m_SyncVarDirtyBits = ~0uL;
         }
 
         internal bool IsDirty()

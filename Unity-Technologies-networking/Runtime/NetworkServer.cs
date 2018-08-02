@@ -739,11 +739,18 @@ namespace UnityEngine.Networking
 
             if (LogFilter.logDebug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
-            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
+
+            // paul: Need to set owner before sending spawn message so we can avoid sending owner variables
             if (playerNetworkIdentity.localPlayerAuthority)
             {
                 playerNetworkIdentity.SetClientOwner(conn);
             }
+            else
+            {
+                playerNetworkIdentity.SetClientOwner(null);    
+            }
+
+            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
             return true;
         }
 
@@ -783,11 +790,15 @@ namespace UnityEngine.Networking
                     uv.OnStartServer(true);
                 }
                 uv.RebuildObservers(true);
+
+                // paul: set the owner before sending the spawn message
+                // so that we can avoid sending owner variables
+                uv.SetClientOwner(conn);
+
                 SendSpawnMessage(uv, null);
 
                 // Set up local player instance on the client instance and update local object map
                 localConnection.localClient.AddLocalPlayer(newPlayerController);
-                uv.SetClientOwner(conn);
 
                 // Trigger OnAuthority
                 uv.ForceAuthority(true);
@@ -854,11 +865,19 @@ namespace UnityEngine.Networking
 
             if (LogFilter.logDebug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
-            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
+            // paul: Need to set owner before sending spawn message so we can avoid sending owner variables
             if (playerNetworkIdentity.localPlayerAuthority)
             {
                 playerNetworkIdentity.SetClientOwner(conn);
             }
+            else
+            {
+                playerNetworkIdentity.SetClientOwner(null);    
+            }
+
+
+            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
+
             return true;
         }
 
@@ -1092,69 +1111,120 @@ namespace UnityEngine.Networking
             if (uv.serverOnly)
                 return;
 
-            if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+            //if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " owner = " + (uv.clientAuthorityOwner != null)); } // for easier debugging
+
+            bool sendToOwner = uv.clientAuthorityOwner != null && (conn == null || uv.clientAuthorityOwner == conn);
+            bool sendToObserver = (conn == null || uv.clientAuthorityOwner != conn);
+
+            int messageCount = 0;
+
+            // everything is dirty during spawning
+            uv.SetAllDirtyBits();
 
             // 'uv' is a prefab that should be spawned
             if (uv.sceneId.IsEmpty())
             {
-                SpawnPrefabMessage msg = new SpawnPrefabMessage();
-                msg.netId = uv.netId;
-                msg.assetId = uv.assetId;
-                msg.position = uv.transform.position;
-                msg.rotation = uv.transform.rotation;
-
-                // serialize all components with initialState = true
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
-                msg.payload = writer.ToArray();
-
-                // conn is != null when spawning it for a client
-                if (conn != null)
+                if (sendToOwner)
                 {
-                    conn.Send((short)MsgType.SpawnPrefab, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to owner=" + uv.clientAuthorityOwner.connectionId); } // for easier debugging
+                    messageCount += SendSpanPrefabMessage(uv, uv.clientAuthorityOwner, SyncTarget.Owner);
                 }
-                // conn is == null when spawning it for the local player
-                else
+                if (sendToObserver)
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to observers"); } // for easier debugging
+                    messageCount += SendSpanPrefabMessage(uv, conn, SyncTarget.Observers);
                 }
-
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
-#endif
             }
             // 'uv' is a scene object that should be spawned again
             else
             {
-                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-                msg.netId = uv.netId;
-                msg.sceneId = uv.sceneId;
-                msg.position = uv.transform.position;
-
-                // include synch data
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
-                msg.payload = writer.ToArray();
-
-                // conn is != null when spawning it for a client
-                if (conn != null)
+                if (sendToOwner)
                 {
-                    conn.Send((short)MsgType.SpawnSceneObject, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnSceneObjectMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to owner=" + uv.clientAuthorityOwner.connectionId); } // for easier debugging
+                    messageCount += SendSpawnSceneObjectMessage(uv, uv.clientAuthorityOwner, SyncTarget.Owner);
                 }
-                // conn is == null when spawning it for the local player
-                else
+                if (sendToObserver)
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnSceneObjectMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to observers"); } // for easier debugging
+                    messageCount += SendSpawnSceneObjectMessage(uv, conn, SyncTarget.Observers);
                 }
+            }
+
+            // if we just spawned for everybody, clear all dirty bits
+            if (messageCount >= uv.observers.Count)
+                uv.ClearDirtyBits(true);
+
+        }
+
+        private static int SendSpawnSceneObjectMessage(NetworkIdentity uv, NetworkConnection conn, SyncTarget target)
+        {
+            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
+            msg.netId = uv.netId;
+            msg.sceneId = uv.sceneId;
+            msg.position = uv.transform.position;
+
+            // include synch data
+            NetworkWriter writer = new NetworkWriter();
+            uv.OnSerializeAllSafely(writer, true, SyncTarget.Owner, -1); // channelId doesn't matter if initialState
+            msg.payload = writer.ToArray();
+
+            int sentCount = 0;
+
+            // conn is != null when spawning it for a client
+            if (conn != null)
+            {
+                if (conn.SendByChannel((short)MsgType.SpawnSceneObject, msg, Channels.DefaultReliable))
+                    sentCount++;
+            }
+            // conn is == null when spawning it for the local player
+            else
+            {
+                sentCount += uv.SendToObservers((short)MsgType.SpawnSceneObject, msg, Channels.DefaultReliable);
+            }
 
 #if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnSceneObject, "sceneId", 1);
+            UnityEditor.NetworkDetailStats.IncrementStat(
+                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
+                (short)MsgType.SpawnSceneObject, "sceneId", 1);
 #endif
+            return sentCount;
+        }
+
+        private static int SendSpanPrefabMessage(NetworkIdentity uv, NetworkConnection conn, SyncTarget target)
+        {
+            SpawnPrefabMessage msg = new SpawnPrefabMessage();
+            msg.netId = uv.netId;
+            msg.assetId = uv.assetId;
+            msg.position = uv.transform.position;
+            msg.rotation = uv.transform.rotation;
+
+            // serialize all components with initialState = true
+            NetworkWriter writer = new NetworkWriter();
+            uv.OnSerializeAllSafely(writer, true, target, -1); // channelId doesn't matter if initialState
+            msg.payload = writer.ToArray();
+
+            int sentCount = 0;
+                
+            // conn is != null when spawning it for a client
+            if (conn != null)
+            {
+                if (conn.SendByChannel((short)MsgType.SpawnPrefab, msg, Channels.DefaultReliable))
+                    sentCount++;
+
             }
+            // conn is == null when spawning it for the local player
+            else
+            {
+                sentCount+= uv.SendToObservers((short)MsgType.SpawnPrefab, msg, Channels.DefaultReliable);
+            }
+
+#if UNITY_EDITOR
+            UnityEditor.NetworkDetailStats.IncrementStat(
+                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
+                (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
+#endif
+
+            return sentCount;
         }
 
         static public void DestroyPlayersForConnection(NetworkConnection conn)
