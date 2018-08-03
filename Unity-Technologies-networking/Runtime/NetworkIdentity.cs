@@ -467,10 +467,16 @@ namespace UnityEngine.Networking
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
 
-                    // serialize and clear dirty bits in any case, since the component was clearly dirty if we got here
+                    // serialize the data
                     if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState + " channelId=" + channelId); }
                     OnSerializeSafely(comp, payload, initialState);
-                    comp.ClearAllDirtyBits();
+
+                    // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
+                    // This preserves the behavior in HLAPI
+                    if (!initialState)
+                    {
+                        comp.ClearAllDirtyBits();
+                    }
                 }
             }
 
