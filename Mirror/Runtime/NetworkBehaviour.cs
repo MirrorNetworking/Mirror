@@ -24,7 +24,8 @@ namespace Mirror
         public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
         public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
         public short playerControllerId { get { return myView.playerControllerId; } }
-        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        public ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } set { m_SyncVarDirtyBits = value; } }
+        public float lastSendTime { get { return m_LastSendTime; } set { m_LastSendTime = value; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
         // determine which variables are SyncToOwner
         // to get dirty owners, we do syncVarDirtyBits & syncVarOwnerMask
@@ -521,6 +522,11 @@ namespace Mirror
         {
             m_LastSendTime = Time.time;
             m_SyncVarDirtyBits = 0L;
+        }
+
+        public void ClearOwnerDirtyBits()
+        {
+            m_SyncVarDirtyBits = m_SyncVarDirtyBits & (~syncVarOwnerMask);
         }
 
         public void SetAllDirtyBits()
