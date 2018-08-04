@@ -537,39 +537,6 @@ namespace Unity.UNetWeaver
                 return;
             }
 
-            // Generates: if (forceAll);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (FieldDefinition syncVar in m_SyncVars)
-            {
-                // Generates a writer call for each sync variable
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    return;
-                }
-            }
-
-            // always return true if forceAll
-
-            // Generates: return true
-            serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (forceAll);
-            serWorker.Append(initialStateLabel);
-
             // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
@@ -866,61 +833,6 @@ namespace Unity.UNetWeaver
                 m_td.Methods.Add(serialize);
                 return;
             }
-
-            // Generates: if (initialState);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (var syncVar in m_SyncVars)
-            {
-                MethodReference readByReferenceFunc = Weaver.GetReadByReferenceFunc(syncVar.FieldType);
-                if (readByReferenceFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, readByReferenceFunc));
-                }
-                else
-                {
-                    // assign value
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-
-                    if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
-                    {
-                        // GameObject SyncVar - assign to generated netId var
-                        FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                        m_NetIdFieldCounter += 1;
-
-                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadNetworkInstanceId));
-                        serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
-                    }
-                    else
-                    {
-                        MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
-                        if (readFunc != null)
-                        {
-                            serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                        }
-                        else
-                        {
-                            Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                            Weaver.fail = true;
-                            return;
-                        }
-                        serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
-                    }
-                }
-            }
-
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (initialState);
-            serWorker.Append(initialStateLabel);
-
 
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
