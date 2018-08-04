@@ -466,6 +466,10 @@ namespace Mirror
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
 
+                    if (initialState)
+                    {
+                        comp.SetAllDirtyBits();
+                    }
                     // serialize the data
                     if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
                     OnSerializeSafely(comp, payload, initialState);
