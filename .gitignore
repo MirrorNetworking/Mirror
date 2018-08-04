@@ -11,7 +11,7 @@ Database.sqlite
 Database/
 
 # ===================================== #
-# Visual Studio / MonoDevelop generated #
+# Visual Studio / MonoDevelop / Rider   #
 # ===================================== #
 ExportedObj/
 obj/
@@ -31,6 +31,7 @@ Source/Source.sln
 Output/
 bin/
 .vs/
+.idea/
 Unity-Technologies-networking/packages
 
 # ============ #
