@@ -1,7 +1,7 @@
 # HLAPI Community Edition
 
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/fixes.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/fixes)
-[![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discord.gg/wvesC6)
+[![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 
 Unity is the best game engine in the world, which should make UNET the best multiplayer game development solution in the world, but it's not.
 
