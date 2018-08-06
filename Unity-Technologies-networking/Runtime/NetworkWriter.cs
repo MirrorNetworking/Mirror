@@ -379,40 +379,6 @@ namespace UnityEngine.Networking
         {
             msg.Serialize(this);
         }
-
-        public void SeekZero()
-        {
-            writer.BaseStream.Position = 0;
-        }
-
-        public void StartMessage(short msgType)
-        {
-            SeekZero();
-
-            // two bytes for size, will be filled out in FinishMessage
-            writer.Write((UInt16)0);
-
-            // two bytes for message type
-            Write(msgType);
-        }
-
-        public void FinishMessage()
-        {
-            // size has to fit into ushort
-            if (Position > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter FinishMessage: size is too large (" + Position + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
-                return;
-            }
-
-            // jump to zero, replace size (ushort) in header, jump back
-            long oldPosition = Position;
-            ushort size = (ushort)(Position - (sizeof(UInt16) * 2)); // length - two shorts header (size, msgType)
-
-            SeekZero();
-            Write(size);
-            writer.BaseStream.Position = oldPosition;
-        }
     };
 }
 #endif //ENABLE_UNET

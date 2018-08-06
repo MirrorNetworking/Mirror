@@ -29,28 +29,6 @@ namespace UnityEngine.Networking.Tests
         }
 
         [Test]
-        public void TestResetting()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)1337);
-            writer.Write(1);
-            writer.Write(2);
-            writer.Write(3);
-            writer.Write(4);
-            writer.FinishMessage();
-
-            // try SeekZero and reset afterwards
-            int messageSize = writer.Position;
-            writer.SeekZero();
-            Assert.That(writer.Position, Is.Zero);
-            writer.Position = messageSize;
-
-            // check if .ToArray() returns array until .Position
-            writer.Position = 4;
-            Assert.That(writer.ToArray().Length, Is.EqualTo(4));
-        }
-
-        [Test]
         public void TestToArray()
         {
             // write 2 bytes
@@ -73,7 +51,6 @@ namespace UnityEngine.Networking.Tests
         public void TestPackedUInt32()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)1337);
             writer.WritePackedUInt32(0);
             writer.WritePackedUInt32(234);
             writer.WritePackedUInt32(2284);
@@ -82,11 +59,7 @@ namespace UnityEngine.Networking.Tests
             writer.WritePackedUInt32(16777219);
             writer.WritePackedUInt32(UInt32.MaxValue);
 
-            writer.FinishMessage();
-
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            reader.ReadInt16();
-            Assert.That(reader.ReadUInt16(), Is.EqualTo(1337)); // contentSize (messasge.size - 4 bytes header)
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(0));
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(234));
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(2284));
@@ -100,7 +73,6 @@ namespace UnityEngine.Networking.Tests
         public void TestPackedUInt64()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)1337);
             writer.WritePackedUInt64(0);
             writer.WritePackedUInt64(234);
             writer.WritePackedUInt64(2284);
@@ -113,11 +85,7 @@ namespace UnityEngine.Networking.Tests
             writer.WritePackedUInt64(72057594037927935);
             writer.WritePackedUInt64(UInt64.MaxValue);
 
-            writer.FinishMessage();
-
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            reader.ReadInt16();
-            Assert.That(reader.ReadUInt16(), Is.EqualTo(1337)); // contentSize (messasge.size - 4 bytes header)
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(0));
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(234));
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(2284));
@@ -136,7 +104,6 @@ namespace UnityEngine.Networking.Tests
         {
             // write all simple types once
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)1337);
             writer.Write((char)1);
             writer.Write((byte)2);
             writer.Write((sbyte)3);
@@ -159,16 +126,12 @@ namespace UnityEngine.Networking.Tests
             writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2); // buffer, offset, count
             writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2); // size, buffer
 
-            writer.FinishMessage();
-
             byte[] data = writer.ToArray();
 
 
             // read them
             NetworkReader reader = new NetworkReader(writer.ToArray());
 
-            Assert.That(reader.ReadInt16(), Is.EqualTo(data.Length - sizeof(ushort) * 2)); // msgType
-            Assert.That(reader.ReadUInt16(), Is.EqualTo(1337)); // contentSize (messasge.size - 4 bytes header)
             Assert.That(reader.ReadChar(), Is.EqualTo(1));
             Assert.That(reader.ReadByte(), Is.EqualTo(2));
             Assert.That(reader.ReadSByte(), Is.EqualTo(3));
@@ -199,6 +162,5 @@ namespace UnityEngine.Networking.Tests
             reader.SeekZero();
             Assert.That(reader.Position, Is.Zero);
         }
-
     }
 }
