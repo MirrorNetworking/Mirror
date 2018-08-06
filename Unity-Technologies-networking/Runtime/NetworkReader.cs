@@ -18,11 +18,6 @@ namespace UnityEngine.Networking
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
         public int Length { get { return (int)reader.BaseStream.Length; } }
 
-        public void SeekZero()
-        {
-            reader.BaseStream.Position = 0;
-        }
-
         public byte ReadByte() { return reader.ReadByte(); }
         public sbyte ReadSByte() { return reader.ReadSByte(); }
         public char ReadChar() { return reader.ReadChar(); }
@@ -51,7 +46,7 @@ namespace UnityEngine.Networking
         {
             // notNull? (see NetworkWriter)
             bool notNull = reader.ReadBoolean();
-            if (notNull) 
+            if (notNull)
             {
                 ushort size = ReadUInt16();
                 return reader.ReadBytes(size);

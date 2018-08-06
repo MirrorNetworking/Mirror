@@ -158,9 +158,6 @@ namespace UnityEngine.Networking.Tests
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 20, 21 }));
 
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 22, 23 }));
-
-            reader.SeekZero();
-            Assert.That(reader.Position, Is.Zero);
         }
     }
 }
