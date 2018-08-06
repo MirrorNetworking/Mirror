@@ -215,65 +215,67 @@ namespace UnityEngine.Networking
             return TransportSend(bytes, channelId, out error);
         }
 
+        // handle this message
+        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
+        //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
+        //       frame already.
+        //       -> in other words, we always receive 1 message per NetworkTransport.Receive call, never two.
+        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
+        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
-            // read until size is reached.
-            // NOTE: stream.Capacity is 1300, NOT the size of the available data
             NetworkReader reader = new NetworkReader(buffer);
-            while (reader.Position < receivedSize)
+
+            // the reader passed to user code has a copy of bytes from the real stream. user code never touches the real stream.
+            // this ensures it can never get out of sync if user code reads less or more than the real amount.
+            ushort sz = reader.ReadUInt16();
+            short msgType = reader.ReadInt16();
+
+            // create a reader just for this message
+            byte[] msgBuffer = reader.ReadBytes(sz);
+            NetworkReader msgReader = new NetworkReader(msgBuffer);
+
+            if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + BitConverter.ToString(msgBuffer)); }
+
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
-                // the reader passed to user code has a copy of bytes from the real stream. user code never touches the real stream.
-                // this ensures it can never get out of sync if user code reads less or more than the real amount.
-                ushort sz = reader.ReadUInt16();
-                short msgType = reader.ReadInt16();
+                // create message here instead of caching it. so we can add it to queue more easily.
+                NetworkMessage msg = new NetworkMessage();
+                msg.msgType = msgType;
+                msg.reader = msgReader;
+                msg.conn = this;
+                msg.channelId = channelId;
 
-                // create a reader just for this message
-                byte[] msgBuffer = reader.ReadBytes(sz);
-                NetworkReader msgReader = new NetworkReader(msgBuffer);
-
-                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + BitConverter.ToString(msgBuffer)); }
-
-                NetworkMessageDelegate msgDelegate;
-                if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
+                // add to queue while paused, otherwise process directly
+                if (pauseQueue != null)
                 {
-                    // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage();
-                    msg.msgType = msgType;
-                    msg.reader = msgReader;
-                    msg.conn = this;
-                    msg.channelId = channelId;
-
-                    // add to queue while paused, otherwise process directly
-                    if (pauseQueue != null)
-                    {
-                        pauseQueue.Enqueue(msg);
-                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
-                    }
-                    else
-                    {
-                        msgDelegate(msg);
-                    }
-                    lastMessageTime = Time.time;
-
-#if UNITY_EDITOR
-                    UnityEditor.NetworkDetailStats.IncrementStat(
-                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        (short)MsgType.HLAPIMsg, "msg", 1);
-
-                    if (msgType > (short)MsgType.Highest)
-                    {
-                        UnityEditor.NetworkDetailStats.IncrementStat(
-                            UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                            (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
-                    }
-#endif
+                    pauseQueue.Enqueue(msg);
+                    if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
                 }
                 else
                 {
-                    //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
-                    break;
+                    msgDelegate(msg);
                 }
+                lastMessageTime = Time.time;
+
+#if UNITY_EDITOR
+                UnityEditor.NetworkDetailStats.IncrementStat(
+                    UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
+                    (short)MsgType.HLAPIMsg, "msg", 1);
+
+                if (msgType > (short)MsgType.Highest)
+                {
+                    UnityEditor.NetworkDetailStats.IncrementStat(
+                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
+                        (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
+                }
+#endif
+            }
+            else
+            {
+                //NOTE: this throws away the rest of the buffer. Need moar error codes
+                if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
             }
         }
 
