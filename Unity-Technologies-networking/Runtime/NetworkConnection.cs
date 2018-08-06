@@ -179,10 +179,11 @@ namespace UnityEngine.Networking
         public virtual bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(msgType);
             msg.Serialize(writer);
-            writer.FinishMessage();
-            return SendBytes(writer.ToArray(), channelId);
+
+            // pack message and send
+            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            return SendBytes(message, channelId);
         }
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
@@ -224,58 +225,57 @@ namespace UnityEngine.Networking
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
-            NetworkReader reader = new NetworkReader(buffer);
-
-            // the reader passed to user code has a copy of bytes from the real stream. user code never touches the real stream.
-            // this ensures it can never get out of sync if user code reads less or more than the real amount.
-            ushort sz = reader.ReadUInt16();
-            short msgType = reader.ReadInt16();
-
-            // create a reader just for this message
-            byte[] msgBuffer = reader.ReadBytes(sz);
-            NetworkReader msgReader = new NetworkReader(msgBuffer);
-
-            if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + BitConverter.ToString(msgBuffer)); }
-
-            NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
+            // unpack message
+            ushort msgType;
+            byte[] content;
+            if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                // create message here instead of caching it. so we can add it to queue more easily.
-                NetworkMessage msg = new NetworkMessage();
-                msg.msgType = msgType;
-                msg.reader = msgReader;
-                msg.conn = this;
-                msg.channelId = channelId;
+                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content)); }
 
-                // add to queue while paused, otherwise process directly
-                if (pauseQueue != null)
+                NetworkMessageDelegate msgDelegate;
+                if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
                 {
-                    pauseQueue.Enqueue(msg);
-                    if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
+                    // create message here instead of caching it. so we can add it to queue more easily.
+                    NetworkMessage msg = new NetworkMessage();
+                    msg.msgType = (short)msgType;
+                    msg.reader = new NetworkReader(content);
+                    msg.conn = this;
+                    msg.channelId = channelId;
+
+                    // add to queue while paused, otherwise process directly
+                    if (pauseQueue != null)
+                    {
+                        pauseQueue.Enqueue(msg);
+                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
+                    }
+                    else
+                    {
+                        msgDelegate(msg);
+                    }
+                    lastMessageTime = Time.time;
+
+    #if UNITY_EDITOR
+                    UnityEditor.NetworkDetailStats.IncrementStat(
+                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
+                        (short)MsgType.HLAPIMsg, "msg", 1);
+
+                    if (msgType > (short)MsgType.Highest)
+                    {
+                        UnityEditor.NetworkDetailStats.IncrementStat(
+                            UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
+                            (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
+                    }
+    #endif
                 }
                 else
                 {
-                    msgDelegate(msg);
+                    //NOTE: this throws away the rest of the buffer. Need moar error codes
+                    if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
                 }
-                lastMessageTime = Time.time;
-
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                    (short)MsgType.HLAPIMsg, "msg", 1);
-
-                if (msgType > (short)MsgType.Highest)
-                {
-                    UnityEditor.NetworkDetailStats.IncrementStat(
-                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
-                }
-#endif
             }
             else
             {
-                //NOTE: this throws away the rest of the buffer. Need moar error codes
-                if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
+                if (LogFilter.logError) { Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer)); }
             }
         }
 

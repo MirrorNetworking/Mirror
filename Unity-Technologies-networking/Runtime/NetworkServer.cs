@@ -1379,17 +1379,18 @@ namespace UnityEngine.Networking
 
         static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int channelId)
         {
-            NetworkReader reader = new NetworkReader(buffer);
-
-            reader.ReadInt16(); // size
-            short msgType = reader.ReadInt16();
-
-            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
+            ushort msgType;
+            byte[] content;
+            if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                // this must be invoked with the connection to the client, not the client's connection to the server
-                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
-                return true;
+                if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
+                {
+                    // this must be invoked with the connection to the client, not the client's connection to the server
+                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content), channelId);
+                    return true;
+                }
             }
+            if (LogFilter.logError) { Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer)); }
             return false;
         }
 
