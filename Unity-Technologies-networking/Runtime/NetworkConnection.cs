@@ -217,15 +217,9 @@ namespace UnityEngine.Networking
 
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
-            // build the stream form the buffer passed in
-            NetworkReader reader = new NetworkReader(buffer);
-            HandleReader(reader, receivedSize, channelId);
-        }
-
-        protected void HandleReader(NetworkReader reader, int receivedSize, int channelId)
-        {
             // read until size is reached.
             // NOTE: stream.Capacity is 1300, NOT the size of the available data
+            NetworkReader reader = new NetworkReader(buffer);
             while (reader.Position < receivedSize)
             {
                 // the reader passed to user code has a copy of bytes from the real stream. user code never touches the real stream.
