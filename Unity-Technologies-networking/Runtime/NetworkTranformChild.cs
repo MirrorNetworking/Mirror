@@ -1,6 +1,7 @@
 #if ENABLE_UNET
 using System;
 using UnityEngine;
+using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
 {
@@ -384,29 +385,27 @@ namespace UnityEngine.Networking
             }
 
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)MsgType.LocalChildTransform);
-            writer.Write(netId);
-            writer.WritePackedUInt32(m_ChildIndex);
             SerializeModeTransform(writer);
+
+            LocalChildTransformMessage message = new LocalChildTransformMessage();
+            message.netId = netId;
+            message.childIndex = m_ChildIndex;
+            message.payload = writer.ToArray();
 
             m_PrevPosition = m_Target.localPosition;
             m_PrevRotation = m_Target.localRotation;
-
-
-            writer.FinishMessage();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                 (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
-            ClientScene.readyConnection.SendBytes(writer.ToArray(), GetNetworkChannel());
+            ClientScene.readyConnection.SendByChannel((short)MsgType.LocalChildTransform, message, GetNetworkChannel());
         }
 
         static internal void HandleChildTransform(NetworkMessage netMsg)
         {
-            NetworkInstanceId netId = netMsg.reader.ReadNetworkId();
-            uint childIndex = netMsg.reader.ReadPackedUInt32();
+            LocalChildTransformMessage message = netMsg.ReadMessage<LocalChildTransformMessage>();
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -414,7 +413,7 @@ namespace UnityEngine.Networking
                 (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
 #endif
 
-            GameObject foundObj = NetworkServer.FindLocalObject(netId);
+            GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)
             {
                 if (LogFilter.logError) { Debug.LogError("Received NetworkTransformChild data for GameObject that doesn't exist"); }
@@ -426,13 +425,13 @@ namespace UnityEngine.Networking
                 if (LogFilter.logError) { Debug.LogError("HandleChildTransform no children"); }
                 return;
             }
-            if (childIndex >= children.Length)
+            if (message.childIndex >= children.Length)
             {
                 if (LogFilter.logError) { Debug.LogError("HandleChildTransform childIndex invalid"); }
                 return;
             }
 
-            NetworkTransformChild foundSync = children[childIndex];
+            NetworkTransformChild foundSync = children[message.childIndex];
             if (foundSync == null)
             {
                 if (LogFilter.logError) { Debug.LogError("HandleChildTransform null target"); }
@@ -444,13 +443,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            if (!netMsg.conn.clientOwnedObjects.Contains(netId))
+            if (!netMsg.conn.clientOwnedObjects.Contains(message.netId))
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkTransformChild netId:" + netId + " is not for a valid player"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("NetworkTransformChild netId:" + message.netId + " is not for a valid player"); }
                 return;
             }
 
-            foundSync.UnserializeModeTransform(netMsg.reader, false);
+            foundSync.UnserializeModeTransform(new NetworkReader(message.payload), false);
             foundSync.m_LastClientSyncTime = Time.time;
 
             if (!foundSync.isClient)

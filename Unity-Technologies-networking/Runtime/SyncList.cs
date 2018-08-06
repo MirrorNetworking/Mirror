@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
 {
@@ -249,16 +250,20 @@ namespace UnityEngine.Networking
                 return;
             }
 
+
+            // construct and send message
+            SyncListMessage message = new SyncListMessage();
+            message.netId = uv.netId;
+            message.syncListHash = m_CmdHash;
+
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage((short)MsgType.SyncList);
-            writer.Write(uv.netId);
-            writer.WritePackedUInt32((uint)m_CmdHash);
             writer.Write((byte)op);
             writer.WritePackedUInt32((uint)itemIndex);
             SerializeItem(writer, item);
-            writer.FinishMessage();
 
-            NetworkServer.SendBytesToReady(uv.gameObject, writer.ToArray(), m_Behaviour.GetNetworkChannel());
+            message.payload = writer.ToArray();
+
+            NetworkServer.SendByChannelToReady(uv.gameObject, (short)MsgType.SyncList, message, m_Behaviour.GetNetworkChannel());
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(

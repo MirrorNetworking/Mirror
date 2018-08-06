@@ -283,59 +283,6 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        // End users should not send random bytes
-        // because the other side might interpret them as messages
-        static internal void SendBytesToReady(GameObject contextObj, byte[] buffer, int channelId)
-        {
-            if (contextObj == null)
-            {
-                // no context.. send to all ready connections
-                bool success = true;
-                for (int i = 0; i < connections.Count; i++)
-                {
-                    NetworkConnection conn = connections[i];
-                    if (conn != null && conn.isReady)
-                    {
-                        if (!conn.SendBytes(buffer, channelId))
-                        {
-                            success = false;
-                        }
-                    }
-                }
-                if (!success)
-                {
-                    if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady failed"); }
-                }
-                return;
-            }
-
-            var uv = contextObj.GetComponent<NetworkIdentity>();
-            try
-            {
-                bool success = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
-                {
-                    var conn = uv.observers[i];
-                    if (conn.isReady)
-                    {
-                        if (!conn.SendBytes(buffer, channelId))
-                        {
-                            success = false;
-                        }
-                    }
-                }
-                if (!success)
-                {
-                    if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady failed for " + contextObj); }
-                }
-            }
-            catch (NullReferenceException)
-            {
-                // observers may be null if object has not been spawned
-                if (LogFilter.logWarn) { Debug.LogWarning("SendBytesToReady object " + contextObj + " has not been spawned"); }
-            }
-        }
-
         static public bool SendByChannelToAll(short msgType, MessageBase msg, int channelId)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToAll id:" + msgType); }
@@ -1083,20 +1030,19 @@ namespace UnityEngine.Networking
         // Handle command from specific player, this could be one of multiple players on a single client
         static  void OnCommandMessage(NetworkMessage netMsg)
         {
-            int cmdHash = (int)netMsg.reader.ReadPackedUInt32();
-            var netId = netMsg.reader.ReadNetworkId();
+            CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            var cmdObject = FindLocalObject(netId);
+            var cmdObject = FindLocalObject(message.netId);
             if (cmdObject == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Instance not found when handling Command message [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]"); }
                 return;
             }
 
             var uv = cmdObject.GetComponent<NetworkIdentity>();
             if (uv == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]"); }
                 return;
             }
 
@@ -1108,13 +1054,13 @@ namespace UnityEngine.Networking
             {
                 if (uv.clientAuthorityOwner != netMsg.conn)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Command for object without authority [netId=" + netId + "]"); }
+                    if (LogFilter.logWarn) { Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]"); }
                     return;
                 }
             }
 
-            if (LogFilter.logDev) { Debug.Log("OnCommandMessage for netId=" + netId + " conn=" + netMsg.conn); }
-            uv.HandleCommand(cmdHash, netMsg.reader);
+            if (LogFilter.logDev) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
+            uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
         static internal void SpawnObject(GameObject obj)
@@ -1157,9 +1103,9 @@ namespace UnityEngine.Networking
                 msg.position = uv.transform.position;
                 msg.rotation = uv.transform.rotation;
 
-                // include synch data
+                // serialize all components with initialState = true
                 NetworkWriter writer = new NetworkWriter();
-                uv.UNetSerializeAllVars(writer);
+                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -1189,7 +1135,7 @@ namespace UnityEngine.Networking
 
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
-                uv.UNetSerializeAllVars(writer);
+                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -1433,37 +1379,18 @@ namespace UnityEngine.Networking
 
         static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int channelId)
         {
-            NetworkReader reader = new NetworkReader(buffer);
-
-            reader.ReadInt16(); // size
-            short msgType = reader.ReadInt16();
-
-            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
+            ushort msgType;
+            byte[] content;
+            if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                // this must be invoked with the connection to the client, not the client's connection to the server
-                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
-                return true;
+                if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
+                {
+                    // this must be invoked with the connection to the client, not the client's connection to the server
+                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content), channelId);
+                    return true;
+                }
             }
-            return false;
-        }
-
-        // invoked for local clients
-        static internal bool InvokeHandlerOnServer(ULocalConnectionToServer conn, short msgType, MessageBase msg, int channelId)
-        {
-            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
-            {
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-
-                // this must be invoked with the connection to the client, not the client's connection to the server
-                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
-                return true;
-            }
-            if (LogFilter.logError) { Debug.LogError("Local invoke: Failed to find local connection to invoke handler on [connectionId=" + conn.connectionId + "] for MsgId:" + msgType); }
+            if (LogFilter.logError) { Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer)); }
             return false;
         }
 

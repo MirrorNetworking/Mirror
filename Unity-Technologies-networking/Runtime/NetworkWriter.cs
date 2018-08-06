@@ -43,13 +43,13 @@ namespace UnityEngine.Networking
         public void Write(double value) { writer.Write(value); }
         public void Write(decimal value) { writer.Write(value); }
 
-        public void Write(string value) 
+        public void Write(string value)
         {
             // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
             // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
             //        should also be null on the client)
             writer.Write(value != null);
-            if (value != null) writer.Write(value); 
+            if (value != null) writer.Write(value);
         }
 
         // for char arrays with consistent size
@@ -385,40 +385,6 @@ namespace UnityEngine.Networking
         public void Write(MessageBase msg)
         {
             msg.Serialize(this);
-        }
-
-        public void SeekZero()
-        {
-            writer.BaseStream.Position = 0;
-        }
-
-        public void StartMessage(short msgType)
-        {
-            SeekZero();
-
-            // two bytes for size, will be filled out in FinishMessage
-            writer.Write((UInt16)0);
-
-            // two bytes for message type
-            Write(msgType);
-        }
-
-        public void FinishMessage()
-        {
-            // size has to fit into ushort
-            if (Position > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter FinishMessage: size is too large (" + Position + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
-                return;
-            }
-
-            // jump to zero, replace size (ushort) in header, jump back
-            long oldPosition = Position;
-            ushort size = (ushort)(Position - (sizeof(UInt16) * 2)); // length - two shorts header (size, msgType)
-
-            SeekZero();
-            Write(size);
-            writer.BaseStream.Position = oldPosition;
         }
     };
 }
