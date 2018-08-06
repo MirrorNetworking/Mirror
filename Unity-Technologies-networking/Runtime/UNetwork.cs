@@ -118,9 +118,13 @@ namespace UnityEngine.Networking
 
     // network protocol all in one place, instead of constructing headers in all kinds of different places
     //
-    //   MsgType     (2 bytes)
-    //   ContentSize (2 bytes)
+    //   MsgType     (1-n bytes)
+    //   ContentSize (1-n bytes)
     //   Content     (ContentSize bytes)
+    //
+    // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
+    //    using 2 bytes for shorts.
+    // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
     public static class Protocol
     {
         // pack message before sending
@@ -132,16 +136,16 @@ namespace UnityEngine.Networking
 
             NetworkWriter writer = new NetworkWriter();
 
-            // message content size (short)
+            // message content size (varint)
             if (content.Length > UInt16.MaxValue)
             {
                 if (LogFilter.logError) { Debug.LogError("PackMessage: size is too large (" + content.Length + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
                 return null;
             }
-            writer.Write((UInt16)content.Length);
+            writer.WritePackedUInt32((uint)content.Length);
 
-            // message type (short)
-            writer.Write((UInt16)msgType);
+            // message type (varint)
+            writer.WritePackedUInt32(msgType);
 
             // message content (if any)
             writer.Write(content, 0, content.Length);
@@ -154,11 +158,11 @@ namespace UnityEngine.Networking
         {
             NetworkReader reader = new NetworkReader(message);
 
-            // read content size (short)
-            UInt16 size = reader.ReadUInt16();
+            // read content size (varint)
+            UInt16 size = (UInt16)reader.ReadPackedUInt32();
 
-            // read message type
-            msgType = reader.ReadUInt16();
+            // read message type (varint)
+            msgType = (UInt16)reader.ReadPackedUInt32();
 
             // read content (if any)
             content = reader.ReadBytes(size);
