@@ -112,12 +112,12 @@ namespace Unity.UNetWeaver
             // create writer
             worker.Append(worker.Create(OpCodes.Newobj, Weaver.NetworkWriterCtor));
             worker.Append(worker.Create(OpCodes.Stloc_0));
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
         }
 
         static void WriteMessageSize(ILProcessor worker)
         {
             //write size
+            worker.Append(worker.Create(OpCodes.Ldloc_0)); // load 'writer.'
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
         }
@@ -125,7 +125,7 @@ namespace Unity.UNetWeaver
         static void WriteMessageId(ILProcessor worker, int msgId)
         {
             // write msg id
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Ldloc_0)); // load 'writer.'
             worker.Append(worker.Create(OpCodes.Ldc_I4, msgId));
             worker.Append(worker.Create(OpCodes.Conv_U2));
             worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
@@ -506,8 +506,9 @@ namespace Unity.UNetWeaver
 
 
             serialize.Body.InitLocals = true;
-            VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
 
+            // loc_0,  this local variable is to determine if any variable was dirty
+            VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
             // call base class
@@ -517,44 +518,35 @@ namespace Unity.UNetWeaver
                 MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "OnSerialize");
                 if (baseSerialize != null)
                 {
-                    VariableDefinition baseResult = new VariableDefinition(Weaver.boolType);
-                    serialize.Body.Variables.Add(baseResult);
-
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
                     serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
-                    serWorker.Append(serWorker.Create(OpCodes.Stloc_1)); // set baseResult to result of base.OnSerialize()
+                    serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
                     baseClassSerialize = true;
                 }
             }
 
             if (m_SyncVars.Count == 0)
             {
-                if (baseClassSerialize)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Or));
-                }
-                else
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                }
+               
+                // generate: return dirtyLocal
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ret));
                 m_td.Methods.Add(serialize);
                 return;
             }
 
-            // Generates: if (initialState);
+            // Generates: if (forceAll);
             Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                // Generates a writer call for each sync variable
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
@@ -569,34 +561,42 @@ namespace Unity.UNetWeaver
                 }
             }
 
+            // always return true if forceAll
+
+            // Generates: return true
             serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            // Generates: end if (initialState);
+            // Generates: end if (forceAll);
             serWorker.Append(initialStateLabel);
 
-            // Generates: dirty = 0;
-            serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_0));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
+            // write dirty bits before the data fields
+            // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+            serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked64));
 
-            // write syncvars
-            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); // start at number of syncvars in parent
+            // generate a writer call for any dirty variable in this class
+
+            // start at number of syncvars in parent
+            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); 
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
                 serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit)); // 8 bytes = long
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                WriteDirtyCheck(serWorker, true);
-
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                // Generates a call to the writer for that field
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-
+               
                 MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
@@ -608,11 +608,16 @@ namespace Unity.UNetWeaver
                     Weaver.fail = true;
                     return;
                 }
+
+                // something was dirty
+                serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to true
+
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
+
             }
 
-            WriteDirtyCheck(serWorker, false);
 
             if (Weaver.generateLogErrors)
             {
@@ -620,44 +625,12 @@ namespace Unity.UNetWeaver
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
 
-            if (baseClassSerialize)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_1));
-                serWorker.Append(serWorker.Create(OpCodes.Or));
-            }
-            else
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-            }
+            // generate: return dirtyLocal
+            serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             m_td.Methods.Add(serialize);
         }
 
-        static void WriteDirtyCheck(ILProcessor serWorker, bool reset)
-        {
-            //Weaver.DLog(m_td, "    GenerateSerialization dirtyCheck");
-
-            // Generates: if (!dirty) { write dirty bits, set dirty bool }
-            Instruction dirtyLabel = serWorker.Create(OpCodes.Nop);
-            serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-
-            serWorker.Append(serWorker.Create(OpCodes.Brtrue, dirtyLabel));
-
-            // write dirty bits
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-            serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked64));
-            if (reset)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
-                serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
-            }
-
-            // Generates: end if (!dirty)
-            serWorker.Append(dirtyLabel);
-        }
 
         static int GetChannelId(FieldDefinition field)
         {
@@ -1129,13 +1102,9 @@ namespace Unity.UNetWeaver
                 }
 
                 NetworkWriter networkWriter = new NetworkWriter();
-                networkWriter.Write(0);
-                networkWriter.Write((ushort)MsgType.SYSTEM_COMMAND);
-                networkWriter.WritePackedUInt32((uint)ShipControl.kCmdCmdThrust);
-                networkWriter.WritePackedUInt32((uint)playerId);
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(networkWriter);
+                base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, channelId, cmdName);
             }
         */
         MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
@@ -1180,11 +1149,8 @@ namespace Unity.UNetWeaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
             cmdWorker.Append(localClientLabel);
 
+            // NetworkWriter writer = new NetworkWriter();
             WriteCreateWriter(cmdWorker);
-
-            WriteMessageSize(cmdWorker);
-
-            WriteMessageId(cmdWorker, 5); //UNetwork.SYSTEM_COMMAND
 
             // create the command id constant
             FieldDefinition cmdConstant = new FieldDefinition("kCmd" + md.Name,
@@ -1192,22 +1158,7 @@ namespace Unity.UNetWeaver
                     Weaver.int32Type);
             m_td.Fields.Add(cmdConstant);
 
-            // write command constant
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write playerId from this NetworkBehaviour
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            // load unetviewfield
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getComponentReference));
-            // load and write netId field
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference));
-
-            var writeFunc = Weaver.GetWriteFunc(Weaver.NetworkInstanceIdType);
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, writeFunc));
-
+            // write all the arguments that the user passed to the Cmd call
             if (!WriteArguments(cmdWorker, md, "Command", false))
                 return null;
 
@@ -1229,8 +1180,9 @@ namespace Unity.UNetWeaver
             }
 
             // invoke interal send and return
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant)); // cmdHash
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
@@ -1299,6 +1251,20 @@ namespace Unity.UNetWeaver
             return rpc;
         }
 
+        /* generates code like:
+        public void CallTargetTest (NetworkConnection conn, int param)
+        {
+            if (!NetworkServer.get_active ()) {
+                Debug.LogError((object)"TargetRPC Function TargetTest called on client.");
+            } else if (((?)conn) is ULocalConnectionToServer) {
+                Debug.LogError((object)"TargetRPC Function TargetTest called on connection to server");
+            } else {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32 ((uint)param);
+                base.SendTargetRPCInternal (conn, Player.kTargetRpcTargetTest, val, 0, "TargetTest");
+            }
+        }
+        */
         MethodDefinition ProcessTargetRpcCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
@@ -1332,34 +1298,17 @@ namespace Unity.UNetWeaver
 
             WriteCreateWriter(rpcWorker);
 
-            WriteMessageSize(rpcWorker);
-
-            WriteMessageId(rpcWorker, 2); // UNetwork.SYSTEM_RPC
-
-            // create the command id constant
+            // create the targetrpc id constant
             FieldDefinition rpcConstant = new FieldDefinition("kTargetRpc" + md.Name,
                     FieldAttributes.Static | FieldAttributes.Private,
                     Weaver.int32Type);
             m_td.Fields.Add(rpcConstant);
 
-            // write command constant
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write this.unetView.netId
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            // load unetviewfield
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getComponentReference));
-            // load and write netId field
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteNetworkInstanceId));
-
+            // write all the arguments that the user passed to the TargetRpc call
             if (!WriteArguments(rpcWorker, md, "TargetRPC", true))
                 return null;
 
-            // find channel for SyncEvent
+            // find channel for TargetRpc
             int channel = 0;
             foreach (var field in ca.Fields)
             {
@@ -1379,6 +1328,7 @@ namespace Unity.UNetWeaver
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
@@ -1389,6 +1339,18 @@ namespace Unity.UNetWeaver
             return rpc;
         }
 
+        /* generates code like:
+        public void CallRpcTest (int param)
+        {
+            if (!NetworkServer.get_active ()) {
+                Debug.LogError ((object)"RPC Function RpcTest called on client.");
+            } else {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32((uint)param);
+                base.SendRPCInternal(Player.kRpcRpcTest, writer, 0, "RpcTest");
+            }
+        }
+        */
         MethodDefinition ProcessRpcCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
@@ -1410,34 +1372,17 @@ namespace Unity.UNetWeaver
 
             WriteCreateWriter(rpcWorker);
 
-            WriteMessageSize(rpcWorker);
-
-            WriteMessageId(rpcWorker, 2); // UNetwork.SYSTEM_RPC
-
-            // create the command id constant
+            // create the rpc id constant
             FieldDefinition rpcConstant = new FieldDefinition("kRpc" + md.Name,
                     FieldAttributes.Static | FieldAttributes.Private,
                     Weaver.int32Type);
             m_td.Fields.Add(rpcConstant);
 
-            // write command constant
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write this.unetView.netId
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            // load unetviewfield
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getComponentReference));
-            // load and write netId field
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteNetworkInstanceId));
-
+            // write all the arguments that the user passed to the Rpc call
             if (!WriteArguments(rpcWorker, md, "RPC", false))
                 return null;
 
-            // find channel for SyncEvent
+            // find channel for Rpc
             int channel = 0;
             foreach (var field in ca.Fields)
             {
@@ -1456,6 +1401,7 @@ namespace Unity.UNetWeaver
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
@@ -1853,29 +1799,13 @@ namespace Unity.UNetWeaver
 
             WriteCreateWriter(evtWorker);
 
-            WriteMessageSize(evtWorker);
-
-            WriteMessageId(evtWorker, 7); //UNetwork.SYSTEM_SYNCEVENT
-
-            // create the command id constant
+            // create the syncevent id constant
             FieldDefinition evtConstant = new FieldDefinition("kEvent" + ed.Name,
                     FieldAttributes.Static | FieldAttributes.Private,
                     Weaver.int32Type);
             m_td.Fields.Add(evtConstant);
 
-            // write command constant
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // networkWriter
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant));
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
-
-            // write this.unetView.netId
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // networkWriter
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getComponentReference)); // unetView
-            // load and write netId field
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.getUNetIdReference)); // netId
-            evtWorker.Append(evtWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteNetworkInstanceId));   // networkWriter.Write(this.unetView.netId)
-
+            // write all the arguments that the user passed to the syncevent
             if (!WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
                 return null;
 
@@ -1891,6 +1821,7 @@ namespace Unity.UNetWeaver
 
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant)); // eventHash
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));

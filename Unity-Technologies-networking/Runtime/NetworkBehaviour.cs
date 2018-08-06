@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using UnityEngine.Networking.NetworkSystem;
 
 namespace UnityEngine.Networking
 {
@@ -52,7 +53,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(NetworkWriter writer, int channelId, string cmdName)
+        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -67,8 +68,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
-            ClientScene.readyConnection.SendBytes(writer.ToArray(), channelId);
+            // construct the message
+            CommandMessage message = new CommandMessage();
+            message.netId = netId;
+            message.cmdHash = cmdHash;
+            message.payload = writer.ToArray();
+
+            ClientScene.readyConnection.SendByChannel((short)MsgType.Command, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -86,7 +92,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(NetworkWriter writer, int channelId, string rpcName)
+        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, int channelId, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -95,8 +101,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
-            NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
+            // construct the message
+            RpcMessage message = new RpcMessage();
+            message.netId = netId;
+            message.rpcHash = rpcHash;
+            message.payload = writer.ToArray();
+
+            NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.Rpc, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -106,7 +117,7 @@ namespace UnityEngine.Networking
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -115,9 +126,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
+            // construct the message
+            RpcMessage message = new RpcMessage();
+            message.netId = netId;
+            message.rpcHash = rpcHash;
+            message.payload = writer.ToArray();
 
-            conn.SendBytes(writer.ToArray(), channelId);
+            conn.SendByChannel((short)MsgType.Rpc, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -135,7 +150,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(NetworkWriter writer, int channelId, string eventName)
+        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
         {
             if (!NetworkServer.active)
             {
@@ -143,8 +158,13 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            writer.FinishMessage();
-            NetworkServer.SendBytesToReady(gameObject, writer.ToArray(), channelId);
+            // construct the message
+            SyncEventMessage message = new SyncEventMessage();
+            message.netId = netId;
+            message.eventHash = eventHash;
+            message.payload = writer.ToArray();
+
+            NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -524,16 +544,11 @@ namespace UnityEngine.Networking
             m_SyncVarDirtyBits = 0L;
         }
 
-        internal int GetDirtyChannel()
+        internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > GetNetworkSendInterval())
-            {
-                if (m_SyncVarDirtyBits != 0L)
-                {
-                    return GetNetworkChannel();
-                }
-            }
-            return -1;
+            return
+                (Time.time - m_LastSendTime > GetNetworkSendInterval())
+                && m_SyncVarDirtyBits != 0L;
         }
 
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)

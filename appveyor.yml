@@ -9,6 +9,7 @@ build:
   
 artifacts:
   - path: Unity-Technologies-networking/Output
+    name: HLAPI_CE_2017.4_improvements
 
 image: Visual Studio 2017
 
@@ -20,3 +21,14 @@ after_test:
       $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml" 
+
+deploy:
+  description: 'HLAPI community edition $(APPVEYOR_REPO_BRANCH) '
+  provider: GitHub
+  auth_token:
+    secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
+  artifact: Unity-Technologies-networking\HLAPI_CE_2017.4_improvements.zip            # upload all NuGet packages to release assets
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true        # deploy on tag push only

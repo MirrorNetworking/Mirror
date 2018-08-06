@@ -112,13 +112,13 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = reader.ReadInt16();
+            playerControllerId = (short)reader.ReadPackedUInt32();
             msgData = reader.ReadBytesAndSize();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(playerControllerId);
+            writer.WritePackedUInt32((uint)playerControllerId);
             writer.WriteBytesAndSize(msgData);
         }
     }
@@ -129,37 +129,102 @@ namespace UnityEngine.Networking.NetworkSystem
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = reader.ReadInt16();
+            playerControllerId = (short)reader.ReadPackedUInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(playerControllerId);
+            writer.WritePackedUInt32((uint)playerControllerId);
         }
     }
 
     // ---------- System Messages requried for code gen path -------------------
+
+    class CommandMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public int cmdHash;
+        public byte[] payload; // the parameters for the Cmd function
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            cmdHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(cmdHash);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
+    class RpcMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public int rpcHash;
+        public byte[] payload; // the parameters for the Rpc function
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            rpcHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(rpcHash);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
+    class SyncEventMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public int eventHash;
+        public byte[] payload; // the parameters for the Rpc function
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            eventHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(eventHash);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
+    class SyncListMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public int syncListHash;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            syncListHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.Write(syncListHash);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
     /* These are not used directly but manually serialized, these are here for reference.
-
-    public struct CommandMessage
-    {
-        public int cmdHash;
-        public string cmdName;
-        public byte[] payload;
-    }
-    public struct RPCMessage
-    {
-        public NetworkId netId;
-        public int cmdHash;
-        public byte[] payload;
-    }
-    public struct SyncEventMessage
-    {
-        public NetworkId netId;
-        public int cmdHash;
-        public byte[] payload;
-    }
-
     internal class SyncListMessage<T> where T: struct
     {
         public NetworkId netId;
@@ -168,8 +233,7 @@ namespace UnityEngine.Networking.NetworkSystem
         public int itemIndex;
         public T item;
     }
-
-*/
+    */
 
     // ---------- Internal System Messages -------------------
 
@@ -290,6 +354,24 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
+    class UpdateVarsMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
     class AnimationMessage : MessageBase
     {
         public NetworkInstanceId netId;
@@ -350,21 +432,42 @@ namespace UnityEngine.Networking.NetworkSystem
         }
     }
 
-    class LobbyReadyToBeginMessage : MessageBase
+    class LocalChildTransformMessage : MessageBase
     {
-        public byte slotId;
-        public bool readyState;
+        public NetworkInstanceId netId;
+        public uint childIndex;
+        public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
         {
-            slotId = reader.ReadByte();
-            readyState = reader.ReadBoolean();
+            netId = reader.ReadNetworkId();
+            childIndex = reader.ReadPackedUInt32();
+            payload = reader.ReadBytesAndSize();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(slotId);
-            writer.Write(readyState);
+            writer.Write(netId);
+            writer.WritePackedUInt32(childIndex);
+            writer.WriteBytesAndSize(payload);
+        }
+    }
+
+    class LocalPlayerTransformMessage : MessageBase
+    {
+        public NetworkInstanceId netId;
+        public byte[] payload;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadNetworkId();
+            payload = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(netId);
+            writer.WriteBytesAndSize(payload);
         }
     }
 }

@@ -302,21 +302,6 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool SendBytes(byte[] data, int channelId)
-        {
-            if (m_Connection != null)
-            {
-                if (m_AsyncConnect != ConnectState.Connected)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes when not connected to a server"); }
-                    return false;
-                }
-                return m_Connection.SendBytes(data, channelId);
-            }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient SendBytes with no connection"); }
-            return false;
-        }
-
         public bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
 #if UNITY_EDITOR

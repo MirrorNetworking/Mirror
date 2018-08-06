@@ -20,7 +20,6 @@ namespace UnityEngine.Networking
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
 
-        const int k_MaxMessageLogSize = 150;
         private NetworkError error;
 
         public int hostId = -1;
@@ -180,20 +179,20 @@ namespace UnityEngine.Networking
         public virtual bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(msgType);
             msg.Serialize(writer);
-            writer.FinishMessage();
-            return SendBytes(writer.ToArray(), channelId);
+
+            // pack message and send
+            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            return SendBytes(message, channelId);
         }
         public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
         public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
-        public virtual bool SendBytes(byte[] bytes, int channelId)
+        // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
+        // would be detected as some kind of message. send messages instead.
+        protected virtual bool SendBytes(byte[] bytes, int channelId)
         {
-            if (logNetworkMessages)
-            {
-                LogSend(bytes);
-            }
+            if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
@@ -217,63 +216,29 @@ namespace UnityEngine.Networking
             return TransportSend(bytes, channelId, out error);
         }
 
-        void LogSend(byte[] bytes)
-        {
-            NetworkReader reader = new NetworkReader(bytes);
-            var msgSize = reader.ReadUInt16();
-            var msgId = reader.ReadUInt16();
-
-            const int k_PayloadStartPosition = 4;
-
-            StringBuilder msg = new StringBuilder();
-            for (int i = k_PayloadStartPosition; i < k_PayloadStartPosition + msgSize; i++)
-            {
-                msg.AppendFormat("{0:X2}", bytes[i]);
-                if (i > k_MaxMessageLogSize) break;
-            }
-            Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + msgSize + " msgId:" + msgId + " " + msg);
-        }
-
+        // handle this message
+        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
+        //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
+        //       frame already.
+        //       -> in other words, we always receive 1 message per NetworkTransport.Receive call, never two.
+        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
+        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
         {
-            // build the stream form the buffer passed in
-            NetworkReader reader = new NetworkReader(buffer);
-            HandleReader(reader, receivedSize, channelId);
-        }
-
-        protected void HandleReader(NetworkReader reader, int receivedSize, int channelId)
-        {
-            // read until size is reached.
-            // NOTE: stream.Capacity is 1300, NOT the size of the available data
-            while (reader.Position < receivedSize)
+            // unpack message
+            ushort msgType;
+            byte[] content;
+            if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                // the reader passed to user code has a copy of bytes from the real stream. user code never touches the real stream.
-                // this ensures it can never get out of sync if user code reads less or more than the real amount.
-                ushort sz = reader.ReadUInt16();
-                short msgType = reader.ReadInt16();
-
-                // create a reader just for this message
-                byte[] msgBuffer = reader.ReadBytes(sz);
-                NetworkReader msgReader = new NetworkReader(msgBuffer);
-
-                if (logNetworkMessages)
-                {
-                    StringBuilder msg = new StringBuilder();
-                    for (int i = 0; i < sz; i++)
-                    {
-                        msg.AppendFormat("{0:X2}", msgBuffer[i]);
-                        if (i > k_MaxMessageLogSize) break;
-                    }
-                    Debug.Log("ConnectionRecv con:" + connectionId + " bytes:" + sz + " msgId:" + msgType + " " + msg);
-                }
+                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content)); }
 
                 NetworkMessageDelegate msgDelegate;
-                if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
+                if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
                 {
                     // create message here instead of caching it. so we can add it to queue more easily.
                     NetworkMessage msg = new NetworkMessage();
-                    msg.msgType = msgType;
-                    msg.reader = msgReader;
+                    msg.msgType = (short)msgType;
+                    msg.reader = new NetworkReader(content);
                     msg.conn = this;
                     msg.channelId = channelId;
 
@@ -289,7 +254,7 @@ namespace UnityEngine.Networking
                     }
                     lastMessageTime = Time.time;
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
                     UnityEditor.NetworkDetailStats.IncrementStat(
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
                         (short)MsgType.HLAPIMsg, "msg", 1);
@@ -300,14 +265,17 @@ namespace UnityEngine.Networking
                             UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
                             (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
                     }
-#endif
+    #endif
                 }
                 else
                 {
                     //NOTE: this throws away the rest of the buffer. Need moar error codes
                     if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
-                    break;
                 }
+            }
+            else
+            {
+                if (LogFilter.logError) { Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer)); }
             }
         }
 
@@ -351,14 +319,18 @@ namespace UnityEngine.Networking
 
         public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
         {
+            // try sending
             if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, bytes.Length, out error))
             {
                 return true;
             }
             else
             {
-                // ChannelPacket used to log errors. we do it here now.
-                if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
+                // log error, but ignore disconnect errors. they are expected, people quit sometimes.
+                if ((NetworkError)error != NetworkError.WrongConnection && (NetworkError)error != NetworkError.Timeout)
+                {
+                    if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
+                }
                 return false;
             }
         }

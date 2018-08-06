@@ -45,7 +45,6 @@ namespace UnityEngine.Networking
 
         int                     m_AnimationHash;
         int                     m_TransitionHash;
-        NetworkWriter           m_ParameterWriter;
         float                   m_SendTimer;
 
         // tracking - these should probably move to a Preview component.
@@ -93,9 +92,6 @@ namespace UnityEngine.Networking
             if (!sendMessagesAllowed)
                 return;
 
-            if (m_ParameterWriter == null)
-                m_ParameterWriter = new NetworkWriter();
-
             CheckSendRate();
 
             int stateHash;
@@ -110,9 +106,9 @@ namespace UnityEngine.Networking
             animMsg.stateHash = stateHash;
             animMsg.normalizedTime = normalizedTime;
 
-            m_ParameterWriter.SeekZero();
-            WriteParameters(m_ParameterWriter, false);
-            animMsg.parameters = m_ParameterWriter.ToArray();
+            NetworkWriter writer = new NetworkWriter();
+            WriteParameters(writer, false);
+            animMsg.parameters = writer.ToArray();
 
             SendMessage((short)MsgType.Animation, animMsg);
         }
@@ -161,9 +157,9 @@ namespace UnityEngine.Networking
                 var animMsg = new AnimationParametersMessage();
                 animMsg.netId = netId;
 
-                m_ParameterWriter.SeekZero();
-                WriteParameters(m_ParameterWriter, true);
-                animMsg.parameters = m_ParameterWriter.ToArray();
+                NetworkWriter writer = new NetworkWriter();
+                WriteParameters(writer, true);
+                animMsg.parameters = writer.ToArray();
 
                 SendMessage((short)MsgType.AnimationParameters, animMsg);
             }
