@@ -119,18 +119,6 @@ namespace UnityEngine.Networking
         }
 
         // called by the server, to bypass network
-        internal void InvokeHandlerOnClient(short msgType, MessageBase msg, int channelId)
-        {
-            // write the message to a local buffer
-            NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(msgType);
-            msg.Serialize(writer);
-            writer.FinishMessage();
-
-            InvokeBytesOnClient(writer.ToArray(), channelId);
-        }
-
-        // called by the server, to bypass network
         internal void InvokeBytesOnClient(byte[] buffer, int channelId)
         {
             PostInternalMessage(buffer, channelId);
