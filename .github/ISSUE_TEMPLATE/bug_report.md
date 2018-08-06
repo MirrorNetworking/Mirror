@@ -7,6 +7,9 @@ about: Create a report to help us improve
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Repro project**
+It would be very helpful if you can produce a small project that reproduces the issue.  Upload it to dropbox or google drive and attach the link to this issue.
+
 **To Reproduce**
 Steps to reproduce the behavior:
 1. Open the attached project '...'
