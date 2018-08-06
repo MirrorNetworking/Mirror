@@ -1393,26 +1393,6 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        // invoked for local clients
-        static internal bool InvokeHandlerOnServer(ULocalConnectionToServer conn, short msgType, MessageBase msg, int channelId)
-        {
-            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
-            {
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-
-                // this must be invoked with the connection to the client, not the client's connection to the server
-                s_LocalConnection.InvokeHandler(msgType, reader, channelId);
-                return true;
-            }
-            if (LogFilter.logError) { Debug.LogError("Local invoke: Failed to find local connection to invoke handler on [connectionId=" + conn.connectionId + "] for MsgId:" + msgType); }
-            return false;
-        }
-
         static public GameObject FindLocalObject(NetworkInstanceId netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
