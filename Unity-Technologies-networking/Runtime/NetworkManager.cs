@@ -47,11 +47,11 @@ namespace UnityEngine.Networking
 
         #pragma warning disable 0169
         [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] int m_MaxBufferedPackets;
+        [SerializeField] int m_MaxBufferedPackets; 
         [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         [SerializeField] bool m_AllowFragmentation;
         #pragma warning restore 0169
-
+        
         private EndPoint m_EndPoint;
         bool m_ClientLoadedScene;
 
