@@ -115,6 +115,57 @@ namespace UnityEngine.Networking
             return (qos == QosType.Unreliable || qos == QosType.UnreliableFragmented || qos == QosType.UnreliableSequenced || qos == QosType.StateUpdate);
         }
     }
+
+    // network protocol all in one place, instead of constructing headers in all kinds of different places
+    //
+    //   MsgType     (2 bytes)
+    //   ContentSize (2 bytes)
+    //   Content     (ContentSize bytes)
+    public static class Protocol
+    {
+        // pack message before sending
+        public static byte[] PackMessage(ushort msgType, byte[] content)
+        {
+            // original HLAPI's 'content' part is never null, so we don't have to handle that case.
+            // just create an empty array if null.
+            if (content == null) content = new byte[0];
+
+            NetworkWriter writer = new NetworkWriter();
+
+            // message content size (short)
+            if (content.Length > UInt16.MaxValue)
+            {
+                if (LogFilter.logError) { Debug.LogError("PackMessage: size is too large (" + content.Length + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
+                return null;
+            }
+            writer.Write((UInt16)content.Length);
+
+            // message type (short)
+            writer.Write((UInt16)msgType);
+
+            // message content (if any)
+            writer.Write(content, 0, content.Length);
+
+            return writer.ToArray();
+        }
+
+        // unpack message after receiving
+        public static bool UnpackMessage(byte[] message, out ushort msgType, out byte[] content)
+        {
+            NetworkReader reader = new NetworkReader(message);
+
+            // read content size (short)
+            UInt16 size = reader.ReadUInt16();
+
+            // read message type
+            msgType = reader.ReadUInt16();
+
+            // read content (if any)
+            content = reader.ReadBytes(size);
+
+            return content.Length == size;
+        }
+    }
 }
 
 

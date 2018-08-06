@@ -1,4 +1,5 @@
 #if ENABLE_UNET
+using System;
 using System.Collections.Generic;
 
 namespace UnityEngine.Networking
@@ -7,7 +8,8 @@ namespace UnityEngine.Networking
     {
         struct InternalMsg
         {
-            internal byte[] buffer;
+            internal ushort msgType;
+            internal byte[] content;
             internal int channelId;
         }
 
@@ -66,21 +68,20 @@ namespace UnityEngine.Networking
             ClientScene.InternalAddPlayer(uv, localPlayer.playerControllerId);
         }
 
-        private void PostInternalMessage(byte[] buffer, int channelId)
+        private void PostInternalMessage(short msgType, byte[] content, int channelId)
         {
             InternalMsg msg = new InternalMsg();
-            msg.buffer = buffer;
+            msg.msgType = (ushort)msgType;
+            msg.content = content;
             msg.channelId = channelId;
             m_InternalMsgs.Add(msg);
         }
 
         private void PostInternalMessage(short msgType)
         {
-            NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(msgType);
-            writer.FinishMessage();
-
-            PostInternalMessage(writer.ToArray(), 0);
+            // call PostInternalMessage with empty content array if we just want to call a message like Connect
+            // -> NetworkTransport has empty [] and not null array for those messages too
+            PostInternalMessage(msgType, new byte[0], 0);
         }
 
         private void ProcessInternalMessages()
@@ -97,13 +98,13 @@ namespace UnityEngine.Networking
             // iterate through existing set
             for (int i = 0; i < tmp.Count; i++)
             {
-                var msg = tmp[i];
+                InternalMsg msg = tmp[i];
+
                 NetworkMessage internalMessage = new NetworkMessage();
-                internalMessage.reader = new NetworkReader(msg.buffer);
-                internalMessage.reader.ReadInt16(); //size
+                internalMessage.msgType = (short)msg.msgType;
+                internalMessage.reader = new NetworkReader(msg.content);
                 internalMessage.channelId = msg.channelId;
                 internalMessage.conn = connection;
-                internalMessage.msgType = internalMessage.reader.ReadInt16();
 
                 m_Connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
@@ -119,21 +120,16 @@ namespace UnityEngine.Networking
         }
 
         // called by the server, to bypass network
-        internal void InvokeHandlerOnClient(short msgType, MessageBase msg, int channelId)
-        {
-            // write the message to a local buffer
-            NetworkWriter writer = new NetworkWriter();
-            writer.StartMessage(msgType);
-            msg.Serialize(writer);
-            writer.FinishMessage();
-
-            InvokeBytesOnClient(writer.ToArray(), channelId);
-        }
-
-        // called by the server, to bypass network
         internal void InvokeBytesOnClient(byte[] buffer, int channelId)
         {
-            PostInternalMessage(buffer, channelId);
+            // unpack message and post to internal list for processing
+            ushort msgType;
+            byte[] content;
+            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            {
+                PostInternalMessage((short)msgType, content, channelId);
+            }
+            else if (LogFilter.logError) Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
     }
 }
