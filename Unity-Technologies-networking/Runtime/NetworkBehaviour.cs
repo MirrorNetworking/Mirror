@@ -27,6 +27,10 @@ namespace UnityEngine.Networking
         public short playerControllerId { get { return myView.playerControllerId; } }
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
+        // determine which variables are SyncToOwner
+        // to get dirty owners, we do syncVarDirtyBits & syncVarOwnerMask
+        // by default it is 0 because none of the variables are synctowoner
+        protected virtual ulong syncVarOwnerMask { get { return 0; } }
 
         internal NetworkIdentity netIdentity { get { return myView; } }
 
