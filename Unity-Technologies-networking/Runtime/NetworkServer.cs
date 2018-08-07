@@ -428,7 +428,12 @@ namespace UnityEngine.Networking
                     }
                     case NetworkEventType.DataEvent:
                     {
-                        HandleData(connectionId, channelId, receivedSize, error);
+                        // create a buffer with exactly 'receivedSize' size for the handlers so we don't need to read
+                        // a size header (saves bandwidth)
+                        byte[] data = new byte[receivedSize];
+                        Array.Copy(s_MsgBuffer, data, receivedSize);
+
+                        HandleData(connectionId, data, channelId, error);
                         break;
                     }
                     case NetworkEventType.DisconnectEvent:
@@ -542,7 +547,7 @@ namespace UnityEngine.Networking
             return s_Connections[connectionId];
         }
 
-        static void HandleData(int connectionId, int channelId, int receivedSize, byte error)
+        static void HandleData(int connectionId, byte[] data, int channelId, byte error)
         {
             var conn = FindConnection(connectionId);
             if (conn == null)
@@ -558,17 +563,17 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            OnData(conn, receivedSize, channelId);
+            OnData(conn, data, channelId);
         }
 
-        static void OnData(NetworkConnection conn, int receivedSize, int channelId)
+        static void OnData(NetworkConnection conn, byte[] data, int channelId)
         {
 #if UNITY_EDITOR
             UnityEditor.NetworkDetailStats.IncrementStat(
                 UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
                 (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
-            conn.TransportReceive(s_MsgBuffer, receivedSize, channelId);
+            conn.TransportReceive(data, channelId);
         }
 
         static void GenerateConnectError(byte error)

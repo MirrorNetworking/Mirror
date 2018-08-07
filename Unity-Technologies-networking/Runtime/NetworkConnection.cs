@@ -223,7 +223,7 @@ namespace UnityEngine.Networking
         //       -> in other words, we always receive 1 message per NetworkTransport.Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer, int receivedSize, int channelId)
+        protected void HandleBytes(byte[] buffer, int channelId)
         {
             // unpack message
             ushort msgType;
@@ -312,9 +312,9 @@ namespace UnityEngine.Networking
             m_VisList.Clear();
         }
 
-        public virtual void TransportReceive(byte[] bytes, int numBytes, int channelId)
+        public virtual void TransportReceive(byte[] bytes, int channelId)
         {
-            HandleBytes(bytes, numBytes, channelId);
+            HandleBytes(bytes, channelId);
         }
 
         public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)

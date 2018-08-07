@@ -412,8 +412,12 @@ namespace UnityEngine.Networking
                         UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
                         (short)MsgType.LLAPIMsg, "msg", 1);
 #endif
+                        // create a buffer with exactly 'receivedSize' size for the handlers so we don't need to read
+                        // a size header (saves bandwidth)
+                        byte[] data = new byte[receivedSize];
+                        Array.Copy(m_MsgBuffer, data, receivedSize);
 
-                        m_Connection.TransportReceive(m_MsgBuffer, receivedSize, channelId);
+                        m_Connection.TransportReceive(data, channelId);
                         break;
 
                     case NetworkEventType.DisconnectEvent:
