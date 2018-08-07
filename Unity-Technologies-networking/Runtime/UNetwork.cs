@@ -119,7 +119,6 @@ namespace UnityEngine.Networking
     // network protocol all in one place, instead of constructing headers in all kinds of different places
     //
     //   MsgType     (1-n bytes)
-    //   ContentSize (1-n bytes)
     //   Content     (ContentSize bytes)
     //
     // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
@@ -136,14 +135,6 @@ namespace UnityEngine.Networking
 
             NetworkWriter writer = new NetworkWriter();
 
-            // message content size (varint)
-            if (content.Length > UInt16.MaxValue)
-            {
-                if (LogFilter.logError) { Debug.LogError("PackMessage: size is too large (" + content.Length + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
-                return null;
-            }
-            writer.WritePackedUInt32((uint)content.Length);
-
             // message type (varint)
             writer.WritePackedUInt32(msgType);
 
@@ -158,16 +149,13 @@ namespace UnityEngine.Networking
         {
             NetworkReader reader = new NetworkReader(message);
 
-            // read content size (varint)
-            UInt16 size = (UInt16)reader.ReadPackedUInt32();
-
             // read message type (varint)
             msgType = (UInt16)reader.ReadPackedUInt32();
 
-            // read content (if any)
-            content = reader.ReadBytes(size);
+            // read content (remaining data in message)
+            content = reader.ReadBytes(reader.Length - reader.Position);
 
-            return content.Length == size;
+            return true;
         }
     }
 }
