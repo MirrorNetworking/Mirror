@@ -71,9 +71,6 @@ namespace UnityEngine.Networking
 
         public static void Reset()
         {
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.ResetAll();
-#endif
             NetworkTransport.Shutdown();
             NetworkTransport.Init();
             s_Active = false;
@@ -568,11 +565,6 @@ namespace UnityEngine.Networking
 
         static void OnData(NetworkConnection conn, byte[] data, int channelId)
         {
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.LLAPIMsg, "msg", 1);
-#endif
             conn.TransportReceive(data, channelId);
         }
 
@@ -1123,12 +1115,6 @@ namespace UnityEngine.Networking
                 {
                     SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
                 }
-
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
-#endif
             }
             // 'uv' is a scene object that should be spawned again
             else
@@ -1153,12 +1139,6 @@ namespace UnityEngine.Networking
                 {
                     SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
                 }
-
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnSceneObject, "sceneId", 1);
-#endif
             }
         }
 
@@ -1248,12 +1228,6 @@ namespace UnityEngine.Networking
             {
                 uv.clientAuthorityOwner.RemoveOwnedObject(uv);
             }
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.ObjectDestroy, uv.assetId.ToString(), 1);
-#endif
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;

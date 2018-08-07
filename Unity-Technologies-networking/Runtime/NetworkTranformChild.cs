@@ -395,23 +395,12 @@ namespace UnityEngine.Networking
             m_PrevPosition = m_Target.localPosition;
             m_PrevRotation = m_Target.localRotation;
 
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
-#endif
             ClientScene.readyConnection.SendByChannel((short)MsgType.LocalChildTransform, message, GetNetworkChannel());
         }
 
         static internal void HandleChildTransform(NetworkMessage netMsg)
         {
             LocalChildTransformMessage message = netMsg.ReadMessage<LocalChildTransformMessage>();
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.LocalChildTransform, "16:LocalChildTransform", 1);
-#endif
 
             GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)

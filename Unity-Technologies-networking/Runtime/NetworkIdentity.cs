@@ -605,12 +605,6 @@ namespace UnityEngine.Networking
             }
 
             invokeFunction(invokeComponent, reader);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashEventName(cmdHash), 1);
-#endif
         }
 
         // happens on client
@@ -648,12 +642,6 @@ namespace UnityEngine.Networking
             }
 
             invokeFunction(invokeComponent, reader);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashListName(cmdHash), 1);
-#endif
         }
 
         // happens on server
@@ -691,12 +679,6 @@ namespace UnityEngine.Networking
             }
 
             invokeFunction(invokeComponent, reader);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.Command, NetworkBehaviour.GetCmdHashCmdName(cmdHash), 1);
-#endif
         }
 
         // happens on client
@@ -734,12 +716,6 @@ namespace UnityEngine.Networking
             }
 
             invokeFunction(invokeComponent, reader);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.Rpc, NetworkBehaviour.GetCmdHashRpcName(cmdHash), 1);
-#endif
         }
 
         // invoked by unity runtime immediately after the regular "Update()" function.
@@ -752,11 +728,6 @@ namespace UnityEngine.Networking
                 NetworkWriter writer = new NetworkWriter();
                 if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
                 {
-#if UNITY_EDITOR
-                            UnityEditor.NetworkDetailStats.IncrementStat(
-                                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                                (short)MsgType.UpdateVars, name, 1);
-#endif
                     // construct message and send
                     UpdateVarsMessage message = new UpdateVarsMessage();
                     message.netId = netId;
@@ -1099,10 +1070,6 @@ namespace UnityEngine.Networking
             NetworkServer.Update();
             NetworkClient.UpdateClients();
             NetworkManager.UpdateScene();
-
-#if UNITY_EDITOR
-            NetworkDetailStats.NewProfilerTick(Time.time);
-#endif
         }
     };
 }

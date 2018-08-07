@@ -1233,23 +1233,12 @@ namespace UnityEngine.Networking
             message.netId = netId;
             message.payload = writer.ToArray();
 
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
-#endif
             ClientScene.readyConnection.SendByChannel((short)MsgType.LocalPlayerTransform, message, GetNetworkChannel());
         }
 
         static public void HandleTransform(NetworkMessage netMsg)
         {
             LocalPlayerTransformMessage message = netMsg.ReadMessage<LocalPlayerTransformMessage>();
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.LocalPlayerTransform, "6:LocalPlayerTransform", 1);
-#endif
 
             GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)

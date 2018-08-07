@@ -385,12 +385,6 @@ namespace UnityEngine.Networking
             }
             if (LogFilter.logDebug) { Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + "]"); }
 
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.SpawnPrefab, GetStringForAssetId(msg.assetId), 1);
-#endif
-
             NetworkIdentity localNetworkIdentity;
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localNetworkIdentity))
             {
@@ -450,13 +444,6 @@ namespace UnityEngine.Networking
             netMsg.ReadMessage(msg);
 
             if (LogFilter.logDebug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
-
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                (short)MsgType.SpawnSceneObject, "sceneId", 1);
-#endif
 
             NetworkIdentity localNetworkIdentity;
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localNetworkIdentity))
@@ -518,11 +505,6 @@ namespace UnityEngine.Networking
             NetworkIdentity localObject;
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localObject))
             {
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                    (short)MsgType.ObjectDestroy, GetStringForAssetId(localObject.assetId), 1);
-#endif
                 localObject.OnNetworkDestroy();
 
                 if (!NetworkScene.InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
@@ -647,12 +629,6 @@ namespace UnityEngine.Networking
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId); }
             }
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncEvent, NetworkBehaviour.GetCmdHashHandlerName(message.eventHash), 1);
-#endif
         }
 
         static void OnSyncListMessage(NetworkMessage netMsg)
@@ -670,12 +646,6 @@ namespace UnityEngine.Networking
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + message.netId); }
             }
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncList, NetworkBehaviour.GetCmdHashHandlerName(message.syncListHash), 1);
-#endif
         }
 
         static void OnClientAuthority(NetworkMessage netMsg)

@@ -265,12 +265,6 @@ namespace UnityEngine.Networking
 
             NetworkServer.SendByChannelToReady(uv.gameObject, (short)MsgType.SyncList, message, m_Behaviour.GetNetworkChannel());
 
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncList, op.ToString(), 1);
-#endif
-
             // ensure it is invoked on host
             if (m_Behaviour.isServer && m_Behaviour.isClient && m_Callback != null)
             {

@@ -75,12 +75,6 @@ namespace UnityEngine.Networking
             message.payload = writer.ToArray();
 
             ClientScene.readyConnection.SendByChannel((short)MsgType.Command, message, channelId);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.Command, cmdName, 1);
-#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -108,12 +102,6 @@ namespace UnityEngine.Networking
             message.payload = writer.ToArray();
 
             NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.Rpc, message, channelId);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.Rpc, rpcName, 1);
-#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -133,12 +121,6 @@ namespace UnityEngine.Networking
             message.payload = writer.ToArray();
 
             conn.SendByChannel((short)MsgType.Rpc, message, channelId);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.Rpc, rpcName, 1);
-#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -165,12 +147,6 @@ namespace UnityEngine.Networking
             message.payload = writer.ToArray();
 
             NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
-
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.SyncEvent, eventName, 1);
-#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

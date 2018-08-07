@@ -301,11 +301,6 @@ namespace UnityEngine.Networking
 
         public bool SendByChannel(short msgType, MessageBase msg, int channelId)
         {
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.IncrementStat(
-                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                (short)MsgType.UserMessage, msgType.ToString() + ":" + msg.GetType().Name, 1);
-#endif
             if (m_Connection != null)
             {
                 if (m_AsyncConnect != ConnectState.Connected)
@@ -560,9 +555,6 @@ namespace UnityEngine.Networking
             s_Clients = new List<NetworkClient>();
             s_IsActive = false;
             ClientScene.Shutdown();
-#if UNITY_EDITOR
-            UnityEditor.NetworkDetailStats.ResetAll();
-#endif
         }
 
         internal static void SetActive(bool state)
