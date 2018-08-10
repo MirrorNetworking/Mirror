@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnityEngine.Networking.Tests
 {
-    [TestFixture()]
+    [TestFixture]
     public class NetworkHash128Test
     {
         [Test]
