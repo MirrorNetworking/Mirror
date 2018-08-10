@@ -512,7 +512,6 @@ namespace Unity.UNetWeaver
             serialize.Body.Variables.Add(dirtyLocal);
 
             // call base class
-            bool baseClassSerialize = false;
             if (m_td.BaseType.FullName != Weaver.NetworkBehaviourType.FullName)
             {
                 MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "OnSerialize");
@@ -523,7 +522,6 @@ namespace Unity.UNetWeaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
                     serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
                     serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
-                    baseClassSerialize = true;
                 }
             }
 
