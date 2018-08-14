@@ -34,14 +34,11 @@ namespace UnityEngine.Networking
 
         public NetworkError lastError { get { return error; } internal set { error = value; } }
 
-        public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId, HostTopology hostTopology)
+        public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
         {
             address = networkAddress;
             hostId = networkHostId;
             connectionId = networkConnectionId;
-
-            if ((hostTopology.DefaultConfig.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
-                throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
         }
 
         ~NetworkConnection()
@@ -99,10 +96,10 @@ namespace UnityEngine.Networking
 
         public bool InvokeHandlerNoData(short msgType)
         {
-            return InvokeHandler(msgType, null, 0);
+            return InvokeHandler(msgType, null);
         }
 
-        public bool InvokeHandler(short msgType, NetworkReader reader, int channelId)
+        public bool InvokeHandler(short msgType, NetworkReader reader)
         {
             NetworkMessageDelegate msgDelegate;
             if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
@@ -111,7 +108,6 @@ namespace UnityEngine.Networking
                 message.msgType = msgType;
                 message.conn = this;
                 message.reader = reader;
-                message.channelId = channelId;
 
                 msgDelegate(message);
                 return true;
@@ -177,39 +173,37 @@ namespace UnityEngine.Networking
             return playerController != null;
         }
 
-        public virtual bool SendByChannel(short msgType, MessageBase msg, int channelId)
+        public virtual bool Send(short msgType, MessageBase msg)
         {
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
 
             // pack message and send
             byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
-            return SendBytes(message, channelId);
+            return SendBytes(message);
         }
-        public virtual bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
-        public virtual bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
         // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes(byte[] bytes, int channelId)
+        protected virtual bool SendBytes(byte[] bytes)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
             if (bytes.Length > UInt16.MaxValue)
             {
-                if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
+                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
                 return false;
             }
 
             if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                if (LogFilter.logError) { Debug.LogError("ChannelBuffer:SendBytes cannot send zero bytes"); }
+                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send zero bytes"); }
                 return false;
             }
 
             byte error;
-            return TransportSend(bytes, channelId, out error);
+            return TransportSend(bytes, out error);
         }
 
         // handle this message
@@ -219,7 +213,7 @@ namespace UnityEngine.Networking
         //       -> in other words, we always receive 1 message per NetworkTransport.Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer, int channelId)
+        protected void HandleBytes(byte[] buffer)
         {
             // unpack message
             ushort msgType;
@@ -236,7 +230,6 @@ namespace UnityEngine.Networking
                     msg.msgType = (short)msgType;
                     msg.reader = new NetworkReader(content);
                     msg.conn = this;
-                    msg.channelId = channelId;
 
                     // add to queue while paused, otherwise process directly
                     if (pauseQueue != null)
@@ -308,12 +301,12 @@ namespace UnityEngine.Networking
             m_VisList.Clear();
         }
 
-        public virtual void TransportReceive(byte[] bytes, int channelId)
+        public virtual void TransportReceive(byte[] bytes)
         {
-            HandleBytes(bytes, channelId);
+            HandleBytes(bytes);
         }
 
-        public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
+        public virtual bool TransportSend(byte[] bytes, out byte error)
         {
             error = 0;
             if (Transport.client.Connected)

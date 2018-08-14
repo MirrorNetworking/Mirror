@@ -18,9 +18,9 @@ namespace UnityEngine.Networking
             m_LocalClient = localClient;
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId)
+        protected override bool SendBytes(byte[] bytes)
         {
-            m_LocalClient.InvokeBytesOnClient(bytes, channelId);
+            m_LocalClient.InvokeBytesOnClient(bytes);
             return true;
         }
     }
@@ -34,14 +34,14 @@ namespace UnityEngine.Networking
             address = "localServer";
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId)
+        protected override bool SendBytes(byte[] bytes)
         {
             if (bytes.Length == 0)
             {
                 if (LogFilter.logError) { Debug.LogError("LocalConnection:SendBytes cannot send zero bytes"); }
                 return false;
             }
-            return NetworkServer.InvokeBytes(this, bytes, channelId);
+            return NetworkServer.InvokeBytes(this, bytes);
         }
     }
 }

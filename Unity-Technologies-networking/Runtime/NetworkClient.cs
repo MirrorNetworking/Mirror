@@ -17,7 +17,6 @@ namespace UnityEngine.Networking
         public static List<NetworkClient> allClients { get { return s_Clients; } }
         public static bool active { get { return s_IsActive; } }
 
-        HostTopology m_HostTopology;
         int m_HostPort;
 
         string m_ServerIp = "";
@@ -47,8 +46,6 @@ namespace UnityEngine.Networking
         public NetworkConnection connection { get { return m_Connection; } }
 
         public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
-        public int numChannels { get { return m_HostTopology.DefaultConfig.ChannelCount; } }
-        public HostTopology hostTopology { get { return m_HostTopology; }}
         public int hostPort
         {
             get { return m_HostPort; }
@@ -91,20 +88,6 @@ namespace UnityEngine.Networking
             RegisterSystemHandlers(false);
         }
 
-        public bool Configure(ConnectionConfig config, int maxConnections)
-        {
-            HostTopology top = new HostTopology(config, maxConnections);
-            return Configure(top);
-        }
-
-        public bool Configure(HostTopology topology)
-        {
-            //NOTE: this maxConnections is across all clients that use this tuner, so it is
-            //      effectively the number of _clients_.
-            m_HostTopology = topology;
-            return true;
-        }
-
         static bool IsValidIpV6(string address)
         {
             // use C# built-in method
@@ -129,23 +112,13 @@ namespace UnityEngine.Networking
             m_ClientConnectionId = 0;
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);
+            m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId);
         }
 
         void PrepareForConnect(bool usePlatformSpecificProtocols)
         {
             SetActive(true);
             RegisterSystemHandlers(false);
-
-            if (m_HostTopology == null)
-            {
-                var config = new ConnectionConfig();
-                config.AddChannel(QosType.ReliableSequenced);
-                config.AddChannel(QosType.Unreliable);
-                config.UsePlatformSpecificProtocols = usePlatformSpecificProtocols;
-                m_HostTopology = new HostTopology(config, 8);
-            }
-
             m_ClientId = 0; // NetworkTransport.AddHost 'Returns the ID of the host that was created.'
         }
 
@@ -162,22 +135,20 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool SendByChannel(short msgType, MessageBase msg, int channelId)
+        public bool Send(short msgType, MessageBase msg)
         {
             if (m_Connection != null)
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient SendByChannel when not connected to a server"); }
+                    if (LogFilter.logError) { Debug.LogError("NetworkClient Send when not connected to a server"); }
                     return false;
                 }
-                return m_Connection.SendByChannel(msgType, msg, channelId);
+                return m_Connection.Send(msgType, msg);
             }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient SendByChannel with no connection"); }
+            if (LogFilter.logError) { Debug.LogError("NetworkClient Send with no connection"); }
             return false;
         }
-        public bool Send(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultReliable); }
-        public bool SendUnreliable(short msgType, MessageBase msg) { return SendByChannel(msgType, msg, Channels.DefaultUnreliable); }
 
         public void Shutdown()
         {
@@ -224,7 +195,7 @@ namespace UnityEngine.Networking
                         break;
                     case Telepathy.EventType.Data:
                         Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
-                        m_Connection.TransportReceive(msg.data, 0);
+                        m_Connection.TransportReceive(msg.data);
                         break;
                     case Telepathy.EventType.Disconnected:
                         Debug.Log("NetworkClient loop: Disconnected");
@@ -277,7 +248,6 @@ namespace UnityEngine.Networking
                 netMsg.msgType = (short)MsgType.Error;
                 netMsg.reader = new NetworkReader(writer.ToArray());
                 netMsg.conn = m_Connection;
-                netMsg.channelId = 0;
                 msgDelegate(netMsg);
             }
         }

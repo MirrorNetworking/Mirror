@@ -395,7 +395,7 @@ namespace UnityEngine.Networking
             m_PrevPosition = m_Target.localPosition;
             m_PrevRotation = m_Target.localRotation;
 
-            ClientScene.readyConnection.SendByChannel((short)MsgType.LocalChildTransform, message, GetNetworkChannel());
+            ClientScene.readyConnection.Send((short)MsgType.LocalChildTransform, message);
         }
 
         static internal void HandleChildTransform(NetworkMessage netMsg)
@@ -447,11 +447,6 @@ namespace UnityEngine.Networking
                 foundSync.m_Target.localPosition = foundSync.m_TargetSyncPosition;
                 foundSync.m_Target.localRotation = foundSync.m_TargetSyncRotation3D;
             }
-        }
-
-        public override int GetNetworkChannel()
-        {
-            return Channels.DefaultUnreliable;
         }
 
         public override float GetNetworkSendInterval()

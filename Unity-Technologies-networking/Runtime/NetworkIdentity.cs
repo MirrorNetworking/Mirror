@@ -433,7 +433,7 @@ namespace UnityEngine.Networking
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > NetworkServer.maxPacketSize)
+            if (bytes.Length > Transport.MaxPacketSize)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp); }
             }
@@ -443,9 +443,9 @@ namespace UnityEngine.Networking
             return result;
         }
 
-        // serialize all components (or only dirty ones for channelId if not initial state)
+        // serialize all components (or only dirty ones if not initial state)
         // -> returns TRUE if any date other than dirtyMask was written!
-        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState, int channelId)
+        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState)
         {
             if (components.Length > 64)
             {
@@ -458,17 +458,17 @@ namespace UnityEngine.Networking
             NetworkWriter payload = new NetworkWriter();
             for (int i = 0; i < components.Length; ++i)
             {
-                // is this component dirty on this channel?
-                // -> always serialize if initialState so all components with all channels are included in spawn packet
+                // is this component dirty?
+                // -> always serialize if initialState so all components are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
-                if (initialState || (comp.IsDirty() && comp.GetNetworkChannel() == channelId))
+                if (initialState || comp.IsDirty())
                 {
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
 
                     // serialize the data
-                    if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState + " channelId=" + channelId); }
+                    if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
                     OnSerializeSafely(comp, payload, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
@@ -494,7 +494,7 @@ namespace UnityEngine.Networking
         }
 
         // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState, int channelId) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState, channelId); }
+        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -721,20 +721,16 @@ namespace UnityEngine.Networking
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            // go through each channel
-            for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
+            // serialize all the dirty components and send (if any were dirty)
+            NetworkWriter writer = new NetworkWriter();
+            if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
             {
-                // serialize all the dirty components and send (if any were dirty)
-                NetworkWriter writer = new NetworkWriter();
-                if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
-                {
-                    // construct message and send
-                    UpdateVarsMessage message = new UpdateVarsMessage();
-                    message.netId = netId;
-                    message.payload = writer.ToArray();
+                // construct message and send
+                UpdateVarsMessage message = new UpdateVarsMessage();
+                message.netId = netId;
+                message.payload = writer.ToArray();
 
-                    NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.UpdateVars, message, channelId);
-                }
+                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
             }
         }
 

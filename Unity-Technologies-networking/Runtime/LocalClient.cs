@@ -10,7 +10,6 @@ namespace UnityEngine.Networking
         {
             internal ushort msgType;
             internal byte[] content;
-            internal int channelId;
         }
 
         List<InternalMsg> m_InternalMsgs = new List<InternalMsg>();
@@ -68,12 +67,11 @@ namespace UnityEngine.Networking
             ClientScene.InternalAddPlayer(uv, localPlayer.playerControllerId);
         }
 
-        private void PostInternalMessage(short msgType, byte[] content, int channelId)
+        private void PostInternalMessage(short msgType, byte[] content)
         {
             InternalMsg msg = new InternalMsg();
             msg.msgType = (ushort)msgType;
             msg.content = content;
-            msg.channelId = channelId;
             m_InternalMsgs.Add(msg);
         }
 
@@ -81,7 +79,7 @@ namespace UnityEngine.Networking
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> NetworkTransport has empty [] and not null array for those messages too
-            PostInternalMessage(msgType, new byte[0], 0);
+            PostInternalMessage(msgType, new byte[0]);
         }
 
         private void ProcessInternalMessages()
@@ -103,7 +101,6 @@ namespace UnityEngine.Networking
                 NetworkMessage internalMessage = new NetworkMessage();
                 internalMessage.msgType = (short)msg.msgType;
                 internalMessage.reader = new NetworkReader(msg.content);
-                internalMessage.channelId = msg.channelId;
                 internalMessage.conn = connection;
 
                 m_Connection.InvokeHandler(internalMessage);
@@ -120,14 +117,14 @@ namespace UnityEngine.Networking
         }
 
         // called by the server, to bypass network
-        internal void InvokeBytesOnClient(byte[] buffer, int channelId)
+        internal void InvokeBytesOnClient(byte[] buffer)
         {
             // unpack message and post to internal list for processing
             ushort msgType;
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                PostInternalMessage((short)msgType, content, channelId);
+                PostInternalMessage((short)msgType, content);
             }
             else if (LogFilter.logError) Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }

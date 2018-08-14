@@ -7,6 +7,9 @@ namespace UnityEngine.Networking
         public static Telepathy.Client client = new Telepathy.Client();
         public static Telepathy.Server server = new Telepathy.Server();
 
+        // hlapi needs to know max packet size to show warnings
+        public static int MaxPacketSize = ushort.MaxValue;
+
         static Transport()
         {
             // tell Telepathy to use Unity's Debug.Log

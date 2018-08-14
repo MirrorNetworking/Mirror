@@ -22,12 +22,8 @@ namespace UnityEngine.Networking
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
-        static HostTopology s_HostTopology;
         static bool s_UseWebSockets;
         static bool s_Initialized = false;
-
-        // this is cached here for easy access when checking the size of state update packets in NetworkIdentity
-        static internal ushort maxPacketSize;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
@@ -39,7 +35,6 @@ namespace UnityEngine.Networking
 
         public static List<NetworkConnection> connections { get { return s_Connections; } }
         public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
-        public static HostTopology hostTopology { get { return s_HostTopology; }}
 
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
@@ -47,25 +42,12 @@ namespace UnityEngine.Networking
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
-        public static int numChannels { get { return s_HostTopology.DefaultConfig.ChannelCount; } }
 
         static Type s_NetworkConnectionClass = typeof(NetworkConnection);
         public static Type networkConnectionClass { get { return s_NetworkConnectionClass; } }
         static public void SetNetworkConnectionClass<T>() where T : NetworkConnection
         {
             s_NetworkConnectionClass = typeof(T);
-        }
-
-        static public bool Configure(ConnectionConfig config, int maxConnections)
-        {
-            HostTopology top = new HostTopology(config, maxConnections);
-            return Configure(top);
-        }
-
-        static public bool Configure(HostTopology topology)
-        {
-            s_HostTopology = topology;
-            return true;
         }
 
         public static void Reset()
@@ -104,14 +86,6 @@ namespace UnityEngine.Networking
             s_Initialized = true;
             if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
 
-            if (s_HostTopology == null)
-            {
-                var config = new ConnectionConfig();
-                config.AddChannel(QosType.ReliableSequenced);
-                config.AddChannel(QosType.Unreliable);
-                s_HostTopology = new HostTopology(config, 8);
-            }
-
             if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
         }
 
@@ -125,9 +99,6 @@ namespace UnityEngine.Networking
             RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
             RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
             RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
-
-            // also setup max packet size.
-            maxPacketSize = hostTopology.DefaultConfig.PacketSize;
         }
 
         static public bool Listen(int serverPort)
@@ -171,7 +142,6 @@ namespace UnityEngine.Networking
                 if (LogFilter.logDebug) { Debug.Log("Server listen: " + ipAddress + ":" + s_ServerPort); }
             }
 
-            maxPacketSize = hostTopology.DefaultConfig.PacketSize;
             s_Active = true;
             RegisterMessageHandlers();
             return true;
@@ -279,25 +249,23 @@ namespace UnityEngine.Networking
             return false;
         }
 
-        static public bool SendByChannelToAll(short msgType, MessageBase msg, int channelId)
+        static public bool SendToAll(short msgType, MessageBase msg)
         {
-            if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToAll id:" + msgType); }
+            if (LogFilter.logDev) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             bool result = true;
             for (int i = 0; i < connections.Count; i++)
             {
                 NetworkConnection conn = connections[i];
                 if (conn != null)
-                    result &= conn.SendByChannel(msgType, msg, channelId);
+                    result &= conn.Send(msgType, msg);
             }
             return result;
         }
-        static public bool SendToAll(short msgType, MessageBase msg) { return SendByChannelToAll(msgType, msg, Channels.DefaultReliable); }
-        static public bool SendUnreliableToAll(short msgType, MessageBase msg) { return SendByChannelToAll(msgType, msg, Channels.DefaultUnreliable); }
 
-        static public bool SendByChannelToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId)
+        static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
         {
-            if (LogFilter.logDev) { Debug.Log("Server.SendByChannelToReady msgType:" + msgType); }
+            if (LogFilter.logDev) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
             if (contextObj == null)
             {
@@ -307,7 +275,7 @@ namespace UnityEngine.Networking
                     NetworkConnection conn = connections[i];
                     if (conn != null && conn.isReady)
                     {
-                        conn.SendByChannel(msgType, msg, channelId);
+                        conn.Send(msgType, msg);
                     }
                 }
                 return true;
@@ -322,15 +290,13 @@ namespace UnityEngine.Networking
                     NetworkConnection conn = uv.observers[i];
                     if (conn.isReady)
                     {
-                        result &= conn.SendByChannel(msgType, msg, channelId);
+                        result &= conn.Send(msgType, msg);
                     }
                 }
                 return result;
             }
             return false;
         }
-        static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg) { return SendByChannelToReady(contextObj, msgType, msg, Channels.DefaultReliable); }
-        static public bool SendUnreliableToReady(GameObject contextObj, short msgType, MessageBase msg) { return SendByChannelToReady(contextObj, msgType, msg, Channels.DefaultUnreliable); }
 
         static public void DisconnectAll()
         {
@@ -414,7 +380,7 @@ namespace UnityEngine.Networking
                         break;
                     case Telepathy.EventType.Data:
                         //Debug.Log(message.connectionId + " Data: " + BitConverter.ToString(message.data));
-                        HandleData((int)message.connectionId, message.data, 0, 0);
+                        HandleData((int)message.connectionId, message.data, 0);
                         break;
                     case Telepathy.EventType.Disconnected:
                         Console.WriteLine(message.connectionId + " Disconnected");
@@ -439,7 +405,7 @@ namespace UnityEngine.Networking
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
             conn.SetHandlers(s_MessageHandlers);
-            conn.Initialize("TODO_ADDRESS_FROM_TCP", s_ServerHostId, connectionId, s_HostTopology);
+            conn.Initialize("TODO_ADDRESS_FROM_TCP", s_ServerHostId, connectionId);
             conn.lastError = (NetworkError)0;
 
             // add connection at correct index
@@ -509,7 +475,7 @@ namespace UnityEngine.Networking
             return s_Connections[connectionId];
         }
 
-        static void HandleData(int connectionId, byte[] data, int channelId, byte error)
+        static void HandleData(int connectionId, byte[] data, byte error)
         {
             var conn = FindConnection(connectionId);
             if (conn == null)
@@ -525,12 +491,12 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            OnData(conn, data, channelId);
+            OnData(conn, data);
         }
 
-        static void OnData(NetworkConnection conn, byte[] data, int channelId)
+        static void OnData(NetworkConnection conn, byte[] data)
         {
-            conn.TransportReceive(data, channelId);
+            conn.TransportReceive(data);
         }
 
         static void GenerateConnectError(byte error)
@@ -566,7 +532,7 @@ namespace UnityEngine.Networking
 
                 // pass a reader (attached to local buffer) to handler
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler((short)MsgType.Error, reader, 0);
+                conn.InvokeHandler((short)MsgType.Error, reader);
             }
         }
 
@@ -1067,7 +1033,7 @@ namespace UnityEngine.Networking
 
                 // serialize all components with initialState = true
                 NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
+                uv.OnSerializeAllSafely(writer, true);
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -1091,7 +1057,7 @@ namespace UnityEngine.Networking
 
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
+                uv.OnSerializeAllSafely(writer, true);
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -1321,7 +1287,7 @@ namespace UnityEngine.Networking
             UnSpawnObject(obj);
         }
 
-        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer, int channelId)
+        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
             ushort msgType;
             byte[] content;
@@ -1330,7 +1296,7 @@ namespace UnityEngine.Networking
                 if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
                 {
                     // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content), channelId);
+                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content));
                     return true;
                 }
             }

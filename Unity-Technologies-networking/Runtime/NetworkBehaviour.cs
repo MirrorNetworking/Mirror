@@ -53,7 +53,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
+        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, string cmdName)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -74,7 +74,7 @@ namespace UnityEngine.Networking
             message.cmdHash = cmdHash;
             message.payload = writer.ToArray();
 
-            ClientScene.readyConnection.SendByChannel((short)MsgType.Command, message, channelId);
+            ClientScene.readyConnection.Send((short)MsgType.Command, message);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -86,7 +86,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -101,11 +101,11 @@ namespace UnityEngine.Networking
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
-            NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.Rpc, message, channelId);
+            NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -120,7 +120,7 @@ namespace UnityEngine.Networking
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
-            conn.SendByChannel((short)MsgType.Rpc, message, channelId);
+            conn.Send((short)MsgType.Rpc, message);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -132,7 +132,7 @@ namespace UnityEngine.Networking
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
+        protected void SendEventInternal(int eventHash, NetworkWriter writer, string eventName)
         {
             if (!NetworkServer.active)
             {
@@ -146,7 +146,7 @@ namespace UnityEngine.Networking
             message.eventHash = eventHash;
             message.payload = writer.ToArray();
 
-            NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
+            NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -585,11 +585,6 @@ namespace UnityEngine.Networking
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {
             return true;
-        }
-
-        public virtual int GetNetworkChannel()
-        {
-            return Channels.DefaultReliable;
         }
 
         public virtual float GetNetworkSendInterval()

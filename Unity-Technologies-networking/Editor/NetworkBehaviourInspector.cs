@@ -19,7 +19,6 @@ namespace UnityEditor
         bool[] m_ShowSyncLists;
 
         GUIContent m_SyncVarIndicatorContent;
-        protected GUIContent m_NetworkChannelLabel;
         protected GUIContent m_NetworkSendIntervalLabel;
 
         internal virtual bool hideScriptField
@@ -33,7 +32,6 @@ namespace UnityEditor
             m_ScriptClass = script.GetClass();
 
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
-            m_NetworkChannelLabel = new GUIContent("Network Channel", "QoS channel used for updates. Use the [NetworkSettings] class attribute to change this.");
             m_NetworkSendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds. Use the [NetworkSettings] class attribute to change this, or implement GetNetworkSendInterval");
 
             foreach (var field in m_ScriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
@@ -166,7 +164,6 @@ namespace UnityEditor
                 var beh = target as NetworkBehaviour;
                 if (beh != null)
                 {
-                    EditorGUILayout.LabelField(m_NetworkChannelLabel, new GUIContent(beh.GetNetworkChannel().ToString()));
                     EditorGUILayout.LabelField(m_NetworkSendIntervalLabel, new GUIContent(beh.GetNetworkSendInterval().ToString()));
                 }
             }

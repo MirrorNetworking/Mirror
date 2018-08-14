@@ -263,7 +263,7 @@ namespace UnityEngine.Networking
 
             message.payload = writer.ToArray();
 
-            NetworkServer.SendByChannelToReady(uv.gameObject, (short)MsgType.SyncList, message, m_Behaviour.GetNetworkChannel());
+            NetworkServer.SendToReady(uv.gameObject, (short)MsgType.SyncList, message);
 
             // ensure it is invoked on host
             if (m_Behaviour.isServer && m_Behaviour.isClient && m_Callback != null)

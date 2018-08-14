@@ -27,7 +27,6 @@ namespace Unity.UNetWeaver
         List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
 
         const int k_SyncVarLimit = 64; // ulong = 64 bytes
-        int m_QosChannel;
 
         TypeDefinition m_td;
         int m_NetIdFieldCounter;
@@ -527,7 +526,7 @@ namespace Unity.UNetWeaver
 
             if (m_SyncVars.Count == 0)
             {
-               
+
                 // generate: return dirtyLocal
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -578,7 +577,7 @@ namespace Unity.UNetWeaver
             // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); 
+            int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName);
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
@@ -594,7 +593,7 @@ namespace Unity.UNetWeaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-               
+
                 MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
@@ -627,27 +626,6 @@ namespace Unity.UNetWeaver
             serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             m_td.Methods.Add(serialize);
-        }
-
-
-        static int GetChannelId(FieldDefinition field)
-        {
-            int channel = 0;
-            foreach (var ca in field.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
-                {
-                    foreach (CustomAttributeNamedArgument customField in ca.Fields)
-                    {
-                        if (customField.Name == "channel")
-                        {
-                            channel = (int)customField.Argument.Value;
-                            break;
-                        }
-                    }
-                }
-            }
-            return channel;
         }
 
         // returns false for error, not for no-hook-exists
@@ -694,20 +672,6 @@ namespace Unity.UNetWeaver
             return true;
         }
 
-        void GenerateNetworkChannelSetting(int channel)
-        {
-            MethodDefinition meth = new MethodDefinition("GetNetworkChannel", MethodAttributes.Public |
-                    MethodAttributes.Virtual |
-                    MethodAttributes.HideBySig,
-                    Weaver.int32Type);
-
-            ILProcessor worker = meth.Body.GetILProcessor();
-
-            worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
-            worker.Append(worker.Create(OpCodes.Ret));
-            m_td.Methods.Add(meth);
-        }
-
         void GenerateNetworkIntervalSetting(float interval)
         {
             MethodDefinition meth = new MethodDefinition("GetNetworkSendInterval", MethodAttributes.Public |
@@ -732,22 +696,6 @@ namespace Unity.UNetWeaver
                     // generate virtual functions
                     foreach (var field in ca.Fields)
                     {
-                        if (field.Name == "channel")
-                        {
-                            // 0 is Channels.DefaultChannel
-                            if ((int)field.Argument.Value == 0)
-                                continue;
-
-                            if (HasMethod("GetNetworkChannel"))
-                            {
-                                Log.Error(
-                                    "GetNetworkChannel, is already implemented, please make sure you either use NetworkSettings or GetNetworkChannel");
-                                Weaver.fail = true;
-                                return;
-                            }
-                            m_QosChannel = (int)field.Argument.Value;
-                            GenerateNetworkChannelSetting(m_QosChannel);
-                        }
                         if (field.Name == "sendInterval")
                         {
                             const float stdValue = 0.1f;
@@ -1102,7 +1050,7 @@ namespace Unity.UNetWeaver
                 NetworkWriter networkWriter = new NetworkWriter();
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, channelId, cmdName);
+                base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, cmdName);
             }
         */
         MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
@@ -1131,7 +1079,6 @@ namespace Unity.UNetWeaver
             WriteClientActiveCheck(cmdWorker, md.Name, label, "Command function");
 
             // local client check
-
             Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.UBehaviourIsServer));
@@ -1160,16 +1107,6 @@ namespace Unity.UNetWeaver
             if (!WriteArguments(cmdWorker, md, "Command", false))
                 return null;
 
-            // find channel for Command
-            int channel = 0;
-            foreach (var field in ca.Fields)
-            {
-                if (field.Name == "channel")
-                {
-                    channel = (int)field.Argument.Value;
-                }
-            }
-
             var cmdName = md.Name;
             int index = cmdName.IndexOf(k_CmdPrefix);
             if (index > -1)
@@ -1181,7 +1118,6 @@ namespace Unity.UNetWeaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant)); // cmdHash
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
@@ -1259,7 +1195,7 @@ namespace Unity.UNetWeaver
             } else {
                 NetworkWriter writer = new NetworkWriter ();
                 writer.WritePackedUInt32 ((uint)param);
-                base.SendTargetRPCInternal (conn, Player.kTargetRpcTargetTest, val, 0, "TargetTest");
+                base.SendTargetRPCInternal (conn, Player.kTargetRpcTargetTest, val, "TargetTest");
             }
         }
         */
@@ -1306,16 +1242,6 @@ namespace Unity.UNetWeaver
             if (!WriteArguments(rpcWorker, md, "TargetRPC", true))
                 return null;
 
-            // find channel for TargetRpc
-            int channel = 0;
-            foreach (var field in ca.Fields)
-            {
-                if (field.Name == "channel")
-                {
-                    channel = (int)field.Argument.Value;
-                }
-            }
-
             var rpcName = md.Name;
             int index = rpcName.IndexOf(k_TargetRpcPrefix);
             if (index > -1)
@@ -1328,7 +1254,6 @@ namespace Unity.UNetWeaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 
@@ -1380,16 +1305,6 @@ namespace Unity.UNetWeaver
             if (!WriteArguments(rpcWorker, md, "RPC", false))
                 return null;
 
-            // find channel for Rpc
-            int channel = 0;
-            foreach (var field in ca.Fields)
-            {
-                if (field.Name == "channel")
-                {
-                    channel = (int)field.Argument.Value;
-                }
-            }
-
             var rpcName = md.Name;
             int index = rpcName.IndexOf(k_RpcPrefix);
             if (index > -1)
@@ -1401,7 +1316,6 @@ namespace Unity.UNetWeaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
@@ -1807,21 +1721,10 @@ namespace Unity.UNetWeaver
             if (!WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
                 return null;
 
-            // find channel for ClientRpc
-            int channel = 0;
-            foreach (var field in ca.Fields)
-            {
-                if (field.Name == "channel")
-                {
-                    channel = (int)field.Argument.Value;
-                }
-            }
-
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
             evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant)); // eventHash
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, channel)); // QoS transport channel (reliable/unreliable)
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 

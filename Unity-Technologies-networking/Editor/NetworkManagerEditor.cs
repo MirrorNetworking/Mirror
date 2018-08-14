@@ -28,12 +28,7 @@ namespace UnityEditor
         SerializedProperty m_PlayerSpawnMethodProperty;
         SerializedProperty m_SpawnListProperty;
 
-        SerializedProperty m_CustomConfigProperty;
-
         SerializedProperty m_UseWebSocketsProperty;
-
-        SerializedProperty m_ChannelListProperty;
-        ReorderableList m_ChannelList;
 
         GUIContent m_ShowNetworkLabel;
         GUIContent m_ShowSpawnLabel;
@@ -42,17 +37,6 @@ namespace UnityEditor
         GUIContent m_OnlineSceneLabel;
         protected GUIContent m_DontDestroyOnLoadLabel;
         protected GUIContent m_RunInBackgroundLabel;
-
-        GUIContent m_MaxConnectionsLabel;
-        GUIContent m_MinUpdateTimeoutLabel;
-        GUIContent m_ConnectTimeoutLabel;
-        GUIContent m_DisconnectTimeoutLabel;
-        GUIContent m_PingTimeoutLabel;
-
-        GUIContent m_ThreadAwakeTimeoutLabel;
-        GUIContent m_ReactorModelLabel;
-        GUIContent m_ReactorMaximumReceivedMessagesLabel;
-        GUIContent m_ReactorMaximumSentMessagesLabel;
 
         GUIContent m_UseWebSocketsLabel;
 
@@ -88,17 +72,6 @@ namespace UnityEditor
             m_OnlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
             m_DontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             m_RunInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
-            
-            m_MaxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
-            m_MinUpdateTimeoutLabel = new GUIContent("Min Update Timeout", "Minimum time network thread waits for events");
-            m_ConnectTimeoutLabel = new GUIContent("Connect Timeout", "Time to wait for timeout on connecting");
-            m_DisconnectTimeoutLabel = new GUIContent("Disconnect Timeout", "Time to wait for detecting disconnect");
-            m_PingTimeoutLabel = new GUIContent("Ping Timeout", "Time to wait for ping messages");
-
-            m_ThreadAwakeTimeoutLabel = new GUIContent("Thread Awake Timeout", "The minimum time period when system will check if there are any messages for send (or receive).");
-            m_ReactorModelLabel = new GUIContent("Reactor Model", "Defines reactor model for the network library");
-            m_ReactorMaximumReceivedMessagesLabel = new GUIContent("Reactor Max Recv Messages", "Defines maximum amount of messages in the receive queue");
-            m_ReactorMaximumSentMessagesLabel = new GUIContent("Reactor Max Sent Messages", "Defines maximum message count in sent queue");
 
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
             m_NetworkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
@@ -137,19 +110,6 @@ namespace UnityEditor
             m_SpawnList.onAddCallback = AddButton;
             m_SpawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
 
-            // network configuration
-            m_CustomConfigProperty = serializedObject.FindProperty("m_CustomConfig");
-            m_ChannelListProperty = serializedObject.FindProperty("m_Channels");
-            m_ChannelList = new ReorderableList(serializedObject, m_ChannelListProperty);
-            m_ChannelList.drawHeaderCallback = ChannelDrawHeader;
-            m_ChannelList.drawElementCallback = ChannelDrawChild;
-            m_ChannelList.onReorderCallback = ChannelChanged;
-            m_ChannelList.onAddDropdownCallback = ChannelAddButton;
-            m_ChannelList.onRemoveCallback = ChannelRemoveButton;
-            m_ChannelList.onChangedCallback = ChannelChanged;
-            m_ChannelList.onReorderCallback = ChannelChanged;
-            m_ChannelList.onAddCallback = ChannelChanged;
-
             // web sockets
             m_UseWebSocketsProperty = serializedObject.FindProperty("m_UseWebSockets");
         }
@@ -160,71 +120,6 @@ namespace UnityEditor
             EditorGUILayout.PropertyField(prop, content);
             GUILayout.Label(suffix, EditorStyles.miniLabel, GUILayout.Width(64));
             EditorGUILayout.EndHorizontal();
-        }
-
-        protected void ShowConfigInfo()
-        {
-            bool oldCustomConfig = m_NetworkManager.customConfig;
-            EditorGUILayout.PropertyField(m_CustomConfigProperty, m_AdvancedConfigurationLabel);
-
-            // Populate default channels first time a custom config is created.
-            if (m_CustomConfigProperty.boolValue)
-            {
-                if (!oldCustomConfig)
-                {
-                    if (m_NetworkManager.channels.Count == 0)
-                    {
-                        m_NetworkManager.channels.Add(QosType.ReliableSequenced);
-                        m_NetworkManager.channels.Add(QosType.Unreliable);
-                        m_NetworkManager.customConfig = true;
-                        m_CustomConfigProperty.serializedObject.Update();
-                        m_ChannelList.serializedProperty.serializedObject.Update();
-                    }
-                }
-            }
-
-            if (m_NetworkManager.customConfig)
-            {
-                EditorGUI.indentLevel += 1;
-                var maxConn = serializedObject.FindProperty("m_MaxConnections");
-                ShowPropertySuffix(m_MaxConnectionsLabel, maxConn, "connections");
-
-                m_ChannelList.DoLayoutList();
-
-                maxConn.isExpanded = EditorGUILayout.Foldout(maxConn.isExpanded, "Timeouts");
-                if (maxConn.isExpanded)
-                {
-                    EditorGUI.indentLevel += 1;
-                    var minUpdateTimeout = serializedObject.FindProperty("m_ConnectionConfig.m_MinUpdateTimeout");
-                    var connectTimeout = serializedObject.FindProperty("m_ConnectionConfig.m_ConnectTimeout");
-                    var disconnectTimeout = serializedObject.FindProperty("m_ConnectionConfig.m_DisconnectTimeout");
-                    var pingTimeout = serializedObject.FindProperty("m_ConnectionConfig.m_PingTimeout");
-
-                    ShowPropertySuffix(m_MinUpdateTimeoutLabel, minUpdateTimeout, "millisec");
-                    ShowPropertySuffix(m_ConnectTimeoutLabel, connectTimeout, "millisec");
-                    ShowPropertySuffix(m_DisconnectTimeoutLabel, disconnectTimeout, "millisec");
-                    ShowPropertySuffix(m_PingTimeoutLabel, pingTimeout, "millisec");
-                    EditorGUI.indentLevel -= 1;
-                }
-
-                var threadAwakeTimeout = serializedObject.FindProperty("m_GlobalConfig.m_ThreadAwakeTimeout");
-                threadAwakeTimeout.isExpanded = EditorGUILayout.Foldout(threadAwakeTimeout.isExpanded, "Global Config");
-                if (threadAwakeTimeout.isExpanded)
-                {
-                    EditorGUI.indentLevel += 1;
-                    var reactorModel = serializedObject.FindProperty("m_GlobalConfig.m_ReactorModel");
-                    var reactorMaximumReceivedMessages = serializedObject.FindProperty("m_GlobalConfig.m_ReactorMaximumReceivedMessages");
-                    var reactorMaximumSentMessages = serializedObject.FindProperty("m_GlobalConfig.m_ReactorMaximumSentMessages");
-
-                    ShowPropertySuffix(m_ThreadAwakeTimeoutLabel, threadAwakeTimeout, "millisec");
-                    EditorGUILayout.PropertyField(reactorModel, m_ReactorModelLabel);
-                    ShowPropertySuffix(m_ReactorMaximumReceivedMessagesLabel, reactorMaximumReceivedMessages, "messages");
-                    ShowPropertySuffix(m_ReactorMaximumSentMessagesLabel, reactorMaximumSentMessages, "messages");
-                    EditorGUI.indentLevel -= 1;
-                }
-
-                EditorGUI.indentLevel -= 1;
-            }
         }
 
         protected void ShowSpawnInfo()
@@ -415,7 +310,6 @@ namespace UnityEditor
             ShowScenes();
             ShowNetworkInfo();
             ShowSpawnInfo();
-            ShowConfigInfo();
             serializedObject.ApplyModifiedProperties();
 
             ShowDerivedProperties(typeof(NetworkManager), null);
@@ -487,51 +381,6 @@ namespace UnityEditor
             if (list.index >= m_SpawnListProperty.arraySize)
             {
                 list.index = m_SpawnListProperty.arraySize - 1;
-            }
-        }
-
-        // List widget functions
-
-        static void ChannelDrawHeader(Rect headerRect)
-        {
-            GUI.Label(headerRect, "Qos Channels:");
-        }
-
-        internal void ChannelDrawChild(Rect r, int index, bool isActive, bool isFocused)
-        {
-            QosType qos = (QosType)m_ChannelListProperty.GetArrayElementAtIndex(index).enumValueIndex;
-            QosType newValue = (QosType)EditorGUI.EnumPopup(r, "Channel #" + index, qos);
-            if (newValue != qos)
-            {
-                var obj = m_ChannelListProperty.GetArrayElementAtIndex(index);
-                obj.enumValueIndex = (int)newValue;
-            }
-        }
-
-        internal void ChannelChanged(ReorderableList list)
-        {
-            EditorUtility.SetDirty(target);
-        }
-
-        internal void ChannelAddButton(Rect rect, ReorderableList list)
-        {
-            m_ChannelListProperty.arraySize += 1;
-            var obj = m_ChannelListProperty.GetArrayElementAtIndex(m_ChannelListProperty.arraySize - 1);
-            obj.enumValueIndex = (int)QosType.ReliableSequenced;
-            list.index = m_ChannelListProperty.arraySize - 1;
-        }
-
-        internal void ChannelRemoveButton(ReorderableList list)
-        {
-            if (m_NetworkManager.channels.Count == 1)
-            {
-                if (LogFilter.logError) { Debug.LogError("Cannot remove channel. There must be at least one QoS channel."); }
-                return;
-            }
-            m_ChannelListProperty.DeleteArrayElementAtIndex(m_ChannelList.index);
-            if (list.index >= m_ChannelListProperty.arraySize - 1)
-            {
-                list.index = m_ChannelListProperty.arraySize - 1;
             }
         }
     }

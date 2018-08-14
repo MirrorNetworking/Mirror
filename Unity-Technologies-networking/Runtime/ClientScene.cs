@@ -580,7 +580,7 @@ namespace UnityEngine.Networking
         {
             UpdateVarsMessage message = netMsg.ReadMessage<UpdateVarsMessage>();
 
-            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId + " channel:" + netMsg.channelId); }
+            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId); }
 
             NetworkIdentity localObject;
             if (s_NetworkScene.GetNetworkIdentity(message.netId, out localObject))

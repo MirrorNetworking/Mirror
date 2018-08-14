@@ -37,11 +37,7 @@ namespace UnityEngine.Networking
         [SerializeField] string m_OnlineScene = "";
         [SerializeField] List<GameObject> m_SpawnPrefabs = new List<GameObject>();
 
-        [SerializeField] bool m_CustomConfig;
         [SerializeField] int m_MaxConnections = 4;
-        [SerializeField] ConnectionConfig m_ConnectionConfig;
-        [SerializeField] GlobalConfig m_GlobalConfig;
-        [SerializeField] List<QosType> m_Channels = new List<QosType>();
 
         [SerializeField] bool m_UseWebSockets;
 
@@ -76,11 +72,7 @@ namespace UnityEngine.Networking
 
         public List<Transform> startPositions { get { return s_StartPositions; }}
 
-        public bool customConfig             { get { return m_CustomConfig; } set { m_CustomConfig = value; } }
-        public ConnectionConfig connectionConfig { get { if (m_ConnectionConfig == null) { m_ConnectionConfig = new ConnectionConfig(); } return m_ConnectionConfig; } }
-        public GlobalConfig globalConfig     { get { if (m_GlobalConfig == null) { m_GlobalConfig = new GlobalConfig(); } return m_GlobalConfig; } }
         public int maxConnections            { get { return m_MaxConnections; } set { m_MaxConnections = value; } }
-        public List<QosType> channels        { get { return m_Channels; } }
 
         public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
 
@@ -201,35 +193,6 @@ namespace UnityEngine.Networking
                 if (LogFilter.logError) { Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity."); }
                 m_PlayerPrefab = null;
             }
-
-            if (m_ConnectionConfig != null && m_ConnectionConfig.MinUpdateTimeout <= 0)
-            {
-                if (LogFilter.logError) { Debug.LogError("NetworkManager MinUpdateTimeout cannot be zero or less. The value will be reset to 1 millisecond"); }
-                m_ConnectionConfig.MinUpdateTimeout = 1;
-            }
-
-            if (m_GlobalConfig != null)
-            {
-                if (m_GlobalConfig.ThreadAwakeTimeout <= 0)
-                {
-                    if (LogFilter.logError) { Debug.LogError("NetworkManager ThreadAwakeTimeout cannot be zero or less. The value will be reset to 1 millisecond"); }
-                    m_GlobalConfig.ThreadAwakeTimeout = 1;
-                }
-            }
-
-            // vis2k
-            // Channels.DefaultReliable = 0 and Unreliable = 1, so we have to
-            // force some kind of reliable to channel 0 and unreliable to 1.
-            // Otherwise the HLAPI code will assume a wrong channel for a lot of
-            // built-in functions.
-            //
-            // Changing them would result in chaos. Using anything != Fragmented
-            // would fail to send bigger messages too.
-            if (channels.Count < 1 || !Channels.IsReliableQoS(channels[0]))
-                Debug.LogWarning("NetworkManager: First channel needs to be Reliable because in the code Channels.DefaultReliable is 0.");
-
-            if (channels.Count < 2 || !Channels.IsUnreliableQoS(channels[1]))
-                Debug.LogWarning("NetworkManager: Second channel needs to be Unreliable because in the code Channels.DefaultReliable is 1.");
         }
 
         internal void RegisterServerMessages()
@@ -244,10 +207,10 @@ namespace UnityEngine.Networking
 
         public bool StartServer()
         {
-            return StartServer(null, -1);
+            return StartServer(-1);
         }
 
-        bool StartServer(ConnectionConfig config, int maxConnections)
+        bool StartServer(int maxConnections)
         {
             InitializeSingleton();
 
@@ -257,27 +220,6 @@ namespace UnityEngine.Networking
                 Application.runInBackground = true;
 
             NetworkServer.useWebSockets = m_UseWebSockets;
-
-            if (m_GlobalConfig != null)
-            {
-                //NetworkTransport.Init(m_GlobalConfig);
-            }
-
-            // passing a config overrides setting the connectionConfig property
-            if (m_CustomConfig && m_ConnectionConfig != null && config == null)
-            {
-                m_ConnectionConfig.Channels.Clear();
-                for (int channelId = 0; channelId < m_Channels.Count; channelId++)
-                {
-                    m_ConnectionConfig.AddChannel(m_Channels[channelId]);
-                }
-                NetworkServer.Configure(m_ConnectionConfig, m_MaxConnections);
-            }
-
-            if (config != null)
-            {
-                NetworkServer.Configure(config, maxConnections);
-            }
 
             if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
             {
@@ -365,7 +307,7 @@ namespace UnityEngine.Networking
             s_Address = m_NetworkAddress;
         }
 
-        public NetworkClient StartClient(ConnectionConfig config, int hostPort)
+        public NetworkClient StartClient(int hostPort)
         {
             InitializeSingleton();
 
@@ -374,35 +316,8 @@ namespace UnityEngine.Networking
 
             isNetworkActive = true;
 
-            if (m_GlobalConfig != null)
-            {
-                //NetworkTransport.Init(m_GlobalConfig);
-            }
-
             client = new NetworkClient();
             client.hostPort = hostPort;
-
-            if (config != null)
-            {
-                if ((config.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
-                    throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
-
-                client.Configure(config, 1);
-            }
-            else
-            {
-                if (m_CustomConfig && m_ConnectionConfig != null)
-                {
-                    m_ConnectionConfig.Channels.Clear();
-                    for (int i = 0; i < m_Channels.Count; i++)
-                    {
-                        m_ConnectionConfig.AddChannel(m_Channels[i]);
-                    }
-                    if ((m_ConnectionConfig.UsePlatformSpecificProtocols) && (Application.platform != RuntimePlatform.PS4) && (Application.platform != RuntimePlatform.PSP2))
-                        throw new ArgumentOutOfRangeException("Platform specific protocols are not supported on this platform");
-                    client.Configure(m_ConnectionConfig, m_MaxConnections);
-                }
-            }
 
             RegisterClientMessages(client);
 
@@ -422,18 +337,13 @@ namespace UnityEngine.Networking
 
         public NetworkClient StartClient()
         {
-            return StartClient(null);
+            return StartClient(0);
         }
 
-        public NetworkClient StartClient(ConnectionConfig config)
-        {
-            return StartClient(config, 0);
-        }
-
-        public virtual NetworkClient StartHost(ConnectionConfig config, int maxConnections)
+        public virtual NetworkClient StartHost(int maxConnections)
         {
             OnStartHost();
-            if (StartServer(config, maxConnections))
+            if (StartServer(maxConnections))
             {
                 var client = ConnectLocalClient();
                 OnServerConnect(client.connection);

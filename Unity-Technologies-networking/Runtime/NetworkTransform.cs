@@ -1233,7 +1233,7 @@ namespace UnityEngine.Networking
             message.netId = netId;
             message.payload = writer.ToArray();
 
-            ClientScene.readyConnection.SendByChannel((short)MsgType.LocalPlayerTransform, message, GetNetworkChannel());
+            ClientScene.readyConnection.Send((short)MsgType.LocalPlayerTransform, message);
         }
 
         static public void HandleTransform(NetworkMessage netMsg)
@@ -1555,11 +1555,6 @@ namespace UnityEngine.Networking
         static public float UnserializeSpin2D(NetworkReader reader, CompressionSyncMode compression)
         {
             return ReadAngle(reader, compression);
-        }
-
-        public override int GetNetworkChannel()
-        {
-            return Channels.DefaultUnreliable;
         }
 
         public override float GetNetworkSendInterval()
