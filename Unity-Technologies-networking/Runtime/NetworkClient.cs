@@ -25,8 +25,6 @@ namespace UnityEngine.Networking
         int m_ClientId = -1;
         int m_ClientConnectionId = -1;
 
-        EndPoint m_RemoteEndPoint;
-
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 

@@ -52,7 +52,6 @@ namespace UnityEngine.Networking
         [SerializeField] bool m_AllowFragmentation;
         #pragma warning restore 0169
 
-        private EndPoint m_EndPoint;
         bool m_ClientLoadedScene;
 
         // properties
