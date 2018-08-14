@@ -26,7 +26,7 @@ namespace UnityEngine.Networking
                 PostInternalMessage((short)MsgType.Disconnect);
                 m_Connected = false;
             }
-            m_AsyncConnect = ConnectState.Disconnected;
+            connectState = ConnectState.Disconnected;
             NetworkServer.RemoveLocalClient(m_Connection);
         }
 
@@ -35,7 +35,7 @@ namespace UnityEngine.Networking
             m_Connection = new ULocalConnectionToServer();
             SetHandlers(m_Connection);
             m_Connection.connectionId = NetworkServer.AddLocalClient(this);
-            m_AsyncConnect = ConnectState.Connected;
+            connectState = ConnectState.Connected;
 
             SetActive(true);
             RegisterSystemHandlers(true);

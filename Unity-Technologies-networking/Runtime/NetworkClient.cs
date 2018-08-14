@@ -11,8 +11,6 @@ namespace UnityEngine.Networking
     {
         Type m_NetworkConnectionClass = typeof(NetworkConnection);
 
-        const int k_MaxEventsPerFrame = 500;
-
         static List<NetworkClient> s_Clients = new List<NetworkClient>();
         static bool s_IsActive;
 
@@ -32,20 +30,14 @@ namespace UnityEngine.Networking
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
-        byte[] m_MsgBuffer;
-
         protected enum ConnectState
         {
             None,
-            Resolving,
-            Resolved,
             Connecting,
             Connected,
             Disconnected,
-            Failed
         }
-        protected ConnectState m_AsyncConnect = ConnectState.None;
-        string m_RequestedServerHost = "";
+        protected ConnectState connectState = ConnectState.None;
 
         internal void SetHandlers(NetworkConnection conn)
         {
@@ -56,7 +48,6 @@ namespace UnityEngine.Networking
         public int serverPort { get { return m_ServerPort; } }
         public NetworkConnection connection { get { return m_Connection; } }
 
-        internal int hostId { get { return m_ClientId; } }
         public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
         public int numChannels { get { return m_HostTopology.DefaultConfig.ChannelCount; } }
         public HostTopology hostTopology { get { return m_HostTopology; }}
@@ -75,7 +66,7 @@ namespace UnityEngine.Networking
             }
         }
 
-        public bool isConnected { get { return m_AsyncConnect == ConnectState.Connected; }}
+        public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
         public Type networkConnectionClass { get { return m_NetworkConnectionClass; } }
 
@@ -87,19 +78,17 @@ namespace UnityEngine.Networking
         public NetworkClient()
         {
             if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
-            m_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
             AddClient(this);
         }
 
         public NetworkClient(NetworkConnection conn)
         {
             if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
-            m_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
             AddClient(this);
 
             SetActive(true);
             m_Connection = conn;
-            m_AsyncConnect = ConnectState.Connected;
+            connectState = ConnectState.Connected;
             conn.SetHandlers(m_MessageHandlers);
             RegisterSystemHandlers(false);
         }
@@ -127,104 +116,22 @@ namespace UnityEngine.Networking
 
         public void Connect(string serverIp, int serverPort)
         {
-            PrepareForConnect();
+            PrepareForConnect(false);
 
             if (LogFilter.logDebug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
 
             string hostnameOrIp = serverIp;
             m_ServerPort = serverPort;
+            m_ServerIp = hostnameOrIp;
 
-            if (Application.platform == RuntimePlatform.WebGLPlayer)
-            {
-                m_ServerIp = hostnameOrIp;
-                m_AsyncConnect = ConnectState.Resolved;
-            }
-            else if (serverIp.Equals("127.0.0.1") || serverIp.Equals("localhost"))
-            {
-                m_ServerIp = "127.0.0.1";
-                m_AsyncConnect = ConnectState.Resolved;
-            }
-            else if (serverIp.IndexOf(":") != -1 && IsValidIpV6(serverIp))
-            {
-                m_ServerIp = serverIp;
-                m_AsyncConnect = ConnectState.Resolved;
-            }
-            else
-            {
-                if (LogFilter.logDebug) { Debug.Log("Async DNS START:" + hostnameOrIp); }
-                m_RequestedServerHost = hostnameOrIp;
-                m_AsyncConnect = ConnectState.Resolving;
-                Dns.BeginGetHostAddresses(hostnameOrIp, GetHostAddressesCallback, this);
-            }
-        }
+            connectState = ConnectState.Connecting;
+            Transport.client.Connect(serverIp, serverPort);
 
-        public void Connect(EndPoint secureTunnelEndPoint)
-        {
-            bool usePlatformSpecificProtocols = NetworkTransport.DoesEndPointUsePlatformProtocols(secureTunnelEndPoint);
-            PrepareForConnect(usePlatformSpecificProtocols);
-
-            if (LogFilter.logDebug) { Debug.Log("Client Connect to remoteSockAddr"); }
-
-            if (secureTunnelEndPoint == null)
-            {
-                if (LogFilter.logError) { Debug.LogError("Connect failed: null endpoint passed in"); }
-                m_AsyncConnect = ConnectState.Failed;
-                return;
-            }
-
-            // Make sure it's either IPv4 or IPv6
-            if (secureTunnelEndPoint.AddressFamily != AddressFamily.InterNetwork && secureTunnelEndPoint.AddressFamily != AddressFamily.InterNetworkV6)
-            {
-                if (LogFilter.logError) { Debug.LogError("Connect failed: Endpoint AddressFamily must be either InterNetwork or InterNetworkV6"); }
-                m_AsyncConnect = ConnectState.Failed;
-                return;
-            }
-
-            // Make sure it's an Endpoint we know what to do with
-            string endPointType = secureTunnelEndPoint.GetType().FullName;
-            if (endPointType == "System.Net.IPEndPoint")
-            {
-                IPEndPoint tmp = (IPEndPoint)secureTunnelEndPoint;
-                Connect(tmp.Address.ToString(), tmp.Port);
-                return;
-            }
-            if ((endPointType != "UnityEngine.XboxOne.XboxOneEndPoint") && (endPointType != "UnityEngine.PS4.SceEndPoint") && (endPointType != "UnityEngine.PSVita.SceEndPoint"))
-            {
-                if (LogFilter.logError) { Debug.LogError("Connect failed: invalid Endpoint (not IPEndPoint or XboxOneEndPoint or SceEndPoint)"); }
-                m_AsyncConnect = ConnectState.Failed;
-                return;
-            }
-
-            byte error = 0;
-            // regular non-relay connect
-            m_RemoteEndPoint = secureTunnelEndPoint;
-            m_AsyncConnect = ConnectState.Connecting;
-
-            try
-            {
-                m_ClientConnectionId = NetworkTransport.ConnectEndPoint(m_ClientId, m_RemoteEndPoint, 0, out error);
-            }
-            catch (Exception ex)
-            {
-                if (LogFilter.logError) { Debug.LogError("Connect failed: Exception when trying to connect to EndPoint: " + ex); }
-                m_AsyncConnect = ConnectState.Failed;
-                return;
-            }
-            if (m_ClientConnectionId == 0)
-            {
-                if (LogFilter.logError) { Debug.LogError("Connect failed: Unable to connect to EndPoint (" + error + ")"); }
-                m_AsyncConnect = ConnectState.Failed;
-                return;
-            }
-
+            // setup all the handlers
+            m_ClientConnectionId = 0;
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);
-        }
-
-        void PrepareForConnect()
-        {
-            PrepareForConnect(false);
         }
 
         void PrepareForConnect(bool usePlatformSpecificProtocols)
@@ -241,61 +148,19 @@ namespace UnityEngine.Networking
                 m_HostTopology = new HostTopology(config, 8);
             }
 
-            m_ClientId = NetworkTransport.AddHost(m_HostTopology, m_HostPort);
-        }
-
-        // this called in another thread! Cannot call Update() here.
-        internal static void GetHostAddressesCallback(IAsyncResult ar)
-        {
-            try
-            {
-                IPAddress[] ip = Dns.EndGetHostAddresses(ar);
-                NetworkClient client = (NetworkClient)ar.AsyncState;
-
-                if (ip.Length == 0)
-                {
-                    if (LogFilter.logError) { Debug.LogError("DNS lookup failed for:" + client.m_RequestedServerHost); }
-                    client.m_AsyncConnect = ConnectState.Failed;
-                    return;
-                }
-
-                client.m_ServerIp = ip[0].ToString();
-                client.m_AsyncConnect = ConnectState.Resolved;
-                if (LogFilter.logDebug) { Debug.Log("Async DNS Result:" + client.m_ServerIp + " for " + client.m_RequestedServerHost + ": " + client.m_ServerIp); }
-            }
-            catch (SocketException e)
-            {
-                NetworkClient client = (NetworkClient)ar.AsyncState;
-                if (LogFilter.logError) { Debug.LogError("DNS resolution failed: " + e.GetErrorCode()); }
-                if (LogFilter.logDebug) { Debug.Log("Exception:" + e); }
-                client.m_AsyncConnect = ConnectState.Failed;
-            }
-        }
-
-        internal void ContinueConnect()
-        {
-            byte error;
-            // regular non-relay connect
-            m_ClientConnectionId = NetworkTransport.Connect(m_ClientId, m_ServerIp, m_ServerPort, 0, out error);
-            m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
-            m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId, m_HostTopology);
+            m_ClientId = 0; // NetworkTransport.AddHost 'Returns the ID of the host that was created.'
         }
 
         public virtual void Disconnect()
         {
-            m_AsyncConnect = ConnectState.Disconnected;
+            connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(m_Connection);
             if (m_Connection != null)
             {
                 m_Connection.Disconnect();
                 m_Connection.Dispose();
                 m_Connection = null;
-                if (m_ClientId != -1)
-                {
-                    NetworkTransport.RemoveHost(m_ClientId);
-                    m_ClientId = -1;
-                }
+                m_ClientId = -1;
             }
         }
 
@@ -303,7 +168,7 @@ namespace UnityEngine.Networking
         {
             if (m_Connection != null)
             {
-                if (m_AsyncConnect != ConnectState.Connected)
+                if (connectState != ConnectState.Connected)
                 {
                     if (LogFilter.logError) { Debug.LogError("NetworkClient SendByChannel when not connected to a server"); }
                     return false;
@@ -319,11 +184,7 @@ namespace UnityEngine.Networking
         public void Shutdown()
         {
             if (LogFilter.logDebug) Debug.Log("Shutting down client " + m_ClientId);
-            if (m_ClientId != -1)
-            {
-                NetworkTransport.RemoveHost(m_ClientId);
-                m_ClientId = -1;
-            }
+            m_ClientId = -1;
             RemoveClient(this);
             if (s_Clients.Count == 0)
             {
@@ -333,126 +194,53 @@ namespace UnityEngine.Networking
 
         internal virtual void Update()
         {
+            //Debug.Log("NetworkClient.Update" + m_ClientId + " connectstate=" + connectState);
+
             if (m_ClientId == -1)
             {
                 return;
             }
 
-            switch (m_AsyncConnect)
+            // don't do anything if we aren't fully connected
+            // -> we don't check Client.Connected because then we wouldn't
+            //    process the last disconnect message.
+            if (connectState != ConnectState.Connecting && connectState != ConnectState.Connected)
             {
-                case ConnectState.None:
-                case ConnectState.Resolving:
-                case ConnectState.Disconnected:
-                    return;
-
-                case ConnectState.Failed:
-                    GenerateConnectError((int)NetworkError.DNSFailure);
-                    m_AsyncConnect = ConnectState.Disconnected;
-                    return;
-
-                case ConnectState.Resolved:
-                    m_AsyncConnect = ConnectState.Connecting;
-                    ContinueConnect();
-                    return;
-
-                case ConnectState.Connecting:
-                case ConnectState.Connected:
-                {
-                    break;
-                }
+                return;
             }
 
-            int numEvents = 0;
-            NetworkEventType networkEvent;
-            do
+            //Debug.Log("+++NetworkClient.Update calls NetworkTransport.ReceiveFromHost");
+
+            // any new message?
+            // -> calling it once per frame is okay, but really why not just
+            //    process all messages and make it empty..
+            Telepathy.Message msg;
+            while (Transport.client.GetNextMessage(out msg))
             {
-                int connectionId;
-                int channelId;
-                int receivedSize;
-                byte error;
-
-                networkEvent = NetworkTransport.ReceiveFromHost(m_ClientId, out connectionId, out channelId, m_MsgBuffer, (ushort)m_MsgBuffer.Length, out receivedSize, out error);
-                if (m_Connection != null) m_Connection.lastError = (NetworkError)error;
-
-                if (networkEvent != NetworkEventType.Nothing)
+                switch (msg.eventType)
                 {
-                    if (LogFilter.logDev) { Debug.Log("Client event: host=" + m_ClientId + " event=" + networkEvent + " error=" + error); }
-                }
-
-                switch (networkEvent)
-                {
-                    case NetworkEventType.ConnectEvent:
-
-                        if (LogFilter.logDebug) { Debug.Log("Client connected"); }
-
-                        if (error != 0)
-                        {
-                            GenerateConnectError(error);
-                            return;
-                        }
-
-                        m_AsyncConnect = ConnectState.Connected;
+                    case Telepathy.EventType.Connected:
+                        Debug.Log("NetworkClient loop: Connected");
                         m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
+                        connectState = ConnectState.Connected;
                         break;
-
-                    case NetworkEventType.DataEvent:
-                        if (error != 0)
-                        {
-                            GenerateDataError(error);
-                            return;
-                        }
-
-#if UNITY_EDITOR
-                        UnityEditor.NetworkDetailStats.IncrementStat(
-                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        (short)MsgType.LLAPIMsg, "msg", 1);
-#endif
-                        // create a buffer with exactly 'receivedSize' size for the handlers so we don't need to read
-                        // a size header (saves bandwidth)
-                        byte[] data = new byte[receivedSize];
-                        Array.Copy(m_MsgBuffer, data, receivedSize);
-
-                        m_Connection.TransportReceive(data, channelId);
+                    case Telepathy.EventType.Data:
+                        Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
+                        m_Connection.TransportReceive(msg.data, 0);
                         break;
+                    case Telepathy.EventType.Disconnected:
+                        Debug.Log("NetworkClient loop: Disconnected");
+                        connectState = ConnectState.Disconnected;
 
-                    case NetworkEventType.DisconnectEvent:
-                        if (LogFilter.logDebug) { Debug.Log("Client disconnected"); }
-
-                        m_AsyncConnect = ConnectState.Disconnected;
-
-                        if (error != 0)
-                        {
-                            if ((NetworkError)error != NetworkError.Timeout)
-                            {
-                                GenerateDisconnectError(error);
-                            }
-                        }
+                        //GenerateDisconnectError(error); TODO which one?
                         ClientScene.HandleClientDisconnect(m_Connection);
                         if (m_Connection != null)
                         {
                             m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
                         }
                         break;
-
-                    case NetworkEventType.Nothing:
-                        break;
-
-                    default:
-                        if (LogFilter.logError) { Debug.LogError("Unknown network message type received: " + networkEvent); }
-                        break;
-                }
-
-                if (++numEvents >= k_MaxEventsPerFrame)
-                {
-                    if (LogFilter.logDebug) { Debug.Log("MaxEventsPerFrame hit (" + k_MaxEventsPerFrame + ")"); }
-                    break;
-                }
-                if (m_ClientId == -1)
-                {
-                    break;
                 }
             }
-            while (networkEvent != NetworkEventType.Nothing);
         }
 
         void GenerateConnectError(byte error)
@@ -501,8 +289,10 @@ namespace UnityEngine.Networking
             if (m_ClientId == -1)
                 return 0;
 
-            byte err;
-            return NetworkTransport.GetCurrentRTT(m_ClientId, m_ClientConnectionId, out err);
+            // TODO
+            //return NetworkTransport.GetCurrentRTT(m_ClientId, m_ClientConnectionId, out err);
+            Debug.Log("NetworkClient.GetRTT calls NetworkTransport.GetCurrentRTT");
+            return 0;
         }
 
         internal void RegisterSystemHandlers(bool localClient)
@@ -559,14 +349,6 @@ namespace UnityEngine.Networking
 
         internal static void SetActive(bool state)
         {
-            // what is this check?
-            //if (state == false && s_Clients.Count != 0)
-            //  return;
-
-            if (!s_IsActive && state)
-            {
-                NetworkTransport.Init();
-            }
             s_IsActive = state;
         }
     };

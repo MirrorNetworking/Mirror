@@ -23,7 +23,6 @@ namespace UnityEngine.Networking
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static HostTopology s_HostTopology;
-        static byte[] s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
         static bool s_UseWebSockets;
         static bool s_Initialized = false;
 
@@ -71,8 +70,7 @@ namespace UnityEngine.Networking
 
         public static void Reset()
         {
-            NetworkTransport.Shutdown();
-            NetworkTransport.Init();
+            Debug.Log("NetworkServer.Reset calls NetworkTransport.Shutdown and Init");
             s_Active = false;
         }
 
@@ -88,7 +86,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    NetworkTransport.RemoveHost(s_ServerHostId);
+                    Transport.server.Stop();
                     s_ServerHostId = -1;
                 }
 
@@ -104,10 +102,7 @@ namespace UnityEngine.Networking
                 return;
 
             s_Initialized = true;
-            NetworkTransport.Init();
             if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
-
-            s_MsgBuffer = new byte[NetworkMessage.MaxMessageSize];
 
             if (s_HostTopology == null)
             {
@@ -157,11 +152,15 @@ namespace UnityEngine.Networking
 
                 if (s_UseWebSockets)
                 {
-                    s_ServerHostId = NetworkTransport.AddWebsocketHost(s_HostTopology, serverPort, ipAddress);
+                    // TODO
+                    Debug.LogWarning("TODO Transport.StartWebGL?");
+                    //s_ServerHostId = NetworkTransport.AddWebsocketHost(s_HostTopology, serverPort, ipAddress);
                 }
                 else
                 {
-                    s_ServerHostId = NetworkTransport.AddHost(s_HostTopology, serverPort, ipAddress);
+                    Debug.Log("NetworkServer.InternalListen calls NetworkTransport.AddHost port=" + serverPort);
+                    Transport.server.Start(serverPort);
+                    s_ServerHostId = 0; // so it doesn't return false
                 }
 
                 if (s_ServerHostId == -1)
@@ -401,55 +400,28 @@ namespace UnityEngine.Networking
             if (s_ServerHostId == -1)
                 return;
 
-            int connectionId;
-            int channelId;
-            int receivedSize;
-            byte error;
+            //Debug.Log("NetworkServer.InternalUpdate calls NetworkTransport.ReceiveFromHost");
 
-            var networkEvent = NetworkEventType.DataEvent;
-
-            do
+            Telepathy.Message message;
+            while (Transport.server.GetNextMessage(out message))
             {
-                networkEvent = NetworkTransport.ReceiveFromHost(s_ServerHostId, out connectionId, out channelId, s_MsgBuffer, (ushort)s_MsgBuffer.Length, out receivedSize, out error);
-                if (networkEvent != NetworkEventType.Nothing)
-                {
-                    if (LogFilter.logDev) { Debug.Log("Server event: host=" + s_ServerHostId + " event=" + networkEvent + " error=" + error); }
-                }
+                //Debug.Log("NetworkServer.InternalUpdate new message: " + eventType + " " + (data != null ? BitConverter.ToString(data) : ""));
 
-                switch (networkEvent)
+                switch (message.eventType)
                 {
-                    case NetworkEventType.ConnectEvent:
-                    {
-                        HandleConnect(connectionId, error);
+                    case Telepathy.EventType.Connected:
+                        HandleConnect((int)message.connectionId, 0);
                         break;
-                    }
-                    case NetworkEventType.DataEvent:
-                    {
-                        // create a buffer with exactly 'receivedSize' size for the handlers so we don't need to read
-                        // a size header (saves bandwidth)
-                        byte[] data = new byte[receivedSize];
-                        Array.Copy(s_MsgBuffer, data, receivedSize);
-
-                        HandleData(connectionId, data, channelId, error);
+                    case Telepathy.EventType.Data:
+                        //Debug.Log(message.connectionId + " Data: " + BitConverter.ToString(message.data));
+                        HandleData((int)message.connectionId, message.data, 0, 0);
                         break;
-                    }
-                    case NetworkEventType.DisconnectEvent:
-                    {
-                        HandleDisconnect(connectionId, error);
+                    case Telepathy.EventType.Disconnected:
+                        Console.WriteLine(message.connectionId + " Disconnected");
+                        HandleDisconnect((int)message.connectionId, 0);
                         break;
-                    }
-                    case NetworkEventType.Nothing:
-                    {
-                        break;
-                    }
-                    default:
-                    {
-                        if (LogFilter.logError) { Debug.LogError("Unknown network message type received: " + networkEvent); }
-                        break;
-                    }
                 }
             }
-            while (networkEvent != NetworkEventType.Nothing);
 
             UpdateServerObjects();
         }
@@ -464,18 +436,11 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            string address;
-            int port;
-            NetworkID networkId;
-            NodeID node;
-            byte error2;
-            NetworkTransport.GetConnectionInfo(s_ServerHostId, connectionId, out address, out port, out networkId, out node, out error2);
-
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
             conn.SetHandlers(s_MessageHandlers);
-            conn.Initialize(address, s_ServerHostId, connectionId, s_HostTopology);
-            conn.lastError = (NetworkError)error2;
+            conn.Initialize("TODO_ADDRESS_FROM_TCP", s_ServerHostId, connectionId, s_HostTopology);
+            conn.lastError = (NetworkError)0;
 
             // add connection at correct index
             while (s_Connections.Count <= connectionId)

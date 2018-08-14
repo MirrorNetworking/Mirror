@@ -47,11 +47,11 @@ namespace UnityEngine.Networking
 
         #pragma warning disable 0169
         [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] int m_MaxBufferedPackets; 
+        [SerializeField] int m_MaxBufferedPackets;
         [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
         [SerializeField] bool m_AllowFragmentation;
         #pragma warning restore 0169
-        
+
         private EndPoint m_EndPoint;
         bool m_ClientLoadedScene;
 
@@ -82,8 +82,6 @@ namespace UnityEngine.Networking
         public GlobalConfig globalConfig     { get { if (m_GlobalConfig == null) { m_GlobalConfig = new GlobalConfig(); } return m_GlobalConfig; } }
         public int maxConnections            { get { return m_MaxConnections; } set { m_MaxConnections = value; } }
         public List<QosType> channels        { get { return m_Channels; } }
-
-        public EndPoint secureTunnelEndpoint { get { return m_EndPoint; } set { m_EndPoint = value; } }
 
         public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
 
@@ -184,6 +182,17 @@ namespace UnityEngine.Networking
             }
         }
 
+        // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
+        // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
+        // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
+        void LateUpdate()
+        {
+            // call it while the NetworkManager exists.
+            // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
+            //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
+            NetworkIdentity.UNetStaticUpdate();
+        }
+
         void OnValidate()
         {
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
@@ -252,7 +261,7 @@ namespace UnityEngine.Networking
 
             if (m_GlobalConfig != null)
             {
-                NetworkTransport.Init(m_GlobalConfig);
+                //NetworkTransport.Init(m_GlobalConfig);
             }
 
             // passing a config overrides setting the connectionConfig property
@@ -368,7 +377,7 @@ namespace UnityEngine.Networking
 
             if (m_GlobalConfig != null)
             {
-                NetworkTransport.Init(m_GlobalConfig);
+                //NetworkTransport.Init(m_GlobalConfig);
             }
 
             client = new NetworkClient();
@@ -397,22 +406,15 @@ namespace UnityEngine.Networking
             }
 
             RegisterClientMessages(client);
-            if (m_EndPoint != null)
-            {
-                if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient using provided SecureTunnel"); }
-                client.Connect(m_EndPoint);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(m_NetworkAddress))
-                {
-                    if (LogFilter.logError) { Debug.LogError("Must set the Network Address field in the manager"); }
-                    return null;
-                }
-                if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
 
-                client.Connect(m_NetworkAddress, m_NetworkPort);
+            if (string.IsNullOrEmpty(m_NetworkAddress))
+            {
+                if (LogFilter.logError) { Debug.LogError("Must set the Network Address field in the manager"); }
+                return null;
             }
+            if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
+
+            client.Connect(m_NetworkAddress, m_NetworkPort);
 
             OnStartClient(client);
             s_Address = m_NetworkAddress;
@@ -629,7 +631,8 @@ namespace UnityEngine.Networking
 
                 singleton.StopHost();
 
-                NetworkTransport.Shutdown();
+                Transport.client.Disconnect();
+                Transport.server.Stop();
             }
 #endif
 

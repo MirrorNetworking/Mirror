@@ -85,8 +85,9 @@ namespace UnityEngine.Networking
             {
                 return;
             }
-            byte error;
-            NetworkTransport.Disconnect(hostId, connectionId, out error);
+
+            Debug.Log("NetworkConnection.Disconnect calls NetworkTransport.Disconnect");
+            if (Transport.client.Connected) Transport.client.Disconnect();
 
             RemoveObservers();
         }
@@ -314,20 +315,18 @@ namespace UnityEngine.Networking
 
         public virtual bool TransportSend(byte[] bytes, int channelId, out byte error)
         {
-            // try sending
-            if (NetworkTransport.Send(hostId, connectionId, channelId, bytes, bytes.Length, out error))
+            error = 0;
+            if (Transport.client.Connected)
             {
+                Transport.client.Send(bytes);
                 return true;
             }
-            else
+            else if (Transport.server.Active)
             {
-                // log error, but ignore disconnect errors. they are expected, people quit sometimes.
-                if ((NetworkError)error != NetworkError.WrongConnection && (NetworkError)error != NetworkError.Timeout)
-                {
-                    if (LogFilter.logError) { Debug.LogError("SendToTransport failed. error:" + (NetworkError)error + " channel:" + channelId + " bytesToSend:" + bytes.Length); }
-                }
-                return false;
+                Transport.server.Send((uint)connectionId, bytes);
+                return true;
             }
+            return false;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)
