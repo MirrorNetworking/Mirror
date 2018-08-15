@@ -366,24 +366,21 @@ namespace UnityEngine.Networking
             if (s_ServerHostId == -1)
                 return;
 
-            //Debug.Log("NetworkServer.InternalUpdate calls NetworkTransport.ReceiveFromHost");
-
             Telepathy.Message message;
             while (Transport.server.GetNextMessage(out message))
             {
-                //Debug.Log("NetworkServer.InternalUpdate new message: " + eventType + " " + (data != null ? BitConverter.ToString(data) : ""));
-
                 switch (message.eventType)
                 {
                     case Telepathy.EventType.Connected:
+                        //Debug.Log("NetworkServer loop: Connected");
                         HandleConnect((int)message.connectionId, 0);
                         break;
                     case Telepathy.EventType.Data:
-                        //Debug.Log(message.connectionId + " Data: " + BitConverter.ToString(message.data));
+                        //Debug.Log("NetworkServer loop: clientId: " + message.connectionId + " Data: " + BitConverter.ToString(message.data));
                         HandleData((int)message.connectionId, message.data, 0);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        Console.WriteLine(message.connectionId + " Disconnected");
+                        //Debug.Log("NetworkServer loop: Disconnected");
                         HandleDisconnect((int)message.connectionId, 0);
                         break;
                 }

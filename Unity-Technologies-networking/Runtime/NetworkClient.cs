@@ -163,8 +163,6 @@ namespace UnityEngine.Networking
 
         internal virtual void Update()
         {
-            //Debug.Log("NetworkClient.Update" + m_ClientId + " connectstate=" + connectState);
-
             if (m_ClientId == -1)
             {
                 return;
@@ -178,8 +176,6 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            //Debug.Log("+++NetworkClient.Update calls NetworkTransport.ReceiveFromHost");
-
             // any new message?
             // -> calling it once per frame is okay, but really why not just
             //    process all messages and make it empty..
@@ -189,16 +185,16 @@ namespace UnityEngine.Networking
                 switch (msg.eventType)
                 {
                     case Telepathy.EventType.Connected:
-                        Debug.Log("NetworkClient loop: Connected");
+                        //Debug.Log("NetworkClient loop: Connected");
                         m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
                         connectState = ConnectState.Connected;
                         break;
                     case Telepathy.EventType.Data:
-                        Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
+                        //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
                         m_Connection.TransportReceive(msg.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        Debug.Log("NetworkClient loop: Disconnected");
+                        //Debug.Log("NetworkClient loop: Disconnected");
                         connectState = ConnectState.Disconnected;
 
                         //GenerateDisconnectError(error); TODO which one?
