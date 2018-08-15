@@ -184,6 +184,16 @@ namespace UnityEngine.Networking
             NetworkIdentity.UNetStaticUpdate();
         }
 
+        // When pressing Stop in the Editor, Unity keeps threads alive until we
+        // press Start again (which might be a Unity bug).
+        // Either way, we should disconnect client & server in OnApplicationQuit
+        // so they don't keep running until we press Play again.
+        // (this is not a problem in builds)
+        void OnApplicationQuit()
+        {
+            Transport.Shutdown();
+        }
+
         void OnValidate()
         {
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]

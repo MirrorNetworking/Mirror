@@ -17,5 +17,13 @@ namespace UnityEngine.Networking
             Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
             Telepathy.Logger.LogErrorMethod = Debug.LogError;
         }
+
+        // shut it all down, no matter what
+        public static void Shutdown()
+        {
+            Debug.Log("Transport.Shutdown()");
+            client.Disconnect();
+            server.Stop();
+        }
     }
 }
