@@ -73,14 +73,22 @@ namespace Telepathy
                 return false;
             }
 
-            // stream.Write throws exceptions if client sends with high frequency
-            // and the server stops
+            // stream.Write throws exceptions if client sends with high
+            // frequency and the server stops
             try
             {
-                // write size header and content
+                // construct header (size)
                 byte[] header = UShortToBytes((ushort)content.Length);
-                stream.Write(header, 0, header.Length);
-                stream.Write(content, 0, content.Length);
+
+                // write header+content at once via payload array. writing
+                // header,payload separately would cause 2 TCP packets to be
+                // sent if nagle's algorithm is disabled(2x TCP header overhead)
+                byte[] payload = new byte[header.Length + content.Length];
+                Array.Copy(header, payload, header.Length);
+                Array.Copy(content, 0, payload, header.Length, content.Length);
+                stream.Write(payload, 0, payload.Length);
+
+                // flush to make sure it is being sent immediately
                 stream.Flush();
                 return true;
             }
