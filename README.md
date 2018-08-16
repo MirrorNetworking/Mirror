@@ -55,15 +55,12 @@ Backup the original DLL files from your Unity installation folder and replace th
 
 Note: right click Unity.app and select 'Show Package Contents' to see the subfolders.
 ## Linux:
-*NOTE:* Assuming you installed the experimental Unity build in your home directory at, let's say `/home/user/Unity-2017.4.8`. This was also tested on a version of the Ubuntu-based KDE Neon distro.
-1. *Backup your Project! Be wise now and don't lose everything if something unexpected happens.* Unity is experimental on Linux and **THIS COULD SPELL DOOM FOR YOUR PROJECT** if the Editor breaks in half. (Probably not, though.)
-2. The `Editor` and `Standalone` folders go into `/home/user/Unity-2017.4.8/Editor/Data/UnityExtensions/Unity/Networking`. If prompted for overwrite, allow the overwrite.
-3. If you do not have this directory path, *STOP*. Submit a support request and we'll try to help you out.
-4. Copy `Unity.UNetWeaver.dll` into `/home/user/Unity-2017.4.8/Editor/Data/Managed`.
+*NOTE:* These instructions assume you have installed your Unity instance in `/home/user/Unity-2017.4.8`. Please adapt this accordingly, because this is just an example path. 
+1. *Backup your Project! Be wise now and don't lose everything if something unexpected happens.*
+2. Copy the `Editor` and `Standalone` from the HLAPI CE package that matches your build go into `/home/user/Unity-2017.4.8/Editor/Data/UnityExtensions/Unity/Networking`. If you do not have this directory path, **STOP**. Double check your installation path and try again, otherwise open a issue ticket.
+4. Copy the `Unity.UNetWeaver.dll` file into `/home/user/Unity-2017.4.8/Editor/Data/Managed`. Allow overwrite.
 5. (Re-)Start Unity to make sure the changes are applied. Be patient while Unity recompiles your network scripts for use with the latest version of HLAPI CE.
-6. If you got no critical/fatal errors from Unity itself then *congratulations*. If you get errors from your scripts, it's likely due to stuff that got stripped out in the improvements branch. Consider updating your code.
-7. Again, it should be noted that Unity on Linux is very experimental and likely to blow up at any given moment. While it does work, we cannot vouch for its stability on the Linux platform.
-8. Rebuild your server and client builds to properly use the features and improvements in HLAPI CE.
+6. Rebuild your server and client standalone executables to properly use the features and improvements in HLAPI CE.
 
 # Branches:
 
