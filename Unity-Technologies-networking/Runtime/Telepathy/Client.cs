@@ -40,6 +40,10 @@ namespace Telepathy
                 // but there is no server running on that ip/port
                 Logger.Log("Client: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
 
+                // add 'Disconnected' event to message queue so that the caller
+                // knows that the Connect failed. otherwise they will never know
+                messageQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+
                 // clean up properly before exiting
                 client.Close();
             }
