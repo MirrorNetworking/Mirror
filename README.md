@@ -55,8 +55,12 @@ Backup the original DLL files from your Unity installation folder and replace th
 
 Note: right click Unity.app and select 'Show Package Contents' to see the subfolders.
 ## Linux:
-You'll find it  
-(feel free to submit a pull request for filling this part)
+*NOTE:* These instructions assume you have installed your Unity instance in `/home/user/Unity-2017.4.8`. Please adapt this accordingly, because this is just an example path. 
+1. *Backup your Project! Be wise now and don't lose everything if something unexpected happens.*
+2. Copy the `Editor` and `Standalone` from the HLAPI CE package that matches your build go into `/home/user/Unity-2017.4.8/Editor/Data/UnityExtensions/Unity/Networking`. If you do not have this directory path, **STOP**. Double check your installation path and try again, otherwise open a issue ticket.
+4. Copy the `Unity.UNetWeaver.dll` file into `/home/user/Unity-2017.4.8/Editor/Data/Managed`. Allow overwrite.
+5. (Re-)Start Unity to make sure the changes are applied. Be patient while Unity recompiles your network scripts for use with the latest version of HLAPI CE.
+6. Rebuild your server and client standalone executables to properly use the features and improvements in HLAPI CE.
 
 # Branches:
 
