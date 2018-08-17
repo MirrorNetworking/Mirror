@@ -622,6 +622,11 @@ namespace UnityEngine.Networking
             s_MessageHandlers[msgType] = handler;
         }
 
+        static public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        {
+            RegisterHandler((short)msgType, handler);    
+        }
+
         static public void UnregisterHandler(short msgType)
         {
             s_MessageHandlers.Remove(msgType);
