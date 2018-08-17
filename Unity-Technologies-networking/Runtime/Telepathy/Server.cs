@@ -15,6 +15,20 @@ namespace Telepathy
         // clients with <connectionId, TcpClient>
         SafeDictionary<uint, TcpClient> clients = new SafeDictionary<uint, TcpClient>();
 
+        // connectionId counter
+        // (right now we only use it from one listener thread, but we might have
+        //  multiple threads later in case of WebSockets etc.)
+        // -> static so that another server instance doesn't start at 0 again.
+        static SafeCounter counter = new SafeCounter();
+
+        // public next id function in case someone needs to reserve an id
+        // (e.g. if hostMode should always have 0 connection and external
+        //  connections should start at 1, etc.)
+        public static uint NextConnectionId()
+        {
+            return counter.Next();
+        }
+
         // check if the server is running
         public bool Active
         {
@@ -45,7 +59,7 @@ namespace Telepathy
                     TcpClient client = listener.AcceptTcpClient();
 
                     // generate the next connection id (thread safely)
-                    uint connectionId = counter.Next();
+                    uint connectionId = NextConnectionId();
 
                     // spawn a thread for each client to listen to his
                     // messages
