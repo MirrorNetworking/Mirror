@@ -22,7 +22,6 @@ namespace UnityEngine.Networking
         string m_ServerIp = "";
         int m_ServerPort;
         int m_ClientId = -1;
-        int m_ClientConnectionId = -1;
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
@@ -109,10 +108,9 @@ namespace UnityEngine.Networking
             Transport.client.Connect(serverIp, serverPort);
 
             // setup all the handlers
-            m_ClientConnectionId = 0;
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(m_ServerIp, m_ClientId, m_ClientConnectionId);
+            m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
         }
 
         void PrepareForConnect(bool usePlatformSpecificProtocols)
