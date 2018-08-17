@@ -84,7 +84,7 @@ namespace UnityEngine.Networking
             }
 
             Debug.Log("NetworkConnection.Disconnect calls NetworkTransport.Disconnect");
-            if (Transport.client.Connected) Transport.client.Disconnect();
+            Transport.client.Disconnect();
 
             RemoveObservers();
         }
