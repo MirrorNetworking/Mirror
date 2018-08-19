@@ -6,17 +6,19 @@ namespace Telepathy
 {
     public class Client : Common
     {
-        TcpClient client = new TcpClient();
+        TcpClient client;
         Thread thread;
 
         public bool Connecting
         {
-            get { return thread != null && thread.IsAlive && !client.Connected; }
+            get { return thread != null && thread.IsAlive &&
+                         client != null && !client.Connected; }
         }
 
         public bool Connected
         {
-            get { return thread != null && thread.IsAlive && client.Connected; }
+            get { return thread != null && thread.IsAlive &&
+                         client != null && client.Connected; }
         }
 
         // the thread function
@@ -59,6 +61,10 @@ namespace Telepathy
             // not if already started
             if (Connecting || Connected) return;
 
+            // TcpClient can only be used once. need to create a new one each
+            // time.
+            client = new TcpClient();
+
             // clear old messages in queue, just to be sure that the caller
             // doesn't receive data from last time and gets out of sync.
             // -> calling this in Disconnect isn't smart because the caller may
@@ -88,6 +94,7 @@ namespace Telepathy
             // (maybe it's Unity? maybe Mono?)
             client.GetStream().Close();
             client.Close();
+            client = null;
         }
 
         public bool Send(byte[] data)
