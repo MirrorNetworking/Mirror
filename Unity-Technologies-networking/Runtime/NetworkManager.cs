@@ -434,10 +434,10 @@ namespace UnityEngine.Networking
             OnStartHost();
             if (StartServer(config, maxConnections))
             {
-                var client = ConnectLocalClient();
-                OnServerConnect(client.connection);
-                OnStartClient(client);
-                return client;
+                var localClient = ConnectLocalClient();
+                OnServerConnect(localClient.connection);
+                OnStartClient(localClient);
+                return localClient;
             }
             return null;
         }
