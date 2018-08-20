@@ -1,16 +1,50 @@
-﻿// the transport layer implementation
-
+﻿// transport layer backend
+// - set to telepathy by default
+// - can be changed by assigning Transport.layer to whatever you want
 namespace UnityEngine.Networking
 {
+    // Transport class used by HLAPI ///////////////////////////////////////////
     public static class Transport
     {
-        public static Telepathy.Client client = new Telepathy.Client();
-        public static Telepathy.Server server = new Telepathy.Server();
-
         // hlapi needs to know max packet size to show warnings
         public static int MaxPacketSize = ushort.MaxValue;
 
-        static Transport()
+        // selected transport layer: Telepathy by default
+        public static TransportLayer layer = new TelepathyTransport();
+    }
+
+    // abstract transport layer class //////////////////////////////////////////
+    // note: 'address' is ip / websocket url / ...
+    public enum TransportEvent { Connected, Data, Disconnected }
+    public interface TransportLayer
+    {
+        // client
+        bool ClientConnected();
+        void ClientConnect(string address, int port);
+        bool ClientSend(byte[] data);
+        bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
+        float ClientGetRTT();
+        void ClientDisconnect();
+
+        // server
+        bool ServerActive();
+        void ServerStart(string address, int port, int maxConnections);
+        bool ServerSend(int connectionId, byte[] data);
+        bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
+        bool GetConnectionInfo(int connectionId, out string address);
+        void ServerStop();
+
+        // common
+        void Shutdown();
+    }
+
+    // Telepathy transport layer ///////////////////////////////////////////////
+    public class TelepathyTransport : TransportLayer
+    {
+        Telepathy.Client client = new Telepathy.Client();
+        Telepathy.Server server = new Telepathy.Server();
+
+        public TelepathyTransport()
         {
             // tell Telepathy to use Unity's Debug.Log
             Telepathy.Logger.LogMethod = Debug.Log;
@@ -21,12 +55,78 @@ namespace UnityEngine.Networking
             // need to make sure that external connections always start at '1'
             // by simple eating the first one before the server starts
             Telepathy.Server.NextConnectionId();
+
+            Debug.LogWarning("TelepathyTransport initialized!");
         }
 
-        // shut it all down, no matter what
-        public static void Shutdown()
+        // client
+        public bool ClientConnected() { return client.Connected; }
+        public void ClientConnect(string address, int port) { client.Connect(address, port); }
+        public bool ClientSend(byte[] data) { return client.Send(data); }
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
-            Debug.Log("Transport.Shutdown()");
+            Telepathy.Message message;
+            if (client.GetNextMessage(out message))
+            {
+                // convert Telepathy EventType to TransportEvent
+                if (message.eventType == Telepathy.EventType.Connected)
+                    transportEvent = TransportEvent.Connected;
+                else if (message.eventType == Telepathy.EventType.Data)
+                    transportEvent = TransportEvent.Data;
+                else if (message.eventType == Telepathy.EventType.Disconnected)
+                    transportEvent = TransportEvent.Disconnected;
+                else
+                    transportEvent = TransportEvent.Disconnected;
+
+                // assign rest of the values and return true
+                data = message.data;
+                return true;
+            }
+
+            transportEvent = TransportEvent.Disconnected;
+            data = null;
+            return false;
+        }
+        public float ClientGetRTT() { return 0; } // TODO
+        public void ClientDisconnect() { client.Disconnect(); }
+
+        // server
+        public bool ServerActive() { return server.Active; }
+        public void ServerStart(string address, int port, int maxConnections) { server.Start(port, maxConnections); }
+        public bool ServerSend(int connectionId, byte[] data) { return server.Send(connectionId, data); }
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        {
+            Telepathy.Message message;
+            if (server.GetNextMessage(out message))
+            {
+                // convert Telepathy EventType to TransportEvent
+                if (message.eventType == Telepathy.EventType.Connected)
+                    transportEvent = TransportEvent.Connected;
+                else if (message.eventType == Telepathy.EventType.Data)
+                    transportEvent = TransportEvent.Data;
+                else if (message.eventType == Telepathy.EventType.Disconnected)
+                    transportEvent = TransportEvent.Disconnected;
+                else
+                    transportEvent = TransportEvent.Disconnected;
+
+                // assign rest of the values and return true
+                connectionId = message.connectionId;
+                data = message.data;
+                return true;
+            }
+
+            connectionId = -1;
+            transportEvent = TransportEvent.Disconnected;
+            data = null;
+            return false;
+        }
+        public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public void ServerStop() { server.Stop(); }
+
+        // common
+        public void Shutdown()
+        {
+            Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();
             server.Stop();
         }

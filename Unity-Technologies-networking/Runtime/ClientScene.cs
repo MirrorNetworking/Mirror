@@ -46,8 +46,7 @@ namespace UnityEngine.Networking
             s_IsReady = false;
             s_IsSpawnFinished = false;
 
-            Debug.Log("ClientScene.Shutdown calls telepathyClient.Disconnect");
-            Transport.client.Disconnect();
+            Transport.layer.ClientDisconnect();
         }
 
         // this is called from message handler for Owner message

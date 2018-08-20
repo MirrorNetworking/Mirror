@@ -68,7 +68,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    Transport.server.Stop();
+                    Transport.layer.ServerStop();
                     s_ServerHostId = -1;
                 }
 
@@ -128,7 +128,7 @@ namespace UnityEngine.Networking
                 }
                 else
                 {
-                    Transport.server.Start(serverPort, maxConnections);
+                    Transport.layer.ServerStart(ipAddress, serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
 
@@ -364,22 +364,24 @@ namespace UnityEngine.Networking
             if (s_ServerHostId == -1)
                 return;
 
-            Telepathy.Message message;
-            while (Transport.server.GetNextMessage(out message))
+            int connectionId;
+            TransportEvent transportEvent;
+            byte[] data;
+            while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
             {
-                switch (message.eventType)
+                switch (transportEvent)
                 {
-                    case Telepathy.EventType.Connected:
+                    case TransportEvent.Connected:
                         //Debug.Log("NetworkServer loop: Connected");
-                        HandleConnect(message.connectionId, 0);
+                        HandleConnect(connectionId, 0);
                         break;
-                    case Telepathy.EventType.Data:
+                    case TransportEvent.Data:
                         //Debug.Log("NetworkServer loop: clientId: " + message.connectionId + " Data: " + BitConverter.ToString(message.data));
-                        HandleData(message.connectionId, message.data, 0);
+                        HandleData(connectionId, data, 0);
                         break;
-                    case Telepathy.EventType.Disconnected:
+                    case TransportEvent.Disconnected:
                         //Debug.Log("NetworkServer loop: Disconnected");
-                        HandleDisconnect(message.connectionId, 0);
+                        HandleDisconnect(connectionId, 0);
                         break;
                 }
             }
@@ -399,7 +401,7 @@ namespace UnityEngine.Networking
 
             // get ip address from connection
             string address;
-            Transport.server.GetConnectionInfo(connectionId, out address);
+            Transport.layer.GetConnectionInfo(connectionId, out address);
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);

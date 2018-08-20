@@ -191,7 +191,7 @@ namespace UnityEngine.Networking
         // (this is not a problem in builds)
         void OnApplicationQuit()
         {
-            Transport.Shutdown();
+            Transport.layer.Shutdown();
         }
 
         void OnValidate()
@@ -527,8 +527,7 @@ namespace UnityEngine.Networking
 
                 singleton.StopHost();
 
-                Transport.client.Disconnect();
-                Transport.server.Stop();
+                Transport.layer.Shutdown();
             }
 #endif
 

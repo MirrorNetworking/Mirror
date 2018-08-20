@@ -83,7 +83,7 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            Transport.client.Disconnect();
+            Transport.layer.ClientDisconnect();
 
             RemoveObservers();
         }
@@ -308,14 +308,14 @@ namespace UnityEngine.Networking
         public virtual bool TransportSend(byte[] bytes, out byte error)
         {
             error = 0;
-            if (Transport.client.Connected)
+            if (Transport.layer.ClientConnected())
             {
-                Transport.client.Send(bytes);
+                Transport.layer.ClientSend(bytes);
                 return true;
             }
-            else if (Transport.server.Active)
+            else if (Transport.layer.ServerActive())
             {
-                Transport.server.Send(connectionId, bytes);
+                Transport.layer.ServerSend(connectionId, bytes);
                 return true;
             }
             return false;

@@ -105,7 +105,7 @@ namespace UnityEngine.Networking
             m_ServerIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            Transport.client.Connect(serverIp, serverPort);
+            Transport.layer.ClientConnect(serverIp, serverPort);
 
             // setup all the handlers
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
@@ -177,21 +177,22 @@ namespace UnityEngine.Networking
             // any new message?
             // -> calling it once per frame is okay, but really why not just
             //    process all messages and make it empty..
-            Telepathy.Message msg;
-            while (Transport.client.GetNextMessage(out msg))
+            TransportEvent transportEvent;
+            byte[] data;
+            while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
             {
-                switch (msg.eventType)
+                switch (transportEvent)
                 {
-                    case Telepathy.EventType.Connected:
+                    case TransportEvent.Connected:
                         //Debug.Log("NetworkClient loop: Connected");
                         m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
                         connectState = ConnectState.Connected;
                         break;
-                    case Telepathy.EventType.Data:
+                    case TransportEvent.Data:
                         //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
-                        m_Connection.TransportReceive(msg.data);
+                        m_Connection.TransportReceive(data);
                         break;
-                    case Telepathy.EventType.Disconnected:
+                    case TransportEvent.Disconnected:
                         //Debug.Log("NetworkClient loop: Disconnected");
                         connectState = ConnectState.Disconnected;
 
@@ -246,14 +247,12 @@ namespace UnityEngine.Networking
             }
         }
 
-        public int GetRTT()
+        public float GetRTT()
         {
             if (m_ClientId == -1)
                 return 0;
 
-            // TODO
-            Debug.LogWarning("TODO add NetworkClient.GetRTT");
-            return 0;
+            return Transport.layer.ClientGetRTT();
         }
 
         internal void RegisterSystemHandlers(bool localClient)
