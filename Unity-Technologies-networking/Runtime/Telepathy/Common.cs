@@ -114,7 +114,7 @@ namespace Telepathy
         }
 
         // thread receive function is the same for client and server's clients
-        protected void ReceiveLoop(uint connectionId, TcpClient client)
+        protected void ReceiveLoop(int connectionId, TcpClient client)
         {
             // get NetworkStream from client
             NetworkStream stream = client.GetStream();

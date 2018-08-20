@@ -316,7 +316,7 @@ namespace UnityEngine.Networking
             }
             else if (Transport.server.Active)
             {
-                Transport.server.Send((uint)connectionId, bytes);
+                Transport.server.Send(connectionId, bytes);
                 return true;
             }
             return false;

@@ -4,10 +4,10 @@ namespace Telepathy
 {
     public struct Message
     {
-        public uint connectionId;
+        public int connectionId;
         public EventType eventType;
         public byte[] data;
-        public Message(uint connectionId, EventType eventType, byte[] data)
+        public Message(int connectionId, EventType eventType, byte[] data)
         {
             this.connectionId = connectionId;
             this.eventType = eventType;
