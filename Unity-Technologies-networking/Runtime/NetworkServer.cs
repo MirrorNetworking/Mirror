@@ -373,15 +373,15 @@ namespace UnityEngine.Networking
                 {
                     case Telepathy.EventType.Connected:
                         //Debug.Log("NetworkServer loop: Connected");
-                        HandleConnect((int)message.connectionId, 0);
+                        HandleConnect(message.connectionId, 0);
                         break;
                     case Telepathy.EventType.Data:
                         //Debug.Log("NetworkServer loop: clientId: " + message.connectionId + " Data: " + BitConverter.ToString(message.data));
-                        HandleData((int)message.connectionId, message.data, 0);
+                        HandleData(message.connectionId, message.data, 0);
                         break;
                     case Telepathy.EventType.Disconnected:
                         //Debug.Log("NetworkServer loop: Disconnected");
-                        HandleDisconnect((int)message.connectionId, 0);
+                        HandleDisconnect(message.connectionId, 0);
                         break;
                 }
             }
