@@ -317,7 +317,7 @@ namespace UnityEngine.Networking
             s_Address = m_NetworkAddress;
         }
 
-        public NetworkClient StartClient(int hostPort)
+        public NetworkClient StartClient(int hostPort=0)
         {
             InitializeSingleton();
 
@@ -343,11 +343,6 @@ namespace UnityEngine.Networking
             OnStartClient(client);
             s_Address = m_NetworkAddress;
             return client;
-        }
-
-        public NetworkClient StartClient()
-        {
-            return StartClient(0);
         }
 
         public virtual NetworkClient StartHost(int maxConnections)
