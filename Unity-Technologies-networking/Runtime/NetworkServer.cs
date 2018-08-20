@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.Networking.Types;
 
@@ -399,10 +400,14 @@ namespace UnityEngine.Networking
                 return;
             }
 
+            // get ip address from connection
+            string address;
+            Transport.server.GetConnectionInfo(connectionId, out address);
+
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
             conn.SetHandlers(s_MessageHandlers);
-            conn.Initialize("TODO_ADDRESS_FROM_TCP", s_ServerHostId, connectionId);
+            conn.Initialize(address, s_ServerHostId, connectionId);
             conn.lastError = (NetworkError)0;
 
             // add connection at correct index

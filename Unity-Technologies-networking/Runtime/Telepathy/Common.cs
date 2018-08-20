@@ -1,6 +1,5 @@
 ﻿// common code used by server and client
 using System;
-using System.Net;
 using System.Net.Sockets;
 
 namespace Telepathy
@@ -129,12 +128,9 @@ namespace Telepathy
             // are silent
             try
             {
-                // get ip address from client
-                IPAddress address = ((IPEndPoint)client.Client.RemoteEndPoint).Address;
-
                 // add connected event to queue with ip address as data in case
                 // it's needed
-                messageQueue.Enqueue(new Message(connectionId, EventType.Connected, address.GetAddressBytes()));
+                messageQueue.Enqueue(new Message(connectionId, EventType.Connected, null));
 
                 // let's talk about reading data.
                 // -> normally we would read as much as possible and then

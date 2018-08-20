@@ -190,5 +190,20 @@ namespace Telepathy
             Logger.LogWarning("Server.Send: invalid connectionId: " + connectionId);
             return false;
         }
+
+        // get connection info in case it's needed (IP etc.)
+        // (we should never pass the TcpClient to the outside)
+        public bool GetConnectionInfo(int connectionId, out string address)
+        {
+            // find the connection
+            TcpClient client;
+            if (clients.TryGetValue(connectionId, out client))
+            {
+                address = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                return true;
+            }
+            address = null;
+            return false;
+        }
     }
 }
