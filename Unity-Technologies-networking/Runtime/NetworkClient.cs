@@ -117,7 +117,7 @@ namespace UnityEngine.Networking
         {
             SetActive(true);
             RegisterSystemHandlers(false);
-            m_ClientId = 0; // NetworkTransport.AddHost 'Returns the ID of the host that was created.'
+            m_ClientId = 0;
         }
 
         public virtual void Disconnect()
@@ -252,8 +252,7 @@ namespace UnityEngine.Networking
                 return 0;
 
             // TODO
-            //return NetworkTransport.GetCurrentRTT(m_ClientId, m_ClientConnectionId, out err);
-            Debug.Log("NetworkClient.GetRTT calls NetworkTransport.GetCurrentRTT");
+            Debug.LogWarning("TODO add NetworkClient.GetRTT");
             return 0;
         }
 

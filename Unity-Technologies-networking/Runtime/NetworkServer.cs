@@ -53,7 +53,6 @@ namespace UnityEngine.Networking
 
         public static void Reset()
         {
-            Debug.Log("NetworkServer.Reset calls NetworkTransport.Shutdown and Init");
             s_Active = false;
         }
 
@@ -126,11 +125,9 @@ namespace UnityEngine.Networking
                 {
                     // TODO
                     Debug.LogWarning("TODO Transport.StartWebGL?");
-                    //s_ServerHostId = NetworkTransport.AddWebsocketHost(s_HostTopology, serverPort, ipAddress);
                 }
                 else
                 {
-                    Debug.Log("NetworkServer.InternalListen calls NetworkTransport.AddHost port=" + serverPort);
                     Transport.server.Start(serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
                 }

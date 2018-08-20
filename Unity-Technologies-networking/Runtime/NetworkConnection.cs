@@ -83,7 +83,6 @@ namespace UnityEngine.Networking
                 return;
             }
 
-            Debug.Log("NetworkConnection.Disconnect calls NetworkTransport.Disconnect");
             Transport.client.Disconnect();
 
             RemoveObservers();
@@ -210,7 +209,7 @@ namespace UnityEngine.Networking
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
         //       frame already.
-        //       -> in other words, we always receive 1 message per NetworkTransport.Receive call, never two.
+        //       -> in other words, we always receive 1 message per Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         protected void HandleBytes(byte[] buffer)

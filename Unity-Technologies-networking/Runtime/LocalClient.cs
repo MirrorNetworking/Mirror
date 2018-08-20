@@ -78,7 +78,7 @@ namespace UnityEngine.Networking
         private void PostInternalMessage(short msgType)
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
-            // -> NetworkTransport has empty [] and not null array for those messages too
+            // -> original NetworkTransport used empty [] and not null array for those messages too
             PostInternalMessage(msgType, new byte[0]);
         }
 
