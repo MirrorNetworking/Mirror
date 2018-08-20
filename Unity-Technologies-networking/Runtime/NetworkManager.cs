@@ -236,10 +236,10 @@ namespace UnityEngine.Networking
 
         public bool StartServer()
         {
-            return StartServer(null, -1);
+            return StartServer(null);
         }
 
-        bool StartServer(ConnectionConfig config, int maxConnections)
+        public bool StartServer(ConnectionConfig config)
         {
             InitializeSingleton();
 
@@ -268,7 +268,7 @@ namespace UnityEngine.Networking
 
             if (config != null)
             {
-                NetworkServer.Configure(config, maxConnections);
+                NetworkServer.Configure(config, m_MaxConnections);
             }
 
             if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
@@ -426,13 +426,13 @@ namespace UnityEngine.Networking
 
         public NetworkClient StartClient(ConnectionConfig config)
         {
-            return StartClient(config, 0);
+            return StartClient(config);
         }
 
-        public virtual NetworkClient StartHost(ConnectionConfig config, int maxConnections)
+        public virtual NetworkClient StartHost(ConnectionConfig config)
         {
             OnStartHost();
-            if (StartServer(config, maxConnections))
+            if (StartServer(config))
             {
                 var localClient = ConnectLocalClient();
                 OnServerConnect(localClient.connection);
