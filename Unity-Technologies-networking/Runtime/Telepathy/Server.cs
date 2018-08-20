@@ -20,14 +20,27 @@ namespace Telepathy
         // (right now we only use it from one listener thread, but we might have
         //  multiple threads later in case of WebSockets etc.)
         // -> static so that another server instance doesn't start at 0 again.
-        static SafeCounter counter = new SafeCounter();
+        static int counter = 0;
 
         // public next id function in case someone needs to reserve an id
         // (e.g. if hostMode should always have 0 connection and external
         //  connections should start at 1, etc.)
         public static int NextConnectionId()
         {
-            return counter.Next();
+            int id = Interlocked.Increment(ref counter);
+
+            // it's very unlikely that we reach the uint limit of 2 billion.
+            // even with 1 new connection per second, this would take 68 years.
+            // -> but if it happens, then we should throw an exception because
+            //    the caller probably should stop accepting clients.
+            // -> it's hardly worth using 'bool Next(out id)' for that case
+            //    because it's just so unlikely.
+            if (id == int.MaxValue)
+            {
+                throw new Exception("connection id limit reached: " + id);
+            }
+
+            return id;
         }
 
         // check if the server is running
