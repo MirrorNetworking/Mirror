@@ -29,6 +29,7 @@ namespace UnityEngine.Networking
         // server
         bool ServerActive();
         void ServerStart(string address, int port, int maxConnections);
+        void ServerStartWebsockets(string address, int port, int maxConnections);
         bool ServerSend(int connectionId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool GetConnectionInfo(int connectionId, out string address);

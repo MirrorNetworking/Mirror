@@ -55,6 +55,10 @@ namespace UnityEngine.Networking
         // server
         public bool ServerActive() { return server.Active; }
         public void ServerStart(string address, int port, int maxConnections) { server.Start(port, maxConnections); }
+        public void ServerStartWebsockets(string address, int port, int maxConnections)
+        {
+            Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
+        }
         public bool ServerSend(int connectionId, byte[] data) { return server.Send(connectionId, data); }
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {

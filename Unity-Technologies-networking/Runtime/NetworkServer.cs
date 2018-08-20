@@ -123,8 +123,8 @@ namespace UnityEngine.Networking
 
                 if (s_UseWebSockets)
                 {
-                    // TODO
-                    Debug.LogWarning("TODO Transport.StartWebGL?");
+                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
+                    s_ServerHostId = 0; // so it doesn't return false
                 }
                 else
                 {
