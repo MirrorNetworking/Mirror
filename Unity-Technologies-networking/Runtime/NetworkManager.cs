@@ -217,11 +217,6 @@ namespace UnityEngine.Networking
 
         public bool StartServer()
         {
-            return StartServer(-1);
-        }
-
-        bool StartServer(int maxConnections)
-        {
             InitializeSingleton();
 
             OnStartServer();
@@ -233,7 +228,7 @@ namespace UnityEngine.Networking
 
             if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
             {
-                if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort))
+                if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort, m_MaxConnections))
                 {
                     if (LogFilter.logError) { Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed."); }
                     return false;
@@ -241,7 +236,7 @@ namespace UnityEngine.Networking
             }
             else
             {
-                if (!NetworkServer.Listen(m_NetworkPort))
+                if (!NetworkServer.Listen(m_NetworkPort, m_MaxConnections))
                 {
                     if (LogFilter.logError) { Debug.LogError("StartServer listen failed."); }
                     return false;
@@ -343,19 +338,6 @@ namespace UnityEngine.Networking
             OnStartClient(client);
             s_Address = m_NetworkAddress;
             return client;
-        }
-
-        public virtual NetworkClient StartHost(int maxConnections)
-        {
-            OnStartHost();
-            if (StartServer(maxConnections))
-            {
-                var client = ConnectLocalClient();
-                OnServerConnect(client.connection);
-                OnStartClient(client);
-                return client;
-            }
-            return null;
         }
 
         public virtual NetworkClient StartHost()

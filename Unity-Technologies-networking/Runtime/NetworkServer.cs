@@ -101,17 +101,17 @@ namespace UnityEngine.Networking
             RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
         }
 
-        static public bool Listen(int serverPort)
+        static public bool Listen(int serverPort, int maxConnections)
         {
-            return InternalListen(null, serverPort);
+            return InternalListen(null, serverPort, maxConnections);
         }
 
-        static public bool Listen(string ipAddress, int serverPort)
+        static public bool Listen(string ipAddress, int serverPort, int maxConnections)
         {
-            return InternalListen(ipAddress, serverPort);
+            return InternalListen(ipAddress, serverPort, maxConnections);
         }
 
-        static internal bool InternalListen(string ipAddress, int serverPort)
+        static internal bool InternalListen(string ipAddress, int serverPort, int maxConnections)
         {
             Initialize();
 
@@ -130,7 +130,7 @@ namespace UnityEngine.Networking
                 else
                 {
                     Debug.Log("NetworkServer.InternalListen calls NetworkTransport.AddHost port=" + serverPort);
-                    Transport.server.Start(serverPort);
+                    Transport.server.Start(serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
 
