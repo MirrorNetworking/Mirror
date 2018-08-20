@@ -234,12 +234,7 @@ namespace UnityEngine.Networking
             NetworkServer.RegisterHandler((short)MsgType.Error, OnServerErrorInternal);
         }
 
-        public bool StartServer()
-        {
-            return StartServer(null);
-        }
-
-        public bool StartServer(ConnectionConfig config)
+        public bool StartServer(ConnectionConfig config = null)
         {
             InitializeSingleton();
 
