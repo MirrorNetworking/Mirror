@@ -294,6 +294,11 @@ namespace UnityEngine.Networking
             if (LogFilter.logDev) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -326,6 +331,12 @@ namespace UnityEngine.Networking
             CacheBehaviours();
 
             if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -343,6 +354,11 @@ namespace UnityEngine.Networking
 
         internal void OnStartAuthority()
         {
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -359,6 +375,11 @@ namespace UnityEngine.Networking
 
         internal void OnStopAuthority()
         {
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -375,6 +396,11 @@ namespace UnityEngine.Networking
 
         internal void OnSetLocalVisibility(bool vis)
         {
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -391,6 +417,11 @@ namespace UnityEngine.Networking
 
         internal bool OnCheckObserver(NetworkConnection conn)
         {
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -791,6 +822,11 @@ namespace UnityEngine.Networking
                 m_HasAuthority = true;
             }
 
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -816,6 +852,11 @@ namespace UnityEngine.Networking
 
         internal void OnNetworkDestroy()
         {
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
+
             for (int i = 0; m_NetworkBehaviours != null && i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -880,6 +921,11 @@ namespace UnityEngine.Networking
             bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers);
+
+            if (m_NetworkBehaviours == null)
+            {
+                Debug.LogError("NetworkIdentity m_NetworkBehaviours is NULL. Could something have added this NetworkIdentity script on " + gameObject.name + " twice? The original error will be emitted as normal, this is just to help find the culprit.");
+            }
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
