@@ -448,6 +448,7 @@ namespace UnityEngine.Networking
             if (StartServer())
             {
                 var localClient = ConnectLocalClient();
+                OnServerConnect(localClient.connection);
                 OnStartClient(localClient);
                 return localClient;
             }
