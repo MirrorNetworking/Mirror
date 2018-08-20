@@ -7,22 +7,29 @@ namespace Telepathy
     public class Client : Common
     {
         TcpClient client;
-        Thread thread;
-
-        public bool Connecting
-        {
-            get { return thread != null && thread.IsAlive &&
-                         client != null && !client.Connected; }
-        }
 
         public bool Connected
         {
-            get { return thread != null && thread.IsAlive &&
-                         client != null && client.Connected; }
+            get
+            {
+                // TcpClient.Connected doesn't check if socket != null, which
+                // results in NullReferenceExceptions if connection was closed.
+                // -> let's check it manually instead
+                return client != null &&
+                       client.Client != null &&
+                       client.Client.Connected;
+            }
+        }
+
+        public bool Connecting
+        {
+            // client was created by Connect() call but not fully connected yet?
+            get { return client != null && !Connected; }
         }
 
         // the thread function
-        void ThreadFunction(string ip, int port)
+        // (static to reduce state for maximum reliability)
+        static void ThreadFunction(TcpClient client, string ip, int port, SafeQueue<Message> messageQueue)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
@@ -34,7 +41,7 @@ namespace Telepathy
                 client.Connect(ip, port);
 
                 // run the receive loop
-                ReceiveLoop(0, client);
+                ReceiveLoop(0, client, messageQueue);
             }
             catch (SocketException exception)
             {
@@ -45,15 +52,17 @@ namespace Telepathy
                 // add 'Disconnected' event to message queue so that the caller
                 // knows that the Connect failed. otherwise they will never know
                 messageQueue.Enqueue(new Message(0, EventType.Disconnected, null));
-
-                // clean up properly before exiting
-                client.Close();
             }
             catch (Exception exception)
             {
                 // something went wrong. probably important.
                 Logger.LogError("Client Exception: " + exception);
             }
+
+            // if we got here then we are done. ReceiveLoop cleans up already,
+            // but we may never get there if connect fails. so let's clean up
+            // here too.
+            client.Close();
         }
 
         public void Connect(string ip, int port)
@@ -77,7 +86,7 @@ namespace Telepathy
             //    too long, which is especially good in games
             // -> this way we don't async client.BeginConnect, which seems to
             //    fail sometimes if we connect too many clients too fast
-            thread = new Thread(() => { ThreadFunction(ip, port); });
+            Thread thread = new Thread(() => { ThreadFunction(client, ip, port, messageQueue); });
             thread.IsBackground = true;
             thread.Start();
         }
@@ -85,16 +94,23 @@ namespace Telepathy
         public void Disconnect()
         {
             // only if started
-            if (!Connecting && !Connected) return;
+            if (Connecting || Connected)
+            {
+                // close client, ThreadFunc will end and clean up
+                client.Close();
 
-            Logger.Log("Client: disconnecting");
+                // clear client reference so that we can call Connect again
+                // immediately after calling Disconnect.
+                // -> this client's thread will end in the background in a few
+                //    milliseconds, we don't need to worry about it anymore
+                // -> setting it null here won't set it null in ThreadFunction,
+                //    because it's static and we pass a reference. so there
+                //    won't be any NullReferenceExceptions. the thread will just
+                //    end gracefully.
+                client = null;
 
-            // this is supposed to disconnect gracefully, but the blocking Read
-            // calls throw a 'Read failure' exception instead of returning 0.
-            // (maybe it's Unity? maybe Mono?)
-            client.GetStream().Close();
-            client.Close();
-            client = null;
+                Logger.Log("Client: disconnected");
+            }
         }
 
         public bool Send(byte[] data)
