@@ -421,7 +421,7 @@ namespace UnityEngine.Networking
 
         public NetworkClient StartClient(ConnectionConfig config)
         {
-            return StartClient(config);
+            return StartClient(config, 0);
         }
 
         public virtual NetworkClient StartHost(ConnectionConfig config)
