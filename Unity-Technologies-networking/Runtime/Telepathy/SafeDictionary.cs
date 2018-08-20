@@ -8,6 +8,19 @@ namespace Telepathy
     {
         Dictionary<TKey,TValue> dict = new Dictionary<TKey,TValue>();
 
+        // for statistics. don't call Count and assume that it's the same after the
+        // call.
+        public int Count
+        {
+            get
+            {
+                lock(dict)
+                {
+                    return dict.Count;
+                }
+            }
+        }
+
         public void Add(TKey key, TValue value)
         {
             lock(dict)
