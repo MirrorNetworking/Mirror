@@ -424,23 +424,10 @@ namespace UnityEngine.Networking
             return StartClient(config, 0);
         }
 
-        public virtual NetworkClient StartHost(ConnectionConfig config)
+        public virtual NetworkClient StartHost(ConnectionConfig config=null)
         {
             OnStartHost();
             if (StartServer(config))
-            {
-                var localClient = ConnectLocalClient();
-                OnServerConnect(localClient.connection);
-                OnStartClient(localClient);
-                return localClient;
-            }
-            return null;
-        }
-
-        public virtual NetworkClient StartHost()
-        {
-            OnStartHost();
-            if (StartServer())
             {
                 var localClient = ConnectLocalClient();
                 OnServerConnect(localClient.connection);
