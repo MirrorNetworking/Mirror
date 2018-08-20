@@ -18,7 +18,7 @@ namespace UnityEngine.Networking
             // by simple eating the first one before the server starts
             Telepathy.Server.NextConnectionId();
 
-            Debug.LogWarning("TelepathyTransport initialized!");
+            Debug.Log("TelepathyTransport initialized!");
         }
 
         // client
