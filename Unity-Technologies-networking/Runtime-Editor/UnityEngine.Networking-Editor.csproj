@@ -71,16 +71,17 @@
     <Compile Include="..\Runtime\NetworkServer.cs" />
     <Compile Include="..\Runtime\SyncList.cs" />
     <Compile Include="..\Runtime\NetworkWriter.cs" />
-    <Compile Include="..\Runtime\Telepathy\Client.cs" />
-    <Compile Include="..\Runtime\Telepathy\Common.cs" />
-    <Compile Include="..\Runtime\Telepathy\EventType.cs" />
-    <Compile Include="..\Runtime\Telepathy\Logger.cs" />
-    <Compile Include="..\Runtime\Telepathy\Message.cs" />
-    <Compile Include="..\Runtime\Telepathy\NetworkStreamExtensions.cs" />
-    <Compile Include="..\Runtime\Telepathy\SafeCounter.cs" />
-    <Compile Include="..\Runtime\Telepathy\SafeDictionary.cs" />
-    <Compile Include="..\Runtime\Telepathy\SafeQueue.cs" />
-    <Compile Include="..\Runtime\Telepathy\Server.cs" />
+    <Compile Include="..\Runtime\TransportLayers/TelepathyTransport.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/Client.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/Common.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/EventType.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/Logger.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/Message.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/NetworkStreamExtensions.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/SafeCounter.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/SafeDictionary.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/SafeQueue.cs" />
+    <Compile Include="..\Runtime\TransportLayers/Telepathy/Server.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

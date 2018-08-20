@@ -64,17 +64,18 @@
     <Compile Include="NetworkManagerHUD.cs" />
     <Compile Include="NetworkBehaviour.cs" />
     <Compile Include="NetworkIdentity.cs" />
-    <Compile Include="Telepathy\Client.cs" />
-    <Compile Include="Telepathy\Common.cs" />
-    <Compile Include="Telepathy\EventType.cs" />
-    <Compile Include="Telepathy\Logger.cs" />
-    <Compile Include="Telepathy\Message.cs" />
-    <Compile Include="Telepathy\NetworkStreamExtensions.cs" />
-    <Compile Include="Telepathy\SafeCounter.cs" />
-    <Compile Include="Telepathy\SafeDictionary.cs" />
-    <Compile Include="Telepathy\SafeQueue.cs" />
-    <Compile Include="Telepathy\Server.cs" />
     <Compile Include="Transport.cs" />
+    <Compile Include="TransportLayers\TelepathyTransport.cs" />
+    <Compile Include="TransportLayers\Telepathy\Client.cs" />
+    <Compile Include="TransportLayers\Telepathy\Common.cs" />
+    <Compile Include="TransportLayers\Telepathy\EventType.cs" />
+    <Compile Include="TransportLayers\Telepathy\Logger.cs" />
+    <Compile Include="TransportLayers\Telepathy\Message.cs" />
+    <Compile Include="TransportLayers\Telepathy\NetworkStreamExtensions.cs" />
+    <Compile Include="TransportLayers\Telepathy\SafeCounter.cs" />
+    <Compile Include="TransportLayers\Telepathy\SafeDictionary.cs" />
+    <Compile Include="TransportLayers\Telepathy\SafeQueue.cs" />
+    <Compile Include="TransportLayers\Telepathy\Server.cs" />
     <Compile Include="UNetwork.cs" />
     <Compile Include="NetworkReader.cs" />
     <Compile Include="NetworkServer.cs" />
@@ -82,8 +83,8 @@
     <Compile Include="NetworkWriter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Telepathy\LICENSE" />
-    <Content Include="Telepathy\README.md" />
+    <Content Include="TransportLayers\Telepathy\LICENSE" />
+    <Content Include="TransportLayers\Telepathy\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
