@@ -103,16 +103,15 @@ namespace UnityEngine.Networking
         {
             transportEvent = TransportEvent.Disconnected;
             data = null;
-            int hostId;
             int connectionId;
             int channel;
             int receivedSize;
-            NetworkEventType networkEvent = NetworkTransport.Receive(out hostId, out connectionId, out channel, clientReceiveBuffer, clientReceiveBuffer.Length, out receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out connectionId, out channel, clientReceiveBuffer, clientReceiveBuffer.Length, out receivedSize, out error);
 
             NetworkError networkError = (NetworkError) error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogError("NetworkTransport.Receive failed: hostid=" + hostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                Debug.LogError("NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
                 return false;
             }
 
@@ -134,7 +133,7 @@ namespace UnityEngine.Networking
             // assign rest of the values and return true
             data = new byte[receivedSize];
             Array.Copy(clientReceiveBuffer, data, receivedSize);
-            //Debug.Log("LLAPITransport.ClientGetNextMessage: clientid=" + hostId + " connid=" + connectionId + " event=" + networkEvent + " data=" + BitConverter.ToString(data) + " error=" + error);
+            //Debug.Log("LLAPITransport.ClientGetNextMessage: clientid=" + clientId + " connid=" + connectionId + " event=" + networkEvent + " data=" + BitConverter.ToString(data) + " error=" + error);
             return true;
         }
 
@@ -170,7 +169,7 @@ namespace UnityEngine.Networking
         {
             HostTopology topology = new HostTopology(connectionConfig, maxConnections);
             serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
-            Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
         public bool ServerSend(int connectionId, byte[] data)
@@ -183,15 +182,14 @@ namespace UnityEngine.Networking
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
             data = null;
-            int hostId;
             int channel;
             int receivedSize;
-            NetworkEventType networkEvent = NetworkTransport.Receive(out hostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
 
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogError("NetworkTransport.Receive failed: hostid=" + hostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                Debug.LogError("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
                 return false;
             }
 
@@ -213,7 +211,7 @@ namespace UnityEngine.Networking
             // assign rest of the values and return true
             data = new byte[receivedSize];
             Array.Copy(serverReceiveBuffer, data, receivedSize);
-            //Debug.Log("LLAPITransport.ServerGetNextMessage: " + networkEvent + "connid=" + connectionId + " data=" + BitConverter.ToString(data) + " error=" + error);
+            //Debug.Log("LLAPITransport.ServerGetNextMessage: hostId=" + serverHostId + " event=" + networkEvent + "connid=" + connectionId + " channel=" + channel + " data=" + BitConverter.ToString(data) + " error=" + error);
             return true;
         }
 
