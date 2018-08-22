@@ -65,6 +65,7 @@
     <Compile Include="NetworkBehaviour.cs" />
     <Compile Include="NetworkIdentity.cs" />
     <Compile Include="Transport.cs" />
+    <Compile Include="TransportLayers\LLAPITransport.cs" />
     <Compile Include="TransportLayers\TelepathyTransport.cs" />
     <Compile Include="TransportLayers\Telepathy\Client.cs" />
     <Compile Include="TransportLayers\Telepathy\Common.cs" />

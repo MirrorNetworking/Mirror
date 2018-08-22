@@ -71,6 +71,7 @@
     <Compile Include="..\Runtime\NetworkServer.cs" />
     <Compile Include="..\Runtime\SyncList.cs" />
     <Compile Include="..\Runtime\NetworkWriter.cs" />
+    <Compile Include="..\Runtime\TransportLayers/LLAPITransport.cs" />
     <Compile Include="..\Runtime\TransportLayers/TelepathyTransport.cs" />
     <Compile Include="..\Runtime\TransportLayers/Telepathy/Client.cs" />
     <Compile Include="..\Runtime\TransportLayers/Telepathy/Common.cs" />
