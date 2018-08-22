@@ -193,6 +193,13 @@ namespace UnityEngine.Networking
                 return false;
             }
 
+            // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
+            // ignore all messages that aren't for our selected channel.
+            if (channel != channelId)
+            {
+                return false;
+            }
+
             switch (networkEvent)
             {
                 case NetworkEventType.Nothing:
