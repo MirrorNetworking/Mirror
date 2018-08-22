@@ -79,7 +79,11 @@ namespace UnityEngine.Networking
         public void ClientConnect(string address, int port)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
-            clientId = NetworkTransport.AddHost(hostTopology);
+
+            // important:
+            //   AddHost(topology) doesn't work in WebGL.
+            //   AddHost(topology, port) works in standalone and webgl if port=0
+            clientId = NetworkTransport.AddHost(hostTopology, 0);
 
             clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
             NetworkError networkError = (NetworkError) error;
