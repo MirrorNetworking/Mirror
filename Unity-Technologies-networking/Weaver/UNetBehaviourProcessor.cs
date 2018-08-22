@@ -36,6 +36,8 @@ namespace Unity.UNetWeaver
         const string k_RpcPrefix = "InvokeRpc";
         const string k_TargetRpcPrefix = "InvokeTargetRpc";
 
+        public enum SyncTarget { Observers, Owner };
+
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
             Weaver.DLog(td, "NetworkBehaviourProcessor");
@@ -535,39 +537,6 @@ namespace Unity.UNetWeaver
                 return;
             }
 
-            // Generates: if (forceAll);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (FieldDefinition syncVar in m_SyncVars)
-            {
-                // Generates a writer call for each sync variable
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    return;
-                }
-            }
-
-            // always return true if forceAll
-
-            // Generates: return true
-            serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (forceAll);
-            serWorker.Append(initialStateLabel);
-
             // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
@@ -864,61 +833,6 @@ namespace Unity.UNetWeaver
                 m_td.Methods.Add(serialize);
                 return;
             }
-
-            // Generates: if (initialState);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (var syncVar in m_SyncVars)
-            {
-                MethodReference readByReferenceFunc = Weaver.GetReadByReferenceFunc(syncVar.FieldType);
-                if (readByReferenceFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, readByReferenceFunc));
-                }
-                else
-                {
-                    // assign value
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-
-                    if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
-                    {
-                        // GameObject SyncVar - assign to generated netId var
-                        FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                        m_NetIdFieldCounter += 1;
-
-                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadNetworkInstanceId));
-                        serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
-                    }
-                    else
-                    {
-                        MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
-                        if (readFunc != null)
-                        {
-                            serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                        }
-                        else
-                        {
-                            Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                            Weaver.fail = true;
-                            return;
-                        }
-                        serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
-                    }
-                }
-            }
-
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (initialState);
-            serWorker.Append(initialStateLabel);
-
 
             // setup local for dirty bits
             serialize.Body.InitLocals = true;
@@ -1900,6 +1814,26 @@ namespace Unity.UNetWeaver
             return get;
         }
 
+        SyncTarget GetSyncVarSyncTarget(FieldDefinition fd)
+        {
+            foreach (CustomAttribute attr in fd.CustomAttributes)
+            {
+                if (attr.AttributeType.FullName == Weaver.SyncVarType.FullName)
+                {
+                    foreach (var field in attr.Fields)
+                    {
+                        if (field.Name == "target") // SyncVar.target == SyncTarget.XYZ
+                        {
+                            // SyncTarget enum: 0 == Observers, 1 == Owner
+                            return (SyncTarget)field.Argument.Value;
+                        }
+                    }
+                }
+            }
+
+            return SyncTarget.Observers;
+        }
+
         MethodDefinition ProcessSyncVarSet(FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
         {
             //Create the set method
@@ -2008,7 +1942,6 @@ namespace Unity.UNetWeaver
             {
                 GetMethod = get, SetMethod = set
             };
-
             //add the methods and property to the type.
             m_td.Methods.Add(get);
             m_td.Methods.Add(set);
@@ -2073,6 +2006,64 @@ namespace Unity.UNetWeaver
                 Weaver.int32Type);
         }
 
+        // Generates a property in a file to get the owner mask
+        void GenerateOwnerMaskProperty(long ownerMask)
+        {
+            // no new variables are owners,  
+            // no need to override syncVarOwnerMask
+            if (ownerMask == 0L)
+                return;
+
+            // generates this:
+            //
+            // protected override ulong syncVarOwnerMask 
+            // {
+            //     get 
+            //     {
+            //         return 0x10 | base.syncVarOwnerMask;
+            //     }
+            // }
+
+
+            //Create the get method
+            MethodDefinition get = new MethodDefinition(
+                "get_syncVarOwnerMask", MethodAttributes.Family |
+                MethodAttributes.SpecialName |
+                MethodAttributes.HideBySig |
+                MethodAttributes.Virtual,
+                Weaver.uint64Type);
+
+            ILProcessor getWorker = get.Body.GetILProcessor();
+
+            // generate:  return (0xabc | base.syncVarOwnerMask);
+            getWorker.Append(getWorker.Create(OpCodes.Ldc_I8, ownerMask)); // 8 byte integer aka long
+
+            if (m_td.BaseType.FullName != Weaver.NetworkBehaviourType.FullName)
+            {
+                MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "get_syncVarOwnerMask");
+                if (baseSerialize != null)
+                {
+                    getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // base
+                    getWorker.Append(getWorker.Create(OpCodes.Call, baseSerialize));
+                    getWorker.Append(getWorker.Create(OpCodes.Or)); 
+                }
+            }
+
+            getWorker.Append(getWorker.Create(OpCodes.Ret));
+
+            get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
+
+
+            PropertyDefinition propertyDefinition = new PropertyDefinition("syncVarOwnerMask", PropertyAttributes.None, Weaver.uint64Type)
+            {
+                GetMethod = get
+            };
+            //add the methods and property to the type.
+            m_td.Methods.Add(get);
+            m_td.Properties.Add(propertyDefinition);
+
+        }
+
         void ProcessSyncVars()
         {
             int numSyncVars = 0;
@@ -2080,6 +2071,9 @@ namespace Unity.UNetWeaver
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
             int dirtyBitCounter = Weaver.GetSyncVarStart(m_td.BaseType.FullName);
+
+            // mask that determines which of these bits are sync to owner
+            long ownerMask = 0;
 
             m_SyncVarNetIds.Clear();
             List<FieldDefinition> listFields = new List<FieldDefinition>();
@@ -2148,9 +2142,17 @@ namespace Unity.UNetWeaver
                             return;
                         }
 
+                        // at this point this is either a list or a syncvar and has
+                        // the [SyncVar] attribute.   Check if it is SyncToOwner
+                        // and adjust the mask
+                        if (GetSyncVarSyncTarget(fd) == SyncTarget.Owner)
+                        {
+                            ownerMask |= 1L << dirtyBitCounter;
+                        }
+
+
                         if (Helpers.InheritsFromSyncList(fd.FieldType))
                         {
-                            Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", m_td.FullName, fd.Name));
                             break;
                         }
 
@@ -2216,6 +2218,8 @@ namespace Unity.UNetWeaver
             {
                 m_td.Methods.Add(func);
             }
+
+            GenerateOwnerMaskProperty(ownerMask);
 
             Weaver.SetNumSyncVars(m_td.FullName, numSyncVars);
         }

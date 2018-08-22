@@ -745,10 +745,6 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
-            {
-                playerNetworkIdentity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -787,12 +783,17 @@ namespace UnityEngine.Networking
                     // so dont spawn it again.
                     uv.OnStartServer(true);
                 }
+                // paul: The owner must be set before we rebuild observers
+                // during rebuild observers spawn messages might be sent 
+                //and if we don't have the owner,  we won't receive owner data
+                uv.SetClientOwner(conn);
+
                 uv.RebuildObservers(true);
                 SendSpawnMessage(uv, null);
 
                 // Set up local player instance on the client instance and update local object map
                 localConnection.localClient.AddLocalPlayer(newPlayerController);
-                uv.SetClientOwner(conn);
+
 
                 // Trigger OnAuthority
                 uv.ForceAuthority(true);
@@ -810,7 +811,7 @@ namespace UnityEngine.Networking
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
-                Spawn(playerGameObject);
+                Spawn(playerGameObject, conn);
             }
 
             OwnerMessage owner = new OwnerMessage();
@@ -860,10 +861,6 @@ namespace UnityEngine.Networking
             if (LogFilter.logDebug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
-            {
-                playerNetworkIdentity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -1068,7 +1065,7 @@ namespace UnityEngine.Networking
             uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
-        static internal void SpawnObject(GameObject obj)
+        static internal void SpawnObject(GameObject obj, NetworkConnection conn = null)
         {
             if (!NetworkServer.active)
             {
@@ -1088,6 +1085,13 @@ namespace UnityEngine.Networking
 
             if (LogFilter.logDebug) { Debug.Log("SpawnObject instance ID " + objNetworkIdentity.netId + " asset ID " + objNetworkIdentity.assetId); }
 
+            // paul: we must set the owner before rebuilding observers or we won't be sending 
+            // owner data to the owner
+            if (objNetworkIdentity.localPlayerAuthority && conn != null)
+            {
+                objNetworkIdentity.SetClientOwner(conn);
+            }
+
             objNetworkIdentity.RebuildObservers(true);
             //SendSpawnMessage(objNetworkIdentity, null);
         }
@@ -1097,69 +1101,103 @@ namespace UnityEngine.Networking
             if (uv.serverOnly)
                 return;
 
-            if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+            //if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " owner = " + (uv.clientAuthorityOwner != null)); } // for easier debugging
+
+            bool sendToOwner = uv.clientAuthorityOwner != null && (conn == null || uv.clientAuthorityOwner == conn);
+            bool sendToObserver = (conn == null || uv.clientAuthorityOwner != conn);
 
             // 'uv' is a prefab that should be spawned
             if (uv.sceneId.IsEmpty())
             {
-                SpawnPrefabMessage msg = new SpawnPrefabMessage();
-                msg.netId = uv.netId;
-                msg.assetId = uv.assetId;
-                msg.position = uv.transform.position;
-                msg.rotation = uv.transform.rotation;
-
-                // serialize all components with initialState = true
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
-                msg.payload = writer.ToArray();
-
-                // conn is != null when spawning it for a client
-                if (conn != null)
+                if (sendToOwner)
                 {
-                    conn.Send((short)MsgType.SpawnPrefab, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to owner=" + uv.clientAuthorityOwner.connectionId); } // for easier debugging
+                    SendSpanPrefabMessage(uv, uv.clientAuthorityOwner, SyncTarget.Owner);
                 }
-                // conn is == null when spawning it for the local player
-                else
+                if (sendToObserver)
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to observers"); } // for easier debugging
+                    SendSpanPrefabMessage(uv, conn, SyncTarget.Observers);
                 }
-
-#if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
-#endif
             }
             // 'uv' is a scene object that should be spawned again
             else
             {
-                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-                msg.netId = uv.netId;
-                msg.sceneId = uv.sceneId;
-                msg.position = uv.transform.position;
-
-                // include synch data
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true, -1); // channelId doesn't matter if initialState
-                msg.payload = writer.ToArray();
-
-                // conn is != null when spawning it for a client
-                if (conn != null)
+                if (sendToOwner)
                 {
-                    conn.Send((short)MsgType.SpawnSceneObject, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnSceneObjectMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to owner=" + uv.clientAuthorityOwner.connectionId); } // for easier debugging
+                    SendSpawnSceneObjectMessage(uv, uv.clientAuthorityOwner, SyncTarget.Owner);
                 }
-                // conn is == null when spawning it for the local player
-                else
+                if (sendToObserver)
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
+                    if (LogFilter.logDebug) { Debug.Log("Server SendSpawnSceneObjectMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId + " to observers"); } // for easier debugging
+                    SendSpawnSceneObjectMessage(uv, conn, SyncTarget.Observers);
                 }
+            }
+
+        }
+
+        private static void SendSpawnSceneObjectMessage(NetworkIdentity uv, NetworkConnection conn, SyncTarget target)
+        {
+            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
+            msg.netId = uv.netId;
+            msg.sceneId = uv.sceneId;
+            msg.position = uv.transform.position;
+
+            // include synch data
+            NetworkWriter writer = new NetworkWriter();
+            uv.OnSerializeAllSafely(writer, true, SyncTarget.Owner, -1); // channelId doesn't matter if initialState
+            msg.payload = writer.ToArray();
+
+            // conn is != null when spawning it for a client
+            if (conn != null)
+            {
+                conn.SendByChannel((short)MsgType.SpawnSceneObject, msg, Channels.DefaultReliable);
+            }
+            // conn is == null when spawning it for the local player
+            else
+            {
+                uv.SendToObservers((short)MsgType.SpawnSceneObject, msg, Channels.DefaultReliable);
+            }
 
 #if UNITY_EDITOR
-                UnityEditor.NetworkDetailStats.IncrementStat(
-                    UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
-                    (short)MsgType.SpawnSceneObject, "sceneId", 1);
+            UnityEditor.NetworkDetailStats.IncrementStat(
+                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
+                (short)MsgType.SpawnSceneObject, "sceneId", 1);
 #endif
+        }
+
+        private static void SendSpanPrefabMessage(NetworkIdentity uv, NetworkConnection conn, SyncTarget target)
+        {
+            SpawnPrefabMessage msg = new SpawnPrefabMessage();
+            msg.netId = uv.netId;
+            msg.assetId = uv.assetId;
+            msg.position = uv.transform.position;
+            msg.rotation = uv.transform.rotation;
+
+            // serialize all components with initialState = true
+            NetworkWriter writer = new NetworkWriter();
+            uv.OnSerializeAllSafely(writer, true, target, -1); // channelId doesn't matter if initialState
+            msg.payload = writer.ToArray();
+
+                
+            // conn is != null when spawning it for a client
+            if (conn != null)
+            {
+                conn.SendByChannel((short)MsgType.SpawnPrefab, msg, Channels.DefaultReliable);
+
             }
+            // conn is == null when spawning it for the local player
+            else
+            {
+                uv.SendToObservers((short)MsgType.SpawnPrefab, msg, Channels.DefaultReliable);
+            }
+
+#if UNITY_EDITOR
+            UnityEditor.NetworkDetailStats.IncrementStat(
+                UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
+                (short)MsgType.SpawnPrefab, uv.assetId.ToString(), 1);
+#endif
         }
 
         static public void DestroyPlayersForConnection(NetworkConnection conn)
@@ -1279,11 +1317,11 @@ namespace UnityEngine.Networking
             objects.Clear();
         }
 
-        static public void Spawn(GameObject obj)
+        static public void Spawn(GameObject obj, NetworkConnection conn = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj);
+                SpawnObject(obj, conn);
             }
         }
 
@@ -1333,7 +1371,7 @@ namespace UnityEngine.Networking
                 return false;
             }
 
-            Spawn(obj);
+            Spawn(obj, conn);
 
             var uv = obj.GetComponent<NetworkIdentity>();
             if (uv == null || !uv.isServer)
@@ -1347,7 +1385,7 @@ namespace UnityEngine.Networking
 
         static public bool SpawnWithClientAuthority(GameObject obj, NetworkHash128 assetId, NetworkConnection conn)
         {
-            Spawn(obj, assetId);
+            Spawn(obj, assetId, conn);
 
             var uv = obj.GetComponent<NetworkIdentity>();
             if (uv == null || !uv.isServer)
@@ -1359,7 +1397,7 @@ namespace UnityEngine.Networking
             return uv.AssignClientAuthority(conn);
         }
 
-        static public void Spawn(GameObject obj, NetworkHash128 assetId)
+        static public void Spawn(GameObject obj, NetworkHash128 assetId, NetworkConnection conn = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1368,7 +1406,7 @@ namespace UnityEngine.Networking
                 {
                     id.SetDynamicAssetId(assetId);
                 }
-                SpawnObject(obj);
+                SpawnObject(obj, conn);
             }
         }
 

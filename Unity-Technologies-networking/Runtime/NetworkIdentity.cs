@@ -443,9 +443,23 @@ namespace UnityEngine.Networking
             return result;
         }
 
+        internal void ClearDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in m_NetworkBehaviours)
+            {
+                // we only want to clear the ones we just sent
+                // otherwise we would be resetting the components waiting for their timer
+                // waiting for their turn.
+                if (comp.IsDirty())
+                {
+                    comp.ClearAllDirtyBits();
+                }
+            }
+        }
+
         // serialize all components (or only dirty ones for channelId if not initial state)
         // -> returns TRUE if any date other than dirtyMask was written!
-        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState, int channelId)
+        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState, SyncTarget target, int channelId)
         {
             if (components.Length > 64)
             {
@@ -462,22 +476,37 @@ namespace UnityEngine.Networking
                 // -> always serialize if initialState so all components with all channels are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
-                if (initialState || (comp.IsDirty() && comp.GetNetworkChannel() == channelId))
+                ulong dirtyBits = comp.syncVarDirtyBits;
+                float lastSentTime = comp.lastSendTime;
+
+                if (initialState)
+                {
+                    // during initial state,  consider everything as dirty
+                    comp.SetAllDirtyBits();    
+                }
+
+                if (target == SyncTarget.Observers)
+                {
+                    // if we are synchronizing for observers, all owner variables are treated as clean
+                    comp.ClearOwnerDirtyBits();
+                }
+
+                // if it is initializing,  channel does not matter,  they all go to reliable channel
+                // otherwise,  only send the component if we are looking at the right channel.
+                // note that if we are spawning,  we expect all varibles to be dirty
+                // except for the owner bits if we are talking about observers
+                if (comp.IsDirty() && (comp.GetNetworkChannel() == channelId || initialState))
                 {
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
 
-                    // serialize the data
                     if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState + " channelId=" + channelId); }
                     OnSerializeSafely(comp, payload, initialState);
-
-                    // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
-                    // This preserves the behavior in HLAPI
-                    if (!initialState)
-                    {
-                        comp.ClearAllDirtyBits();
-                    }
                 }
+
+                // restory the dirty bits, serialization should not have side effec
+                comp.syncVarDirtyBits = dirtyBits;
+                comp.lastSendTime = lastSentTime;
             }
 
             // did we write anything? then write dirty, payload and return true
@@ -494,7 +523,7 @@ namespace UnityEngine.Networking
         }
 
         // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState, int channelId) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState, channelId); }
+        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState, SyncTarget target, int channelId) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState, target, channelId); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -748,23 +777,67 @@ namespace UnityEngine.Networking
             // go through each channel
             for (int channelId = 0; channelId < NetworkServer.numChannels; channelId++)
             {
-                // serialize all the dirty components and send (if any were dirty)
-                NetworkWriter writer = new NetworkWriter();
-                if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, channelId))
+                SendUpdateVarsMessage(channelId, SyncTarget.Owner);
+                SendUpdateVarsMessage(channelId, SyncTarget.Observers);
+            }
+
+            // reset dirty bits for everything that was sent
+            ClearDirtyBits();
+        }
+
+        // sends a message to all observers except the owner
+        public void SendToObservers(short msgType, MessageBase msg, int channelId)
+        {
+            for (int i = 0; i < observers.Count; ++i)
+            {
+                NetworkConnection conn = observers[i];
+                if (conn.isReady && conn != m_ClientAuthorityOwner)
                 {
+                    conn.SendByChannel(msgType, msg, channelId);
+                }
+            }
+        }
+
+        public void SendToOwner(short msgType, MessageBase msg, int channelId)
+        {
+            m_ClientAuthorityOwner.SendByChannel(msgType, msg, channelId);
+        }
+
+        private bool SendUpdateVarsMessage(int channelId, SyncTarget target)
+        {
+            if (m_ClientAuthorityOwner == null && target == SyncTarget.Owner)
+            {
+                // there is no owner
+                return false;
+            }
+
+            // serialize all the dirty components and send (if any were dirty)
+            NetworkWriter writer = new NetworkWriter();
+            if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false, target, channelId))
+            {
 #if UNITY_EDITOR
                             UnityEditor.NetworkDetailStats.IncrementStat(
                                 UnityEditor.NetworkDetailStats.NetworkDirection.Outgoing,
                                 (short)MsgType.UpdateVars, name, 1);
 #endif
-                    // construct message and send
-                    UpdateVarsMessage message = new UpdateVarsMessage();
-                    message.netId = netId;
-                    message.payload = writer.ToArray();
+                // construct message and send
+                UpdateVarsMessage message = new UpdateVarsMessage();
+                message.netId = netId;
+                message.payload = writer.ToArray();
 
-                    NetworkServer.SendByChannelToReady(gameObject, (short)MsgType.UpdateVars, message, channelId);
+                if (target == SyncTarget.Owner)
+                {
+                    SendToOwner((short)MsgType.UpdateVars, message, channelId);
                 }
+                else
+                {
+                    SendToObservers((short)MsgType.UpdateVars, message, channelId);
+                }
+
+                if (LogFilter.logDev) { Debug.Log("Synchronized data for " + target + ", data size = " + message.payload.Length); } 
+                return true;
             }
+            return false;
         }
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
