@@ -164,10 +164,9 @@ namespace UnityEngine.Networking
 
         public void ServerStartWebsockets(string address, int port, int maxConnections)
         {
-            /*hostTopology = new HostTopology(connectionConfig, maxConnections);
-            NetworkTransport.Init(globalConfig);
-            serverHostId = NetworkTransport.AddWebsocketHost(hostTopology, port, address);
-            Debug.Log("LLAPITransport.ServerStartWebsockets addr=" + address + "port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);*/
+            HostTopology topology = new HostTopology(connectionConfig, maxConnections);
+            serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
+            Debug.Log("LLAPITransport.ServerStartWebsockets addr=" + address + "port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
         public bool ServerSend(int connectionId, byte[] data)
