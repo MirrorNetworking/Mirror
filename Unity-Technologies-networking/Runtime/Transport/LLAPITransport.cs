@@ -163,14 +163,14 @@ namespace UnityEngine.Networking
         {
             HostTopology topology = new HostTopology(connectionConfig, maxConnections);
             serverHostId = NetworkTransport.AddHost(topology, port);
-            //Debug.Log("LLAPITransport.ServerStart addr=" + address + "port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
         public void ServerStartWebsockets(string address, int port, int maxConnections)
         {
             HostTopology topology = new HostTopology(connectionConfig, maxConnections);
             serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
-            Debug.Log("LLAPITransport.ServerStartWebsockets addr=" + address + "port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
         public bool ServerSend(int connectionId, byte[] data)
