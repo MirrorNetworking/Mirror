@@ -144,8 +144,7 @@ namespace UnityEngine.Networking
 
         public float ClientGetRTT()
         {
-            // TODO
-            return 0;
+            return NetworkTransport.GetCurrentRTT(clientId, clientConnectionId, out error);
         }
 
         public void ClientDisconnect()
