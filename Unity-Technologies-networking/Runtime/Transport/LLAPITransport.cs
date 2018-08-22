@@ -108,11 +108,16 @@ namespace UnityEngine.Networking
             int receivedSize;
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out connectionId, out channel, clientReceiveBuffer, clientReceiveBuffer.Length, out receivedSize, out error);
 
-            NetworkError networkError = (NetworkError) error;
+            // note: 'error' is used for extra information, e.g. the reason for
+            // a disconnect. we don't necessarily have to throw an error if
+            // error != 0. but let's log it for easier debugging.
+            //
+            // DO NOT return after error != 0. otherwise Disconnect won't be
+            // registered.
+            NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogError("NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
-                return false;
+                Debug.Log("NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
             }
 
             switch (networkEvent)
@@ -186,11 +191,16 @@ namespace UnityEngine.Networking
             int receivedSize;
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
 
+            // note: 'error' is used for extra information, e.g. the reason for
+            // a disconnect. we don't necessarily have to throw an error if
+            // error != 0. but let's log it for easier debugging.
+            //
+            // DO NOT return after error != 0. otherwise Disconnect won't be
+            // registered.
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogError("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
-                return false;
+                Debug.Log("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
             }
 
             // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
