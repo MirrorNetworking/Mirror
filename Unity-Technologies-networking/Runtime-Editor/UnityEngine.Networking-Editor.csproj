@@ -72,6 +72,7 @@
     <Compile Include="..\Runtime\NetworkWriter.cs" />
     <Compile Include="..\Runtime\Transport\Transport.cs" />
     <Compile Include="..\Runtime\Transport\LLAPITransport.cs" />
+    <Compile Include="..\Runtime\Transport\TelepathyWebsocketsMultiplexTransport.cs" />
     <Compile Include="..\Runtime\Transport\TelepathyTransport.cs" />
     <Compile Include="..\Runtime\Transport\Telepathy\Client.cs" />
     <Compile Include="..\Runtime\Transport\Telepathy\Common.cs" />

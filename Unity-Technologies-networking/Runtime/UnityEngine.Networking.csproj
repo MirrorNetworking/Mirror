@@ -66,6 +66,7 @@
     <Compile Include="NetworkIdentity.cs" />
     <Compile Include="Transport\LLAPITransport.cs" />
     <Compile Include="Transport\TelepathyTransport.cs" />
+    <Compile Include="Transport\TelepathyWebsocketsMultiplexTransport.cs" />
     <Compile Include="Transport\Telepathy\Client.cs" />
     <Compile Include="Transport\Telepathy\Common.cs" />
     <Compile Include="Transport\Telepathy\EventType.cs" />

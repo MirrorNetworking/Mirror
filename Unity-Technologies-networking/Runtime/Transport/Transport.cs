@@ -10,7 +10,7 @@ namespace UnityEngine.Networking
         public static int MaxPacketSize = ushort.MaxValue;
 
         // selected transport layer: Telepathy by default
-        public static TransportLayer layer = new TelepathyTransport();
+        public static TransportLayer layer = new TelepathyWebsocketsMultiplexTransport();
     }
 
     // abstract transport layer class //////////////////////////////////////////
