@@ -103,7 +103,7 @@ namespace UnityEngine.Networking
 
         static public bool Listen(int serverPort, int maxConnections)
         {
-            return InternalListen(null, serverPort, maxConnections);
+            return InternalListen("127.0.0.1", serverPort, maxConnections);
         }
 
         static public bool Listen(string ipAddress, int serverPort, int maxConnections)
