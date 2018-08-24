@@ -14,7 +14,7 @@ namespace Mirror
     {
         List<PlayerController> m_PlayerControllers = new List<PlayerController>();
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
-        internal HashSet<NetworkIdentity> visList { get { return m_VisList; } }
+        public HashSet<NetworkIdentity> visList { get { return m_VisList; } }
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 

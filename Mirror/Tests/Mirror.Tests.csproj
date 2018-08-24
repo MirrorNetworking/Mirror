@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F57702C3-86F0-421C-8B29-AE00F0B84BAF}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>UnityEngine.Networking.Tests</RootNamespace>
-    <AssemblyName>UnityEngine.Networking.Tests</AssemblyName>
+    <RootNamespace>Mirror</RootNamespace>
+    <AssemblyName>Mirror.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -42,9 +42,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Runtime\UnityEngine.Networking.csproj">
+    <ProjectReference Include="..\Runtime\Mirror.Runtime.csproj">
       <Project>{5F1B8F9B-4500-4D09-808B-F43E8337DF05}</Project>
-      <Name>UnityEngine.Networking</Name>
+      <Name>Mirror.Runtime</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -7,8 +7,8 @@
     <ProjectGuid>{5F1B8F9B-4500-4D09-808B-F43E8337DF05}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>UnityEngine.Networking</RootNamespace>
-    <AssemblyName>UnityEngine.Networking</AssemblyName>
+    <RootNamespace>Mirror</RootNamespace>
+    <AssemblyName>Mirror.Runtime</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProductVersion>12.0.0</ProductVersion>

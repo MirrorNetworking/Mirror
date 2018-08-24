@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UnityEditor.Networking")]
-[assembly: AssemblyDescription("Networking High Level API Editor part")]
+[assembly: AssemblyTitle("Mirror.Editor")]
+[assembly: AssemblyDescription("Mirror Editor part")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Unity Technologies")]
-[assembly: AssemblyProduct("UnityEditor.Networking")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyCompany("vis2k")]
+[assembly: AssemblyProduct("Mirror.Editor")]
+[assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: InternalsVisibleTo("Assembly-CSharp-Editor-testable")]

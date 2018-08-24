@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine.Networking", "Runtime\UnityEngine.Networking.csproj", "{5F1B8F9B-4500-4D09-808B-F43E8337DF05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Runtime", "Runtime\Mirror.Runtime.csproj", "{5F1B8F9B-4500-4D09-808B-F43E8337DF05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEditor.Networking", "Editor\UnityEditor.Networking.csproj", "{F290E7F0-596E-495F-BD1F-E66386A1C597}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Editor", "Editor\Mirror.Editor.csproj", "{F290E7F0-596E-495F-BD1F-E66386A1C597}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine.Networking-Editor", "Runtime-Editor\UnityEngine.Networking-Editor.csproj", "{F8AD1DD0-E73F-419B-97BB-3C708BCA79C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Runtime-Editor", "Runtime-Editor\Mirror.Runtime-Editor.csproj", "{F8AD1DD0-E73F-419B-97BB-3C708BCA79C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Weaver", "Weaver\Mirror.Weaver.csproj", "{709222FD-15C2-497D-8B31-366ADCC074CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine.Networking.Tests", "UnityEngine.Networking.Tests\UnityEngine.Networking.Tests.csproj", "{F57702C3-86F0-421C-8B29-AE00F0B84BAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Tests", "Tests\Mirror.Tests.csproj", "{F57702C3-86F0-421C-8B29-AE00F0B84BAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
