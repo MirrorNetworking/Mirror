@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using System;
 using System.ComponentModel;
 using UnityEngine;
@@ -165,4 +164,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

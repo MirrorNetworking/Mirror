@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 
-#if ENABLE_UNET
-
 namespace Mirror
 {
     // Handles network messages on client and server
@@ -137,6 +135,3 @@ namespace Mirror
         }
     }
 }
-
-
-#endif //ENABLE_UNET

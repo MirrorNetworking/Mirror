@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-#if ENABLE_UNET
 namespace Mirror
 {
     public class LogFilter
@@ -26,4 +25,3 @@ namespace Mirror
         static public bool logError  { get { return currentLogLevel <= FilterLevel.Error; } }
     }
 }
-#endif //ENABLE_UNET

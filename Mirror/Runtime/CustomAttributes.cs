@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 
-#if ENABLE_UNET
-
 namespace Mirror
 {
     [AttributeUsage(AttributeTargets.Class)]
@@ -58,4 +56,3 @@ namespace Mirror
     {
     }
 }
-#endif //ENABLE_UNET

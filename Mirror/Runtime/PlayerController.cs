@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-#if ENABLE_UNET
 namespace Mirror
 {
     // This class represents the player entity in a network game, there can be multiple players per client
@@ -35,4 +34,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

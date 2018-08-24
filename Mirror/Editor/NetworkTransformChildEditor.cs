@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using UnityEditor;
 using UnityEngine;
 using System.Collections;
@@ -135,4 +134,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

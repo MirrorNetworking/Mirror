@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if ENABLE_UNET
-
 namespace Mirror
 {
     // This can't be an interface because users don't need to implement the
@@ -16,9 +14,9 @@ namespace Mirror
         // Serialize the contents of this message into the writer
         public virtual void Serialize(NetworkWriter writer) {}
     }
-    
+
     // ---------- General Typed Messages -------------------
-    
+
     public class StringMessage : MessageBase
     {
         public string value;
@@ -469,4 +467,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

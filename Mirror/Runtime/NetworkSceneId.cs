@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using System;
 using UnityEngine;
 
@@ -48,4 +47,3 @@ namespace Mirror
         public uint Value { get { return m_Value; } }
     }
 }
-#endif

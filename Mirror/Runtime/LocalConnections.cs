@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 
-#if ENABLE_UNET
-
 namespace Mirror
 {
     // a server's connection TO a LocalClient.
@@ -46,4 +44,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

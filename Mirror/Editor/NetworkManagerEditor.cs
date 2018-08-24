@@ -1,5 +1,4 @@
-﻿#if ENABLE_UNET
-using System;
+﻿using System;
 using System.IO;
 using System.Reflection;
 using UnityEditor;
@@ -382,4 +381,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

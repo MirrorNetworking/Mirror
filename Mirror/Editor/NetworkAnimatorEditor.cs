@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using System;
 using UnityEditor;
 using UnityEditor.Animations;
@@ -93,4 +92,3 @@ namespace Mirror
         }
     }
 }
-#endif

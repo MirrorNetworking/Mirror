@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -173,4 +172,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

@@ -1,4 +1,3 @@
-#if ENABLE_UNET
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -119,4 +118,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET

@@ -4,8 +4,6 @@ using System;
 using System.ComponentModel;
 using UnityEngine;
 
-#if ENABLE_UNET
-
 namespace Mirror
 {
     [AddComponentMenu("Network/NetworkManagerHUD")]
@@ -121,4 +119,3 @@ namespace Mirror
         }
     }
 }
-#endif //ENABLE_UNET
