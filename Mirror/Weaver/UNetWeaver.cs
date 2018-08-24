@@ -1028,19 +1028,19 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute attr in md.CustomAttributes)
                 {
-                    if (attr.Constructor.DeclaringType.ToString() == "UnityEngine.Networking.ServerAttribute")
+                    if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerAttribute")
                     {
                         InjectServerGuard(moduleDef, td, md, true);
                     }
-                    else if (attr.Constructor.DeclaringType.ToString() == "UnityEngine.Networking.ServerCallbackAttribute")
+                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerCallbackAttribute")
                     {
                         InjectServerGuard(moduleDef, td, md, false);
                     }
-                    else if (attr.Constructor.DeclaringType.ToString() == "UnityEngine.Networking.ClientAttribute")
+                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientAttribute")
                     {
                         InjectClientGuard(moduleDef, td, md, true);
                     }
-                    else if (attr.Constructor.DeclaringType.ToString() == "UnityEngine.Networking.ClientCallbackAttribute")
+                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientCallbackAttribute")
                     {
                         InjectClientGuard(moduleDef, td, md, false);
                     }
@@ -1291,23 +1291,23 @@ namespace Mirror.Weaver
             transformType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Transform");
             unityObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Object");
 
-            hashType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkHash128");
-            NetworkClientType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkClient");
-            NetworkServerType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkServer");
+            hashType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkHash128");
+            NetworkClientType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkClient");
+            NetworkServerType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkServer");
 
-            SyncVarType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncVarAttribute");
-            CommandType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.CommandAttribute");
-            ClientRpcType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.ClientRpcAttribute");
-            TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.TargetRpcAttribute");
-            SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncEventAttribute");
-            SyncListType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncList`1");
-            NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkSettingsAttribute");
+            SyncVarType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncVarAttribute");
+            CommandType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.CommandAttribute");
+            ClientRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientRpcAttribute");
+            TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.TargetRpcAttribute");
+            SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
+            SyncListType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncList`1");
+            NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
 
-            SyncListFloatType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListFloat");
-            SyncListIntType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListInt");
-            SyncListUIntType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListUInt");
-            SyncListBoolType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListBool");
-            SyncListStringType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListString");
+            SyncListFloatType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListFloat");
+            SyncListIntType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListInt");
+            SyncListUIntType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListUInt");
+            SyncListBoolType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListBool");
+            SyncListStringType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListString");
         }
 
         static void SetupCorLib()
@@ -1351,23 +1351,23 @@ namespace Mirror.Weaver
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
             MemoryStreamType = ImportCorLibType("System.IO.MemoryStream");
 
-            NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkReader");
+            NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
             NetworkReaderDef = NetworkReaderType.Resolve();
 
             NetworkReaderCtor = ResolveMethod(NetworkReaderDef, ".ctor");
 
-            NetworkWriterType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkWriter");
+            NetworkWriterType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkWriter");
             NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
 
             MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkSceneId");
+            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
+            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
 
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkSceneId");
+            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
+            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
@@ -1395,12 +1395,12 @@ namespace Mirror.Weaver
             NetworkReadUInt16 = ResolveMethod(NetworkReaderType, "ReadUInt16");
             NetworkWriteUInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", uint16Type);
 
-            CmdDelegateReference = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkBehaviour/CmdDelegate");
+            CmdDelegateReference = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = ResolveMethod(CmdDelegateReference, ".ctor");
             scriptDef.MainModule.ImportReference(gameObjectType);
             scriptDef.MainModule.ImportReference(transformType);
 
-            TypeReference unetViewTmp = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkIdentity");
+            TypeReference unetViewTmp = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkIdentity");
             NetworkIdentityType = scriptDef.MainModule.ImportReference(unetViewTmp);
 
             NetworkInstanceIdType = scriptDef.MainModule.ImportReference(NetworkInstanceIdType);
@@ -1418,29 +1418,29 @@ namespace Mirror.Weaver
             SyncListStringWriteType = ResolveMethod(SyncListStringType, "WriteInstance");
 
 
-            NetworkBehaviourType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkBehaviour");
+            NetworkBehaviourType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = scriptDef.MainModule.ImportReference(NetworkBehaviourType);
-            NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkConnection");
+            NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkConnection");
 
             MonoBehaviourType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.ScriptableObject");
 
-            NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.NetworkConnection");
+            NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = scriptDef.MainModule.ImportReference(NetworkConnectionType);
 
-            ULocalConnectionToServerType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.ULocalConnectionToServer");
+            ULocalConnectionToServerType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ULocalConnectionToServer");
             ULocalConnectionToServerType = scriptDef.MainModule.ImportReference(ULocalConnectionToServerType);
 
-            ULocalConnectionToClientType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.ULocalConnectionToClient");
+            ULocalConnectionToClientType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ULocalConnectionToClient");
             ULocalConnectionToClientType = scriptDef.MainModule.ImportReference(ULocalConnectionToClientType);
 
-            MessageBaseType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.MessageBase");
-            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.SyncListStruct`1");
+            MessageBaseType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.MessageBase");
+            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListStruct`1");
 
             NetworkBehaviourDirtyBitsReference = ResolveProperty(NetworkBehaviourType, "syncVarDirtyBits");
 
             ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
-            ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("UnityEngine.Networking.ClientScene");
+            ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientScene");
             FindLocalObjectReference = ResolveMethod(ClientSceneType, "FindLocalObject");
             ReadyConnectionReference = ResolveMethod(ClientSceneType, "get_readyConnection");
 

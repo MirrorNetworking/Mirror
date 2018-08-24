@@ -68,22 +68,22 @@ namespace Mirror.Weaver
 
                     var attrName = ca.Constructor.DeclaringType.ToString();
 
-                    if (attrName == "UnityEngine.Networking.ServerAttribute")
+                    if (attrName == "Mirror.ServerAttribute")
                     {
                         Log.Error("Script " + m_td.FullName + " uses the attribute [Server] on the method " + md.Name + " but is not a NetworkBehaviour.");
                         Weaver.fail = true;
                     }
-                    else if (attrName == "UnityEngine.Networking.ServerCallbackAttribute")
+                    else if (attrName == "Mirror.ServerCallbackAttribute")
                     {
                         Log.Error("Script " + m_td.FullName + " uses the attribute [ServerCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
                         Weaver.fail = true;
                     }
-                    else if (attrName == "UnityEngine.Networking.ClientAttribute")
+                    else if (attrName == "Mirror.ClientAttribute")
                     {
                         Log.Error("Script " + m_td.FullName + " uses the attribute [Client] on the method " + md.Name + " but is not a NetworkBehaviour.");
                         Weaver.fail = true;
                     }
-                    else if (attrName == "UnityEngine.Networking.ClientCallbackAttribute")
+                    else if (attrName == "Mirror.ClientCallbackAttribute")
                     {
                         Log.Error("Script " + m_td.FullName + " uses the attribute [ClientCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
                         Weaver.fail = true;
