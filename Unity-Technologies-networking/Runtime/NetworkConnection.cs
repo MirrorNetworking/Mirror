@@ -241,19 +241,6 @@ namespace UnityEngine.Networking
                         msgDelegate(msg);
                     }
                     lastMessageTime = Time.time;
-
-    #if UNITY_EDITOR
-                    UnityEditor.NetworkDetailStats.IncrementStat(
-                        UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                        (short)MsgType.HLAPIMsg, "msg", 1);
-
-                    if (msgType > (short)MsgType.Highest)
-                    {
-                        UnityEditor.NetworkDetailStats.IncrementStat(
-                            UnityEditor.NetworkDetailStats.NetworkDirection.Incoming,
-                            (short)MsgType.UserMessage, msgType.ToString() + ":" + msgType.GetType().Name, 1);
-                    }
-    #endif
                 }
                 else
                 {
