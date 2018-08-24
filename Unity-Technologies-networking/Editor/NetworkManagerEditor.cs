@@ -49,8 +49,6 @@ namespace UnityEditor
         GUIContent m_AutoCreatePlayerLabel;
         GUIContent m_PlayerSpawnMethodLabel;
 
-        GUIContent m_AdvancedConfigurationLabel;
-
         ReorderableList m_SpawnList;
 
         protected bool m_Initialized;
@@ -81,7 +79,6 @@ namespace UnityEditor
             m_PlayerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
             m_AutoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
             m_PlayerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
-            m_AdvancedConfigurationLabel = new GUIContent("Advanced Configuration", "Enable to view and edit advanced settings.");
 
             // top-level properties
             m_DontDestroyOnLoadProperty = serializedObject.FindProperty("m_DontDestroyOnLoad");
