@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEditor.Networking", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine.Networking-Editor", "Runtime-Editor\UnityEngine.Networking-Editor.csproj", "{F8AD1DD0-E73F-419B-97BB-3C708BCA79C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UNetWeaver", "Weaver\UNetWeaver.csproj", "{709222FD-15C2-497D-8B31-366ADCC074CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirror.Weaver", "Weaver\Mirror.Weaver.csproj", "{709222FD-15C2-497D-8B31-366ADCC074CD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngine.Networking.Tests", "UnityEngine.Networking.Tests\UnityEngine.Networking.Tests.csproj", "{F57702C3-86F0-421C-8B29-AE00F0B84BAF}"
 EndProject

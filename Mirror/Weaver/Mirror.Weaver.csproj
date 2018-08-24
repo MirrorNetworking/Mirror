@@ -5,8 +5,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{709222FD-15C2-497D-8B31-366ADCC074CD}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Unity.UNetWeaver</RootNamespace>
-    <AssemblyName>Unity.UNetWeaver</AssemblyName>
+    <RootNamespace>Mirror.Weaver</RootNamespace>
+    <AssemblyName>Mirror.Weaver</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
