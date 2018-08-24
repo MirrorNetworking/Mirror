@@ -3,9 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public sealed class SyncListString : SyncList<string>
     {

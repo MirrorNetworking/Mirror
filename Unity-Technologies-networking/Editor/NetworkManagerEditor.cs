@@ -2,12 +2,12 @@
 using System;
 using System.IO;
 using System.Reflection;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityObject = UnityEngine.Object;
 
-namespace UnityEditor
+namespace Mirror
 {
     [CustomEditor(typeof(NetworkManager), true)]
     [CanEditMultipleObjects]

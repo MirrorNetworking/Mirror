@@ -1,7 +1,8 @@
 #if ENABLE_UNET
 using System;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // vis2k: NetworkHash128 explanation
     // -> AssetDatabase.AssetPathToGUID returns a 32 length hex string

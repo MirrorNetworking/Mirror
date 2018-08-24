@@ -8,7 +8,7 @@ using System.Linq;
 using Mono.Cecil.Pdb;
 using Mono.Cecil.Mdb;
 
-namespace Unity.UNetWeaver
+namespace Mirror.Weaver
 {
     public enum OutSymbolsFormat
     {

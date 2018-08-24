@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkTransformVisualizer")]

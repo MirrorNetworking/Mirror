@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkStartPosition")]

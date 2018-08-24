@@ -1,9 +1,8 @@
 #if ENABLE_UNET
 using System;
 using UnityEngine;
-using UnityEngine.Networking.NetworkSystem;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkTransform")]

@@ -1,8 +1,10 @@
 ﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public class LLAPITransport : TransportLayer
     {

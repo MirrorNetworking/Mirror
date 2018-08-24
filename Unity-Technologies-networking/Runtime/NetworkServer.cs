@@ -3,10 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using UnityEngine.Networking.NetworkSystem;
-using UnityEngine.Networking.Types;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public sealed class NetworkServer
     {
@@ -407,7 +406,6 @@ namespace UnityEngine.Networking
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
             conn.SetHandlers(s_MessageHandlers);
             conn.Initialize(address, s_ServerHostId, connectionId);
-            conn.lastError = (NetworkError)0;
 
             // add connection at correct index
             while (s_Connections.Count <= connectionId)
@@ -433,17 +431,6 @@ namespace UnityEngine.Networking
             if (conn == null)
             {
                 return;
-            }
-            conn.lastError = (NetworkError)error;
-
-            if (error != 0)
-            {
-                if ((NetworkError)error != NetworkError.Timeout)
-                {
-                    s_Connections[connectionId] = null;
-                    if (LogFilter.logError) { Debug.LogError("Server client disconnect error, connectionId: " + connectionId + " error: " + (NetworkError)error); }
-                    return;
-                }
             }
 
             conn.Disconnect();
@@ -484,13 +471,6 @@ namespace UnityEngine.Networking
                 if (LogFilter.logError) { Debug.LogError("HandleData Unknown connectionId:" + connectionId); }
                 return;
             }
-            conn.lastError = (NetworkError)error;
-
-            if (error != 0)
-            {
-                GenerateDataError(conn, error);
-                return;
-            }
 
             OnData(conn, data);
         }
@@ -506,6 +486,7 @@ namespace UnityEngine.Networking
             GenerateError(null, error);
         }
 
+        /* TODO use or remove
         static void GenerateDataError(NetworkConnection conn, byte error)
         {
             NetworkError dataError = (NetworkError)error;
@@ -519,6 +500,7 @@ namespace UnityEngine.Networking
             if (LogFilter.logError) { Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId); }
             GenerateError(conn, error);
         }
+        */
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
@@ -1175,7 +1157,7 @@ namespace UnityEngine.Networking
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
-                Object.Destroy(uv.gameObject);
+                UnityEngine.Object.Destroy(uv.gameObject);
             }
             uv.MarkForReset();
         }

@@ -1,7 +1,8 @@
 #if ENABLE_UNET
 using System;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [Serializable]
     public struct NetworkSceneId

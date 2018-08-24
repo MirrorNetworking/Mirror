@@ -5,12 +5,12 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("Unity.UNetWeaver")]
-[assembly: AssemblyDescription("UNET assembly post processor for code generation.")]
+[assembly: AssemblyTitle("Mirror.Weaver")]
+[assembly: AssemblyDescription("Mirror assembly post processor for code generation.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Unity Technologies")]
-[assembly: AssemblyProduct("Unity.UNetWeaver")]
-[assembly: AssemblyCopyright("Copyright © 2014")]
+[assembly: AssemblyCompany("vis2k")]
+[assembly: AssemblyProduct("Mirror")]
+[assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: InternalsVisibleTo("Assembly-CSharp-Editor-testable")]

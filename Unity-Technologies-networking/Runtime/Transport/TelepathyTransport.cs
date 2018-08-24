@@ -1,5 +1,6 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
-namespace UnityEngine.Networking
+using UnityEngine;
+namespace Mirror
 {
     public class TelepathyTransport : TransportLayer
     {

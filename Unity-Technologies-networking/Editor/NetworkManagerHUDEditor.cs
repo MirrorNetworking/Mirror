@@ -1,11 +1,11 @@
 #if ENABLE_UNET
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityObject = UnityEngine.Object;
 
-namespace UnityEditor
+namespace Mirror
 {
     [CustomEditor(typeof(NetworkManagerHUD), true)]
     [CanEditMultipleObjects]

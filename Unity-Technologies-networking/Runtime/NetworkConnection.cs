@@ -3,8 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     /*
     * wire protocol is a list of :   size   |  msgType     | payload
@@ -20,8 +21,6 @@ namespace UnityEngine.Networking
 
         HashSet<NetworkInstanceId> m_ClientOwnedObjects;
 
-        private NetworkError error;
-
         public int hostId = -1;
         public int connectionId = -1;
         public bool isReady;
@@ -31,8 +30,6 @@ namespace UnityEngine.Networking
         public HashSet<NetworkInstanceId> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
         public bool logNetworkMessages = false;
         public bool isConnected { get { return hostId != -1; }}
-
-        public NetworkError lastError { get { return error; } internal set { error = value; } }
 
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
         {

@@ -1,8 +1,9 @@
 using System;
+using UnityEngine;
 
 #if ENABLE_UNET
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class NetworkSettingsAttribute : Attribute

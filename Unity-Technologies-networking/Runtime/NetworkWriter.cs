@@ -1,8 +1,9 @@
 #if ENABLE_UNET
 using System;
 using System.IO;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter

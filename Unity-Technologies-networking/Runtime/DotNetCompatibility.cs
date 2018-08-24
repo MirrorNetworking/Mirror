@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Net.Sockets;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     internal static class DotNetCompatibility
     {

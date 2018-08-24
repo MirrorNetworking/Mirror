@@ -1,7 +1,7 @@
 ﻿// transport layer backend
 // - set to telepathy by default
 // - can be changed by assigning Transport.layer to whatever you want
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // Transport class used by HLAPI ///////////////////////////////////////////
     public static class Transport

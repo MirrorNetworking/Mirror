@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Mono.Cecil;
 
-namespace Unity.UNetWeaver
+namespace Mirror.Weaver
 {
     class MonoBehaviourProcessor
     {

@@ -1,7 +1,8 @@
 ﻿// multiplex transport that uses either:
 // * Telepathy for standalone (windows/mac/linux/mobile/etc.)
 // * UNET's LLAPI for websockets
-namespace UnityEngine.Networking
+using UnityEngine;
+namespace Mirror
 {
     public class TelepathyWebsocketsMultiplexTransport : TransportLayer
     {

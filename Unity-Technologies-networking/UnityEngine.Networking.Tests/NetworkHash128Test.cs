@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace UnityEngine.Networking.Tests
+namespace Mirror.Tests
 {
     [TestFixture]
     public class NetworkHash128Test

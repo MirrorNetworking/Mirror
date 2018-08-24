@@ -1,8 +1,8 @@
 #if ENABLE_UNET
-using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // This is an internal class to allow the client and server to share scene-related functionality.
     // This code (mostly) used to be in ClientScene.

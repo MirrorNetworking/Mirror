@@ -1,13 +1,11 @@
 #if ENABLE_UNET
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Linq;
-using UnityEngine.Networking.NetworkSystem;
-using UnityEngine.Networking.Types;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public enum PlayerSpawnMethod
     {
@@ -25,10 +23,6 @@ namespace UnityEngine.Networking
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] bool m_ScriptCRCCheck = true;
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] float m_MaxDelay = 0.01f;
         [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
         [SerializeField] GameObject m_PlayerPrefab;
         [SerializeField] bool m_AutoCreatePlayer = true;
@@ -41,13 +35,6 @@ namespace UnityEngine.Networking
 
         [SerializeField] bool m_UseWebSockets;
 
-        #pragma warning disable 0169
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] int m_MaxBufferedPackets;
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        [SerializeField] bool m_AllowFragmentation;
-        #pragma warning restore 0169
-
         bool m_ClientLoadedScene;
 
         // properties
@@ -57,11 +44,6 @@ namespace UnityEngine.Networking
         public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
         public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        public bool scriptCRCCheck           { get { return m_ScriptCRCCheck; } set { m_ScriptCRCCheck = value;  }}
-
-        [Obsolete("Not used anymore, kept to preserve original HLAPI serialization")]
-        public float maxDelay                { get { return m_MaxDelay; }  set { m_MaxDelay = value; } }
         public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
         public bool autoCreatePlayer         { get { return m_AutoCreatePlayer; } set { m_AutoCreatePlayer = value; } }
@@ -721,16 +703,8 @@ namespace UnityEngine.Networking
         {
             NetworkServer.DestroyPlayersForConnection(conn);
 
-            // note: timeouts happen all the time, no need to throw an error there.
-            if (conn.lastError == NetworkError.Ok || conn.lastError == NetworkError.Timeout)
-            {
-                if (LogFilter.logDebug) { Debug.Log("OnServerDisconnect: client disconnected:" + conn); }
-            }
-            else
-            {
-                // a client disconnected, let's show a message
-                if (LogFilter.logError) { Debug.LogError("OnServerDisconnect: Client disconnected with error: " + conn.lastError); }
-            }
+            // a client disconnected, let's show a message
+            if (LogFilter.logError) { Debug.LogError("OnServerDisconnect: Client disconnected."); }
         }
 
         public virtual void OnServerReady(NetworkConnection conn)
@@ -846,10 +820,6 @@ namespace UnityEngine.Networking
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
-            if (conn.lastError != NetworkError.Ok)
-            {
-                if (LogFilter.logError) { Debug.LogError("ClientDisconnected due to error: " + conn.lastError); }
-            }
         }
 
         public virtual void OnClientError(NetworkConnection conn, int errorCode)

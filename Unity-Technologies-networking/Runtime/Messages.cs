@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 #if ENABLE_UNET
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // This can't be an interface because users don't need to implement the
     // serialization functions, we'll code generate it for them when they omit it.
@@ -15,12 +16,9 @@ namespace UnityEngine.Networking
         // Serialize the contents of this message into the writer
         public virtual void Serialize(NetworkWriter writer) {}
     }
-}
-
-namespace UnityEngine.Networking.NetworkSystem
-{
+    
     // ---------- General Typed Messages -------------------
-
+    
     public class StringMessage : MessageBase
     {
         public string value;

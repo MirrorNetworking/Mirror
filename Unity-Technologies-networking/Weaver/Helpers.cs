@@ -9,7 +9,7 @@ using Mono.Cecil.Cil;
 using Mono.Cecil.Mdb;
 using Mono.Cecil.Pdb;
 
-namespace Unity.UNetWeaver
+namespace Mirror.Weaver
 {
     class Helpers
     {

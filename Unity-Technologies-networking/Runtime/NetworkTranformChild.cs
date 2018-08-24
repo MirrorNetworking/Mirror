@@ -1,9 +1,9 @@
 #if ENABLE_UNET
 using System;
 using UnityEngine;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [AddComponentMenu("Network/NetworkTransformChild")]
     public class NetworkTransformChild : NetworkBehaviour

@@ -1,8 +1,9 @@
 using System;
+using UnityEngine;
 
 #if ENABLE_UNET
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // Handles network messages on client and server
     public delegate void NetworkMessageDelegate(NetworkMessage netMsg);

@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public class NetworkClient
     {
@@ -213,6 +213,7 @@ namespace UnityEngine.Networking
             GenerateError(error);
         }
 
+        /* TODO use or remove
         void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
@@ -226,6 +227,7 @@ namespace UnityEngine.Networking
             if (LogFilter.logError) { Debug.LogError("UNet Client Disconnect Error: " + disconnectError); }
             GenerateError(error);
         }
+        */
 
         void GenerateError(byte error)
         {

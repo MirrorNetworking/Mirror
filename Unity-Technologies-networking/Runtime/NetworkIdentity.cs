@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [ExecuteInEditMode]
     [DisallowMultipleComponent]

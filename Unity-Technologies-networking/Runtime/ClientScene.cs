@@ -1,9 +1,8 @@
 #if ENABLE_UNET
-using System;
 using System.Collections.Generic;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     public class ClientScene
     {

@@ -2,10 +2,8 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
 
-
-namespace UnityEditor
+namespace Mirror
 {
     [CustomEditor(typeof(NetworkTransformChild), true)]
     [CanEditMultipleObjects]

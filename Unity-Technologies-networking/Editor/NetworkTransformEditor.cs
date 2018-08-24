@@ -1,9 +1,9 @@
 #if ENABLE_UNET
 using System;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Networking;
 
-namespace UnityEditor
+namespace Mirror
 {
     [CustomEditor(typeof(NetworkTransform), true)]
     [CanEditMultipleObjects]

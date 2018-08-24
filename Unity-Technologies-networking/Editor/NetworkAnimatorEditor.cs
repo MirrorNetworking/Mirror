@@ -1,10 +1,10 @@
 #if ENABLE_UNET
 using System;
+using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
-using UnityEngine.Networking;
 
-namespace UnityEditor
+namespace Mirror
 {
     [CustomEditor(typeof(NetworkAnimator), true)]
     [CanEditMultipleObjects]

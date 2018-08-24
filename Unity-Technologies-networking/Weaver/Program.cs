@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
 
-namespace Unity.UNetWeaver
+namespace Mirror.Weaver
 {
     public static class Log
     {

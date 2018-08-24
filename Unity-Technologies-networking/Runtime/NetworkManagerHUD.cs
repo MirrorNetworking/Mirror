@@ -2,10 +2,11 @@
 // confusion if someone accidentally presses one.
 using System;
 using System.ComponentModel;
+using UnityEngine;
 
 #if ENABLE_UNET
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [AddComponentMenu("Network/NetworkManagerHUD")]
     [RequireComponent(typeof(NetworkManager))]
