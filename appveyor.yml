@@ -1,20 +1,20 @@
 version: '{branch}-{build}'
 
 before_build:
-  - nuget restore Unity-Technologies-networking/Networking.sln
+  - nuget restore Mirror/Networking.sln
 
 build:
-  project: Unity-Technologies-networking/Networking.sln
+  project: Mirror/Networking.sln
   verbosity: minimal
   
 artifacts:
-  - path: Unity-Technologies-networking/Output
-    name: HLAPI_CE_2017.4_improvements
+  - path: Mirror/Output
+    name: Mirror
 
 image: Visual Studio 2017
 
 test_script:
-  - Unity-Technologies-networking\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -returntargetcode -register:user -target:"nunit3-console.exe" -targetargs:"Unity-Technologies-networking\UnityEngine.Networking.Tests\bin\Debug\UnityEngine.Networking.Tests.dll" -output:"coverage.xml" -filter:"+[UnityEngine.Networking*]* -[UnityEngine.Networking.Tests*]* "
+  - Mirror\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -returntargetcode -register:user -target:"nunit3-console.exe" -targetargs:"Mirror\Tests\bin\Debug\Mirror.Tests.dll" -output:"coverage.xml" -filter:"+[Mirror*]* -[Mirror.Tests*]* "
 
 after_test:
   - ps: |
@@ -23,11 +23,11 @@ after_test:
       bash codecov.sh -f "coverage.xml" 
 
 deploy:
-  description: 'HLAPI community edition $(APPVEYOR_REPO_BRANCH) '
+  description: 'Mirror $(APPVEYOR_REPO_BRANCH) '
   provider: GitHub
   auth_token:
     secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
-  artifact: Unity-Technologies-networking\HLAPI_CE_2017.4_improvements.zip            # upload all NuGet packages to release assets
+  artifact: Mirror\Mirror.zip            # upload all NuGet packages to release assets
   draft: false
   prerelease: false
   on:
