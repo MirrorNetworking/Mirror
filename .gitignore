@@ -32,7 +32,7 @@ Output/
 bin/
 .vs/
 .idea/
-Unity-Technologies-networking/packages
+Mirror/packages
 
 # ============ #
 # OS generated #
