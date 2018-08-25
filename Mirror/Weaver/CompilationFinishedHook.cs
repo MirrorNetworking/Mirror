@@ -33,9 +33,6 @@ namespace Mirror.Weaver
                 string outputDirectory = Path.GetDirectoryName(assemblyPath);
                 //Debug.Log("outputDirectory=" + outputDirectory);
 
-                // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
-                bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
-
                 string mirrorRuntimeDll = FindMirrorRuntime();
 
                 if (!File.Exists(mirrorRuntimeDll))
@@ -50,6 +47,8 @@ namespace Mirror.Weaver
                     return;
                 }
 
+                // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
+                bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
                     Console.WriteLine("Weaving: " + assemblyPath);
