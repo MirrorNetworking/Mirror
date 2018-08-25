@@ -25,8 +25,6 @@ namespace Mirror.Weaver
 
             CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
             {
-                EditorApplication.LockReloadAssemblies();
-                                 
                 // UnityEngineCoreModule.DLL path:
                 string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
                 //Debug.Log("unityEngineCoreModuleDLL=" + unityEngineCoreModuleDLL);
@@ -67,9 +65,6 @@ namespace Mirror.Weaver
                     else
                         Debug.LogError("Weaving failed for: " + assemblyPath);
                 }
-
-                EditorApplication.UnlockReloadAssemblies();
-
             };
 
         }
