@@ -1,12 +1,9 @@
 ﻿// https://docs.unity3d.com/Manual/RunningEditorCodeOnLaunch.html
-// https://docs.unity3d.com/ScriptReference/AssemblyReloadEvents.html
-
 using System.IO;
 using Mono.Cecil;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Compilation;
-using UnityEditorInternal;
 using System;
 
 namespace Mirror.Weaver
@@ -17,21 +14,15 @@ namespace Mirror.Weaver
     {
         static CompilationFinishedHook()
         {
-            //UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += AssemblyReloadEvents_BeforeAssemblyReload;
-
-
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
-
             CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
             {
                 // UnityEngineCoreModule.DLL path:
                 string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-                //Debug.Log("unityEngineCoreModuleDLL=" + unityEngineCoreModuleDLL);
 
                 // outputDirectory is the directory of assemblyPath
                 string outputDirectory = Path.GetDirectoryName(assemblyPath);
-                //Debug.Log("outputDirectory=" + outputDirectory);
 
                 string mirrorRuntimeDll = FindMirrorRuntime();
 
