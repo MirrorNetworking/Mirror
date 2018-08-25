@@ -57,6 +57,12 @@
     <Reference Include="Unity.Cecil.Pdb">
       <HintPath>..\External\Unity.Cecil\lib\net35\Unity.Cecil.Pdb.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>..\lib\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\lib\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -67,11 +73,12 @@
     <Compile Include="UNetBehaviourProcessor.cs" />
     <Compile Include="UNetWeaver.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="CompilationFinishedHook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   
   <ItemGroup>  
-        <CecilFiles Include="$(TargetDir)Unity.Cecil.*"/>  
+        <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />  
   </ItemGroup>  
   <Target Name="AfterBuild">
     <MakeDir Directories="$(ProjectDir)..\Output\Plugins\Editor" />
