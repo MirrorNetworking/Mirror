@@ -101,7 +101,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
-  <Target Name="AfterBuild" DependsOnTargets="AfterBuildEditor;AfterBuildStandalone" />
+  <Target Name="AfterBuild" DependsOnTargets="AfterBuildEditor;AfterBuildStandalone" >
+      <Copy SourceFiles="$(TargetDir)Telepathy.dll" DestinationFiles="$(ProjectDir)..\Output\Plugins\Telepathy.dll" />
+  </Target>
 
   <Target Name="AfterBuildEditor" Condition=" '$(Configuration)' == 'Release-Editor' or '$(Configuration)' == 'Debug-Editor'">
     <MakeDir Directories="$(ProjectDir)..\Output\Plugins" />
