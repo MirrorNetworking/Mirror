@@ -25,7 +25,6 @@ namespace Mirror.Weaver
                 string outputDirectory = Path.GetDirectoryName(assemblyPath);
 
                 string mirrorRuntimeDll = FindMirrorRuntime();
-
                 if (!File.Exists(mirrorRuntimeDll))
                 {
                     Debug.LogError("Could not find Mirror runtime,  make sure the file " + mirrorRuntimeDll + " is in your project");
