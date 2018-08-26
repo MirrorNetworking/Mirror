@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -74,6 +77,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <MakeDir Directories="$(ProjectDir)..\Output\Standalone" />
+    <!-- Added by SoftwareGuy/Coburn64 to ensure we have the installer in the output directory. -->
+    <Copy SourceFiles="$(ProjectDir)..\install-hlapice-windows.cmd" DestinationFiles="$(ProjectDir)..\Output\install-hlapice-windows.cmd" />
     <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).dll" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).dll.mdb" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Standalone\$(TargetName).pdb" />
@@ -83,4 +88,8 @@
     <!--<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/Standalone/$(TargetName).dll"/>
     <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/Standalone/$(TargetName).dll.mdb"/>-->
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
