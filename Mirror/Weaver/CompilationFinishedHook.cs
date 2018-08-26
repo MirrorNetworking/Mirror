@@ -18,6 +18,15 @@ namespace Mirror.Weaver
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
             CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
             {
+                // if user scripts can't be compiled because of errors,
+                // assemblyCompilationFinished is still called but assemblyPath
+                // file won't exist. in that case, do nothing.
+                if (!File.Exists(assemblyPath))
+                {
+                    Console.WriteLine("Weaving skipped because assembly doesnt exist: " + assemblyPath);
+                    return;
+                }
+
                 // UnityEngineCoreModule.DLL path:
                 string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
 
