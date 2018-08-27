@@ -77,8 +77,44 @@ namespace Mirror.Weaver
             // -> we have Runtime and Runtime-Editor dll. it doesn't matter
             //    which one we use, so let's always use the one that is found
             //    first
+
+            // searching huge project directories can be expensive, so let's use
+            // EditorPrefs to try the last working one first
+            // -> EditorPrefs are global across projects. we only care about the
+            //    path for this project though. otherwise switching between two
+            //    projects would need path to be searched again each time
+            // -> use project GUID to make project specific paths
+            string key = PlayerSettings.productGUID + ".LastMirrorRuntimeDll";
+            if (EditorPrefs.HasKey(key))
+            {
+                string lastPath = EditorPrefs.GetString(key);
+                if (File.Exists(lastPath))
+                {
+                    return lastPath;
+                }
+            }
+
+            // search directory
             string[] files = Directory.GetFiles("Assets", "Mirror.Runtime.dll", SearchOption.AllDirectories);
-            return files.Length > 0 ? files[0] : "";
+            if (files.Length > 0)
+            {
+                // save path for next time, but only if it's a relative path.
+                // we don't want to use another project's dlls for weaving, that
+                // would be debugging hell.
+                // (Directory.GetFiles should return relative paths)
+                if (!Path.IsPathRooted(files[0]))
+                {
+                    EditorPrefs.SetString(key, files[0]);
+                }
+                else
+                {
+                    Debug.Log("Weaving doesn't cache path because it's absolute: " + files[0]);
+                }
+
+                return files[0];
+            }
+
+            return "";
         }
     }
 }
