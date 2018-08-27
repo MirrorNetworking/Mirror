@@ -77,7 +77,6 @@ namespace Mirror.Weaver
             // -> we have Runtime and Runtime-Editor dll. it doesn't matter
             //    which one we use, so let's always use the one that is found
             //    first
-            // -> should always find exactly 2 runtime dlls
             string[] files = Directory.GetFiles("Assets", "Mirror.Runtime.dll", SearchOption.AllDirectories);
             return files.Length > 0 ? files[0] : "";
         }
