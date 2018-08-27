@@ -66,7 +66,7 @@ namespace Mirror.Weaver
             };
         }
 
-        private static string FindMirrorRuntime()
+        static string FindMirrorRuntime()
         {
             // we can't assume that Mirror.Runtime.dll is always at the same
             // path, because some people might move the 'Mirror' folder into
