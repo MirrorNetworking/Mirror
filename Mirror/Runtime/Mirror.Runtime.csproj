@@ -110,14 +110,12 @@
     <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime-Editor\$(TargetName).dll" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime-Editor\$(TargetName).dll.mdb" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime-Editor\$(TargetName).pdb" />
-    <Copy SourceFiles="Mirror-Editor.Runtime.dll.meta" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime-Editor\Mirror.Runtime.dll.meta" />
   </Target>
   <Target Name="AfterBuildStandalone" Condition=" '$(Configuration)' == 'Release' or '$(Configuration)' == 'Debug'">
     <MakeDir Directories="$(ProjectDir)..\Output\Plugins\Runtime" />
     <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime\$(TargetName).dll" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime\$(TargetName).dll.mdb" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime\$(TargetName).pdb" />
-    <Copy SourceFiles="Mirror-Standalone.Runtime.dll.meta" DestinationFiles="$(ProjectDir)..\Output\Plugins\Runtime\Mirror.Runtime.dll.meta" />
   </Target>
 
 </Project>
