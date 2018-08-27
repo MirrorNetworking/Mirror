@@ -54,9 +54,10 @@ public void CmdMove(int x, int y)
 ```
 The same applies for `[ClientRPC]`, `[NetworkSettings]`, `[SyncEvent]`, `[SyncVar]`, `[TargetRPC]`
 
-## 5. Adjust your firewall and router ##
+## 5. Replace Components ##
+Every networked prefab and scene object needs to be adjusted.  They will be using `NetworkIdentity` from Unet,  and you need to replace that componenent with `NetworkIdentity` from Mirror.  You may be using other network components,  such as `NetworkAnimator` or `NetworkTransform`.   All components from Unet should be replaced with their corresponding component from Mirror.
+
+## 6. Adjust your firewall and router ##
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and the firewall on your machine to expose the TCP port instead of UDP.  
 This highly depends on your router and operating system
-
-
