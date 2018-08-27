@@ -108,7 +108,7 @@ namespace Mirror
 
         void Awake()
         {
-            Debug.Log("Thank you for using HLAPI Community Edition! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
+            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
             InitializeSingleton();
         }
 
