@@ -36,7 +36,7 @@ namespace Mirror.Weaver
                 string mirrorRuntimeDll = FindMirrorRuntime();
                 if (!File.Exists(mirrorRuntimeDll))
                 {
-                    Debug.LogError("Could not find Mirror runtime,  make sure the file " + mirrorRuntimeDll + " is in your project");
+                    Debug.LogError("Could not find Mirror.Runtime.dll, make sure the file is in your project");
                     return;
                 }
 
@@ -64,16 +64,22 @@ namespace Mirror.Weaver
                         Debug.LogError("Weaving failed for: " + assemblyPath);
                 }
             };
-
         }
 
         private static string FindMirrorRuntime()
         {
-            string path = Path.Combine("Assets", "Plugins");
-            path = Path.Combine(path, "Mirror.Runtime.dll");
-
-            return path;
+            // we can't assume that Mirror.Runtime.dll is always at the same
+            // path, because some people might move the 'Mirror' folder into
+            // another folder, etc.
+            // -> can't check loaded assemblies/assets because this happens
+            //    after compiling, before load
+            // -> search assets folder instead and cache result
+            // -> we have Runtime and Runtime-Editor dll. it doesn't matter
+            //    which one we use, so let's always use the one that is found
+            //    first
+            // -> should always find exactly 2 runtime dlls
+            string[] files = Directory.GetFiles("Assets", "Mirror.Runtime.dll", SearchOption.AllDirectories);
+            return files.Length > 0 ? files[0] : "";
         }
-
     }
 }
