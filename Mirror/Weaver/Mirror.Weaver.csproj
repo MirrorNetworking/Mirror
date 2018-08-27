@@ -76,17 +76,17 @@
     <Compile Include="CompilationFinishedHook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  
-  <ItemGroup>  
-        <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />  
-  </ItemGroup>  
+
+  <ItemGroup>
+        <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />
+  </ItemGroup>
   <Target Name="AfterBuild">
-    <MakeDir Directories="$(ProjectDir)..\Output\Plugins\Editor" />
-    <MakeDir Directories="$(ProjectDir)..\Output\Plugins\Editor\Unity.Cecil" />
-    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Plugins\Editor\$(TargetName).dll" />
-    <Copy SourceFiles="@(CecilFiles)" DestinationFolder="$(ProjectDir)..\Output\Plugins\Editor\Unity.Cecil" />
-    <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Editor\$(TargetName).dll.mdb" />
-    <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Plugins\Editor\$(TargetName).pdb" />
+    <MakeDir Directories="$(ProjectDir)..\Output\Editor" />
+    <MakeDir Directories="$(ProjectDir)..\Output\Editor\Unity.Cecil" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Editor\$(TargetName).dll" />
+    <Copy SourceFiles="@(CecilFiles)" DestinationFolder="$(ProjectDir)..\Output\Editor\Unity.Cecil" />
+    <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Editor\$(TargetName).dll.mdb" />
+    <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\Output\Editor\$(TargetName).pdb" />
     <!--Uncomment the block below and change the destination to copy the built dll into your unity install directory-->
     <!--<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="C:\Program Files\Unity\Editor\Data\Managed\$(TargetName).dll"/>
     <Copy Condition="'$(Configuration)' == 'Debug'" SourceFiles="$(TargetDir)$(TargetName).mdb" DestinationFiles="C:\Program Files\Unity\Editor\Data\Managed\$(TargetName).mdb"/>-->
