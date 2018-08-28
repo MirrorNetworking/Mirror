@@ -1435,7 +1435,7 @@ namespace Mirror.Weaver
             ULocalConnectionToClientType = scriptDef.MainModule.ImportReference(ULocalConnectionToClientType);
 
             MessageBaseType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.MessageBase");
-            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListStruct`1");
+            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListS`1");
 
             NetworkBehaviourDirtyBitsReference = ResolveProperty(NetworkBehaviourType, "syncVarDirtyBits");
 
@@ -1748,7 +1748,7 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.Contains("SyncListStruct"))
+                if (parent.FullName.StartsWith(SyncListStructType.FullName))
                 {
                     didWork |= ProcessSyncListStructType(td);
                     break;

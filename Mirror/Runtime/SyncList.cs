@@ -168,7 +168,7 @@ namespace Mirror
     }
 
 
-    public class SyncListStruct<T> : SyncList<T> where T : struct
+    public class SyncListS<T> : SyncList<T> where T : struct
     {
         new public void AddInternal(T item)
         {
