@@ -848,7 +848,7 @@ namespace Mirror.Weaver
         {
             if (lists.generateContainerClass == null)
             {
-                lists.generateContainerClass = new TypeDefinition("Unity", "GeneratedNetworkCode",
+                lists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
                         objectType);
 
