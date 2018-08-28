@@ -43,7 +43,7 @@ If you are still using UNET and want to switch to Mirror, you should check out o
 # Example Projects
 We are building several easy to understand example projects that we will add here soon.
 
-For fully polished complete project examples, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
+For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
 # Donations
 Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/HLAPI_PRO).
