@@ -72,11 +72,18 @@ public class SyncListQuest : SyncListSTRUCT<Quest> {}
 ## 6. Replace Components ##
 Every networked prefab and scene object needs to be adjusted.  They will be using `NetworkIdentity` from Unet,  and you need to replace that componenent with `NetworkIdentity` from Mirror.  You may be using other network components,  such as `NetworkAnimator` or `NetworkTransform`.   All components from Unet should be replaced with their corresponding component from Mirror.
 
+Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
+
 ## 7. Adjust your firewall and router ##
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and the firewall on your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system
 
+# Video version #
+
+See for yourself how uMMORPG was migrated to Mirror
+
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/LF9rTSS3rlI/0.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
 
 ## Possible Error Messages
 * TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
