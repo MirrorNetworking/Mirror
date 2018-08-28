@@ -1435,7 +1435,7 @@ namespace Mirror.Weaver
             ULocalConnectionToClientType = scriptDef.MainModule.ImportReference(ULocalConnectionToClientType);
 
             MessageBaseType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.MessageBase");
-            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListS`1");
+            SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListSTRUCT`1");
 
             NetworkBehaviourDirtyBitsReference = ResolveProperty(NetworkBehaviourType, "syncVarDirtyBits");
 
