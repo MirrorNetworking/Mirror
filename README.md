@@ -16,7 +16,7 @@ With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead
 * `[Command]` are used for client->server, and `[ClientRpc]` / `[TargetRpc]` for server->client communication.
 * `[SyncVar]`s and `SyncList`s are used to automatically synchronize state.
 
-What previously required **10.0000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
+What previously required **10.000** lines of code, now takes **1.000** lines of code. Therein lies the **magic of Mirror**.
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
