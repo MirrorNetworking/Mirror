@@ -76,3 +76,7 @@ Every networked prefab and scene object needs to be adjusted.  They will be usin
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and the firewall on your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system
+
+
+## Possible Error Messages
+* TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
