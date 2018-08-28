@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("UnityEditor.Networking")]
 [assembly: InternalsVisibleTo("Assembly-CSharp-Editor-testable")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
