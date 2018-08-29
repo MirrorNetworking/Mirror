@@ -66,9 +66,9 @@ namespace Mirror.Weaver
             };
         }
 
-        private static string[] GetExtraAssemblyPaths()
+        static string[] GetExtraAssemblyPaths()
         {
-            string contentPath = UnityEditor.EditorApplication.applicationContentsPath;
+            string contentPath = EditorApplication.applicationContentsPath;
             return new []
             {
                 contentPath + "/Managed",
