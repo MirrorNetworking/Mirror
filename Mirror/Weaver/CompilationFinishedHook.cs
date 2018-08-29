@@ -61,7 +61,9 @@ namespace Mirror.Weaver
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }
                     else
+                    {
                         Debug.LogError("Weaving failed for: " + assemblyPath);
+                    }
                 }
             };
         }
