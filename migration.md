@@ -55,8 +55,8 @@ public void CmdMove(int x, int y)
 The same applies for `[ClientRPC]`, `[NetworkSettings]`, `[SyncEvent]`, `[SyncVar]`, `[TargetRPC]`
 
 ## 5) Rename SyncListStruct to SyncListSTRUCT ##
-There is a bug in the original UNET Weaver that makes it mess withour Mirror.SyncListStruct without checking the namespace.
-Until Unity officially removes UNET in 2019.1, we will have to use the name `[SyncListSTRUCT]` instead.
+There is a bug in the original UNET Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace.
+Until Unity officially removes UNET in 2019.1, we will have to use the name `SyncListSTRUCT` instead.
 
 So for example, if you have definitions like:
 
@@ -74,10 +74,10 @@ Every networked prefab and scene object needs to be adjusted.  They will be usin
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 7. Adjust your firewall and router ##
+## 7. Update your firewall and router ##
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
-port forwarding and the firewall on your machine to expose the TCP port instead of UDP.
-This highly depends on your router and operating system
+port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
+This highly depends on your router and operating system.
 
 # Video version #
 
@@ -87,3 +87,5 @@ See for yourself how uMMORPG was migrated to Mirror
 
 ## Possible Error Messages
 * TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
+
+* NullPointerException: The most likely cause is that you replaced NetworkIdentities or other components but you had them assigned somewhere. Reassign those references.
