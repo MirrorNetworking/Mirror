@@ -96,4 +96,4 @@ See for yourself how uMMORPG was migrated to Mirror
     ```
     using UnityWebRequest = UnityEngine.Networking.UnityWebRequest ;
     ```
-    `UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet,  so the namespace change might cause your script not to find UnityWebRequest.
+    `UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest.
