@@ -66,10 +66,16 @@ namespace Mirror.Weaver
             };
         }
 
+        // Weaver needs the path for all the extra DLLs like UnityEngine.UI.
+        // otherwise if a script that is being weaved (like a NetworkBehaviour)
+        // uses UnityEngine.UI, then the Weaver won't be able to resolve it and
+        // throw an error.
+        // (the paths can be found by logging the extraAssemblyPaths in the
+        //  original Weaver.Program.Process function.)
         static string[] GetExtraAssemblyPaths()
         {
             string contentPath = EditorApplication.applicationContentsPath;
-            return new []
+            return new[]
             {
                 contentPath + "/Managed",
                 contentPath + "/Managed/UnityEngine",
