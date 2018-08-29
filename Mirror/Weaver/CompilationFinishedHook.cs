@@ -56,13 +56,36 @@ namespace Mirror.Weaver
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                     // but Weaver creates it's own if null, which is this one:
                     IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[1] { assemblyPath }, new string[0], assemblyResolver, Debug.LogWarning, Debug.LogError))
+                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[1] { assemblyPath }, GetExtraAssemblyPaths(), assemblyResolver, Debug.LogWarning, Debug.LogError))
                     {
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }
                     else
                         Debug.LogError("Weaving failed for: " + assemblyPath);
                 }
+            };
+        }
+
+        private static string[] GetExtraAssemblyPaths()
+        {
+            string contentPath = UnityEditor.EditorApplication.applicationContentsPath;
+            return new []
+            {
+                contentPath + "/Managed",
+                contentPath + "/Managed",
+                contentPath + "/UnityExtensions/Unity/Networking",
+                contentPath + "/Managed",
+                contentPath + "/Managed/UnityEngine",
+                contentPath + "/UnityExtensions/Unity/GUISystem",
+                contentPath + "/UnityExtensions/Unity/TestRunner",
+                contentPath + "/UnityExtensions/Unity/TestRunner/net35/unity-custom",
+                contentPath + "/UnityExtensions/Unity/Timeline/RuntimeEditor",
+                contentPath + "/UnityExtensions/Unity/UIAutomation",
+                contentPath + "/UnityExtensions/Unity/Networking",
+                contentPath + "/UnityExtensions/Unity/UnityGoogleAudioSpatializer/RuntimeEditor",
+                contentPath + "/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor",
+                contentPath + "/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor",
+                "Assets/Plugins"
             };
         }
 
