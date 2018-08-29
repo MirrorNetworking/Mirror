@@ -37,7 +37,7 @@ To avoid making misleading code, we have removed channels.
 For example, if you have this code:
 
 ```
-[Command(channel= Channels.DefaultReilable)]
+[Command(channel= Channels.DefaultReliable)]
 public void CmdMove(int x, int y)
 {
     ...
