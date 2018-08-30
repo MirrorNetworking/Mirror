@@ -81,7 +81,7 @@ namespace Mirror
             writer.Write(buffer, offset, count);
         }
 
-        // UNETWeaver needs a write function with just one byte[] parameter
+        // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
         public void WriteBytesAndSize(byte[] buffer)
         {
