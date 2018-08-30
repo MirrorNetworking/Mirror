@@ -6,8 +6,6 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using System;
 using System.Linq;
-using UnityEditor.Events;
-using System.Reflection;
 
 namespace Mirror.Weaver
 {
@@ -79,15 +77,17 @@ namespace Mirror.Weaver
         //  original Weaver.Program.Process function.)
         static string[] GetExtraAssemblyPaths(string assemblyPath)
         {
-            var assemblies = CompilationPipeline.GetAssemblies();
+            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
 
-            foreach (var assembly in assemblies)
+            foreach (Assembly assembly in assemblies)
             {
                 if (assembly.outputPath == assemblyPath)
                 {
                     return assembly.compiledAssemblyReferences.Select(Path.GetDirectoryName).ToArray();
                 }
             }
+
+            Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
             return new string[] { };
         }
 
