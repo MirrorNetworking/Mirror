@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.Compilation;
 using System;
+using System.Linq;
+using UnityEditor.Events;
+using System.Reflection;
 
 namespace Mirror.Weaver
 {
@@ -56,7 +59,7 @@ namespace Mirror.Weaver
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                     // but Weaver creates it's own if null, which is this one:
                     IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[1] { assemblyPath }, GetExtraAssemblyPaths(), assemblyResolver, Debug.LogWarning, Debug.LogError))
+                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[1] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
                     {
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }
@@ -74,24 +77,18 @@ namespace Mirror.Weaver
         // throw an error.
         // (the paths can be found by logging the extraAssemblyPaths in the
         //  original Weaver.Program.Process function.)
-        static string[] GetExtraAssemblyPaths()
+        static string[] GetExtraAssemblyPaths(string assemblyPath)
         {
-            string contentPath = EditorApplication.applicationContentsPath;
-            return new[]
+            var assemblies = CompilationPipeline.GetAssemblies();
+
+            foreach (var assembly in assemblies)
             {
-                contentPath + "/Managed",
-                contentPath + "/Managed/UnityEngine",
-                contentPath + "/UnityExtensions/Unity/GUISystem",
-                contentPath + "/UnityExtensions/Unity/TestRunner",
-                contentPath + "/UnityExtensions/Unity/TestRunner/net35/unity-custom",
-                contentPath + "/UnityExtensions/Unity/Timeline/RuntimeEditor",
-                contentPath + "/UnityExtensions/Unity/UIAutomation",
-                contentPath + "/UnityExtensions/Unity/Networking",
-                contentPath + "/UnityExtensions/Unity/UnityGoogleAudioSpatializer/RuntimeEditor",
-                contentPath + "/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor",
-                contentPath + "/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor",
-                "Assets/Plugins"
-            };
+                if (assembly.outputPath == assemblyPath)
+                {
+                    return assembly.compiledAssemblyReferences.Select(Path.GetDirectoryName).ToArray();
+                }
+            }
+            return new string[] { };
         }
 
         static string FindMirrorRuntime()
