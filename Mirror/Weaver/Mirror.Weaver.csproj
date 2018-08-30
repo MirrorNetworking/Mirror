@@ -71,14 +71,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="SyncListStructProcessor.cs" />
     <Compile Include="UNetBehaviourProcessor.cs" />
-    <Compile Include="UNetWeaver.cs" />
+    <Compile Include="Weaver.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="CompilationFinishedHook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-
   <ItemGroup>
-        <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />
+    <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />
   </ItemGroup>
   <Target Name="AfterBuild">
     <MakeDir Directories="$(ProjectDir)..\Output\Editor" />
