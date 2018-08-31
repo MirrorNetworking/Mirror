@@ -218,6 +218,7 @@ namespace Mirror
                 client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
                 client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler((short)MsgType.Pong, NetworkTime.OnClientPong);
             }
 
             client.RegisterHandler(MsgType.Rpc, OnRPCMessage);

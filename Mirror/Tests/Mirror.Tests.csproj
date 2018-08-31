@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="NetworkWriterTest.cs" />
     <Compile Include="NetworkHash128Test.cs" />
+    <Compile Include="ExponentialMovingAverageTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

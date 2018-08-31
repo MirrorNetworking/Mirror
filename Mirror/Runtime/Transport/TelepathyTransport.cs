@@ -50,7 +50,6 @@ namespace Mirror
             data = null;
             return false;
         }
-        public float ClientGetRTT() { return 0; } // TODO
         public void ClientDisconnect() { client.Disconnect(); }
 
         // server

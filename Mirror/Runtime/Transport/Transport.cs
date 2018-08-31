@@ -25,7 +25,6 @@ namespace Mirror
         void ClientConnect(string address, int port);
         bool ClientSend(byte[] data);
         bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
-        float ClientGetRTT();
         void ClientDisconnect();
 
         // server

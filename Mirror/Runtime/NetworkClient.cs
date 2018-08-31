@@ -18,6 +18,14 @@ namespace Mirror
 
         public static bool pauseMessageHandling;
 
+        // how often are we sending ping messages
+        // used to calculate network time and RTT
+        public float pingFrequency = 2.0f;
+        // average out the last few results from Ping
+        public int pingWindowSize = 10;
+
+        private double lastPing = 0;
+
         int m_HostPort;
 
         string m_ServerIp = "";
@@ -186,6 +194,13 @@ namespace Mirror
                 return;
             }
 
+            if (connectState == ConnectState.Connected && Time.time - lastPing > pingFrequency)
+            {
+                NetworkPingMessage pingMessage = NetworkTime.GetPing();
+                Send((short)MsgType.Ping, pingMessage);
+                lastPing = Time.time;
+            }
+
             // any new message?
             // -> calling it once per frame is okay, but really why not just
             //    process all messages and make it empty..
@@ -200,6 +215,9 @@ namespace Mirror
 
                         if (m_Connection != null)
                         {
+                            // reset network time stats
+                            NetworkTime.Reset(pingWindowSize);
+
                             // the handler may want to send messages to the client
                             // thus we should set the connected state before calling the handler
                             connectState = ConnectState.Connected;
@@ -277,10 +295,7 @@ namespace Mirror
 
         public float GetRTT()
         {
-            if (m_ClientId == -1)
-                return 0;
-
-            return Transport.layer.ClientGetRTT();
+            return (float)NetworkTime.rtt;
         }
 
         internal void RegisterSystemHandlers(bool localClient)
