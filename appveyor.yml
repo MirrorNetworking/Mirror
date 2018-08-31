@@ -12,8 +12,13 @@ build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
 
 artifacts:
+<<<<<<< HEAD
   - path: Mirror/Output
     name: Mirror
+=======
+  - path: Unity-Technologies-networking/Output
+    name: HLAPI_CE_2017.4_features
+>>>>>>> features
 
 image: Visual Studio 2017
 
@@ -31,7 +36,11 @@ deploy:
   provider: GitHub
   auth_token:
     secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
+<<<<<<< HEAD
   artifact: Mirror\Mirror.zip            # upload all NuGet packages to release assets
+=======
+  artifact: Unity-Technologies-networking\HLAPI_CE_2017.4_features.zip            # upload all NuGet packages to release assets
+>>>>>>> features
   draft: false
   prerelease: false
   on:

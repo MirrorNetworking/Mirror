@@ -1,10 +1,10 @@
 <<<<<<< refs/remotes/vis2k/mirror
 ![Mirror Logo](https://i.imgur.com/5dUNWxl.png)
 
-[![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Improvements.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/improvements)
-[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/Improvements.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/improvements/tests)
+[![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/features.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/features)
+[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/features.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/features/tests)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
-[![Codecov](https://codecov.io/gh/vis2k/hlapi-community-edition/branch/improvements/graph/badge.svg)](https://codecov.io/gh/vis2k/hlapi-community-edition/branch/improvements)
+[![Codecov](https://codecov.io/gh/vis2k/hlapi-community-edition/branch/features/graph/badge.svg)](https://codecov.io/gh/vis2k/hlapi-community-edition/branch/features)
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
