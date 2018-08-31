@@ -14,7 +14,6 @@ namespace Mirror
         static ULocalConnectionToClient s_LocalConnection;
 
         static NetworkScene s_NetworkScene = new NetworkScene();
-        static HashSet<int> s_ExternalConnections = new HashSet<int>();
 
         static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
@@ -113,7 +112,7 @@ namespace Mirror
         {
             Initialize();
 
-            // only start server if we want to listen. otherwise this mode uses external connections instead
+            // only start server if we want to listen
             if (!s_DontListen)
             {
                 Initialize();
@@ -1289,54 +1288,6 @@ namespace Mirror
         static public GameObject FindLocalObject(NetworkInstanceId netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
-        }
-
-        static public bool AddExternalConnection(NetworkConnection conn)
-        {
-            return AddExternalConnectionInternal(conn);
-        }
-
-        static bool AddExternalConnectionInternal(NetworkConnection conn)
-        {
-            if (conn.connectionId < 0)
-                return false;
-
-            if (conn.connectionId < connections.Count && connections[conn.connectionId] != null)
-            {
-                if (LogFilter.logError) { Debug.LogError("AddExternalConnection failed, already connection for id:" + conn.connectionId); }
-                return false;
-            }
-
-            if (LogFilter.logDebug) { Debug.Log("AddExternalConnection external connection " + conn.connectionId); }
-            SetConnectionAtIndex(conn);
-            s_ExternalConnections.Add(conn.connectionId);
-            conn.InvokeHandlerNoData((short)MsgType.Connect);
-
-            return true;
-        }
-
-        static public void RemoveExternalConnection(int connectionId)
-        {
-            RemoveExternalConnectionInternal(connectionId);
-        }
-
-        static bool RemoveExternalConnectionInternal(int connectionId)
-        {
-            if (!s_ExternalConnections.Contains(connectionId))
-            {
-                if (LogFilter.logError) { Debug.LogError("RemoveExternalConnection failed, no connection for id:" + connectionId); }
-                return false;
-            }
-            if (LogFilter.logDebug) { Debug.Log("RemoveExternalConnection external connection " + connectionId); }
-
-            var conn = FindConnection(connectionId);
-            if (conn != null)
-            {
-                conn.RemoveObservers();
-            }
-            s_Connections.RemoveAt(connectionId);
-
-            return true;
         }
 
         static bool ValidateSceneObject(NetworkIdentity netId)

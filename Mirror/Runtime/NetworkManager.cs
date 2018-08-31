@@ -265,34 +265,6 @@ namespace Mirror
             }
         }
 
-        public void UseExternalClient(NetworkClient externalClient)
-        {
-            if (m_RunInBackground)
-                Application.runInBackground = true;
-
-            if (externalClient != null)
-            {
-                client = externalClient;
-                isNetworkActive = true;
-                RegisterClientMessages(client);
-                OnStartClient(client);
-            }
-            else
-            {
-                OnStopClient();
-
-                // this should stop any game-related systems, but not close the connection
-                ClientScene.DestroyAllClientObjects();
-                ClientScene.HandleClientDisconnect(client.connection);
-                client = null;
-                if (!string.IsNullOrEmpty(m_OfflineScene))
-                {
-                    ClientChangeScene(m_OfflineScene, false);
-                }
-            }
-            s_Address = m_NetworkAddress;
-        }
-
         public NetworkClient StartClient(int hostPort=0)
         {
             InitializeSingleton();
