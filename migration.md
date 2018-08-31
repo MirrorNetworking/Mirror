@@ -11,7 +11,7 @@ Get Mirror from the asset store and import it in your project (link to be provid
 
 ## 3) Replace namespace ##
 
-Replace `UnityEngine.Networking` for `Mirror`  everywhere in your project.   So for example, if you have this:
+Replace `UnityEngine.Networking` for `Mirror`  everywhere in your project. For example, if you have this:
 ```
 using UnityEngine.Networking;
 
@@ -20,7 +20,7 @@ public class Player : NetworkBehaviour {
 }
 ```
 
-you would replace it with:
+replace it with:
 ```
 using Mirror;
 
@@ -32,7 +32,7 @@ At this point,  you might get some compilation errors.  Don't panic,  these are 
 
 ## 4) Remove all channels ##
 As of this writing,  all messages are reliable, ordered, fragmented.  There is no need for channels at all.
-To avoid making misleading code, we have removed channels.
+To avoid misleading code, we have removed channels.
 
 For example, if you have this code:
 
@@ -96,4 +96,4 @@ See for yourself how uMMORPG was migrated to Mirror
     ```
     using UnityWebRequest = UnityEngine.Networking.UnityWebRequest ;
     ```
-    `UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest.
+    `UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest.  The same applies for `WWW` and all `UnityWebRequest` related classes.
