@@ -701,9 +701,7 @@ namespace Mirror
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayersForConnection(conn);
-
-            // a client disconnected, let's show a message
-            if (LogFilter.logError) { Debug.LogError("OnServerDisconnect: Client disconnected."); }
+            if (LogFilter.logDebug) { Debug.Log("OnServerDisconnect: Client disconnected."); }
         }
 
         public virtual void OnServerReady(NetworkConnection conn)
