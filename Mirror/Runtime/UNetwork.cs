@@ -52,7 +52,13 @@ namespace Mirror
         AnimationParameters = 41,
         AnimationTrigger = 42,
 
+        // time synchronization
+        Ping = 43,
+        Pong = 44,
+
         Highest = 47
+
+
     }
 
     public class NetworkMessage
