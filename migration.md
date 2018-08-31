@@ -11,9 +11,9 @@ Get Mirror from the asset store and import it in your project (link to be provid
 
 ## 3) Replace namespace ##
 
-Replace `Unity.Networking` for `Mirror`  everywhere in your project.   So for example, if you have this:
+Replace `UnityEngine.Networking` for `Mirror`  everywhere in your project.   So for example, if you have this:
 ```
-using Unity.Networking;
+using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour {
     ...
