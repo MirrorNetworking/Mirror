@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MirrorNetworkMigrator.cs" />
     <Compile Include="NetworkAnimatorEditor.cs" />
     <Compile Include="NetworkManagerEditor.cs" />
     <Compile Include="NetworkManagerPreview.cs" />
