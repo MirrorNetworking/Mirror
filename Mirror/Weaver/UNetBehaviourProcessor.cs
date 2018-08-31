@@ -375,7 +375,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                awake = new MethodDefinition("Awake", MethodAttributes.Private, Weaver.voidType);
+                awake = new MethodDefinition("Awake", MethodAttributes.Family, Weaver.voidType);
             }
 
             ILProcessor awakeWorker = awake.Body.GetILProcessor();
