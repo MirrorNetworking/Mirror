@@ -1,7 +1,6 @@
-﻿#if ENABLE_UNET
-using System.IO;
+﻿using System.IO;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // reads packed bits in the same byte
     public class BitReader : BinaryReader
@@ -128,4 +127,3 @@ namespace UnityEngine.Networking
         }
     }
 }
-#endif //ENABLE_UNET

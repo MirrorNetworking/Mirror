@@ -1,7 +1,6 @@
-﻿#if ENABLE_UNET
-using System.IO;
+﻿using System.IO;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     // writes a single bit to the stream. Consecutive bits are packed together
     // in the same byte to reduce message size. Especially useful for bools which
@@ -145,4 +144,3 @@ namespace UnityEngine.Networking
         }
     }
 }
-#endif //ENABLE_UNET
