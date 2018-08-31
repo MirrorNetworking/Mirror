@@ -2,14 +2,14 @@
 // Written by M. Coburn (@coburn64 on Twitter/SoftwareGuy on Github)
 // This file is part of Mirror Networking by Coburn64, Lymdun, vis2k and Paul (goldbug).
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Text;
+using System.Text.RegularExpressions;
+using UnityEditor;
+using UnityEngine;
 
 // This is an editor script and should not be referenced in Runtime binaries.
-namespace Mirror
+namespace Mirror.MigrationUtilities
 {
     /// <summary>
     /// A migration tool that will help migrate stock UNET code to Mirror code.
@@ -20,13 +20,15 @@ namespace Mirror
         static string scriptExtension = "*.cs";
 
         static string[] knownIncompatibleRegexes = {
-            @"\[Command([^\],]*)\]",
-            @"\[ClientRpc([^\],]*)\]",
-            @"\[TargetRpc([^\],]*)\]",
-            @"\[SyncEvent([^\],]*)\]"
+            "SyncListStruct",   // this probably needs improvement but i didn't want to duplicate lines of code
+            @"\[Command([^\],]*)\]",    // Commands over non-reliable channels
+            @"\[ClientRpc([^\],]*)\]",  // ClientRPCs over non-reliable channels
+            @"\[TargetRpc([^\],]*)\]",  // TargetRPCs over non-reliable channels
+            @"\[SyncEvent([^\],]*)\]"   // SyncEvents (over non-reliable channels) - seriously?
         };
 
         static string[] knownCompatibleReplacements = {
+            "SyncListSTRUCT",   // because mirror's version is moar bettah.
             "[Command]",
             "[ClientRpc]",
             "[TargetRpc]",
@@ -39,7 +41,7 @@ namespace Mirror
 
         // Logic portion begins below.
 
-        [MenuItem("Tools/Mirror/UNET Migration Tool")]
+        [MenuItem("Tools/Mirror/Migrate from UNET")]
         public static void Mirror_Migration_Tool()
         {
             // Safeguard in case a developer goofs up
@@ -58,6 +60,9 @@ namespace Mirror
 
                 // User accepted the risks - go ahead!
                 MigrationTool_DoActualMigration();
+                // Cleanup after yourself.
+                MigrationTool_Cleanup();
+                // Refresh the asset database, because sometimes Unity will be lazy about it.
                 AssetDatabase.Refresh();
             } else {
                 EditorUtility.DisplayDialog("Aborted", "You opted to abort the migration process. Please come back once you've taken a backup.", "Got it");
@@ -86,7 +91,7 @@ namespace Mirror
                 foreach (FileInfo potentialFile in dirInfo.GetFiles(scriptExtension, SearchOption.AllDirectories))
                 {
                     // DEBUG ONLY. This will cause massive Unity Console Spammage!
-                    Debug.Log("[Mirror Migration Tool] DEBUG: Scanned " + potentialFile.FullName);
+                    // Debug.Log("[Mirror Migration Tool] DEBUG: Scanned " + potentialFile.FullName);
                     filesToScanAndModify.Add(potentialFile.FullName);
                 }
 
@@ -101,18 +106,18 @@ namespace Mirror
                 // Okay, let's do this!
                 MigrationTool_FileProcessor(filesToScanAndModify);
 
-                Debug.Log("[Mirror Migration Tool] Processed " + filesModified + " files");
+                Debug.Log("[Mirror Migration Tool] Processed (and patched, if required) " + filesModified + " files");
 
                 EditorUtility.DisplayDialog("Migration complete.", "Congratulations, you should now be Mirror Network ready.\n\n" +
-                    "Thanks for using Mirror and Telepathy Networking Stack for Unity!\n\nPlease don't forget to drop by the GitHub repository to keep up to date and the Discord server if you have any problems. Have fun!", "Awesome");
-
-                filesModified = 0;
+                    "Thank you for using Mirror and Telepathy Networking Stack for Unity!\n\nPlease don't forget to drop by the GitHub " +
+                    "repository to keep up to date and the Discord server if you have any problems. Have fun!", "Awesome");
                 return;
 
             } catch (System.Exception ex)
             {
-                EditorUtility.DisplayDialog("Oh no!", "An exception occurred. If you think this is a Mirror Networking bug, please file a bug report on the GitHub repository. " +
-                    "I'll now tell you what I encountered:\n\n" + ex.ToString(), "Okay");         
+                EditorUtility.DisplayDialog("Oh no!", "An exception occurred. If you think this is a Mirror Networking bug, please file a bug report on the GitHub repository." +
+                    "It could also be a logic bug in the Migration Tool itself. I encountered the following exception:\n\n" + ex.ToString(), "Okay");
+                MigrationTool_Cleanup();
                 return;
             }
         }
@@ -202,11 +207,22 @@ namespace Mirror
                         sw.Close();
                     }
 
+                    // Increment the modified counter for statistics.
                     filesModified++;
                 } catch (System.Exception e) {
+                    // Kaboom, this tool ate something it shouldn't have.
                     Debug.LogError(string.Format("[Mirror Migration Tool] Encountered an exception processing {0}:\n{1}", file, e.ToString()));
                 }
             }
+        }
+
+        /// <summary>
+        /// Cleans up after the migration tool is completed or has failed.
+        /// </summary>
+        private static void MigrationTool_Cleanup() {
+            scriptBuffer = string.Empty;
+            matches = null;
+            filesModified = 0;
         }
     }
 }
