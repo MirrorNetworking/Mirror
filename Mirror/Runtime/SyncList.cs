@@ -18,7 +18,7 @@ namespace Mirror
             return reader.ReadString();
         }
 
-        static public void ReadReference(NetworkReader reader, SyncListString syncList)
+        public static void ReadReference(NetworkReader reader, SyncListString syncList)
         {
             ushort count = reader.ReadUInt16();
             syncList.Clear();
@@ -28,7 +28,7 @@ namespace Mirror
             }
         }
 
-        static public void WriteInstance(NetworkWriter writer, SyncListString items)
+        public static void WriteInstance(NetworkWriter writer, SyncListString items)
         {
             writer.Write((ushort)items.Count);
             for (int i = 0; i < items.Count; i++)
@@ -50,7 +50,7 @@ namespace Mirror
             return reader.ReadSingle();
         }
 
-        static public void ReadReference(NetworkReader reader, SyncListFloat syncList)
+        public static void ReadReference(NetworkReader reader, SyncListFloat syncList)
         {
             ushort count = reader.ReadUInt16();
             syncList.Clear();
@@ -60,7 +60,7 @@ namespace Mirror
             }
         }
 
-        static public void WriteInstance(NetworkWriter writer, SyncListFloat items)
+        public static void WriteInstance(NetworkWriter writer, SyncListFloat items)
         {
             writer.Write((ushort)items.Count);
             for (int i = 0; i < items.Count; i++)
@@ -82,7 +82,7 @@ namespace Mirror
             return (int)reader.ReadPackedUInt32();
         }
 
-        static public void ReadReference(NetworkReader reader, SyncListInt syncList)
+        public static void ReadReference(NetworkReader reader, SyncListInt syncList)
         {
             ushort count = reader.ReadUInt16();
             syncList.Clear();
@@ -92,7 +92,7 @@ namespace Mirror
             }
         }
 
-        static public void WriteInstance(NetworkWriter writer, SyncListInt items)
+        public static void WriteInstance(NetworkWriter writer, SyncListInt items)
         {
             writer.Write((ushort)items.Count);
 
@@ -115,7 +115,7 @@ namespace Mirror
             return reader.ReadPackedUInt32();
         }
 
-        static public void ReadReference(NetworkReader reader, SyncListUInt syncList)
+        public static void ReadReference(NetworkReader reader, SyncListUInt syncList)
         {
             ushort count = reader.ReadUInt16();
             syncList.Clear();
@@ -125,7 +125,7 @@ namespace Mirror
             }
         }
 
-        static public void WriteInstance(NetworkWriter writer, SyncListUInt items)
+        public static void WriteInstance(NetworkWriter writer, SyncListUInt items)
         {
             writer.Write((ushort)items.Count);
             for (int i = 0; i < items.Count; i++)
@@ -147,7 +147,7 @@ namespace Mirror
             return reader.ReadBoolean();
         }
 
-        static public void ReadReference(NetworkReader reader, SyncListBool syncList)
+        public static void ReadReference(NetworkReader reader, SyncListBool syncList)
         {
             ushort count = reader.ReadUInt16();
             syncList.Clear();
@@ -157,7 +157,7 @@ namespace Mirror
             }
         }
 
-        static public void WriteInstance(NetworkWriter writer, SyncListBool items)
+        public static void WriteInstance(NetworkWriter writer, SyncListBool items)
         {
             writer.Write((ushort)items.Count);
             for (int i = 0; i < items.Count; i++)
@@ -178,7 +178,7 @@ namespace Mirror
     // TODO rename back to SyncListStruct after 2019.1!
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
-        new public void AddInternal(T item)
+        public new void AddInternal(T item)
         {
             base.AddInternal(item);
         }
@@ -197,11 +197,11 @@ namespace Mirror
             return base[i];
         }
 
-        new public ushort Count { get { return (ushort)base.Count; } }
+        public new ushort Count { get { return (ushort)base.Count; } }
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    abstract public class SyncList<T> : IList<T>
+    public abstract class SyncList<T> : IList<T>
     {
         public delegate void SyncListChanged(Operation op, int itemIndex);
 
@@ -226,8 +226,8 @@ namespace Mirror
         int m_CmdHash;
         SyncListChanged m_Callback;
 
-        abstract protected void SerializeItem(NetworkWriter writer, T item);
-        abstract protected T DeserializeItem(NetworkReader reader);
+        protected abstract void SerializeItem(NetworkWriter writer, T item);
+        protected abstract T DeserializeItem(NetworkReader reader);
 
 
         public void InitializeBehaviour(NetworkBehaviour beh, int cmdHash)

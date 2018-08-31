@@ -359,7 +359,7 @@ namespace Mirror
 
         // ------------------ server message handlers -------------------
 
-        static internal void OnAnimationServerMessage(NetworkMessage netMsg)
+        internal static void OnAnimationServerMessage(NetworkMessage netMsg)
         {
             AnimationMessage msg = new AnimationMessage();
             netMsg.ReadMessage(msg);
@@ -380,7 +380,7 @@ namespace Mirror
             }
         }
 
-        static internal void OnAnimationParametersServerMessage(NetworkMessage netMsg)
+        internal static void OnAnimationParametersServerMessage(NetworkMessage netMsg)
         {
             AnimationParametersMessage msg = new AnimationParametersMessage();
             netMsg.ReadMessage(msg);
@@ -401,7 +401,7 @@ namespace Mirror
             }
         }
 
-        static internal void OnAnimationTriggerServerMessage(NetworkMessage netMsg)
+        internal static void OnAnimationTriggerServerMessage(NetworkMessage netMsg)
         {
             AnimationTriggerMessage msg = new AnimationTriggerMessage();
             netMsg.ReadMessage(msg);
@@ -423,7 +423,7 @@ namespace Mirror
 
         // ------------------ client message handlers -------------------
 
-        static internal void OnAnimationClientMessage(NetworkMessage netMsg)
+        internal static void OnAnimationClientMessage(NetworkMessage netMsg)
         {
             AnimationMessage msg = new AnimationMessage();
             netMsg.ReadMessage(msg);
@@ -441,7 +441,7 @@ namespace Mirror
             }
         }
 
-        static internal void OnAnimationParametersClientMessage(NetworkMessage netMsg)
+        internal static void OnAnimationParametersClientMessage(NetworkMessage netMsg)
         {
             AnimationParametersMessage msg = new AnimationParametersMessage();
             netMsg.ReadMessage(msg);
@@ -459,7 +459,7 @@ namespace Mirror
             }
         }
 
-        static internal void OnAnimationTriggerClientMessage(NetworkMessage netMsg)
+        internal static void OnAnimationTriggerClientMessage(NetworkMessage netMsg)
         {
             AnimationTriggerMessage msg = new AnimationTriggerMessage();
             netMsg.ReadMessage(msg);

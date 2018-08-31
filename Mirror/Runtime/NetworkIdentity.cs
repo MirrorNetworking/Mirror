@@ -125,7 +125,7 @@ namespace Mirror
         }
 
         static uint s_NextNetworkId = 1;
-        static internal NetworkInstanceId GetNextNetworkId()
+        internal static NetworkInstanceId GetNextNetworkId()
         {
             return new NetworkInstanceId(s_NextNetworkId++);
         }
@@ -141,7 +141,7 @@ namespace Mirror
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
-        static internal void AddNetworkId(uint id)
+        internal static void AddNetworkId(uint id)
         {
             if (id >= s_NextNetworkId)
             {
@@ -1060,7 +1060,7 @@ namespace Mirror
 #endif
 
         // this is invoked by the UnityEngine
-        static internal void UNetStaticUpdate()
+        internal static void UNetStaticUpdate()
         {
             NetworkServer.Update();
             NetworkClient.UpdateClients();

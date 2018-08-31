@@ -13,7 +13,7 @@ namespace Mirror
         static bool s_IsSpawnFinished;
         static NetworkScene s_NetworkScene = new NetworkScene();
 
-        static internal void SetNotReady()
+        internal static void SetNotReady()
         {
             s_IsReady = false;
         }
@@ -192,7 +192,7 @@ namespace Mirror
             return false;
         }
 
-        static public NetworkClient ConnectLocalServer()
+        public static NetworkClient ConnectLocalServer()
         {
             var newClient = new LocalClient();
             NetworkServer.ActivateLocalClientScene();
@@ -200,7 +200,7 @@ namespace Mirror
             return newClient;
         }
 
-        static internal void HandleClientDisconnect(NetworkConnection conn)
+        internal static void HandleClientDisconnect(NetworkConnection conn)
         {
             if (s_ReadyConnection == conn && s_IsReady)
             {
@@ -239,7 +239,7 @@ namespace Mirror
             return null;
         }
 
-        static internal void RegisterSystemHandlers(NetworkClient client, bool localClient)
+        internal static void RegisterSystemHandlers(NetworkClient client, bool localClient)
         {
             if (localClient)
             {
@@ -272,7 +272,7 @@ namespace Mirror
 
         // ------------------------ NetworkScene pass-throughs ---------------------
 
-        static internal string GetStringForAssetId(NetworkHash128 assetId)
+        internal static string GetStringForAssetId(NetworkHash128 assetId)
         {
             GameObject prefab;
             if (NetworkScene.GetPrefab(assetId, out prefab))
@@ -290,53 +290,53 @@ namespace Mirror
         }
 
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
-        static public void RegisterPrefab(GameObject prefab, NetworkHash128 newAssetId)
+        public static void RegisterPrefab(GameObject prefab, NetworkHash128 newAssetId)
         {
             NetworkScene.RegisterPrefab(prefab, newAssetId);
         }
 
-        static public void RegisterPrefab(GameObject prefab)
+        public static void RegisterPrefab(GameObject prefab)
         {
             NetworkScene.RegisterPrefab(prefab);
         }
 
-        static public void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
         }
 
-        static public void UnregisterPrefab(GameObject prefab)
+        public static void UnregisterPrefab(GameObject prefab)
         {
             NetworkScene.UnregisterPrefab(prefab);
         }
 
-        static public void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkScene.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
-        static public void UnregisterSpawnHandler(NetworkHash128 assetId)
+        public static void UnregisterSpawnHandler(NetworkHash128 assetId)
         {
             NetworkScene.UnregisterSpawnHandler(assetId);
         }
 
-        static public void ClearSpawners()
+        public static void ClearSpawners()
         {
             NetworkScene.ClearSpawners();
         }
 
-        static public void DestroyAllClientObjects()
+        public static void DestroyAllClientObjects()
         {
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        static public void SetLocalObject(NetworkInstanceId netId, GameObject obj)
+        public static void SetLocalObject(NetworkInstanceId netId, GameObject obj)
         {
             // if still receiving initial state, dont set isClient
             s_NetworkScene.SetLocalObject(netId, obj, s_IsSpawnFinished, false);
         }
 
-        static public GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(NetworkInstanceId netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }

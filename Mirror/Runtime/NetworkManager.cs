@@ -77,7 +77,7 @@ namespace Mirror
         }
 
         // runtime data
-        static public string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
         public bool isNetworkActive;
         public NetworkClient client;
         static List<Transform> s_StartPositions = new List<Transform>();
@@ -504,13 +504,13 @@ namespace Mirror
             if (LogFilter.logDev) { Debug.Log("NetworkManager destroyed"); }
         }
 
-        static public void RegisterStartPosition(Transform start)
+        public static void RegisterStartPosition(Transform start)
         {
             if (LogFilter.logDebug) { Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
             s_StartPositions.Add(start);
         }
 
-        static public void UnRegisterStartPosition(Transform start)
+        public static void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.logDebug) { Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
             s_StartPositions.Remove(start);
@@ -522,7 +522,7 @@ namespace Mirror
         }
 
         // this is the only way to clear the singleton, so another instance can be created.
-        static public void Shutdown()
+        public static void Shutdown()
         {
             if (singleton == null)
                 return;

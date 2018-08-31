@@ -190,7 +190,7 @@ namespace Mirror
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        static protected void RegisterCommandDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterCommandDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
         {
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -205,7 +205,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        static protected void RegisterRpcDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterRpcDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
         {
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -220,7 +220,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        static protected void RegisterEventDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterEventDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
         {
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -235,7 +235,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        static protected void RegisterSyncListDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterSyncListDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
         {
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -410,7 +410,7 @@ namespace Mirror
             return true;
         }
 
-        static internal string GetCmdHashHandlerName(int cmdHash)
+        internal static string GetCmdHashHandlerName(int cmdHash)
         {
             if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {

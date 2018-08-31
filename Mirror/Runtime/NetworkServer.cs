@@ -43,7 +43,7 @@ namespace Mirror
 
         static Type s_NetworkConnectionClass = typeof(NetworkConnection);
         public static Type networkConnectionClass { get { return s_NetworkConnectionClass; } }
-        static public void SetNetworkConnectionClass<T>() where T : NetworkConnection
+        public static void SetNetworkConnectionClass<T>() where T : NetworkConnection
         {
             s_NetworkConnectionClass = typeof(T);
         }
@@ -86,7 +86,7 @@ namespace Mirror
             if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
         }
 
-        static internal void RegisterMessageHandlers()
+        internal static void RegisterMessageHandlers()
         {
             RegisterHandler((short)MsgType.Ready, OnClientReadyMessage);
             RegisterHandler((short)MsgType.Command, OnCommandMessage);
@@ -98,17 +98,17 @@ namespace Mirror
             RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
         }
 
-        static public bool Listen(int serverPort, int maxConnections)
+        public static bool Listen(int serverPort, int maxConnections)
         {
             return InternalListen("127.0.0.1", serverPort, maxConnections);
         }
 
-        static public bool Listen(string ipAddress, int serverPort, int maxConnections)
+        public static bool Listen(string ipAddress, int serverPort, int maxConnections)
         {
             return InternalListen(ipAddress, serverPort, maxConnections);
         }
 
-        static internal bool InternalListen(string ipAddress, int serverPort, int maxConnections)
+        internal static bool InternalListen(string ipAddress, int serverPort, int maxConnections)
         {
             Initialize();
 
@@ -169,7 +169,7 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. dont call directly.
-        static internal int AddLocalClient(LocalClient localClient)
+        internal static int AddLocalClient(LocalClient localClient)
         {
             if (s_LocalConnection != null)
             {
@@ -186,7 +186,7 @@ namespace Mirror
             return 0;
         }
 
-        static internal void RemoveLocalClient(NetworkConnection localClientConnection)
+        internal static void RemoveLocalClient(NetworkConnection localClientConnection)
         {
             if (s_LocalConnection != null)
             {
@@ -198,14 +198,14 @@ namespace Mirror
             RemoveConnectionAtIndex(0);
         }
 
-        static internal void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
+        internal static void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
         {
             if (LogFilter.logDev) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
             s_NetworkScene.SetLocalObject(netId, obj, false, true);
         }
 
-        static internal void ActivateLocalClientScene()
+        internal static void ActivateLocalClientScene()
         {
             if (s_LocalClientActive)
                 return;
@@ -244,7 +244,7 @@ namespace Mirror
             return false;
         }
 
-        static public bool SendToAll(short msgType, MessageBase msg)
+        public static bool SendToAll(short msgType, MessageBase msg)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendToAll id:" + msgType); }
 
@@ -258,7 +258,7 @@ namespace Mirror
             return result;
         }
 
-        static public bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
+        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
@@ -293,7 +293,7 @@ namespace Mirror
             return false;
         }
 
-        static public void DisconnectAll()
+        public static void DisconnectAll()
         {
             InternalDisconnectAll();
         }
@@ -311,7 +311,7 @@ namespace Mirror
             }
         }
 
-        static internal void InternalDisconnectAll()
+        internal static void InternalDisconnectAll()
         {
             DisconnectAllConnections();
 
@@ -327,7 +327,7 @@ namespace Mirror
         }
 
         // The user should never need to pump the update loop manually
-        static internal void Update()
+        internal static void Update()
         {
             InternalUpdate();
         }
@@ -356,7 +356,7 @@ namespace Mirror
             }
         }
 
-        static internal void InternalUpdate()
+        internal static void InternalUpdate()
         {
             if (s_ServerHostId == -1)
                 return;
@@ -517,7 +517,7 @@ namespace Mirror
             }
         }
 
-        static public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (s_MessageHandlers.ContainsKey(msgType))
             {
@@ -526,23 +526,23 @@ namespace Mirror
             s_MessageHandlers[msgType] = handler;
         }
 
-        static public void UnregisterHandler(short msgType)
+        public static void UnregisterHandler(short msgType)
         {
             s_MessageHandlers.Remove(msgType);
         }
 
-        static public void ClearHandlers()
+        public static void ClearHandlers()
         {
             s_MessageHandlers.Clear();
         }
 
-        static public void ClearSpawners()
+        public static void ClearSpawners()
         {
             NetworkScene.ClearSpawners();
         }
 
         // send this message to the player only
-        static public void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
+        public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
         {
             for (int i = 0; i < connections.Count; i++)
             {
@@ -563,7 +563,7 @@ namespace Mirror
             if (LogFilter.logError) { Debug.LogError("Failed to send message to player object '" + player.name + ", not found in connection list"); }
         }
 
-        static public void SendToClient(int connectionId, short msgType, MessageBase msg)
+        public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
             if (connectionId < connections.Count)
             {
@@ -577,7 +577,7 @@ namespace Mirror
             if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
         }
 
-        static public bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
@@ -587,12 +587,12 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, player, playerControllerId);
         }
 
-        static public bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
         {
             return InternalReplacePlayerForConnection(conn, player, playerControllerId);
         }
 
-        static public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
@@ -602,12 +602,12 @@ namespace Mirror
             return InternalAddPlayerForConnection(conn, player, playerControllerId);
         }
 
-        static public bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
         {
             return InternalAddPlayerForConnection(conn, player, playerControllerId);
         }
 
-        static internal bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -723,7 +723,7 @@ namespace Mirror
             conn.Send((short)MsgType.Owner, owner);
         }
 
-        static internal bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -782,12 +782,12 @@ namespace Mirror
             return true;
         }
 
-        static public void SetClientReady(NetworkConnection conn)
+        public static void SetClientReady(NetworkConnection conn)
         {
             SetClientReadyInternal(conn);
         }
 
-        static internal void SetClientReadyInternal(NetworkConnection conn)
+        internal static void SetClientReadyInternal(NetworkConnection conn)
         {
             if (LogFilter.logDebug) { Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId); }
 
@@ -866,13 +866,13 @@ namespace Mirror
             conn.Send((short)MsgType.SpawnFinished, msg);
         }
 
-        static internal void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
+        internal static void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
         {
             if (conn.isReady)
                 SendSpawnMessage(uv, conn);
         }
 
-        static internal void HideForConnection(NetworkIdentity uv, NetworkConnection conn)
+        internal static void HideForConnection(NetworkIdentity uv, NetworkConnection conn)
         {
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = uv.netId;
@@ -880,7 +880,7 @@ namespace Mirror
         }
 
         // call this to make all the clients not ready, such as when changing levels.
-        static public void SetAllClientsNotReady()
+        public static void SetAllClientsNotReady()
         {
             for (int i = 0; i < connections.Count; i++)
             {
@@ -892,12 +892,12 @@ namespace Mirror
             }
         }
 
-        static public void SetClientNotReady(NetworkConnection conn)
+        public static void SetClientNotReady(NetworkConnection conn)
         {
             InternalSetClientNotReady(conn);
         }
 
-        static internal void InternalSetClientNotReady(NetworkConnection conn)
+        internal static void InternalSetClientNotReady(NetworkConnection conn)
         {
             if (conn.isReady)
             {
@@ -972,7 +972,7 @@ namespace Mirror
             uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
-        static internal void SpawnObject(GameObject obj)
+        internal static void SpawnObject(GameObject obj)
         {
             if (!NetworkServer.active)
             {
@@ -996,7 +996,7 @@ namespace Mirror
             //SendSpawnMessage(objNetworkIdentity, null);
         }
 
-        static internal void SendSpawnMessage(NetworkIdentity uv, NetworkConnection conn)
+        internal static void SendSpawnMessage(NetworkIdentity uv, NetworkConnection conn)
         {
             if (uv.serverOnly)
                 return;
@@ -1054,7 +1054,7 @@ namespace Mirror
             }
         }
 
-        static public void DestroyPlayersForConnection(NetworkConnection conn)
+        public static void DestroyPlayersForConnection(NetworkConnection conn)
         {
             if (conn.playerControllers.Count == 0)
             {
@@ -1160,12 +1160,12 @@ namespace Mirror
             uv.MarkForReset();
         }
 
-        static public void ClearLocalObjects()
+        public static void ClearLocalObjects()
         {
             objects.Clear();
         }
 
-        static public void Spawn(GameObject obj)
+        public static void Spawn(GameObject obj)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1193,7 +1193,7 @@ namespace Mirror
             return true;
         }
 
-        static public Boolean SpawnWithClientAuthority(GameObject obj, GameObject player)
+        public static Boolean SpawnWithClientAuthority(GameObject obj, GameObject player)
         {
             var uv = player.GetComponent<NetworkIdentity>();
             if (uv == null)
@@ -1211,7 +1211,7 @@ namespace Mirror
             return SpawnWithClientAuthority(obj, uv.connectionToClient);
         }
 
-        static public bool SpawnWithClientAuthority(GameObject obj, NetworkConnection conn)
+        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection conn)
         {
             if (!conn.isReady)
             {
@@ -1231,7 +1231,7 @@ namespace Mirror
             return uv.AssignClientAuthority(conn);
         }
 
-        static public bool SpawnWithClientAuthority(GameObject obj, NetworkHash128 assetId, NetworkConnection conn)
+        public static bool SpawnWithClientAuthority(GameObject obj, NetworkHash128 assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
 
@@ -1245,7 +1245,7 @@ namespace Mirror
             return uv.AssignClientAuthority(conn);
         }
 
-        static public void Spawn(GameObject obj, NetworkHash128 assetId)
+        public static void Spawn(GameObject obj, NetworkHash128 assetId)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1258,17 +1258,17 @@ namespace Mirror
             }
         }
 
-        static public void Destroy(GameObject obj)
+        public static void Destroy(GameObject obj)
         {
             DestroyObject(obj);
         }
 
-        static public void UnSpawn(GameObject obj)
+        public static void UnSpawn(GameObject obj)
         {
             UnSpawnObject(obj);
         }
 
-        static internal bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
+        internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
             ushort msgType;
             byte[] content;
@@ -1285,7 +1285,7 @@ namespace Mirror
             return false;
         }
 
-        static public GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(NetworkInstanceId netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }
@@ -1307,7 +1307,7 @@ namespace Mirror
             return true;
         }
 
-        static public bool SpawnObjects()
+        public static bool SpawnObjects()
         {
             if (!active)
                 return true;

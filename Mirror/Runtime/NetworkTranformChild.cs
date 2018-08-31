@@ -396,7 +396,7 @@ namespace Mirror
             ClientScene.readyConnection.Send((short)MsgType.LocalChildTransform, message);
         }
 
-        static internal void HandleChildTransform(NetworkMessage netMsg)
+        internal static void HandleChildTransform(NetworkMessage netMsg)
         {
             LocalChildTransformMessage message = netMsg.ReadMessage<LocalChildTransformMessage>();
 

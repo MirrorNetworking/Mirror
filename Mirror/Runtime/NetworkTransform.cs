@@ -1234,7 +1234,7 @@ namespace Mirror
             ClientScene.readyConnection.Send((short)MsgType.LocalPlayerTransform, message);
         }
 
-        static public void HandleTransform(NetworkMessage netMsg)
+        public static void HandleTransform(NetworkMessage netMsg)
         {
             LocalPlayerTransformMessage message = netMsg.ReadMessage<LocalPlayerTransformMessage>();
 
@@ -1344,17 +1344,17 @@ namespace Mirror
 
         // --------------------- Serialization Helper functions ------------------------
 
-        static public void SerializeVelocity3D(NetworkWriter writer, Vector3 velocity, CompressionSyncMode compression)
+        public static void SerializeVelocity3D(NetworkWriter writer, Vector3 velocity, CompressionSyncMode compression)
         {
             writer.Write(velocity);
         }
 
-        static public void SerializeVelocity2D(NetworkWriter writer, Vector2 velocity, CompressionSyncMode compression)
+        public static void SerializeVelocity2D(NetworkWriter writer, Vector2 velocity, CompressionSyncMode compression)
         {
             writer.Write(velocity);
         }
 
-        static public void SerializeRotation3D(NetworkWriter writer, Quaternion rot, AxisSyncMode mode, CompressionSyncMode compression)
+        public static void SerializeRotation3D(NetworkWriter writer, Quaternion rot, AxisSyncMode mode, CompressionSyncMode compression)
         {
             switch (mode)
             {
@@ -1396,12 +1396,12 @@ namespace Mirror
             }
         }
 
-        static public void SerializeRotation2D(NetworkWriter writer, float rot, CompressionSyncMode compression)
+        public static void SerializeRotation2D(NetworkWriter writer, float rot, CompressionSyncMode compression)
         {
             WriteAngle(writer, rot, compression);
         }
 
-        static public void SerializeSpin3D(NetworkWriter writer, Vector3 angularVelocity, AxisSyncMode mode, CompressionSyncMode compression)
+        public static void SerializeSpin3D(NetworkWriter writer, Vector3 angularVelocity, AxisSyncMode mode, CompressionSyncMode compression)
         {
             switch (mode)
             {
@@ -1443,22 +1443,22 @@ namespace Mirror
             }
         }
 
-        static public void SerializeSpin2D(NetworkWriter writer, float angularVelocity, CompressionSyncMode compression)
+        public static void SerializeSpin2D(NetworkWriter writer, float angularVelocity, CompressionSyncMode compression)
         {
             WriteAngle(writer, angularVelocity, compression);
         }
 
-        static public Vector3 UnserializeVelocity3D(NetworkReader reader, CompressionSyncMode compression)
+        public static Vector3 UnserializeVelocity3D(NetworkReader reader, CompressionSyncMode compression)
         {
             return reader.ReadVector3();
         }
 
-        static public Vector3 UnserializeVelocity2D(NetworkReader reader, CompressionSyncMode compression)
+        public static Vector3 UnserializeVelocity2D(NetworkReader reader, CompressionSyncMode compression)
         {
             return reader.ReadVector2();
         }
 
-        static public Quaternion UnserializeRotation3D(NetworkReader reader, AxisSyncMode mode, CompressionSyncMode compression)
+        public static Quaternion UnserializeRotation3D(NetworkReader reader, AxisSyncMode mode, CompressionSyncMode compression)
         {
             Quaternion rotation = Quaternion.identity;
             Vector3 rotv = Vector3.zero;
@@ -1506,12 +1506,12 @@ namespace Mirror
             return rotation;
         }
 
-        static public float UnserializeRotation2D(NetworkReader reader, CompressionSyncMode compression)
+        public static float UnserializeRotation2D(NetworkReader reader, CompressionSyncMode compression)
         {
             return ReadAngle(reader, compression);
         }
 
-        static public Vector3 UnserializeSpin3D(NetworkReader reader, AxisSyncMode mode, CompressionSyncMode compression)
+        public static Vector3 UnserializeSpin3D(NetworkReader reader, AxisSyncMode mode, CompressionSyncMode compression)
         {
             Vector3 spin = Vector3.zero;
             switch (mode)
@@ -1550,7 +1550,7 @@ namespace Mirror
             return spin;
         }
 
-        static public float UnserializeSpin2D(NetworkReader reader, CompressionSyncMode compression)
+        public static float UnserializeSpin2D(NetworkReader reader, CompressionSyncMode compression)
         {
             return ReadAngle(reader, compression);
         }

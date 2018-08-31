@@ -285,7 +285,7 @@ namespace Mirror
             return s_Clients.Remove(client);
         }
 
-        static internal void UpdateClients()
+        internal static void UpdateClients()
         {
             // remove null clients first
             s_Clients.RemoveAll(cl => cl == null);
@@ -297,7 +297,7 @@ namespace Mirror
             }
         }
 
-        static public void ShutdownAll()
+        public static void ShutdownAll()
         {
             while (s_Clients.Count != 0)
             {
