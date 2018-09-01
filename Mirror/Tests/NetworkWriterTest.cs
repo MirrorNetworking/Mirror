@@ -159,5 +159,71 @@ namespace Mirror.Tests
 
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 22, 23 }));
         }
+
+        [Test]
+        public void TestWritingAndReadingCoupleBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write((byte)2);
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TestWritingAndReadingBytesBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write((byte)1);
+            writer.Write(false);
+            writer.Write((byte)2);
+            writer.Write(true);
+            writer.Write((byte)3);
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadByte(), Is.EqualTo(1));
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadByte(), Is.EqualTo(2));
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadByte(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void TestWritingAndReadingLotBooleans()
+        {
+            // write three booleans
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(false);
+            writer.Write(true);
+            writer.Write(true);
+            writer.Write(false);
+
+            // read it back
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.True);
+            Assert.That(reader.ReadBoolean(), Is.False);
+        }
     }
 }
