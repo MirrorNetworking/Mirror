@@ -23,6 +23,7 @@ namespace Mirror
         //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
         public byte[] ToArray()
         {
+            writer.Flush();
             byte[] slice = new byte[Position];
             Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
             return slice;
