@@ -37,6 +37,8 @@ namespace Mirror
         protected GUIContent m_DontDestroyOnLoadLabel;
         protected GUIContent m_RunInBackgroundLabel;
 
+        GUIContent m_MaxConnectionsLabel;
+
         GUIContent m_UseWebSocketsLabel;
 
         GUIContent m_NetworkAddressLabel;
@@ -70,6 +72,7 @@ namespace Mirror
             m_DontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             m_RunInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
 
+            m_MaxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
             m_NetworkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
             m_NetworkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
@@ -185,6 +188,9 @@ namespace Mirror
                 EditorGUILayout.PropertyField(m_ServerBindAddressProperty, m_ServerBindAddressLabel);
                 EditorGUI.indentLevel -= 1;
             }
+
+            var maxConn = serializedObject.FindProperty("m_MaxConnections");
+            ShowPropertySuffix(m_MaxConnectionsLabel, maxConn, "connections");
 
             EditorGUI.indentLevel -= 1;
         }
