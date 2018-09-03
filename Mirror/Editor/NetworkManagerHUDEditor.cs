@@ -14,16 +14,16 @@ namespace Mirror
         SerializedProperty m_OffsetXProperty;
         SerializedProperty m_OffsetYProperty;
 
-        protected GUIContent m_ShowNetworkLabel;
-        protected GUIContent m_ShowServerLabel;
-        protected GUIContent m_ShowServerConnectionsLabel;
-        protected GUIContent m_ShowServerObjectsLabel;
-        protected GUIContent m_ShowClientLabel;
-        protected GUIContent m_ShowClientObjectsLabel;
-        protected GUIContent m_ShowControlsLabel;
-        protected GUIContent m_ShowRuntimeGuiLabel;
-        protected GUIContent m_OffsetXLabel;
-        protected GUIContent m_OffsetYLabel;
+        GUIContent m_ShowNetworkLabel;
+        GUIContent m_ShowServerLabel;
+        GUIContent m_ShowServerConnectionsLabel;
+        GUIContent m_ShowServerObjectsLabel;
+        GUIContent m_ShowClientLabel;
+        GUIContent m_ShowClientObjectsLabel;
+        GUIContent m_ShowControlsLabel;
+        GUIContent m_ShowRuntimeGuiLabel;
+        GUIContent m_OffsetXLabel;
+        GUIContent m_OffsetYLabel;
 
         bool m_ShowServer;
         bool m_ShowServerConnections;
