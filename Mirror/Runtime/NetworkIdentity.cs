@@ -344,7 +344,7 @@ namespace Mirror
         {
             if (m_NetworkBehaviours == null && LogFilter.logError)
             {
-                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object?", this);
+                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
                 return;
             }
 
