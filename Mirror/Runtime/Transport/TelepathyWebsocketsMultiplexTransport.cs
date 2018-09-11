@@ -61,14 +61,28 @@ namespace Mirror
 
         public void ServerStart(string address, int port, int maxConnections)
         {
-            server = new TelepathyTransport();
-            server.ServerStart(address, port, maxConnections);
+            // WebGL host mode should work without errors, even though we can't
+            // start a server in WebGL
+            // (can't use Telepathy threads in webgl anyway)
+            if (Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                server = new TelepathyTransport();
+                server.ServerStart(address, port, maxConnections);
+            }
+            else Debug.LogWarning("ServerStart can't be called in WebGL.");
         }
 
         public void ServerStartWebsockets(string address, int port, int maxConnections)
         {
-            server = new LLAPITransport();
-            server.ServerStartWebsockets(address,port, maxConnections);
+            // WebGL host mode should work without errors, even though we can't
+            // start a server in WebGL
+            // (can't call LLAPI's AddWebsocketHost in webgl anyway)
+            if (Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                server = new LLAPITransport();
+                server.ServerStartWebsockets(address,port, maxConnections);
+            }
+            else Debug.LogWarning("ServerStartWebsockets can't be called in WebGL.");
         }
 
         public bool ServerSend(int connectionId, byte[] data)
