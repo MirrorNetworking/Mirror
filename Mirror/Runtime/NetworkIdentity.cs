@@ -342,6 +342,12 @@ namespace Mirror
 
         internal void OnStartAuthority()
         {
+            if (m_NetworkBehaviours == null && LogFilter.logError)
+            {
+                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
+                return;
+            }
+
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
