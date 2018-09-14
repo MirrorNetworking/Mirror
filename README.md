@@ -62,4 +62,3 @@ If you like to contribute, feel free to submit pull requests and visit our [Disc
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
 
 We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New features will be considered very carefully. 
-
