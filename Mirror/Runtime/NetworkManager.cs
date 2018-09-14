@@ -200,8 +200,6 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            OnStartServer();
-
             if (m_RunInBackground)
                 Application.runInBackground = true;
 
@@ -223,6 +221,16 @@ namespace Mirror
                     return false;
                 }
             }
+
+            // call OnStartServer AFTER Listen, so that NetworkServer.active is
+            // true and we can call NetworkServer.Spawn in OnStartServer
+            // overrides.
+            // (useful for loading & spawning stuff from database etc.)
+            //
+            // note: there is no risk of someone connecting after Listen() and
+            //       before OnStartServer() because this all runs in one thread
+            //       and we don't start processing connects until Update.
+            OnStartServer();
 
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
