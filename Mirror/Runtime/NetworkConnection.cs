@@ -226,16 +226,7 @@ namespace Mirror
                     msg.reader = new NetworkReader(content);
                     msg.conn = this;
 
-                    // add to queue while paused, otherwise process directly
-                    if (pauseQueue != null)
-                    {
-                        pauseQueue.Enqueue(msg);
-                        if (LogFilter.logWarn) { Debug.LogWarning("HandleReader: added message to pause queue: " + msgType + " str=" + ((MsgType)msgType) + " queue size=" + pauseQueue.Count); }
-                    }
-                    else
-                    {
-                        msgDelegate(msg);
-                    }
+                    msgDelegate(msg);
                     lastMessageTime = Time.time;
                 }
                 else
@@ -320,35 +311,6 @@ namespace Mirror
                 return;
             }
             m_ClientOwnedObjects.Remove(obj.netId);
-        }
-
-        // vis2k: pause mode
-        // problem: if we handle packets (calling the msgDelegates) while a scene load is in progress, then all the
-        //          handled data and state will be lost as soon as the scene load is finished, causing state bugs.
-        // solution: call Pause, message handling keeps messages in a queue, Resume handles them all.
-        //
-        // this is the only safe way to do it. otherwise all delegate functions have to check if a scene is loading,
-        // which is way too complicated and risky.
-        Queue<NetworkMessage> pauseQueue;
-
-        internal void PauseHandling()
-        {
-            pauseQueue = new Queue<NetworkMessage>();
-        }
-
-        internal void ResumeHandling()
-        {
-            // pauseQueue is null if Resume called without pausing, make sure to only do something if paused before.
-            if (pauseQueue != null)
-            {
-                foreach (NetworkMessage msg in pauseQueue)
-                {
-                    if (LogFilter.logWarn) { Debug.LogWarning("processing queued message: " + msg.msgType + " str=" + msg.msgType); }
-                    var msgDelegate = m_MessageHandlers[msg.msgType];
-                    msgDelegate(msg);
-                }
-                pauseQueue = null;
-            }
         }
     }
 }

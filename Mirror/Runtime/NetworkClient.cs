@@ -16,6 +16,8 @@ namespace Mirror
         public static List<NetworkClient> allClients { get { return s_Clients; } }
         public static bool active { get { return s_IsActive; } }
 
+        public static bool pauseMessageHandling;
+
         int m_HostPort;
 
         string m_ServerIp = "";
@@ -170,6 +172,23 @@ namespace Mirror
             //    process the last disconnect message.
             if (connectState != ConnectState.Connecting && connectState != ConnectState.Connected)
             {
+                return;
+            }
+
+            // pause message handling while a scene load is in progress
+            //
+            // problem:
+            //   if we handle packets (calling the msgDelegates) while a
+            //   scene load is in progress, then all the handled data and state
+            //   will be lost as soon as the scene load is finished, causing
+            //   state bugs.
+            //
+            // solution:
+            //   don't handle messages until scene load is finished. the
+            //   transport layer will queue it automatically.
+            if (pauseMessageHandling)
+            {
+                Debug.Log("NetworkClient.Update paused during scene load...");
                 return;
             }
 

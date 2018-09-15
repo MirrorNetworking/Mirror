@@ -424,7 +424,7 @@ namespace Mirror
             if (client != null)
             {
                 if (LogFilter.logDebug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
-                client.connection.PauseHandling();
+                NetworkClient.pauseMessageHandling = true;
             }
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
@@ -439,7 +439,7 @@ namespace Mirror
             {
                 // process queued messages that we received while loading the scene
                 if (LogFilter.logDebug) { Debug.Log("FinishLoadScene: resuming handlers after scene was loading."); }
-                client.connection.ResumeHandling();
+                NetworkClient.pauseMessageHandling = false;
 
                 if (s_ClientReadyConnection != null)
                 {
