@@ -14,7 +14,6 @@ namespace Mirror
         SerializedProperty m_OffsetXProperty;
         SerializedProperty m_OffsetYProperty;
 
-        GUIContent m_ShowNetworkLabel;
         GUIContent m_ShowServerLabel;
         GUIContent m_ShowServerConnectionsLabel;
         GUIContent m_ShowServerObjectsLabel;
