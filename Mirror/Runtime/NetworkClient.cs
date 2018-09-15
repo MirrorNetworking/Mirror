@@ -184,12 +184,24 @@ namespace Mirror
                 {
                     case TransportEvent.Connected:
                         //Debug.Log("NetworkClient loop: Connected");
-                        m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
+
+                        if (m_Connection != null)
+                        {
+                            m_Connection.InvokeHandlerNoData((short) MsgType.Connect);
+                        }
+                        else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
+
                         connectState = ConnectState.Connected;
                         break;
                     case TransportEvent.Data:
-                        //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(msg.data));
-                        m_Connection.TransportReceive(data);
+                        //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(data));
+
+                        if (m_Connection != null)
+                        {
+                            m_Connection.TransportReceive(data);
+                        }
+                        else Debug.LogError("Skipped Data message handling because m_Connection is null.");
+
                         break;
                     case TransportEvent.Disconnected:
                         //Debug.Log("NetworkClient loop: Disconnected");
