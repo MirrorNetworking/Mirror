@@ -1066,7 +1066,7 @@ namespace Mirror
 #endif
 
         // this is invoked by the UnityEngine
-        internal static void UNetStaticUpdate()
+        public static void UNetStaticUpdate()
         {
             NetworkServer.Update();
             NetworkClient.UpdateClients();
