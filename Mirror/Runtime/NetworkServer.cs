@@ -115,7 +115,6 @@ namespace Mirror
             // only start server if we want to listen
             if (!s_DontListen)
             {
-                Initialize();
                 s_ServerPort = serverPort;
 
                 if (s_UseWebSockets)
