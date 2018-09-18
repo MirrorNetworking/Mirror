@@ -206,11 +206,13 @@ namespace Mirror
 
                         if (m_Connection != null)
                         {
+                            // the handler may want to send messages to the client
+                            // thus we should set the connected state before calling the handler
+                            connectState = ConnectState.Connected;
                             m_Connection.InvokeHandlerNoData((short) MsgType.Connect);
                         }
                         else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
 
-                        connectState = ConnectState.Connected;
                         break;
                     case TransportEvent.Data:
                         //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(data));
