@@ -74,14 +74,13 @@ namespace Mirror
             //address = "";
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            if (hostId == -1)
+
+            // server?
+            if (hostId != -1)
             {
-                return;
+                Transport.layer.ServerDisconnect(connectionId);
+                RemoveObservers();
             }
-
-            Transport.layer.ClientDisconnect();
-
-            RemoveObservers();
         }
 
         internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)

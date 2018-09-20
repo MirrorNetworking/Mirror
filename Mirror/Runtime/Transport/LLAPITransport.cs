@@ -233,6 +233,11 @@ namespace Mirror
             return true;
         }
 
+        public bool ServerDisconnect(int connectionId)
+        {
+            return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
+        }
+
         public bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;

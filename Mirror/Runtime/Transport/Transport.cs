@@ -32,6 +32,7 @@ namespace Mirror
         void ServerStartWebsockets(string address, int port, int maxConnections);
         bool ServerSend(int connectionId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
+        bool ServerDisconnect(int connectionId);
         bool GetConnectionInfo(int connectionId, out string address);
         void ServerStop();
 

@@ -98,6 +98,11 @@ namespace Mirror
             return server != null ? server.ServerGetNextMessage(out connectionId, out transportEvent, out data) : false;
         }
 
+        public bool ServerDisconnect(int connectionId)
+        {
+            return server != null ? server.ServerDisconnect(connectionId) : false;
+        }
+
         public bool GetConnectionInfo(int connectionId, out string address)
         {
             address = null;
