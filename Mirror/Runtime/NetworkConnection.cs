@@ -72,13 +72,26 @@ namespace Mirror
             // don't clear address so we can still access it in NetworkManager.OnServerDisconnect
             // => it's reset in Initialize anyway and there is no address empty check anywhere either
             //address = "";
+
+            // set not ready and handle clientscene disconnect in any case
+            // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
 
-            // server?
-            if (hostId != -1)
+            // client? then stop transport
+            if (Transport.layer.ClientConnected())
+            {
+                Transport.layer.ClientDisconnect();
+            }
+            // server? then disconnect that client
+            else if (Transport.layer.ServerActive())
             {
                 Transport.layer.ServerDisconnect(connectionId);
+            }
+
+            // remove observers. original HLAPI has hostId check for that too.
+            if (hostId != -1)
+            {
                 RemoveObservers();
             }
         }
