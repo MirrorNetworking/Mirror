@@ -50,8 +50,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Telepathy, Version=1.0.125.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Telepathy.1.0.125\lib\net35\Telepathy.dll</HintPath>
+    <Reference Include="Telepathy, Version=1.0.126.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Telepathy.1.0.126\lib\net35\Telepathy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine">
