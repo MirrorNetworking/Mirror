@@ -32,7 +32,7 @@ Mirror will be on the Unity Asset Store soon, which will make it as easy to use 
 
 Until then:
 
-1. [Download Mirror](http://noobtuts.com/_projects/Mirror/Mirror.zip) (for Unity 2017.4 and 2018). Use it at your own risk!
+1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
 2. Drop the DLLs into your Project's Plugins folder
 3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
 4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
