@@ -46,7 +46,7 @@ We are building several easy to understand example projects that we will add her
 For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
 # Donations
-Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/HLAPI_PRO).
+Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
 
 # Build
 Building Mirror yourself is very easy. Simply download the project, open it in Visual Studio or Rider, build it once for Release and once for Release-Editor. You will then find all the necessary DLLs in the Output directory.
