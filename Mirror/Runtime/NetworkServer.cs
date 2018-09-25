@@ -535,6 +535,11 @@ namespace Mirror
             s_MessageHandlers.Remove(msgType);
         }
 
+        public static void UnregisterHandler(MsgType msgType)
+        {
+            UnregisterHandler((short)msgType);
+        }
+
         public static void ClearHandlers()
         {
             s_MessageHandlers.Clear();
