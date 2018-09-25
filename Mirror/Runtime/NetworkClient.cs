@@ -303,9 +303,19 @@ namespace Mirror
             m_MessageHandlers[msgType] = handler;
         }
 
+        public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        {
+            RegisterHandler((short)msgType, handler);
+        }
+
         public void UnregisterHandler(short msgType)
         {
             m_MessageHandlers.Remove(msgType);
+        }
+
+        public void UnregisterHandler(MsgType msgType)
+        {
+            UnregisterHandler((short)msgType);
         }
 
         internal static void AddClient(NetworkClient client)
