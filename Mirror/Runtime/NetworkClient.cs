@@ -88,13 +88,6 @@ namespace Mirror
             RegisterSystemHandlers(false);
         }
 
-        static bool IsValidIpV6(string address)
-        {
-            // use C# built-in method
-            IPAddress temp;
-            return IPAddress.TryParse(address, out temp) && temp.AddressFamily == AddressFamily.InterNetworkV6;
-        }
-
         public void Connect(string serverIp, int serverPort)
         {
             PrepareForConnect(false);
