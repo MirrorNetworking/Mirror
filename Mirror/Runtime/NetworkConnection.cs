@@ -196,9 +196,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > UInt16.MaxValue)
+            if (bytes.Length > Transport.MaxPacketSize)
             {
-                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + UInt16.MaxValue + " bytes"); }
+                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.MaxPacketSize + " bytes"); }
                 return false;
             }
 

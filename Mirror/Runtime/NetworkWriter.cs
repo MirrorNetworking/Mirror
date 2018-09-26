@@ -72,9 +72,9 @@ namespace Mirror
                 writer.Write(false); // notNull?
                 return;
             }
-            if (count > UInt16.MaxValue)
+            if (count > Transport.MaxPacketSize)
             {
-                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: size is too large (" + count + ") bytes. The maximum buffer size is " + UInt16.MaxValue + " bytes."); }
+                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: size is too large (" + count + ") bytes. The maximum buffer size is " + Transport.MaxPacketSize + " bytes."); }
                 return;
             }
             writer.Write(true); // notNull?
