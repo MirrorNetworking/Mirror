@@ -7,6 +7,9 @@ before_build:
 #  project: Mirror/Networking.sln
 #  verbosity: minimal
   
+# Do not build on tags (GitHub only)
+skip_tags: true
+
 build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
@@ -35,4 +38,4 @@ deploy:
   draft: false
   prerelease: false
   on:
-    appveyor_repo_tag: true        # deploy on tag push only
+    branch: mirror
