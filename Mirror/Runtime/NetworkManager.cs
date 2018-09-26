@@ -728,11 +728,11 @@ namespace Mirror
             Transform startPos = GetStartPosition();
             if (startPos != null)
             {
-                player = (GameObject)Instantiate(m_PlayerPrefab, startPos.position, startPos.rotation);
+                player = Instantiate(m_PlayerPrefab, startPos.position, startPos.rotation);
             }
             else
             {
-                player = (GameObject)Instantiate(m_PlayerPrefab, Vector3.zero, Quaternion.identity);
+                player = Instantiate(m_PlayerPrefab, Vector3.zero, Quaternion.identity);
             }
 
             NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
