@@ -25,7 +25,6 @@ namespace Mirror
     {
     }
 
-
     [AttributeUsage(AttributeTargets.Method)]
     public class TargetRpcAttribute : Attribute
     {
