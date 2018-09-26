@@ -90,7 +90,7 @@ namespace Mirror
 
         public void Connect(string serverIp, int serverPort)
         {
-            PrepareForConnect(false);
+            PrepareForConnect();
 
             if (LogFilter.logDebug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
 
@@ -107,7 +107,7 @@ namespace Mirror
             m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
         }
 
-        void PrepareForConnect(bool usePlatformSpecificProtocols)
+        void PrepareForConnect()
         {
             SetActive(true);
             RegisterSystemHandlers(false);
