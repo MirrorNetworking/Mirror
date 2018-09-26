@@ -1011,17 +1011,11 @@ namespace Mirror.Weaver
             if (md.Name == ".cctor" || md.Name == "OnUnserializeVars")
                 return;
 
-            string prefix = md.Name.Substring(0, Math.Min(md.Name.Length, 4));
-
-            if (prefix == "UNet")
-                return;
-
-            prefix = md.Name.Substring(0, Math.Min(md.Name.Length, 7));
-            if (prefix == "CallCmd")
-                return;
-
-            prefix = md.Name.Substring(0, Math.Min(md.Name.Length, 9));
-            if (prefix == "InvokeCmd" || prefix == "InvokeRpc" || prefix == "InvokeSyn")
+            if (md.Name.StartsWith("UNet") ||
+                md.Name.StartsWith("CallCmd") ||
+                md.Name.StartsWith("InvokeCmd") ||
+                md.Name.StartsWith("InvokeRpc") ||
+                md.Name.StartsWith("InvokeSyn"))
                 return;
 
             if (md.Body != null && md.Body.Instructions != null)
