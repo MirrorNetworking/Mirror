@@ -48,8 +48,8 @@ namespace Mirror
             bool notNull = reader.ReadBoolean();
             if (notNull)
             {
-                ushort size = ReadUInt16();
-                return reader.ReadBytes(size);
+                uint size = ReadPackedUInt32();
+                return reader.ReadBytes((int)size);
             }
             return null;
         }

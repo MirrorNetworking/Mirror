@@ -29,6 +29,20 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingHugeArray()
+        {
+            // try serializing array > 64KB and see what happens
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSize(new byte[100000]);
+            byte[] data = writer.ToArray();
+
+            NetworkReader reader = new NetworkReader(data);
+            byte[] deserialized = reader.ReadBytesAndSize();
+            Assert.That(deserialized.Length, Is.EqualTo(100000));
+        }
+
+
+        [Test]
         public void TestToArray()
         {
             // write 2 bytes

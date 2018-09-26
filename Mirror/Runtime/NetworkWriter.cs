@@ -77,8 +77,15 @@ namespace Mirror
                 if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: size is too large (" + count + ") bytes. The maximum buffer size is " + Transport.MaxPacketSize + " bytes."); }
                 return;
             }
+            
+            if (count < 0)
+            {
+                if (LogFilter.logError) { Debug.LogError("NetworkWriter WriteBytesAndSize: size " + count + " cannot be negative"); }
+                return;
+            }
+
             writer.Write(true); // notNull?
-            writer.Write((UInt16)count);
+            WritePackedUInt32((uint)count);
             writer.Write(buffer, offset, count);
         }
 
