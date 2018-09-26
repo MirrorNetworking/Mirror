@@ -327,7 +327,7 @@ namespace Mirror
             // remove null clients first
             s_Clients.RemoveAll(cl => cl == null);
 
-            // now updating valid clients
+            // now update valid clients
             for (int i = 0; i < s_Clients.Count; ++i)
             {
                 s_Clients[i].Update();
