@@ -12,7 +12,7 @@ namespace Mirror
     */
     public class NetworkConnection : IDisposable
     {
-        List<PlayerController> m_PlayerControllers = new List<PlayerController>();
+        NetworkIdentity m_PlayerController;
         HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
         public HashSet<NetworkIdentity> visList { get { return m_VisList; } }
 
@@ -25,7 +25,7 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public List<PlayerController> playerControllers { get { return m_PlayerControllers; } }
+        public NetworkIdentity playerController { get { return m_PlayerController; } }
         public HashSet<NetworkInstanceId> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
         public bool logNetworkMessages = false;
         public bool isConnected { get { return hostId != -1; }}
@@ -148,36 +148,14 @@ namespace Mirror
             m_MessageHandlers.Remove(msgType);
         }
 
-        internal void SetPlayerController(PlayerController player)
+        internal void SetPlayerController(NetworkIdentity player)
         {
-            while (player.playerControllerId >= m_PlayerControllers.Count)
-            {
-                m_PlayerControllers.Add(new PlayerController());
-            }
-
-            m_PlayerControllers[player.playerControllerId] = player;
+            m_PlayerController = player;
         }
 
-        internal void RemovePlayerController(short playerControllerId)
+        internal void RemovePlayerController()
         {
-            int count = m_PlayerControllers.Count;
-            while (count >= 0)
-            {
-                if (playerControllerId == count && playerControllerId == m_PlayerControllers[count].playerControllerId)
-                {
-                    m_PlayerControllers[count] = new PlayerController();
-                    return;
-                }
-                count -= 1;
-            }
-            if (LogFilter.logError) { Debug.LogError("RemovePlayer player at playerControllerId " + playerControllerId + " not found"); }
-        }
-
-        // Get player controller from connection's list
-        internal bool GetPlayerController(short playerControllerId, out PlayerController playerController)
-        {
-            playerController = playerControllers.Find(pc => pc.IsValid && pc.playerControllerId == playerControllerId);
-            return playerController != null;
+            m_PlayerController = null;
         }
 
         public virtual bool Send(short msgType, MessageBase msg)

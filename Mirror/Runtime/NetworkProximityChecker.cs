@@ -46,14 +46,9 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            // this cant use newObserver.playerControllers[0]. must iterate to find a valid player.
-            PlayerController controller = newObserver.playerControllers.Find(
-                pc => pc != null && pc.gameObject != null
-            );
-            if (controller != null)
+            if (newObserver.playerController != null)
             {
-                GameObject player = controller.gameObject;
-                return Vector3.Distance(player.transform.position, transform.position) < visRange;
+                return Vector3.Distance(newObserver.playerController.transform.position, transform.position) < visRange;
             }
             return false;
         }

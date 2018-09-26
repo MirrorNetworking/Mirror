@@ -103,35 +103,21 @@ namespace Mirror
 
     public class AddPlayerMessage : MessageBase
     {
-        public short playerControllerId;
         public byte[] msgData;
 
         public override void Deserialize(NetworkReader reader)
         {
-            playerControllerId = (short)reader.ReadPackedUInt32();
             msgData = reader.ReadBytesAndSize();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32((uint)playerControllerId);
             writer.WriteBytesAndSize(msgData);
         }
     }
 
     public class RemovePlayerMessage : MessageBase
     {
-        public short playerControllerId;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            playerControllerId = (short)reader.ReadPackedUInt32();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32((uint)playerControllerId);
-        }
     }
 
     // ---------- System Messages requried for code gen path -------------------
@@ -317,18 +303,15 @@ namespace Mirror
     class OwnerMessage : MessageBase
     {
         public NetworkInstanceId netId;
-        public short playerControllerId;
 
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadNetworkId();
-            playerControllerId = (short)reader.ReadPackedUInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(netId);
-            writer.WritePackedUInt32((uint)playerControllerId);
         }
     }
 

@@ -120,10 +120,7 @@ namespace Mirror
                         if (m_ShowPlayersForConnections[index])
                         {
                             EditorGUI.indentLevel += 1;
-                            foreach (var player in con.playerControllers)
-                            {
-                                EditorGUILayout.ObjectField("Player: " + player.playerControllerId, player.gameObject, typeof(GameObject), true);
-                            }
+                            EditorGUILayout.ObjectField("Player: ", con.playerController.gameObject, typeof(GameObject), true);
                             EditorGUI.indentLevel -= 1;
                         }
 
@@ -253,10 +250,7 @@ namespace Mirror
                 {
                     EditorGUILayout.TextField("client " + count + ":" ,  cl.GetType().Name + " Conn: " + cl.connection);
                     EditorGUI.indentLevel += 1;
-                    foreach (var p in cl.connection.playerControllers)
-                    {
-                        EditorGUILayout.LabelField("Player", p.ToString());
-                    }
+                    EditorGUILayout.LabelField("Player", cl.connection.playerController.name);
                     EditorGUI.indentLevel -= 1;
                 }
                 count++;
@@ -330,9 +324,9 @@ namespace Mirror
                 {
                     ClientScene.Ready(m_Manager.client.connection);
 
-                    if (ClientScene.localPlayers.Count == 0)
+                    if (ClientScene.localPlayer == null)
                     {
-                        ClientScene.AddPlayer(0);
+                        ClientScene.AddPlayer();
                     }
                 }
             }

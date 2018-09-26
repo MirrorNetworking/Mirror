@@ -78,7 +78,6 @@
     <Compile Include="NetworkTranformChild.cs" />
     <Compile Include="NetworkTransform.cs" />
     <Compile Include="NetworkTransformVisualizer.cs" />
-    <Compile Include="PlayerController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NetworkClient.cs" />
     <Compile Include="NetworkConnection.cs" />

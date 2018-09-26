@@ -80,7 +80,6 @@ namespace Mirror.Weaver
         public static MethodReference MemoryStreamCtor;
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
-        public static MethodReference getPlayerIdReference;
         public static TypeReference NetworkIdentityType;
         public static TypeReference NetworkInstanceIdType;
         public static TypeReference NetworkSceneIdType;
@@ -1446,7 +1445,6 @@ namespace Mirror.Weaver
             gameObjectInequality = ResolveMethod(unityObjectType, "op_Inequality");
 
             UBehaviourIsServer  = ResolveMethod(NetworkBehaviourType, "get_isServer");
-            getPlayerIdReference = ResolveMethod(NetworkBehaviourType, "get_playerControllerId");
             setSyncVarReference = ResolveMethod(NetworkBehaviourType, "SetSyncVar");
             setSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "set_syncVarHookGuard");
             getSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "get_syncVarHookGuard");

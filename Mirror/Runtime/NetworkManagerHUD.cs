@@ -99,9 +99,9 @@ namespace Mirror
                 {
                     ClientScene.Ready(manager.client.connection);
 
-                    if (ClientScene.localPlayers.Count == 0)
+                    if (ClientScene.localPlayer == null)
                     {
-                        ClientScene.AddPlayer(0);
+                        ClientScene.AddPlayer();
                     }
                 }
             }

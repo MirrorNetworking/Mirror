@@ -80,21 +80,12 @@ namespace Mirror
                 if (m_ShowObservers)
                 {
                     EditorGUI.indentLevel += 1;
-                    foreach (var o in m_NetworkIdentity.observers)
+                    foreach (NetworkConnection observer in m_NetworkIdentity.observers)
                     {
-                        GameObject obj = null;
-                        foreach (var p in o.playerControllers)
-                        {
-                            if (p != null)
-                            {
-                                obj = p.gameObject;
-                                break;
-                            }
-                        }
-                        if (obj)
-                            EditorGUILayout.ObjectField("Connection " + o.connectionId, obj, typeof(GameObject), false);
+                        if (observer.playerController != null)
+                            EditorGUILayout.ObjectField("Connection " + observer.connectionId, observer.playerController.gameObject, typeof(GameObject), false);
                         else
-                            EditorGUILayout.TextField("Connection " + o.connectionId);
+                            EditorGUILayout.TextField("Connection " + observer.connectionId);
                     }
                     EditorGUI.indentLevel -= 1;
                 }

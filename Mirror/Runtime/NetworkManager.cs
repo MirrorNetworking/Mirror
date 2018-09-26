@@ -60,21 +60,7 @@ namespace Mirror
         public bool clientLoadedScene        { get { return m_ClientLoadedScene; } set { m_ClientLoadedScene = value; } }
 
         // only really valid on the server
-        public int numPlayers
-        {
-            get
-            {
-                int amount = 0;
-                foreach (NetworkConnection conn in NetworkServer.connections)
-                {
-                    if (conn != null)
-                    {
-                        amount += conn.playerControllers.Count(pc => pc.IsValid);
-                    }
-                }
-                return amount;
-            }
-        }
+        public int numPlayers { get { return NetworkServer.connections.Count(conn => conn.playerController != null); } }
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
@@ -579,12 +565,12 @@ namespace Mirror
 
             if (msg.msgData != null && msg.msgData.Length > 0)
             {
-                var reader = new NetworkReader(msg.msgData);
-                OnServerAddPlayer(netMsg.conn, msg.playerControllerId, reader);
+                NetworkReader reader = new NetworkReader(msg.msgData);
+                OnServerAddPlayer(netMsg.conn, reader);
             }
             else
             {
-                OnServerAddPlayer(netMsg.conn, msg.playerControllerId);
+                OnServerAddPlayer(netMsg.conn);
             }
         }
 
@@ -595,10 +581,11 @@ namespace Mirror
             RemovePlayerMessage msg = new RemovePlayerMessage();
             netMsg.ReadMessage(msg);
 
-            PlayerController player;
-            netMsg.conn.GetPlayerController(msg.playerControllerId, out player);
-            OnServerRemovePlayer(netMsg.conn, player);
-            netMsg.conn.RemovePlayerController(msg.playerControllerId);
+            if (netMsg.conn.playerController != null)
+            {
+                OnServerRemovePlayer(netMsg.conn, netMsg.conn.playerController);
+                netMsg.conn.RemovePlayerController();
+            }
         }
 
         internal void OnServerErrorInternal(NetworkMessage netMsg)
@@ -680,13 +667,13 @@ namespace Mirror
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
-            NetworkServer.DestroyPlayersForConnection(conn);
+            NetworkServer.DestroyPlayerForConnection(conn);
             if (LogFilter.logDebug) { Debug.Log("OnServerDisconnect: Client disconnected."); }
         }
 
         public virtual void OnServerReady(NetworkConnection conn)
         {
-            if (conn.playerControllers.Count == 0)
+            if (conn.playerController == null)
             {
                 // this is now allowed (was not for a while)
                 if (LogFilter.logDebug) { Debug.Log("Ready with no player object"); }
@@ -694,17 +681,17 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader extraMessageReader)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkReader extraMessageReader)
         {
-            OnServerAddPlayerInternal(conn, playerControllerId);
+            OnServerAddPlayerInternal(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+        public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
-            OnServerAddPlayerInternal(conn, playerControllerId);
+            OnServerAddPlayerInternal(conn);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, short playerControllerId)
+        void OnServerAddPlayerInternal(NetworkConnection conn)
         {
             if (m_PlayerPrefab == null)
             {
@@ -718,9 +705,9 @@ namespace Mirror
                 return;
             }
 
-            if (playerControllerId < conn.playerControllers.Count  && conn.playerControllers[playerControllerId].IsValid && conn.playerControllers[playerControllerId].gameObject != null)
+            if (conn.playerController != null)
             {
-                if (LogFilter.logError) { Debug.LogError("There is already a player at that playerControllerId for this connections."); }
+                if (LogFilter.logError) { Debug.LogError("There is already a player for this connections."); }
                 return;
             }
 
@@ -735,7 +722,7 @@ namespace Mirror
                 player = Instantiate(m_PlayerPrefab, Vector3.zero, Quaternion.identity);
             }
 
-            NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+            NetworkServer.AddPlayerForConnection(conn, player);
         }
 
         public Transform GetStartPosition()
@@ -763,7 +750,7 @@ namespace Mirror
             return null;
         }
 
-        public virtual void OnServerRemovePlayer(NetworkConnection conn, PlayerController player)
+        public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
             {
@@ -789,7 +776,7 @@ namespace Mirror
                 ClientScene.Ready(conn);
                 if (m_AutoCreatePlayer)
                 {
-                    ClientScene.AddPlayer(0);
+                    ClientScene.AddPlayer();
                 }
             }
         }
@@ -815,10 +802,10 @@ namespace Mirror
             // vis2k: replaced all this weird code with something more simple
             if (m_AutoCreatePlayer)
             {
-                // add player if all existing ones are null (or if list is empty, then .All returns true)
-                if (ClientScene.localPlayers.All(pc => pc.gameObject == null))
+                // add player if existing one is null
+                if (ClientScene.localPlayer == null)
                 {
-                    ClientScene.AddPlayer(0);
+                    ClientScene.AddPlayer();
                 }
             }
         }

@@ -231,8 +231,6 @@ namespace Mirror
 
                 m_Info.Add(GetString("Network ID", m_Identity.netId.ToString()));
 
-                m_Info.Add(GetString("Player Controller ID", m_Identity.playerControllerId.ToString()));
-
                 m_Info.Add(GetBoolean("Is Client", m_Identity.isClient));
                 m_Info.Add(GetBoolean("Is Server", m_Identity.isServer));
                 m_Info.Add(GetBoolean("Has Authority", m_Identity.hasAuthority));

@@ -5,7 +5,7 @@ namespace Mirror
 {
     public class ClientScene
     {
-        static List<PlayerController> s_LocalPlayers = new List<PlayerController>();
+        static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;
         static Dictionary<NetworkSceneId, NetworkIdentity> s_SpawnableObjects;
 
@@ -18,14 +18,9 @@ namespace Mirror
             s_IsReady = false;
         }
 
-        struct PendingOwner
-        {
-            public NetworkInstanceId netId;
-            public short playerControllerId;
-        }
-        static List<PendingOwner> s_PendingOwnerIds = new List<PendingOwner>();
+        static List<NetworkInstanceId> s_PendingOwnerIds = new List<NetworkInstanceId>();
 
-        public static List<PlayerController> localPlayers { get { return s_LocalPlayers; } }
+        public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
@@ -37,8 +32,7 @@ namespace Mirror
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
-            s_LocalPlayers = new List<PlayerController>();
-            s_PendingOwnerIds = new List<PendingOwner>();
+            s_PendingOwnerIds = new List<NetworkInstanceId>();
             s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
@@ -48,69 +42,38 @@ namespace Mirror
         }
 
         // this is called from message handler for Owner message
-        internal static void InternalAddPlayer(NetworkIdentity view, short playerControllerId)
+        internal static void InternalAddPlayer(NetworkIdentity view)
         {
-            if (LogFilter.logDebug) { Debug.LogWarning("ClientScene::InternalAddPlayer: playerControllerId : " + playerControllerId); }
-
-            if (playerControllerId >= s_LocalPlayers.Count)
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientScene::InternalAddPlayer: playerControllerId higher than expected: " + playerControllerId); }
-                while (playerControllerId >= s_LocalPlayers.Count)
-                {
-                    s_LocalPlayers.Add(new PlayerController());
-                }
-            }
+            if (LogFilter.logDebug) { Debug.LogWarning("ClientScene::InternalAddPlayer"); }
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
-            var newPlayer = new PlayerController {gameObject = view.gameObject, playerControllerId = playerControllerId, unetView = view};
-            s_LocalPlayers[playerControllerId] = newPlayer;
+            s_LocalPlayer = view;
             if (s_ReadyConnection == null)
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer"); }
             }
             else
             {
-                s_ReadyConnection.SetPlayerController(newPlayer);
+                s_ReadyConnection.SetPlayerController(view);
             }
         }
 
         // use this if already ready
-        public static bool AddPlayer(short playerControllerId)
+        public static bool AddPlayer()
         {
-            return AddPlayer(null, playerControllerId);
+            return AddPlayer(null);
         }
 
         // use this to implicitly become ready
-        public static bool AddPlayer(NetworkConnection readyConn, short playerControllerId)
+        public static bool AddPlayer(NetworkConnection readyConn)
         {
-            return AddPlayer(readyConn, playerControllerId, null);
+            return AddPlayer(readyConn, null);
         }
 
         // use this to implicitly become ready
-        public static bool AddPlayer(NetworkConnection readyConn, short playerControllerId, MessageBase extraMessage)
+        public static bool AddPlayer(NetworkConnection readyConn, MessageBase extraMessage)
         {
-            if (playerControllerId < 0)
-            {
-                if (LogFilter.logError) { Debug.LogError("ClientScene::AddPlayer: playerControllerId of " + playerControllerId + " is negative"); }
-                return false;
-            }
-            if (playerControllerId > PlayerController.MaxPlayersPerClient)
-            {
-                if (LogFilter.logError) { Debug.LogError("ClientScene::AddPlayer: playerControllerId of " + playerControllerId + " is too high, max is " + PlayerController.MaxPlayersPerClient); }
-                return false;
-            }
-            if (playerControllerId > PlayerController.MaxPlayersPerClient / 2)
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientScene::AddPlayer: playerControllerId of " + playerControllerId + " is unusually high"); }
-            }
-
-            // fill out local players array
-            while (playerControllerId >= s_LocalPlayers.Count)
-            {
-                s_LocalPlayers.Add(new PlayerController());
-            }
-
             // ensure valid ready connection
             if (readyConn != null)
             {
@@ -124,23 +87,18 @@ namespace Mirror
                 return false;
             }
 
-            PlayerController existingPlayerController;
-            if (s_ReadyConnection.GetPlayerController(playerControllerId, out existingPlayerController))
+            if (s_ReadyConnection.playerController != null)
             {
-                if (existingPlayerController.IsValid && existingPlayerController.gameObject != null)
-                {
-                    if (LogFilter.logError) { Debug.LogError("ClientScene::AddPlayer: playerControllerId of " + playerControllerId + " already in use."); }
-                    return false;
-                }
+                if (LogFilter.logError) { Debug.LogError("ClientScene::AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?"); }
+                return false;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::AddPlayer() for ID " + playerControllerId + " called with connection [" + s_ReadyConnection + "]"); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::AddPlayer() called with connection [" + s_ReadyConnection + "]"); }
 
-            var msg = new AddPlayerMessage();
-            msg.playerControllerId = playerControllerId;
+            AddPlayerMessage msg = new AddPlayerMessage();
             if (extraMessage != null)
             {
-                var writer = new NetworkWriter();
+                NetworkWriter writer = new NetworkWriter();
                 extraMessage.Serialize(writer);
                 msg.msgData = writer.ToArray();
             }
@@ -148,24 +106,21 @@ namespace Mirror
             return true;
         }
 
-        public static bool RemovePlayer(short playerControllerId)
+        public static bool RemovePlayer()
         {
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::RemovePlayer() for ID " + playerControllerId + " called with connection [" + s_ReadyConnection + "]"); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::RemovePlayer() called with connection [" + s_ReadyConnection + "]"); }
 
-            PlayerController playerController;
-            if (s_ReadyConnection.GetPlayerController(playerControllerId, out playerController))
+            if (s_ReadyConnection.playerController != null)
             {
-                var msg = new RemovePlayerMessage();
-                msg.playerControllerId = playerControllerId;
+                RemovePlayerMessage msg = new RemovePlayerMessage();
                 s_ReadyConnection.Send((short)MsgType.RemovePlayer, msg);
 
-                s_ReadyConnection.RemovePlayerController(playerControllerId);
-                s_LocalPlayers[playerControllerId] = new PlayerController();
+                s_ReadyConnection.RemovePlayerController();
+                s_LocalPlayer = null;
 
-                Object.Destroy(playerController.gameObject);
+                Object.Destroy(s_ReadyConnection.playerController.gameObject);
                 return true;
             }
-            if (LogFilter.logError) { Debug.LogError("Failed to find player ID " + playerControllerId); }
             return false;
         }
 
@@ -669,10 +624,9 @@ namespace Mirror
 
 
             // is there already an owner that is a different object??
-            PlayerController oldOwner;
-            if (netMsg.conn.GetPlayerController(msg.playerControllerId, out oldOwner))
+            if (netMsg.conn.playerController != null)
             {
-                oldOwner.unetView.SetNotLocalPlayer();
+                netMsg.conn.playerController.SetNotLocalPlayer();
             }
 
             NetworkIdentity localNetworkIdentity;
@@ -680,13 +634,12 @@ namespace Mirror
             {
                 // this object already exists
                 localNetworkIdentity.SetConnectionToServer(netMsg.conn);
-                localNetworkIdentity.SetLocalPlayer(msg.playerControllerId);
-                InternalAddPlayer(localNetworkIdentity, msg.playerControllerId);
+                localNetworkIdentity.SetLocalPlayer();
+                InternalAddPlayer(localNetworkIdentity);
             }
             else
             {
-                var pendingOwner = new PendingOwner { netId = msg.netId, playerControllerId = msg.playerControllerId };
-                s_PendingOwnerIds.Add(pendingOwner);
+                s_PendingOwnerIds.Add(msg.netId);
             }
         }
 
@@ -694,15 +647,15 @@ namespace Mirror
         {
             for (int i = 0; i < s_PendingOwnerIds.Count; i++)
             {
-                var pendingOwner = s_PendingOwnerIds[i];
+                NetworkInstanceId pendingOwner = s_PendingOwnerIds[i];
 
-                if (pendingOwner.netId == uv.netId)
+                if (pendingOwner == uv.netId)
                 {
                     // found owner, turn into a local player
 
                     // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
                     uv.SetConnectionToServer(s_ReadyConnection);
-                    uv.SetLocalPlayer(pendingOwner.playerControllerId);
+                    uv.SetLocalPlayer();
 
                     if (LogFilter.logDev) { Debug.Log("ClientScene::OnOwnerMessage - player=" + uv.gameObject.name); }
                     if (s_ReadyConnection.connectionId < 0)
@@ -710,7 +663,7 @@ namespace Mirror
                         if (LogFilter.logError) { Debug.LogError("Owner message received on a local client."); }
                         return;
                     }
-                    InternalAddPlayer(uv, pendingOwner.playerControllerId);
+                    InternalAddPlayer(uv);
 
                     s_PendingOwnerIds.RemoveAt(i);
                     break;

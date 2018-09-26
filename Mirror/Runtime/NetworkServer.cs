@@ -441,7 +441,7 @@ namespace Mirror
         {
             conn.InvokeHandlerNoData((short)MsgType.Disconnect);
 
-            if (conn.playerControllers.Any(pc => pc.gameObject != null))
+            if (conn.playerController != null)
             {
                 //NOTE: should there be default behaviour here to destroy the associated player?
                 if (LogFilter.logWarn) { Debug.LogWarning("Player not destroyed when connection disconnected."); }
@@ -555,17 +555,13 @@ namespace Mirror
         {
             for (int i = 0; i < connections.Count; i++)
             {
-                var conn = connections[i];
-                if (conn != null)
+                NetworkConnection conn = connections[i];
+                if (conn != null &&
+                    conn.playerController != null &&
+                    conn.playerController.gameObject == player)
                 {
-                    for (int j = 0; j < conn.playerControllers.Count; j++)
-                    {
-                        if (conn.playerControllers[j].IsValid && conn.playerControllers[j].gameObject == player)
-                        {
-                            conn.Send(msgType, msg);
-                            return;
-                        }
-                    }
+                    conn.Send(msgType, msg);
+                    return;
                 }
             }
 
@@ -586,37 +582,37 @@ namespace Mirror
             if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, NetworkHash128 assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
             {
                 id.SetDynamicAssetId(assetId);
             }
-            return InternalReplacePlayerForConnection(conn, player, playerControllerId);
+            return InternalReplacePlayerForConnection(conn, player);
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player)
         {
-            return InternalReplacePlayerForConnection(conn, player, playerControllerId);
+            return InternalReplacePlayerForConnection(conn, player);
         }
 
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId, NetworkHash128 assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, NetworkHash128 assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
             {
                 id.SetDynamicAssetId(assetId);
             }
-            return InternalAddPlayerForConnection(conn, player, playerControllerId);
+            return InternalAddPlayerForConnection(conn, player);
         }
 
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, short playerControllerId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
-            return InternalAddPlayerForConnection(conn, player, playerControllerId);
+            return InternalAddPlayerForConnection(conn, player);
         }
 
-        internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -626,31 +622,21 @@ namespace Mirror
             }
             playerNetworkIdentity.Reset();
 
-            if (!CheckPlayerControllerIdForConnection(conn, playerControllerId))
-                return false;
-
             // cannot have a player object in "Add" version
-            PlayerController oldController = null;
-            GameObject oldPlayer = null;
-            if (conn.GetPlayerController(playerControllerId, out oldController))
+            if (conn.playerController != null)
             {
-                oldPlayer = oldController.gameObject;
-            }
-            if (oldPlayer != null)
-            {
-                if (LogFilter.logError) { Debug.Log("AddPlayer: player object already exists for playerControllerId of " + playerControllerId); }
+                if (LogFilter.logError) { Debug.Log("AddPlayer: player object already exists"); }
                 return false;
             }
 
-            PlayerController newPlayerController = new PlayerController(playerGameObject, playerControllerId);
-            conn.SetPlayerController(newPlayerController);
+            conn.SetPlayerController(playerNetworkIdentity);
 
-            // Set the playerControllerId on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients and that sets the playerControllerId there)
-            playerNetworkIdentity.SetConnectionToClient(conn, newPlayerController.playerControllerId);
+            // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
+            playerNetworkIdentity.SetConnectionToClient(conn);
 
             SetClientReady(conn);
 
-            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity, newPlayerController))
+            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
             {
                 return true;
             }
@@ -665,26 +651,7 @@ namespace Mirror
             return true;
         }
 
-        static bool CheckPlayerControllerIdForConnection(NetworkConnection conn, short playerControllerId)
-        {
-            if (playerControllerId < 0)
-            {
-                if (LogFilter.logError) { Debug.LogError("AddPlayer: playerControllerId of " + playerControllerId + " is negative"); }
-                return false;
-            }
-            if (playerControllerId > PlayerController.MaxPlayersPerClient)
-            {
-                if (LogFilter.logError) { Debug.Log("AddPlayer: playerControllerId of " + playerControllerId + " is too high. max is " + PlayerController.MaxPlayersPerClient); }
-                return false;
-            }
-            if (playerControllerId > PlayerController.MaxPlayersPerClient / 2)
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("AddPlayer: playerControllerId of " + playerControllerId + " is unusually high"); }
-            }
-            return true;
-        }
-
-        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, PlayerController newPlayerController)
+        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv)
         {
             if (LogFilter.logDev) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
 
@@ -704,14 +671,14 @@ namespace Mirror
                 SendSpawnMessage(uv, null);
 
                 // Set up local player instance on the client instance and update local object map
-                localConnection.localClient.AddLocalPlayer(newPlayerController);
+                localConnection.localClient.AddLocalPlayer(uv);
                 uv.SetClientOwner(conn);
 
                 // Trigger OnAuthority
                 uv.ForceAuthority(true);
 
                 // Trigger OnStartLocalPlayer
-                uv.SetLocalPlayer(newPlayerController.playerControllerId);
+                uv.SetLocalPlayer();
                 return true;
             }
             return false;
@@ -728,11 +695,10 @@ namespace Mirror
 
             OwnerMessage owner = new OwnerMessage();
             owner.netId = uv.netId;
-            owner.playerControllerId = uv.playerControllerId;
             conn.Send((short)MsgType.Owner, owner);
         }
 
-        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject, short playerControllerId)
+        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
@@ -741,31 +707,26 @@ namespace Mirror
                 return false;
             }
 
-            if (!CheckPlayerControllerIdForConnection(conn, playerControllerId))
-                return false;
-
             //NOTE: there can be an existing player
             if (LogFilter.logDev) { Debug.Log("NetworkServer ReplacePlayer"); }
 
             // is there already an owner that is a different object??
-            PlayerController oldOwner;
-            if (conn.GetPlayerController(playerControllerId, out oldOwner))
+            if (conn.playerController != null)
             {
-                oldOwner.unetView.SetNotLocalPlayer();
-                oldOwner.unetView.ClearClientOwner();
+                conn.playerController.SetNotLocalPlayer();
+                conn.playerController.ClearClientOwner();
             }
 
-            PlayerController newPlayerController = new PlayerController(playerGameObject, playerControllerId);
-            conn.SetPlayerController(newPlayerController);
+            conn.SetPlayerController(playerNetworkIdentity);
 
-            // Set the playerControllerId on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients and that sets the playerControllerId there)
-            playerNetworkIdentity.SetConnectionToClient(conn, newPlayerController.playerControllerId);
+            // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
+            playerNetworkIdentity.SetConnectionToClient(conn);
 
             //NOTE: DONT set connection ready.
 
             if (LogFilter.logDev) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
 
-            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity, newPlayerController))
+            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
             {
                 return true;
             }
@@ -806,7 +767,7 @@ namespace Mirror
                 return;
             }
 
-            if (conn.playerControllers.Count == 0)
+            if (conn.playerController == null)
             {
                 // this is now allowed
                 if (LogFilter.logDebug) { Debug.LogWarning("Ready with no player object"); }
@@ -932,21 +893,19 @@ namespace Mirror
             RemovePlayerMessage msg = new RemovePlayerMessage();
             netMsg.ReadMessage(msg);
 
-            PlayerController player = null;
-            netMsg.conn.GetPlayerController(msg.playerControllerId, out player);
-            if (player != null)
+            if (netMsg.conn.playerController != null)
             {
-                netMsg.conn.RemovePlayerController(msg.playerControllerId);
-                Destroy(player.gameObject);
+                netMsg.conn.RemovePlayerController();
+                Destroy(netMsg.conn.playerController.gameObject);
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Received remove player message but could not find the player ID: " + msg.playerControllerId); }
+                if (LogFilter.logError) { Debug.LogError("Received remove player message but connection has no player"); }
             }
         }
 
         // Handle command from specific player, this could be one of multiple players on a single client
-        static  void OnCommandMessage(NetworkMessage netMsg)
+        static void OnCommandMessage(NetworkMessage netMsg)
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
@@ -965,10 +924,9 @@ namespace Mirror
             }
 
             // Commands can be for player objects, OR other objects with client-authority
-            // => check if there is no owner
-            if (!netMsg.conn.playerControllers.Any(
-                pc => pc.gameObject != null &&
-                pc.gameObject.GetComponent<NetworkIdentity>().netId == uv.netId))
+            // -> so if this connection's controller has a different netId then
+            //    only allow the command if clientAuthorityOwner
+            if (netMsg.conn.playerController != null && netMsg.conn.playerController.netId != uv.netId)
             {
                 if (uv.clientAuthorityOwner != netMsg.conn)
                 {
@@ -1063,17 +1021,17 @@ namespace Mirror
             }
         }
 
-        public static void DestroyPlayersForConnection(NetworkConnection conn)
+        public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            if (conn.playerControllers.Count == 0)
+            if (conn.playerController == null)
             {
-                // list is empty if players are still in a lobby etc., no need to show a warning
+                // null if players are still in a lobby etc., no need to show a warning
                 return;
             }
 
             if (conn.clientOwnedObjects != null)
             {
-                var tmp = new HashSet<NetworkInstanceId>(conn.clientOwnedObjects);
+                HashSet<NetworkInstanceId> tmp = new HashSet<NetworkInstanceId>(conn.clientOwnedObjects);
                 foreach (var netId in tmp)
                 {
                     var obj = FindLocalObject(netId);
@@ -1084,24 +1042,12 @@ namespace Mirror
                 }
             }
 
-            for (int i = 0; i < conn.playerControllers.Count; i++)
+            if (conn.playerController != null)
             {
-                var player = conn.playerControllers[i];
-                if (player.IsValid)
-                {
-                    if (player.unetView == null)
-                    {
-                        // the playerController's object has been destroyed, but RemovePlayerForConnection was never called.
-                        // this is ok, just dont double destroy it.
-                    }
-                    else
-                    {
-                        DestroyObject(player.unetView, true);
-                    }
-                    player.gameObject = null;
-                }
+                DestroyObject(conn.playerController, true);
             }
-            conn.playerControllers.Clear();
+
+            conn.RemovePlayerController();
         }
 
         static void UnSpawnObject(GameObject obj)

@@ -23,7 +23,6 @@ namespace Mirror
         public NetworkInstanceId netId { get { return myView.netId; } }
         public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
         public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
-        public short playerControllerId { get { return myView.playerControllerId; } }
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 

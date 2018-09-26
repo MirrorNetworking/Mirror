@@ -52,19 +52,19 @@ namespace Mirror
         }
 
         // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
-        internal void AddLocalPlayer(PlayerController localPlayer)
+        internal void AddLocalPlayer(NetworkIdentity localPlayer)
         {
             if (LogFilter.logDev) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
             m_Connection.isReady = true;
             m_Connection.SetPlayerController(localPlayer);
-            var uv = localPlayer.unetView;
+            NetworkIdentity uv = localPlayer;
             if (uv != null)
             {
                 ClientScene.SetLocalObject(uv.netId, localPlayer.gameObject);
                 uv.SetConnectionToServer(m_Connection);
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead
-            ClientScene.InternalAddPlayer(uv, localPlayer.playerControllerId);
+            ClientScene.InternalAddPlayer(uv);
         }
 
         private void PostInternalMessage(short msgType, byte[] content)

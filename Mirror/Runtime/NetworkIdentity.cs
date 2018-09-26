@@ -30,7 +30,6 @@ namespace Mirror
         bool                        m_IsLocalPlayer;
         NetworkConnection           m_ConnectionToServer;
         NetworkConnection           m_ConnectionToClient;
-        short                       m_PlayerId = -1;
         NetworkBehaviour[]          m_NetworkBehaviours;
 
         // there is a list AND a hashSet of connections, for fast verification of dupes, but the main operation is iteration over the list.
@@ -112,7 +111,6 @@ namespace Mirror
         }
 
         public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
-        public short playerControllerId { get { return m_PlayerId; } }
         public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
         public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
@@ -749,10 +747,9 @@ namespace Mirror
             OnDeserializeAllSafely(m_NetworkBehaviours, reader, initialState);
         }
 
-        internal void SetLocalPlayer(short localPlayerControllerId)
+        internal void SetLocalPlayer()
         {
             m_IsLocalPlayer = true;
-            m_PlayerId = localPlayerControllerId;
 
             // there is an ordering issue here that originAuthority solves. OnStartAuthority should only be called if m_HasAuthority was false when this function began,
             // or it will be called twice for this object. But that state is lost by the time OnStartAuthority is called below, so the original value is cached
@@ -780,9 +777,8 @@ namespace Mirror
             m_ConnectionToServer = conn;
         }
 
-        internal void SetConnectionToClient(NetworkConnection conn, short newPlayerControllerId)
+        internal void SetConnectionToClient(NetworkConnection conn)
         {
-            m_PlayerId = newPlayerControllerId;
             m_ConnectionToClient = conn;
         }
 
@@ -1049,7 +1045,6 @@ namespace Mirror
             m_IsLocalPlayer = false;
             m_ConnectionToServer = null;
             m_ConnectionToClient = null;
-            m_PlayerId = -1;
             m_NetworkBehaviours = null;
 
             ClearObservers();
