@@ -9,8 +9,21 @@ namespace Mirror
         // hlapi needs to know max packet size to show warnings
         public static int MaxPacketSize = ushort.MaxValue;
 
+        public static TransportLayer _layer;
+
         // selected transport layer: Telepathy by default
-        public static TransportLayer layer = new TelepathyWebsocketsMultiplexTransport();
+        public static TransportLayer layer 
+        {
+            get {
+                if (_layer == null) {
+                    _layer = new TelepathyWebsocketsMultiplexTransport();
+                }
+                return _layer;
+            }
+            set {
+                _layer = value;
+            }
+        }
     }
 
     // abstract transport layer class //////////////////////////////////////////
