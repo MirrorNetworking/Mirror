@@ -31,6 +31,8 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingHugeArray()
         {
+            // allow for large packets
+            Transport.MaxPacketSize = 1000000;
             // try serializing array > 64KB and see what happens
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSize(new byte[100000]);
@@ -40,7 +42,6 @@ namespace Mirror.Tests
             byte[] deserialized = reader.ReadBytesAndSize();
             Assert.That(deserialized.Length, Is.EqualTo(100000));
         }
-
 
         [Test]
         public void TestToArray()
