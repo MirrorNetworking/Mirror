@@ -88,14 +88,14 @@ namespace Mirror
 
         internal static void RegisterMessageHandlers()
         {
-            RegisterHandler((short)MsgType.Ready, OnClientReadyMessage);
-            RegisterHandler((short)MsgType.Command, OnCommandMessage);
-            RegisterHandler((short)MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            RegisterHandler((short)MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
-            RegisterHandler((short)MsgType.RemovePlayer, OnRemovePlayerMessage);
-            RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
-            RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
-            RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
+            RegisterHandler(MsgType.Ready, OnClientReadyMessage);
+            RegisterHandler(MsgType.Command, OnCommandMessage);
+            RegisterHandler(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
+            RegisterHandler(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
+            RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
+            RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
+            RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
         }
 
         public static bool Listen(int serverPort, int maxConnections)

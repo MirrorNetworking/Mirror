@@ -182,12 +182,12 @@ namespace Mirror
 
         internal void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler((short)MsgType.Connect, OnServerConnectInternal);
-            NetworkServer.RegisterHandler((short)MsgType.Disconnect, OnServerDisconnectInternal);
-            NetworkServer.RegisterHandler((short)MsgType.Ready, OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler((short)MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
-            NetworkServer.RegisterHandler((short)MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler((short)MsgType.Error, OnServerErrorInternal);
+            NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
+            NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
+            NetworkServer.RegisterHandler(MsgType.Ready, OnServerReadyMessageInternal);
+            NetworkServer.RegisterHandler(MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler(MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
+            NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
         }
 
         public bool StartServer()
@@ -247,11 +247,11 @@ namespace Mirror
 
         internal void RegisterClientMessages(NetworkClient client)
         {
-            client.RegisterHandler((short)MsgType.Connect, OnClientConnectInternal);
-            client.RegisterHandler((short)MsgType.Disconnect, OnClientDisconnectInternal);
-            client.RegisterHandler((short)MsgType.NotReady, OnClientNotReadyMessageInternal);
-            client.RegisterHandler((short)MsgType.Error, OnClientErrorInternal);
-            client.RegisterHandler((short)MsgType.Scene, OnClientSceneInternal);
+            client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
+            client.RegisterHandler(MsgType.Disconnect, OnClientDisconnectInternal);
+            client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
+            client.RegisterHandler(MsgType.Error, OnClientErrorInternal);
+            client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
 
             if (m_PlayerPrefab != null)
             {
