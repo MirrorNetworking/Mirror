@@ -96,6 +96,7 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
             InitializeSingleton();
+            InitializeTransport();
         }
 
         void InitializeSingleton()
@@ -138,6 +139,13 @@ namespace Mirror
             {
                 m_NetworkAddress = s_Address;
             }
+        }
+
+        // Initializes the transport,  by default it is Telepathy
+        // override method if you want to use a different transport
+        public virtual void InitializeTransport()
+        {
+            Transport.layer = new TelepathyWebsocketsMultiplexTransport();
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
