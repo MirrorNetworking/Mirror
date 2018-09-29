@@ -818,9 +818,7 @@ namespace Mirror
             if (m_ObserverConnections.Contains(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
-                // we may have generated one that was already in use. this is
-                // not good and there should be a notification.
-                if (LogFilter.logWarn) { Debug.Log("AddObserver: connectionId=" + conn.connectionId + " already added for " + name + ". Maybe this function was called twice. Or maybe the transport layer generated the same connectionId twice, which would be a huge problem."); }
+                // we may have generated one that was already in use.
                 return;
             }
 
