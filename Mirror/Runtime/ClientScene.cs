@@ -198,31 +198,31 @@ namespace Mirror
         {
             if (localClient)
             {
-                client.RegisterHandler((short)MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
-                client.RegisterHandler((short)MsgType.ObjectHide, OnLocalClientObjectHide);
-                client.RegisterHandler((short)MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
-                client.RegisterHandler((short)MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
-                client.RegisterHandler((short)MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
+                client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
             else
             {
                 // LocalClient shares the sim/scene with the server, no need for these events
-                client.RegisterHandler((short)MsgType.SpawnPrefab, OnSpawnPrefab);
-                client.RegisterHandler((short)MsgType.SpawnSceneObject, OnSpawnSceneObject);
-                client.RegisterHandler((short)MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandler((short)MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandler((short)MsgType.ObjectHide, OnObjectDestroy);
-                client.RegisterHandler((short)MsgType.UpdateVars, OnUpdateVarsMessage);
-                client.RegisterHandler((short)MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler((short)MsgType.SyncList, OnSyncListMessage);
-                client.RegisterHandler((short)MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
-                client.RegisterHandler((short)MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
-                client.RegisterHandler((short)MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
+                client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
+                client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
+                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler(MsgType.SyncList, OnSyncListMessage);
+                client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
+                client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
 
-            client.RegisterHandler((short)MsgType.Rpc, OnRPCMessage);
-            client.RegisterHandler((short)MsgType.SyncEvent, OnSyncEventMessage);
-            client.RegisterHandler((short)MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
+            client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
+            client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
+            client.RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
         }
 
         // ------------------------ NetworkScene pass-throughs ---------------------
