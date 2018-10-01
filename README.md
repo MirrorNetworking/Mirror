@@ -28,9 +28,9 @@ The only difference is that you have to use `using Mirror;` instead of `using Un
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 # Usage Guide
-Mirror will be on the Unity Asset Store soon, which will make it as easy to use as it gets.
+Import mirror from the [asset store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
-Until then:
+Alternatively,  you can install it manually:
 
 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
 2. Drop the DLLs into your Project's Plugins folder
