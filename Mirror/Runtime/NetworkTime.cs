@@ -33,10 +33,7 @@ namespace Mirror
 
         internal static NetworkPingMessage GetPing()
         {
-            return new NetworkPingMessage
-            {
-                clientTime = LocalTime()
-            };
+            return new NetworkPingMessage(LocalTime()); 
         }
 
         // executed at the server when we receive a ping message
@@ -51,7 +48,7 @@ namespace Mirror
 
             var pongMsg = new NetworkPongMessage
             {
-                clientTime = pingMsg.clientTime,
+                clientTime = pingMsg.value,
                 serverTime = LocalTime()
             };
 
