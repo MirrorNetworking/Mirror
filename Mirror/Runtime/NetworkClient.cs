@@ -293,6 +293,7 @@ namespace Mirror
             }
         }
 
+        [Obsolete("Use NetworkTime.rtt instead")]
         public float GetRTT()
         {
             return (float)NetworkTime.rtt;
