@@ -271,7 +271,7 @@ namespace Mirror.Weaver
         {
             if (lists.numSyncVars.ContainsKey(className))
             {
-                int num =  lists.numSyncVars[className];
+                int num = lists.numSyncVars[className];
                 return num;
             }
             // start at zero
@@ -1350,7 +1350,7 @@ namespace Mirror.Weaver
             NetworkReaderCtor = ResolveMethod(NetworkReaderDef, ".ctor");
 
             NetworkWriterType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkWriter");
-            NetworkWriterDef  = NetworkWriterType.Resolve();
+            NetworkWriterDef = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
 
@@ -1444,7 +1444,7 @@ namespace Mirror.Weaver
 
             gameObjectInequality = ResolveMethod(unityObjectType, "op_Inequality");
 
-            UBehaviourIsServer  = ResolveMethod(NetworkBehaviourType, "get_isServer");
+            UBehaviourIsServer = ResolveMethod(NetworkBehaviourType, "get_isServer");
             setSyncVarReference = ResolveMethod(NetworkBehaviourType, "SetSyncVar");
             setSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "set_syncVarHookGuard");
             getSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "get_syncVarHookGuard");
@@ -1868,7 +1868,16 @@ namespace Mirror.Weaver
                     writeParams.SymbolWriterProvider = new MdbWriterProvider();
                     // old pdb file is out of date so delete it. symbols will be stored in mdb
                     var pdb = Path.ChangeExtension(assName, ".pdb");
-                    File.Delete(pdb);
+
+                    try
+                    {
+                        File.Delete(pdb);
+                    }
+                    catch (Exception ex)
+                    {
+                        // workaround until Unity fixes C#7 compiler compability with the UNET weaver
+                        UnityEngine.Debug.LogWarning($"Unable to delete file {pdb}: {ex.Message}");
+                    }
                 }
 
                 scriptDef.Write(dest, writeParams);
