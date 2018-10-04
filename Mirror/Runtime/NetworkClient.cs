@@ -194,7 +194,7 @@ namespace Mirror
                 return;
             }
 
-            if (connectState == ConnectState.Connected && Time.time - lastPing > pingFrequency)
+            if (connectState == ConnectState.Connected && Time.time - lastPing >= pingFrequency)
             {
                 NetworkPingMessage pingMessage = NetworkTime.GetPing();
                 Send((short)MsgType.Ping, pingMessage);
