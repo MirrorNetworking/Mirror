@@ -72,7 +72,6 @@ namespace Mirror
 
             _rtt.Add(rtt);
             _offset.Add(offset);
-
         }
 
         // returns the same time in both client and server
