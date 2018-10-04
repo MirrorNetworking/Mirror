@@ -58,7 +58,7 @@ namespace Mirror
             if (forceHidden)
             {
                 // ensure player can still see themself
-                var uv = GetComponent<NetworkIdentity>();
+                NetworkIdentity uv = GetComponent<NetworkIdentity>();
                 if (uv.connectionToClient != null)
                 {
                     observers.Add(uv.connectionToClient);
@@ -71,12 +71,12 @@ namespace Mirror
             {
                 case CheckMethod.Physics3D:
                 {
-                    var hits = Physics.OverlapSphere(transform.position, visRange);
+                    Collider[] hits = Physics.OverlapSphere(transform.position, visRange);
                     for (int i = 0; i < hits.Length; i++)
                     {
-                        var hit = hits[i];
+                        Collider hit = hits[i];
                         // (if an object has a connectionToClient, it is a player)
-                        var uv = hit.GetComponent<NetworkIdentity>();
+                        NetworkIdentity uv = hit.GetComponent<NetworkIdentity>();
                         if (uv != null && uv.connectionToClient != null)
                         {
                             observers.Add(uv.connectionToClient);
@@ -87,12 +87,12 @@ namespace Mirror
 
                 case CheckMethod.Physics2D:
                 {
-                    var hits = Physics2D.OverlapCircleAll(transform.position, visRange);
+                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, visRange);
                     for (int i = 0; i < hits.Length; i++)
                     {
-                        var hit = hits[i];
+                        Collider2D hit = hits[i];
                         // (if an object has a connectionToClient, it is a player)
-                        var uv = hit.GetComponent<NetworkIdentity>();
+                        NetworkIdentity uv = hit.GetComponent<NetworkIdentity>();
                         if (uv != null && uv.connectionToClient != null)
                         {
                             observers.Add(uv.connectionToClient);
