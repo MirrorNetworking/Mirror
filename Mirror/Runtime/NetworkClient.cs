@@ -24,7 +24,7 @@ namespace Mirror
         // average out the last few results from Ping
         public int pingWindowSize = 10;
 
-        private double lastPing = 0;
+        double lastPing = 0;
 
         int m_HostPort;
 
