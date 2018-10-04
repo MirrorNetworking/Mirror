@@ -7,13 +7,13 @@ namespace Mirror
     public class NetworkTime 
     {
         // some arbitrary point in time where time started
-        private static readonly DateTime epoch = new DateTime(2018, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        static readonly DateTime epoch = new DateTime(2018, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-        private static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
-        private static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
+        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
+        static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
 
         // returns the clock time _in this system_
-        private static double LocalTime()
+        static double LocalTime()
         {
             var now = DateTime.Now;
             TimeSpan span = DateTime.Now.Subtract(epoch);
@@ -81,7 +81,8 @@ namespace Mirror
         // returns the same time in both client and server
         public static double time
         {
-            get {
+            get 
+            {
                 // Notice _offset is 0 at the server
                 return LocalTime() - _offset.Value;
             }
@@ -91,7 +92,8 @@ namespace Mirror
         // the higher the number,  the less accurate the time is
         public static double timeVar
         {
-            get {
+            get 
+            {
                 return _offset.Var;
             }
         }
@@ -99,14 +101,16 @@ namespace Mirror
         // standard deviation of time
         public static double timeSd
         {
-            get {
+            get 
+            {
                 return Math.Sqrt(timeVar);
             }
         }
 
         public static double offset
         {
-            get {
+            get
+            {
                 return _offset.Value;
             }
         }
@@ -115,7 +119,8 @@ namespace Mirror
         // to the server and come back
         public static double rtt
         {
-            get {
+            get 
+            {
                 return _rtt.Value;
             }
         }
@@ -124,7 +129,8 @@ namespace Mirror
         // the higher the number,  the less accurate rtt is
         public static double rttVar
         {
-            get {
+            get 
+            {
                 return _rtt.Var;
             }
         }

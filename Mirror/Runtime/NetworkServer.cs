@@ -96,7 +96,7 @@ namespace Mirror
             RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
             RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
             RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerServerMessage);
-            RegisterHandler((short)MsgType.Ping, NetworkTime.OnServerPing);
+            RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
         public static bool Listen(int serverPort, int maxConnections)

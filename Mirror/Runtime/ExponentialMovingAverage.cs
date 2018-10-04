@@ -5,11 +5,11 @@ namespace Mirror
     // it calculates an exponential moving average roughy equivalent to the last n observations
     public class ExponentialMovingAverage
     {
-        private float alpha;
-        private bool initialized = false;
+        float alpha;
+        bool initialized = false;
 
-        private double _value = 0;
-        private double _var = 0;
+        double _value = 0;
+        double _var = 0;
 
         public ExponentialMovingAverage(int n)
         {
@@ -34,14 +34,18 @@ namespace Mirror
             }
         }
 
-        public double Value {
-            get {
+        public double Value 
+        {
+            get 
+            {
                 return _value;
             }
         }
 
-        public double Var {
-            get {
+        public double Var 
+        {
+            get 
+            {
                 return _var;
             }
         }
