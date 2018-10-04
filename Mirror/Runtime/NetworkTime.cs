@@ -6,9 +6,8 @@ namespace Mirror
     // calculates synchronized time and rtt
     public class NetworkTime 
     {
-        // a fixed point in time.  Both client and server should have the same epoch
-        // so that the clock offset will be small and safe to convert to float
-        static readonly DateTime epoch = new DateTime(2018, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        // Date and time when the application started
+        static readonly DateTime epoch = DateTime.Now;
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
