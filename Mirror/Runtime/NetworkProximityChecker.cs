@@ -26,6 +26,9 @@ namespace Mirror
         [TooltipAttribute("Enable to force this object to be hidden from players.")]
         public bool forceHidden = false;
 
+        [TooltipAttribute("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
+        public LayerMask castLayers = ~0; // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.
+
         float m_VisUpdateTime;
 
         void Update()
@@ -71,7 +74,7 @@ namespace Mirror
             {
                 case CheckMethod.Physics3D:
                 {
-                    Collider[] hits = Physics.OverlapSphere(transform.position, visRange);
+                    Collider[] hits = Physics.OverlapSphere(transform.position, visRange, castLayers);
                     for (int i = 0; i < hits.Length; i++)
                     {
                         Collider hit = hits[i];
@@ -89,7 +92,7 @@ namespace Mirror
 
                 case CheckMethod.Physics2D:
                 {
-                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, visRange);
+                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, visRange, castLayers);
                     for (int i = 0; i < hits.Length; i++)
                     {
                         Collider2D hit = hits[i];
