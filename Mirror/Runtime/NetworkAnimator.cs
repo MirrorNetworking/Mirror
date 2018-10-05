@@ -247,13 +247,15 @@ namespace Mirror
 
                     SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
                 }
-                else if (par.type == AnimatorControllerParameterType.Float)
+
+                if (par.type == AnimatorControllerParameterType.Float)
                 {
                     writer.Write(m_Animator.GetFloat(par.nameHash));
 
                     SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
                 }
-                else if (par.type == AnimatorControllerParameterType.Bool)
+
+                if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     writer.Write(m_Animator.GetBool(par.nameHash));
 
@@ -281,14 +283,16 @@ namespace Mirror
 
                     SetRecvTrackingParam(par.name + ":" + newValue, i);
                 }
-                else if (par.type == AnimatorControllerParameterType.Float)
+
+                if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = reader.ReadSingle();
                     m_Animator.SetFloat(par.nameHash, newFloatValue);
 
                     SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
                 }
-                else if (par.type == AnimatorControllerParameterType.Bool)
+
+                if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = reader.ReadBoolean();
                     m_Animator.SetBool(par.nameHash, newBoolValue);
