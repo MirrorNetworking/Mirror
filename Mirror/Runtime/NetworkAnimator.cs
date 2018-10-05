@@ -231,6 +231,8 @@ namespace Mirror
 
         void WriteParameters(NetworkWriter writer, bool autoSend)
         {
+            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
+            // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
 
             for (int i = 0; i < parameters.Length; i++)
@@ -261,6 +263,8 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader, bool autoSend)
         {
+            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
+            // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
 
             for (int i = 0; i < parameters.Length; i++)
