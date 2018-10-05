@@ -241,24 +241,24 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                switch (par.type)
+                if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    case AnimatorControllerParameterType.Int:
-                        writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
-                        SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
-                        break;
-
-                    case AnimatorControllerParameterType.Float:
-                        writer.Write(m_Animator.GetFloat(par.nameHash));
-                        SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
-                        break;
-
-                    case AnimatorControllerParameterType.Bool:
-                        writer.Write(m_Animator.GetBool(par.nameHash));
-                        SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
-                        break;
+                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    
+                    SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
                 }
-            }
+                else if (par.type == AnimatorControllerParameterType.Float)
+                {
+                    writer.Write(m_Animator.GetFloat(par.nameHash));
+
+                    SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
+                }
+                else if (par.type == AnimatorControllerParameterType.Bool)
+                {
+                    writer.Write(m_Animator.GetBool(par.nameHash));
+
+                    SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                }
         }
 
         void ReadParameters(NetworkReader reader, bool autoSend)
@@ -273,25 +273,26 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                switch (par.type)
+                if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    case AnimatorControllerParameterType.Int:
-                        int newValue = (int)reader.ReadPackedUInt32();
-                        m_Animator.SetInteger(par.nameHash, newValue);
-                        SetRecvTrackingParam(par.name + ":" + newValue, i);
-                        break;
+                    int newValue = (int)reader.ReadPackedUInt32();
+                    m_Animator.SetInteger(par.nameHash, newValue);
 
-                    case AnimatorControllerParameterType.Float:
-                        float newFloatValue = reader.ReadSingle();
-                        m_Animator.SetFloat(par.nameHash, newFloatValue);
-                        SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
-                        break;
+                    SetRecvTrackingParam(par.name + ":" + newValue, i);
+                }
+                else if (par.type == AnimatorControllerParameterType.Float)
+                {
+                    float newFloatValue = reader.ReadSingle();
+                    m_Animator.SetFloat(par.nameHash, newFloatValue);
 
-                    case AnimatorControllerParameterType.Bool:
-                        bool newBoolValue = reader.ReadBoolean();
-                        m_Animator.SetBool(par.nameHash, newBoolValue);
-                        SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
-                        break;
+                    SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
+                }
+                else if (par.type == AnimatorControllerParameterType.Bool)
+                {
+                    bool newBoolValue = reader.ReadBoolean();
+                    m_Animator.SetBool(par.nameHash, newBoolValue);
+
+                    SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
                 }
             }
         }
