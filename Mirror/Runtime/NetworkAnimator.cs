@@ -244,7 +244,7 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
-                    
+
                     SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
@@ -259,6 +259,7 @@ namespace Mirror
 
                     SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
                 }
+            }
         }
 
         void ReadParameters(NetworkReader reader, bool autoSend)
