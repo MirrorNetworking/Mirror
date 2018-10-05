@@ -271,7 +271,7 @@ namespace Mirror.Weaver
         {
             if (lists.numSyncVars.ContainsKey(className))
             {
-                int num = lists.numSyncVars[className];
+                int num =  lists.numSyncVars[className];
                 return num;
             }
             // start at zero
@@ -1350,7 +1350,7 @@ namespace Mirror.Weaver
             NetworkReaderCtor = ResolveMethod(NetworkReaderDef, ".ctor");
 
             NetworkWriterType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkWriter");
-            NetworkWriterDef = NetworkWriterType.Resolve();
+            NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
 
@@ -1444,7 +1444,7 @@ namespace Mirror.Weaver
 
             gameObjectInequality = ResolveMethod(unityObjectType, "op_Inequality");
 
-            UBehaviourIsServer = ResolveMethod(NetworkBehaviourType, "get_isServer");
+            UBehaviourIsServer  = ResolveMethod(NetworkBehaviourType, "get_isServer");
             setSyncVarReference = ResolveMethod(NetworkBehaviourType, "SetSyncVar");
             setSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "set_syncVarHookGuard");
             getSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "get_syncVarHookGuard");
