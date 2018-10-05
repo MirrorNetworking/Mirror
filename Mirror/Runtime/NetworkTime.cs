@@ -73,11 +73,11 @@ namespace Mirror
         // time should be a double because after a while
         // float loses too much accuracy if the server is up for more than 
         // a few days.  I measured the accuracy of float and I got this:
-        // for the same day,  accuracy is better than 1 ms(edited)
-        // after 1 day,  accuracy goes down to 7 ms(edited)
-        // after 10 days, accuracy is 61 ms(edited)
-        // after 30 days , accuracy is 238 ms(edited)
-        // after 60 days, accuracy is 454 ms(edited)
+        // for the same day,  accuracy is better than 1 ms
+        // after 1 day,  accuracy goes down to 7 ms
+        // after 10 days, accuracy is 61 ms
+        // after 30 days , accuracy is 238 ms
+        // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months, 
         // and you cast down to float,  then the time will jump in 0.4s intervals.
         public static double time
