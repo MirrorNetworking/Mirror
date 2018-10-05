@@ -239,25 +239,22 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    case AnimatorControllerParameterType.Int:
+                        writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
+                        break;
 
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
-                }
+                    case AnimatorControllerParameterType.Float:
+                        writer.Write(m_Animator.GetFloat(par.nameHash));
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
+                        break;
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    writer.Write(m_Animator.GetFloat(par.nameHash));
-
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    writer.Write(m_Animator.GetBool(par.nameHash));
-
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                    case AnimatorControllerParameterType.Bool:
+                        writer.Write(m_Animator.GetBool(par.nameHash));
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                        break;
                 }
             }
         }
@@ -272,28 +269,25 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    int newValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newValue);
+                    case AnimatorControllerParameterType.Int:
+                        int newValue = (int)reader.ReadPackedUInt32();
+                        m_Animator.SetInteger(par.nameHash, newValue);
+                        SetRecvTrackingParam(par.name + ":" + newValue, i);
+                        break;
 
-                    SetRecvTrackingParam(par.name + ":" + newValue, i);
-                }
+                    case AnimatorControllerParameterType.Float:
+                        float newFloatValue = reader.ReadSingle();
+                        m_Animator.SetFloat(par.nameHash, newFloatValue);
+                        SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
+                        break;
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    float newFloatValue = reader.ReadSingle();
-                    m_Animator.SetFloat(par.nameHash, newFloatValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    bool newBoolValue = reader.ReadBoolean();
-                    m_Animator.SetBool(par.nameHash, newBoolValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                    case AnimatorControllerParameterType.Bool:
+                        bool newBoolValue = reader.ReadBoolean();
+                        m_Animator.SetBool(par.nameHash, newBoolValue);
+                        SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                        break;
                 }
             }
         }
