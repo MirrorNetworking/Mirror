@@ -24,7 +24,7 @@ namespace Mirror
         // average out the last few results from Ping
         public int pingWindowSize = 10;
 
-        double lastPing = 0;
+        double lastPingTime = 0;
 
         int m_HostPort;
 
@@ -194,11 +194,11 @@ namespace Mirror
                 return;
             }
 
-            if (connectState == ConnectState.Connected && Time.time - lastPing >= pingFrequency)
+            if (connectState == ConnectState.Connected && Time.time - lastPingTime >= pingFrequency)
             {
                 NetworkPingMessage pingMessage = NetworkTime.GetPing();
                 Send((short)MsgType.Ping, pingMessage);
-                lastPing = Time.time;
+                lastPingTime = Time.time;
             }
 
             // any new message?

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     // calculates synchronized time and rtt
-    public class NetworkTime 
+    public static class NetworkTime 
     {
         // Date and time when the application started
         static readonly DateTime epoch = DateTime.Now;
@@ -19,11 +19,6 @@ namespace Mirror
             TimeSpan span = DateTime.Now.Subtract(epoch);
             return span.TotalSeconds;
         }
-
-        // how often are we synchronizing the clock
-        public float syncInterval = 2.0f;
-        // average out the last 10 values for RTT
-        public int windowSize = 10;
 
         public static void Reset(int windowSize)
         {

@@ -57,8 +57,6 @@ namespace Mirror
         Pong = 44,
 
         Highest = 47
-
-
     }
 
     public class NetworkMessage
