@@ -44,10 +44,6 @@ namespace Mirror
         {
             return client.ClientGetNextMessage(out transportEvent, out data);
         }
-        public float ClientGetRTT()
-        {
-            return client.ClientGetRTT();
-        }
         public void ClientDisconnect()
         {
             client.ClientDisconnect();

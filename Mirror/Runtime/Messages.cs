@@ -65,6 +65,30 @@ namespace Mirror
         }
     }
 
+    public class DoubleMessage : MessageBase
+    {
+        public double value;
+
+        public DoubleMessage()
+        {
+        }
+
+        public DoubleMessage(double v)
+        {
+            value = v;
+        }
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            value = reader.ReadDouble();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(value);
+        }
+    }
+
     public class EmptyMessage : MessageBase
     {
         public override void Deserialize(NetworkReader reader)
@@ -408,6 +432,39 @@ namespace Mirror
         {
             writer.Write(netId);
             writer.WritePackedUInt32((uint)hash);
+        }
+    }
+
+    // A client sends this message to the server 
+    // to calculate RTT and synchronize time
+    class NetworkPingMessage : DoubleMessage
+    {
+        public NetworkPingMessage()
+        {
+        }
+
+        public NetworkPingMessage(double value) : base(value)
+        {
+        }
+    }
+
+    // The server responds with this message
+    // The client can use this to calculate RTT and sync time
+    class NetworkPongMessage : MessageBase
+    {
+        public double clientTime;
+        public double serverTime;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            clientTime = reader.ReadDouble();
+            serverTime = reader.ReadDouble();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(clientTime);
+            writer.Write(serverTime);
         }
     }
 

@@ -144,11 +144,6 @@ namespace Mirror
             return true;
         }
 
-        public float ClientGetRTT()
-        {
-            return NetworkTransport.GetCurrentRTT(clientId, clientConnectionId, out error);
-        }
-
         public void ClientDisconnect()
         {
             if (clientId != -1)
