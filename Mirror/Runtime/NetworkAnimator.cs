@@ -231,12 +231,14 @@ namespace Mirror
 
         void WriteParameters(NetworkWriter writer, bool autoSend)
         {
-            for (int i = 0; i < m_Animator.parameters.Length; i++)
+            AnimatorControllerParameter[] parameters = m_Animator.parameters;
+
+            for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
                     continue;
 
-                AnimatorControllerParameter par = m_Animator.parameters[i];
+                AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
@@ -262,12 +264,14 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader, bool autoSend)
         {
-            for (int i = 0; i < m_Animator.parameters.Length; i++)
+            AnimatorControllerParameter[] parameters = m_Animator.parameters;
+
+            for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
                     continue;
 
-                AnimatorControllerParameter par = m_Animator.parameters[i];
+                AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newValue = (int)reader.ReadPackedUInt32();
