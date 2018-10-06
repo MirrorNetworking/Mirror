@@ -1868,7 +1868,16 @@ namespace Mirror.Weaver
                     writeParams.SymbolWriterProvider = new MdbWriterProvider();
                     // old pdb file is out of date so delete it. symbols will be stored in mdb
                     var pdb = Path.ChangeExtension(assName, ".pdb");
-                    File.Delete(pdb);
+
+                    try
+                    {
+                        File.Delete(pdb);
+                    }
+                    catch (Exception ex)
+                    {
+                        // workaround until Unity fixes C#7 compiler compability with the UNET weaver
+                        UnityEngine.Debug.LogWarning($"Unable to delete file {pdb}: {ex.Message}");
+                    }
                 }
 
                 scriptDef.Write(dest, writeParams);
