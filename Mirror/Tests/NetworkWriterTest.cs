@@ -122,19 +122,19 @@ namespace Mirror.Tests
             writer.Write((char)1);
             writer.Write((byte)2);
             writer.Write((sbyte)3);
-            writer.Write((bool)true);
+            writer.Write(true);
             writer.Write((short)4);
             writer.Write((ushort)5);
             writer.Write((int)6);
             writer.Write((uint)7);
-            writer.Write((long)8L);
+            writer.Write(8L);
             writer.Write((ulong)9L);
             writer.Write((float)10);
             writer.Write((double)11);
             writer.Write((decimal)12);
             writer.Write((string)null);
-            writer.Write((string)"");
-            writer.Write((string)"13");
+            writer.Write("");
+            writer.Write("13");
             writer.Write(new byte[] { 14, 15 }, 0, 2); // just the byte array, no size info etc.
             writer.WriteBytesAndSize((byte[])null); // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2); // buffer, no-offset, count
