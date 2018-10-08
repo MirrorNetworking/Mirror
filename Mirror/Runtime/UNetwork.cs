@@ -67,17 +67,6 @@ namespace Mirror
         public NetworkConnection conn;
         public NetworkReader reader;
 
-        public static string Dump(byte[] payload, int sz)
-        {
-            string outStr = "[";
-            for (int i = 0; i < sz; i++)
-            {
-                outStr += (payload[i] + " ");
-            }
-            outStr += "]";
-            return outStr;
-        }
-
         public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
         {
             var msg = new TMsg();
