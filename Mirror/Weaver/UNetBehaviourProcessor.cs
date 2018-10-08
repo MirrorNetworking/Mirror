@@ -1045,7 +1045,7 @@ namespace Mirror.Weaver
                 base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, cmdName);
             }
         */
-        MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
+        MethodDefinition ProcessCommandCall(MethodDefinition md)
         {
             MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -1524,7 +1524,7 @@ namespace Mirror.Weaver
                             m_CmdInvocationFuncs.Add(cmdFunc);
                         }
 
-                        MethodDefinition cmdCallFunc = ProcessCommandCall(md, ca);
+                        MethodDefinition cmdCallFunc = ProcessCommandCall(md);
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
