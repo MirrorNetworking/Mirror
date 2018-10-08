@@ -205,7 +205,7 @@ namespace Mirror
     {
         public delegate void SyncListChanged(Operation op, int itemIndex);
 
-        List<T> m_Objects = new List<T>();
+        readonly List<T> m_Objects = new List<T>();
 
         public int Count { get { return m_Objects.Count; } }
         public bool IsReadOnly { get { return false; } }
