@@ -20,43 +20,43 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
-# Documentation
+## Documentation
 We are still working on the documentation, but Mirror is still similar enough to UNET that you can use the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html) for now.
 
 The only difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
-# Usage Guide
+## Usage Guide
 Import mirror from the [asset store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
 Alternatively,  you can install it manually:
 
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
-2. Drop the DLLs into your Project's Plugins folder
-3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
-4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
+ 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
+ 2. Drop the DLLs into your Project's Plugins folder
+ 3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
+ 4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
 
-# Migration Guide
+## Migration Guide
 If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://github.com/vis2k/Mirror/blob/mirror/migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
 
-# Example Projects
+## Example Projects
 We are building several easy to understand example projects that we will add here soon.
 
 For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
-# Donations
+## Donations
 Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
 
-# Build
+## Build
 Building Mirror yourself is very easy. Simply download the project, open it in Visual Studio or Rider, build it once for Release and once for Release-Editor. You will then find all the necessary DLLs in the Output directory.
 
-# Benchmarks
+## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
 * [uMMORPG 207 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vQqf_iqOLlBRTUqqyor_OUx_rHlYx-SYvZWMvHGuLIuRuxJ-qX3s8JzrrBB5vxDdGfl-HhYZW3g5lLW/pub#h.h4wha2mpetsc) (everyone broadcasting to everyone else)
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
-# Contributing
+## Contributing
 If you like to contribute, feel free to submit pull requests and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
 
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
