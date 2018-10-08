@@ -105,11 +105,11 @@ namespace Mirror
 
             //Apply padding
             RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
-            r = previewPadding.Add(r);
+            Rect paddedr = previewPadding.Add(r);
 
             //Centering
-            float initialX = r.x + 10;
-            float initialY = r.y + 10;
+            float initialX = paddedr.x + 10;
+            float initialY = paddedr.y + 10;
 
             Rect labelRect = new Rect(initialX, initialY, maxNameLabelSize.x, maxNameLabelSize.y);
             Rect idLabelRect = new Rect(maxNameLabelSize.x, initialY, maxValueLabelSize.x, maxValueLabelSize.y);
