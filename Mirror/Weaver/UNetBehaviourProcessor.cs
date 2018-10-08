@@ -113,14 +113,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_0));
         }
 
-        static void WriteMessageSize(ILProcessor worker)
-        {
-            //write size
-            worker.Append(worker.Create(OpCodes.Ldloc_0)); // load 'writer.'
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWriteInt16));
-        }
-
         static void WriteMessageId(ILProcessor worker, int msgId)
         {
             // write msg id
