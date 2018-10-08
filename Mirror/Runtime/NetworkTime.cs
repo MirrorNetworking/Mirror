@@ -15,7 +15,6 @@ namespace Mirror
         // returns the clock time _in this system_
         static double LocalTime()
         {
-            var now = DateTime.Now;
             TimeSpan span = DateTime.Now.Subtract(epoch);
             return span.TotalSeconds;
         }
