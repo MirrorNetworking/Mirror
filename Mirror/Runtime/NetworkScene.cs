@@ -10,7 +10,7 @@ namespace Mirror
         // localObjects is NOT static. For the Host, even though there is one scene and gameObjects are
         // shared with the localClient, the set of active objects for each must be separate to prevent
         // out-of-order object initialization problems.
-        Dictionary<NetworkInstanceId, NetworkIdentity> m_LocalObjects = new Dictionary<NetworkInstanceId, NetworkIdentity>();
+        readonly Dictionary<NetworkInstanceId, NetworkIdentity> m_LocalObjects = new Dictionary<NetworkInstanceId, NetworkIdentity>();
 
         static Dictionary<NetworkHash128, GameObject> s_GuidToPrefab = new Dictionary<NetworkHash128, GameObject>();
         static Dictionary<NetworkHash128, SpawnDelegate> s_SpawnHandlers = new Dictionary<NetworkHash128, SpawnDelegate>();
