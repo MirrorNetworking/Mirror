@@ -85,7 +85,7 @@ See for yourself how uMMORPG was migrated to Mirror
 
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/LF9rTSS3rlI/0.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
 
-## Possible Error Messages
+## Possible Error Messages ##
   * TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
 
   * NullPointerException: The most likely cause is that you replaced NetworkIdentities or other components but you had them assigned somewhere. Reassign those references.
