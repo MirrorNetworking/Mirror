@@ -1064,12 +1064,6 @@ namespace Mirror
 
             if (interpolateRotation != 0)
             {
-                float orientation = m_RigidBody2D.rotation % 360;
-                if (orientation < 0)
-                {
-                    orientation += 360;
-                }
-
                 Quaternion newRotation = Quaternion.Slerp(
                         transform.rotation,
                         Quaternion.Euler(0, 0, m_TargetSyncRotation2D),
