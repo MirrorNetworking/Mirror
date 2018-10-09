@@ -138,6 +138,55 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestRemoveAt()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            serverSyncList.Add("Hello");
+            serverSyncList.Add("Joe");
+            serverSyncList.Add("World");
+            serverSyncList.OnSerializeAll(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeAll(reader);
+
+            // list has been initialized
+
+            // add some delta and see if it applies
+            writer = new NetworkWriter();
+            serverSyncList.RemoveAt(1);
+            serverSyncList.OnSerializeDelta(writer);
+            reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeDelta(reader);
+
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World" }));
+
+        }
+
+        [Test]
+        public void TestRemove()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            serverSyncList.Add("Hello");
+            serverSyncList.Add("Joe");
+            serverSyncList.Add("World");
+            serverSyncList.OnSerializeAll(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeAll(reader);
+
+            // list has been initialized
+
+            // add some delta and see if it applies
+            writer = new NetworkWriter();
+            serverSyncList.Remove("Joe");
+            serverSyncList.OnSerializeDelta(writer);
+            reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeDelta(reader);
+
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World" }));
+
+        }
+
+
+        [Test]
         public void TestMultSync()
         {
             NetworkWriter writer = new NetworkWriter();
