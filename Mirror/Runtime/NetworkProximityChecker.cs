@@ -56,6 +56,8 @@ namespace Mirror
             return false;
         }
 
+        // return true when overwriting so that Mirror knows that we wanted to
+        // rebuild observers ourselves. otherwise it uses built in rebuild.
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
             if (forceHidden)
@@ -87,7 +89,7 @@ namespace Mirror
                             observers.Add(uv.connectionToClient);
                         }
                     }
-                    return true;
+                    break;
                 }
 
                 case CheckMethod.Physics2D:
@@ -105,10 +107,11 @@ namespace Mirror
                             observers.Add(uv.connectionToClient);
                         }
                     }
-                    return true;
+                    break;
                 }
             }
-            return false;
+
+            return true;
         }
 
         // called hiding and showing objects on the host
