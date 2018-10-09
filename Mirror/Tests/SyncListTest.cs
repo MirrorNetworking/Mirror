@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using System;
 using NSubstitute;
+using System.Linq;
+
 
 namespace Mirror.Tests
 {
@@ -10,22 +12,31 @@ namespace Mirror.Tests
         SyncListString serverSyncList;
         SyncListString clientSyncList;
 
+        private T InitServerList<T>() where T : SyncObject, new() {
+            T list = new T();
+            INetworkBehaviour serverBehavior = Substitute.For<INetworkBehaviour>();
+            serverBehavior.isServer.Returns(true);
+            serverBehavior.isClient.Returns(false);
+            list.InitializeBehaviour(serverBehavior);
+            return list;
+        }
+
+        private T InitClientList<T>() where T : SyncObject, new()
+        {
+            T list = new T();
+            INetworkBehaviour clientBehavior = Substitute.For<INetworkBehaviour>();
+            clientBehavior.isServer.Returns(false);
+            clientBehavior.isClient.Returns(true);
+            list.InitializeBehaviour(clientBehavior);
+            return list;
+        }
 
         [SetUp]
         public void SetUp()
         {
-            serverSyncList = new SyncListString();
-            INetworkBehaviour serverBehavior = Substitute.For<INetworkBehaviour>();
-            serverBehavior.isServer.Returns(true);
-            serverBehavior.isClient.Returns(false);
-            serverSyncList.InitializeBehaviour(serverBehavior);
+            serverSyncList = InitServerList<SyncListString>();
 
-            clientSyncList = new SyncListString();
-            INetworkBehaviour clientBehavior = Substitute.For<INetworkBehaviour>();
-            clientBehavior.isServer.Returns(true);
-            clientBehavior.isClient.Returns(false);
-            clientSyncList.InitializeBehaviour(clientBehavior);
-
+            clientSyncList = InitClientList<SyncListString>();
 
             // add some data to the list
             NetworkWriter writer = new NetworkWriter();
@@ -155,6 +166,27 @@ namespace Mirror.Tests
 
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!", "1","2" }));
 
+        }
+
+
+        [Test]
+        public void SyncListIntTest()
+        {
+            var serverList = InitServerList<SyncListInt>();
+
+            var clientList = InitClientList<SyncListInt>();
+
+            serverList.Add(1);
+            serverList.Add(2);
+            serverList.Add(3);
+
+            // add some data to the list
+            NetworkWriter writer = new NetworkWriter();
+            serverList.OnSerializeAll(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            clientList.OnDeserializeAll(reader);
+
+            Assert.That(clientList, Is.EquivalentTo(new [] {1,2,3}));
         }
     }
 }
