@@ -113,6 +113,31 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSet()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            serverSyncList.Add("Hello");
+            serverSyncList.Add("Joe");
+            serverSyncList.Add("!");
+            serverSyncList.OnSerializeAll(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeAll(reader);
+
+            // list has been initialized
+
+            // add some delta and see if it applies
+            writer = new NetworkWriter();
+            serverSyncList[1] = "World";
+            serverSyncList.OnSerializeDelta(writer);
+            reader = new NetworkReader(writer.ToArray());
+            clientSyncList.OnDeserializeDelta(reader);
+
+            Assert.That(clientSyncList[1], Is.EqualTo("World"));
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
+
+        }
+
+        [Test]
         public void TestMultSync()
         {
             NetworkWriter writer = new NetworkWriter();
