@@ -125,12 +125,12 @@ namespace Mirror.Tests
             writer.Write(true);
             writer.Write((short)4);
             writer.Write((ushort)5);
-            writer.Write((int)6);
-            writer.Write((uint)7);
+            writer.Write(6);
+            writer.Write(7U);
             writer.Write(8L);
-            writer.Write((ulong)9L);
-            writer.Write((float)10);
-            writer.Write((double)11);
+            writer.Write(9UL);
+            writer.Write(10.0F);
+            writer.Write(11.0D);
             writer.Write((decimal)12);
             writer.Write((string)null);
             writer.Write("");
