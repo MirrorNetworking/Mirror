@@ -474,11 +474,6 @@ namespace Mirror
                         transform.rotation = rot;
                     }
                 }
-                else
-                {
-                    // rejected by callback
-                    return;
-                }
             }
             else
             {
