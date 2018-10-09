@@ -104,8 +104,6 @@ namespace Mirror
         {
             return base[i];
         }
-
-        public new ushort Count { get { return (ushort)base.Count; } }
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
