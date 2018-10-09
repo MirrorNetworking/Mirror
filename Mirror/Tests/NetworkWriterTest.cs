@@ -141,9 +141,6 @@ namespace Mirror.Tests
             writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2); // buffer, offset, count
             writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2); // size, buffer
 
-            byte[] data = writer.ToArray();
-
-
             // read them
             NetworkReader reader = new NetworkReader(writer.ToArray());
 
