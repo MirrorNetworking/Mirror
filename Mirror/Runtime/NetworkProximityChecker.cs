@@ -58,6 +58,7 @@ namespace Mirror
 
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
+            // only add self as observer if force hidden
             if (forceHidden)
             {
                 // ensure player can still see themself
@@ -66,49 +67,56 @@ namespace Mirror
                 {
                     observers.Add(uv.connectionToClient);
                 }
-                return true;
             }
-
-            // find players within range
-            switch (checkMethod)
+            // otherwise add everyone in proximity
+            else
             {
-                case CheckMethod.Physics3D:
+                // find players within range
+                switch (checkMethod)
                 {
-                    Collider[] hits = Physics.OverlapSphere(transform.position, visRange, castLayers);
-                    for (int i = 0; i < hits.Length; i++)
+                    case CheckMethod.Physics3D:
                     {
-                        Collider hit = hits[i];
-                        // collider might be on pelvis, often the NetworkIdentity is in a parent
-                        // (looks in the object itself and then parents)
-                        NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
-                        // (if an object has a connectionToClient, it is a player)
-                        if (uv != null && uv.connectionToClient != null)
+                        Collider[] hits = Physics.OverlapSphere(transform.position, visRange, castLayers);
+                        for (int i = 0; i < hits.Length; i++)
                         {
-                            observers.Add(uv.connectionToClient);
+                            Collider hit = hits[i];
+                            // collider might be on pelvis, often the NetworkIdentity is in a parent
+                            // (looks in the object itself and then parents)
+                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            // (if an object has a connectionToClient, it is a player)
+                            if (uv != null && uv.connectionToClient != null)
+                            {
+                                observers.Add(uv.connectionToClient);
+                            }
                         }
-                    }
-                    return true;
-                }
 
-                case CheckMethod.Physics2D:
-                {
-                    Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, visRange, castLayers);
-                    for (int i = 0; i < hits.Length; i++)
-                    {
-                        Collider2D hit = hits[i];
-                        // collider might be on pelvis, often the NetworkIdentity is in a parent
-                        // (looks in the object itself and then parents)
-                        NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
-                        // (if an object has a connectionToClient, it is a player)
-                        if (uv != null && uv.connectionToClient != null)
-                        {
-                            observers.Add(uv.connectionToClient);
-                        }
+                        break;
                     }
-                    return true;
+
+                    case CheckMethod.Physics2D:
+                    {
+                        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, visRange, castLayers);
+                        for (int i = 0; i < hits.Length; i++)
+                        {
+                            Collider2D hit = hits[i];
+                            // collider might be on pelvis, often the NetworkIdentity is in a parent
+                            // (looks in the object itself and then parents)
+                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            // (if an object has a connectionToClient, it is a player)
+                            if (uv != null && uv.connectionToClient != null)
+                            {
+                                observers.Add(uv.connectionToClient);
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
-            return false;
+
+            // always return true when overwriting OnRebuildObservers so that
+            // Mirror knows not to use the built in rebuild method.
+            return true;
         }
 
         // called hiding and showing objects on the host
