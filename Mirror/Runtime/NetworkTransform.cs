@@ -246,7 +246,8 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncCharacterController:
-                    if (!m_CharacterController && !(m_CharacterController = GetComponent<CharacterController>()))
+                    m_CharacterController = m_CharacterController ?? GetComponent<CharacterController>();
+                    if (!m_CharacterController)
                     {
                         throwError = true;
                         componentMissing = typeof(CharacterController);
@@ -254,7 +255,8 @@ namespace Mirror
                     break;
 
                 case TransformSyncMode.SyncRigidbody2D:
-                    if (!m_RigidBody2D && !(m_RigidBody2D = GetComponent<Rigidbody2D>()))
+                    m_RigidBody2D = m_RigidBody2D ?? GetComponent<Rigidbody2D>();
+                    if (!m_RigidBody2D)
                     {
                         throwError = true;
                         componentMissing = typeof(Rigidbody2D);
@@ -262,7 +264,8 @@ namespace Mirror
                     break;
 
                 case TransformSyncMode.SyncRigidbody3D:
-                    if (!m_RigidBody3D && !(m_RigidBody3D = GetComponent<Rigidbody>()))
+                    m_RigidBody3D = m_RigidBody3D ?? GetComponent<Rigidbody>();
+                    if (!m_RigidBody3D)
                     {
                         throwError = true;
                         componentMissing = typeof(Rigidbody);
