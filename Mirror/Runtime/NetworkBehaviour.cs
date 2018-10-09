@@ -5,9 +5,18 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // provide an interface so that we can mock it in unit tests
+    public interface INetworkBehaviour
+    {
+        bool isServer { get; }
+        bool isClient { get; }
+        void SetDirty(int varId);
+    }
+
+
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
-    public class NetworkBehaviour : MonoBehaviour
+    public class NetworkBehaviour : MonoBehaviour, INetworkBehaviour
     {
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
@@ -27,6 +36,9 @@ namespace Mirror
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
         internal NetworkIdentity netIdentity { get { return myView; } }
+
+        // objects that can synchronize themselves,  such as synclists
+        protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
 
         const float k_DefaultSendInterval = 0.1f;
 
@@ -153,13 +165,6 @@ namespace Mirror
             return InvokeSyncEventDelegate(cmdHash, reader);
         }
 
-        // ----------------------------- Sync Lists --------------------------------
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeSyncList(int cmdHash, NetworkReader reader)
-        {
-            return InvokeSyncListDelegate(cmdHash, reader);
-        }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
 
@@ -170,8 +175,7 @@ namespace Mirror
         {
             Command,
             ClientRpc,
-            SyncEvent,
-            SyncList
+            SyncEvent
         };
 
         protected class Invoker
@@ -233,21 +237,6 @@ namespace Mirror
             if (LogFilter.logDev) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterSyncListDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
-        {
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return;
-            }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.SyncList;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterSyncListDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
-        }
-
         internal static string GetInvoker(int cmdHash)
         {
             if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
@@ -268,11 +257,6 @@ namespace Mirror
         internal static bool GetInvokerForHashClientRpc(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
         {
             return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeClass, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashSyncList(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncList, out invokeClass, out invokeFunction);
         }
 
         internal static bool GetInvokerForHashSyncEvent(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
@@ -387,28 +371,6 @@ namespace Mirror
             return true;
         }
 
-        internal bool InvokeSyncListDelegate(int cmdHash, NetworkReader reader)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return false;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.SyncList)
-            {
-                return false;
-            }
-
-            if (GetType() != inv.invokeClass)
-            {
-                return false;
-            }
-
-            inv.invokeFunction(this, reader);
-            return true;
-        }
-
         internal static string GetCmdHashHandlerName(int cmdHash)
         {
             if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
@@ -451,10 +413,6 @@ namespace Mirror
             return GetCmdHashPrefixName(cmdHash, "InvokeSyncEvent");
         }
 
-        internal static string GetCmdHashListName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeSyncList");
-        }
 
         // ----------------------------- Helpers  --------------------------------
 
@@ -506,6 +464,11 @@ namespace Mirror
             }
         }
 
+        public void SetDirty(int varId)
+        {
+            SetDirtyBit(1UL << varId);
+        }
+
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
         {
@@ -516,13 +479,31 @@ namespace Mirror
         {
             m_LastSendTime = Time.time;
             m_SyncVarDirtyBits = 0L;
+
+            // flush all unsynchronized changes in syncobjects
+            for (int i = 0; i < m_SyncObjects.Count; i++)
+            {
+                SyncObject syncObject = m_SyncObjects[i];
+                syncObject.Flush();
+            }
         }
 
         internal bool IsDirty()
         {
-            return
-                (Time.time - m_LastSendTime > GetNetworkSendInterval())
-                && m_SyncVarDirtyBits != 0L;
+            if (Time.time - m_LastSendTime > GetNetworkSendInterval())
+            {
+                // is any syncobject dirty?
+                for (int i = 0; i < m_SyncObjects.Count; i++)
+                {
+                    SyncObject syncObject = m_SyncObjects[i];
+                    if (syncObject.IsDirty)
+                    {
+                        return true;
+                    }
+                }
+                return m_SyncVarDirtyBits != 0L;
+            }
+            return false;
         }
 
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
@@ -531,7 +512,7 @@ namespace Mirror
             {
                 writer.WritePackedUInt64(0);
             }
-            return false;
+            return SerializeObjects(writer, initialState);
         }
 
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
@@ -539,6 +520,80 @@ namespace Mirror
             if (!initialState)
             {
                 reader.ReadPackedUInt64();
+            }
+            DeSerializeObjects(reader, initialState);
+        }
+
+        ulong DirtyObjectBits()
+        {
+            ulong dirtyObjects = 0;
+            for (int i = 0; i < m_SyncObjects.Count; i++)
+            {
+                SyncObject syncObject = m_SyncObjects[i];
+                if (syncObject.IsDirty)
+                {
+                    dirtyObjects |= 1UL << i;
+                }
+            }
+            return dirtyObjects;
+        }
+
+        public bool SerializeObjects(NetworkWriter writer, bool initialState)
+        {
+            bool dirty = false;
+
+            if (initialState)
+            {
+                for (int i = 0; i < m_SyncObjects.Count; i++)
+                {
+                    SyncObject syncObject = m_SyncObjects[i];
+                    syncObject.OnSerializeAll(writer);
+                    dirty = true;
+                }
+            }
+            else
+            {
+                // write the mask
+                writer.WritePackedUInt64(DirtyObjectBits());
+                // serializable objects, such as synclists
+                for (int i = 0; i < m_SyncObjects.Count; i++)
+                {
+                    SyncObject syncObject = m_SyncObjects[i];
+                    if (syncObject.IsDirty)
+                    {
+                        syncObject.OnSerializeDelta(writer);
+                        dirty = true;
+                    }
+                }
+            }
+            return dirty;
+           
+        }
+
+        private void DeSerializeObjects(NetworkReader reader, bool initialState)
+        {
+            // serializable objects, such as synclists
+            if (initialState)
+            {
+                for (int i = 0; i < m_SyncObjects.Count; i++)
+                {
+                    SyncObject syncObject = m_SyncObjects[i];
+                    syncObject.OnDeserializeAll(reader);
+                }
+            }
+            else
+            {
+                ulong dirty = reader.ReadPackedUInt64();
+
+                for (int i = 0; i < m_SyncObjects.Count; i++)
+                {
+                    SyncObject syncObject = m_SyncObjects[i];
+
+                    if ((dirty & (1UL << i)) != 0)
+                    {
+                        syncObject.OnDeserializeDelta(reader);
+                    }
+                }
             }
         }
 
@@ -590,4 +645,5 @@ namespace Mirror
             return k_DefaultSendInterval;
         }
     }
+
 }

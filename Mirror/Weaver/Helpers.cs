@@ -75,7 +75,7 @@ namespace Mirror.Weaver
                     {
                         // resolves the instance type to it's generic type definition, for example SyncList<Int> to SyncList<T>
                         var typeDef = type.Resolve();
-                        if (typeDef.HasGenericParameters && typeDef.FullName == Weaver.SyncListType.FullName)
+                        if (typeDef.HasGenericParameters && typeDef.FullName == Weaver.SyncObjectType.FullName)
                         {
                             return true;
                         }

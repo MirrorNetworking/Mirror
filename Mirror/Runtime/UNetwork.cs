@@ -26,7 +26,6 @@ namespace Mirror
         LocalPlayerTransform = 6,
         SyncEvent = 7,
         UpdateVars = 8,
-        SyncList = 9,
         SpawnPrefab = 3,
         SpawnSceneObject = 10,
         SpawnFinished = 12,
