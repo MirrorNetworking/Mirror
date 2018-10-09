@@ -240,17 +240,13 @@ namespace Mirror
 
         void VerifySerializeComponentExists()
         {
-            bool throwError = false;
-            Type componentMissing = null;
-
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncCharacterController:
                     m_CharacterController = m_CharacterController ?? GetComponent<CharacterController>();
                     if (!m_CharacterController)
                     {
-                        throwError = true;
-                        componentMissing = typeof(CharacterController);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no CharacterController component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode)); 
                     }
                     break;
 
@@ -258,8 +254,7 @@ namespace Mirror
                     m_RigidBody2D = m_RigidBody2D ?? GetComponent<Rigidbody2D>();
                     if (!m_RigidBody2D)
                     {
-                        throwError = true;
-                        componentMissing = typeof(Rigidbody2D);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no Rigidbody2D component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode));
                     }
                     break;
 
@@ -267,15 +262,9 @@ namespace Mirror
                     m_RigidBody3D = m_RigidBody3D ?? GetComponent<Rigidbody>();
                     if (!m_RigidBody3D)
                     {
-                        throwError = true;
-                        componentMissing = typeof(Rigidbody);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no Rigidbody component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode));
                     }
                     break;
-            }
-
-            if (throwError && componentMissing != null)
-            {
-                throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no {1} component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode, componentMissing.Name));
             }
         }
 
