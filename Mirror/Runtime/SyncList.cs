@@ -357,12 +357,6 @@ namespace Mirror
             }
         }
 
-        // used to bypass Add message.
-        internal void AddInternal(T item)
-        {
-            m_Objects.Add(item);
-        }
-
         public void Add(T item)
         {
             m_Objects.Add(item);
