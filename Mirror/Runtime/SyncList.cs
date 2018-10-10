@@ -187,7 +187,11 @@ namespace Mirror
                 item = item
             };
 
-            Changes.Add(change);
+            if (m_Behaviour.isServer)
+            {
+                // no need to track changes if this is not a server object
+                Changes.Add(change);
+            }
 
             // ensure it is invoked on host
             if (m_Behaviour.isServer && m_Behaviour.isClient && m_Callback != null)
