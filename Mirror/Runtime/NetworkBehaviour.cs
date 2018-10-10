@@ -13,7 +13,6 @@ namespace Mirror
         bool isClient { get; }
     }
 
-
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour, INetworkBehaviour
