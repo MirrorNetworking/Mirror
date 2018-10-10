@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using System.Linq;
 
 namespace Mirror
 {
@@ -484,27 +485,16 @@ namespace Mirror
             m_SyncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            for (int i = 0; i < m_SyncObjects.Count; i++)
-            {
-                SyncObject syncObject = m_SyncObjects[i];
-                syncObject.Flush();
-            }
+            m_SyncObjects.ForEach(obj => obj.Flush());
         }
 
         internal bool IsDirty()
         {
             if (Time.time - m_LastSendTime > GetNetworkSendInterval())
             {
-                // is any syncobject dirty?
-                for (int i = 0; i < m_SyncObjects.Count; i++)
-                {
-                    SyncObject syncObject = m_SyncObjects[i];
-                    if (syncObject.IsDirty)
-                    {
-                        return true;
-                    }
-                }
-                return m_SyncVarDirtyBits != 0L;
+
+                return m_SyncVarDirtyBits != 0L
+                        || m_SyncObjects.Any(obj => obj.IsDirty);
             }
             return false;
         }
