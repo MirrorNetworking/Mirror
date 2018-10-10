@@ -436,15 +436,15 @@ namespace Mirror.Weaver
 
         /*
             // generates code like:
-            m_sizes.InitializeBehaviour(this);
+            this.InitSyncObject(m_sizes);
         */
         void GenerateSyncListInitializer(ILProcessor awakeWorker, FieldReference fd, int index)
         {
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldarg_0));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldfld, fd));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldarg_0));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldfld, fd));
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Callvirt, Weaver.SyncObjectInitBehaviourReference));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
         }
 
         void GenerateSerialization()
@@ -1956,7 +1956,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (Weaver.IsDerivedFrom(fd.FieldType.Resolve(), Weaver.SyncObjectType))
+                if (Weaver.ImplementInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
                 {
                     if (fd.IsStatic)
                     {

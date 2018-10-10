@@ -38,7 +38,7 @@ namespace Mirror
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
-
+       
         const float k_DefaultSendInterval = 0.1f;
 
         NetworkIdentity m_MyView;
@@ -57,6 +57,12 @@ namespace Mirror
                 }
                 return m_MyView;
             }
+        }
+
+        protected void InitSyncObject(SyncObject syncObject)
+        {
+            syncObject.InitializeBehaviour(this);
+            m_SyncObjects.Add(syncObject);
         }
 
         // ----------------------------- Commands --------------------------------

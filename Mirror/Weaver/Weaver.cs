@@ -125,7 +125,7 @@ namespace Mirror.Weaver
         public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
-        public static MethodReference SyncObjectInitBehaviourReference;
+        public static MethodReference InitSyncObjectReference;
         public static TypeReference NetworkSettingsType;
 
         // system types
@@ -1404,7 +1404,7 @@ namespace Mirror.Weaver
             sendEventInternal = ResolveMethod(NetworkBehaviourType, "SendEventInternal");
 
             SyncObjectType = scriptDef.MainModule.ImportReference(SyncObjectType);
-            SyncObjectInitBehaviourReference = ResolveMethod(SyncObjectType, "InitializeBehaviour");
+            InitSyncObjectReference = ResolveMethod(NetworkBehaviourType, "InitSyncObject");
         }
 
         static void SetupReadFunctions()
@@ -1544,6 +1544,35 @@ namespace Mirror.Weaver
                     break;
                 }
             }
+            return false;
+        }
+
+        static public bool ImplementInterface(TypeDefinition td, TypeReference baseClass)
+        {
+            TypeDefinition typedef = td;
+
+            while ( typedef != null)
+            {
+                foreach (InterfaceImplementation iface in typedef.Interfaces)
+                {
+                    if (iface.InterfaceType.FullName == baseClass.FullName)
+                        return true;
+                }
+
+                TypeReference parent = typedef.BaseType;
+
+                try
+                {
+                    typedef = parent == null ? null : parent.Resolve();
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for pluins.
+                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
+                    break;
+                }
+            }
+
             return false;
         }
 
