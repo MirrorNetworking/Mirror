@@ -538,7 +538,6 @@ namespace Mirror
         public bool SerializeObjectsAll(NetworkWriter writer)
         {
             bool dirty = false;
-
             for (int i = 0; i < m_SyncObjects.Count; i++)
             {
                 SyncObject syncObject = m_SyncObjects[i];
