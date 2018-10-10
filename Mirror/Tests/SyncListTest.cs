@@ -48,11 +48,11 @@ namespace Mirror.Tests
             fromList.Flush();
 
         }
+
         [SetUp]
         public void SetUp()
         {
             serverSyncList = InitServerList<SyncListString>();
-
             clientSyncList = InitClientList<SyncListString>();
 
             // add some data to the list
@@ -61,7 +61,6 @@ namespace Mirror.Tests
             serverSyncList.Add("!");
             SerializeAllTo(serverSyncList, clientSyncList);
         }
-
 
         [Test]
         public void TestInit()
@@ -118,7 +117,6 @@ namespace Mirror.Tests
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
         }
 
-
         [Test]
         public void TestMultSync()
         {
@@ -128,9 +126,7 @@ namespace Mirror.Tests
             serverSyncList.Add("2");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!", "1","2" }));
-
         }
-
 
         [Test]
         public void SyncListIntTest()
@@ -228,8 +224,6 @@ namespace Mirror.Tests
 
             // data has been flushed,  should go back to clear
             Assert.That(serverList.IsDirty, Is.False);
-
         }
-
     }
 }
