@@ -145,5 +145,60 @@ namespace Mirror.Tests
 
             Assert.That(clientList, Is.EquivalentTo(new [] {1,2,3}));
         }
+
+        [Test]
+        public void SyncListBoolTest()
+        {
+            var serverList = InitServerList<SyncListBool>();
+            var clientList = InitClientList<SyncListBool>();
+
+            serverList.Add(true);
+            serverList.Add(false);
+            serverList.Add(true);
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList, Is.EquivalentTo(new[] { true, false, true }));
+        }
+
+        [Test]
+        public void SyncListUintTest()
+        {
+            var serverList = InitServerList<SyncListUInt>();
+            var clientList = InitClientList<SyncListUInt>();
+
+            serverList.Add(1U);
+            serverList.Add(2U);
+            serverList.Add(3U);
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList, Is.EquivalentTo(new[] { 1U, 2U, 3U }));
+        }
+
+        [Test]
+        public void SyncListFloatTest()
+        {
+            var serverList = InitServerList<SyncListFloat>();
+            var clientList = InitClientList<SyncListFloat>();
+
+            serverList.Add(1.0F);
+            serverList.Add(2.0F);
+            serverList.Add(3.0F);
+            SerializeDeltaTo(serverList, clientList);
+
+            Assert.That(clientList, Is.EquivalentTo(new[] { 1.0F, 2.0F, 3.0F }));
+        }
+
+        [Test]
+        public void CallbackTest()
+        {
+            var callbackMock = Substitute.For<SyncListString.SyncListChanged>();
+            clientSyncList.Callback = callbackMock;
+
+            serverSyncList.Add("yay");
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+
+            callbackMock.Received().Invoke(SyncList<string>.Operation.OP_ADD, 0);
+        }
+
     }
 }
