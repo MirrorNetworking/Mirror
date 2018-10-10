@@ -1547,7 +1547,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplementInterface(TypeDefinition td, TypeReference baseClass)
+        static public bool ImplemenstInterface(TypeDefinition td, TypeReference baseClass)
         {
             TypeDefinition typedef = td;
 

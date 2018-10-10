@@ -1927,7 +1927,7 @@ namespace Mirror.Weaver
                             return;
                         }
 
-                        if (Helpers.InheritsFromSyncList(fd.FieldType))
+                        if (Helpers.ImplementsSyncObject(fd.FieldType))
                         {
                             Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", m_td.FullName, fd.Name));
                             break;
@@ -1956,7 +1956,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (Weaver.ImplementInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
+                if (Weaver.ImplemenstInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
                 {
                     if (fd.IsStatic)
                     {
