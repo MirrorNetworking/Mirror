@@ -308,15 +308,6 @@ namespace Mirror
             return true;
         }
 
-        internal static void DumpInvokers()
-        {
-            Debug.Log("DumpInvokers size:" + s_CmdHandlerDelegates.Count);
-            foreach (var inv in s_CmdHandlerDelegates)
-            {
-                Debug.Log("  Invoker:" + inv.Value.invokeClass + ":" + inv.Value.invokeFunction.GetMethodName() + " " + inv.Value.invokeType + " " + inv.Key);
-            }
-        }
-
         internal bool ContainsCommandDelegate(int cmdHash)
         {
             return s_CmdHandlerDelegates.ContainsKey(cmdHash);
