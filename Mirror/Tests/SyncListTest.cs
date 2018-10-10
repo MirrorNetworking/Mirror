@@ -31,6 +31,23 @@ namespace Mirror.Tests
             return list;
         }
 
+        private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
+        {
+            NetworkWriter writer = new NetworkWriter();
+            fromList.OnSerializeAll(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            toList.OnDeserializeAll(reader);
+        }
+
+        private void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
+        {
+            NetworkWriter writer = new NetworkWriter();
+            fromList.OnSerializeDelta(writer);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            toList.OnDeserializeDelta(reader);
+            serverSyncList.Flush();
+
+        }
         [SetUp]
         public void SetUp()
         {
@@ -39,14 +56,10 @@ namespace Mirror.Tests
             clientSyncList = InitClientList<SyncListString>();
 
             // add some data to the list
-            NetworkWriter writer = new NetworkWriter();
             serverSyncList.Add("Hello");
             serverSyncList.Add("World");
             serverSyncList.Add("!");
-            serverSyncList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeAll(reader);
-
+            SerializeAllTo(serverSyncList, clientSyncList);
         }
 
 
@@ -59,111 +72,61 @@ namespace Mirror.Tests
         [Test]
         public void TestAdd()
         {
-            // add some delta and see if it applies
-            var writer  = new NetworkWriter();
             serverSyncList.Add("yay");
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!", "yay" }));
         }
 
         [Test]
         public void TestClear()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList.Clear();
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new string[] { }));
-
         }
 
         [Test]
         public void TestInsert()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList.Insert(0,"yay");
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] {"yay", "Hello", "World", "!" }));
-
         }
 
         [Test]
         public void TestSet()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList[1] = "yay";
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList[1], Is.EqualTo("yay"));
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
-
         }
 
         [Test]
         public void TestRemoveAt()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList.RemoveAt(1);
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
-
         }
 
         [Test]
         public void TestRemove()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList.Remove("World");
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
-
         }
 
 
         [Test]
         public void TestMultSync()
         {
-            // add some delta and see if it applies
-            var writer = new NetworkWriter();
             serverSyncList.Add("1");
-            serverSyncList.OnSerializeDelta(writer);
-            var reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
-            // after a non init,  we should flush
-            serverSyncList.Flush();
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             // add some delta and see if it applies
-            writer = new NetworkWriter();
             serverSyncList.Add("2");
-            serverSyncList.OnSerializeDelta(writer);
-            reader = new NetworkReader(writer.ToArray());
-            clientSyncList.OnDeserializeDelta(reader);
-
-            // after a non init,  we should flush
-            serverSyncList.Flush();
-
+            SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!", "1","2" }));
 
         }
@@ -173,18 +136,12 @@ namespace Mirror.Tests
         public void SyncListIntTest()
         {
             var serverList = InitServerList<SyncListInt>();
-
             var clientList = InitClientList<SyncListInt>();
 
             serverList.Add(1);
             serverList.Add(2);
             serverList.Add(3);
-
-            // add some data to the list
-            NetworkWriter writer = new NetworkWriter();
-            serverList.OnSerializeAll(writer);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
-            clientList.OnDeserializeAll(reader);
+            SerializeDeltaTo(serverList, clientList);
 
             Assert.That(clientList, Is.EquivalentTo(new [] {1,2,3}));
         }
