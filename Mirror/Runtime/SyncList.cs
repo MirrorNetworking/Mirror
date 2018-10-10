@@ -170,7 +170,6 @@ namespace Mirror
             Changes.Clear();
         }
 
-
         void AddOperation(Operation op, int itemIndex, T item)
         {
             if (m_Behaviour == null)
@@ -278,7 +277,6 @@ namespace Mirror
                 m_Objects.Add(obj);
             }
 
-
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
@@ -305,31 +303,41 @@ namespace Mirror
                     case Operation.OP_ADD:
                         item = DeserializeItem(reader);
                         if (apply)
+                        {
                             m_Objects.Add(item);
+                        }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
+                        {
                             m_Objects.Clear();
+                        }
                         break;
 
                     case Operation.OP_INSERT:
                         index = reader.ReadInt32();
                         item = DeserializeItem(reader);
                         if (apply)
+                        {
                             m_Objects.Insert(index, item);
+                        }
                         break;
 
                     case Operation.OP_REMOVE:
                         item = DeserializeItem(reader);
                         if (apply)
+                        {
                             m_Objects.Remove(item);
+                        }
                         break;
 
                     case Operation.OP_REMOVEAT:
                         index = reader.ReadInt32();
                         if (apply)
+                        {
                             m_Objects.RemoveAt(index);
+                        }
                         break;
 
                     case Operation.OP_SET:
@@ -337,7 +345,9 @@ namespace Mirror
                         index = reader.ReadInt32();
                         item = DeserializeItem(reader);
                         if (apply)
+                        {
                             m_Objects[index] = item;
+                        }
                         break;
                 }
 
@@ -348,7 +358,9 @@ namespace Mirror
 
                 // we just skipped this change
                 if (!apply)
+                {
                     changesAhead--;
+                }
 
             }
 
