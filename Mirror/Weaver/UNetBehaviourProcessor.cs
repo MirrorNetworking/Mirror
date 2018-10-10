@@ -1876,7 +1876,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (Weaver.ImplemenstInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
+                if (Weaver.ImplementsInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
                 {
                     if (fd.IsStatic)
                     {

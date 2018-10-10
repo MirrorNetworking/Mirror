@@ -68,7 +68,7 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-                return Weaver.ImplemenstInterface(typeRef.Resolve(), Weaver.SyncObjectType);
+                return Weaver.ImplementsInterface(typeRef.Resolve(), Weaver.SyncObjectType);
             }
             catch
             {

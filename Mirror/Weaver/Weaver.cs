@@ -1547,7 +1547,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplemenstInterface(TypeDefinition td, TypeReference baseClass)
+        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseClass)
         {
             TypeDefinition typedef = td;
 
@@ -1559,10 +1559,9 @@ namespace Mirror.Weaver
                         return true;
                 }
 
-                TypeReference parent = typedef.BaseType;
-
                 try
                 {
+                    TypeReference parent = typedef.BaseType;
                     typedef = parent == null ? null : parent.Resolve();
                 }
                 catch (AssemblyResolutionException)
