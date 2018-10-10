@@ -499,20 +499,26 @@ namespace Mirror
 
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            if (!initialState)
+            if (initialState)
             {
-                writer.WritePackedUInt64(0);
+                return SerializeObjectsAll(writer);
             }
-            return SerializeObjects(writer, initialState);
+            else
+            {
+                return SerializeObjectsDelta(writer);
+            }
         }
 
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            if (!initialState)
+            if (initialState)
             {
-                reader.ReadPackedUInt64();
+                DeSerializeObjectsAll(reader);
             }
-            DeSerializeObjects(reader, initialState);
+            else
+            {
+                DeSerializeObjectsDelta(reader);
+            }
         }
 
         ulong DirtyObjectBits()
@@ -529,58 +535,55 @@ namespace Mirror
             return dirtyObjects;
         }
 
-        public bool SerializeObjects(NetworkWriter writer, bool initialState)
+        public bool SerializeObjectsAll(NetworkWriter writer)
         {
             bool dirty = false;
 
-            if (initialState)
+            for (int i = 0; i < m_SyncObjects.Count; i++)
             {
-                for (int i = 0; i < m_SyncObjects.Count; i++)
-                {
-                    SyncObject syncObject = m_SyncObjects[i];
-                    syncObject.OnSerializeAll(writer);
-                    dirty = true;
-                }
+                SyncObject syncObject = m_SyncObjects[i];
+                syncObject.OnSerializeAll(writer);
+                dirty = true;
             }
-            else
+            return dirty;
+        }
+
+        public bool SerializeObjectsDelta(NetworkWriter writer)
+        {
+            bool dirty = false;
+            // write the mask
+            writer.WritePackedUInt64(DirtyObjectBits());
+            // serializable objects, such as synclists
+            for (int i = 0; i < m_SyncObjects.Count; i++)
             {
-                // write the mask
-                writer.WritePackedUInt64(DirtyObjectBits());
-                // serializable objects, such as synclists
-                for (int i = 0; i < m_SyncObjects.Count; i++)
+                SyncObject syncObject = m_SyncObjects[i];
+                if (syncObject.IsDirty)
                 {
-                    SyncObject syncObject = m_SyncObjects[i];
-                    if (syncObject.IsDirty)
-                    {
-                        syncObject.OnSerializeDelta(writer);
-                        dirty = true;
-                    }
+                    syncObject.OnSerializeDelta(writer);
+                    dirty = true;
                 }
             }
             return dirty;
         }
 
-        private void DeSerializeObjects(NetworkReader reader, bool initialState)
+        private void DeSerializeObjectsAll(NetworkReader reader)
         {
-            // serializable objects, such as synclists
-            if (initialState)
+            for (int i = 0; i < m_SyncObjects.Count; i++)
             {
-                for (int i = 0; i < m_SyncObjects.Count; i++)
-                {
-                    SyncObject syncObject = m_SyncObjects[i];
-                    syncObject.OnDeserializeAll(reader);
-                }
+                SyncObject syncObject = m_SyncObjects[i];
+                syncObject.OnDeserializeAll(reader);
             }
-            else
+        }
+
+        private void DeSerializeObjectsDelta(NetworkReader reader)
+        {
+            ulong dirty = reader.ReadPackedUInt64();
+            for (int i = 0; i < m_SyncObjects.Count; i++)
             {
-                ulong dirty = reader.ReadPackedUInt64();
-                for (int i = 0; i < m_SyncObjects.Count; i++)
+                SyncObject syncObject = m_SyncObjects[i];
+                if ((dirty & (1UL << i)) != 0)
                 {
-                    SyncObject syncObject = m_SyncObjects[i];
-                    if ((dirty & (1UL << i)) != 0)
-                    {
-                        syncObject.OnDeserializeDelta(reader);
-                    }
+                    syncObject.OnDeserializeDelta(reader);
                 }
             }
         }
