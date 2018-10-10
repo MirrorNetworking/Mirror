@@ -200,5 +200,17 @@ namespace Mirror.Tests
             callbackMock.Received().Invoke(SyncList<string>.Operation.OP_ADD, 0);
         }
 
+        [Test]
+        public void CountTest()
+        {
+            Assert.That(serverSyncList.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ReadOnlyTest()
+        {
+            Assert.That(serverSyncList.IsReadOnly, Is.False);
+        }
+
     }
 }

@@ -117,8 +117,6 @@ namespace Mirror
         public bool IsReadOnly { get { return false; } }
         public SyncListChanged Callback { get { return m_Callback; } set { m_Callback = value; } }
 
-        public int VarId { get; private set; }
-
         public enum Operation : byte
         {
             OP_ADD,
