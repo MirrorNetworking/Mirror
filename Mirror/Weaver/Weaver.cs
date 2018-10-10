@@ -1547,7 +1547,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseClass)
+        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
         {
             TypeDefinition typedef = td;
 
@@ -1555,7 +1555,7 @@ namespace Mirror.Weaver
             {
                 foreach (InterfaceImplementation iface in typedef.Interfaces)
                 {
-                    if (iface.InterfaceType.FullName == baseClass.FullName)
+                    if (iface.InterfaceType.FullName == baseInterface.FullName)
                         return true;
                 }
 
