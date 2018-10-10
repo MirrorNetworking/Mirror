@@ -45,7 +45,7 @@ namespace Mirror.Tests
             fromList.OnSerializeDelta(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
-            serverSyncList.Flush();
+            fromList.Flush();
 
         }
         [SetUp]
@@ -210,6 +210,25 @@ namespace Mirror.Tests
         public void ReadOnlyTest()
         {
             Assert.That(serverSyncList.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void DirtyTest()
+        {
+            var serverList = InitServerList<SyncListInt>();
+            var clientList = InitClientList<SyncListInt>();
+
+            // nothing to send
+            Assert.That(serverList.IsDirty, Is.False);
+
+            // something has changed
+            serverList.Add(1);
+            Assert.That(serverList.IsDirty, Is.True);
+            SerializeDeltaTo(serverList, clientList);
+
+            // data has been flushed,  should go back to clear
+            Assert.That(serverList.IsDirty, Is.False);
+
         }
 
     }
