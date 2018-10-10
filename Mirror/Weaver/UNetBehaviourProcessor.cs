@@ -293,11 +293,10 @@ namespace Mirror.Weaver
                 eventIndex += 1;
             }
 
-            int syncListIndex = 0;
             foreach (FieldDefinition fd in m_SyncObjects)
             {
                 GenerateSyncListInstanceInitializer(ctorWorker, fd);
-                syncListIndex += 1;
+                GenerateSyncObjectInitializer(ctorWorker, fd);
             }
 
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
@@ -311,85 +310,6 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             m_td.Attributes = m_td.Attributes & ~TypeAttributes.BeforeFieldInit;
-
-            if (m_SyncObjects.Count == 0)
-                return;
-
-            // find  constructor
-            MethodDefinition awake = null;
-            bool awakeFound = false;
-            foreach (MethodDefinition md in m_td.Methods)
-            {
-                if (md.Name == "Awake")
-                {
-                    awake = md;
-                    awakeFound = true;
-                }
-            }
-            if (awake != null)
-            {
-                // remove the return opcode from end of function. will add our own later.
-                if (awake.Body.Instructions.Count != 0)
-                {
-                    Instruction ret = awake.Body.Instructions[awake.Body.Instructions.Count - 1];
-                    if (ret.OpCode == OpCodes.Ret)
-                    {
-                        awake.Body.Instructions.RemoveAt(awake.Body.Instructions.Count - 1);
-                    }
-                    else
-                    {
-                        Log.Error("No awake for " + m_td.Name);
-                        Weaver.fail = true;
-                        return;
-                    }
-                }
-            }
-            else
-            {
-                awake = new MethodDefinition("Awake", MethodAttributes.Family, Weaver.voidType);
-            }
-
-            ILProcessor awakeWorker = awake.Body.GetILProcessor();
-
-            if (!awakeFound)
-            {
-                // if we're not directly inheriting from NetworkBehaviour, we have to
-                // go up the inheritance chain and check for awake calls that we are overriding by "mistake"
-                CheckForCustomBaseClassAwakeMethod(awakeWorker);
-            }
-
-            int syncListFieldOffset = 0;
-            foreach (FieldDefinition fd in m_SyncObjects)
-            {
-                GenerateSyncListInitializer(awakeWorker, fd, syncListFieldOffset);
-                syncListFieldOffset += 1;
-            }
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ret));
-            if (!awakeFound)
-            {
-                m_td.Methods.Add(awake);
-            }
-        }
-
-        void CheckForCustomBaseClassAwakeMethod(ILProcessor awakeWorker)
-        {
-            // start from base type
-            var t = m_td.BaseType;
-
-            // as long as basetype is not NetworkBehaviour
-            while (t.FullName != Weaver.NetworkBehaviourType.FullName)
-            {
-                // check for the first Awake() method in the hierarchy
-                var awake = t.Resolve().Methods.FirstOrDefault<MethodDefinition>(x => x.Name == "Awake" && !x.HasParameters);
-                if (awake != null)
-                {
-                    // if found, invoke it so we don't loose the behaviour by implicitly overriding Awake
-                    awakeWorker.Append(awakeWorker.Create(OpCodes.Ldarg_0));
-                    awakeWorker.Append(awakeWorker.Create(OpCodes.Call, awake));
-                    return;
-                }
-                t = t.Resolve().BaseType;
-            }
         }
 
         void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
@@ -438,13 +358,13 @@ namespace Mirror.Weaver
             // generates code like:
             this.InitSyncObject(m_sizes);
         */
-        void GenerateSyncListInitializer(ILProcessor awakeWorker, FieldReference fd, int index)
+        void GenerateSyncObjectInitializer(ILProcessor methodWorker, FieldReference fd)
         {
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldarg_0));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldarg_0));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldfld, fd));
+            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
+            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
+            methodWorker.Append(methodWorker.Create(OpCodes.Ldfld, fd));
 
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
+            methodWorker.Append(methodWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
         }
 
         void GenerateSerialization()
