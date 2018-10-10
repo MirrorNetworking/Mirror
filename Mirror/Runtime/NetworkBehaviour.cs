@@ -638,5 +638,4 @@ namespace Mirror
             return k_DefaultSendInterval;
         }
     }
-
 }
