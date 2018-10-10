@@ -3,7 +3,6 @@ using System;
 using NSubstitute;
 using System.Linq;
 
-
 namespace Mirror.Tests
 {
     [TestFixture]
@@ -46,7 +45,6 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
-
         }
 
         [SetUp]
