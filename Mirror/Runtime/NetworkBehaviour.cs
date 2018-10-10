@@ -35,14 +35,10 @@ namespace Mirror
         {
             get
             {
+                m_MyView = m_MyView ?? GetComponent<NetworkIdentity>();
                 if (m_MyView == null)
                 {
-                    m_MyView = GetComponent<NetworkIdentity>();
-                    if (m_MyView == null)
-                    {
-                        if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
-                    }
-                    return m_MyView;
+                    if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
                 }
                 return m_MyView;
             }
