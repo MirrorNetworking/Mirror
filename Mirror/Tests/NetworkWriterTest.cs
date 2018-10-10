@@ -115,6 +115,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestGuid()
+        {
+            Guid originalGuid = new Guid("0123456789abcdef9876543210fedcba");
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(originalGuid);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Guid readGuid = reader.ReadGuid();
+            Assert.That(readGuid, Is.EqualTo(originalGuid));
+        }
+
+        [Test]
         public void TestWritingAndReading()
         {
             // write all simple types once

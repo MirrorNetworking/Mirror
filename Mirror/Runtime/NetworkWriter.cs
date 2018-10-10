@@ -315,24 +315,9 @@ namespace Mirror
             Write(value.m33);
         }
 
-        public void Write(NetworkHash128 value)
+        public void Write(Guid value)
         {
-            Write(value.i0);
-            Write(value.i1);
-            Write(value.i2);
-            Write(value.i3);
-            Write(value.i4);
-            Write(value.i5);
-            Write(value.i6);
-            Write(value.i7);
-            Write(value.i8);
-            Write(value.i9);
-            Write(value.i10);
-            Write(value.i11);
-            Write(value.i12);
-            Write(value.i13);
-            Write(value.i14);
-            Write(value.i15);
+            writer.Write(value.ToByteArray());
         }
 
         public void Write(NetworkIdentity value)

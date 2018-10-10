@@ -583,7 +583,7 @@ namespace Mirror
             if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, NetworkHash128 assetId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
@@ -598,7 +598,7 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, player);
         }
 
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, NetworkHash128 assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             NetworkIdentity id;
             if (GetNetworkIdentity(player, out id))
@@ -1187,7 +1187,7 @@ namespace Mirror
             return uv.AssignClientAuthority(conn);
         }
 
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkHash128 assetId, NetworkConnection conn)
+        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
 
@@ -1201,7 +1201,7 @@ namespace Mirror
             return uv.AssignClientAuthority(conn);
         }
 
-        public static void Spawn(GameObject obj, NetworkHash128 assetId)
+        public static void Spawn(GameObject obj, Guid assetId)
         {
             if (VerifyCanSpawn(obj))
             {
