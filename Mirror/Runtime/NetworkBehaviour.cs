@@ -10,7 +10,6 @@ namespace Mirror
     {
         bool isServer { get; }
         bool isClient { get; }
-        void SetDirty(int varId);
     }
 
 
@@ -464,11 +463,6 @@ namespace Mirror
             }
         }
 
-        public void SetDirty(int varId)
-        {
-            SetDirtyBit(1UL << varId);
-        }
-
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
         {
@@ -567,7 +561,6 @@ namespace Mirror
                 }
             }
             return dirty;
-           
         }
 
         private void DeSerializeObjects(NetworkReader reader, bool initialState)
