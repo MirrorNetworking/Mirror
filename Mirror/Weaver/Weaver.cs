@@ -170,7 +170,6 @@ namespace Mirror.Weaver
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference registerEventDelegateReference;
-        public static MethodReference registerSyncListDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
@@ -1395,7 +1394,6 @@ namespace Mirror.Weaver
             registerCommandDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterCommandDelegate");
             registerRpcDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterRpcDelegate");
             registerEventDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterEventDelegate");
-            registerSyncListDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterSyncListDelegate");
             getTypeReference = ResolveMethod(objectType, "GetType");
             getTypeFromHandleReference = ResolveMethod(typeType, "GetTypeFromHandle");
             logErrorReference = ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), "LogError");
