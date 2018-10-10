@@ -86,11 +86,6 @@ namespace Mirror
     // TODO rename back to SyncListStruct after 2019.1!
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
-        public new void AddInternal(T item)
-        {
-            base.AddInternal(item);
-        }
-
         protected override void SerializeItem(NetworkWriter writer, T item)
         {
         }
@@ -148,7 +143,6 @@ namespace Mirror
 
         protected abstract void SerializeItem(NetworkWriter writer, T item);
         protected abstract T DeserializeItem(NetworkReader reader);
-
 
         public void InitializeBehaviour(INetworkBehaviour beh)
         {
@@ -294,7 +288,6 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-
                 int index = 0;
                 T item;
 
@@ -361,11 +354,8 @@ namespace Mirror
                 {
                     changesAhead--;
                 }
-
             }
-
         }
-
 
         // used to bypass Add message.
         internal void AddInternal(T item)
