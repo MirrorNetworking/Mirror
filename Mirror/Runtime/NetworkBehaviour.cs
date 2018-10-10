@@ -574,11 +574,9 @@ namespace Mirror
             else
             {
                 ulong dirty = reader.ReadPackedUInt64();
-
                 for (int i = 0; i < m_SyncObjects.Count; i++)
                 {
                     SyncObject syncObject = m_SyncObjects[i];
-
                     if ((dirty & (1UL << i)) != 0)
                     {
                         syncObject.OnDeserializeDelta(reader);
