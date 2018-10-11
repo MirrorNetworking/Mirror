@@ -241,7 +241,7 @@ namespace Mirror
                 {
                     if (!InvokeUnSpawnHandler(uv.assetId, uv.gameObject))
                     {
-                        if (uv.sceneId.IsEmpty())
+                        if (uv.sceneId == 0)
                         {
                             Object.Destroy(uv.gameObject);
                         }

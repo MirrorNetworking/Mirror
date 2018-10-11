@@ -972,7 +972,7 @@ namespace Mirror
             if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
 
             // 'uv' is a prefab that should be spawned
-            if (uv.sceneId.IsEmpty())
+            if (uv.sceneId == 0)
             {
                 SpawnPrefabMessage msg = new SpawnPrefabMessage();
                 msg.netId = uv.netId;
@@ -1257,10 +1257,7 @@ namespace Mirror
 #endif
 
             // If not a scene object
-            if (netId.sceneId.IsEmpty())
-                return false;
-
-            return true;
+            return netId.sceneId != 0;
         }
 
         public static bool SpawnObjects()

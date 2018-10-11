@@ -82,7 +82,6 @@ namespace Mirror.Weaver
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
         public static TypeReference NetworkInstanceIdType;
-        public static TypeReference NetworkSceneIdType;
         public static TypeReference IEnumeratorType;
 
         public static TypeReference ClientSceneType;
@@ -110,10 +109,8 @@ namespace Mirror.Weaver
         public static MethodReference NetworkWriterWritePacked64;
 
         public static MethodReference NetworkWriterWriteNetworkInstanceId;
-        public static MethodReference NetworkWriterWriteNetworkSceneId;
 
         public static MethodReference NetworkReaderReadNetworkInstanceId;
-        public static MethodReference NetworkReaderReadNetworkSceneId;
         public static MethodReference NetworkInstanceIsEmpty;
 
         public static MethodReference NetworkReadUInt16;
@@ -1357,7 +1354,6 @@ namespace Mirror.Weaver
             MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
             NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
@@ -1376,10 +1372,8 @@ namespace Mirror.Weaver
             NetworkWriterWritePacked64 = ResolveMethod(NetworkWriterType, "WritePackedUInt64");
 
             NetworkWriterWriteNetworkInstanceId = ResolveMethodWithArg(NetworkWriterType, "Write", NetworkInstanceIdType);
-            NetworkWriterWriteNetworkSceneId = ResolveMethodWithArg(NetworkWriterType, "Write", NetworkSceneIdType);
 
             NetworkReaderReadNetworkInstanceId = ResolveMethod(NetworkReaderType, "ReadNetworkId");
-            NetworkReaderReadNetworkSceneId = ResolveMethod(NetworkReaderType, "ReadSceneId");
             NetworkInstanceIsEmpty = ResolveMethod(NetworkInstanceIdType, "IsEmpty");
 
             NetworkReadUInt16 = ResolveMethod(NetworkReaderType, "ReadUInt16");
@@ -1498,7 +1492,6 @@ namespace Mirror.Weaver
                 { gameObjectType.FullName, ResolveMethod(NetworkReaderType, "ReadGameObject") },
                 { NetworkIdentityType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkIdentity") },
                 { NetworkInstanceIdType.FullName, NetworkReaderReadNetworkInstanceId },
-                { NetworkSceneIdType.FullName, NetworkReaderReadNetworkSceneId },
                 { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
                 { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
             };
@@ -1545,7 +1538,6 @@ namespace Mirror.Weaver
                 { gameObjectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", gameObjectType) },
                 { NetworkIdentityType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkIdentityType) },
                 { NetworkInstanceIdType.FullName, NetworkWriterWriteNetworkInstanceId },
-                { NetworkSceneIdType.FullName, NetworkWriterWriteNetworkSceneId },
                 { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
                 { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") },
                 { SyncListFloatType.FullName, SyncListFloatWriteType },

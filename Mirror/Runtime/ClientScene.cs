@@ -7,7 +7,8 @@ namespace Mirror
     {
         static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;
-        static Dictionary<NetworkSceneId, NetworkIdentity> s_SpawnableObjects;
+        // scene id to NetworkIdentity
+        static Dictionary<uint, NetworkIdentity> s_SpawnableObjects;
 
         static bool s_IsReady;
         static bool s_IsSpawnFinished;
@@ -27,7 +28,8 @@ namespace Mirror
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
         public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
-        public static Dictionary<NetworkSceneId, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
+        // scene id to NetworkIdentity
+        public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
 
         internal static void Shutdown()
         {
@@ -167,7 +169,7 @@ namespace Mirror
         internal static void PrepareToSpawnSceneObjects()
         {
             //NOTE: what is there are already objects in this dict?! should we merge with them?
-            s_SpawnableObjects = new Dictionary<NetworkSceneId, NetworkIdentity>();
+            s_SpawnableObjects = new Dictionary<uint, NetworkIdentity>();
             var uvs = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             for (int i = 0; i < uvs.Length; i++)
             {
@@ -175,7 +177,7 @@ namespace Mirror
                 // not spawned yet etc.?
                 if (!uv.gameObject.activeSelf &&
                     uv.gameObject.hideFlags != HideFlags.NotEditable && uv.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                    !uv.sceneId.IsEmpty())
+                    uv.sceneId != 0)
                 {
                     s_SpawnableObjects[uv.sceneId] = uv;
                     if (LogFilter.logDebug) { Debug.Log("ClientScene::PrepareSpawnObjects sceneId:" + uv.sceneId); }
@@ -183,7 +185,7 @@ namespace Mirror
             }
         }
 
-        internal static NetworkIdentity SpawnSceneObject(NetworkSceneId sceneId)
+        internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
             if (s_SpawnableObjects.ContainsKey(sceneId))
             {
@@ -463,7 +465,7 @@ namespace Mirror
                 if (!NetworkScene.InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
                     // default handling
-                    if (localObject.sceneId.IsEmpty())
+                    if (localObject.sceneId == 0)
                     {
                         Object.Destroy(localObject.gameObject);
                     }
