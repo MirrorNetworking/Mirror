@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System;
-using NSubstitute;
 using System.Linq;
 
 namespace Mirror.Tests
@@ -13,20 +12,16 @@ namespace Mirror.Tests
 
         private T InitServerList<T>() where T : SyncObject, new() {
             T list = new T();
-            INetworkBehaviour serverBehavior = Substitute.For<INetworkBehaviour>();
-            serverBehavior.isServer.Returns(true);
-            serverBehavior.isClient.Returns(false);
-            list.InitializeBehaviour(serverBehavior);
+            list.isServer = true;
+            list.isClient = false;
             return list;
         }
 
         private T InitClientList<T>() where T : SyncObject, new()
         {
             T list = new T();
-            INetworkBehaviour clientBehavior = Substitute.For<INetworkBehaviour>();
-            clientBehavior.isServer.Returns(false);
-            clientBehavior.isClient.Returns(true);
-            list.InitializeBehaviour(clientBehavior);
+            list.isServer = false;
+            list.isClient = true;
             return list;
         }
 
@@ -185,13 +180,14 @@ namespace Mirror.Tests
         [Test]
         public void CallbackTest()
         {
-            var callbackMock = Substitute.For<SyncListString.SyncListChanged>();
-            clientSyncList.Callback = callbackMock;
+            bool called = false;
+
+            clientSyncList.Callback = (op, index) => { called = true; };
 
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
-            callbackMock.Received().Invoke(SyncList<string>.Operation.OP_ADD, 0);
+            Assert.That(called, Is.True);
         }
 
         [Test]

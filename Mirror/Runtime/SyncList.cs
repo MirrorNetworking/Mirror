@@ -137,23 +137,35 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        INetworkBehaviour m_Behaviour;
         SyncListChanged m_Callback;
-
+        private bool m_IsServer;
 
         protected abstract void SerializeItem(NetworkWriter writer, T item);
         protected abstract T DeserializeItem(NetworkReader reader);
-
-        public void InitializeBehaviour(INetworkBehaviour beh)
-        {
-            m_Behaviour = beh;
-        }
 
         public bool IsDirty 
         {
             get 
             {
                 return Changes.Count > 0;
+            }
+        }
+
+        public bool isClient { get; set; }
+        public bool isServer 
+        { 
+            get
+            {
+                return m_IsServer;
+            }
+            set
+            {
+                m_IsServer = value;
+                if (!value)
+                {
+                    // don't track changes if this is not a server object
+                    Changes.Clear();
+                }
             }
         }
 
@@ -166,12 +178,6 @@ namespace Mirror
 
         void AddOperation(Operation op, int itemIndex, T item)
         {
-            if (m_Behaviour == null)
-            {
-                if (LogFilter.logError) { Debug.LogError("SyncList not initialized"); }
-                return;
-            }
-
             Change change = new Change
             {
                 operation = op,
@@ -179,14 +185,14 @@ namespace Mirror
                 item = item
             };
 
-            if (m_Behaviour.isServer)
+            if (isServer)
             {
                 // no need to track changes if this is not a server object
                 Changes.Add(change);
             }
 
             // ensure it is invoked on host
-            if (m_Behaviour.isServer && m_Behaviour.isClient && m_Callback != null)
+            if (isServer && isClient && m_Callback != null)
             {
                 m_Callback.Invoke(op, itemIndex);
             }

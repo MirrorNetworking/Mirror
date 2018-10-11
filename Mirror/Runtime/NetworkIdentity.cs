@@ -40,9 +40,49 @@ namespace Mirror
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
         bool                        m_Reset = false;
+
         // properties
-        public bool isClient        { get { return m_IsClient; } }
-        public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        public bool isClient        
+        { 
+            get
+            { 
+                return m_IsClient; 
+            } 
+            private set
+            {
+                if (m_IsClient != value)
+                {
+                    m_IsClient = value;
+                    CacheBehaviours();
+                    foreach (NetworkBehaviour networkBehaviour in m_NetworkBehaviours)
+                    {
+                        networkBehaviour.OnSetClient(value);
+                    }
+                }
+            }
+        }
+
+        public bool isServer        
+        {
+            // dont return true if server stopped.
+            get
+            { 
+                return m_IsServer && NetworkServer.active; 
+            } 
+            private set 
+            {
+                if (m_IsServer != value)
+                {
+                    m_IsServer = value;
+                    CacheBehaviours();
+                    foreach (NetworkBehaviour networkBehaviour in m_NetworkBehaviours)
+                    {
+                        networkBehaviour.OnSetServer(value);
+                    }
+                }
+            }
+        } 
+
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
         public NetworkInstanceId netId { get { return m_NetId; } }
@@ -153,7 +193,7 @@ namespace Mirror
             m_NetId = newNetId;
             if (newNetId.Value == 0)
             {
-                m_IsServer = false;
+                isServer = false;
             }
         }
 
@@ -166,8 +206,8 @@ namespace Mirror
         // only used in SetLocalObject
         internal void UpdateClientServer(bool isClientFlag, bool isServerFlag)
         {
-            m_IsClient |= isClientFlag;
-            m_IsServer |= isServerFlag;
+            isClient |= isClientFlag;
+            isServer |= isServerFlag;
         }
 
         // used when the player object for a connection changes
@@ -267,7 +307,7 @@ namespace Mirror
             {
                 return;
             }
-            m_IsServer = true;
+            isServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
             m_Observers = new List<NetworkConnection>();
@@ -319,7 +359,7 @@ namespace Mirror
 
         internal void OnStartClient()
         {
-            m_IsClient = true;
+            isClient = true;
             CacheBehaviours();
 
             if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
@@ -752,7 +792,7 @@ namespace Mirror
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
                 comp.OnNetworkDestroy();
             }
-            m_IsServer = false;
+            isServer = false;
         }
 
         internal void ClearObservers()
@@ -998,8 +1038,8 @@ namespace Mirror
                 return;
 
             m_Reset = false;
-            m_IsServer = false;
-            m_IsClient = false;
+            isServer = false;
+            isClient = false;
             m_HasAuthority = false;
 
             m_NetId = NetworkInstanceId.Zero;

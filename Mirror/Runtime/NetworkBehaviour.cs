@@ -6,16 +6,10 @@ using System.Linq;
 
 namespace Mirror
 {
-    // provide an interface so that we can mock it in unit tests
-    public interface INetworkBehaviour
-    {
-        bool isServer { get; }
-        bool isClient { get; }
-    }
 
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
-    public class NetworkBehaviour : MonoBehaviour, INetworkBehaviour
+    public class NetworkBehaviour : MonoBehaviour
     {
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
@@ -64,8 +58,25 @@ namespace Mirror
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
         protected void InitSyncObject(SyncObject syncObject)
         {
-            syncObject.InitializeBehaviour(this);
             m_SyncObjects.Add(syncObject);
+        }
+
+        // sets client mode in all syncobjects
+        internal void OnSetClient(bool client)
+        {
+            foreach (SyncObject syncObject in m_SyncObjects)
+            {
+                syncObject.isClient = client;
+            }
+        }
+
+        // sets server mode in all syncobjects
+        internal void OnSetServer(bool server)
+        {
+            foreach (SyncObject syncObject in m_SyncObjects)
+            {
+                syncObject.isServer = server;
+            }
         }
 
         // ----------------------------- Commands --------------------------------

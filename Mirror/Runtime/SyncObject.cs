@@ -4,15 +4,16 @@
     // between server and client,  such as a SyncList
     public interface SyncObject
     {
-
-        // initialize the syncobject with the behavior and its id
-        void InitializeBehaviour(INetworkBehaviour beh);
+        // mode for the syncobject
+        // may be both
+        bool isClient { get; set; }
+        bool isServer { get; set; }
 
         // true if there are changes since the last flush
-		bool IsDirty {get;}
+        bool IsDirty {get;}
 
         // Discard all the queued changes	 
-		// Consider the object fully synchronized with clients
+        // Consider the object fully synchronized with clients
         void Flush();
 
         // Write a full copy of the object
