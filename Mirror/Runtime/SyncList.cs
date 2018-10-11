@@ -137,14 +137,14 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        INetworkBehaviour m_Behaviour;
+        NetworkBehaviour m_Behaviour;
         SyncListChanged m_Callback;
 
 
         protected abstract void SerializeItem(NetworkWriter writer, T item);
         protected abstract T DeserializeItem(NetworkReader reader);
 
-        public void InitializeBehaviour(INetworkBehaviour beh)
+        public void InitializeBehaviour(NetworkBehaviour beh)
         {
             m_Behaviour = beh;
         }

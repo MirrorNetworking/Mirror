@@ -6,7 +6,7 @@
     {
 
         // initialize the syncobject with the behavior and its id
-        void InitializeBehaviour(INetworkBehaviour beh);
+        void InitializeBehaviour(NetworkBehaviour beh);
 
         // true if there are changes since the last flush
 		bool IsDirty {get;}
