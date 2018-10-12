@@ -131,9 +131,9 @@ namespace Mirror.Weaver
                     return false;
                 }
                 // use built-in writer func on writer object
-                worker.Append(worker.Create(OpCodes.Ldloc_0));            // writer object
-                worker.Append(worker.Create(OpCodes.Ldarg, argNum));      // argument
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));// call writer func on writer object
+                worker.Append(worker.Create(OpCodes.Ldloc_0));         // writer object
+                worker.Append(worker.Create(OpCodes.Ldarg, argNum));   // argument
+                worker.Append(worker.Create(OpCodes.Call, writeFunc)); // call writer func on writer object
                 argNum += 1;
             }
             return true;
@@ -302,7 +302,6 @@ namespace Mirror.Weaver
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, listHash));
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, listConstant));
                 //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":List:" + fd.Name);
-
 
                 GenerateSyncListInstanceInitializer(ctorWorker, fd);
 
@@ -484,7 +483,6 @@ namespace Mirror.Weaver
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
@@ -507,7 +505,6 @@ namespace Mirror.Weaver
 
             if (m_SyncVars.Count == 0)
             {
-
                 // generate: return dirtyLocal
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -594,7 +591,6 @@ namespace Mirror.Weaver
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
             }
-
 
             if (Weaver.generateLogErrors)
             {
@@ -1922,9 +1918,7 @@ namespace Mirror.Weaver
             ILProcessor syncList = cmd.Body.GetILProcessor();
             Instruction label = syncList.Create(OpCodes.Nop);
 
-
             WriteClientActiveCheck(syncList, fd.Name, label, "SyncList");
-
 
             syncList.Append(syncList.Create(OpCodes.Ldarg_0)); //this
             syncList.Append(syncList.Create(OpCodes.Castclass, fd.DeclaringType));
