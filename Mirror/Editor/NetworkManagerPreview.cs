@@ -50,7 +50,7 @@ namespace Mirror
             int posY = (int)(r.yMin + k_Padding);
 
             posY = ShowServerMessageHandlers(r, posY);
-            posY = ShowClientMessageHandlers(r, posY);
+            ShowClientMessageHandlers(r, posY);
         }
 
         static string FormatHandler(KeyValuePair<short, NetworkMessageDelegate> handler)
