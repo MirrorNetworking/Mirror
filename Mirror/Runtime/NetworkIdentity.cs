@@ -610,43 +610,6 @@ namespace Mirror
             invokeFunction(invokeComponent, reader);
         }
 
-        // happens on client
-        internal void HandleSyncList(int cmdHash, NetworkReader reader)
-        {
-            // this doesn't use NetworkBehaviour.InvokSyncList function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
-            if (gameObject == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
-                return;
-            }
-
-            // find the matching SyncList function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncList(cmdHash, out invokeClass, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
-                return;
-            }
-
-            // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
-                return;
-            }
-
-            invokeFunction(invokeComponent, reader);
-        }
-
         // happens on server
         internal void HandleCommand(int cmdHash, NetworkReader reader)
         {

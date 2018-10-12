@@ -97,6 +97,7 @@
     <Compile Include="NetworkWriter.cs" />
     <Compile Include="NetworkTime.cs" />
     <Compile Include="ExponentialMovingAverage.cs" />
+    <Compile Include="SyncObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
