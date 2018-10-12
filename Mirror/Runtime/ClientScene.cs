@@ -214,7 +214,6 @@ namespace Mirror
                 client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.SyncList, OnSyncListMessage);
                 client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
                 client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
@@ -581,23 +580,6 @@ namespace Mirror
             else
             {
                 if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId); }
-            }
-        }
-
-        static void OnSyncListMessage(NetworkMessage netMsg)
-        {
-            SyncListMessage message = netMsg.ReadMessage<SyncListMessage>();
-
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + message.netId); }
-
-            NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
-            {
-                uv.HandleSyncList(message.syncListHash, new NetworkReader(message.payload));
-            }
-            else
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + message.netId); }
             }
         }
 

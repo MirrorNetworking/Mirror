@@ -41,8 +41,47 @@ namespace Mirror
         // check MarkForReset for more information.
         bool                        m_Reset;
         // properties
-        public bool isClient        { get { return m_IsClient; } }
-        public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        public bool isClient        
+        { 
+            get
+            { 
+                return m_IsClient; 
+            } 
+            private set
+            {
+                if (m_IsClient != value)
+                {
+                    m_IsClient = value;
+                    CacheBehaviours();
+                    foreach (NetworkBehaviour networkBehaviour in m_NetworkBehaviours)
+                    {
+                        networkBehaviour.OnSetClient(value);
+                    }
+                }
+            }
+        }
+
+        public bool isServer        
+        {
+            // dont return true if server stopped.
+            get
+            { 
+                return m_IsServer && NetworkServer.active; 
+            } 
+            private set 
+            {
+                if (m_IsServer != value)
+                {
+                    m_IsServer = value;
+                    CacheBehaviours();
+                    foreach (NetworkBehaviour networkBehaviour in m_NetworkBehaviours)
+                    {
+                        networkBehaviour.OnSetServer(value);
+                    }
+                }
+            }
+        } 
+
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
         public NetworkInstanceId netId { get { return m_NetId; } }
@@ -153,7 +192,7 @@ namespace Mirror
             m_NetId = newNetId;
             if (newNetId.Value == 0)
             {
-                m_IsServer = false;
+                isServer = false;
             }
         }
 
@@ -166,8 +205,8 @@ namespace Mirror
         // only used in SetLocalObject
         internal void UpdateClientServer(bool isClientFlag, bool isServerFlag)
         {
-            m_IsClient |= isClientFlag;
-            m_IsServer |= isServerFlag;
+            isClient |= isClientFlag;
+            isServer |= isServerFlag;
         }
 
         // used when the player object for a connection changes
@@ -267,7 +306,7 @@ namespace Mirror
             {
                 return;
             }
-            m_IsServer = true;
+            isServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
             m_Observers = new List<NetworkConnection>();
@@ -319,7 +358,7 @@ namespace Mirror
 
         internal void OnStartClient()
         {
-            m_IsClient = true;
+            isClient = true;
             CacheBehaviours();
 
             if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
@@ -610,43 +649,6 @@ namespace Mirror
             invokeFunction(invokeComponent, reader);
         }
 
-        // happens on client
-        internal void HandleSyncList(int cmdHash, NetworkReader reader)
-        {
-            // this doesn't use NetworkBehaviour.InvokSyncList function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
-            if (gameObject == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
-                return;
-            }
-
-            // find the matching SyncList function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncList(cmdHash, out invokeClass, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
-                return;
-            }
-
-            // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
-                return;
-            }
-
-            invokeFunction(invokeComponent, reader);
-        }
-
         // happens on server
         internal void HandleCommand(int cmdHash, NetworkReader reader)
         {
@@ -789,7 +791,7 @@ namespace Mirror
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
                 comp.OnNetworkDestroy();
             }
-            m_IsServer = false;
+            isServer = false;
         }
 
         internal void ClearObservers()
@@ -1035,8 +1037,8 @@ namespace Mirror
                 return;
 
             m_Reset = false;
-            m_IsServer = false;
-            m_IsClient = false;
+            isServer = false;
+            isClient = false;
             m_HasAuthority = false;
 
             m_NetId = NetworkInstanceId.Zero;
