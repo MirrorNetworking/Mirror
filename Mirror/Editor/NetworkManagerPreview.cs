@@ -30,10 +30,7 @@ namespace Mirror
 
         public override GUIContent GetPreviewTitle()
         {
-            if (m_Title == null)
-            {
-                m_Title = new GUIContent("NetworkManager Message Handlers");
-            }
+            m_Title = m_Title ?? new GUIContent("NetworkManager Message Handlers");
             return m_Title;
         }
 
