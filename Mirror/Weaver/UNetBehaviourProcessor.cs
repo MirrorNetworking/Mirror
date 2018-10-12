@@ -593,7 +593,6 @@ namespace Mirror.Weaver
 
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
-
             }
 
 
