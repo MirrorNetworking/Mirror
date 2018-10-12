@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public class ClientScene
+    public static class ClientScene
     {
         static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;

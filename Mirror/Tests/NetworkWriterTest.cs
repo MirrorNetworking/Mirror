@@ -125,12 +125,12 @@ namespace Mirror.Tests
             writer.Write(true);
             writer.Write((short)4);
             writer.Write((ushort)5);
-            writer.Write((int)6);
-            writer.Write((uint)7);
+            writer.Write(6);
+            writer.Write(7U);
             writer.Write(8L);
-            writer.Write((ulong)9L);
-            writer.Write((float)10);
-            writer.Write((double)11);
+            writer.Write(9UL);
+            writer.Write(10.0F);
+            writer.Write(11.0D);
             writer.Write((decimal)12);
             writer.Write((string)null);
             writer.Write("");
@@ -140,9 +140,6 @@ namespace Mirror.Tests
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2); // buffer, no-offset, count
             writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2); // buffer, offset, count
             writer.WriteBytesAndSize(new byte[] { 22, 23 }, 0, 2); // size, buffer
-
-            byte[] data = writer.ToArray();
-
 
             // read them
             NetworkReader reader = new NetworkReader(writer.ToArray());

@@ -224,11 +224,6 @@ namespace Mirror
                         m_TargetSyncRotation3D = rot;
                     }
                 }
-                else
-                {
-                    // rejected by callback
-                    return;
-                }
             }
             else
             {

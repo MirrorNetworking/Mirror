@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     [Serializable]
-    public struct NetworkInstanceId
+    public struct NetworkInstanceId : IEquatable<NetworkInstanceId>
     {
         public NetworkInstanceId(uint value)
         {
@@ -42,6 +42,11 @@ namespace Mirror
         public override string ToString()
         {
             return m_Value.ToString();
+        }
+
+        public bool Equals(NetworkInstanceId other)
+        {
+            return this.m_Value == other.m_Value;
         }
 
         public uint Value { get { return m_Value; } }

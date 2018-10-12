@@ -30,10 +30,7 @@ namespace Mirror
 
         public override GUIContent GetPreviewTitle()
         {
-            if (m_Title == null)
-            {
-                m_Title = new GUIContent("NetworkManager Message Handlers");
-            }
+            m_Title = m_Title ?? new GUIContent("NetworkManager Message Handlers");
             return m_Title;
         }
 
@@ -53,7 +50,7 @@ namespace Mirror
             int posY = (int)(r.yMin + k_Padding);
 
             posY = ShowServerMessageHandlers(r, posY);
-            posY = ShowClientMessageHandlers(r, posY);
+            ShowClientMessageHandlers(r, posY);
         }
 
         static string FormatHandler(KeyValuePair<short, NetworkMessageDelegate> handler)

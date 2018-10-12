@@ -40,14 +40,10 @@ namespace Mirror
         {
             get
             {
+                m_MyView = m_MyView ?? GetComponent<NetworkIdentity>();
                 if (m_MyView == null)
                 {
-                    m_MyView = GetComponent<NetworkIdentity>();
-                    if (m_MyView == null)
-                    {
-                        if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
-                    }
-                    return m_MyView;
+                    if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
                 }
                 return m_MyView;
             }
@@ -296,15 +292,6 @@ namespace Mirror
             invokeClass = invoker.invokeClass;
             invokeFunction = invoker.invokeFunction;
             return true;
-        }
-
-        internal static void DumpInvokers()
-        {
-            Debug.Log("DumpInvokers size:" + s_CmdHandlerDelegates.Count);
-            foreach (var inv in s_CmdHandlerDelegates)
-            {
-                Debug.Log("  Invoker:" + inv.Value.invokeClass + ":" + inv.Value.invokeFunction.GetMethodName() + " " + inv.Value.invokeType + " " + inv.Key);
-            }
         }
 
         internal bool ContainsCommandDelegate(int cmdHash)
@@ -610,6 +597,8 @@ namespace Mirror
         {
         }
 
+        // return true when overwriting so that Mirror knows that we wanted to
+        // rebuild observers ourselves. otherwise it uses built in rebuild.
         public virtual bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             return false;
