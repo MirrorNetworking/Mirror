@@ -1041,7 +1041,7 @@ namespace Mirror
             if (m_InterpolateMovement != 0)
             {
                 Vector2 oldVelocity = m_RigidBody2D.velocity;
-                Vector2 newVelocity = (((Vector2)m_TargetSyncPosition - m_RigidBody2D.position)) * m_InterpolateMovement / GetNetworkSendInterval();
+                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / GetNetworkSendInterval();
                 if (!m_Grounded && newVelocity.y < 0)
                 {
                     newVelocity.y = oldVelocity.y;
