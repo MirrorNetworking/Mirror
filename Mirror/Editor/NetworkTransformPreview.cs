@@ -67,7 +67,6 @@ namespace Mirror
             }
 
             GUI.Label(new Rect(r.xMin + padding, r.y + posY, 200, 20), "Last SyncTime: " + (Time.time - m_Transform.lastSyncTime));
-            posY += 20;
         }
 
         void GetNetworkInformation(GameObject gameObject)
