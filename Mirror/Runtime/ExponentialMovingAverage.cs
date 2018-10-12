@@ -7,10 +7,10 @@ namespace Mirror
     public class ExponentialMovingAverage
     {
         float alpha;
-        bool initialized = false;
+        bool initialized;
 
-        double _value = 0;
-        double _var = 0;
+        double _value;
+        double _var;
 
         public ExponentialMovingAverage(int n)
         {

@@ -240,39 +240,31 @@ namespace Mirror
 
         void VerifySerializeComponentExists()
         {
-            bool throwError = false;
-            Type componentMissing = null;
-
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncCharacterController:
-                    if (!m_CharacterController && !(m_CharacterController = GetComponent<CharacterController>()))
+                    m_CharacterController = m_CharacterController ?? GetComponent<CharacterController>();
+                    if (!m_CharacterController)
                     {
-                        throwError = true;
-                        componentMissing = typeof(CharacterController);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no CharacterController component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode)); 
                     }
                     break;
 
                 case TransformSyncMode.SyncRigidbody2D:
-                    if (!m_RigidBody2D && !(m_RigidBody2D = GetComponent<Rigidbody2D>()))
+                    m_RigidBody2D = m_RigidBody2D ?? GetComponent<Rigidbody2D>();
+                    if (!m_RigidBody2D)
                     {
-                        throwError = true;
-                        componentMissing = typeof(Rigidbody2D);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no Rigidbody2D component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode));
                     }
                     break;
 
                 case TransformSyncMode.SyncRigidbody3D:
-                    if (!m_RigidBody3D && !(m_RigidBody3D = GetComponent<Rigidbody>()))
+                    m_RigidBody3D = m_RigidBody3D ?? GetComponent<Rigidbody>();
+                    if (!m_RigidBody3D)
                     {
-                        throwError = true;
-                        componentMissing = typeof(Rigidbody);
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no Rigidbody component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode));
                     }
                     break;
-            }
-
-            if (throwError && componentMissing != null)
-            {
-                throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no {1} component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode, componentMissing.Name));
             }
         }
 
@@ -481,11 +473,6 @@ namespace Mirror
                     {
                         transform.rotation = rot;
                     }
-                }
-                else
-                {
-                    // rejected by callback
-                    return;
                 }
             }
             else
@@ -933,24 +920,16 @@ namespace Mirror
                     {
                         return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
                     }
-                    else
-                    {
-                        return false;
-                    }
+                    break;
 
                 case TransformSyncMode.SyncRigidbody3D:
                     if (m_RigidBody3D && m_VelocityThreshold > 0)
                     {
                         return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
                     }
-                    else
-                    {
-                        return false;
-                    }
-
-                default:
-                    return false;
+                    break;
             }
+            return false;
         }
 
         void FixedUpdateClient()
@@ -1062,7 +1041,7 @@ namespace Mirror
             if (m_InterpolateMovement != 0)
             {
                 Vector2 oldVelocity = m_RigidBody2D.velocity;
-                Vector2 newVelocity = (((Vector2)m_TargetSyncPosition - m_RigidBody2D.position)) * m_InterpolateMovement / GetNetworkSendInterval();
+                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / GetNetworkSendInterval();
                 if (!m_Grounded && newVelocity.y < 0)
                 {
                     newVelocity.y = oldVelocity.y;
@@ -1072,12 +1051,6 @@ namespace Mirror
 
             if (interpolateRotation != 0)
             {
-                float orientation = m_RigidBody2D.rotation % 360;
-                if (orientation < 0)
-                {
-                    orientation += 360;
-                }
-
                 Quaternion newRotation = Quaternion.Slerp(
                         transform.rotation,
                         Quaternion.Euler(0, 0, m_TargetSyncRotation2D),

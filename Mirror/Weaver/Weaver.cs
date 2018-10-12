@@ -1313,9 +1313,6 @@ namespace Mirror.Weaver
             NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
             NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
 
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
-
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
             NetworkClientGetActive = ResolveMethod(NetworkClientType, "get_active");
