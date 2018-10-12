@@ -9,7 +9,7 @@ namespace Mirror
     public class LLAPITransport : TransportLayer
     {
         ConnectionConfig connectionConfig;
-        int channelId = 0; // always use first channel
+        readonly int channelId = 0; // always use first channel
         byte error;
 
         int clientId = -1;
