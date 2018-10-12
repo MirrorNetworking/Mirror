@@ -28,7 +28,6 @@ namespace Mirror.Weaver
 
         const int k_SyncVarLimit = 64; // ulong = 64 bytes
         readonly TypeDefinition m_td;
-        int m_NetIdFieldCounter;
 
         const string k_CmdPrefix = "InvokeCmd";
         const string k_RpcPrefix = "InvokeRpc";
@@ -702,7 +701,7 @@ namespace Mirror.Weaver
 
         void GeneratePreStartClient()
         {
-            m_NetIdFieldCounter  = 0;
+            int netIdFieldCounter  = 0;
             MethodDefinition preStartMethod = null;
             ILProcessor serWorker = null;
 
@@ -726,8 +725,8 @@ namespace Mirror.Weaver
                         serWorker = preStartMethod.Body.GetILProcessor();
                     }
 
-                    FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                    m_NetIdFieldCounter += 1;
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
 
                     // Generates: if (!_crateNetId.IsEmpty()) { crate = ClientScene.FindLocalObject(_crateNetId); }
                     Instruction nullLabel = serWorker.Create(OpCodes.Nop);
@@ -758,7 +757,7 @@ namespace Mirror.Weaver
         void GenerateDeSerialization()
         {
             Weaver.DLog(m_td, "  GenerateDeSerialization");
-            m_NetIdFieldCounter  = 0;
+            int netIdFieldCounter  = 0;
 
             foreach (var m in m_td.Methods)
             {
@@ -820,8 +819,8 @@ namespace Mirror.Weaver
                     if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                     {
                         // GameObject SyncVar - assign to generated netId var
-                        FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                        m_NetIdFieldCounter += 1;
+                        FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                        netIdFieldCounter += 1;
 
                         serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadNetworkInstanceId));
                         serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
