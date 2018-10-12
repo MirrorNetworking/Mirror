@@ -8,27 +8,26 @@ namespace Mirror.Weaver
 {
     class NetworkBehaviourProcessor
     {
-        List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
-        List<FieldDefinition> m_SyncLists = new List<FieldDefinition>();
-        List<FieldDefinition> m_SyncVarNetIds = new List<FieldDefinition>();
-        List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
-        List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
-        List<EventDefinition> m_Events = new List<EventDefinition>();
-        List<FieldDefinition> m_SyncListStaticFields = new List<FieldDefinition>();
-        List<MethodDefinition> m_CmdInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_SyncListInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_RpcInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_EventInvocationFuncs = new List<MethodDefinition>();
+        readonly List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
+        readonly List<FieldDefinition> m_SyncLists = new List<FieldDefinition>();
+        readonly List<FieldDefinition> m_SyncVarNetIds = new List<FieldDefinition>();
+        readonly List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
+        readonly List<EventDefinition> m_Events = new List<EventDefinition>();
+        readonly List<FieldDefinition> m_SyncListStaticFields = new List<FieldDefinition>();
+        readonly List<MethodDefinition> m_CmdInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_SyncListInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_RpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_EventInvocationFuncs = new List<MethodDefinition>();
 
-        List<MethodDefinition> m_CmdCallFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_CmdCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
 
         const int k_SyncVarLimit = 64; // ulong = 64 bytes
-
-        TypeDefinition m_td;
+        readonly TypeDefinition m_td;
         int m_NetIdFieldCounter;
 
         const string k_CmdPrefix = "InvokeCmd";
