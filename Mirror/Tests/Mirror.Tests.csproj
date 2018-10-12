@@ -48,6 +48,8 @@
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NetworkWriterTest.cs" />
