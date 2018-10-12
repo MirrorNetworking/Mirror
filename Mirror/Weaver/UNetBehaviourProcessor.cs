@@ -2140,5 +2140,5 @@ namespace Mirror.Weaver
             }
             return false;
         }
-    };
+    }
 }
