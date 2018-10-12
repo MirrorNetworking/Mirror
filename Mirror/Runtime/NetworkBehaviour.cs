@@ -180,7 +180,7 @@ namespace Mirror
             {
                 return invokeType + ":" + invokeClass + ":" + invokeFunction.GetMethodName();
             }
-        };
+        }
 
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
 

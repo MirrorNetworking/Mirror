@@ -322,5 +322,5 @@ namespace Mirror
             msg.Deserialize(this);
             return msg;
         }
-    };
+    }
 }

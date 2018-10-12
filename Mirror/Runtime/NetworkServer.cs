@@ -1292,5 +1292,5 @@ namespace Mirror
             }
             return true;
         }
-    };
+    }
 }

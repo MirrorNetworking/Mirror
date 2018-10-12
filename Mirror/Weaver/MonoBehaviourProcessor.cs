@@ -91,5 +91,5 @@ namespace Mirror.Weaver
                 }
             }
         }
-    };
+    }
 }

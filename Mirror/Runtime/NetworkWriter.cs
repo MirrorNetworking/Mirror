@@ -387,5 +387,5 @@ namespace Mirror
         {
             msg.Serialize(this);
         }
-    };
+    }
 }

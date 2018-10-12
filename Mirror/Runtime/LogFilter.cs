@@ -14,7 +14,7 @@ namespace Mirror
             Warn = 3,
             Error = 4,
             SetInScripting = -1
-        };
+        }
 
         public static FilterLevel currentLogLevel = FilterLevel.Info;
 

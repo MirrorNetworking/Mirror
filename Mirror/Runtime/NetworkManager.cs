@@ -10,7 +10,7 @@ namespace Mirror
     {
         Random,
         RoundRobin
-    };
+    }
 
     [AddComponentMenu("Network/NetworkManager")]
     public class NetworkManager : MonoBehaviour

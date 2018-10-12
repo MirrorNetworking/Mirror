@@ -220,7 +220,7 @@ namespace Mirror
             OP_REMOVEAT,
             OP_SET,
             OP_DIRTY
-        };
+        }
 
         NetworkBehaviour m_Behaviour;
         int m_CmdHash;

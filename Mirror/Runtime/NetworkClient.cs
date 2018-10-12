@@ -365,5 +365,5 @@ namespace Mirror
         {
             s_IsActive = state;
         }
-    };
+    }
 }

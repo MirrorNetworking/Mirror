@@ -12,7 +12,7 @@ namespace Mirror
         {
             Physics3D,
             Physics2D
-        };
+        }
 
         [TooltipAttribute("The maximum range that objects will be visible at.")]
         public int visRange = 10;

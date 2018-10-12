@@ -1065,5 +1065,5 @@ namespace Mirror
             NetworkClient.UpdateClients();
             NetworkManager.UpdateScene();
         }
-    };
+    }
 }
