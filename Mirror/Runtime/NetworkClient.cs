@@ -32,7 +32,7 @@ namespace Mirror
         int m_ServerPort;
         int m_ClientId = -1;
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
+        readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         protected enum ConnectState
