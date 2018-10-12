@@ -39,7 +39,7 @@ namespace Mirror
 
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
-        bool                        m_Reset = false;
+        bool                        m_Reset;
         // properties
         public bool isClient        { get { return m_IsClient; } }
         public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
