@@ -33,18 +33,18 @@ namespace Mirror.Tests
         private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
-            fromList.OnSerializeAll(writer);
+            fromList.OnSerialize(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            toList.OnDeserializeAll(reader);
+            toList.OnDeserialize(reader);
         }
 
         private void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
-            fromList.OnSerializeDelta(writer);
+            fromList.OnSerialize(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            toList.OnDeserializeDelta(reader);
-            fromList.Flush();
+            toList.OnDeserialize(reader);
+            fromList.IsDirty = false;
         }
 
         [SetUp]
@@ -191,7 +191,8 @@ namespace Mirror.Tests
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
-            callbackMock.Received().Invoke(SyncList<string>.Operation.OP_ADD, 0);
+            // make sure the callback was called
+            callbackMock.Received().Invoke(Arg.Any<SyncListString.Operation>(), Arg.Any<int>());
         }
 
         [Test]

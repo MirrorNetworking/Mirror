@@ -123,20 +123,6 @@ namespace Mirror
             OP_DIRTY
         };
 
-        struct Change
-        {
-            internal Operation operation;
-            internal int index;
-            internal T item;
-        }
-
-        readonly List<Change> Changes = new List<Change>();
-        // how many changes we need to ignore
-        // this is needed because when we initialize the list,  
-        // we might later receive changes that have already been applied
-        // so we need to skip them
-        int changesAhead = 0;
-
         INetworkBehaviour m_Behaviour;
         SyncListChanged m_Callback;
 
@@ -149,20 +135,7 @@ namespace Mirror
             m_Behaviour = beh;
         }
 
-        public bool IsDirty 
-        {
-            get 
-            {
-                return Changes.Count > 0;
-            }
-        }
-
-        // throw away all the changes
-        // this should be called after a successfull sync
-        public void Flush()
-        {
-            Changes.Clear();
-        }
+        public bool IsDirty { get; set; }
 
         void AddOperation(Operation op, int itemIndex, T item)
         {
@@ -172,19 +145,7 @@ namespace Mirror
                 return;
             }
 
-            Change change = new Change
-            {
-                operation = op,
-                index = itemIndex,
-                item = item
-            };
-
-            if (m_Behaviour.isServer)
-            {
-                // no need to track changes if this is not a server object
-                Changes.Add(change);
-            }
-
+            IsDirty = true;
             // ensure it is invoked on host
             if (m_Behaviour.isServer && m_Behaviour.isClient && m_Callback != null)
             {
@@ -197,7 +158,7 @@ namespace Mirror
             AddOperation(op, itemIndex, default(T));
         }
 
-        public void OnSerializeAll(NetworkWriter writer)
+        public void OnSerialize(NetworkWriter writer)
         {
             // if init,  write the full list content
             writer.Write(m_Objects.Count);
@@ -207,152 +168,22 @@ namespace Mirror
                 T obj = m_Objects[i];
                 SerializeItem(writer, obj);
             }
-
-            // all changes have been applied already
-            // thus the client will need to skip all the pending changes
-            // or they would be applied again.
-            // So we write how many changes are pending
-            writer.Write(Changes.Count);
         }
 
-        public void OnSerializeDelta(NetworkWriter writer)
-        {
-            // write all the queued up changes
-            writer.Write(Changes.Count);
-
-            for (int i = 0; i < Changes.Count; i++)
-            {
-                Change change = Changes[i];
-                writer.Write((byte)change.operation);
-
-                switch (change.operation)
-                {
-                    case Operation.OP_ADD:
-                        SerializeItem(writer, change.item);
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        break;
-
-                    case Operation.OP_INSERT:
-                        writer.Write(change.index);
-                        SerializeItem(writer, change.item);
-                        break;
-
-                    case Operation.OP_REMOVE:
-                        SerializeItem(writer, change.item);
-                        break;
-
-                    case Operation.OP_REMOVEAT:
-                        writer.Write(change.index);
-                        break;
-
-                    case Operation.OP_SET:
-                    case Operation.OP_DIRTY:
-                        writer.Write(change.index);
-                        SerializeItem(writer, change.item);
-                        break;
-                }
-            }
-
-        }
-
-        public void OnDeserializeAll(NetworkReader reader)
+        public void OnDeserialize(NetworkReader reader)
         {
             // if init,  write the full list content
             int count = reader.ReadInt32();
 
             m_Objects.Clear();
-            Changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
                 T obj = DeserializeItem(reader);
                 m_Objects.Add(obj);
-            }
-
-            // We will need to skip all these changes
-            // the next time the list is synchronized
-            // because they have already been applied
-            changesAhead = reader.ReadInt32();
-        }
-
-        public void OnDeserializeDelta(NetworkReader reader)
-        {
-            int changesCount = reader.ReadInt32();
-
-            for (int i = 0; i < changesCount; i++)
-            {
-                Operation operation = (Operation)reader.ReadByte();
-
-                // apply the operation only if it is a new change
-                // that we have not applied yet
-                bool apply = changesAhead == 0;
-                int index = 0;
-                T item;
-
-                switch (operation)
+                if (m_Callback != null)
                 {
-                    case Operation.OP_ADD:
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            m_Objects.Add(item);
-                        }
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            m_Objects.Clear();
-                        }
-                        break;
-
-                    case Operation.OP_INSERT:
-                        index = reader.ReadInt32();
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            m_Objects.Insert(index, item);
-                        }
-                        break;
-
-                    case Operation.OP_REMOVE:
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            m_Objects.Remove(item);
-                        }
-                        break;
-
-                    case Operation.OP_REMOVEAT:
-                        index = reader.ReadInt32();
-                        if (apply)
-                        {
-                            m_Objects.RemoveAt(index);
-                        }
-                        break;
-
-                    case Operation.OP_SET:
-                    case Operation.OP_DIRTY:
-                        index = reader.ReadInt32();
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            m_Objects[index] = item;
-                        }
-                        break;
-                }
-
-                if (m_Callback != null && apply)
-                {
-                    m_Callback.Invoke(operation, index);
-                }
-
-                // we just skipped this change
-                if (!apply)
-                {
-                    changesAhead--;
+                    m_Callback.Invoke(Operation.OP_SET, i);
                 }
             }
         }

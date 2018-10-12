@@ -9,22 +9,12 @@
         void InitializeBehaviour(INetworkBehaviour beh);
 
         // true if there are changes since the last flush
-        bool IsDirty {get;}
-
-        // Discard all the queued changes	 
-        // Consider the object fully synchronized with clients
-        void Flush();
+        bool IsDirty { get; set; }
 
         // Write a full copy of the object
-        void OnSerializeAll(NetworkWriter writer);
-
-        // Write the changes made to the object
-        void OnSerializeDelta(NetworkWriter writer);
+        void OnSerialize(NetworkWriter writer);
 
         // deserialize all the data in the object
-        void OnDeserializeAll(NetworkReader reader);
-
-        // deserialize changes since last sync
-        void OnDeserializeDelta(NetworkReader reader);
+        void OnDeserialize(NetworkReader reader);
     }
 }
