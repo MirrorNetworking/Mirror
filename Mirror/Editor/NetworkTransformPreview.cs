@@ -22,10 +22,7 @@ namespace Mirror
 
         public override GUIContent GetPreviewTitle()
         {
-            if (m_Title == null)
-            {
-                m_Title = new GUIContent("Network Transform");
-            }
+            m_Title = m_Title ?? new GUIContent("Network Transform");
             return m_Title;
         }
 
