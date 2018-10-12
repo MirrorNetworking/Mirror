@@ -10,7 +10,7 @@ namespace Mirror
     {
         private static GUIContent[] axisOptions = {new GUIContent("None"), new GUIContent("X"), new GUIContent("Y (Top-Down 2D)"), new GUIContent("Z (Side-on 2D)"), new GUIContent("XY (FPS)"), new GUIContent("XZ"), new GUIContent("YZ"), new GUIContent("XYZ (full 3D)")};
 
-        bool m_Initialized = false;
+        bool m_Initialized;
         NetworkTransformChild sync;
 
         SerializedProperty m_Target;
