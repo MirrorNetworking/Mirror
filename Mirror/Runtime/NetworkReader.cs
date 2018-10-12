@@ -6,7 +6,7 @@ namespace Mirror
 {
     public class NetworkReader
     {
-        BinaryReader reader;
+        readonly BinaryReader reader;
 
         public NetworkReader(byte[] buffer)
         {
