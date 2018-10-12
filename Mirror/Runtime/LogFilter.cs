@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public class LogFilter
+    public static class LogFilter
     {
         // this only exists for inspector UI?!
         public enum FilterLevel
