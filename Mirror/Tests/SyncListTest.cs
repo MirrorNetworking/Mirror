@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System;
-using NSubstitute;
 using System.Linq;
 
 namespace Mirror.Tests
@@ -10,25 +9,6 @@ namespace Mirror.Tests
     {
         SyncListString serverSyncList;
         SyncListString clientSyncList;
-
-        private T InitServerList<T>() where T : SyncObject, new() {
-            T list = new T();
-            INetworkBehaviour serverBehavior = Substitute.For<INetworkBehaviour>();
-            serverBehavior.isServer.Returns(true);
-            serverBehavior.isClient.Returns(false);
-            list.InitializeBehaviour(serverBehavior);
-            return list;
-        }
-
-        private T InitClientList<T>() where T : SyncObject, new()
-        {
-            T list = new T();
-            INetworkBehaviour clientBehavior = Substitute.For<INetworkBehaviour>();
-            clientBehavior.isServer.Returns(false);
-            clientBehavior.isClient.Returns(true);
-            list.InitializeBehaviour(clientBehavior);
-            return list;
-        }
 
         private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
         {
@@ -50,8 +30,8 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            serverSyncList = InitServerList<SyncListString>();
-            clientSyncList = InitClientList<SyncListString>();
+            serverSyncList = new SyncListString();
+            clientSyncList = new SyncListString();
 
             // add some data to the list
             serverSyncList.Add("Hello");
@@ -129,8 +109,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListIntTest()
         {
-            var serverList = InitServerList<SyncListInt>();
-            var clientList = InitClientList<SyncListInt>();
+            var serverList = new SyncListInt();
+            var clientList = new SyncListInt();
 
             serverList.Add(1);
             serverList.Add(2);
@@ -143,8 +123,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListBoolTest()
         {
-            var serverList = InitServerList<SyncListBool>();
-            var clientList = InitClientList<SyncListBool>();
+            var serverList = new SyncListBool();
+            var clientList = new SyncListBool();
 
             serverList.Add(true);
             serverList.Add(false);
@@ -157,8 +137,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListUintTest()
         {
-            var serverList = InitServerList<SyncListUInt>();
-            var clientList = InitClientList<SyncListUInt>();
+            var serverList = new SyncListUInt();
+            var clientList = new SyncListUInt();
 
             serverList.Add(1U);
             serverList.Add(2U);
@@ -171,8 +151,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListFloatTest()
         {
-            var serverList = InitServerList<SyncListFloat>();
-            var clientList = InitClientList<SyncListFloat>();
+            var serverList = new SyncListFloat();
+            var clientList = new SyncListFloat();
 
             serverList.Add(1.0F);
             serverList.Add(2.0F);
@@ -185,13 +165,13 @@ namespace Mirror.Tests
         [Test]
         public void CallbackTest()
         {
-            var callbackMock = Substitute.For<SyncListString.SyncListChanged>();
-            clientSyncList.Callback = callbackMock;
+            bool called = false;
+            clientSyncList.Callback = (op, index) => { called = true; };
 
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
-            callbackMock.Received().Invoke(SyncList<string>.Operation.OP_ADD, 0);
+            Assert.That(called, Is.True);
         }
 
         [Test]
@@ -209,8 +189,8 @@ namespace Mirror.Tests
         [Test]
         public void DirtyTest()
         {
-            var serverList = InitServerList<SyncListInt>();
-            var clientList = InitClientList<SyncListInt>();
+            var serverList = new SyncListInt();
+            var clientList = new SyncListInt();
 
             // nothing to send
             Assert.That(serverList.IsDirty, Is.False);

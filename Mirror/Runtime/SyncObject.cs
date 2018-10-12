@@ -4,10 +4,6 @@
     // between server and client,  such as a SyncList
     public interface SyncObject
     {
-
-        // initialize the syncobject with the behavior and its id
-        void InitializeBehaviour(INetworkBehaviour beh);
-
         // true if there are changes since the last flush
         bool IsDirty {get;}
 
