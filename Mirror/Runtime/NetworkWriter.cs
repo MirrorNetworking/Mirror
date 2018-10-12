@@ -8,7 +8,7 @@ namespace Mirror
     public class NetworkWriter
     {
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        BinaryWriter writer = new BinaryWriter(new MemoryStream());
+        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here

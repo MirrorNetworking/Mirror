@@ -8,16 +8,16 @@ namespace Mirror
 {
     public class LLAPITransport : TransportLayer
     {
-        ConnectionConfig connectionConfig;
-        int channelId = 0; // always use first channel
+        readonly ConnectionConfig connectionConfig;
+        readonly int channelId = 0; // always use first channel
         byte error;
 
         int clientId = -1;
         int clientConnectionId = -1;
-        byte[] clientReceiveBuffer = new byte[4096];
+        readonly byte[] clientReceiveBuffer = new byte[4096];
 
         int serverHostId = -1;
-        byte[] serverReceiveBuffer = new byte[4096];
+        readonly byte[] serverReceiveBuffer = new byte[4096];
 
         public LLAPITransport(GlobalConfig globalConfig = null, ConnectionConfig connectionConfig = null)
         {

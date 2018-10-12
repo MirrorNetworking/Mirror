@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     [Serializable]
-    public struct NetworkSceneId
+    public struct NetworkSceneId : IEquatable<NetworkSceneId>
     {
         public NetworkSceneId(uint value)
         {
@@ -27,6 +27,11 @@ namespace Mirror
         public override bool Equals(object obj)
         {
             return obj is NetworkSceneId && this == (NetworkSceneId)obj;
+        }
+
+        public bool Equals(NetworkSceneId other)
+        {
+            return this.m_Value == other.m_Value;
         }
 
         public static bool operator==(NetworkSceneId c1, NetworkSceneId c2)

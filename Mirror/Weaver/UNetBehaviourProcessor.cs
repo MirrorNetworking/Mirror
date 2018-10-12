@@ -8,26 +8,24 @@ namespace Mirror.Weaver
 {
     class NetworkBehaviourProcessor
     {
-        List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
-        List<FieldDefinition> m_SyncObjects = new List<FieldDefinition>();
-        List<FieldDefinition> m_SyncVarNetIds = new List<FieldDefinition>();
-        List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
-        List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
-        List<EventDefinition> m_Events = new List<EventDefinition>();
-        List<MethodDefinition> m_CmdInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_RpcInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcInvocationFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_EventInvocationFuncs = new List<MethodDefinition>();
+        readonly List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
+        readonly List<FieldDefinition> m_SyncObjects = new List<FieldDefinition>();
+        readonly List<FieldDefinition> m_SyncVarNetIds = new List<FieldDefinition>();
+        readonly List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
+        readonly List<EventDefinition> m_Events = new List<EventDefinition>();
+        readonly List<MethodDefinition> m_CmdInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_RpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_EventInvocationFuncs = new List<MethodDefinition>();
 
-        List<MethodDefinition> m_CmdCallFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
-        List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_CmdCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
 
         const int k_SyncVarLimit = 64; // ulong = 64 bytes
-
-        TypeDefinition m_td;
-        int m_NetIdFieldCounter;
+        readonly TypeDefinition m_td;
 
         const string k_CmdPrefix = "InvokeCmd";
         const string k_RpcPrefix = "InvokeRpc";
@@ -599,7 +597,7 @@ namespace Mirror.Weaver
 
         void GeneratePreStartClient()
         {
-            m_NetIdFieldCounter  = 0;
+            int netIdFieldCounter  = 0;
             MethodDefinition preStartMethod = null;
             ILProcessor serWorker = null;
 
@@ -623,8 +621,8 @@ namespace Mirror.Weaver
                         serWorker = preStartMethod.Body.GetILProcessor();
                     }
 
-                    FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                    m_NetIdFieldCounter += 1;
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
 
                     // Generates: if (!_crateNetId.IsEmpty()) { crate = ClientScene.FindLocalObject(_crateNetId); }
                     Instruction nullLabel = serWorker.Create(OpCodes.Nop);
@@ -655,7 +653,7 @@ namespace Mirror.Weaver
         void GenerateDeSerialization()
         {
             Weaver.DLog(m_td, "  GenerateDeSerialization");
-            m_NetIdFieldCounter  = 0;
+            int netIdFieldCounter  = 0;
 
             foreach (var m in m_td.Methods)
             {
@@ -703,8 +701,8 @@ namespace Mirror.Weaver
                 if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                 {
                     // GameObject SyncVar - assign to generated netId var
-                    FieldDefinition netIdField = m_SyncVarNetIds[m_NetIdFieldCounter];
-                    m_NetIdFieldCounter += 1;
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
 
                     serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadNetworkInstanceId));
                     serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
@@ -714,6 +712,7 @@ namespace Mirror.Weaver
                     MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
                     if (readFunc != null)
                     {
+
                         serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
                     }
                     else

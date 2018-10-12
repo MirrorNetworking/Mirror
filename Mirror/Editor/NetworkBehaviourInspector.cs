@@ -13,7 +13,6 @@ namespace Mirror
     {
         bool m_Initialized;
         protected List<string> m_SyncVarNames = new List<string>();
-        Type m_ScriptClass;
         bool m_HasOnSerialize;
         bool[] m_ShowSyncLists;
 
@@ -28,12 +27,12 @@ namespace Mirror
         void Init(MonoScript script)
         {
             m_Initialized = true;
-            m_ScriptClass = script.GetClass();
+            Type scriptClass = script.GetClass();
 
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
             m_NetworkSendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds. Use the [NetworkSettings] class attribute to change this, or implement GetNetworkSendInterval");
 
-            foreach (var field in m_ScriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
                 Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
                 if (fieldMarkers.Length > 0)

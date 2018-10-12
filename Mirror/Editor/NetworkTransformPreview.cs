@@ -22,10 +22,7 @@ namespace Mirror
 
         public override GUIContent GetPreviewTitle()
         {
-            if (m_Title == null)
-            {
-                m_Title = new GUIContent("Network Transform");
-            }
+            m_Title = m_Title ?? new GUIContent("Network Transform");
             return m_Title;
         }
 
@@ -70,7 +67,6 @@ namespace Mirror
             }
 
             GUI.Label(new Rect(r.xMin + padding, r.y + posY, 200, 20), "Last SyncTime: " + (Time.time - m_Transform.lastSyncTime));
-            posY += 20;
         }
 
         void GetNetworkInformation(GameObject gameObject)

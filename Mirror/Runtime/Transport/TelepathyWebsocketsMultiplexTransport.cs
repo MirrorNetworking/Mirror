@@ -52,7 +52,7 @@ namespace Mirror
         // server
         public bool ServerActive()
         {
-            return server != null ? server.ServerActive() : false;
+            return server != null && server.ServerActive();
         }
 
         public void ServerStart(string address, int port, int maxConnections)
@@ -83,7 +83,7 @@ namespace Mirror
 
         public bool ServerSend(int connectionId, byte[] data)
         {
-            return server != null ? server.ServerSend(connectionId, data) : false;
+            return server != null && server.ServerSend(connectionId, data);
         }
 
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
@@ -91,18 +91,18 @@ namespace Mirror
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
             data = null;
-            return server != null ? server.ServerGetNextMessage(out connectionId, out transportEvent, out data) : false;
+            return server != null && server.ServerGetNextMessage(out connectionId, out transportEvent, out data);
         }
 
         public bool ServerDisconnect(int connectionId)
         {
-            return server != null ? server.ServerDisconnect(connectionId) : false;
+            return server != null && server.ServerDisconnect(connectionId);
         }
 
         public bool GetConnectionInfo(int connectionId, out string address)
         {
             address = null;
-            return server != null ? server.GetConnectionInfo(connectionId, out address) : false;
+            return server != null && server.GetConnectionInfo(connectionId, out address);
         }
 
         public void ServerStop()
