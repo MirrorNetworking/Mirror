@@ -129,9 +129,9 @@ namespace Mirror.Weaver
                     return false;
                 }
                 // use built-in writer func on writer object
-                worker.Append(worker.Create(OpCodes.Ldloc_0));            // writer object
-                worker.Append(worker.Create(OpCodes.Ldarg, argNum));      // argument
-                worker.Append(worker.Create(OpCodes.Call, writeFunc));// call writer func on writer object
+                worker.Append(worker.Create(OpCodes.Ldloc_0));         // writer object
+                worker.Append(worker.Create(OpCodes.Ldarg, argNum));   // argument
+                worker.Append(worker.Create(OpCodes.Call, writeFunc)); // call writer func on writer object
                 argNum += 1;
             }
             return true;
@@ -384,7 +384,6 @@ namespace Mirror.Weaver
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-
             serialize.Body.InitLocals = true;
 
             // loc_0,  this local variable is to determine if any variable was dirty
@@ -403,7 +402,6 @@ namespace Mirror.Weaver
 
             if (m_SyncVars.Count == 0)
             {
-
                 // generate: return dirtyLocal
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -489,9 +487,7 @@ namespace Mirror.Weaver
 
                 serWorker.Append(varLabel);
                 dirtyBit += 1;
-
             }
-
 
             if (Weaver.generateLogErrors)
             {
@@ -1051,7 +1047,7 @@ namespace Mirror.Weaver
             }
         }
         */
-        MethodDefinition ProcessTargetRpcCall(MethodDefinition md, CustomAttribute ca)
+        MethodDefinition ProcessTargetRpcCall(MethodDefinition md)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -1126,7 +1122,7 @@ namespace Mirror.Weaver
             }
         }
         */
-        MethodDefinition ProcessRpcCall(MethodDefinition md, CustomAttribute ca)
+        MethodDefinition ProcessRpcCall(MethodDefinition md)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -1176,7 +1172,7 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        bool ProcessMethodsValidateFunction(MethodReference md, CustomAttribute ca, string actionType)
+        bool ProcessMethodsValidateFunction(MethodReference md, string actionType)
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
@@ -1269,7 +1265,7 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!ProcessMethodsValidateFunction(md, ca, "Command"))
+            if (!ProcessMethodsValidateFunction(md, "Command"))
             {
                 return false;
             }
@@ -1300,7 +1296,7 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!ProcessMethodsValidateFunction(md, ca, "Target Rpc"))
+            if (!ProcessMethodsValidateFunction(md, "Target Rpc"))
             {
                 return false;
             }
@@ -1342,7 +1338,7 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!ProcessMethodsValidateFunction(md, ca, "Rpc"))
+            if (!ProcessMethodsValidateFunction(md, "Rpc"))
             {
                 return false;
             }
@@ -1414,7 +1410,7 @@ namespace Mirror.Weaver
                             m_TargetRpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = ProcessTargetRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = ProcessTargetRpcCall(md);
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
@@ -1444,7 +1440,7 @@ namespace Mirror.Weaver
                             m_RpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = ProcessRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = ProcessRpcCall(md);
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);
@@ -1542,7 +1538,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        MethodDefinition ProcessEventCall(EventDefinition ed, CustomAttribute ca)
+        MethodDefinition ProcessEventCall(EventDefinition ed)
         {
             MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
             MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
@@ -1620,7 +1616,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(m_td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = ProcessEventCall(ed, ca);
+                        MethodDefinition eventCallFunc = ProcessEventCall(ed);
                         m_td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);
@@ -1931,5 +1927,5 @@ namespace Mirror.Weaver
             }
             return false;
         }
-    };
+    }
 }

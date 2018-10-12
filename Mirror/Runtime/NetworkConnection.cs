@@ -27,7 +27,7 @@ namespace Mirror
         public float lastMessageTime;
         public NetworkIdentity playerController { get { return m_PlayerController; } }
         public HashSet<NetworkInstanceId> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
-        public bool logNetworkMessages = false;
+        public bool logNetworkMessages;
         public bool isConnected { get { return hostId != -1; }}
 
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)

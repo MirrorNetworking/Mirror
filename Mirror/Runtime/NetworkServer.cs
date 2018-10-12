@@ -21,7 +21,7 @@ namespace Mirror
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static bool s_UseWebSockets;
-        static bool s_Initialized = false;
+        static bool s_Initialized;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)

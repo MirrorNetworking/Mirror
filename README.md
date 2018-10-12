@@ -32,10 +32,10 @@ Import mirror from the [asset store](https://www.assetstore.unity3d.com/#!/conte
 
 Alternatively,  you can install it manually:
 
- 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
- 2. Drop the DLLs into your Project's Plugins folder
- 3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
- 4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
+1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
+2. Drop the DLLs into your Project's Plugins folder
+3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
+4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
 
 ## Migration Guide
 If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://github.com/vis2k/Mirror/blob/mirror/migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
