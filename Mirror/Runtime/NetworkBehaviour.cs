@@ -161,7 +161,6 @@ namespace Mirror
             return InvokeSyncEventDelegate(cmdHash, reader);
         }
 
-
         // ----------------------------- Code Gen Path Helpers  --------------------------------
 
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
@@ -172,7 +171,7 @@ namespace Mirror
             Command,
             ClientRpc,
             SyncEvent
-        };
+        }
 
         protected class Invoker
         {
@@ -399,7 +398,6 @@ namespace Mirror
         {
             return GetCmdHashPrefixName(cmdHash, "InvokeSyncEvent");
         }
-
 
         // ----------------------------- Helpers  --------------------------------
 
