@@ -17,7 +17,6 @@ namespace Mirror
         {
             return reader.ReadString();
         }
-
     }
 
     public sealed class SyncListFloat : SyncList<float>
@@ -31,7 +30,6 @@ namespace Mirror
         {
             return reader.ReadSingle();
         }
-
     }
 
     public class SyncListInt : SyncList<int>
@@ -45,7 +43,6 @@ namespace Mirror
         {
             return (int)reader.ReadPackedUInt32();
         }
-
     }
 
     public class SyncListUInt : SyncList<uint>
@@ -59,7 +56,6 @@ namespace Mirror
         {
             return reader.ReadPackedUInt32();
         }
-
     }
 
     public class SyncListBool : SyncList<bool>
@@ -74,7 +70,6 @@ namespace Mirror
             return reader.ReadBoolean();
         }
     }
-
 
     // Original UNET name is SyncListStruct and original Weaver weavers anything
     // that contains the name 'SyncListStruct', without considering the name-
@@ -138,7 +133,6 @@ namespace Mirror
         int changesAhead = 0;
 
         SyncListChanged m_Callback;
-
 
         protected abstract void SerializeItem(NetworkWriter writer, T item);
         protected abstract T DeserializeItem(NetworkReader reader);
@@ -238,7 +232,6 @@ namespace Mirror
                         break;
                 }
             }
-
         }
 
         public void OnDeserializeAll(NetworkReader reader)
