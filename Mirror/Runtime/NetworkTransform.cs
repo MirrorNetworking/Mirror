@@ -1136,13 +1136,8 @@ namespace Mirror
             {
                 diff = Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity);
             }
-            if (diff > k_LocalVelocityThreshold)
-            {
-                return true;
-            }
 
-           
-            return false;
+            return diff > k_LocalVelocityThreshold;
         }
 
         [Client]
