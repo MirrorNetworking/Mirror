@@ -5,7 +5,7 @@
     public interface SyncObject
     {
         // true if there are changes since the last flush
-        bool IsDirty {get;}
+        bool IsDirty { get; }
 
         // Discard all the queued changes	 
         // Consider the object fully synchronized with clients
