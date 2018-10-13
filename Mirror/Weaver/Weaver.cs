@@ -1790,7 +1790,6 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-
                 if (fail)
                 {
                     //Log.Error("Failed phase II.");
