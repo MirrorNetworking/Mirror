@@ -1254,7 +1254,6 @@ namespace Mirror.Weaver
             SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncObject");
             NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
-
         }
 
         static void SetupCorLib()
@@ -1440,7 +1439,6 @@ namespace Mirror.Weaver
                 { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
                 { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
             };
-
         }
 
         static void SetupWriteFunctions()
