@@ -708,7 +708,6 @@ namespace Mirror.Weaver
                     MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
                     if (readFunc != null)
                     {
-
                         serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
                     }
                     else

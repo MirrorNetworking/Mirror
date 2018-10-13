@@ -7,7 +7,6 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkWriterTest
     {
-
         [Test]
         public void TestWritingSmallMessage()
         {
