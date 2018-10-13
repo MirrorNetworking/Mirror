@@ -114,7 +114,6 @@ namespace Mirror.Weaver
                 }
             }
 
-
             yield return Weaver.objectType;
         }
 

@@ -402,7 +402,6 @@ namespace Mirror
 
             if (LogFilter.logDebug) { Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName); }
 
-
             if (newSceneName == networkSceneName)
             {
                 if (!forceReload)

@@ -44,7 +44,6 @@ namespace Mirror.Weaver
             Weaver.DLog(m_TypeDef, "SyncListStructProcessor Done");
         }
 
-
         // serialization of individual element
         MethodReference GenerateSerialization()
         {
@@ -140,7 +139,6 @@ namespace Mirror.Weaver
             // init item instance
             serWorker.Append(serWorker.Create(OpCodes.Ldloca, 0));
             serWorker.Append(serWorker.Create(OpCodes.Initobj, m_ItemType));
-
 
             foreach (var field in m_ItemType.Resolve().Fields)
             {

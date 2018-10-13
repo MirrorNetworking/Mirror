@@ -34,7 +34,6 @@ namespace Mirror
 
         bool m_Initialized;
 
-
         NetworkManagerHUD m_ManagerHud;
         NetworkManager m_Manager;
 

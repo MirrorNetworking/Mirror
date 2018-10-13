@@ -135,7 +135,6 @@ namespace Mirror
             EditorGUILayout.PropertyField(m_AutoCreatePlayerProperty, m_AutoCreatePlayerLabel);
             EditorGUILayout.PropertyField(m_PlayerSpawnMethodProperty, m_PlayerSpawnMethodLabel);
 
-
             EditorGUI.BeginChangeCheck();
             m_SpawnList.DoLayoutList();
             if (EditorGUI.EndChangeCheck())

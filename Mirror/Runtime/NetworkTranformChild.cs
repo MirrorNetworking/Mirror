@@ -23,7 +23,6 @@ namespace Mirror
         [SerializeField] float                                  m_InterpolateMovement = 0.5f;
         [SerializeField] NetworkTransform.ClientMoveCallback3D  m_ClientMoveCallback3D;
 
-
         // movement smoothing
         Vector3         m_TargetSyncPosition;
         Quaternion      m_TargetSyncRotation3D;

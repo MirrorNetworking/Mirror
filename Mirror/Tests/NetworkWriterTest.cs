@@ -41,7 +41,6 @@ namespace Mirror.Tests
             Assert.That(deserialized.Length, Is.EqualTo(100000));
         }
 
-
         [Test]
         public void TestToArray()
         {

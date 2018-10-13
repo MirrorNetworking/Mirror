@@ -605,7 +605,6 @@ namespace Mirror
 
             if (LogFilter.logDebug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
-
             // is there already an owner that is a different object??
             if (netMsg.conn.playerController != null)
             {
