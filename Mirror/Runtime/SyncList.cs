@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public sealed class SyncListString : SyncList<string>
+    public class SyncListString : SyncList<string>
     {
         protected override void SerializeItem(NetworkWriter writer, string item)
         {
@@ -19,7 +19,7 @@ namespace Mirror
         }
     }
 
-    public sealed class SyncListFloat : SyncList<float>
+    public class SyncListFloat : SyncList<float>
     {
         protected override void SerializeItem(NetworkWriter writer, float item)
         {
