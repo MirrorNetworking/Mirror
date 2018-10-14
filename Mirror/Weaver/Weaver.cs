@@ -913,7 +913,80 @@ namespace Mirror.Weaver
             }
         }
 
-        static void InjectServerGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
+        // helper function to detect MonoBehaviour callbacks like 'Update' and 'Start'.
+        // -> the functions aren't part of the MonoBehaviour type, Unity invokes
+        //    them by name. so we can't use cecil to check if a MethodDefinition
+        //    is in MonoBehaviourType. We really do need to check the strings.
+        //    (https://docs.unity3d.com/ScriptReference/MonoBehaviour.html)
+        static bool IsMonoBehaviourCallback(string methodName)
+        {
+            return methodName == "Awake" ||
+                   methodName == "FixedUpdate" ||
+                   methodName == "LateUpdate" ||
+                   methodName == "OnAnimatorIK" ||
+                   methodName == "OnAnimatorMove" ||
+                   methodName == "OnApplicationFocus" ||
+                   methodName == "OnApplicationPause" ||
+                   methodName == "OnApplicationQuit" ||
+                   methodName == "OnAudioFilterRead" ||
+                   methodName == "OnBecameInvisible" ||
+                   methodName == "OnBecameVisible" ||
+                   methodName == "OnCollisionEnter" ||
+                   methodName == "OnCollisionEnter2D" ||
+                   methodName == "OnCollisionExit" ||
+                   methodName == "OnCollisionExit2D" ||
+                   methodName == "OnCollisionStay" ||
+                   methodName == "OnCollisionStay2D" ||
+                   methodName == "OnConnectedToServer" ||
+                   methodName == "OnControllerColliderHit" ||
+                   methodName == "OnDestroy" ||
+                   methodName == "OnDisable" ||
+                   methodName == "OnDisconnectedFromServer" ||
+                   methodName == "OnDrawGizmos" ||
+                   methodName == "OnDrawGizmosSelected" ||
+                   methodName == "OnEnable" ||
+                   methodName == "OnFailedToConnect" ||
+                   methodName == "OnFailedToConnectToMasterServer" ||
+                   methodName == "OnGUI" ||
+                   methodName == "OnJointBreak" ||
+                   methodName == "OnJointBreak2D" ||
+                   methodName == "OnMasterServerEvent" ||
+                   methodName == "OnMouseDown" ||
+                   methodName == "OnMouseDrag" ||
+                   methodName == "OnMouseEnter" ||
+                   methodName == "OnMouseExit" ||
+                   methodName == "OnMouseOver" ||
+                   methodName == "OnMouseUp" ||
+                   methodName == "OnMouseUpAsButton" ||
+                   methodName == "OnNetworkInstantiate" ||
+                   methodName == "OnParticleCollision" ||
+                   methodName == "OnParticleSystemStopped" ||
+                   methodName == "OnParticleTrigger" ||
+                   methodName == "OnPlayerConnected" ||
+                   methodName == "OnPlayerDisconnected" ||
+                   methodName == "OnPostRender" ||
+                   methodName == "OnPreCull" ||
+                   methodName == "OnPreRender" ||
+                   methodName == "OnRenderImage" ||
+                   methodName == "OnRenderObject" ||
+                   methodName == "OnSerializeNetworkView" ||
+                   methodName == "OnServerInitialized" ||
+                   methodName == "OnTransformChildrenChanged" ||
+                   methodName == "OnTransformParentChanged" ||
+                   methodName == "OnTriggerEnter" ||
+                   methodName == "OnTriggerEnter2D" ||
+                   methodName == "OnTriggerExit" ||
+                   methodName == "OnTriggerExit2D" ||
+                   methodName == "OnTriggerStay" ||
+                   methodName == "OnTriggerStay2D" ||
+                   methodName == "OnValidate" ||
+                   methodName == "OnWillRenderObject" ||
+                   methodName == "Reset" ||
+                   methodName == "Start" ||
+                   methodName == "Update";
+        }
+
+        static void InjectServerGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md)
         {
             if (!IsNetworkBehaviour(td))
             {
@@ -925,7 +998,15 @@ namespace Mirror.Weaver
 
             worker.InsertBefore(top, worker.Create(OpCodes.Call, NetworkServerGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
+
+            // log a warning if called on client, unless this is a MonoBehaviour
+            // function that is invoked by Unity. then just return silently.
+            // this way we can add a [Server] tag in front of Update(), and it
+            // logs no warning if it's called (and immediately returns) on the
+            // Client, because Unity will call it no matter what.
+            // => keeping the Warning and checking for MonoBehaviour functions
+            //    is still worth it though, as this warning is very useful.
+            if (!IsMonoBehaviourCallback(md.Name))
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Server] function '" + md.FullName + "' called on client"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, logWarningReference));
@@ -935,7 +1016,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectClientGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectClientGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md)
         {
             if (!IsNetworkBehaviour(td))
             {
@@ -947,12 +1028,18 @@ namespace Mirror.Weaver
 
             worker.InsertBefore(top, worker.Create(OpCodes.Call, NetworkClientGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
-            if (logWarning)
+            // log a warning if called on client, unless this is a MonoBehaviour
+            // function that is invoked by Unity. then just return silently.
+            // this way we can add a [Server] tag in front of Update(), and it
+            // logs no warning if it's called (and immediately returns) on the
+            // Client, because Unity will call it no matter what.
+            // => keeping the Warning and checking for MonoBehaviour functions
+            //    is still worth it though, as this warning is very useful.
+            if (!IsMonoBehaviourCallback(md.Name))
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, "[Client] function '" + md.FullName + "' called on server"));
                 worker.InsertBefore(top, worker.Create(OpCodes.Call, logWarningReference));
             }
-
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
@@ -979,19 +1066,11 @@ namespace Mirror.Weaver
                 {
                     if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerAttribute")
                     {
-                        InjectServerGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerCallbackAttribute")
-                    {
-                        InjectServerGuard(moduleDef, td, md, false);
+                        InjectServerGuard(moduleDef, td, md);
                     }
                     else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientAttribute")
                     {
-                        InjectClientGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientCallbackAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, false);
+                        InjectClientGuard(moduleDef, td, md);
                     }
                 }
 
