@@ -23,6 +23,9 @@ namespace Mirror
     //      never good, especially when going back and forth between original
     //      HLAPI and this one
     //  => this solution is actually very decent
+    //  IMPORTANT: replacing NetworkHash128 with a GUID or similar would break
+    //             all prefabs in all projects and might result in chaos when
+    //             building a project without opening all scenes once to update.
     [Serializable]
     public struct NetworkHash128
     {
