@@ -28,7 +28,7 @@ The only difference is that you have to use `using Mirror;` instead of `using Un
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 ## Usage Guide
-Import mirror from the [asset store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
+Import Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
 Alternatively,  you can install it manually:
 
