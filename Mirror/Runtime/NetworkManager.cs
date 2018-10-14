@@ -92,7 +92,8 @@ namespace Mirror
         }
 #endif
 
-        void Awake()
+        // protected so that inheriting classes' Awake() can call base.Awake() too
+        protected void Awake()
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
             InitializeSingleton();
@@ -151,7 +152,9 @@ namespace Mirror
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
         // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
         // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
-        void LateUpdate()
+        //
+        // protected so that inheriting classes' LateUpdate() can call base.LateUpdate() too
+        protected void LateUpdate()
         {
             // call it while the NetworkManager exists.
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
@@ -164,12 +167,15 @@ namespace Mirror
         // Either way, we should disconnect client & server in OnApplicationQuit
         // so they don't keep running until we press Play again.
         // (this is not a problem in builds)
-        void OnApplicationQuit()
+        //
+        // protected so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
+        protected void OnApplicationQuit()
         {
             Transport.layer.Shutdown();
         }
 
-        void OnValidate()
+        // protected so that inheriting classes' OnValidate() can call base.OnValidate() too
+        protected void OnValidate()
         {
             m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
 
@@ -500,7 +506,8 @@ namespace Mirror
             s_LoadingSceneAsync = null;
         }
 
-        void OnDestroy()
+        // protected so that inheriting classes' OnDestroy() can call base.OnDestroy() too
+        protected void OnDestroy()
         {
             if (LogFilter.logDev) { Debug.Log("NetworkManager destroyed"); }
         }
