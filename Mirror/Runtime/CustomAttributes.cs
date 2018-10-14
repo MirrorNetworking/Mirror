@@ -41,17 +41,7 @@ namespace Mirror
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerCallbackAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Method)]
     public class ClientAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ClientCallbackAttribute : Attribute
     {
     }
 }
