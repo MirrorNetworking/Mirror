@@ -16,7 +16,7 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
-        [SerializeField] NetworkSceneId m_SceneId;
+        [SerializeField] uint m_SceneId;
         [SerializeField] NetworkHash128 m_AssetId;
         [SerializeField] bool           m_ServerOnly;
         [SerializeField] bool           m_LocalPlayerAuthority;
@@ -46,7 +46,7 @@ namespace Mirror
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
         public NetworkInstanceId netId { get { return m_NetId; } }
-        public NetworkSceneId sceneId { get { return m_SceneId; } }
+        public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
@@ -160,7 +160,7 @@ namespace Mirror
         // only used when fixing duplicate scene IDs duing post-processing
         public void ForceSceneId(int newSceneId)
         {
-            m_SceneId = new NetworkSceneId((uint)newSceneId);
+            m_SceneId = (uint)newSceneId;
         }
 
         // only used in SetLocalObject

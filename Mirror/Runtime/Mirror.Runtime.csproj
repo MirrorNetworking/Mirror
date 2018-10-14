@@ -73,7 +73,6 @@
     <Compile Include="NetworkInstanceId.cs" />
     <Compile Include="NetworkProximityChecker.cs" />
     <Compile Include="NetworkScene.cs" />
-    <Compile Include="NetworkSceneId.cs" />
     <Compile Include="NetworkStartPosition.cs" />
     <Compile Include="NetworkTranformChild.cs" />
     <Compile Include="NetworkTransform.cs" />

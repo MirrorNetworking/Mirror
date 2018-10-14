@@ -130,11 +130,6 @@ namespace Mirror
             return new NetworkInstanceId(ReadPackedUInt32());
         }
 
-        public NetworkSceneId ReadSceneId()
-        {
-            return new NetworkSceneId(ReadPackedUInt32());
-        }
-
         public Vector2 ReadVector2()
         {
             return new Vector2(ReadSingle(), ReadSingle());

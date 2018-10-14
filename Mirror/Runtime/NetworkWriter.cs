@@ -195,11 +195,6 @@ namespace Mirror
             WritePackedUInt32(value.Value);
         }
 
-        public void Write(NetworkSceneId value)
-        {
-            WritePackedUInt32(value.Value);
-        }
-
         public void Write(Vector2 value)
         {
             Write(value.x);
