@@ -1583,7 +1583,6 @@ namespace Mirror.Weaver
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
                 Weaver.fail = true;
-                fail = true;
                 return false;
             }
             return true;
