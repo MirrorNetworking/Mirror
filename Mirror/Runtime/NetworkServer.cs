@@ -336,7 +336,7 @@ namespace Mirror
         {
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
-            List<uint> remove = new List<uint>();
+            List<uint> removeNetIds = new List<uint>();
             foreach (var kvp in objects)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
@@ -345,12 +345,12 @@ namespace Mirror
                 }
                 else
                 {
-                    remove.Add(kvp.Key);
+                    removeNetIds.Add(kvp.Key);
                 }
             }
 
             // now remove
-            foreach (uint key in remove)
+            foreach (uint key in removeNetIds)
             {
                 objects.Remove(key);
             }
