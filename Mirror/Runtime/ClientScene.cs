@@ -26,6 +26,7 @@ namespace Mirror
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
+        // objects by net id
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
@@ -631,9 +632,9 @@ namespace Mirror
         {
             for (int i = 0; i < s_PendingOwnerNetIds.Count; i++)
             {
-                uint pendingOwner = s_PendingOwnerNetIds[i];
+                uint pendingOwnerNetId = s_PendingOwnerNetIds[i];
 
-                if (pendingOwner == uv.netId)
+                if (pendingOwnerNetId == uv.netId)
                 {
                     // found owner, turn into a local player
 
