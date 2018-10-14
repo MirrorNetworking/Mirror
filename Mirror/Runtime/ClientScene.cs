@@ -19,7 +19,7 @@ namespace Mirror
             s_IsReady = false;
         }
 
-        static List<uint> s_PendingOwnerIds = new List<uint>();
+        static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
         public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
         public static bool ready { get { return s_IsReady; } }
@@ -34,7 +34,7 @@ namespace Mirror
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
-            s_PendingOwnerIds = new List<uint>();
+            s_PendingOwnerNetIds = new List<uint>();
             s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
@@ -623,15 +623,15 @@ namespace Mirror
             }
             else
             {
-                s_PendingOwnerIds.Add(msg.netId);
+                s_PendingOwnerNetIds.Add(msg.netId);
             }
         }
 
         static void CheckForOwner(NetworkIdentity uv)
         {
-            for (int i = 0; i < s_PendingOwnerIds.Count; i++)
+            for (int i = 0; i < s_PendingOwnerNetIds.Count; i++)
             {
-                uint pendingOwner = s_PendingOwnerIds[i];
+                uint pendingOwner = s_PendingOwnerNetIds[i];
 
                 if (pendingOwner == uv.netId)
                 {
@@ -649,7 +649,7 @@ namespace Mirror
                     }
                     InternalAddPlayer(uv);
 
-                    s_PendingOwnerIds.RemoveAt(i);
+                    s_PendingOwnerNetIds.RemoveAt(i);
                     break;
                 }
             }
