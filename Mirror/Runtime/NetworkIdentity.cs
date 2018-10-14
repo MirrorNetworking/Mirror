@@ -158,9 +158,9 @@ namespace Mirror
         }
 
         // only used when fixing duplicate scene IDs during post-processing
-        public void ForceSceneId(int newSceneId)
+        public void ForceSceneId(uint newSceneId)
         {
-            m_SceneId = (uint)newSceneId;
+            m_SceneId = newSceneId;
         }
 
         // only used in SetLocalObject

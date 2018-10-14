@@ -135,7 +135,7 @@ namespace Mirror
             var uvs = FindObjectsOfType<NetworkIdentity>().ToList();
             uvs.Sort(CompareNetworkIdentitySiblingPaths);
 
-            int nextSceneId = 1;
+            uint nextSceneId = 1;
             foreach (NetworkIdentity uv in uvs)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
