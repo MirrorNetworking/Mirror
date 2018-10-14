@@ -350,9 +350,9 @@ namespace Mirror
             }
 
             // now remove
-            foreach (uint key in removeNetIds)
+            foreach (uint netId in removeNetIds)
             {
-                objects.Remove(key);
+                objects.Remove(netId);
             }
         }
 
