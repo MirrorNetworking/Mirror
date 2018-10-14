@@ -26,7 +26,7 @@ namespace Mirror
         bool                        m_IsServer;
         bool                        m_HasAuthority;
 
-        uint           m_NetId;
+        uint                        m_NetId;
         bool                        m_IsLocalPlayer;
         NetworkConnection           m_ConnectionToServer;
         NetworkConnection           m_ConnectionToClient;
