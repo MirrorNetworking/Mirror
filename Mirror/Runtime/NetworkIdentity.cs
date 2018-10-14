@@ -157,7 +157,7 @@ namespace Mirror
             }
         }
 
-        // only used when fixing duplicate scene IDs duing post-processing
+        // only used when fixing duplicate scene IDs during post-processing
         public void ForceSceneId(int newSceneId)
         {
             m_SceneId = (uint)newSceneId;
