@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using UnityEngine;
 
@@ -125,11 +125,6 @@ namespace Mirror
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
 
-        public NetworkInstanceId ReadNetworkId()
-        {
-            return new NetworkInstanceId(ReadPackedUInt32());
-        }
-
         public Vector2 ReadVector2()
         {
             return new Vector2(ReadSingle(), ReadSingle());
@@ -221,8 +216,8 @@ namespace Mirror
 
         public Transform ReadTransform()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -238,8 +233,8 @@ namespace Mirror
 
         public GameObject ReadGameObject()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -263,8 +258,8 @@ namespace Mirror
 
         public NetworkIdentity ReadNetworkIdentity()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }

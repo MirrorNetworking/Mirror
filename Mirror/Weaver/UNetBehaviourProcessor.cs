@@ -624,7 +624,8 @@ namespace Mirror.Weaver
                     Instruction nullLabel = serWorker.Create(OpCodes.Nop);
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkInstanceIsEmpty));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_0, netIdField));
+                    serWorker.Append(serWorker.Create(OpCodes.Ceq));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, nullLabel));
 
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
@@ -700,7 +701,7 @@ namespace Mirror.Weaver
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
-                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadNetworkInstanceId));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
                     serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
                 }
                 else
@@ -1741,8 +1742,8 @@ namespace Mirror.Weaver
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
                 netFieldId = new FieldDefinition("___" + fd.Name + "NetId",
-                        FieldAttributes.Private,
-                        Weaver.NetworkInstanceIdType);
+                                                 FieldAttributes.Private,
+                                                 Weaver.uint32Type);
 
                 m_SyncVarNetIds.Add(netFieldId);
                 Weaver.lists.netIdFields.Add(netFieldId);

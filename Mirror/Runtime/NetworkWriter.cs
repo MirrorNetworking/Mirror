@@ -190,11 +190,6 @@ namespace Mirror
             }
         }
 
-        public void Write(NetworkInstanceId value)
-        {
-            WritePackedUInt32(value.Value);
-        }
-
         public void Write(Vector2 value)
         {
             Write(value.x);
@@ -307,7 +302,7 @@ namespace Mirror
                 WritePackedUInt32(0);
                 return;
             }
-            Write(value.netId);
+            WritePackedUInt32(value.netId);
         }
 
         public void Write(Transform value)
@@ -320,7 +315,7 @@ namespace Mirror
             var uv = value.gameObject.GetComponent<NetworkIdentity>();
             if (uv != null)
             {
-                Write(uv.netId);
+                WritePackedUInt32(uv.netId);
             }
             else
             {
@@ -339,7 +334,7 @@ namespace Mirror
             var uv = value.GetComponent<NetworkIdentity>();
             if (uv != null)
             {
-                Write(uv.netId);
+                WritePackedUInt32(uv.netId);
             }
             else
             {

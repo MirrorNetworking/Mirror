@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -10,13 +10,13 @@ namespace Mirror
         // localObjects is NOT static. For the Host, even though there is one scene and gameObjects are
         // shared with the localClient, the set of active objects for each must be separate to prevent
         // out-of-order object initialization problems.
-        readonly Dictionary<NetworkInstanceId, NetworkIdentity> m_LocalObjects = new Dictionary<NetworkInstanceId, NetworkIdentity>();
+        readonly Dictionary<uint, NetworkIdentity> m_LocalObjects = new Dictionary<uint, NetworkIdentity>();
 
         static Dictionary<NetworkHash128, GameObject> s_GuidToPrefab = new Dictionary<NetworkHash128, GameObject>();
         static Dictionary<NetworkHash128, SpawnDelegate> s_SpawnHandlers = new Dictionary<NetworkHash128, SpawnDelegate>();
         static Dictionary<NetworkHash128, UnSpawnDelegate> s_UnspawnHandlers = new Dictionary<NetworkHash128, UnSpawnDelegate>();
 
-        internal Dictionary<NetworkInstanceId, NetworkIdentity> localObjects { get { return m_LocalObjects; }}
+        internal Dictionary<uint, NetworkIdentity> localObjects { get { return m_LocalObjects; }}
 
         internal static Dictionary<NetworkHash128, GameObject> guidToPrefab { get { return s_GuidToPrefab; }}
         internal static Dictionary<NetworkHash128, SpawnDelegate> spawnHandlers { get { return s_SpawnHandlers; }}
@@ -28,7 +28,7 @@ namespace Mirror
             ClearSpawners();
         }
 
-        internal void SetLocalObject(NetworkInstanceId netId, GameObject obj, bool isClient, bool isServer)
+        internal void SetLocalObject(uint netId, GameObject obj, bool isClient, bool isServer)
         {
             if (LogFilter.logDev) { Debug.Log("SetLocalObject " + netId + " " + obj); }
 
@@ -56,7 +56,7 @@ namespace Mirror
         // this lets the client take an instance ID from the server and find
         // the local object that it corresponds too. This is temporary until
         // object references can be serialized transparently.
-        internal GameObject FindLocalObject(NetworkInstanceId netId)
+        internal GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;
             if (GetNetworkIdentity(netId, out identity))
@@ -66,17 +66,17 @@ namespace Mirror
             return null;
         }
 
-        internal bool GetNetworkIdentity(NetworkInstanceId netId, out NetworkIdentity uv)
+        internal bool GetNetworkIdentity(uint netId, out NetworkIdentity uv)
         {
             return m_LocalObjects.TryGetValue(netId, out uv) && uv != null;
         }
 
-        internal bool RemoveLocalObject(NetworkInstanceId netId)
+        internal bool RemoveLocalObject(uint netId)
         {
             return m_LocalObjects.Remove(netId);
         }
 
-        internal bool RemoveLocalObjectAndDestroy(NetworkInstanceId netId)
+        internal bool RemoveLocalObjectAndDestroy(uint netId)
         {
             if (m_LocalObjects.ContainsKey(netId))
             {

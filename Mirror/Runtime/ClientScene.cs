@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -19,14 +19,14 @@ namespace Mirror
             s_IsReady = false;
         }
 
-        static List<NetworkInstanceId> s_PendingOwnerIds = new List<NetworkInstanceId>();
+        static List<uint> s_PendingOwnerIds = new List<uint>();
 
         public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
-        public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
+        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
         public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
@@ -34,7 +34,7 @@ namespace Mirror
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
-            s_PendingOwnerIds = new List<NetworkInstanceId>();
+            s_PendingOwnerIds = new List<uint>();
             s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
@@ -287,18 +287,18 @@ namespace Mirror
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        public static void SetLocalObject(NetworkInstanceId netId, GameObject obj)
+        public static void SetLocalObject(uint netId, GameObject obj)
         {
             // if still receiving initial state, dont set isClient
             s_NetworkScene.SetLocalObject(netId, obj, s_IsSpawnFinished, false);
         }
 
-        public static GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(uint netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }
 
-        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, NetworkInstanceId netId, GameObject newGameObject)
+        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId, GameObject newGameObject)
         {
             if (!uv.gameObject.activeSelf)
             {
@@ -631,7 +631,7 @@ namespace Mirror
         {
             for (int i = 0; i < s_PendingOwnerIds.Count; i++)
             {
-                NetworkInstanceId pendingOwner = s_PendingOwnerIds[i];
+                uint pendingOwner = s_PendingOwnerIds[i];
 
                 if (pendingOwner == uv.netId)
                 {
