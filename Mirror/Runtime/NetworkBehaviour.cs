@@ -407,7 +407,7 @@ namespace Mirror
             if (m_SyncVarGuard)
                 return;
 
-            uint newGameObjectNetId = new uint();
+            uint newGameObjectNetId = 0;
             if (newGameObject != null)
             {
                 var uv = newGameObject.GetComponent<NetworkIdentity>();
@@ -421,7 +421,7 @@ namespace Mirror
                 }
             }
 
-            uint oldGameObjectNetId = new uint();
+            uint oldGameObjectNetId = 0;
             if (gameObjectField != null)
             {
                 oldGameObjectNetId = gameObjectField.GetComponent<NetworkIdentity>().netId;
