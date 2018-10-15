@@ -392,8 +392,8 @@ namespace Mirror
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
-            AddConnection(conn);
             conn.Initialize(address, s_ServerHostId, connectionId);
+            AddConnection(conn);
             OnConnected(conn);
         }
 
