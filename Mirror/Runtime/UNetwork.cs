@@ -55,8 +55,6 @@ namespace Mirror
 
     public class NetworkMessage
     {
-        public const int MaxMessageSize = (64 * 1024) - 1;
-
         public short msgType;
         public NetworkConnection conn;
         public NetworkReader reader;
