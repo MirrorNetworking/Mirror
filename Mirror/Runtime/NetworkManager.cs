@@ -60,7 +60,7 @@ namespace Mirror
         public bool clientLoadedScene        { get { return m_ClientLoadedScene; } set { m_ClientLoadedScene = value; } }
 
         // only really valid on the server
-        public int numPlayers { get { return NetworkServer.connections.Count(conn => conn != null && conn.playerController != null); } }
+        public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value != null && kv.Value.playerController != null); } }
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.

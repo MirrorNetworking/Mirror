@@ -823,9 +823,9 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    for (int i = 0; i < NetworkServer.connections.Count; i++)
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
                     {
-                        var conn = NetworkServer.connections[i];
+                        NetworkConnection conn = kvp.Value;
                         if (conn != null && conn.isReady)
                             AddObserver(conn);
                     }
