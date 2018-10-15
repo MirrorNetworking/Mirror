@@ -12,7 +12,6 @@ namespace Mirror
             Debug = 1,
             Info = 2,
             Warn = 3,
-            Error = 4,
             SetInScripting = -1
         }
 
@@ -22,6 +21,5 @@ namespace Mirror
         public static bool logDebug { get { return currentLogLevel <= FilterLevel.Debug; } }
         public static bool logInfo  { get { return currentLogLevel <= FilterLevel.Info; } }
         public static bool logWarn  { get { return currentLogLevel <= FilterLevel.Warn; } }
-        public static bool logError  { get { return currentLogLevel <= FilterLevel.Error; } }
     }
 }

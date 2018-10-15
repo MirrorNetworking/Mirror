@@ -85,13 +85,13 @@ namespace Mirror
 
             if (!s_IsReady)
             {
-                if (LogFilter.logError) { Debug.LogError("Must call AddPlayer() with a connection the first time to become ready."); }
+                Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
                 return false;
             }
 
             if (s_ReadyConnection.playerController != null)
             {
-                if (LogFilter.logError) { Debug.LogError("ClientScene::AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?"); }
+                Debug.LogError("ClientScene::AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
                 return false;
             }
 
@@ -130,7 +130,7 @@ namespace Mirror
         {
             if (s_IsReady)
             {
-                if (LogFilter.logError) { Debug.LogError("A connection has already been set as ready. There can only be one."); }
+                Debug.LogError("A connection has already been set as ready. There can only be one.");
                 return false;
             }
 
@@ -145,7 +145,7 @@ namespace Mirror
                 s_ReadyConnection.isReady = true;
                 return true;
             }
-            if (LogFilter.logError) { Debug.LogError("Ready() called with invalid connection object: conn=null"); }
+            Debug.LogError("Ready() called with invalid connection object: conn=null");
             return false;
         }
 
@@ -334,7 +334,7 @@ namespace Mirror
 
             if (!msg.assetId.IsValid())
             {
-                if (LogFilter.logError) { Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id"); }
+                Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
                 return;
             }
             if (LogFilter.logDebug) { Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + "]"); }
@@ -361,7 +361,7 @@ namespace Mirror
                 localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
                 if (localNetworkIdentity == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("Client object spawned for " + msg.assetId + " does not have a NetworkIdentity"); }
+                    Debug.LogError("Client object spawned for " + msg.assetId + " does not have a NetworkIdentity");
                     return;
                 }
                 localNetworkIdentity.Reset();
@@ -379,7 +379,7 @@ namespace Mirror
                 localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
                 if (localNetworkIdentity == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("Client object spawned for " + msg.assetId + " does not have a network identity"); }
+                    Debug.LogError("Client object spawned for " + msg.assetId + " does not have a network identity");
                     return;
                 }
                 localNetworkIdentity.Reset();
@@ -388,7 +388,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId); }
+                Debug.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId);
             }
         }
 
@@ -411,13 +411,10 @@ namespace Mirror
             NetworkIdentity spawnedId = SpawnSceneObject(msg.sceneId);
             if (spawnedId == null)
             {
-                if (LogFilter.logError)
-                {
-                    Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + s_SpawnableObjects.Count);
-                    // dump the whole spawnable objects dict for easier debugging
-                    foreach (var kvp in s_SpawnableObjects)
-                        Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
-                }
+                Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + s_SpawnableObjects.Count);
+                // dump the whole spawnable objects dict for easier debugging
+                foreach (var kvp in s_SpawnableObjects)
+                    Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 return;
             }
 
@@ -644,7 +641,7 @@ namespace Mirror
                     if (LogFilter.logDev) { Debug.Log("ClientScene::OnOwnerMessage - player=" + uv.gameObject.name); }
                     if (s_ReadyConnection.connectionId < 0)
                     {
-                        if (LogFilter.logError) { Debug.LogError("Owner message received on a local client."); }
+                        Debug.LogError("Owner message received on a local client.");
                         return;
                     }
                     InternalAddPlayer(uv);

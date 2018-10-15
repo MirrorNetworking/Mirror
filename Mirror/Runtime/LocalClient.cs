@@ -126,7 +126,7 @@ namespace Mirror
             {
                 PostInternalMessage((short)msgType, content);
             }
-            else if (LogFilter.logError) Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
+            else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
     }
 }

@@ -141,12 +141,12 @@ namespace Mirror
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient Send when not connected to a server"); }
+                    Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
                 return m_Connection.Send(msgType, msg);
             }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient Send with no connection"); }
+            Debug.LogError("NetworkClient Send with no connection");
             return false;
         }
 
@@ -253,7 +253,7 @@ namespace Mirror
 
         void GenerateConnectError(byte error)
         {
-            if (LogFilter.logError) { Debug.LogError("UNet Client Error Connect Error: " + error); }
+            Debug.LogError("UNet Client Error Connect Error: " + error);
             GenerateError(error);
         }
 
@@ -261,14 +261,14 @@ namespace Mirror
         void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Client Data Error: " + dataError); }
+            Debug.LogError("UNet Client Data Error: " + dataError);
             GenerateError(error);
         }
 
         void GenerateDisconnectError(byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Client Disconnect Error: " + disconnectError); }
+            Debug.LogError("UNet Client Disconnect Error: " + disconnectError);
             GenerateError(error);
         }
         */

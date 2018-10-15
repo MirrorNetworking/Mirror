@@ -31,7 +31,7 @@ namespace Mirror
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
-       
+
         const float k_DefaultSendInterval = 0.1f;
 
         NetworkIdentity m_MyView;
@@ -42,7 +42,7 @@ namespace Mirror
                 m_MyView = m_MyView ?? GetComponent<NetworkIdentity>();
                 if (m_MyView == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
+                    Debug.LogError("There is no NetworkIdentity on this object. Please add one.");
                 }
                 return m_MyView;
             }
@@ -70,7 +70,7 @@ namespace Mirror
 
             if (ClientScene.readyConnection == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "]."); }
+                Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
             }
 
@@ -280,7 +280,7 @@ namespace Mirror
 
             if (invoker.invokeType != invokeType)
             {
-                if (LogFilter.logError) { Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType"); }
+                Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType");
                 invokeClass = null;
                 invokeFunction = null;
                 return false;

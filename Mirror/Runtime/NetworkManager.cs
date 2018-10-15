@@ -181,7 +181,7 @@ namespace Mirror
 
             if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
             {
-                if (LogFilter.logError) { Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity."); }
+                Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
                 m_PlayerPrefab = null;
             }
         }
@@ -209,7 +209,7 @@ namespace Mirror
             {
                 if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort, m_MaxConnections))
                 {
-                    if (LogFilter.logError) { Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed."); }
+                    Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed.");
                     return false;
                 }
             }
@@ -217,7 +217,7 @@ namespace Mirror
             {
                 if (!NetworkServer.Listen(m_NetworkPort, m_MaxConnections))
                 {
-                    if (LogFilter.logError) { Debug.LogError("StartServer listen failed."); }
+                    Debug.LogError("StartServer listen failed.");
                     return false;
                 }
             }
@@ -289,7 +289,7 @@ namespace Mirror
 
             if (string.IsNullOrEmpty(m_NetworkAddress))
             {
-                if (LogFilter.logError) { Debug.LogError("Must set the Network Address field in the manager"); }
+                Debug.LogError("Must set the Network Address field in the manager");
                 return null;
             }
             if (LogFilter.logDebug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
@@ -373,7 +373,7 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
-                if (LogFilter.logError) { Debug.LogError("ServerChangeScene empty scene name"); }
+                Debug.LogError("ServerChangeScene empty scene name");
                 return;
             }
 
@@ -402,7 +402,7 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
-                if (LogFilter.logError) { Debug.LogError("ClientChangeScene empty scene name"); }
+                Debug.LogError("ClientChangeScene empty scene name");
                 return;
             }
 
@@ -709,19 +709,19 @@ namespace Mirror
         {
             if (m_PlayerPrefab == null)
             {
-                if (LogFilter.logError) { Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object."); }
+                Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
                 return;
             }
 
             if (m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
             {
-                if (LogFilter.logError) { Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab."); }
+                Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
             }
 
             if (conn.playerController != null)
             {
-                if (LogFilter.logError) { Debug.LogError("There is already a player for this connections."); }
+                Debug.LogError("There is already a player for this connections.");
                 return;
             }
 

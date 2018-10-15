@@ -466,7 +466,7 @@ namespace Mirror
             var conn = FindConnection(connectionId);
             if (conn == null)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleData Unknown connectionId:" + connectionId); }
+                Debug.LogError("HandleData Unknown connectionId:" + connectionId);
                 return;
             }
 
@@ -480,7 +480,7 @@ namespace Mirror
 
         static void GenerateConnectError(byte error)
         {
-            if (LogFilter.logError) { Debug.LogError("UNet Server Connect Error: " + error); }
+            Debug.LogError("UNet Server Connect Error: " + error);
             GenerateError(null, error);
         }
 
@@ -488,14 +488,14 @@ namespace Mirror
         static void GenerateDataError(NetworkConnection conn, byte error)
         {
             NetworkError dataError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Server Data Error: " + dataError); }
+            Debug.LogError("UNet Server Data Error: " + dataError);
             GenerateError(conn, error);
         }
 
         static void GenerateDisconnectError(NetworkConnection conn, byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId); }
+            Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId);
             GenerateError(conn, error);
         }
         */
@@ -566,7 +566,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.logError) { Debug.LogError("Failed to send message to player object '" + player.name + ", not found in connection list"); }
+            Debug.LogError("Failed to send message to player object '" + player.name + ", not found in connection list");
         }
 
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
@@ -580,7 +580,7 @@ namespace Mirror
                     return;
                 }
             }
-            if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
+            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, NetworkHash128 assetId)
@@ -618,7 +618,7 @@ namespace Mirror
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
             {
-                if (LogFilter.logError) { Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject); }
+                Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
             }
             playerNetworkIdentity.Reset();
@@ -626,7 +626,7 @@ namespace Mirror
             // cannot have a player object in "Add" version
             if (conn.playerController != null)
             {
-                if (LogFilter.logError) { Debug.Log("AddPlayer: player object already exists"); }
+                Debug.Log("AddPlayer: player object already exists");
                 return false;
             }
 
@@ -704,7 +704,7 @@ namespace Mirror
             NetworkIdentity playerNetworkIdentity;
             if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
             {
-                if (LogFilter.logError) { Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject); }
+                Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
             }
 
@@ -747,7 +747,7 @@ namespace Mirror
             view = go.GetComponent<NetworkIdentity>();
             if (view == null)
             {
-                if (LogFilter.logError) { Debug.LogError("UNET failure. GameObject doesn't have NetworkIdentity."); }
+                Debug.LogError("UNET failure. GameObject doesn't have NetworkIdentity.");
                 return false;
             }
             return true;
@@ -901,7 +901,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Received remove player message but connection has no player"); }
+                Debug.LogError("Received remove player message but connection has no player");
             }
         }
 
@@ -944,14 +944,14 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                if (LogFilter.logError) { Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server."); }
+                Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
                 return;
             }
 
             NetworkIdentity objNetworkIdentity;
             if (!GetNetworkIdentity(obj, out objNetworkIdentity))
             {
-                if (LogFilter.logError) { Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj); }
+                Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
             }
             objNetworkIdentity.Reset();
@@ -1237,7 +1237,7 @@ namespace Mirror
                     return true;
                 }
             }
-            if (LogFilter.logError) { Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer)); }
+            Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer));
             return false;
         }
 

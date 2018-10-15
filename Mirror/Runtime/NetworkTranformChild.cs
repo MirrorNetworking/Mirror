@@ -60,7 +60,7 @@ namespace Mirror
                 Transform parent = m_Target.parent;
                 if (parent == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkTransformChild target cannot be the root transform."); }
+                    Debug.LogError("NetworkTransformChild target cannot be the root transform.");
                     m_Target = null;
                     return;
                 }
@@ -72,7 +72,7 @@ namespace Mirror
                 m_Root = parent.gameObject.GetComponent<NetworkTransform>();
                 if (m_Root == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkTransformChild root must have NetworkTransform"); }
+                    Debug.LogError("NetworkTransformChild root must have NetworkTransform");
                     m_Target = null;
                     return;
                 }
@@ -93,7 +93,7 @@ namespace Mirror
                 }
                 if (m_ChildIndex == UInt32.MaxValue)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkTransformChild component must be a child in the same hierarchy"); }
+                    Debug.LogError("NetworkTransformChild component must be a child in the same hierarchy");
                     m_Target = null;
                 }
             }
@@ -397,30 +397,30 @@ namespace Mirror
             GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Received NetworkTransformChild data for GameObject that doesn't exist"); }
+                Debug.LogError("Received NetworkTransformChild data for GameObject that doesn't exist");
                 return;
             }
             var children = foundObj.GetComponents<NetworkTransformChild>();
             if (children == null || children.Length == 0)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleChildTransform no children"); }
+                Debug.LogError("HandleChildTransform no children");
                 return;
             }
             if (message.childIndex >= children.Length)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleChildTransform childIndex invalid"); }
+                Debug.LogError("HandleChildTransform childIndex invalid");
                 return;
             }
 
             NetworkTransformChild foundSync = children[message.childIndex];
             if (foundSync == null)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleChildTransform null target"); }
+                Debug.LogError("HandleChildTransform null target");
                 return;
             }
             if (!foundSync.localPlayerAuthority)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleChildTransform no localPlayerAuthority"); }
+                Debug.LogError("HandleChildTransform no localPlayerAuthority");
                 return;
             }
 

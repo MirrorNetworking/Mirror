@@ -104,7 +104,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -128,7 +128,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -160,7 +160,7 @@ namespace Mirror
         {
             if (spawnHandler == null || unspawnHandler == null)
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterSpawnHandler custom spawn function null for " + assetId); }
+                Debug.LogError("RegisterSpawnHandler custom spawn function null for " + assetId);
                 return;
             }
 
@@ -175,7 +175,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
             s_SpawnHandlers.Remove(identity.assetId);
@@ -187,19 +187,19 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
 
             if (spawnHandler == null || unspawnHandler == null)
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterPrefab custom spawn function null for " + identity.assetId); }
+                Debug.LogError("RegisterPrefab custom spawn function null for " + identity.assetId);
                 return;
             }
 
             if (!identity.assetId.IsValid())
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?"); }
+                Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?");
                 return;
             }
 
