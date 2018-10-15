@@ -148,6 +148,8 @@ namespace Mirror
         {
             if (!s_Connections.ContainsKey(conn.connectionId))
             {
+                // connection cannot be null here or conn.connectionId
+                // would throw NRE
                 s_Connections[conn.connectionId] = conn;
                 conn.SetHandlers(s_MessageHandlers);
                 return true;
@@ -244,8 +246,7 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                if (conn != null)
-                    result &= conn.Send(msgType, msg);
+                result &= conn.Send(msgType, msg);
             }
             return result;
         }
@@ -260,7 +261,7 @@ namespace Mirror
                 foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
                 {
                     NetworkConnection conn = kvp.Value;
-                    if (conn != null && conn.isReady)
+                    if (conn.isReady)
                     {
                         conn.Send(msgType, msg);
                     }
@@ -295,11 +296,8 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                if (conn != null)
-                {
-                    conn.Disconnect();
-                    conn.Dispose();
-                }
+                conn.Disconnect();
+                conn.Dispose();
             }
         }
 
@@ -394,12 +392,8 @@ namespace Mirror
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
-            conn.SetHandlers(s_MessageHandlers);
+            AddConnection(conn);
             conn.Initialize(address, s_ServerHostId, connectionId);
-
-            // add connection
-            s_Connections[connectionId] = conn;
-
             OnConnected(conn);
         }
 
@@ -417,7 +411,7 @@ namespace Mirror
             if (s_Connections.TryGetValue(connectionId, out conn))
             {
                 conn.Disconnect();
-                s_Connections.Remove(connectionId);
+                RemoveConnection(connectionId);
                 if (LogFilter.logDebug) { Debug.Log("Server lost client:" + connectionId); }
 
                 OnDisconnected(conn);
@@ -536,8 +530,7 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                if (conn != null &&
-                    conn.playerController != null &&
+                if (conn.playerController != null &&
                     conn.playerController.gameObject == player)
                 {
                     conn.Send(msgType, msg);
@@ -553,11 +546,8 @@ namespace Mirror
             NetworkConnection conn;
             if (connections.TryGetValue(connectionId, out conn))
             {
-                if (conn != null)
-                {
-                    conn.Send(msgType, msg);
-                    return;
-                }
+                conn.Send(msgType, msg);
+                return;
             }
             if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
         }

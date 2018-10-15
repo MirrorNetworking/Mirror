@@ -826,7 +826,7 @@ namespace Mirror
                     foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
                     {
                         NetworkConnection conn = kvp.Value;
-                        if (conn != null && conn.isReady)
+                        if (conn.isReady)
                             AddObserver(conn);
                     }
 
