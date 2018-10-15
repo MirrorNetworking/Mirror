@@ -139,14 +139,6 @@ namespace Mirror
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
-        internal static void AddNetworkId(uint id)
-        {
-            if (id >= s_NextNetworkId)
-            {
-                s_NextNetworkId = (uint)(id + 1);
-            }
-        }
-
         // only used during spawning on clients to set the identity.
         internal void SetNetworkInstanceId(NetworkInstanceId newNetId)
         {
