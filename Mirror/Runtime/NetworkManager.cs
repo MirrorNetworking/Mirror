@@ -473,7 +473,7 @@ namespace Mirror
             // This check below detects that problem and shuts down the transport layer to bring both systems back in sync.
             if (singleton == null && s_PendingSingleton != null && s_DomainReload)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down."); }
+                Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down.");
 
                 s_DomainReload = false;
                 s_PendingSingleton.InitializeSingleton();

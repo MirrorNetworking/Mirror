@@ -71,7 +71,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">"); }
+                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
             }
         }
 
@@ -198,7 +198,7 @@ namespace Mirror
         {
             if (m_ServerOnly && m_LocalPlayerAuthority)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only."); }
+                Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only.");
                 m_LocalPlayerAuthority = false;
             }
 
@@ -438,7 +438,7 @@ namespace Mirror
             // be useful for debugging.
             if (bytes.Length > Transport.MaxPacketSize)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp); }
+                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
             }
 
             // serialize length,data into the real writer, untouched by user code
@@ -582,7 +582,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncEvent [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("SyncEvent [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -603,7 +603,7 @@ namespace Mirror
             if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncEvent [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                Debug.LogWarning("SyncEvent [" + errorCmdName + "] handler not found [netId=" + netId + "]");
                 return;
             }
 
@@ -619,7 +619,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("Command [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("Command [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -640,7 +640,7 @@ namespace Mirror
             if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("Command [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                Debug.LogWarning("Command [" + errorCmdName + "] handler not found [netId=" + netId + "]");
                 return;
             }
 
@@ -656,7 +656,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("ClientRpc [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -677,7 +677,7 @@ namespace Mirror
             if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                Debug.LogWarning("ClientRpc [" + errorCmdName + "] handler not found [netId=" + netId + "]");
                 return;
             }
 
@@ -848,7 +848,7 @@ namespace Mirror
 
                 if (!conn.isReady)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn); }
+                    Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn);
                     continue;
                 }
 

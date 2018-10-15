@@ -64,7 +64,7 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Trying to send command for object without authority."); }
+                Debug.LogWarning("Trying to send command for object without authority.");
                 return;
             }
 
@@ -97,7 +97,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc call on un-spawned object"); }
+                Debug.LogWarning("ClientRpc call on un-spawned object");
                 return;
             }
 
@@ -116,7 +116,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("TargetRpc call on un-spawned object"); }
+                Debug.LogWarning("TargetRpc call on un-spawned object");
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("SendEvent no server?"); }
+                Debug.LogWarning("SendEvent no server?");
                 return;
             }
 
@@ -416,7 +416,7 @@ namespace Mirror
                     newGameObjectNetId = uv.netId;
                     if (newGameObjectNetId.IsEmpty())
                     {
-                        if (LogFilter.logWarn) { Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?"); }
+                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }

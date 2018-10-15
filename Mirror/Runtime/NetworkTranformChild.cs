@@ -426,7 +426,7 @@ namespace Mirror
 
             if (!netMsg.conn.clientOwnedObjects.Contains(message.netId))
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkTransformChild netId:" + message.netId + " is not for a valid player"); }
+                Debug.LogWarning("NetworkTransformChild netId:" + message.netId + " is not for a valid player");
                 return;
             }
 

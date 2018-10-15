@@ -119,11 +119,8 @@ namespace Mirror
                 var uvs = prefab.GetComponentsInChildren<NetworkIdentity>();
                 if (uvs.Length > 1)
                 {
-                    if (LogFilter.logWarn)
-                    {
-                        Debug.LogWarning("The prefab '" + prefab.name +
-                            "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
-                    }
+                    Debug.LogWarning("The prefab '" + prefab.name +
+                        "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
                 }
             }
             else

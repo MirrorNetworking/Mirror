@@ -445,7 +445,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 //NOTE: should there be default behaviour here to destroy the associated player?
-                if (LogFilter.logWarn) { Debug.LogWarning("Player not destroyed when connection disconnected."); }
+                Debug.LogWarning("Player not destroyed when connection disconnected.");
             }
 
             if (LogFilter.logDebug) { Debug.Log("Server lost client:" + conn.connectionId); }
@@ -816,7 +816,7 @@ namespace Mirror
             {
                 if (uv == null)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity)."); }
+                    Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity).");
                     continue;
                 }
                 if (!uv.gameObject.activeSelf)
@@ -913,14 +913,14 @@ namespace Mirror
             var cmdObject = FindLocalObject(message.netId);
             if (cmdObject == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]"); }
+                Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]");
                 return;
             }
 
             var uv = cmdObject.GetComponent<NetworkIdentity>();
             if (uv == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]"); }
+                Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]");
                 return;
             }
 
@@ -931,7 +931,7 @@ namespace Mirror
             {
                 if (uv.clientAuthorityOwner != netMsg.conn)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]"); }
+                    Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]");
                     return;
                 }
             }

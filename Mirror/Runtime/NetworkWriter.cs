@@ -324,7 +324,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity"); }
+                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 WritePackedUInt32(0);
             }
         }
@@ -343,7 +343,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity"); }
+                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 WritePackedUInt32(0);
             }
         }

@@ -53,7 +53,7 @@ namespace Mirror
             s_LocalPlayer = view;
             if (s_ReadyConnection == null)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer"); }
+                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
             else
             {
@@ -373,7 +373,7 @@ namespace Mirror
                 GameObject obj = handler(msg.position, msg.assetId);
                 if (obj == null)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Client spawn handler for " + msg.assetId + " returned null"); }
+                    Debug.LogWarning("Client spawn handler for " + msg.assetId + " returned null");
                     return;
                 }
                 localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
@@ -540,7 +540,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message."); }
+                Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
             }
         }
 
@@ -557,11 +557,8 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn)
-                {
-                    string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(message.rpcHash);
-                    Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", message.netId, errorRpcName);
-                }
+                string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(message.rpcHash);
+                Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", message.netId, errorRpcName);
             }
         }
 
@@ -578,7 +575,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId); }
+                Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId);
             }
         }
 

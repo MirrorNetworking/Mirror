@@ -1263,7 +1263,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logWarn) { Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player"); }
+            Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player");
         }
 
         // --------------------- Compression Helper functions ------------------------
