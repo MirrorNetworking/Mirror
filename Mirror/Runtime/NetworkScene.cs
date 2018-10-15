@@ -255,17 +255,5 @@ namespace Mirror
             }
             ClearLocalObjects();
         }
-
-        internal void DumpAllClientObjects()
-        {
-            foreach (var netId in m_LocalObjects.Keys)
-            {
-                NetworkIdentity uv = m_LocalObjects[netId];
-                if (uv != null)
-                    Debug.Log("ID:" + netId + " OBJ:" + uv.gameObject + " AS:" + uv.assetId);
-                else
-                    Debug.Log("ID:" + netId + " OBJ: null");
-            }
-        }
     }
 }
