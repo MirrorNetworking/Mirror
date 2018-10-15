@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     // calculates synchronized time and rtt
-    public static class NetworkTime 
+    public static class NetworkTime
     {
         // Date and time when the application started
         static readonly DateTime epoch = DateTime.Now;
@@ -27,7 +27,7 @@ namespace Mirror
 
         internal static NetworkPingMessage GetPing()
         {
-            return new NetworkPingMessage(LocalTime()); 
+            return new NetworkPingMessage(LocalTime());
         }
 
         // executed at the server when we receive a ping message
@@ -38,7 +38,7 @@ namespace Mirror
             var pingMsg = new NetworkPingMessage();
             netMsg.ReadMessage(pingMsg);
 
-            if (LogFilter.logDev) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
+            if (LogFilter.logDebug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
 
             var pongMsg = new NetworkPongMessage
             {
@@ -70,29 +70,29 @@ namespace Mirror
 
         // returns the same time in both client and server
         // time should be a double because after a while
-        // float loses too much accuracy if the server is up for more than 
+        // float loses too much accuracy if the server is up for more than
         // a few days.  I measured the accuracy of float and I got this:
         // for the same day,  accuracy is better than 1 ms
         // after 1 day,  accuracy goes down to 7 ms
         // after 10 days, accuracy is 61 ms
         // after 30 days , accuracy is 238 ms
         // after 60 days, accuracy is 454 ms
-        // in other words,  if the server is running for 2 months, 
+        // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
         public static double time
         {
-            get 
+            get
             {
                 // Notice _offset is 0 at the server
                 return LocalTime() - _offset.Value;
             }
         }
 
-        // measure volatility of time.  
+        // measure volatility of time.
         // the higher the number,  the less accurate the time is
         public static double timeVar
         {
-            get 
+            get
             {
                 return _offset.Var;
             }
@@ -101,7 +101,7 @@ namespace Mirror
         // standard deviation of time
         public static double timeSd
         {
-            get 
+            get
             {
                 return Math.Sqrt(timeVar);
             }
@@ -115,11 +115,11 @@ namespace Mirror
             }
         }
 
-        // how long does it take for a message to go 
+        // how long does it take for a message to go
         // to the server and come back
         public static double rtt
         {
-            get 
+            get
             {
                 return _rtt.Value;
             }
@@ -129,7 +129,7 @@ namespace Mirror
         // the higher the number,  the less accurate rtt is
         public static double rttVar
         {
-            get 
+            get
             {
                 return _rtt.Var;
             }

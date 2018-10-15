@@ -199,7 +199,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -214,7 +214,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -229,7 +229,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         internal static string GetInvoker(int cmdHash)
@@ -264,7 +264,7 @@ namespace Mirror
             Invoker invoker = null;
             if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
             {
-                if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+                if (LogFilter.logDebug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
                 invokeClass = null;
                 invokeFunction = null;
                 return false;
@@ -272,7 +272,7 @@ namespace Mirror
 
             if (invoker == null)
             {
-                if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
+                if (LogFilter.logDebug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
                 invokeClass = null;
                 invokeFunction = null;
                 return false;
@@ -429,7 +429,7 @@ namespace Mirror
 
             if (newGameObjectNetId != oldGameObjectNetId)
             {
-                if (LogFilter.logDev) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + oldGameObjectNetId + "->" + newGameObjectNetId); }
+                if (LogFilter.logDebug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + oldGameObjectNetId + "->" + newGameObjectNetId); }
                 SetDirtyBit(dirtyBit);
                 gameObjectField = newGameObject;
                 netIdField = newGameObjectNetId;
@@ -443,7 +443,7 @@ namespace Mirror
             if ((value == null && fieldValue != null) ||
                 (value != null && !value.Equals(fieldValue)))
             {
-                if (LogFilter.logDev) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
+                if (LogFilter.logDebug) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
                 SetDirtyBit(dirtyBit);
                 fieldValue = value;
             }

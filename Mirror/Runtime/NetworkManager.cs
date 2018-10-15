@@ -22,7 +22,7 @@ namespace Mirror
         [SerializeField] string m_NetworkAddress = "localhost";
         [SerializeField] bool m_DontDestroyOnLoad = true;
         [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] LogFilter.FilterLevel m_LogLevel = LogFilter.FilterLevel.Info;
+        [SerializeField] bool m_ShowDebugMessages;
         [SerializeField] GameObject m_PlayerPrefab;
         [SerializeField] bool m_AutoCreatePlayer = true;
         [SerializeField] PlayerSpawnMethod m_PlayerSpawnMethod;
@@ -43,7 +43,7 @@ namespace Mirror
         public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
         public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
         public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
-        public LogFilter.FilterLevel logLevel { get { return m_LogLevel; }  set { m_LogLevel = value; LogFilter.currentLogLevel = value; } }
+        public bool showDebugMessages        { get { return m_ShowDebugMessages; }  set { m_ShowDebugMessages = value; LogFilter.logDebug = value; } }
         public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
         public bool autoCreatePlayer         { get { return m_AutoCreatePlayer; } set { m_AutoCreatePlayer = value; } }
         public PlayerSpawnMethod playerSpawnMethod { get { return m_PlayerSpawnMethod; } set { m_PlayerSpawnMethod = value; } }
@@ -108,26 +108,23 @@ namespace Mirror
             }
 
             // do this early
-            if (logLevel != LogFilter.FilterLevel.SetInScripting)
-            {
-                LogFilter.currentLogLevel = logLevel;
-            }
+            LogFilter.logDebug = showDebugMessages;
 
             if (m_DontDestroyOnLoad)
             {
                 if (singleton != null)
                 {
-                    if (LogFilter.logDev) { Debug.Log("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used."); }
+                    if (LogFilter.logDebug) { Debug.Log("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used."); }
                     Destroy(gameObject);
                     return;
                 }
-                if (LogFilter.logDev) { Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)"); }
                 singleton = this;
                 if (Application.isPlaying) DontDestroyOnLoad(gameObject);
             }
             else
             {
-                if (LogFilter.logDev) { Debug.Log("NetworkManager created singleton (ForScene)"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkManager created singleton (ForScene)"); }
                 singleton = this;
             }
 
@@ -449,7 +446,7 @@ namespace Mirror
             }
             else
             {
-                if (LogFilter.logDev) { Debug.Log("FinishLoadScene client is null"); }
+                if (LogFilter.logDebug) { Debug.Log("FinishLoadScene client is null"); }
             }
 
             if (NetworkServer.active)
@@ -509,7 +506,7 @@ namespace Mirror
         // protected so that inheriting classes' OnDestroy() can call base.OnDestroy() too
         protected void OnDestroy()
         {
-            if (LogFilter.logDev) { Debug.Log("NetworkManager destroyed"); }
+            if (LogFilter.logDebug) { Debug.Log("NetworkManager destroyed"); }
         }
 
         public static void RegisterStartPosition(Transform start)

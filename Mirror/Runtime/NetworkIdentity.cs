@@ -288,7 +288,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.logDev) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
+            if (LogFilter.logDebug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
@@ -322,7 +322,7 @@ namespace Mirror
             m_IsClient = true;
             CacheBehaviours();
 
-            if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+            if (LogFilter.logDebug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -785,7 +785,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logDev) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
+            if (LogFilter.logDebug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
             m_Observers.Add(conn);
             m_ObserverConnections.Add(conn.connectionId);

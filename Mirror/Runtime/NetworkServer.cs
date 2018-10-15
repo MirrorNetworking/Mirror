@@ -81,9 +81,7 @@ namespace Mirror
                 return;
 
             s_Initialized = true;
-            if (LogFilter.logDev) { Debug.Log("NetworkServer Created version " + Version.Current); }
-
-            if (LogFilter.logDebug) { Debug.Log("NetworkServer initialize."); }
+            if (LogFilter.logDebug) { Debug.Log("NetworkServer Created version " + Version.Current); }
         }
 
         internal static void RegisterMessageHandlers()
@@ -200,7 +198,7 @@ namespace Mirror
 
         internal static void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
         {
-            if (LogFilter.logDev) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
+            if (LogFilter.logDebug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
             s_NetworkScene.SetLocalObject(netId, obj, false, true);
         }
@@ -216,7 +214,7 @@ namespace Mirror
             {
                 if (!uv.isClient)
                 {
-                    if (LogFilter.logDev) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
+                    if (LogFilter.logDebug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
 
                     ClientScene.SetLocalObject(uv.netId, uv.gameObject);
                     uv.OnStartClient();
@@ -228,7 +226,7 @@ namespace Mirror
         // this is used for ObjectDestroy messages.
         static bool SendToObservers(GameObject contextObj, short msgType, MessageBase msg)
         {
-            if (LogFilter.logDev) { Debug.Log("Server.SendToObservers id:" + msgType); }
+            if (LogFilter.logDebug) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
             var uv = contextObj.GetComponent<NetworkIdentity>();
             if (uv != null && uv.observers != null)
@@ -246,7 +244,7 @@ namespace Mirror
 
         public static bool SendToAll(short msgType, MessageBase msg)
         {
-            if (LogFilter.logDev) { Debug.Log("Server.SendToAll id:" + msgType); }
+            if (LogFilter.logDebug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             bool result = true;
             for (int i = 0; i < connections.Count; i++)
@@ -260,7 +258,7 @@ namespace Mirror
 
         public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
         {
-            if (LogFilter.logDev) { Debug.Log("Server.SendToReady msgType:" + msgType); }
+            if (LogFilter.logDebug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
             if (contextObj == null)
             {
@@ -654,12 +652,12 @@ namespace Mirror
 
         static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv)
         {
-            if (LogFilter.logDev) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
+            if (LogFilter.logDebug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
 
             var localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
-                if (LogFilter.logDev) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
                 // Spawn this player for other players, instead of SpawnObject:
                 if (uv.netId.IsEmpty())
@@ -709,7 +707,7 @@ namespace Mirror
             }
 
             //NOTE: there can be an existing player
-            if (LogFilter.logDev) { Debug.Log("NetworkServer ReplacePlayer"); }
+            if (LogFilter.logDebug) { Debug.Log("NetworkServer ReplacePlayer"); }
 
             // is there already an owner that is a different object??
             if (conn.playerController != null)
@@ -725,7 +723,7 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            if (LogFilter.logDev) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
+            if (LogFilter.logDebug) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
 
             if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
             {
@@ -779,7 +777,7 @@ namespace Mirror
             var localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
-                if (LogFilter.logDev) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
 
                 // Setup spawned objects for local player
                 // Only handle the local objects for the first player (no need to redo it when doing more local players)
@@ -797,7 +795,7 @@ namespace Mirror
                         }
                         if (!uv.isClient)
                         {
-                            if (LogFilter.logDev) { Debug.Log("LocalClient.SetSpawnObject calling OnStartClient"); }
+                            if (LogFilter.logDebug) { Debug.Log("LocalClient.SetSpawnObject calling OnStartClient"); }
                             uv.OnStartClient();
                         }
                     }
@@ -936,7 +934,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.logDev) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.logDebug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
             uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
@@ -1055,7 +1053,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (LogFilter.logDev) { Debug.Log("NetworkServer UnspawnObject is null"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer UnspawnObject is null"); }
                 return;
             }
 
@@ -1074,7 +1072,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (LogFilter.logDev) { Debug.Log("NetworkServer DestroyObject is null"); }
+                if (LogFilter.logDebug) { Debug.Log("NetworkServer DestroyObject is null"); }
                 return;
             }
 

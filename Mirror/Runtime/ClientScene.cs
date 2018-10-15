@@ -531,7 +531,7 @@ namespace Mirror
         {
             UpdateVarsMessage message = netMsg.ReadMessage<UpdateVarsMessage>();
 
-            if (LogFilter.logDev) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId); }
+            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId); }
 
             NetworkIdentity localObject;
             if (s_NetworkScene.GetNetworkIdentity(message.netId, out localObject))
@@ -635,7 +635,7 @@ namespace Mirror
                     uv.SetConnectionToServer(s_ReadyConnection);
                     uv.SetLocalPlayer();
 
-                    if (LogFilter.logDev) { Debug.Log("ClientScene::OnOwnerMessage - player=" + uv.gameObject.name); }
+                    if (LogFilter.logDebug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + uv.gameObject.name); }
                     if (s_ReadyConnection.connectionId < 0)
                     {
                         Debug.LogError("Owner message received on a local client.");

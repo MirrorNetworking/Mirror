@@ -80,13 +80,13 @@ namespace Mirror
 
         public NetworkClient()
         {
-            if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.logDebug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
         }
 
         public NetworkClient(NetworkConnection conn)
         {
-            if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.logDebug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
 
             SetActive(true);

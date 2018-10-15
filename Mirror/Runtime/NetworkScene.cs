@@ -30,7 +30,7 @@ namespace Mirror
 
         internal void SetLocalObject(NetworkInstanceId netId, GameObject obj, bool isClient, bool isServer)
         {
-            if (LogFilter.logDev) { Debug.Log("SetLocalObject " + netId + " " + obj); }
+            if (LogFilter.logDebug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
 
             if (obj == null)
             {
