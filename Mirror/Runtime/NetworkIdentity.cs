@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Mirror
         bool                        m_IsServer;
         bool                        m_HasAuthority;
 
-        NetworkInstanceId           m_NetId;
+        uint                        m_NetId;
         bool                        m_IsLocalPlayer;
         NetworkConnection           m_ConnectionToServer;
         NetworkConnection           m_ConnectionToClient;
@@ -45,7 +45,7 @@ namespace Mirror
         public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
-        public NetworkInstanceId netId { get { return m_NetId; } }
+        public uint netId { get { return m_NetId; } }
         public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
@@ -117,9 +117,9 @@ namespace Mirror
         public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
-        internal static NetworkInstanceId GetNextNetworkId()
+        internal static uint GetNextNetworkId()
         {
-            return new NetworkInstanceId(s_NextNetworkId++);
+            return s_NextNetworkId++;
         }
 
         void CacheBehaviours()
@@ -134,10 +134,10 @@ namespace Mirror
         public static ClientAuthorityCallback clientAuthorityCallback;
 
         // only used during spawning on clients to set the identity.
-        internal void SetNetworkInstanceId(NetworkInstanceId newNetId)
+        internal void SetNetworkInstanceId(uint newNetId)
         {
             m_NetId = newNetId;
-            if (newNetId.Value == 0)
+            if (newNetId == 0)
             {
                 m_IsServer = false;
             }
@@ -259,7 +259,7 @@ namespace Mirror
             CacheBehaviours();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            if (netId.IsEmpty())
+            if (netId == 0)
             {
                 m_NetId = GetNextNetworkId();
             }
@@ -973,7 +973,7 @@ namespace Mirror
             m_IsClient = false;
             m_HasAuthority = false;
 
-            m_NetId = NetworkInstanceId.Zero;
+            m_NetId = 0;
             m_IsLocalPlayer = false;
             m_ConnectionToServer = null;
             m_ConnectionToClient = null;

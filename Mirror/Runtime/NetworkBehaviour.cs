@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
@@ -21,7 +21,7 @@ namespace Mirror
         public bool isClient { get { return myView.isClient; } }
         public bool isLocalPlayer { get { return myView.isLocalPlayer; } }
         public bool hasAuthority { get { return myView.hasAuthority; } }
-        public NetworkInstanceId netId { get { return myView.netId; } }
+        public uint netId { get { return myView.netId; } }
         public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
         public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
@@ -402,26 +402,26 @@ namespace Mirror
         // ----------------------------- Helpers  --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref NetworkInstanceId netIdField)
+        protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
             if (m_SyncVarGuard)
                 return;
 
-            NetworkInstanceId newGameObjectNetId = new NetworkInstanceId();
+            uint newGameObjectNetId = 0;
             if (newGameObject != null)
             {
                 var uv = newGameObject.GetComponent<NetworkIdentity>();
                 if (uv != null)
                 {
                     newGameObjectNetId = uv.netId;
-                    if (newGameObjectNetId.IsEmpty())
+                    if (newGameObjectNetId == 0)
                     {
                         if (LogFilter.logWarn) { Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?"); }
                     }
                 }
             }
 
-            NetworkInstanceId oldGameObjectNetId = new NetworkInstanceId();
+            uint oldGameObjectNetId = 0;
             if (gameObjectField != null)
             {
                 oldGameObjectNetId = gameObjectField.GetComponent<NetworkIdentity>().netId;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -36,7 +36,7 @@ namespace Mirror
         public static Dictionary<int, NetworkConnection> connections { get { return s_Connections; } }
         public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
 
-        public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
+        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
         public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
 
@@ -192,7 +192,7 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
+        internal static void SetLocalObjectOnServer(uint netId, GameObject obj)
         {
             if (LogFilter.logDev) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
@@ -324,7 +324,7 @@ namespace Mirror
         {
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
-            List<NetworkInstanceId> remove = new List<NetworkInstanceId>();
+            List<uint> removeNetIds = new List<uint>();
             foreach (var kvp in objects)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
@@ -333,14 +333,14 @@ namespace Mirror
                 }
                 else
                 {
-                    remove.Add(kvp.Key);
+                    removeNetIds.Add(kvp.Key);
                 }
             }
 
             // now remove
-            foreach (NetworkInstanceId key in remove)
+            foreach (uint netId in removeNetIds)
             {
-                objects.Remove(key);
+                objects.Remove(netId);
             }
         }
 
@@ -629,7 +629,7 @@ namespace Mirror
                 if (LogFilter.logDev) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
                 // Spawn this player for other players, instead of SpawnObject:
-                if (uv.netId.IsEmpty())
+                if (uv.netId == 0)
                 {
                     // it is allowed to provide an already spawned object as the new player object.
                     // so dont spawn it again.
@@ -654,7 +654,7 @@ namespace Mirror
 
         static void FinishPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, GameObject playerGameObject)
         {
-            if (uv.netId.IsEmpty())
+            if (uv.netId == 0)
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
@@ -999,7 +999,7 @@ namespace Mirror
 
             if (conn.clientOwnedObjects != null)
             {
-                HashSet<NetworkInstanceId> tmp = new HashSet<NetworkInstanceId>(conn.clientOwnedObjects);
+                HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (var netId in tmp)
                 {
                     var obj = FindLocalObject(netId);
@@ -1208,7 +1208,7 @@ namespace Mirror
             return false;
         }
 
-        public static GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(uint netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }

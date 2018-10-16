@@ -96,7 +96,7 @@ namespace Mirror
             if (prefabType == PrefabType.Prefab)
                 return;
 
-            if (m_NetworkIdentity.gameObject.activeSelf && m_NetworkIdentity.netId.IsEmpty() && NetworkServer.active)
+            if (m_NetworkIdentity.gameObject.activeSelf && m_NetworkIdentity.netId == 0 && NetworkServer.active)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(m_SpawnLabel);
