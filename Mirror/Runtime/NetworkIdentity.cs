@@ -17,7 +17,7 @@ namespace Mirror
     {
         // configuration
         [SerializeField] uint m_SceneId;
-        [SerializeField] NetworkHash128 m_AssetId;
+        [SerializeField] Guid m_AssetId;
         [SerializeField] bool           m_ServerOnly;
         [SerializeField] bool           m_LocalPlayerAuthority;
 
@@ -51,21 +51,21 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
-        public NetworkHash128 assetId
+        public Guid assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (!m_AssetId.IsValid())
+                if (m_AssetId == Guid.Empty)
                     SetupIDs();
 #endif
                 return m_AssetId;
             }
         }
-        internal void SetDynamicAssetId(NetworkHash128 newAssetId)
+        internal void SetDynamicAssetId(Guid newAssetId)
         {
-            if (!m_AssetId.IsValid() || m_AssetId.Equals(newAssetId))
+            if (m_AssetId == Guid.Empty || m_AssetId.Equals(newAssetId))
             {
                 m_AssetId = newAssetId;
             }
@@ -193,7 +193,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
-            m_AssetId = NetworkHash128.Parse(AssetDatabase.AssetPathToGUID(path));
+            m_AssetId = new Guid(AssetDatabase.AssetPathToGUID(path));
         }
 
         bool ThisIsAPrefab()
@@ -233,7 +233,7 @@ namespace Mirror
             }
             else
             {
-                m_AssetId = new NetworkHash128();
+                m_AssetId = Guid.Empty;
             }
         }
 

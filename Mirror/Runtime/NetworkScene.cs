@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Guid = System.Guid;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -12,15 +13,15 @@ namespace Mirror
         // out-of-order object initialization problems.
         readonly Dictionary<uint, NetworkIdentity> m_LocalObjects = new Dictionary<uint, NetworkIdentity>();
 
-        static Dictionary<NetworkHash128, GameObject> s_GuidToPrefab = new Dictionary<NetworkHash128, GameObject>();
-        static Dictionary<NetworkHash128, SpawnDelegate> s_SpawnHandlers = new Dictionary<NetworkHash128, SpawnDelegate>();
-        static Dictionary<NetworkHash128, UnSpawnDelegate> s_UnspawnHandlers = new Dictionary<NetworkHash128, UnSpawnDelegate>();
+        static Dictionary<Guid, GameObject> s_GuidToPrefab = new Dictionary<Guid, GameObject>();
+        static Dictionary<Guid, SpawnDelegate> s_SpawnHandlers = new Dictionary<Guid, SpawnDelegate>();
+        static Dictionary<Guid, UnSpawnDelegate> s_UnspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         internal Dictionary<uint, NetworkIdentity> localObjects { get { return m_LocalObjects; }}
 
-        internal static Dictionary<NetworkHash128, GameObject> guidToPrefab { get { return s_GuidToPrefab; }}
-        internal static Dictionary<NetworkHash128, SpawnDelegate> spawnHandlers { get { return s_SpawnHandlers; }}
-        internal static Dictionary<NetworkHash128, UnSpawnDelegate> unspawnHandlers { get { return s_UnspawnHandlers; }}
+        internal static Dictionary<Guid, GameObject> guidToPrefab { get { return s_GuidToPrefab; }}
+        internal static Dictionary<Guid, SpawnDelegate> spawnHandlers { get { return s_SpawnHandlers; }}
+        internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers { get { return s_UnspawnHandlers; }}
 
         internal void Shutdown()
         {
@@ -92,7 +93,7 @@ namespace Mirror
             m_LocalObjects.Clear();
         }
 
-        internal static void RegisterPrefab(GameObject prefab, NetworkHash128 newAssetId)
+        internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkIdentity view = prefab.GetComponent<NetworkIdentity>();
             if (view)
@@ -132,10 +133,10 @@ namespace Mirror
             }
         }
 
-        internal static bool GetPrefab(NetworkHash128 assetId, out GameObject prefab)
+        internal static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
-            if (assetId.IsValid() && guidToPrefab.ContainsKey(assetId) && guidToPrefab[assetId] != null)
+            if (assetId != Guid.Empty && guidToPrefab.ContainsKey(assetId) && guidToPrefab[assetId] != null)
             {
                 prefab = guidToPrefab[assetId];
                 return true;
@@ -150,13 +151,13 @@ namespace Mirror
             s_UnspawnHandlers.Clear();
         }
 
-        public static void UnregisterSpawnHandler(NetworkHash128 assetId)
+        public static void UnregisterSpawnHandler(Guid assetId)
         {
             s_SpawnHandlers.Remove(assetId);
             s_UnspawnHandlers.Remove(assetId);
         }
 
-        internal static void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        internal static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (spawnHandler == null || unspawnHandler == null)
             {
@@ -197,7 +198,7 @@ namespace Mirror
                 return;
             }
 
-            if (!identity.assetId.IsValid())
+            if (identity.assetId == Guid.Empty)
             {
                 if (LogFilter.logError) { Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?"); }
                 return;
@@ -209,7 +210,7 @@ namespace Mirror
             s_UnspawnHandlers[identity.assetId] = unspawnHandler;
         }
 
-        internal static bool GetSpawnHandler(NetworkHash128 assetId, out SpawnDelegate handler)
+        internal static bool GetSpawnHandler(Guid assetId, out SpawnDelegate handler)
         {
             if (s_SpawnHandlers.ContainsKey(assetId))
             {
@@ -220,7 +221,7 @@ namespace Mirror
             return false;
         }
 
-        internal static bool InvokeUnSpawnHandler(NetworkHash128 assetId, GameObject obj)
+        internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
             if (s_UnspawnHandlers.ContainsKey(assetId) && s_UnspawnHandlers[assetId] != null)
             {
