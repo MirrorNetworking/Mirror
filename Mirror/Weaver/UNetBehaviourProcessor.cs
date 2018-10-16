@@ -623,8 +623,8 @@ namespace Mirror.Weaver
                     // Generates: if (!_crateNetId.IsEmpty()) { crate = ClientScene.FindLocalObject(_crateNetId); }
                     Instruction nullLabel = serWorker.Create(OpCodes.Nop);
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_0, netIdField));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ceq));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, nullLabel));
 
