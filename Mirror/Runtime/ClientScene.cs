@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Guid = System.Guid;
 
 namespace Mirror
 {
@@ -28,7 +29,7 @@ namespace Mirror
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
         // objects by net id
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
-        public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
+        public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
         public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
 
@@ -230,7 +231,7 @@ namespace Mirror
 
         // ------------------------ NetworkScene pass-throughs ---------------------
 
-        internal static string GetStringForAssetId(NetworkHash128 assetId)
+        internal static string GetStringForAssetId(Guid assetId)
         {
             GameObject prefab;
             if (NetworkScene.GetPrefab(assetId, out prefab))
@@ -248,7 +249,7 @@ namespace Mirror
         }
 
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
-        public static void RegisterPrefab(GameObject prefab, NetworkHash128 newAssetId)
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkScene.RegisterPrefab(prefab, newAssetId);
         }
@@ -268,12 +269,12 @@ namespace Mirror
             NetworkScene.UnregisterPrefab(prefab);
         }
 
-        public static void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkScene.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
-        public static void UnregisterSpawnHandler(NetworkHash128 assetId)
+        public static void UnregisterSpawnHandler(Guid assetId)
         {
             NetworkScene.UnregisterSpawnHandler(assetId);
         }
@@ -333,7 +334,7 @@ namespace Mirror
             SpawnPrefabMessage msg = new SpawnPrefabMessage();
             netMsg.ReadMessage(msg);
 
-            if (!msg.assetId.IsValid())
+            if (msg.assetId == Guid.Empty)
             {
                 if (LogFilter.logError) { Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id"); }
                 return;
