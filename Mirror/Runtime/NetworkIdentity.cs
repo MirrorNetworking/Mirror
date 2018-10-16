@@ -50,6 +50,9 @@ namespace Mirror
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+        static readonly NetworkWriter m_NetworkWriterOnSerializeAllSafely = new NetworkWriter();
+        static readonly NetworkWriter m_NetworkWriterOnSerializeSafely = new NetworkWriter();
+        static readonly NetworkWriter m_NetworkWriterUNetUpdate = new NetworkWriter();
 
         public NetworkHash128 assetId
         {
@@ -404,7 +407,8 @@ namespace Mirror
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // serialize into a temporary writer
-            NetworkWriter temp = new NetworkWriter();
+            NetworkWriter temp = m_NetworkWriterOnSerializeSafely;
+            temp.Position = 0;
             bool result = false;
             try
             {
@@ -442,7 +446,8 @@ namespace Mirror
 
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
-            NetworkWriter payload = new NetworkWriter();
+            NetworkWriter payload = m_NetworkWriterOnSerializeAllSafely;
+            payload.Position = 0;
             for (int i = 0; i < components.Length; ++i)
             {
                 // is this component dirty?
@@ -672,7 +677,8 @@ namespace Mirror
         internal void UNetUpdate()
         {
             // serialize all the dirty components and send (if any were dirty)
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = m_NetworkWriterUNetUpdate;
+            writer.Position = 0;
             if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
             {
                 // construct message and send
