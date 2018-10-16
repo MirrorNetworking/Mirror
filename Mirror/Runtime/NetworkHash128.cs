@@ -27,7 +27,7 @@ namespace Mirror
     //             all prefabs in all projects and might result in chaos when
     //             building a project without opening all scenes once to update.
     [Serializable]
-    public struct NetworkHash128
+    public struct NetworkHash128 : IEquatable<NetworkHash128>
     {
         public byte i0;
         public byte i1;
@@ -87,6 +87,41 @@ namespace Mirror
         {
             return String.Format("{0:x2}{1:x2}{2:x2}{3:x2}{4:x2}{5:x2}{6:x2}{7:x2}{8:x2}{9:x2}{10:x2}{11:x2}{12:x2}{13:x2}{14:x2}{15:x2}",
                 i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15);
+        }
+
+        public bool Equals(NetworkHash128 other)
+        {
+            return
+                i0 == other.i0 &&
+                i1 == other.i1 &&
+                i2 == other.i2 &&
+                i3 == other.i3 &&
+                i4 == other.i4 &&
+                i5 == other.i5 &&
+                i6 == other.i6 &&
+                i7 == other.i7 &&
+                i8 == other.i8 &&
+                i9 == other.i9 &&
+                i10 == other.i10 &&
+                i11 == other.i11 &&
+                i12 == other.i12 &&
+                i13 == other.i13 &&
+                i14 == other.i14 &&
+                i15 == other.i15;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NetworkHash128)
+                return Equals((NetworkHash128)obj);
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            // just a few bits is enough for a guid hashcode
+            return i0 | i1 << 8 | i2 << 16 | i3 << 24;
         }
     }
 }
