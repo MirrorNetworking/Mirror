@@ -21,9 +21,9 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-We are still working on the documentation, but Mirror is still similar enough to UNET that you can use the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html) for now.
+Check out our [Wiki](https://github.com/vis2k/Mirror/wiki) and read the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html), Mirror is still similar enough.
 
-The only difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
+The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
