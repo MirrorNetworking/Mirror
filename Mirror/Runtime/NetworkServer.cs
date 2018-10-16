@@ -224,14 +224,13 @@ namespace Mirror
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
-            var uv = contextObj.GetComponent<NetworkIdentity>();
+            NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
             if (uv != null && uv.observers != null)
             {
                 bool result = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
                 {
-                    var conn = uv.observers[i];
-                    result &= conn.Send(msgType, msg);
+                    result &= kvp.Value.Send(msgType, msg);
                 }
                 return result;
             }
@@ -273,12 +272,11 @@ namespace Mirror
             if (uv != null && uv.observers != null)
             {
                 bool result = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
                 {
-                    NetworkConnection conn = uv.observers[i];
-                    if (conn.isReady)
+                    if (kvp.Value.isReady)
                     {
-                        result &= conn.Send(msgType, msg);
+                        result &= kvp.Value.Send(msgType, msg);
                     }
                 }
                 return result;

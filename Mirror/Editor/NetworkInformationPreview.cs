@@ -161,9 +161,9 @@ namespace Mirror
                     observerRect.x += 20; // indent names
                     observerRect.y += observerRect.height;
 
-                    foreach (var info in m_Identity.observers)
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in m_Identity.observers)
                     {
-                        GUI.Label(observerRect, info.address + ":" + info.connectionId, m_Styles.componentName);
+                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value.connectionId, m_Styles.componentName);
                         observerRect.y += observerRect.height;
                         lastY = observerRect.y;
                     }

@@ -114,13 +114,7 @@ namespace Mirror
         public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
         public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
-        public ReadOnlyCollection<NetworkConnection> observers
-        {
-            get
-            {
-                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers.Values.ToList()) : null;
-            }
-        }
+        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
         internal static NetworkInstanceId GetNextNetworkId()
