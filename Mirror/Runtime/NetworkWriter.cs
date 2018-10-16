@@ -25,7 +25,10 @@ namespace Mirror
         {
             writer.Flush();
             byte[] slice = new byte[Position];
-            Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
+
+            // We can use MemoryStream.GetBuffer() to obtain the stream's underlaying array without copying it.
+            // This is safe because we're manually returning a copy of the array anyway.
+            Array.Copy(((MemoryStream)writer.BaseStream).GetBuffer(), slice, Position);
             return slice;
         }
 
