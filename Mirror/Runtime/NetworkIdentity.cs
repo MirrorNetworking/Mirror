@@ -204,7 +204,6 @@ namespace Mirror
         {
             string path = AssetDatabase.GetAssetPath(prefab);
             m_AssetId = AssetDatabase.AssetPathToGUID(path);
-            Debug.Log(name + " assetId:=" + m_AssetId);
         }
 
         bool ThisIsAPrefab()
