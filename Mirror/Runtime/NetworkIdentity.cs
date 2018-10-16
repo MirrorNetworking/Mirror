@@ -69,7 +69,9 @@ namespace Mirror
                 if (string.IsNullOrEmpty(m_AssetId))
                     SetupIDs();
 #endif
-                return new Guid(m_AssetId);
+                // convert string to Guid and use .Empty to avoid exception if
+                // we would use 'new Guid("")'
+                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
         internal void SetDynamicAssetId(Guid newAssetId)
