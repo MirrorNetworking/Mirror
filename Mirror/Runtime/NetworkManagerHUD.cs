@@ -11,7 +11,7 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class NetworkManagerHUD : MonoBehaviour
     {
-        public NetworkManager manager;
+        NetworkManager manager;
         public bool showGUI = true;
         public int offsetX;
         public int offsetY;

@@ -33,11 +33,6 @@ namespace Mirror
         LocalClientAuthority = 15,
         LocalChildTransform = 16,
 
-        // used for profiling
-        UserMessage = 0,
-        HLAPIMsg = 28,
-        LLAPIMsg = 29,
-
         // public system messages - can be replaced by user code
         Connect = 32,
         Disconnect = 33,
@@ -60,8 +55,6 @@ namespace Mirror
 
     public class NetworkMessage
     {
-        public const int MaxMessageSize = (64 * 1024) - 1;
-
         public short msgType;
         public NetworkConnection conn;
         public NetworkReader reader;

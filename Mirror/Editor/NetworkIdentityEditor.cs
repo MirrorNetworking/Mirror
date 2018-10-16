@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -80,12 +81,12 @@ namespace Mirror
                 if (m_ShowObservers)
                 {
                     EditorGUI.indentLevel += 1;
-                    foreach (NetworkConnection observer in m_NetworkIdentity.observers)
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in m_NetworkIdentity.observers)
                     {
-                        if (observer.playerController != null)
-                            EditorGUILayout.ObjectField("Connection " + observer.connectionId, observer.playerController.gameObject, typeof(GameObject), false);
+                        if (kvp.Value.playerController != null)
+                            EditorGUILayout.ObjectField("Connection " + kvp.Value.connectionId, kvp.Value.playerController.gameObject, typeof(GameObject), false);
                         else
-                            EditorGUILayout.TextField("Connection " + observer.connectionId);
+                            EditorGUILayout.TextField("Connection " + kvp.Value.connectionId);
                     }
                     EditorGUI.indentLevel -= 1;
                 }
