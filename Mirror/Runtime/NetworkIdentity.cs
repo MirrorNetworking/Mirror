@@ -32,9 +32,9 @@ namespace Mirror
         NetworkConnection           m_ConnectionToClient;
         NetworkBehaviour[]          m_NetworkBehaviours;
 
-        // there is a list AND a hashSet of connections, for fast verification of dupes, but the main operation is iteration over the list.
-        HashSet<int>                m_ObserverConnections;
-        List<NetworkConnection>     m_Observers;
+        // <connectionId, NetworkConnection>
+        Dictionary<int, NetworkConnection> m_Observers;
+
         NetworkConnection           m_ClientAuthorityOwner;
 
         // member used to mark a identity for future reset
@@ -118,7 +118,7 @@ namespace Mirror
         {
             get
             {
-                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers) : null;
+                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers.Values.ToList()) : null;
             }
         }
 
@@ -180,8 +180,7 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                m_Observers.Remove(conn);
-                m_ObserverConnections.Remove(conn.connectionId);
+                m_Observers.Remove(conn.connectionId);
             }
         }
 
@@ -262,8 +261,7 @@ namespace Mirror
             m_IsServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
-            m_Observers = new List<NetworkConnection>();
-            m_ObserverConnections = new HashSet<int>();
+            m_Observers = new Dictionary<int, NetworkConnection>();
             CacheBehaviours();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
@@ -751,13 +749,11 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                int count = m_Observers.Count;
-                for (int i = 0; i < count; i++)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in m_Observers)
                 {
-                    m_Observers[i].RemoveFromVisList(this, true);
+                    kvp.Value.RemoveFromVisList(this, true);
                 }
                 m_Observers.Clear();
-                m_ObserverConnections.Clear();
             }
         }
 
@@ -769,8 +765,7 @@ namespace Mirror
                 return;
             }
 
-            // uses hashset for better-than-list-iteration lookup performance.
-            if (m_ObserverConnections.Contains(conn.connectionId))
+            if (m_Observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
                 // we may have generated one that was already in use.
@@ -779,8 +774,7 @@ namespace Mirror
 
             if (LogFilter.logDev) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
-            m_Observers.Add(conn);
-            m_ObserverConnections.Add(conn.connectionId);
+            m_Observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
         }
 
@@ -789,9 +783,7 @@ namespace Mirror
             if (m_Observers == null)
                 return;
 
-            // NOTE this is linear performance now..
-            m_Observers.Remove(conn);
-            m_ObserverConnections.Remove(conn.connectionId);
+            m_Observers.Remove(conn.connectionId);
             conn.RemoveFromVisList(this, false);
         }
 
@@ -803,7 +795,7 @@ namespace Mirror
             bool changed = false;
             bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers);
+            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
@@ -875,14 +867,7 @@ namespace Mirror
 
             if (changed)
             {
-                m_Observers = new List<NetworkConnection>(newObservers);
-
-                // rebuild hashset once we have the final set of new observers
-                m_ObserverConnections.Clear();
-                for (int i = 0; i < m_Observers.Count; i++)
-                {
-                    m_ObserverConnections.Add(m_Observers[i].connectionId);
-                }
+                m_Observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 
