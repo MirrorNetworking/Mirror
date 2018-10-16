@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -40,7 +40,6 @@ namespace Mirror.Weaver
         public List<MethodDefinition> replacementEvents = new List<MethodDefinition>();
 
         public Dictionary<string, MethodReference> readFuncs;
-        public Dictionary<string, MethodReference> readByReferenceFuncs;
         public Dictionary<string, MethodReference> writeFuncs;
 
         public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
@@ -81,8 +80,6 @@ namespace Mirror.Weaver
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
-        public static TypeReference NetworkInstanceIdType;
-        public static TypeReference NetworkSceneIdType;
         public static TypeReference IEnumeratorType;
 
         public static TypeReference ClientSceneType;
@@ -109,13 +106,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkWriterWritePacked32;
         public static MethodReference NetworkWriterWritePacked64;
 
-        public static MethodReference NetworkWriterWriteNetworkInstanceId;
-        public static MethodReference NetworkWriterWriteNetworkSceneId;
-
-        public static MethodReference NetworkReaderReadNetworkInstanceId;
-        public static MethodReference NetworkReaderReadNetworkSceneId;
-        public static MethodReference NetworkInstanceIsEmpty;
-
         public static MethodReference NetworkReadUInt16;
         public static MethodReference NetworkWriteUInt16;
 
@@ -125,30 +115,9 @@ namespace Mirror.Weaver
         public static TypeReference ClientRpcType;
         public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
-        public static TypeReference SyncListType;
-        public static MethodReference SyncListInitBehaviourReference;
-        public static MethodReference SyncListInitHandleMsg;
-        public static MethodReference SyncListClear;
+        public static TypeReference SyncObjectType;
+        public static MethodReference InitSyncObjectReference;
         public static TypeReference NetworkSettingsType;
-
-        // sync list types
-        public static TypeReference SyncListFloatType;
-        public static TypeReference SyncListIntType;
-        public static TypeReference SyncListUIntType;
-        public static TypeReference SyncListBoolType;
-        public static TypeReference SyncListStringType;
-
-        public static MethodReference SyncListFloatReadType;
-        public static MethodReference SyncListIntReadType;
-        public static MethodReference SyncListUIntReadType;
-        public static MethodReference SyncListStringReadType;
-        public static MethodReference SyncListBoolReadType;
-
-        public static MethodReference SyncListFloatWriteType;
-        public static MethodReference SyncListIntWriteType;
-        public static MethodReference SyncListUIntWriteType;
-        public static MethodReference SyncListBoolWriteType;
-        public static MethodReference SyncListStringWriteType;
 
         // system types
         public static TypeReference voidType;
@@ -192,7 +161,6 @@ namespace Mirror.Weaver
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference registerEventDelegateReference;
-        public static MethodReference registerSyncListDelegateReference;
         public static MethodReference getTypeReference;
         public static MethodReference getTypeFromHandleReference;
         public static MethodReference logErrorReference;
@@ -348,15 +316,6 @@ namespace Mirror.Weaver
             lists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
-        public static MethodReference GetReadByReferenceFunc(TypeReference variable)
-        {
-            if (lists.readByReferenceFuncs.ContainsKey(variable.FullName))
-            {
-                return lists.readByReferenceFuncs[variable.FullName];
-            }
-            return null;
-        }
-
         public static MethodReference GetReadFunc(TypeReference variable)
         {
             if (lists.readFuncs.ContainsKey(variable.FullName))
@@ -411,15 +370,6 @@ namespace Mirror.Weaver
             }
             RegisterReadFunc(variable.FullName, newReaderFunc);
             return newReaderFunc;
-        }
-
-        static public void RegisterReadByReferenceFunc(string name, MethodDefinition newReaderFunc)
-        {
-            lists.readByReferenceFuncs[name] = newReaderFunc;
-            lists.generatedReadFunctions.Add(newReaderFunc);
-
-            ConfirmGeneratedCodeClass(scriptDef.MainModule);
-            lists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
         static public void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
@@ -1292,14 +1242,8 @@ namespace Mirror.Weaver
             ClientRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientRpcAttribute");
             TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
-            SyncListType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncList`1");
+            SyncObjectType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncObject");
             NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
-
-            SyncListFloatType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListFloat");
-            SyncListIntType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListInt");
-            SyncListUIntType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListUInt");
-            SyncListBoolType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListBool");
-            SyncListStringType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListString");
         }
 
         static void SetupCorLib()
@@ -1356,12 +1300,6 @@ namespace Mirror.Weaver
 
             MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
-
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
-            NetworkSceneIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSceneId");
-
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
             NetworkClientGetActive = ResolveMethod(NetworkClientType, "get_active");
@@ -1378,13 +1316,6 @@ namespace Mirror.Weaver
             NetworkWriterWritePacked32 = ResolveMethod(NetworkWriterType, "WritePackedUInt32");
             NetworkWriterWritePacked64 = ResolveMethod(NetworkWriterType, "WritePackedUInt64");
 
-            NetworkWriterWriteNetworkInstanceId = ResolveMethodWithArg(NetworkWriterType, "Write", NetworkInstanceIdType);
-            NetworkWriterWriteNetworkSceneId = ResolveMethodWithArg(NetworkWriterType, "Write", NetworkSceneIdType);
-
-            NetworkReaderReadNetworkInstanceId = ResolveMethod(NetworkReaderType, "ReadNetworkId");
-            NetworkReaderReadNetworkSceneId = ResolveMethod(NetworkReaderType, "ReadSceneId");
-            NetworkInstanceIsEmpty = ResolveMethod(NetworkInstanceIdType, "IsEmpty");
-
             NetworkReadUInt16 = ResolveMethod(NetworkReaderType, "ReadUInt16");
             NetworkWriteUInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", uint16Type);
 
@@ -1395,21 +1326,6 @@ namespace Mirror.Weaver
 
             TypeReference unetViewTmp = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkIdentity");
             NetworkIdentityType = scriptDef.MainModule.ImportReference(unetViewTmp);
-
-            NetworkInstanceIdType = scriptDef.MainModule.ImportReference(NetworkInstanceIdType);
-
-            SyncListFloatReadType = ResolveMethod(SyncListFloatType, "ReadReference");
-            SyncListIntReadType = ResolveMethod(SyncListIntType, "ReadReference");
-            SyncListUIntReadType = ResolveMethod(SyncListUIntType, "ReadReference");
-            SyncListBoolReadType = ResolveMethod(SyncListBoolType, "ReadReference");
-            SyncListStringReadType = ResolveMethod(SyncListStringType, "ReadReference");
-
-            SyncListFloatWriteType = ResolveMethod(SyncListFloatType, "WriteInstance");
-            SyncListIntWriteType = ResolveMethod(SyncListIntType, "WriteInstance");
-            SyncListUIntWriteType = ResolveMethod(SyncListUIntType, "WriteInstance");
-            SyncListBoolWriteType = ResolveMethod(SyncListBoolType, "WriteInstance");
-            SyncListStringWriteType = ResolveMethod(SyncListStringType, "WriteInstance");
-
 
             NetworkBehaviourType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = scriptDef.MainModule.ImportReference(NetworkBehaviourType);
@@ -1453,7 +1369,6 @@ namespace Mirror.Weaver
             registerCommandDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterCommandDelegate");
             registerRpcDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterRpcDelegate");
             registerEventDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterEventDelegate");
-            registerSyncListDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterSyncListDelegate");
             getTypeReference = ResolveMethod(objectType, "GetType");
             getTypeFromHandleReference = ResolveMethod(typeType, "GetTypeFromHandle");
             logErrorReference = ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), "LogError");
@@ -1463,10 +1378,8 @@ namespace Mirror.Weaver
             sendTargetRpcInternal = ResolveMethod(NetworkBehaviourType, "SendTargetRPCInternal");
             sendEventInternal = ResolveMethod(NetworkBehaviourType, "SendEventInternal");
 
-            SyncListType = scriptDef.MainModule.ImportReference(SyncListType);
-            SyncListInitBehaviourReference = ResolveMethod(SyncListType, "InitializeBehaviour");
-            SyncListInitHandleMsg = ResolveMethod(SyncListType, "HandleMsg");
-            SyncListClear = ResolveMethod(SyncListType, "Clear");
+            SyncObjectType = scriptDef.MainModule.ImportReference(SyncObjectType);
+            InitSyncObjectReference = ResolveMethod(NetworkBehaviourType, "InitSyncObject");
         }
 
         static void SetupReadFunctions()
@@ -1500,19 +1413,8 @@ namespace Mirror.Weaver
                 { guidType.FullName, ResolveMethod(NetworkReaderType, "ReadGuid") },
                 { gameObjectType.FullName, ResolveMethod(NetworkReaderType, "ReadGameObject") },
                 { NetworkIdentityType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkIdentity") },
-                { NetworkInstanceIdType.FullName, NetworkReaderReadNetworkInstanceId },
-                { NetworkSceneIdType.FullName, NetworkReaderReadNetworkSceneId },
                 { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
                 { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
-            };
-
-            lists.readByReferenceFuncs = new Dictionary<string, MethodReference>
-            {
-                {SyncListFloatType.FullName, SyncListFloatReadType},
-                {SyncListIntType.FullName, SyncListIntReadType},
-                {SyncListUIntType.FullName, SyncListUIntReadType},
-                {SyncListBoolType.FullName, SyncListBoolReadType},
-                {SyncListStringType.FullName, SyncListStringReadType}
             };
         }
 
@@ -1547,15 +1449,8 @@ namespace Mirror.Weaver
                 { guidType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", guidType) },
                 { gameObjectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", gameObjectType) },
                 { NetworkIdentityType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkIdentityType) },
-                { NetworkInstanceIdType.FullName, NetworkWriterWriteNetworkInstanceId },
-                { NetworkSceneIdType.FullName, NetworkWriterWriteNetworkSceneId },
                 { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
-                { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") },
-                { SyncListFloatType.FullName, SyncListFloatWriteType },
-                { SyncListIntType.FullName, SyncListIntWriteType },
-                { SyncListUIntType.FullName, SyncListUIntWriteType },
-                { SyncListBoolType.FullName, SyncListBoolWriteType },
-                { SyncListStringType.FullName, SyncListStringWriteType }
+                { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") }
             };
         }
 
@@ -1622,6 +1517,34 @@ namespace Mirror.Weaver
             return false;
         }
 
+        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
+        {
+            TypeDefinition typedef = td;
+
+            while ( typedef != null)
+            {
+                foreach (InterfaceImplementation iface in typedef.Interfaces)
+                {
+                    if (iface.InterfaceType.FullName == baseInterface.FullName)
+                        return true;
+                }
+
+                try
+                {
+                    TypeReference parent = typedef.BaseType;
+                    typedef = parent == null ? null : parent.Resolve();
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for pluins.
+                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
+                    break;
+                }
+            }
+
+            return false;
+        }
+
         static public bool IsValidTypeToGenerate(TypeDefinition variable)
         {
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
@@ -1635,7 +1558,6 @@ namespace Mirror.Weaver
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
                 Weaver.fail = true;
-                fail = true;
                 return false;
             }
             return true;
@@ -1841,7 +1763,6 @@ namespace Mirror.Weaver
                         scriptDef.MainModule.SymbolReader.Dispose();
                     return false;
                 }
-
 
                 if (fail)
                 {

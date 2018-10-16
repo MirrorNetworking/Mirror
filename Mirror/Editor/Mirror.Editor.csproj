@@ -62,10 +62,7 @@
     <Compile Include="NetworkManagerPreview.cs" />
     <Compile Include="NetworkTransformChildEditor.cs" />
     <Compile Include="NetworkTransformEditor.cs" />
-    <Compile Include="NetworkTransformPreview.cs" />
-    <Compile Include="NetworkTransformVisualizerEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="NetworkManagerHUDEditor.cs" />
     <Compile Include="NetworkBehaviourInspector.cs" />
     <Compile Include="NetworkInformationPreview.cs" />
     <Compile Include="NetworkScenePostProcess.cs" />

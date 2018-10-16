@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
-        [SerializeField] NetworkSceneId m_SceneId;
+        [SerializeField] uint m_SceneId;
         [SerializeField] Guid m_AssetId;
         [SerializeField] bool           m_ServerOnly;
         [SerializeField] bool           m_LocalPlayerAuthority;
@@ -26,27 +26,27 @@ namespace Mirror
         bool                        m_IsServer;
         bool                        m_HasAuthority;
 
-        NetworkInstanceId           m_NetId;
+        uint                        m_NetId;
         bool                        m_IsLocalPlayer;
         NetworkConnection           m_ConnectionToServer;
         NetworkConnection           m_ConnectionToClient;
         NetworkBehaviour[]          m_NetworkBehaviours;
 
-        // there is a list AND a hashSet of connections, for fast verification of dupes, but the main operation is iteration over the list.
-        HashSet<int>                m_ObserverConnections;
-        List<NetworkConnection>     m_Observers;
+        // <connectionId, NetworkConnection>
+        Dictionary<int, NetworkConnection> m_Observers;
+
         NetworkConnection           m_ClientAuthorityOwner;
 
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
-        bool                        m_Reset = false;
+        bool                        m_Reset;
         // properties
         public bool isClient        { get { return m_IsClient; } }
         public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
-        public NetworkInstanceId netId { get { return m_NetId; } }
-        public NetworkSceneId sceneId { get { return m_SceneId; } }
+        public uint netId { get { return m_NetId; } }
+        public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
@@ -114,18 +114,12 @@ namespace Mirror
         public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
         public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
-        public ReadOnlyCollection<NetworkConnection> observers
-        {
-            get
-            {
-                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers) : null;
-            }
-        }
+        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
-        internal static NetworkInstanceId GetNextNetworkId()
+        internal static uint GetNextNetworkId()
         {
-            return new NetworkInstanceId(s_NextNetworkId++);
+            return s_NextNetworkId++;
         }
 
         void CacheBehaviours()
@@ -139,28 +133,20 @@ namespace Mirror
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
-        internal static void AddNetworkId(uint id)
-        {
-            if (id >= s_NextNetworkId)
-            {
-                s_NextNetworkId = (uint)(id + 1);
-            }
-        }
-
         // only used during spawning on clients to set the identity.
-        internal void SetNetworkInstanceId(NetworkInstanceId newNetId)
+        internal void SetNetworkInstanceId(uint newNetId)
         {
             m_NetId = newNetId;
-            if (newNetId.Value == 0)
+            if (newNetId == 0)
             {
                 m_IsServer = false;
             }
         }
 
-        // only used when fixing duplicate scene IDs duing post-processing
-        public void ForceSceneId(int newSceneId)
+        // only used when fixing duplicate scene IDs during post-processing
+        public void ForceSceneId(uint newSceneId)
         {
-            m_SceneId = new NetworkSceneId((uint)newSceneId);
+            m_SceneId = newSceneId;
         }
 
         // only used in SetLocalObject
@@ -188,8 +174,7 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                m_Observers.Remove(conn);
-                m_ObserverConnections.Remove(conn.connectionId);
+                m_Observers.Remove(conn.connectionId);
             }
         }
 
@@ -270,12 +255,11 @@ namespace Mirror
             m_IsServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
-            m_Observers = new List<NetworkConnection>();
-            m_ObserverConnections = new HashSet<int>();
+            m_Observers = new Dictionary<int, NetworkConnection>();
             CacheBehaviours();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            if (netId.IsEmpty())
+            if (netId == 0)
             {
                 m_NetId = GetNextNetworkId();
             }
@@ -610,43 +594,6 @@ namespace Mirror
             invokeFunction(invokeComponent, reader);
         }
 
-        // happens on client
-        internal void HandleSyncList(int cmdHash, NetworkReader reader)
-        {
-            // this doesn't use NetworkBehaviour.InvokSyncList function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
-            if (gameObject == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
-                return;
-            }
-
-            // find the matching SyncList function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncList(cmdHash, out invokeClass, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
-                return;
-            }
-
-            // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncList [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
-                return;
-            }
-
-            invokeFunction(invokeComponent, reader);
-        }
-
         // happens on server
         internal void HandleCommand(int cmdHash, NetworkReader reader)
         {
@@ -796,13 +743,11 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                int count = m_Observers.Count;
-                for (int i = 0; i < count; i++)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in m_Observers)
                 {
-                    m_Observers[i].RemoveFromVisList(this, true);
+                    kvp.Value.RemoveFromVisList(this, true);
                 }
                 m_Observers.Clear();
-                m_ObserverConnections.Clear();
             }
         }
 
@@ -814,8 +759,7 @@ namespace Mirror
                 return;
             }
 
-            // uses hashset for better-than-list-iteration lookup performance.
-            if (m_ObserverConnections.Contains(conn.connectionId))
+            if (m_Observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
                 // we may have generated one that was already in use.
@@ -824,8 +768,7 @@ namespace Mirror
 
             if (LogFilter.logDev) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
-            m_Observers.Add(conn);
-            m_ObserverConnections.Add(conn.connectionId);
+            m_Observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
         }
 
@@ -834,9 +777,7 @@ namespace Mirror
             if (m_Observers == null)
                 return;
 
-            // NOTE this is linear performance now..
-            m_Observers.Remove(conn);
-            m_ObserverConnections.Remove(conn.connectionId);
+            m_Observers.Remove(conn.connectionId);
             conn.RemoveFromVisList(this, false);
         }
 
@@ -848,7 +789,7 @@ namespace Mirror
             bool changed = false;
             bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers);
+            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
@@ -860,10 +801,10 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    for (int i = 0; i < NetworkServer.connections.Count; i++)
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
                     {
-                        var conn = NetworkServer.connections[i];
-                        if (conn != null && conn.isReady)
+                        NetworkConnection conn = kvp.Value;
+                        if (conn.isReady)
                             AddObserver(conn);
                     }
 
@@ -920,14 +861,7 @@ namespace Mirror
 
             if (changed)
             {
-                m_Observers = new List<NetworkConnection>(newObservers);
-
-                // rebuild hashset once we have the final set of new observers
-                m_ObserverConnections.Clear();
-                for (int i = 0; i < m_Observers.Count; i++)
-                {
-                    m_ObserverConnections.Add(m_Observers[i].connectionId);
-                }
+                m_Observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 
@@ -1039,7 +973,7 @@ namespace Mirror
             m_IsClient = false;
             m_HasAuthority = false;
 
-            m_NetId = NetworkInstanceId.Zero;
+            m_NetId = 0;
             m_IsLocalPlayer = false;
             m_ConnectionToServer = null;
             m_ConnectionToClient = null;
@@ -1065,5 +999,5 @@ namespace Mirror
             NetworkClient.UpdateClients();
             NetworkManager.UpdateScene();
         }
-    };
+    }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ namespace Mirror
 {
     public class NetworkReader
     {
-        BinaryReader reader;
+        readonly BinaryReader reader;
 
         public NetworkReader(byte[] buffer)
         {
@@ -58,32 +58,12 @@ namespace Mirror
         // NOTE: big endian.
         public UInt32 ReadPackedUInt32()
         {
-            byte a0 = ReadByte();
-            if (a0 < 241)
+            UInt64 value = ReadPackedUInt64();
+            if (value > UInt32.MaxValue)
             {
-                return a0;
+                throw new IndexOutOfRangeException("ReadPackedUInt32() failure, value too large");
             }
-            byte a1 = ReadByte();
-            if (a0 >= 241 && a0 <= 248)
-            {
-                return (UInt32)(240 + 256 * (a0 - 241) + a1);
-            }
-            byte a2 = ReadByte();
-            if (a0 == 249)
-            {
-                return (UInt32)(2288 + 256 * a1 + a2);
-            }
-            byte a3 = ReadByte();
-            if (a0 == 250)
-            {
-                return a1 + (((UInt32)a2) << 8) + (((UInt32)a3) << 16);
-            }
-            byte a4 = ReadByte();
-            if (a0 >= 251)
-            {
-                return a1 + (((UInt32)a2) << 8) + (((UInt32)a3) << 16) + (((UInt32)a4) << 24);
-            }
-            throw new IndexOutOfRangeException("ReadPackedUInt32() failure: " + a0);
+            return (UInt32)value;
         }
 
         public UInt64 ReadPackedUInt64()
@@ -143,16 +123,6 @@ namespace Mirror
             }
 
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
-        }
-
-        public NetworkInstanceId ReadNetworkId()
-        {
-            return new NetworkInstanceId(ReadPackedUInt32());
-        }
-
-        public NetworkSceneId ReadSceneId()
-        {
-            return new NetworkSceneId(ReadPackedUInt32());
         }
 
         public Vector2 ReadVector2()
@@ -230,8 +200,8 @@ namespace Mirror
 
         public Transform ReadTransform()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -247,8 +217,8 @@ namespace Mirror
 
         public GameObject ReadGameObject()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -272,8 +242,8 @@ namespace Mirror
 
         public NetworkIdentity ReadNetworkIdentity()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -306,5 +276,5 @@ namespace Mirror
             msg.Deserialize(this);
             return msg;
         }
-    };
+    }
 }

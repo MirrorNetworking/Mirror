@@ -7,7 +7,6 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkWriterTest
     {
-
         [Test]
         public void TestWritingSmallMessage()
         {
@@ -41,7 +40,6 @@ namespace Mirror.Tests
             byte[] deserialized = reader.ReadBytesAndSize();
             Assert.That(deserialized.Length, Is.EqualTo(100000));
         }
-
 
         [Test]
         public void TestToArray()

@@ -159,7 +159,6 @@ namespace Mirror
             EditorGUI.indentLevel += 1;
             EditorGUILayout.PropertyField(m_MovementTheshold, m_MovementThesholdLabel);
 
-
             if (m_VelocityThreshold.floatValue < 0)
             {
                 m_VelocityThreshold.floatValue = 0;

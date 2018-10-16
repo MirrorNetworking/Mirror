@@ -12,7 +12,7 @@ namespace Mirror
         {
             Physics3D,
             Physics2D
-        };
+        }
 
         [TooltipAttribute("The maximum range that objects will be visible at.")]
         public int visRange = 10;
@@ -24,7 +24,7 @@ namespace Mirror
         public CheckMethod checkMethod = CheckMethod.Physics3D;
 
         [TooltipAttribute("Enable to force this object to be hidden from players.")]
-        public bool forceHidden = false;
+        public bool forceHidden;
 
         [TooltipAttribute("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
         public LayerMask castLayers = ~0; // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.

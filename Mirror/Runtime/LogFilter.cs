@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public class LogFilter
+    public static class LogFilter
     {
         // this only exists for inspector UI?!
         public enum FilterLevel
@@ -14,7 +14,7 @@ namespace Mirror
             Warn = 3,
             Error = 4,
             SetInScripting = -1
-        };
+        }
 
         public static FilterLevel currentLogLevel = FilterLevel.Info;
 

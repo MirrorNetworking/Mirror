@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -16,12 +16,14 @@ namespace Mirror
         static NetworkScene s_NetworkScene = new NetworkScene();
 
         static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
-        static List<NetworkConnection> s_Connections = new List<NetworkConnection>();
+
+        // <connectionId, NetworkConnection>
+        static Dictionary<int, NetworkConnection> s_Connections = new Dictionary<int, NetworkConnection>();
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static bool s_UseWebSockets;
-        static bool s_Initialized = false;
+        static bool s_Initialized;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
@@ -31,10 +33,10 @@ namespace Mirror
         public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
-        public static List<NetworkConnection> connections { get { return s_Connections; } }
+        public static Dictionary<int, NetworkConnection> connections { get { return s_Connections; } }
         public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
 
-        public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
+        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
         public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
 
@@ -142,30 +144,23 @@ namespace Mirror
             return true;
         }
 
-        public static bool SetConnectionAtIndex(NetworkConnection conn)
+        public static bool AddConnection(NetworkConnection conn)
         {
-            while (s_Connections.Count <= conn.connectionId)
+            if (!s_Connections.ContainsKey(conn.connectionId))
             {
-                s_Connections.Add(null);
+                // connection cannot be null here or conn.connectionId
+                // would throw NRE
+                s_Connections[conn.connectionId] = conn;
+                conn.SetHandlers(s_MessageHandlers);
+                return true;
             }
-
-            if (s_Connections[conn.connectionId] != null)
-            {
-                // already a connection at this index
-                return false;
-            }
-
-            s_Connections[conn.connectionId] = conn;
-            conn.SetHandlers(s_MessageHandlers);
-            return true;
+            // already a connection with this id
+            return false;
         }
 
-        public static bool RemoveConnectionAtIndex(int connectionId)
+        public static bool RemoveConnection(int connectionId)
         {
-            if (connectionId < 0 || connectionId >= s_Connections.Count)
-                return false;
-            s_Connections.RemoveAt(connectionId);
-            return true;
+            return s_Connections.Remove(connectionId);
         }
 
         // called by LocalClient to add itself. dont call directly.
@@ -179,10 +174,9 @@ namespace Mirror
 
             s_LocalConnection = new ULocalConnectionToClient(localClient);
             s_LocalConnection.connectionId = 0;
-            SetConnectionAtIndex(s_LocalConnection);
+            AddConnection(s_LocalConnection);
 
             s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
-
             return 0;
         }
 
@@ -195,10 +189,10 @@ namespace Mirror
                 s_LocalConnection = null;
             }
             s_LocalClientActive = false;
-            RemoveConnectionAtIndex(0);
+            RemoveConnection(0);
         }
 
-        internal static void SetLocalObjectOnServer(NetworkInstanceId netId, GameObject obj)
+        internal static void SetLocalObjectOnServer(uint netId, GameObject obj)
         {
             if (LogFilter.logDev) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
@@ -230,14 +224,13 @@ namespace Mirror
         {
             if (LogFilter.logDev) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
-            var uv = contextObj.GetComponent<NetworkIdentity>();
+            NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
             if (uv != null && uv.observers != null)
             {
                 bool result = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
                 {
-                    var conn = uv.observers[i];
-                    result &= conn.Send(msgType, msg);
+                    result &= kvp.Value.Send(msgType, msg);
                 }
                 return result;
             }
@@ -249,11 +242,10 @@ namespace Mirror
             if (LogFilter.logDev) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             bool result = true;
-            for (int i = 0; i < connections.Count; i++)
+            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                    result &= conn.Send(msgType, msg);
+                NetworkConnection conn = kvp.Value;
+                result &= conn.Send(msgType, msg);
             }
             return result;
         }
@@ -265,10 +257,10 @@ namespace Mirror
             if (contextObj == null)
             {
                 // no context.. send to all ready connections
-                for (int i = 0; i < connections.Count; i++)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
                 {
-                    NetworkConnection conn = connections[i];
-                    if (conn != null && conn.isReady)
+                    NetworkConnection conn = kvp.Value;
+                    if (conn.isReady)
                     {
                         conn.Send(msgType, msg);
                     }
@@ -280,12 +272,11 @@ namespace Mirror
             if (uv != null && uv.observers != null)
             {
                 bool result = true;
-                for (int i = 0; i < uv.observers.Count; ++i)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
                 {
-                    NetworkConnection conn = uv.observers[i];
-                    if (conn.isReady)
+                    if (kvp.Value.isReady)
                     {
-                        result &= conn.Send(msgType, msg);
+                        result &= kvp.Value.Send(msgType, msg);
                     }
                 }
                 return result;
@@ -300,14 +291,11 @@ namespace Mirror
 
         public static void DisconnectAllConnections()
         {
-            for (int i = 0; i < connections.Count; i++)
+            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                NetworkConnection conn = connections[i];
-                if (conn != null)
-                {
-                    conn.Disconnect();
-                    conn.Dispose();
-                }
+                NetworkConnection conn = kvp.Value;
+                conn.Disconnect();
+                conn.Dispose();
             }
         }
 
@@ -336,7 +324,7 @@ namespace Mirror
         {
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
-            List<NetworkInstanceId> remove = new List<NetworkInstanceId>();
+            List<uint> removeNetIds = new List<uint>();
             foreach (var kvp in objects)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
@@ -345,14 +333,14 @@ namespace Mirror
                 }
                 else
                 {
-                    remove.Add(kvp.Key);
+                    removeNetIds.Add(kvp.Key);
                 }
             }
 
             // now remove
-            foreach (NetworkInstanceId key in remove)
+            foreach (uint netId in removeNetIds)
             {
-                objects.Remove(key);
+                objects.Remove(netId);
             }
         }
 
@@ -402,16 +390,8 @@ namespace Mirror
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
-            conn.SetHandlers(s_MessageHandlers);
             conn.Initialize(address, s_ServerHostId, connectionId);
-
-            // add connection at correct index
-            while (s_Connections.Count <= connectionId)
-            {
-                s_Connections.Add(null);
-            }
-            s_Connections[connectionId] = conn;
-
+            AddConnection(conn);
             OnConnected(conn);
         }
 
@@ -425,17 +405,15 @@ namespace Mirror
         {
             if (LogFilter.logDebug) { Debug.Log("Server disconnect client:" + connectionId); }
 
-            var conn = FindConnection(connectionId);
-            if (conn == null)
+            NetworkConnection conn;
+            if (s_Connections.TryGetValue(connectionId, out conn))
             {
-                return;
+                conn.Disconnect();
+                RemoveConnection(connectionId);
+                if (LogFilter.logDebug) { Debug.Log("Server lost client:" + connectionId); }
+
+                OnDisconnected(conn);
             }
-
-            conn.Disconnect();
-            s_Connections[connectionId] = null;
-            if (LogFilter.logDebug) { Debug.Log("Server lost client:" + connectionId); }
-
-            OnDisconnected(conn);
         }
 
         static void OnDisconnected(NetworkConnection conn)
@@ -453,24 +431,17 @@ namespace Mirror
             conn.Dispose();
         }
 
-        public static NetworkConnection FindConnection(int connectionId)
-        {
-            if (connectionId < 0 || connectionId >= s_Connections.Count)
-                return null;
-
-            return s_Connections[connectionId];
-        }
-
         static void HandleData(int connectionId, byte[] data, byte error)
         {
-            var conn = FindConnection(connectionId);
-            if (conn == null)
+            NetworkConnection conn;
+            if (s_Connections.TryGetValue(connectionId, out conn))
+            {
+                OnData(conn, data);
+            }
+            else
             {
                 if (LogFilter.logError) { Debug.LogError("HandleData Unknown connectionId:" + connectionId); }
-                return;
             }
-
-            OnData(conn, data);
         }
 
         static void OnData(NetworkConnection conn, byte[] data)
@@ -554,11 +525,10 @@ namespace Mirror
         // send this message to the player only
         public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
         {
-            for (int i = 0; i < connections.Count; i++)
+            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                NetworkConnection conn = connections[i];
-                if (conn != null &&
-                    conn.playerController != null &&
+                NetworkConnection conn = kvp.Value;
+                if (conn.playerController != null &&
                     conn.playerController.gameObject == player)
                 {
                     conn.Send(msgType, msg);
@@ -571,14 +541,11 @@ namespace Mirror
 
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
-            if (connectionId < connections.Count)
+            NetworkConnection conn;
+            if (connections.TryGetValue(connectionId, out conn))
             {
-                var conn = connections[connectionId];
-                if (conn != null)
-                {
-                    conn.Send(msgType, msg);
-                    return;
-                }
+                conn.Send(msgType, msg);
+                return;
             }
             if (LogFilter.logError) { Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list"); }
         }
@@ -662,7 +629,7 @@ namespace Mirror
                 if (LogFilter.logDev) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
                 // Spawn this player for other players, instead of SpawnObject:
-                if (uv.netId.IsEmpty())
+                if (uv.netId == 0)
                 {
                     // it is allowed to provide an already spawned object as the new player object.
                     // so dont spawn it again.
@@ -687,7 +654,7 @@ namespace Mirror
 
         static void FinishPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, GameObject playerGameObject)
         {
-            if (uv.netId.IsEmpty())
+            if (uv.netId == 0)
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
@@ -853,9 +820,9 @@ namespace Mirror
         // call this to make all the clients not ready, such as when changing levels.
         public static void SetAllClientsNotReady()
         {
-            for (int i = 0; i < connections.Count; i++)
+            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                var conn = connections[i];
+                NetworkConnection conn = kvp.Value;
                 if (conn != null)
                 {
                     SetClientNotReady(conn);
@@ -972,7 +939,7 @@ namespace Mirror
             if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
 
             // 'uv' is a prefab that should be spawned
-            if (uv.sceneId.IsEmpty())
+            if (uv.sceneId == 0)
             {
                 SpawnPrefabMessage msg = new SpawnPrefabMessage();
                 msg.netId = uv.netId;
@@ -1032,7 +999,7 @@ namespace Mirror
 
             if (conn.clientOwnedObjects != null)
             {
-                HashSet<NetworkInstanceId> tmp = new HashSet<NetworkInstanceId>(conn.clientOwnedObjects);
+                HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (var netId in tmp)
                 {
                     var obj = FindLocalObject(netId);
@@ -1241,7 +1208,7 @@ namespace Mirror
             return false;
         }
 
-        public static GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(uint netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }
@@ -1257,10 +1224,7 @@ namespace Mirror
 #endif
 
             // If not a scene object
-            if (netId.sceneId.IsEmpty())
-                return false;
-
-            return true;
+            return netId.sceneId != 0;
         }
 
         public static bool SpawnObjects()
@@ -1292,5 +1256,5 @@ namespace Mirror
             }
             return true;
         }
-    };
+    }
 }

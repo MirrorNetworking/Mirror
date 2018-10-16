@@ -1,4 +1,4 @@
-using Guid = System.Guid;
+﻿using Guid = System.Guid;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +8,8 @@ namespace Mirror
     {
         static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;
-        static Dictionary<NetworkSceneId, NetworkIdentity> s_SpawnableObjects;
+        // scene id to NetworkIdentity
+        static Dictionary<uint, NetworkIdentity> s_SpawnableObjects;
 
         static bool s_IsReady;
         static bool s_IsSpawnFinished;
@@ -19,21 +20,23 @@ namespace Mirror
             s_IsReady = false;
         }
 
-        static List<NetworkInstanceId> s_PendingOwnerIds = new List<NetworkInstanceId>();
+        static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
         public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
-        public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
+        // objects by net id
+        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
-        public static Dictionary<NetworkSceneId, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
+        // scene id to NetworkIdentity
+        public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
 
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
-            s_PendingOwnerIds = new List<NetworkInstanceId>();
+            s_PendingOwnerNetIds = new List<uint>();
             s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
@@ -168,7 +171,7 @@ namespace Mirror
         internal static void PrepareToSpawnSceneObjects()
         {
             //NOTE: what is there are already objects in this dict?! should we merge with them?
-            s_SpawnableObjects = new Dictionary<NetworkSceneId, NetworkIdentity>();
+            s_SpawnableObjects = new Dictionary<uint, NetworkIdentity>();
             var uvs = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             for (int i = 0; i < uvs.Length; i++)
             {
@@ -176,7 +179,7 @@ namespace Mirror
                 // not spawned yet etc.?
                 if (!uv.gameObject.activeSelf &&
                     uv.gameObject.hideFlags != HideFlags.NotEditable && uv.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                    !uv.sceneId.IsEmpty())
+                    uv.sceneId != 0)
                 {
                     s_SpawnableObjects[uv.sceneId] = uv;
                     if (LogFilter.logDebug) { Debug.Log("ClientScene::PrepareSpawnObjects sceneId:" + uv.sceneId); }
@@ -184,7 +187,7 @@ namespace Mirror
             }
         }
 
-        internal static NetworkIdentity SpawnSceneObject(NetworkSceneId sceneId)
+        internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
             if (s_SpawnableObjects.ContainsKey(sceneId))
             {
@@ -215,7 +218,6 @@ namespace Mirror
                 client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.SyncList, OnSyncListMessage);
                 client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
                 client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
@@ -287,18 +289,18 @@ namespace Mirror
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        public static void SetLocalObject(NetworkInstanceId netId, GameObject obj)
+        public static void SetLocalObject(uint netId, GameObject obj)
         {
             // if still receiving initial state, dont set isClient
             s_NetworkScene.SetLocalObject(netId, obj, s_IsSpawnFinished, false);
         }
 
-        public static GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(uint netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }
 
-        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, NetworkInstanceId netId, GameObject newGameObject)
+        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId, GameObject newGameObject)
         {
             if (!uv.gameObject.activeSelf)
             {
@@ -464,7 +466,7 @@ namespace Mirror
                 if (!NetworkScene.InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
                     // default handling
-                    if (localObject.sceneId.IsEmpty())
+                    if (localObject.sceneId == 0)
                     {
                         Object.Destroy(localObject.gameObject);
                     }
@@ -585,23 +587,6 @@ namespace Mirror
             }
         }
 
-        static void OnSyncListMessage(NetworkMessage netMsg)
-        {
-            SyncListMessage message = netMsg.ReadMessage<SyncListMessage>();
-
-            if (LogFilter.logDebug) { Debug.Log("ClientScene::OnSyncListMessage " + message.netId); }
-
-            NetworkIdentity uv;
-            if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
-            {
-                uv.HandleSyncList(message.syncListHash, new NetworkReader(message.payload));
-            }
-            else
-            {
-                if (LogFilter.logWarn) { Debug.LogWarning("Did not find target for SyncList message for " + message.netId); }
-            }
-        }
-
         static void OnClientAuthority(NetworkMessage netMsg)
         {
             ClientAuthorityMessage msg = new ClientAuthorityMessage();
@@ -624,7 +609,6 @@ namespace Mirror
 
             if (LogFilter.logDebug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
-
             // is there already an owner that is a different object??
             if (netMsg.conn.playerController != null)
             {
@@ -641,17 +625,17 @@ namespace Mirror
             }
             else
             {
-                s_PendingOwnerIds.Add(msg.netId);
+                s_PendingOwnerNetIds.Add(msg.netId);
             }
         }
 
         static void CheckForOwner(NetworkIdentity uv)
         {
-            for (int i = 0; i < s_PendingOwnerIds.Count; i++)
+            for (int i = 0; i < s_PendingOwnerNetIds.Count; i++)
             {
-                NetworkInstanceId pendingOwner = s_PendingOwnerIds[i];
+                uint pendingOwnerNetId = s_PendingOwnerNetIds[i];
 
-                if (pendingOwner == uv.netId)
+                if (pendingOwnerNetId == uv.netId)
                 {
                     // found owner, turn into a local player
 
@@ -667,7 +651,7 @@ namespace Mirror
                     }
                     InternalAddPlayer(uv);
 
-                    s_PendingOwnerIds.RemoveAt(i);
+                    s_PendingOwnerNetIds.RemoveAt(i);
                     break;
                 }
             }

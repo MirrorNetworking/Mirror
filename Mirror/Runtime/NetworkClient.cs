@@ -24,7 +24,7 @@ namespace Mirror
         // average out the last few results from Ping
         public int pingWindowSize = 10;
 
-        double lastPingTime = 0;
+        double lastPingTime;
 
         int m_HostPort;
 
@@ -32,7 +32,7 @@ namespace Mirror
         int m_ServerPort;
         int m_ClientId = -1;
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
+        readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         protected enum ConnectState
@@ -365,5 +365,5 @@ namespace Mirror
         {
             s_IsActive = state;
         }
-    };
+    }
 }

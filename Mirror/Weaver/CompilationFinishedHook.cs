@@ -57,7 +57,7 @@ namespace Mirror.Weaver
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                     // but Weaver creates it's own if null, which is this one:
                     IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[1] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
+                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
                     {
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }

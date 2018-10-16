@@ -26,7 +26,6 @@ namespace Mirror
 
             Assert.That(ema.Value, Is.EqualTo(5.1818).Within(0.0001f));
             Assert.That(ema.Var, Is.EqualTo(0.1487).Within(0.0001f));
-
         }
 
         [Test]
@@ -39,8 +38,6 @@ namespace Mirror
             ema.Add(7);
 
             Assert.That(ema.Var, Is.EqualTo(0.6134).Within(0.0001f));
-
         }
-
     }
 }

@@ -33,7 +33,7 @@ namespace Mirror.Weaver
                     }
                 }
 
-                if (Helpers.InheritsFromSyncList(fd.FieldType))
+                if (Helpers.ImplementsSyncObject(fd.FieldType))
                 {
                     Log.Error(string.Format("Script {0} defines field {1} with type {2}, but it's not a NetworkBehaviour", m_td.FullName, fd.Name, Helpers.PrettyPrintType(fd.FieldType)));
                     Weaver.fail = true;
@@ -91,5 +91,5 @@ namespace Mirror.Weaver
                 }
             }
         }
-    };
+    }
 }

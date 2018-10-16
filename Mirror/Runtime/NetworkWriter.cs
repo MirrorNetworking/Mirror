@@ -100,39 +100,9 @@ namespace Mirror
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         public void WritePackedUInt32(UInt32 value)
         {
-            if (value <= 240)
-            {
-                Write((byte)value);
-                return;
-            }
-            if (value <= 2287)
-            {
-                Write((byte)((value - 240) / 256 + 241));
-                Write((byte)((value - 240) % 256));
-                return;
-            }
-            if (value <= 67823)
-            {
-                Write((byte)249);
-                Write((byte)((value - 2288) / 256));
-                Write((byte)((value - 2288) % 256));
-                return;
-            }
-            if (value <= 16777215)
-            {
-                Write((byte)250);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                return;
-            }
-
-            // all other values of uint
-            Write((byte)251);
-            Write((byte)(value & 0xFF));
-            Write((byte)((value >> 8) & 0xFF));
-            Write((byte)((value >> 16) & 0xFF));
-            Write((byte)((value >> 24) & 0xFF));
+            // for 32 bit values WritePackedUInt64 writes the
+            // same exact thing bit by bit
+            WritePackedUInt64(value);
         }
 
         public void WritePackedUInt64(UInt64 value)
@@ -218,16 +188,6 @@ namespace Mirror
                 Write((byte)((value >> 48) & 0xFF));
                 Write((byte)((value >> 56) & 0xFF));
             }
-        }
-
-        public void Write(NetworkInstanceId value)
-        {
-            WritePackedUInt32(value.Value);
-        }
-
-        public void Write(NetworkSceneId value)
-        {
-            WritePackedUInt32(value.Value);
         }
 
         public void Write(Vector2 value)
@@ -327,7 +287,7 @@ namespace Mirror
                 WritePackedUInt32(0);
                 return;
             }
-            Write(value.netId);
+            WritePackedUInt32(value.netId);
         }
 
         public void Write(Transform value)
@@ -340,7 +300,7 @@ namespace Mirror
             var uv = value.gameObject.GetComponent<NetworkIdentity>();
             if (uv != null)
             {
-                Write(uv.netId);
+                WritePackedUInt32(uv.netId);
             }
             else
             {
@@ -359,7 +319,7 @@ namespace Mirror
             var uv = value.GetComponent<NetworkIdentity>();
             if (uv != null)
             {
-                Write(uv.netId);
+                WritePackedUInt32(uv.netId);
             }
             else
             {
@@ -372,5 +332,5 @@ namespace Mirror
         {
             msg.Serialize(this);
         }
-    };
+    }
 }

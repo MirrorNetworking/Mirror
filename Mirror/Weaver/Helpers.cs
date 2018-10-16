@@ -58,29 +58,17 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static bool InheritsFromSyncList(TypeReference typeRef)
+        public static bool ImplementsSyncObject(TypeReference typeRef)
         {
             try
             {
-                // value types cant inherit from SyncList<T>
+                // value types cant inherit from SyncObject
                 if (typeRef.IsValueType)
                 {
                     return false;
                 }
 
-                foreach (var type in ResolveInheritanceHierarchy(typeRef))
-                {
-                    // only need to check for generic instances, as we're looking for SyncList<T>
-                    if (type.IsGenericInstance)
-                    {
-                        // resolves the instance type to it's generic type definition, for example SyncList<Int> to SyncList<T>
-                        var typeDef = type.Resolve();
-                        if (typeDef.HasGenericParameters && typeDef.FullName == Weaver.SyncListType.FullName)
-                        {
-                            return true;
-                        }
-                    }
-                }
+                return Weaver.ImplementsInterface(typeRef.Resolve(), Weaver.SyncObjectType);
             }
             catch
             {
@@ -125,7 +113,6 @@ namespace Mirror.Weaver
                     break;
                 }
             }
-
 
             yield return Weaver.objectType;
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace Mirror
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
-        HashSet<NetworkInstanceId> m_ClientOwnedObjects;
+        HashSet<uint> m_ClientOwnedObjects;
 
         public int hostId = -1;
         public int connectionId = -1;
@@ -26,8 +26,8 @@ namespace Mirror
         public string address;
         public float lastMessageTime;
         public NetworkIdentity playerController { get { return m_PlayerController; } }
-        public HashSet<NetworkInstanceId> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
-        public bool logNetworkMessages = false;
+        public HashSet<uint> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
+        public bool logNetworkMessages;
         public bool isConnected { get { return hostId != -1; }}
 
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
@@ -289,7 +289,7 @@ namespace Mirror
         {
             if (m_ClientOwnedObjects == null)
             {
-                m_ClientOwnedObjects = new HashSet<NetworkInstanceId>();
+                m_ClientOwnedObjects = new HashSet<uint>();
             }
             m_ClientOwnedObjects.Add(obj.netId);
         }

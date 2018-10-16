@@ -920,24 +920,16 @@ namespace Mirror
                     {
                         return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
                     }
-                    else
-                    {
-                        return false;
-                    }
+                    break;
 
                 case TransformSyncMode.SyncRigidbody3D:
                     if (m_RigidBody3D && m_VelocityThreshold > 0)
                     {
                         return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
                     }
-                    else
-                    {
-                        return false;
-                    }
-
-                default:
-                    return false;
+                    break;
             }
+            return false;
         }
 
         void FixedUpdateClient()
@@ -1049,7 +1041,7 @@ namespace Mirror
             if (m_InterpolateMovement != 0)
             {
                 Vector2 oldVelocity = m_RigidBody2D.velocity;
-                Vector2 newVelocity = (((Vector2)m_TargetSyncPosition - m_RigidBody2D.position)) * m_InterpolateMovement / GetNetworkSendInterval();
+                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / GetNetworkSendInterval();
                 if (!m_Grounded && newVelocity.y < 0)
                 {
                     newVelocity.y = oldVelocity.y;
@@ -1144,13 +1136,8 @@ namespace Mirror
             {
                 diff = Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity);
             }
-            if (diff > k_LocalVelocityThreshold)
-            {
-                return true;
-            }
 
-
-            return false;
+            return diff > k_LocalVelocityThreshold;
         }
 
         [Client]
