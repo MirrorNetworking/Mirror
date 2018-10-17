@@ -33,6 +33,7 @@ bin/
 .vs/
 .idea/
 Mirror/packages
+.mfractor
 
 # ============ #
 # OS generated #
@@ -44,6 +45,5 @@ Mirror/packages
 .Trashes
 ehthumbs.db
 Thumbs.db
-
 
 
