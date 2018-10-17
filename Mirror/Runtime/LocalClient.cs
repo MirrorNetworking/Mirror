@@ -88,8 +88,10 @@ namespace Mirror
                 return;
             }
 
-            // we will process all existing messages, 
-            // but new messages might be added in the process
+            // we will process all existing messages,
+            // but new messages might be added in the process because host mode
+            // local client messages don't go over the network. they are added
+            // here directly. (probably...)
             // so we make a copy of the list first
             List<InternalMsg> tmp = new List<InternalMsg>(m_InternalMsgs);
             m_InternalMsgs.Clear();
