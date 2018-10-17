@@ -13,7 +13,6 @@ namespace Mirror
         }
 
         List<InternalMsg> m_InternalMsgs = new List<InternalMsg>();
-        List<InternalMsg> m_InternalMsgs2 = new List<InternalMsg>();
 
         bool m_Connected;
 
@@ -89,9 +88,11 @@ namespace Mirror
                 return;
             }
 
-            // new msgs will get put in m_InternalMsgs2
-            List<InternalMsg> tmp = m_InternalMsgs;
-            m_InternalMsgs = m_InternalMsgs2;
+            // we will process all existing messages, 
+            // but new messages might be added in the process
+            // so we work on a copy of the list
+            List<InternalMsg> tmp = new List<InternalMsg>(m_InternalMsgs);
+            m_InternalMsgs.Clear();
 
             // iterate through existing set
             for (int i = 0; i < tmp.Count; i++)
@@ -106,14 +107,6 @@ namespace Mirror
                 m_Connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
             }
-
-            // put m_InternalMsgs back and clear it
-            m_InternalMsgs = tmp;
-            m_InternalMsgs.Clear();
-
-            // add any newly generated msgs in m_InternalMsgs2 and clear it
-            m_InternalMsgs.AddRange(m_InternalMsgs2);
-            m_InternalMsgs2.Clear();
         }
 
         // called by the server, to bypass network
