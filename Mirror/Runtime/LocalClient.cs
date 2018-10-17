@@ -90,7 +90,7 @@ namespace Mirror
 
             // we will process all existing messages, 
             // but new messages might be added in the process
-            // so we work on a copy of the list
+            // so we make a copy of the list first
             List<InternalMsg> tmp = new List<InternalMsg>(m_InternalMsgs);
             m_InternalMsgs.Clear();
 
