@@ -17,7 +17,6 @@ namespace Mirror
     {
         // configuration
         [SerializeField] uint m_SceneId;
-        [SerializeField] NetworkHash128 m_AssetId;
         [SerializeField] bool           m_ServerOnly;
         [SerializeField] bool           m_LocalPlayerAuthority;
 
@@ -51,23 +50,36 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
-        public NetworkHash128 assetId
+        // the AssetId trick:
+        // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   serialize it because Guid's internal bytes are private
+        // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
+        //   which works, but it just unnecessary extra code
+        // - using just the Guid string would work, but it's 32 chars long and
+        //   would then be sent over the network as 64 instead of 16 bytes
+        // -> the solution is to serialize the string internally here and then
+        //    use the real 'Guid' type for everything else via .assetId
+        [SerializeField] string m_AssetId;
+        public Guid assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (!m_AssetId.IsValid())
+                if (string.IsNullOrEmpty(m_AssetId))
                     SetupIDs();
 #endif
-                return m_AssetId;
+                // convert string to Guid and use .Empty to avoid exception if
+                // we would use 'new Guid("")'
+                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
-        internal void SetDynamicAssetId(NetworkHash128 newAssetId)
+        internal void SetDynamicAssetId(Guid newAssetId)
         {
-            if (!m_AssetId.IsValid() || m_AssetId.Equals(newAssetId))
+            string newAssetIdString = newAssetId.ToString();
+            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
             {
-                m_AssetId = newAssetId;
+                m_AssetId = newAssetIdString;
             }
             else
             {
@@ -193,7 +205,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
-            m_AssetId = NetworkHash128.Parse(AssetDatabase.AssetPathToGUID(path));
+            m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
 
         bool ThisIsAPrefab()
@@ -233,7 +245,7 @@ namespace Mirror
             }
             else
             {
-                m_AssetId = new NetworkHash128();
+                m_AssetId = "";
             }
         }
 
