@@ -61,7 +61,7 @@ namespace Mirror
             UInt64 value = ReadPackedUInt64();
             if (value > UInt32.MaxValue)
             {
-                throw new IndexOutOfRangeException("ReadPackedUInt32() failure, value too large");
+                throw new InvalidDataException("ReadPackedUInt32() failure, value too large");
             }
             return (UInt32)value;
         }
@@ -122,7 +122,7 @@ namespace Mirror
                 return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40) + (((UInt64)a7) << 48)  + (((UInt64)a8) << 56);
             }
 
-            throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
+            throw new InvalidDataException("ReadPackedUInt64() failure: " + a0);
         }
 
         public Vector2 ReadVector2()
