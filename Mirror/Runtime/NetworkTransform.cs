@@ -191,29 +191,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return false;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     SerializeModeTransform(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     SerializeMode3D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     SerializeMode2D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     SerializeModeCharacterController(writer);
                     break;
-                }
             }
             return true;
         }
@@ -955,30 +945,15 @@ namespace Mirror
             // interpolate on client
             switch (transformSyncMode)
             {
-                case TransformSyncMode.SyncNone:
-                {
-                    return;
-                }
-                case TransformSyncMode.SyncTransform:
-                {
-                    return;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     InterpolateTransformMode3D();
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     InterpolateTransformMode2D();
                     break;
-                }
-
                 case TransformSyncMode.SyncCharacterController:
-                {
                     InterpolateTransformModeCharacterController();
                     break;
-                }
             }
         }
 
@@ -1276,10 +1251,6 @@ namespace Mirror
                     break;
                 }
                 case CompressionSyncMode.Low:
-                {
-                    writer.Write((short)angle);
-                    break;
-                }
                 case CompressionSyncMode.High:
                 {
                     writer.Write((short)angle);
@@ -1297,9 +1268,6 @@ namespace Mirror
                     return reader.ReadSingle();
                 }
                 case CompressionSyncMode.Low:
-                {
-                    return reader.ReadInt16();
-                }
                 case CompressionSyncMode.High:
                 {
                     return reader.ReadInt16();
