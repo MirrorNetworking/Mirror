@@ -402,29 +402,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     UnserializeModeTransform(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     UnserializeMode3D(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     UnserializeMode2D(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     UnserializeModeCharacterController(reader, initialState);
                     break;
-                }
             }
             m_LastClientSyncTime = Time.time;
         }
@@ -1125,29 +1115,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     SerializeModeTransform(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     SerializeMode3D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     SerializeMode2D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     SerializeModeCharacterController(writer);
                     break;
-                }
             }
 
             if (m_RigidBody3D != null)
@@ -1208,29 +1188,19 @@ namespace Mirror
                 switch (foundSync.transformSyncMode)
                 {
                     case TransformSyncMode.SyncNone:
-                    {
                         return;
-                    }
                     case TransformSyncMode.SyncTransform:
-                    {
                         foundSync.UnserializeModeTransform(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncRigidbody3D:
-                    {
                         foundSync.UnserializeMode3D(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncRigidbody2D:
-                    {
                         foundSync.UnserializeMode2D(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncCharacterController:
-                    {
                         foundSync.UnserializeModeCharacterController(reader, false);
                         break;
-                    }
                 }
                 foundSync.m_LastClientSyncTime = Time.time;
                 return;
@@ -1246,16 +1216,12 @@ namespace Mirror
             switch (compression)
             {
                 case CompressionSyncMode.None:
-                {
                     writer.Write(angle);
                     break;
-                }
                 case CompressionSyncMode.Low:
                 case CompressionSyncMode.High:
-                {
                     writer.Write((short)angle);
                     break;
-                }
             }
         }
 
@@ -1264,14 +1230,10 @@ namespace Mirror
             switch (compression)
             {
                 case CompressionSyncMode.None:
-                {
                     return reader.ReadSingle();
-                }
                 case CompressionSyncMode.Low:
                 case CompressionSyncMode.High:
-                {
                     return reader.ReadInt16();
-                }
             }
             return 0;
         }
