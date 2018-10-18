@@ -33,6 +33,7 @@ skip_commits:
   files:
     - '**/*.md'
     - '**/*.txt'
+    - '.gitignore'
 
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD'
