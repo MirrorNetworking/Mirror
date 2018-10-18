@@ -188,7 +188,7 @@ namespace Mirror
 
             if (connectState == ConnectState.Connected)
             {
-                NetworkTime.SendPing(this);
+                NetworkTime.Update(this);
             }
 
             // any new message?
@@ -206,7 +206,7 @@ namespace Mirror
                         if (m_Connection != null)
                         {
                             // reset network time stats
-                            NetworkTime.Reset(pingWindowSize);
+                            NetworkTime.Reset();
 
                             // the handler may want to send messages to the client
                             // thus we should set the connected state before calling the handler
