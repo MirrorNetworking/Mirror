@@ -39,7 +39,7 @@ namespace Mirror
             return new NetworkPingMessage(LocalTime()); 
         }
 
-        internal static void Update(NetworkClient networkClient)
+        internal static void UpdateClient(NetworkClient networkClient)
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {

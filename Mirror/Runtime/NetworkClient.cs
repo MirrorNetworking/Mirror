@@ -188,7 +188,7 @@ namespace Mirror
 
             if (connectState == ConnectState.Connected)
             {
-                NetworkTime.Update(this);
+                NetworkTime.UpdateClient(this);
             }
 
             // any new message?
