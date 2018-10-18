@@ -41,9 +41,9 @@ namespace Mirror
 
         internal static void Update(NetworkClient networkClient)
         {
-            if (Time.time - NetworkTime.lastPingTime >= NetworkTime.PingFrequency)
+            if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = NetworkTime.GetPing();
+                NetworkPingMessage pingMessage = GetPing();
                 networkClient.Send((short)MsgType.Ping, pingMessage);
                 lastPingTime = Time.time;
             }
