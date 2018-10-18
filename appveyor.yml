@@ -29,6 +29,11 @@ after_test:
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml" 
 
+skip_commits:
+  files:
+    - '**/*.md'
+    - '**/*.txt'
+
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD'
   provider: GitHub
