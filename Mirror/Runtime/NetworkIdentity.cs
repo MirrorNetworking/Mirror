@@ -634,8 +634,7 @@ namespace Mirror
             // find the right component to invoke the function on
             if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("Command [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
                 return;
             }
             NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
