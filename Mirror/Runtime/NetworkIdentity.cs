@@ -607,7 +607,7 @@ namespace Mirror
         }
 
         // happens on server
-        internal void HandleCommand(int cmdHash, NetworkReader reader)
+        internal void HandleCommand(byte componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeCommand function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
@@ -632,14 +632,14 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
+            if (componentIndex >= m_NetworkBehaviours.Length)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
                 if (LogFilter.logWarn) { Debug.LogWarning("Command [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
                 return;
             }
-
+            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
+           
             invokeFunction(invokeComponent, reader);
         }
 

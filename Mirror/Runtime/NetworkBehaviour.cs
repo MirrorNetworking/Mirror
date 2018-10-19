@@ -48,6 +48,22 @@ namespace Mirror
             }
         }
 
+        public byte ComponentIndex { 
+            get 
+            {
+                NetworkBehaviour[] components = GetComponents<NetworkBehaviour>();
+
+                for (int i = 0; i < components.Length; i++)
+                {
+                    if (components[i] == this)
+                        return (byte)i;
+                }
+                // this should never happen
+                Debug.LogError("Could not find component in gameobject", this);
+                return 0;
+            } 
+        }
+
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
@@ -77,6 +93,7 @@ namespace Mirror
             // construct the message
             CommandMessage message = new CommandMessage();
             message.netId = netId;
+            message.componentIndex = ComponentIndex;
             message.cmdHash = cmdHash;
             message.payload = writer.ToArray();
 
