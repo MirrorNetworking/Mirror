@@ -31,7 +31,6 @@ namespace Mirror
         SpawnFinished = 12,
         ObjectHide = 13,
         LocalClientAuthority = 15,
-        LocalChildTransform = 16,
 
         // public system messages - can be replaced by user code
         Connect = 32,

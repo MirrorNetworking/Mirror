@@ -92,8 +92,7 @@ namespace Mirror
         {
             RegisterHandler(MsgType.Ready, OnClientReadyMessage);
             RegisterHandler(MsgType.Command, OnCommandMessage);
-            RegisterHandler(MsgType.LocalPlayerTransform, NetworkTransform.HandleTransform);
-            RegisterHandler(MsgType.LocalChildTransform, NetworkTransformChild.HandleChildTransform);
+            RegisterHandler(MsgType.LocalPlayerTransform, NetworkTransformBase.OnClientToServerSync);
             RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
             RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationServerMessage);
             RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersServerMessage);
