@@ -76,7 +76,7 @@ namespace Mirror
         }
         internal void SetDynamicAssetId(Guid newAssetId)
         {
-            string newAssetIdString = newAssetId.ToString();
+            string newAssetIdString = newAssetId.ToString("N");
             if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
             {
                 m_AssetId = newAssetIdString;
