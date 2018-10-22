@@ -121,6 +121,7 @@ namespace Mirror
             // construct the message
             RpcMessage message = new RpcMessage();
             message.netId = netId;
+            message.componentIndex = ComponentIndex;
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
@@ -140,6 +141,7 @@ namespace Mirror
             // construct the message
             RpcMessage message = new RpcMessage();
             message.netId = netId;
+            message.componentIndex = ComponentIndex;
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
@@ -166,6 +168,7 @@ namespace Mirror
             // construct the message
             SyncEventMessage message = new SyncEventMessage();
             message.netId = netId;
+            message.componentIndex = ComponentIndex;
             message.eventHash = eventHash;
             message.payload = writer.ToArray();
 
@@ -261,28 +264,27 @@ namespace Mirror
         }
 
         // wrapper fucntions for each type of network operation
-        internal static bool GetInvokerForHashCommand(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
+        internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeClass, out invokeFunction);
+            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
         }
 
-        internal static bool GetInvokerForHashClientRpc(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
+        internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeClass, out invokeFunction);
+            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
         }
 
-        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out Type invokeClass, out CmdDelegate invokeFunction)
+        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeClass, out invokeFunction);
+            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
         }
 
-        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Type invokeClass, out CmdDelegate invokeFunction)
+        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
         {
             Invoker invoker = null;
             if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
             {
                 if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
-                invokeClass = null;
                 invokeFunction = null;
                 return false;
             }
@@ -290,7 +292,6 @@ namespace Mirror
             if (invoker == null)
             {
                 if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
-                invokeClass = null;
                 invokeFunction = null;
                 return false;
             }
@@ -298,12 +299,10 @@ namespace Mirror
             if (invoker.invokeType != invokeType)
             {
                 if (LogFilter.logError) { Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType"); }
-                invokeClass = null;
                 invokeFunction = null;
                 return false;
             }
 
-            invokeClass = invoker.invokeClass;
             invokeFunction = invoker.invokeFunction;
             return true;
         }

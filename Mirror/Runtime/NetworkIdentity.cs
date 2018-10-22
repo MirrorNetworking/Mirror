@@ -553,24 +553,8 @@ namespace Mirror
             ForceAuthority(authority);
         }
 
-        // helper function for Handle** functions
-        bool GetInvokeComponent(int cmdHash, Type invokeClass, out NetworkBehaviour invokeComponent)
-        {
-            // dont use GetComponent(), already have a list - avoids an allocation
-            invokeComponent = Array.Find(m_NetworkBehaviours,
-                comp => comp.GetType() == invokeClass || comp.GetType().IsSubclassOf(invokeClass)
-            );
-            if (invokeComponent == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no behaviour for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
-                return false;
-            }
-            return true;
-        }
-
         // happens on client
-        internal void HandleSyncEvent(int cmdHash, NetworkReader reader)
+        internal void HandleSyncEvent(byte componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeSyncEvent function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
@@ -584,8 +568,7 @@ namespace Mirror
 
             // find the matching SyncEvent function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncEvent(cmdHash, out invokeClass, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncEvent(cmdHash, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
@@ -595,13 +578,12 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
+            if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncEvent [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
                 return;
             }
+            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
 
             invokeFunction(invokeComponent, reader);
         }
@@ -621,8 +603,7 @@ namespace Mirror
 
             // find the matching Command function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashCommand(cmdHash, out invokeClass, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerForHashCommand(cmdHash, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
@@ -643,7 +624,7 @@ namespace Mirror
         }
 
         // happens on client
-        internal void HandleRPC(int cmdHash, NetworkReader reader)
+        internal void HandleRPC(byte componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeClientRpc function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
@@ -657,8 +638,7 @@ namespace Mirror
 
             // find the matching ClientRpc function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            Type invokeClass;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashClientRpc(cmdHash, out invokeClass, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerForHashClientRpc(cmdHash, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
@@ -668,13 +648,12 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            NetworkBehaviour invokeComponent;
-            if (!GetInvokeComponent(cmdHash, invokeClass, out invokeComponent))
+            if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc [" + errorCmdName + "] handler not found [netId=" + netId + "]"); }
+                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
                 return;
             }
+            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
 
             invokeFunction(invokeComponent, reader);
         }

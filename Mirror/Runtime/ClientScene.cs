@@ -558,7 +558,7 @@ namespace Mirror
             NetworkIdentity uv;
             if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleRPC(message.rpcHash, new NetworkReader(message.payload));
+                uv.HandleRPC(message.componentIndex, message.rpcHash, new NetworkReader(message.payload));
             }
             else
             {
@@ -579,7 +579,7 @@ namespace Mirror
             NetworkIdentity uv;
             if (s_NetworkScene.GetNetworkIdentity(message.netId, out uv))
             {
-                uv.HandleSyncEvent(message.eventHash, new NetworkReader(message.payload));
+                uv.HandleSyncEvent(message.componentIndex, message.eventHash, new NetworkReader(message.payload));
             }
             else
             {

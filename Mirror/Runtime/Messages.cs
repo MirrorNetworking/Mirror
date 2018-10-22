@@ -149,8 +149,8 @@ namespace Mirror
     class CommandMessage : MessageBase
     {
         public uint netId;
-        public byte componentIndex;
         public int cmdHash;
+        public byte componentIndex;
         public byte[] payload; // the parameters for the Cmd function
 
         public override void Deserialize(NetworkReader reader)
@@ -174,11 +174,13 @@ namespace Mirror
     {
         public uint netId;
         public int rpcHash;
+        public byte componentIndex;
         public byte[] payload; // the parameters for the Rpc function
 
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
+            componentIndex = reader.ReadByte();
             rpcHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
             payload = reader.ReadBytesAndSize();
         }
@@ -186,6 +188,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
+            writer.Write(componentIndex);
             writer.Write(rpcHash);
             writer.WriteBytesAndSize(payload);
         }
@@ -195,11 +198,13 @@ namespace Mirror
     {
         public uint netId;
         public int eventHash;
+        public byte componentIndex;
         public byte[] payload; // the parameters for the Rpc function
 
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
+            componentIndex = reader.ReadByte();
             eventHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
             payload = reader.ReadBytesAndSize();
         }
@@ -207,6 +212,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
+            writer.Write(componentIndex);
             writer.Write(eventHash);
             writer.WriteBytesAndSize(payload);
         }
