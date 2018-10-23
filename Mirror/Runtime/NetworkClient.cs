@@ -80,13 +80,13 @@ namespace Mirror
 
         public NetworkClient()
         {
-            if (LogFilter.logDebug) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
         }
 
         public NetworkClient(NetworkConnection conn)
         {
-            if (LogFilter.logDebug) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
 
             SetActive(true);
@@ -100,7 +100,7 @@ namespace Mirror
         {
             PrepareForConnect();
 
-            if (LogFilter.logDebug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
+            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
 
             string hostnameOrIp = serverIp;
             m_ServerPort = serverPort;
@@ -152,7 +152,7 @@ namespace Mirror
 
         public void Shutdown()
         {
-            if (LogFilter.logDebug) Debug.Log("Shutting down client " + m_ClientId);
+            if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
             RemoveClient(this);
             if (s_Clients.Count == 0)
@@ -308,7 +308,7 @@ namespace Mirror
         {
             if (m_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
             }
             m_MessageHandlers[msgType] = handler;
         }

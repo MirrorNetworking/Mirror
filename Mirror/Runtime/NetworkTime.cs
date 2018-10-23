@@ -38,7 +38,7 @@ namespace Mirror
             var pingMsg = new NetworkPingMessage();
             netMsg.ReadMessage(pingMsg);
 
-            if (LogFilter.logDebug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
 
             var pongMsg = new NetworkPongMessage
             {

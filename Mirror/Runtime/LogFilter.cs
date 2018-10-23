@@ -5,6 +5,6 @@ namespace Mirror
 {
     public static class LogFilter
     {
-        public static bool logDebug = false;
+        public static bool Debug = false;
     }
 }

@@ -30,7 +30,7 @@ namespace Mirror
 
         internal void SetLocalObject(NetworkInstanceId netId, GameObject obj, bool isClient, bool isServer)
         {
-            if (LogFilter.logDebug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
+            if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
 
             if (obj == null)
             {
@@ -99,7 +99,7 @@ namespace Mirror
             {
                 view.SetDynamicAssetId(newAssetId);
 
-                if (LogFilter.logDebug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
+                if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
                 s_GuidToPrefab[view.assetId] = prefab;
             }
             else
@@ -113,7 +113,7 @@ namespace Mirror
             NetworkIdentity view = prefab.GetComponent<NetworkIdentity>();
             if (view)
             {
-                if (LogFilter.logDebug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
+                if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
                 s_GuidToPrefab[view.assetId] = prefab;
 
                 var uvs = prefab.GetComponentsInChildren<NetworkIdentity>();
@@ -161,7 +161,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
+            if (LogFilter.Debug) { Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
             s_SpawnHandlers[assetId] = spawnHandler;
             s_UnspawnHandlers[assetId] = unspawnHandler;
@@ -200,7 +200,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
+            if (LogFilter.Debug) { Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
             s_SpawnHandlers[identity.assetId] = spawnHandler;
             s_UnspawnHandlers[identity.assetId] = unspawnHandler;

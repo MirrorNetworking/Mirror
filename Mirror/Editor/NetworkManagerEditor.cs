@@ -307,7 +307,7 @@ namespace Mirror
 
             if (EditorGUILayout.PropertyField(m_ShowDebugMessagesProperty, m_ShowDebugMessagesLabel))
             {
-                LogFilter.logDebug = m_NetworkManager.showDebugMessages;
+                LogFilter.Debug = m_NetworkManager.showDebugMessages;
             }
 
             ShowScenes();

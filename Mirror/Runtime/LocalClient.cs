@@ -54,7 +54,7 @@ namespace Mirror
         // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
         internal void AddLocalPlayer(NetworkIdentity localPlayer)
         {
-            if (LogFilter.logDebug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
+            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
             m_Connection.isReady = true;
             m_Connection.SetPlayerController(localPlayer);
             NetworkIdentity uv = localPlayer;

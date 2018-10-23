@@ -138,7 +138,7 @@ namespace Mirror
         {
             if (m_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
             }
             m_MessageHandlers[msgType] = handler;
         }
