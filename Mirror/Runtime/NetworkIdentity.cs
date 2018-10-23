@@ -50,6 +50,15 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
+        public NetworkBehaviour[] NetworkBehaviours 
+        {
+            get
+            {
+                m_NetworkBehaviours = m_NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
+                return m_NetworkBehaviours;
+            }
+        }
+
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
         //   serialize it because Guid's internal bytes are private
@@ -132,14 +141,6 @@ namespace Mirror
         internal static uint GetNextNetworkId()
         {
             return s_NextNetworkId++;
-        }
-
-        void CacheBehaviours()
-        {
-            if (m_NetworkBehaviours == null)
-            {
-                m_NetworkBehaviours = GetComponents<NetworkBehaviour>();
-            }
         }
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
@@ -268,7 +269,6 @@ namespace Mirror
             m_HasAuthority = !m_LocalPlayerAuthority;
 
             m_Observers = new Dictionary<int, NetworkConnection>();
-            CacheBehaviours();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             if (netId == 0)
@@ -287,9 +287,9 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStartServer();
@@ -316,12 +316,11 @@ namespace Mirror
         internal void OnStartClient()
         {
             m_IsClient = true;
-            CacheBehaviours();
 
             if (LogFilter.Debug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.PreStartClient(); // generated startup to resolve object references
@@ -342,9 +341,9 @@ namespace Mirror
                 return;
             }
 
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStartAuthority();
@@ -358,9 +357,9 @@ namespace Mirror
 
         internal void OnStopAuthority()
         {
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStopAuthority();
@@ -374,9 +373,9 @@ namespace Mirror
 
         internal void OnSetLocalVisibility(bool vis)
         {
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnSetLocalVisibility(vis);
@@ -390,9 +389,9 @@ namespace Mirror
 
         internal bool OnCheckObserver(NetworkConnection conn)
         {
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     if (!comp.OnCheckObserver(conn))
@@ -803,9 +802,9 @@ namespace Mirror
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            for (int i = 0; i < NetworkBehaviours.Length; i++)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = NetworkBehaviours[i];
                 result |= comp.OnRebuildObservers(newObservers, initialize);
             }
             if (!result)
