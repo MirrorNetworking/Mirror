@@ -56,7 +56,7 @@ namespace Mirror
                 if (index < 0)
                 {
                     // this should never happen
-                    Debug.LogError("Could not find component in gameobject. You shoud not add/remove components in networked objects dinamically", this);
+                    Debug.LogError("Could not find component in gameobject. You shoud not add/remove components in networked objects dynamically", this);
                 }
 
                 return index;
