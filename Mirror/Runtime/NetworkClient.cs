@@ -18,14 +18,6 @@ namespace Mirror
 
         public static bool pauseMessageHandling;
 
-        // how often are we sending ping messages
-        // used to calculate network time and RTT
-        public float pingFrequency = 2.0f;
-        // average out the last few results from Ping
-        public int pingWindowSize = 10;
-
-        double lastPingTime;
-
         int m_HostPort;
 
         string m_ServerIp = "";
@@ -194,11 +186,9 @@ namespace Mirror
                 return;
             }
 
-            if (connectState == ConnectState.Connected && Time.time - lastPingTime >= pingFrequency)
+            if (connectState == ConnectState.Connected)
             {
-                NetworkPingMessage pingMessage = NetworkTime.GetPing();
-                Send((short)MsgType.Ping, pingMessage);
-                lastPingTime = Time.time;
+                NetworkTime.UpdateClient(this);
             }
 
             // any new message?
@@ -216,7 +206,7 @@ namespace Mirror
                         if (m_Connection != null)
                         {
                             // reset network time stats
-                            NetworkTime.Reset(pingWindowSize);
+                            NetworkTime.Reset();
 
                             // the handler may want to send messages to the client
                             // thus we should set the connected state before calling the handler

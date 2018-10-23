@@ -6,6 +6,15 @@ namespace Mirror
     // calculates synchronized time and rtt
     public static class NetworkTime
     {
+        // how often are we sending ping messages
+        // used to calculate network time and RTT
+        public static float PingFrequency = 2.0f;
+        // average out the last few results from Ping
+        public static int PingWindowSize = 10;
+
+        internal static double lastPingTime;
+
+
         // Date and time when the application started
         static readonly DateTime epoch = DateTime.Now;
 
@@ -19,15 +28,25 @@ namespace Mirror
             return span.TotalSeconds;
         }
 
-        public static void Reset(int windowSize)
+        public static void Reset()
         {
-            _rtt = new ExponentialMovingAverage(windowSize);
-            _offset = new ExponentialMovingAverage(windowSize);
+            _rtt = new ExponentialMovingAverage(PingWindowSize);
+            _offset = new ExponentialMovingAverage(PingWindowSize);
         }
 
         internal static NetworkPingMessage GetPing()
         {
             return new NetworkPingMessage(LocalTime());
+        }
+
+        internal static void UpdateClient(NetworkClient networkClient)
+        {
+            if (Time.time - lastPingTime >= PingFrequency)
+            {
+                NetworkPingMessage pingMessage = GetPing();
+                networkClient.Send((short)MsgType.Ping, pingMessage);
+                lastPingTime = Time.time;
+            }
         }
 
         // executed at the server when we receive a ping message
