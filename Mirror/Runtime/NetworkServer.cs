@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -902,7 +902,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
-            uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
+            uv.HandleCommand(message.componentIndex, message.cmdHash, new NetworkReader(message.payload));
         }
 
         internal static void SpawnObject(GameObject obj)
