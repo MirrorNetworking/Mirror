@@ -48,7 +48,7 @@ namespace Mirror
             }
         }
 
-        public byte ComponentIndex 
+        public int ComponentIndex 
         { 
             get 
             {
@@ -59,7 +59,7 @@ namespace Mirror
                     Debug.LogError("Could not find component in gameobject. You shoud not add/remove components in networked objects dinamically", this);
                 }
 
-                return (byte)index;
+                return index;
             } 
         }
 
