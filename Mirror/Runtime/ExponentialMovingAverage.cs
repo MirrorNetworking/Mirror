@@ -6,7 +6,7 @@ namespace Mirror
     // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
     public class ExponentialMovingAverage
     {
-        float alpha;
+        readonly float alpha;
         bool initialized;
 
         double _value;

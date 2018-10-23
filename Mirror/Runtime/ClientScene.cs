@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using Guid = System.Guid;
 
 namespace Mirror
 {
@@ -19,22 +20,23 @@ namespace Mirror
             s_IsReady = false;
         }
 
-        static List<NetworkInstanceId> s_PendingOwnerIds = new List<NetworkInstanceId>();
+        static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
         public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
         //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
-        public static Dictionary<NetworkInstanceId, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
-        public static Dictionary<NetworkHash128, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
+        // objects by net id
+        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
+        public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
         public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
 
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
-            s_PendingOwnerIds = new List<NetworkInstanceId>();
+            s_PendingOwnerNetIds = new List<uint>();
             s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
@@ -229,7 +231,7 @@ namespace Mirror
 
         // ------------------------ NetworkScene pass-throughs ---------------------
 
-        internal static string GetStringForAssetId(NetworkHash128 assetId)
+        internal static string GetStringForAssetId(Guid assetId)
         {
             GameObject prefab;
             if (NetworkScene.GetPrefab(assetId, out prefab))
@@ -247,7 +249,7 @@ namespace Mirror
         }
 
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
-        public static void RegisterPrefab(GameObject prefab, NetworkHash128 newAssetId)
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkScene.RegisterPrefab(prefab, newAssetId);
         }
@@ -267,12 +269,12 @@ namespace Mirror
             NetworkScene.UnregisterPrefab(prefab);
         }
 
-        public static void RegisterSpawnHandler(NetworkHash128 assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkScene.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
-        public static void UnregisterSpawnHandler(NetworkHash128 assetId)
+        public static void UnregisterSpawnHandler(Guid assetId)
         {
             NetworkScene.UnregisterSpawnHandler(assetId);
         }
@@ -287,18 +289,18 @@ namespace Mirror
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        public static void SetLocalObject(NetworkInstanceId netId, GameObject obj)
+        public static void SetLocalObject(uint netId, GameObject obj)
         {
             // if still receiving initial state, dont set isClient
             s_NetworkScene.SetLocalObject(netId, obj, s_IsSpawnFinished, false);
         }
 
-        public static GameObject FindLocalObject(NetworkInstanceId netId)
+        public static GameObject FindLocalObject(uint netId)
         {
             return s_NetworkScene.FindLocalObject(netId);
         }
 
-        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, NetworkInstanceId netId, GameObject newGameObject)
+        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId, GameObject newGameObject)
         {
             if (!uv.gameObject.activeSelf)
             {
@@ -332,7 +334,7 @@ namespace Mirror
             SpawnPrefabMessage msg = new SpawnPrefabMessage();
             netMsg.ReadMessage(msg);
 
-            if (!msg.assetId.IsValid())
+            if (msg.assetId == Guid.Empty)
             {
                 Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
                 return;
@@ -617,17 +619,17 @@ namespace Mirror
             }
             else
             {
-                s_PendingOwnerIds.Add(msg.netId);
+                s_PendingOwnerNetIds.Add(msg.netId);
             }
         }
 
         static void CheckForOwner(NetworkIdentity uv)
         {
-            for (int i = 0; i < s_PendingOwnerIds.Count; i++)
+            for (int i = 0; i < s_PendingOwnerNetIds.Count; i++)
             {
-                NetworkInstanceId pendingOwner = s_PendingOwnerIds[i];
+                uint pendingOwnerNetId = s_PendingOwnerNetIds[i];
 
-                if (pendingOwner == uv.netId)
+                if (pendingOwnerNetId == uv.netId)
                 {
                     // found owner, turn into a local player
 
@@ -643,7 +645,7 @@ namespace Mirror
                     }
                     InternalAddPlayer(uv);
 
-                    s_PendingOwnerIds.RemoveAt(i);
+                    s_PendingOwnerNetIds.RemoveAt(i);
                     break;
                 }
             }

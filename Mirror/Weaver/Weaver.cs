@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -80,7 +80,6 @@ namespace Mirror.Weaver
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
-        public static TypeReference NetworkInstanceIdType;
         public static TypeReference IEnumeratorType;
 
         public static TypeReference ClientSceneType;
@@ -106,11 +105,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkReaderReadByte;
         public static MethodReference NetworkWriterWritePacked32;
         public static MethodReference NetworkWriterWritePacked64;
-
-        public static MethodReference NetworkWriterWriteNetworkInstanceId;
-
-        public static MethodReference NetworkReaderReadNetworkInstanceId;
-        public static MethodReference NetworkInstanceIsEmpty;
 
         public static MethodReference NetworkReadUInt16;
         public static MethodReference NetworkWriteUInt16;
@@ -153,7 +147,7 @@ namespace Mirror.Weaver
         public static TypeReference rayType;
         public static TypeReference planeType;
         public static TypeReference matrixType;
-        public static TypeReference hashType;
+        public static TypeReference guidType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
@@ -1240,7 +1234,6 @@ namespace Mirror.Weaver
             transformType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Transform");
             unityObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Object");
 
-            hashType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkHash128");
             NetworkClientType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkClient");
             NetworkServerType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkServer");
 
@@ -1293,6 +1286,7 @@ namespace Mirror.Weaver
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
             MemoryStreamType = ImportCorLibType("System.IO.MemoryStream");
+            guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
             NetworkReaderDef = NetworkReaderType.Resolve();
@@ -1305,8 +1299,6 @@ namespace Mirror.Weaver
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
 
             MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
-
-            NetworkInstanceIdType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkInstanceId");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
@@ -1324,11 +1316,6 @@ namespace Mirror.Weaver
             NetworkWriterWritePacked32 = ResolveMethod(NetworkWriterType, "WritePackedUInt32");
             NetworkWriterWritePacked64 = ResolveMethod(NetworkWriterType, "WritePackedUInt64");
 
-            NetworkWriterWriteNetworkInstanceId = ResolveMethodWithArg(NetworkWriterType, "Write", NetworkInstanceIdType);
-
-            NetworkReaderReadNetworkInstanceId = ResolveMethod(NetworkReaderType, "ReadNetworkId");
-            NetworkInstanceIsEmpty = ResolveMethod(NetworkInstanceIdType, "IsEmpty");
-
             NetworkReadUInt16 = ResolveMethod(NetworkReaderType, "ReadUInt16");
             NetworkWriteUInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", uint16Type);
 
@@ -1339,8 +1326,6 @@ namespace Mirror.Weaver
 
             TypeReference unetViewTmp = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkIdentity");
             NetworkIdentityType = scriptDef.MainModule.ImportReference(unetViewTmp);
-
-            NetworkInstanceIdType = scriptDef.MainModule.ImportReference(NetworkInstanceIdType);
 
             NetworkBehaviourType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = scriptDef.MainModule.ImportReference(NetworkBehaviourType);
@@ -1425,10 +1410,9 @@ namespace Mirror.Weaver
                 { planeType.FullName, ResolveMethod(NetworkReaderType, "ReadPlane") },
                 { rayType.FullName, ResolveMethod(NetworkReaderType, "ReadRay") },
                 { matrixType.FullName, ResolveMethod(NetworkReaderType, "ReadMatrix4x4") },
-                { hashType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkHash128") },
+                { guidType.FullName, ResolveMethod(NetworkReaderType, "ReadGuid") },
                 { gameObjectType.FullName, ResolveMethod(NetworkReaderType, "ReadGameObject") },
                 { NetworkIdentityType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkIdentity") },
-                { NetworkInstanceIdType.FullName, NetworkReaderReadNetworkInstanceId },
                 { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
                 { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
             };
@@ -1462,10 +1446,9 @@ namespace Mirror.Weaver
                 { planeType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", planeType) },
                 { rayType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", rayType) },
                 { matrixType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", matrixType) },
-                { hashType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", hashType) },
+                { guidType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", guidType) },
                 { gameObjectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", gameObjectType) },
                 { NetworkIdentityType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkIdentityType) },
-                { NetworkInstanceIdType.FullName, NetworkWriterWriteNetworkInstanceId },
                 { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
                 { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") }
             };

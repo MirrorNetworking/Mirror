@@ -29,8 +29,14 @@ after_test:
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml" 
 
+skip_commits:
+  files:
+    - '**/*.md'
+    - '**/*.txt'
+    - '.gitignore'
+
 deploy:
-  description: 'Mirror $(APPVEYOR_REPO_BRANCH) '
+  description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
   provider: GitHub
   auth_token:
     secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub

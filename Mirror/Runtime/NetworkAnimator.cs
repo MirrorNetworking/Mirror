@@ -72,10 +72,7 @@ namespace Mirror
                         return true;
                 }
 
-                if (hasAuthority)
-                    return true;
-
-                return false;
+                return hasAuthority;
             }
         }
 

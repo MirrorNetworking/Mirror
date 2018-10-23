@@ -65,7 +65,7 @@ namespace Mirror
                 connectionConfig.BandwidthPeakFactor = 2;
                 connectionConfig.WebSocketReceiveBufferMaxSize = 0;
                 connectionConfig.UdpSocketReceiveBufferMaxSize = 0;
-                channelId = connectionConfig.AddChannel(QosType.UnreliableFragmented);
+                channelId = connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
             }
             this.connectionConfig = connectionConfig;
 

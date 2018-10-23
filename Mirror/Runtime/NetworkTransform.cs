@@ -191,29 +191,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return false;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     SerializeModeTransform(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     SerializeMode3D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     SerializeMode2D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     SerializeModeCharacterController(writer);
                     break;
-                }
             }
             return true;
         }
@@ -412,29 +402,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     UnserializeModeTransform(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     UnserializeMode3D(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     UnserializeMode2D(reader, initialState);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     UnserializeModeCharacterController(reader, initialState);
                     break;
-                }
             }
             m_LastClientSyncTime = Time.time;
         }
@@ -913,21 +893,19 @@ namespace Mirror
 
         bool CheckVelocityChanged()
         {
-            switch (transformSyncMode)
+            if (transformSyncMode == TransformSyncMode.SyncRigidbody2D)
             {
-                case TransformSyncMode.SyncRigidbody2D:
-                    if (m_RigidBody2D && m_VelocityThreshold > 0)
-                    {
-                        return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
-                    }
-                    break;
-
-                case TransformSyncMode.SyncRigidbody3D:
-                    if (m_RigidBody3D && m_VelocityThreshold > 0)
-                    {
-                        return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
-                    }
-                    break;
+                if (m_RigidBody2D && m_VelocityThreshold > 0)
+                {
+                    return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
+                }
+            }
+            else if (transformSyncMode == TransformSyncMode.SyncRigidbody3D)
+            {
+                if (m_RigidBody3D && m_VelocityThreshold > 0)
+                {
+                    return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
+                }
             }
             return false;
         }
@@ -957,30 +935,15 @@ namespace Mirror
             // interpolate on client
             switch (transformSyncMode)
             {
-                case TransformSyncMode.SyncNone:
-                {
-                    return;
-                }
-                case TransformSyncMode.SyncTransform:
-                {
-                    return;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     InterpolateTransformMode3D();
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     InterpolateTransformMode2D();
                     break;
-                }
-
                 case TransformSyncMode.SyncCharacterController:
-                {
                     InterpolateTransformModeCharacterController();
                     break;
-                }
             }
         }
 
@@ -1152,29 +1115,19 @@ namespace Mirror
             switch (transformSyncMode)
             {
                 case TransformSyncMode.SyncNone:
-                {
                     return;
-                }
                 case TransformSyncMode.SyncTransform:
-                {
                     SerializeModeTransform(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody3D:
-                {
                     SerializeMode3D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncRigidbody2D:
-                {
                     SerializeMode2D(writer);
                     break;
-                }
                 case TransformSyncMode.SyncCharacterController:
-                {
                     SerializeModeCharacterController(writer);
                     break;
-                }
             }
 
             if (m_RigidBody3D != null)
@@ -1235,29 +1188,19 @@ namespace Mirror
                 switch (foundSync.transformSyncMode)
                 {
                     case TransformSyncMode.SyncNone:
-                    {
                         return;
-                    }
                     case TransformSyncMode.SyncTransform:
-                    {
                         foundSync.UnserializeModeTransform(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncRigidbody3D:
-                    {
                         foundSync.UnserializeMode3D(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncRigidbody2D:
-                    {
                         foundSync.UnserializeMode2D(reader, false);
                         break;
-                    }
                     case TransformSyncMode.SyncCharacterController:
-                    {
                         foundSync.UnserializeModeCharacterController(reader, false);
                         break;
-                    }
                 }
                 foundSync.m_LastClientSyncTime = Time.time;
                 return;
@@ -1273,20 +1216,12 @@ namespace Mirror
             switch (compression)
             {
                 case CompressionSyncMode.None:
-                {
                     writer.Write(angle);
                     break;
-                }
                 case CompressionSyncMode.Low:
-                {
-                    writer.Write((short)angle);
-                    break;
-                }
                 case CompressionSyncMode.High:
-                {
                     writer.Write((short)angle);
                     break;
-                }
             }
         }
 
@@ -1295,17 +1230,10 @@ namespace Mirror
             switch (compression)
             {
                 case CompressionSyncMode.None:
-                {
                     return reader.ReadSingle();
-                }
                 case CompressionSyncMode.Low:
-                {
-                    return reader.ReadInt16();
-                }
                 case CompressionSyncMode.High:
-                {
                     return reader.ReadInt16();
-                }
             }
             return 0;
         }

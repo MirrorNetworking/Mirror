@@ -125,11 +125,6 @@ namespace Mirror
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
 
-        public NetworkInstanceId ReadNetworkId()
-        {
-            return new NetworkInstanceId(ReadPackedUInt32());
-        }
-
         public Vector2 ReadVector2()
         {
             return new Vector2(ReadSingle(), ReadSingle());
@@ -197,32 +192,16 @@ namespace Mirror
             return m;
         }
 
-        public NetworkHash128 ReadNetworkHash128()
+        public Guid ReadGuid()
         {
-            NetworkHash128 hash;
-            hash.i0 = ReadByte();
-            hash.i1 = ReadByte();
-            hash.i2 = ReadByte();
-            hash.i3 = ReadByte();
-            hash.i4 = ReadByte();
-            hash.i5 = ReadByte();
-            hash.i6 = ReadByte();
-            hash.i7 = ReadByte();
-            hash.i8 = ReadByte();
-            hash.i9 = ReadByte();
-            hash.i10 = ReadByte();
-            hash.i11 = ReadByte();
-            hash.i12 = ReadByte();
-            hash.i13 = ReadByte();
-            hash.i14 = ReadByte();
-            hash.i15 = ReadByte();
-            return hash;
+            byte[] bytes = reader.ReadBytes(16);
+            return new Guid(bytes);
         }
 
         public Transform ReadTransform()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -238,8 +217,8 @@ namespace Mirror
 
         public GameObject ReadGameObject()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }
@@ -263,8 +242,8 @@ namespace Mirror
 
         public NetworkIdentity ReadNetworkIdentity()
         {
-            NetworkInstanceId netId = ReadNetworkId();
-            if (netId.IsEmpty())
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
             {
                 return null;
             }

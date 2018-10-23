@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,7 +17,6 @@ namespace Mirror
     {
         // configuration
         [SerializeField] uint m_SceneId;
-        [SerializeField] NetworkHash128 m_AssetId;
         [SerializeField] bool           m_ServerOnly;
         [SerializeField] bool           m_LocalPlayerAuthority;
 
@@ -26,15 +25,15 @@ namespace Mirror
         bool                        m_IsServer;
         bool                        m_HasAuthority;
 
-        NetworkInstanceId           m_NetId;
+        uint                        m_NetId;
         bool                        m_IsLocalPlayer;
         NetworkConnection           m_ConnectionToServer;
         NetworkConnection           m_ConnectionToClient;
         NetworkBehaviour[]          m_NetworkBehaviours;
 
-        // there is a list AND a hashSet of connections, for fast verification of dupes, but the main operation is iteration over the list.
-        HashSet<int>                m_ObserverConnections;
-        List<NetworkConnection>     m_Observers;
+        // <connectionId, NetworkConnection>
+        Dictionary<int, NetworkConnection> m_Observers;
+
         NetworkConnection           m_ClientAuthorityOwner;
 
         // member used to mark a identity for future reset
@@ -45,29 +44,42 @@ namespace Mirror
         public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
         public bool hasAuthority    { get { return m_HasAuthority; } }
 
-        public NetworkInstanceId netId { get { return m_NetId; } }
+        public uint netId { get { return m_NetId; } }
         public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
-        public NetworkHash128 assetId
+        // the AssetId trick:
+        // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   serialize it because Guid's internal bytes are private
+        // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
+        //   which works, but it just unnecessary extra code
+        // - using just the Guid string would work, but it's 32 chars long and
+        //   would then be sent over the network as 64 instead of 16 bytes
+        // -> the solution is to serialize the string internally here and then
+        //    use the real 'Guid' type for everything else via .assetId
+        [SerializeField] string m_AssetId;
+        public Guid assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (!m_AssetId.IsValid())
+                if (string.IsNullOrEmpty(m_AssetId))
                     SetupIDs();
 #endif
-                return m_AssetId;
+                // convert string to Guid and use .Empty to avoid exception if
+                // we would use 'new Guid("")'
+                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
-        internal void SetDynamicAssetId(NetworkHash128 newAssetId)
+        internal void SetDynamicAssetId(Guid newAssetId)
         {
-            if (!m_AssetId.IsValid() || m_AssetId.Equals(newAssetId))
+            string newAssetIdString = newAssetId.ToString("N");
+            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
             {
-                m_AssetId = newAssetId;
+                m_AssetId = newAssetIdString;
             }
             else
             {
@@ -114,18 +126,12 @@ namespace Mirror
         public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
         public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
-        public ReadOnlyCollection<NetworkConnection> observers
-        {
-            get
-            {
-                return m_Observers != null ? new ReadOnlyCollection<NetworkConnection>(m_Observers) : null;
-            }
-        }
+        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
-        internal static NetworkInstanceId GetNextNetworkId()
+        internal static uint GetNextNetworkId()
         {
-            return new NetworkInstanceId(s_NextNetworkId++);
+            return s_NextNetworkId++;
         }
 
         void CacheBehaviours()
@@ -139,19 +145,11 @@ namespace Mirror
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
-        internal static void AddNetworkId(uint id)
-        {
-            if (id >= s_NextNetworkId)
-            {
-                s_NextNetworkId = (uint)(id + 1);
-            }
-        }
-
         // only used during spawning on clients to set the identity.
-        internal void SetNetworkInstanceId(NetworkInstanceId newNetId)
+        internal void SetNetworkInstanceId(uint newNetId)
         {
             m_NetId = newNetId;
-            if (newNetId.Value == 0)
+            if (newNetId == 0)
             {
                 m_IsServer = false;
             }
@@ -188,8 +186,7 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                m_Observers.Remove(conn);
-                m_ObserverConnections.Remove(conn.connectionId);
+                m_Observers.Remove(conn.connectionId);
             }
         }
 
@@ -208,7 +205,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
-            m_AssetId = NetworkHash128.Parse(AssetDatabase.AssetPathToGUID(path));
+            m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
 
         bool ThisIsAPrefab()
@@ -248,7 +245,7 @@ namespace Mirror
             }
             else
             {
-                m_AssetId = new NetworkHash128();
+                m_AssetId = "";
             }
         }
 
@@ -270,12 +267,11 @@ namespace Mirror
             m_IsServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
-            m_Observers = new List<NetworkConnection>();
-            m_ObserverConnections = new HashSet<int>();
+            m_Observers = new Dictionary<int, NetworkConnection>();
             CacheBehaviours();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            if (netId.IsEmpty())
+            if (netId == 0)
             {
                 m_NetId = GetNextNetworkId();
             }
@@ -759,13 +755,11 @@ namespace Mirror
         {
             if (m_Observers != null)
             {
-                int count = m_Observers.Count;
-                for (int i = 0; i < count; i++)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in m_Observers)
                 {
-                    m_Observers[i].RemoveFromVisList(this, true);
+                    kvp.Value.RemoveFromVisList(this, true);
                 }
                 m_Observers.Clear();
-                m_ObserverConnections.Clear();
             }
         }
 
@@ -777,8 +771,7 @@ namespace Mirror
                 return;
             }
 
-            // uses hashset for better-than-list-iteration lookup performance.
-            if (m_ObserverConnections.Contains(conn.connectionId))
+            if (m_Observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
                 // we may have generated one that was already in use.
@@ -787,8 +780,7 @@ namespace Mirror
 
             if (LogFilter.logDebug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
-            m_Observers.Add(conn);
-            m_ObserverConnections.Add(conn.connectionId);
+            m_Observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
         }
 
@@ -797,9 +789,7 @@ namespace Mirror
             if (m_Observers == null)
                 return;
 
-            // NOTE this is linear performance now..
-            m_Observers.Remove(conn);
-            m_ObserverConnections.Remove(conn.connectionId);
+            m_Observers.Remove(conn.connectionId);
             conn.RemoveFromVisList(this, false);
         }
 
@@ -811,7 +801,7 @@ namespace Mirror
             bool changed = false;
             bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers);
+            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
@@ -823,10 +813,10 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    for (int i = 0; i < NetworkServer.connections.Count; i++)
+                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
                     {
-                        var conn = NetworkServer.connections[i];
-                        if (conn != null && conn.isReady)
+                        NetworkConnection conn = kvp.Value;
+                        if (conn.isReady)
                             AddObserver(conn);
                     }
 
@@ -883,14 +873,7 @@ namespace Mirror
 
             if (changed)
             {
-                m_Observers = new List<NetworkConnection>(newObservers);
-
-                // rebuild hashset once we have the final set of new observers
-                m_ObserverConnections.Clear();
-                for (int i = 0; i < m_Observers.Count; i++)
-                {
-                    m_ObserverConnections.Add(m_Observers[i].connectionId);
-                }
+                m_Observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 
@@ -1002,7 +985,7 @@ namespace Mirror
             m_IsClient = false;
             m_HasAuthority = false;
 
-            m_NetId = NetworkInstanceId.Zero;
+            m_NetId = 0;
             m_IsLocalPlayer = false;
             m_ConnectionToServer = null;
             m_ConnectionToClient = null;
