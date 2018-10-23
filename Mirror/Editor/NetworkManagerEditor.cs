@@ -20,7 +20,7 @@ namespace Mirror
         SerializedProperty m_ServerBindToIPProperty;
         SerializedProperty m_ServerBindAddressProperty;
 
-        protected SerializedProperty m_LogLevelProperty;
+        protected SerializedProperty m_ShowDebugMessagesProperty;
 
         SerializedProperty m_PlayerPrefabProperty;
         SerializedProperty m_AutoCreatePlayerProperty;
@@ -36,6 +36,7 @@ namespace Mirror
         GUIContent m_OnlineSceneLabel;
         protected GUIContent m_DontDestroyOnLoadLabel;
         protected GUIContent m_RunInBackgroundLabel;
+        protected GUIContent m_ShowDebugMessagesLabel;
 
         GUIContent m_MaxConnectionsLabel;
 
@@ -71,6 +72,7 @@ namespace Mirror
             m_OnlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
             m_DontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             m_RunInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
+            m_ShowDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
             m_MaxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
             m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
@@ -85,7 +87,7 @@ namespace Mirror
             // top-level properties
             m_DontDestroyOnLoadProperty = serializedObject.FindProperty("m_DontDestroyOnLoad");
             m_RunInBackgroundProperty = serializedObject.FindProperty("m_RunInBackground");
-            m_LogLevelProperty = serializedObject.FindProperty("m_LogLevel");
+            m_ShowDebugMessagesProperty = serializedObject.FindProperty("m_ShowDebugMessages");
 
             // network foldout properties
             m_NetworkAddressProperty = serializedObject.FindProperty("m_NetworkAddress");
@@ -160,7 +162,7 @@ namespace Mirror
                     return AssetDatabase.LoadAssetAtPath(editorScene.path, typeof(SceneAsset)) as SceneAsset;
                 }
             }
-            if (LogFilter.logWarn) { Debug.LogWarning("Scene [" + sceneObjectName + "] cannot be used with networking. Add this scene to the 'Scenes in the Build' in build settings."); }
+            Debug.LogWarning("Scene [" + sceneObjectName + "] cannot be used with networking. Add this scene to the 'Scenes in the Build' in build settings.");
             return null;
         }
 
@@ -294,18 +296,18 @@ namespace Mirror
 
         public override void OnInspectorGUI()
         {
-            if (m_DontDestroyOnLoadProperty == null || m_DontDestroyOnLoadLabel == null)
+            if (m_DontDestroyOnLoadProperty == null || m_DontDestroyOnLoadLabel == null || m_ShowDebugMessagesLabel == null)
                 m_Initialized = false;
 
             Init();
 
             serializedObject.Update();
             EditorGUILayout.PropertyField(m_DontDestroyOnLoadProperty, m_DontDestroyOnLoadLabel);
-            EditorGUILayout.PropertyField(m_RunInBackgroundProperty , m_RunInBackgroundLabel);
+            EditorGUILayout.PropertyField(m_RunInBackgroundProperty, m_RunInBackgroundLabel);
 
-            if (EditorGUILayout.PropertyField(m_LogLevelProperty))
+            if (EditorGUILayout.PropertyField(m_ShowDebugMessagesProperty, m_ShowDebugMessagesLabel))
             {
-                LogFilter.currentLogLevel = m_NetworkManager.logLevel;
+                LogFilter.Debug = m_NetworkManager.showDebugMessages;
             }
 
             ShowScenes();
@@ -350,7 +352,7 @@ namespace Mirror
             {
                 if (newGameObject != null && !newGameObject.GetComponent<NetworkIdentity>())
                 {
-                    if (LogFilter.logError) { Debug.LogError("Prefab " + newGameObject + " cannot be added as spawnable as it doesn't have a NetworkIdentity."); }
+                    Debug.LogError("Prefab " + newGameObject + " cannot be added as spawnable as it doesn't have a NetworkIdentity.");
                     return;
                 }
                 prefab.objectReferenceValue = newGameObject;

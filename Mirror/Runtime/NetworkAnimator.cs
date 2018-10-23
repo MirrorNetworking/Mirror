@@ -368,7 +368,7 @@ namespace Mirror
         {
             AnimationMessage msg = new AnimationMessage();
             netMsg.ReadMessage(msg);
-            if (LogFilter.logDev) { Debug.Log("OnAnimationMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
             GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)
@@ -390,7 +390,7 @@ namespace Mirror
             AnimationParametersMessage msg = new AnimationParametersMessage();
             netMsg.ReadMessage(msg);
 
-            if (LogFilter.logDev) { Debug.Log("OnAnimationParametersMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnAnimationParametersMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
             GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)
@@ -410,7 +410,7 @@ namespace Mirror
         {
             AnimationTriggerMessage msg = new AnimationTriggerMessage();
             netMsg.ReadMessage(msg);
-            if (LogFilter.logDev) { Debug.Log("OnAnimationTriggerMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnAnimationTriggerMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
             GameObject go = NetworkServer.FindLocalObject(msg.netId);
             if (go == null)

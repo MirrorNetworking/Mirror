@@ -149,7 +149,7 @@ namespace Mirror
 
                 uv.gameObject.SetActive(false);
                 uv.ForceSceneId(nextSceneId++);
-                if (LogFilter.logDebug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
+                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
 
                 // saftey check for prefabs with more than one NetworkIdentity
                 var prefabGO = PrefabUtility.GetPrefabParent(uv.gameObject) as GameObject;

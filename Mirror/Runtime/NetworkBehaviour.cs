@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
@@ -31,7 +31,7 @@ namespace Mirror
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
-       
+
         const float k_DefaultSendInterval = 0.1f;
 
         NetworkIdentity m_MyView;
@@ -42,7 +42,7 @@ namespace Mirror
                 m_MyView = m_MyView ?? GetComponent<NetworkIdentity>();
                 if (m_MyView == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("There is no NetworkIdentity on this object. Please add one."); }
+                    Debug.LogError("There is no NetworkIdentity on this object. Please add one.");
                 }
                 return m_MyView;
             }
@@ -80,13 +80,13 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Trying to send command for object without authority."); }
+                Debug.LogWarning("Trying to send command for object without authority.");
                 return;
             }
 
             if (ClientScene.readyConnection == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "]."); }
+                Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc call on un-spawned object"); }
+                Debug.LogWarning("ClientRpc call on un-spawned object");
                 return;
             }
 
@@ -134,7 +134,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("TargetRpc call on un-spawned object"); }
+                Debug.LogWarning("TargetRpc call on un-spawned object");
                 return;
             }
 
@@ -161,7 +161,7 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("SendEvent no server?"); }
+                Debug.LogWarning("SendEvent no server?");
                 return;
             }
 
@@ -219,7 +219,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -234,7 +234,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -249,7 +249,7 @@ namespace Mirror
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
             s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.logDev) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            if (LogFilter.logDebug) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
         }
 
         internal static string GetInvoker(int cmdHash)
@@ -284,21 +284,21 @@ namespace Mirror
             Invoker invoker = null;
             if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
             {
-                if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+                if (LogFilter.logDebug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
                 invokeFunction = null;
                 return false;
             }
 
             if (invoker == null)
             {
-                if (LogFilter.logDev) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
+                if (LogFilter.logDebug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
                 invokeFunction = null;
                 return false;
             }
 
             if (invoker.invokeType != invokeType)
             {
-                if (LogFilter.logError) { Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType"); }
+                Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType");
                 invokeFunction = null;
                 return false;
             }
@@ -432,7 +432,7 @@ namespace Mirror
                     newGameObjectNetId = uv.netId;
                     if (newGameObjectNetId == 0)
                     {
-                        if (LogFilter.logWarn) { Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?"); }
+                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }
@@ -445,7 +445,7 @@ namespace Mirror
 
             if (newGameObjectNetId != oldGameObjectNetId)
             {
-                if (LogFilter.logDev) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + oldGameObjectNetId + "->" + newGameObjectNetId); }
+                if (LogFilter.logDebug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + oldGameObjectNetId + "->" + newGameObjectNetId); }
                 SetDirtyBit(dirtyBit);
                 gameObjectField = newGameObject;
                 netIdField = newGameObjectNetId;
@@ -459,7 +459,7 @@ namespace Mirror
             if ((value == null && fieldValue != null) ||
                 (value != null && !value.Equals(fieldValue)))
             {
-                if (LogFilter.logDev) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
+                if (LogFilter.logDebug) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
                 SetDirtyBit(dirtyBit);
                 fieldValue = value;
             }

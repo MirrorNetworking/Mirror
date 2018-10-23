@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -76,14 +76,14 @@ namespace Mirror
         }
         internal void SetDynamicAssetId(Guid newAssetId)
         {
-            string newAssetIdString = newAssetId.ToString();
+            string newAssetIdString = newAssetId.ToString("N");
             if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
             {
                 m_AssetId = newAssetIdString;
             }
             else
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">"); }
+                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
             }
         }
 
@@ -92,7 +92,7 @@ namespace Mirror
         {
             if (m_ClientAuthorityOwner != null)
             {
-                if (LogFilter.logError) { Debug.LogError("SetClientOwner m_ClientAuthorityOwner already set!"); }
+                Debug.LogError("SetClientOwner m_ClientAuthorityOwner already set!");
             }
             m_ClientAuthorityOwner = conn;
             m_ClientAuthorityOwner.AddOwnedObject(this);
@@ -195,7 +195,7 @@ namespace Mirror
         {
             if (m_ServerOnly && m_LocalPlayerAuthority)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only."); }
+                Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only.");
                 m_LocalPlayerAuthority = false;
             }
 
@@ -225,7 +225,7 @@ namespace Mirror
             prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
             if (prefab == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]"); }
+                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
                 return false;
             }
             return true;
@@ -279,12 +279,12 @@ namespace Mirror
             {
                 if (!allowNonZeroNetId)
                 {
-                    if (LogFilter.logError) { Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject); }
+                    Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
                     return;
                 }
             }
 
-            if (LogFilter.logDev) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
+            if (LogFilter.logDebug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
@@ -318,7 +318,7 @@ namespace Mirror
             m_IsClient = true;
             CacheBehaviours();
 
-            if (LogFilter.logDev) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+            if (LogFilter.logDebug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -336,7 +336,7 @@ namespace Mirror
 
         internal void OnStartAuthority()
         {
-            if (m_NetworkBehaviours == null && LogFilter.logError)
+            if (m_NetworkBehaviours == null)
             {
                 Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
                 return;
@@ -434,7 +434,7 @@ namespace Mirror
             // be useful for debugging.
             if (bytes.Length > Transport.MaxPacketSize)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp); }
+                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
             }
 
             // serialize length,data into the real writer, untouched by user code
@@ -448,7 +448,7 @@ namespace Mirror
         {
             if (components.Length > 64)
             {
-                if (LogFilter.logError) Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
+                Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return false;
             }
 
@@ -546,7 +546,7 @@ namespace Mirror
         {
             if (!localPlayerAuthority)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleClientAuthority " + gameObject + " does not have localPlayerAuthority"); }
+                Debug.LogError("HandleClientAuthority " + gameObject + " does not have localPlayerAuthority");
                 return;
             }
 
@@ -562,7 +562,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("SyncEvent [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("SyncEvent [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -573,14 +573,14 @@ namespace Mirror
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
+                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
                 return;
             }
 
             // find the right component to invoke the function on
             if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
+                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
                 return;
             }
             NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
@@ -597,7 +597,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("Command [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("Command [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -608,14 +608,14 @@ namespace Mirror
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
+                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
                 return;
             }
 
             // find the right component to invoke the function on
             if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
+                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
                 return;
             }
             NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
@@ -632,7 +632,7 @@ namespace Mirror
             if (gameObject == null)
             {
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logWarn) { Debug.LogWarning("ClientRpc [" + errorCmdName + "] received for deleted object [netId=" + netId + "]"); }
+                Debug.LogWarning("ClientRpc [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -643,14 +643,14 @@ namespace Mirror
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
                 string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                if (LogFilter.logError) { Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "]."); }
+                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
                 return;
             }
 
             // find the right component to invoke the function on
             if (componentIndex >= m_NetworkBehaviours.Length)
             {
-                if (LogFilter.logWarn) { Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]"); }
+                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
                 return;
             }
             NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
@@ -745,7 +745,7 @@ namespace Mirror
         {
             if (m_Observers == null)
             {
-                if (LogFilter.logError) { Debug.LogError("AddObserver for " + gameObject + " observer list is null"); }
+                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
                 return;
             }
 
@@ -756,7 +756,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logDev) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
+            if (LogFilter.logDebug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
             m_Observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -816,7 +816,7 @@ namespace Mirror
 
                 if (!conn.isReady)
                 {
-                    if (LogFilter.logWarn) { Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn); }
+                    Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn);
                     continue;
                 }
 
@@ -859,25 +859,25 @@ namespace Mirror
         {
             if (!isServer)
             {
-                if (LogFilter.logError) { Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects."); }
+                Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
                 return false;
             }
 
             if (connectionToClient != null)
             {
-                if (LogFilter.logError) { Debug.LogError("RemoveClientAuthority cannot remove authority for a player object"); }
+                Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
                 return false;
             }
 
             if (m_ClientAuthorityOwner == null)
             {
-                if (LogFilter.logError) { Debug.LogError("RemoveClientAuthority for " + gameObject + " has no clientAuthority owner."); }
+                Debug.LogError("RemoveClientAuthority for " + gameObject + " has no clientAuthority owner.");
                 return false;
             }
 
             if (m_ClientAuthorityOwner != conn)
             {
-                if (LogFilter.logError) { Debug.LogError("RemoveClientAuthority for " + gameObject + " has different owner."); }
+                Debug.LogError("RemoveClientAuthority for " + gameObject + " has different owner.");
                 return false;
             }
 
@@ -904,24 +904,24 @@ namespace Mirror
         {
             if (!isServer)
             {
-                if (LogFilter.logError) { Debug.LogError("AssignClientAuthority can only be call on the server for spawned objects."); }
+                Debug.LogError("AssignClientAuthority can only be call on the server for spawned objects.");
                 return false;
             }
             if (!localPlayerAuthority)
             {
-                if (LogFilter.logError) { Debug.LogError("AssignClientAuthority can only be used for NetworkIdentity component with LocalPlayerAuthority set."); }
+                Debug.LogError("AssignClientAuthority can only be used for NetworkIdentity component with LocalPlayerAuthority set.");
                 return false;
             }
 
             if (m_ClientAuthorityOwner != null && conn != m_ClientAuthorityOwner)
             {
-                if (LogFilter.logError) { Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first."); }
+                Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
                 return false;
             }
 
             if (conn == null)
             {
-                if (LogFilter.logError) { Debug.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead."); }
+                Debug.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
                 return false;
             }
 

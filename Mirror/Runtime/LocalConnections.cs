@@ -37,7 +37,7 @@ namespace Mirror
         {
             if (bytes.Length == 0)
             {
-                if (LogFilter.logError) { Debug.LogError("LocalConnection:SendBytes cannot send zero bytes"); }
+                Debug.LogError("LocalConnection:SendBytes cannot send zero bytes");
                 return false;
             }
             return NetworkServer.InvokeBytes(this, bytes);

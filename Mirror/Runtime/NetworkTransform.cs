@@ -236,7 +236,7 @@ namespace Mirror
                     m_CharacterController = m_CharacterController ?? GetComponent<CharacterController>();
                     if (!m_CharacterController)
                     {
-                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no CharacterController component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode)); 
+                        throw new InvalidOperationException(string.Format("transformSyncMode set to {0} but no CharacterController component was found, did you call NetworkServer.Spawn on a prefab?", transformSyncMode));
                     }
                     break;
 
@@ -1162,23 +1162,23 @@ namespace Mirror
             GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
             if (foundObj == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Received NetworkTransform data for GameObject that doesn't exist"); }
+                Debug.LogError("Received NetworkTransform data for GameObject that doesn't exist");
                 return;
             }
             NetworkTransform foundSync = foundObj.GetComponent<NetworkTransform>();
             if (foundSync == null)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleTransform null target"); }
+                Debug.LogError("HandleTransform null target");
                 return;
             }
             if (!foundSync.localPlayerAuthority)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleTransform no localPlayerAuthority"); }
+                Debug.LogError("HandleTransform no localPlayerAuthority");
                 return;
             }
             if (netMsg.conn.clientOwnedObjects == null)
             {
-                if (LogFilter.logError) { Debug.LogError("HandleTransform object not owned by connection"); }
+                Debug.LogError("HandleTransform object not owned by connection");
                 return;
             }
 
@@ -1206,7 +1206,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logWarn) { Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player"); }
+            Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player");
         }
 
         // --------------------- Compression Helper functions ------------------------
