@@ -553,7 +553,7 @@ namespace Mirror
         }
 
         // happens on client
-        internal void HandleSyncEvent(byte componentIndex, int cmdHash, NetworkReader reader)
+        internal void HandleSyncEvent(int componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeSyncEvent function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
@@ -588,7 +588,7 @@ namespace Mirror
         }
 
         // happens on server
-        internal void HandleCommand(byte componentIndex, int cmdHash, NetworkReader reader)
+        internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeCommand function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
@@ -623,7 +623,7 @@ namespace Mirror
         }
 
         // happens on client
-        internal void HandleRPC(byte componentIndex, int cmdHash, NetworkReader reader)
+        internal void HandleRPC(int componentIndex, int cmdHash, NetworkReader reader)
         {
             // this doesn't use NetworkBehaviour.InvokeClientRpc function (anymore). this method of calling is faster.
             // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
