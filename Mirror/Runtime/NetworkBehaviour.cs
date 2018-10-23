@@ -48,7 +48,8 @@ namespace Mirror
             }
         }
 
-        public byte ComponentIndex { 
+        public byte ComponentIndex 
+        { 
             get 
             {
                 NetworkBehaviour[] components = GetComponents<NetworkBehaviour>();
