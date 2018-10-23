@@ -31,7 +31,7 @@ namespace Mirror
 
         internal void SetLocalObject(uint netId, GameObject obj, bool isClient, bool isServer)
         {
-            if (LogFilter.logDev) { Debug.Log("SetLocalObject " + netId + " " + obj); }
+            if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
 
             if (obj == null)
             {
@@ -100,12 +100,12 @@ namespace Mirror
             {
                 view.SetDynamicAssetId(newAssetId);
 
-                if (LogFilter.logDebug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
+                if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
                 s_GuidToPrefab[view.assetId] = prefab;
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -114,22 +114,19 @@ namespace Mirror
             NetworkIdentity view = prefab.GetComponent<NetworkIdentity>();
             if (view)
             {
-                if (LogFilter.logDebug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
+                if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
                 s_GuidToPrefab[view.assetId] = prefab;
 
                 var uvs = prefab.GetComponentsInChildren<NetworkIdentity>();
                 if (uvs.Length > 1)
                 {
-                    if (LogFilter.logWarn)
-                    {
-                        Debug.LogWarning("The prefab '" + prefab.name +
-                            "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
-                    }
+                    Debug.LogWarning("The prefab '" + prefab.name +
+                        "' has multiple NetworkIdentity components. There can only be one NetworkIdentity on a prefab, and it must be on the root object.");
                 }
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
             }
         }
 
@@ -161,11 +158,11 @@ namespace Mirror
         {
             if (spawnHandler == null || unspawnHandler == null)
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterSpawnHandler custom spawn function null for " + assetId); }
+                Debug.LogError("RegisterSpawnHandler custom spawn function null for " + assetId);
                 return;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
+            if (LogFilter.Debug) { Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
             s_SpawnHandlers[assetId] = spawnHandler;
             s_UnspawnHandlers[assetId] = unspawnHandler;
@@ -176,7 +173,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
             s_SpawnHandlers.Remove(identity.assetId);
@@ -188,23 +185,23 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                if (LogFilter.logError) { Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component"); }
+                Debug.LogError("Could not register '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
 
             if (spawnHandler == null || unspawnHandler == null)
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterPrefab custom spawn function null for " + identity.assetId); }
+                Debug.LogError("RegisterPrefab custom spawn function null for " + identity.assetId);
                 return;
             }
 
             if (identity.assetId == Guid.Empty)
             {
-                if (LogFilter.logError) { Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?"); }
+                Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?");
                 return;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
+            if (LogFilter.Debug) { Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
             s_SpawnHandlers[identity.assetId] = spawnHandler;
             s_UnspawnHandlers[identity.assetId] = unspawnHandler;

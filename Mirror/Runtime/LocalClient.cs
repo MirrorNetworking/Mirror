@@ -53,7 +53,7 @@ namespace Mirror
         // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
         internal void AddLocalPlayer(NetworkIdentity localPlayer)
         {
-            if (LogFilter.logDev) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
+            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
             m_Connection.isReady = true;
             m_Connection.SetPlayerController(localPlayer);
             NetworkIdentity uv = localPlayer;
@@ -121,7 +121,7 @@ namespace Mirror
             {
                 PostInternalMessage((short)msgType, content);
             }
-            else if (LogFilter.logError) Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
+            else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
     }
 }

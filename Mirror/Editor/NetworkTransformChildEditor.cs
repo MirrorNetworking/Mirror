@@ -42,7 +42,7 @@ namespace Mirror
             m_Target = serializedObject.FindProperty("m_Target");
             if (sync.GetComponent<NetworkTransform>() == null)
             {
-                if (LogFilter.logError) { Debug.LogError("NetworkTransformChild must be on the root object with the NetworkTransform, not on the child node"); }
+                Debug.LogError("NetworkTransformChild must be on the root object with the NetworkTransform, not on the child node");
                 m_Target.objectReferenceValue = null;
             }
 
@@ -98,7 +98,7 @@ namespace Mirror
             {
                 if (sync.GetComponent<NetworkTransform>() == null)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkTransformChild must be on the root object with the NetworkTransform, not on the child node"); }
+                    Debug.LogError("NetworkTransformChild must be on the root object with the NetworkTransform, not on the child node");
                     m_Target.objectReferenceValue = null;
                 }
             }

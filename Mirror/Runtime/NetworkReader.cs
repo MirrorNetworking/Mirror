@@ -208,7 +208,7 @@ namespace Mirror
             GameObject go = ClientScene.FindLocalObject(netId);
             if (go == null)
             {
-                if (LogFilter.logDebug) { Debug.Log("ReadTransform netId:" + netId); }
+                if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId); }
                 return null;
             }
 
@@ -234,7 +234,7 @@ namespace Mirror
             }
             if (go == null)
             {
-                if (LogFilter.logDebug) { Debug.Log("ReadGameObject netId:" + netId + "go: null"); }
+                if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + "go: null"); }
             }
 
             return go;
@@ -258,7 +258,7 @@ namespace Mirror
             }
             if (go == null)
             {
-                if (LogFilter.logDebug) { Debug.Log("ReadNetworkIdentity netId:" + netId + "go: null"); }
+                if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + "go: null"); }
                 return null;
             }
 

@@ -80,13 +80,13 @@ namespace Mirror
 
         public NetworkClient()
         {
-            if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
         }
 
         public NetworkClient(NetworkConnection conn)
         {
-            if (LogFilter.logDev) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
             AddClient(this);
 
             SetActive(true);
@@ -100,7 +100,7 @@ namespace Mirror
         {
             PrepareForConnect();
 
-            if (LogFilter.logDebug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
+            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
 
             string hostnameOrIp = serverIp;
             m_ServerPort = serverPort;
@@ -141,18 +141,18 @@ namespace Mirror
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    if (LogFilter.logError) { Debug.LogError("NetworkClient Send when not connected to a server"); }
+                    Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
                 return m_Connection.Send(msgType, msg);
             }
-            if (LogFilter.logError) { Debug.LogError("NetworkClient Send with no connection"); }
+            Debug.LogError("NetworkClient Send with no connection");
             return false;
         }
 
         public void Shutdown()
         {
-            if (LogFilter.logDebug) Debug.Log("Shutting down client " + m_ClientId);
+            if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
             RemoveClient(this);
             if (s_Clients.Count == 0)
@@ -253,7 +253,7 @@ namespace Mirror
 
         void GenerateConnectError(byte error)
         {
-            if (LogFilter.logError) { Debug.LogError("UNet Client Error Connect Error: " + error); }
+            Debug.LogError("UNet Client Error Connect Error: " + error);
             GenerateError(error);
         }
 
@@ -261,14 +261,14 @@ namespace Mirror
         void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Client Data Error: " + dataError); }
+            Debug.LogError("UNet Client Data Error: " + dataError);
             GenerateError(error);
         }
 
         void GenerateDisconnectError(byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
-            if (LogFilter.logError) { Debug.LogError("UNet Client Disconnect Error: " + disconnectError); }
+            Debug.LogError("UNet Client Disconnect Error: " + disconnectError);
             GenerateError(error);
         }
         */
@@ -308,7 +308,7 @@ namespace Mirror
         {
             if (m_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
             }
             m_MessageHandlers[msgType] = handler;
         }

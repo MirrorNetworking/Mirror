@@ -119,7 +119,7 @@ namespace Mirror
                 msgDelegate(message);
                 return true;
             }
-            if (LogFilter.logError) { Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType); }
+            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
             return false;
         }
 
@@ -138,7 +138,7 @@ namespace Mirror
         {
             if (m_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
             }
             m_MessageHandlers[msgType] = handler;
         }
@@ -176,14 +176,14 @@ namespace Mirror
 
             if (bytes.Length > Transport.MaxPacketSize)
             {
-                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.MaxPacketSize + " bytes"); }
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.MaxPacketSize + " bytes");
                 return false;
             }
 
             if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                if (LogFilter.logError) { Debug.LogError("NetworkConnection:SendBytes cannot send zero bytes"); }
+                Debug.LogError("NetworkConnection:SendBytes cannot send zero bytes");
                 return false;
             }
 
@@ -222,12 +222,12 @@ namespace Mirror
                 else
                 {
                     //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    if (LogFilter.logError) { Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId); }
+                    Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
                 }
             }
             else
             {
-                if (LogFilter.logError) { Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer)); }
+                Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
             }
         }
 
