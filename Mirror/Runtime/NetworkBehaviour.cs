@@ -52,7 +52,7 @@ namespace Mirror
         { 
             get 
             {
-                NetworkBehaviour[] components = GetComponents<NetworkBehaviour>();
+                NetworkBehaviour[] components = m_MyView.NetworkBehaviours;
 
                 for (int i = 0; i < components.Length; i++)
                 {
