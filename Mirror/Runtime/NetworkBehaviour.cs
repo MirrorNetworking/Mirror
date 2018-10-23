@@ -54,14 +54,14 @@ namespace Mirror
             {
                 NetworkBehaviour[] components = m_MyView.NetworkBehaviours;
 
-                for (int i = 0; i < components.Length; i++)
+                int index = Array.FindIndex(components, component => component == this);
+                if (index < 0)
                 {
-                    if (components[i] == this)
-                        return (byte)i;
+                    // this should never happen
+                    Debug.LogError("Could not find component in gameobject. You shoud not add/remove components in networked objects dinamically", this);
                 }
-                // this should never happen
-                Debug.LogError("Could not find component in gameobject", this);
-                return 0;
+
+                return (byte)index;
             } 
         }
 
