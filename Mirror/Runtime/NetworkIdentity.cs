@@ -287,9 +287,8 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStartServer();
@@ -318,9 +317,8 @@ namespace Mirror
             m_IsClient = true;
 
             if (LogFilter.Debug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.PreStartClient(); // generated startup to resolve object references
@@ -341,9 +339,8 @@ namespace Mirror
                 return;
             }
 
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStartAuthority();
@@ -357,9 +354,8 @@ namespace Mirror
 
         internal void OnStopAuthority()
         {
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnStopAuthority();
@@ -373,9 +369,8 @@ namespace Mirror
 
         internal void OnSetLocalVisibility(bool vis)
         {
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     comp.OnSetLocalVisibility(vis);
@@ -389,9 +384,8 @@ namespace Mirror
 
         internal bool OnCheckObserver(NetworkConnection conn)
         {
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 try
                 {
                     if (!comp.OnCheckObserver(conn))
@@ -802,9 +796,8 @@ namespace Mirror
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
-            for (int i = 0; i < NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = NetworkBehaviours[i];
                 result |= comp.OnRebuildObservers(newObservers, initialize);
             }
             if (!result)
