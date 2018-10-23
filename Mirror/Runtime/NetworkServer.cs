@@ -83,7 +83,7 @@ namespace Mirror
                 return;
 
             s_Initialized = true;
-            if (LogFilter.logDebug) { Debug.Log("NetworkServer Created version " + Version.Current); }
+            if (LogFilter.Debug) { Debug.Log("NetworkServer Created version " + Version.Current); }
         }
 
         internal static void RegisterMessageHandlers()
@@ -134,7 +134,7 @@ namespace Mirror
                     return false;
                 }
 
-                if (LogFilter.logDebug) { Debug.Log("Server listen: " + ipAddress + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server listen: " + ipAddress + ":" + s_ServerPort); }
             }
 
             s_Active = true;
@@ -192,7 +192,7 @@ namespace Mirror
 
         internal static void SetLocalObjectOnServer(uint netId, GameObject obj)
         {
-            if (LogFilter.logDebug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
+            if (LogFilter.Debug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
 
             s_NetworkScene.SetLocalObject(netId, obj, false, true);
         }
@@ -208,7 +208,7 @@ namespace Mirror
             {
                 if (!uv.isClient)
                 {
-                    if (LogFilter.logDebug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
+                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
 
                     ClientScene.SetLocalObject(uv.netId, uv.gameObject);
                     uv.OnStartClient();
@@ -220,7 +220,7 @@ namespace Mirror
         // this is used for ObjectDestroy messages.
         static bool SendToObservers(GameObject contextObj, short msgType, MessageBase msg)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server.SendToObservers id:" + msgType); }
+            if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
             NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
             if (uv != null && uv.observers != null)
@@ -237,7 +237,7 @@ namespace Mirror
 
         public static bool SendToAll(short msgType, MessageBase msg)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server.SendToAll id:" + msgType); }
+            if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
@@ -250,7 +250,7 @@ namespace Mirror
 
         public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
+            if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
             if (contextObj == null)
             {
@@ -374,7 +374,7 @@ namespace Mirror
 
         static void HandleConnect(int connectionId, byte error)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Server accepted client:" + connectionId); }
 
             if (error != 0)
             {
@@ -395,20 +395,20 @@ namespace Mirror
 
         static void OnConnected(NetworkConnection conn)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server accepted client:" + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Server accepted client:" + conn.connectionId); }
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
         static void HandleDisconnect(int connectionId, byte error)
         {
-            if (LogFilter.logDebug) { Debug.Log("Server disconnect client:" + connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
             NetworkConnection conn;
             if (s_Connections.TryGetValue(connectionId, out conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
-                if (LogFilter.logDebug) { Debug.Log("Server lost client:" + connectionId); }
+                if (LogFilter.Debug) { Debug.Log("Server lost client:" + connectionId); }
 
                 OnDisconnected(conn);
             }
@@ -424,7 +424,7 @@ namespace Mirror
                 Debug.LogWarning("Player not destroyed when connection disconnected.");
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Server lost client:" + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Server lost client:" + conn.connectionId); }
             conn.RemoveObservers();
             conn.Dispose();
         }
@@ -490,7 +490,7 @@ namespace Mirror
         {
             if (s_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
             }
             s_MessageHandlers[msgType] = handler;
         }
@@ -607,7 +607,7 @@ namespace Mirror
                 return true;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
+            if (LogFilter.Debug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
             if (playerNetworkIdentity.localPlayerAuthority)
@@ -619,12 +619,12 @@ namespace Mirror
 
         static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv)
         {
-            if (LogFilter.logDebug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
+            if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
 
             var localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
+                if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
                 // Spawn this player for other players, instead of SpawnObject:
                 if (uv.netId == 0)
@@ -674,7 +674,7 @@ namespace Mirror
             }
 
             //NOTE: there can be an existing player
-            if (LogFilter.logDebug) { Debug.Log("NetworkServer ReplacePlayer"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkServer ReplacePlayer"); }
 
             // is there already an owner that is a different object??
             if (conn.playerController != null)
@@ -690,14 +690,14 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            if (LogFilter.logDebug) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
 
             if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
             {
                 return true;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
+            if (LogFilter.Debug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
             FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
             if (playerNetworkIdentity.localPlayerAuthority)
@@ -725,18 +725,18 @@ namespace Mirror
 
         internal static void SetClientReadyInternal(NetworkConnection conn)
         {
-            if (LogFilter.logDebug) { Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId); }
 
             if (conn.isReady)
             {
-                if (LogFilter.logDebug) { Debug.Log("SetClientReady conn " + conn.connectionId + " already ready"); }
+                if (LogFilter.Debug) { Debug.Log("SetClientReady conn " + conn.connectionId + " already ready"); }
                 return;
             }
 
             if (conn.playerController == null)
             {
                 // this is now allowed
-                if (LogFilter.logDebug) { Debug.LogWarning("Ready with no player object"); }
+                if (LogFilter.Debug) { Debug.LogWarning("Ready with no player object"); }
             }
 
             conn.isReady = true;
@@ -744,7 +744,7 @@ namespace Mirror
             var localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
+                if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
 
                 // Setup spawned objects for local player
                 // Only handle the local objects for the first player (no need to redo it when doing more local players)
@@ -762,7 +762,7 @@ namespace Mirror
                         }
                         if (!uv.isClient)
                         {
-                            if (LogFilter.logDebug) { Debug.Log("LocalClient.SetSpawnObject calling OnStartClient"); }
+                            if (LogFilter.Debug) { Debug.Log("LocalClient.SetSpawnObject calling OnStartClient"); }
                             uv.OnStartClient();
                         }
                     }
@@ -771,7 +771,7 @@ namespace Mirror
             }
 
             // Spawn/update all current server objects
-            if (LogFilter.logDebug) { Debug.Log("Spawning " + objects.Count + " objects for conn " + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Spawning " + objects.Count + " objects for conn " + conn.connectionId); }
 
             ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
             msg.state = 0;
@@ -789,7 +789,7 @@ namespace Mirror
                     continue;
                 }
 
-                if (LogFilter.logDebug) { Debug.Log("Sending spawn message for current server objects name='" + uv.gameObject.name + "' netId=" + uv.netId); }
+                if (LogFilter.Debug) { Debug.Log("Sending spawn message for current server objects name='" + uv.gameObject.name + "' netId=" + uv.netId); }
 
                 var vis = uv.OnCheckObserver(conn);
                 if (vis)
@@ -837,7 +837,7 @@ namespace Mirror
         {
             if (conn.isReady)
             {
-                if (LogFilter.logDebug) { Debug.Log("PlayerNotReady " + conn); }
+                if (LogFilter.Debug) { Debug.Log("PlayerNotReady " + conn); }
                 conn.isReady = false;
                 conn.RemoveObservers();
 
@@ -849,7 +849,7 @@ namespace Mirror
         // default ready handler.
         static void OnClientReadyMessage(NetworkMessage netMsg)
         {
-            if (LogFilter.logDebug) { Debug.Log("Default handler for ready message from " + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("Default handler for ready message from " + netMsg.conn); }
             SetClientReady(netMsg.conn);
         }
 
@@ -901,7 +901,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.logDebug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
             uv.HandleCommand(message.cmdHash, new NetworkReader(message.payload));
         }
 
@@ -923,7 +923,7 @@ namespace Mirror
 
             objNetworkIdentity.OnStartServer(false);
 
-            if (LogFilter.logDebug) { Debug.Log("SpawnObject instance ID " + objNetworkIdentity.netId + " asset ID " + objNetworkIdentity.assetId); }
+            if (LogFilter.Debug) { Debug.Log("SpawnObject instance ID " + objNetworkIdentity.netId + " asset ID " + objNetworkIdentity.assetId); }
 
             objNetworkIdentity.RebuildObservers(true);
             //SendSpawnMessage(objNetworkIdentity, null);
@@ -934,7 +934,7 @@ namespace Mirror
             if (uv.serverOnly)
                 return;
 
-            if (LogFilter.logDebug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+            if (LogFilter.Debug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
 
             // 'uv' is a prefab that should be spawned
             if (uv.sceneId == 0)
@@ -1020,7 +1020,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkServer UnspawnObject is null"); }
+                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
                 return;
             }
 
@@ -1039,7 +1039,7 @@ namespace Mirror
         {
             if (obj == null)
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkServer DestroyObject is null"); }
+                if (LogFilter.Debug) { Debug.Log("NetworkServer DestroyObject is null"); }
                 return;
             }
 
@@ -1051,7 +1051,7 @@ namespace Mirror
 
         static void DestroyObject(NetworkIdentity uv, bool destroyServerObject)
         {
-            if (LogFilter.logDebug) { Debug.Log("DestroyObject instance:" + uv.netId); }
+            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + uv.netId); }
             if (objects.ContainsKey(uv.netId))
             {
                 objects.Remove(uv.netId);
@@ -1237,7 +1237,7 @@ namespace Mirror
                 if (!ValidateSceneObject(netId))
                     continue;
 
-                if (LogFilter.logDebug) { Debug.Log("SpawnObjects sceneId:" + netId.sceneId + " name:" + netId.gameObject.name); }
+                if (LogFilter.Debug) { Debug.Log("SpawnObjects sceneId:" + netId.sceneId + " name:" + netId.gameObject.name); }
                 netId.Reset();
                 netId.gameObject.SetActive(true);
             }

@@ -284,7 +284,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.logDebug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
+            if (LogFilter.Debug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
             NetworkServer.SetLocalObjectOnServer(netId, gameObject);
 
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
@@ -318,7 +318,7 @@ namespace Mirror
             m_IsClient = true;
             CacheBehaviours();
 
-            if (LogFilter.logDebug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+            if (LogFilter.Debug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
             for (int i = 0; i < m_NetworkBehaviours.Length; i++)
             {
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
@@ -428,7 +428,7 @@ namespace Mirror
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
             }
             byte[] bytes = temp.ToArray();
-            if (LogFilter.logDebug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
@@ -467,7 +467,7 @@ namespace Mirror
                     dirtyComponentsMask |= (ulong)(1L << i);
 
                     // serialize the data
-                    if (LogFilter.logDebug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
+                    if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
                     OnSerializeSafely(comp, payload, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
@@ -502,7 +502,7 @@ namespace Mirror
             // extract data length and data safely, untouched by user code
             // -> returns empty array if length is 0, so .Length is always the proper length
             byte[] bytes = reader.ReadBytesAndSize();
-            if (LogFilter.logDebug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // call OnDeserialize with a temporary reader, so that the
             // original one can't be messed with. we also wrap it in a
@@ -778,7 +778,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.logDebug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
+            if (LogFilter.Debug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
             m_Observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -846,7 +846,7 @@ namespace Mirror
                 {
                     // new observer
                     conn.AddToVisList(this);
-                    if (LogFilter.logDebug) { Debug.Log("New Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) { Debug.Log("New Observer for " + gameObject + " " + conn); }
                     changed = true;
                 }
             }
@@ -857,7 +857,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
-                    if (LogFilter.logDebug) { Debug.Log("Removed Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) { Debug.Log("Removed Observer for " + gameObject + " " + conn); }
                     changed = true;
                 }
             }
