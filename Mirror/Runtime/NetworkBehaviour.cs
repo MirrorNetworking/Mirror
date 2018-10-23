@@ -52,9 +52,7 @@ namespace Mirror
         { 
             get 
             {
-                NetworkBehaviour[] components = m_MyView.NetworkBehaviours;
-
-                int index = Array.FindIndex(components, component => component == this);
+                int index = Array.FindIndex(m_MyView.NetworkBehaviours, component => component == this);
                 if (index < 0)
                 {
                     // this should never happen
