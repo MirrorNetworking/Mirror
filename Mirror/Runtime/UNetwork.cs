@@ -77,6 +77,12 @@ namespace Mirror
         Current = 1
     }
 
+    public class Channels
+    {
+        public const int DefaultReliable = 0;
+        public const int DefaultUnreliable = 1;
+    }
+
     // network protocol all in one place, instead of constructing headers in all kinds of different places
     //
     //   MsgType     (1-n bytes)

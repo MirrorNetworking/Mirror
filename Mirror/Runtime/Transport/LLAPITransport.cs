@@ -65,7 +65,10 @@ namespace Mirror
                 connectionConfig.BandwidthPeakFactor = 2;
                 connectionConfig.WebSocketReceiveBufferMaxSize = 0;
                 connectionConfig.UdpSocketReceiveBufferMaxSize = 0;
-                channelId = connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
+                // channel 0 is reliable fragmented sequenced
+                connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
+                // channel 1 is unreliable
+                connectionConfig.AddChannel(QosType.Unreliable);
             }
             this.connectionConfig = connectionConfig;
 
@@ -96,7 +99,7 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(byte[] data)
+        public bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
@@ -124,23 +127,21 @@ namespace Mirror
 
             switch (networkEvent)
             {
-                case NetworkEventType.Nothing:
-                    return false;
                 case NetworkEventType.ConnectEvent:
                     transportEvent = TransportEvent.Connected;
                     break;
                 case NetworkEventType.DataEvent:
                     transportEvent = TransportEvent.Data;
+                    data = new byte[receivedSize];
+                    Array.Copy(clientReceiveBuffer, data, receivedSize);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     transportEvent = TransportEvent.Disconnected;
                     break;
+                default:
+                    return false;
             }
 
-            // assign rest of the values and return true
-            data = new byte[receivedSize];
-            Array.Copy(clientReceiveBuffer, data, receivedSize);
-            //Debug.Log("LLAPITransport.ClientGetNextMessage: clientid=" + clientId + " connid=" + connectionId + " event=" + networkEvent + " data=" + BitConverter.ToString(data) + " error=" + error);
             return true;
         }
 
@@ -173,7 +174,7 @@ namespace Mirror
             //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public bool ServerSend(int connectionId, byte[] data)
+        public bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
@@ -201,30 +202,29 @@ namespace Mirror
 
             // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
             // ignore all messages that aren't for our selected channel.
-            if (channel != channelId)
+            /*if (channel != channelId)
             {
                 return false;
-            }
+            }*/
 
             switch (networkEvent)
             {
-                case NetworkEventType.Nothing:
-                    return false;
                 case NetworkEventType.ConnectEvent:
                     transportEvent = TransportEvent.Connected;
                     break;
                 case NetworkEventType.DataEvent:
                     transportEvent = TransportEvent.Data;
+                    data = new byte[receivedSize];
+                    Array.Copy(serverReceiveBuffer, data, receivedSize);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     transportEvent = TransportEvent.Disconnected;
                     break;
+                default:
+                    // nothing or a message we don't recognize
+                    return false;
             }
 
-            // assign rest of the values and return true
-            data = new byte[receivedSize];
-            Array.Copy(serverReceiveBuffer, data, receivedSize);
-            //Debug.Log("LLAPITransport.ServerGetNextMessage: hostId=" + serverHostId + " event=" + networkEvent + "connid=" + connectionId + " channel=" + channel + " data=" + BitConverter.ToString(data) + " error=" + error);
             return true;
         }
 

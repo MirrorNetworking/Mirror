@@ -158,19 +158,19 @@ namespace Mirror
             m_PlayerController = null;
         }
 
-        public virtual bool Send(short msgType, MessageBase msg)
+        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
 
             // pack message and send
             byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
-            return SendBytes(message);
+            return SendBytes(channelId, message);
         }
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
         // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes(byte[] bytes)
+        protected virtual bool SendBytes(int channelId, byte[] bytes)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
@@ -188,7 +188,7 @@ namespace Mirror
             }
 
             byte error;
-            return TransportSend(bytes, out error);
+            return TransportSend(channelId, bytes, out error);
         }
 
         // handle this message
@@ -269,17 +269,17 @@ namespace Mirror
             HandleBytes(bytes);
         }
 
-        public virtual bool TransportSend(byte[] bytes, out byte error)
+        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
             error = 0;
             if (Transport.layer.ClientConnected())
             {
-                Transport.layer.ClientSend(bytes);
+                Transport.layer.ClientSend(channelId, bytes);
                 return true;
             }
             else if (Transport.layer.ServerActive())
             {
-                Transport.layer.ServerSend(connectionId, bytes);
+                Transport.layer.ServerSend(connectionId, channelId, bytes);
                 return true;
             }
             return false;
