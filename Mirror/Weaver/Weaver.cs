@@ -627,6 +627,13 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateReadFunction(TypeReference variable)
         {
+            if (s_RecursionCount++ > MaxRecursionCount)
+            {
+                Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
+                fail = true;
+                return null;
+            }
+
             if (!IsValidTypeToGenerate(variable.Resolve()))
             {
                 return null;
