@@ -606,7 +606,7 @@ namespace Mirror.Weaver
 
         void GeneratePreStartClient()
         {
-            int netIdFieldCounter = 0;
+            int netIdFieldCounter  = 0;
             MethodDefinition preStartMethod = null;
             ILProcessor serWorker = null;
 
@@ -663,7 +663,7 @@ namespace Mirror.Weaver
         void GenerateDeSerialization()
         {
             Weaver.DLog(m_td, "  GenerateDeSerialization");
-            int netIdFieldCounter = 0;
+            int netIdFieldCounter  = 0;
 
             foreach (var m in m_td.Methods)
             {
@@ -915,7 +915,7 @@ namespace Mirror.Weaver
         */
         MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition cmd = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
+            MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
@@ -1062,7 +1062,7 @@ namespace Mirror.Weaver
         */
         MethodDefinition ProcessTargetRpcCall(MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
+            MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
@@ -1138,7 +1138,7 @@ namespace Mirror.Weaver
         */
         MethodDefinition ProcessRpcCall(MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
+            MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
@@ -1556,7 +1556,7 @@ namespace Mirror.Weaver
         MethodDefinition ProcessEventCall(EventDefinition ed, CustomAttribute ca)
         {
             MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
-            MethodDefinition evt = new MethodDefinition("Call" + ed.Name, MethodAttributes.Public |
+            MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
             // add paramters
@@ -1773,8 +1773,7 @@ namespace Mirror.Weaver
             //create the property
             PropertyDefinition propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
             {
-                GetMethod = get,
-                SetMethod = set
+                GetMethod = get, SetMethod = set
             };
 
             //add the methods and property to the type.
@@ -1915,7 +1914,7 @@ namespace Mirror.Weaver
             unsafe
             {
                 int length = s.Length;
-                fixed (char* c = s)
+                fixed(char* c = s)
                 {
                     char* cc = c;
                     char* end = cc + length - 1;
