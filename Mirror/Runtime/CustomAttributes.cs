@@ -18,21 +18,25 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute
     {
+        public int channel = Channels.DefaultReliable; // this is zero
     }
 
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
     {
+        public int channel = Channels.DefaultReliable; // this is zero
     }
 
     [AttributeUsage(AttributeTargets.Method)]
     public class TargetRpcAttribute : Attribute
     {
+        public int channel = Channels.DefaultReliable; // this is zero
     }
 
     [AttributeUsage(AttributeTargets.Event)]
     public class SyncEventAttribute : Attribute
     {
+        public int channel = Channels.DefaultReliable; // this is zero
     }
 
     [AttributeUsage(AttributeTargets.Method)]

@@ -235,7 +235,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool SendToAll(short msgType, MessageBase msg)
+        public static bool SendToAll(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
@@ -243,12 +243,12 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                result &= conn.Send(msgType, msg);
+                result &= conn.Send(msgType, msg, channelId);
             }
             return result;
         }
 
-        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg)
+        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
@@ -260,7 +260,7 @@ namespace Mirror
                     NetworkConnection conn = kvp.Value;
                     if (conn.isReady)
                     {
-                        conn.Send(msgType, msg);
+                        conn.Send(msgType, msg, channelId);
                     }
                 }
                 return true;
@@ -274,7 +274,7 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.Send(msgType, msg);
+                        result &= kvp.Value.Send(msgType, msg, channelId);
                     }
                 }
                 return result;
