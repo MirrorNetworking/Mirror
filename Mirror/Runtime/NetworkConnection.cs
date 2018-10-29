@@ -165,12 +165,12 @@ namespace Mirror
 
             // pack message and send
             byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
-            return SendBytes(channelId, message);
+            return SendBytes(message, channelId);
         }
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
         // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes(int channelId, byte[] bytes)
+        protected virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 

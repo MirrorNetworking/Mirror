@@ -17,7 +17,7 @@ namespace Mirror
             m_LocalClient = localClient;
         }
 
-        protected override bool SendBytes(int channelId, byte[] bytes)
+        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             m_LocalClient.InvokeBytesOnClient(bytes);
             return true;
@@ -33,7 +33,7 @@ namespace Mirror
             address = "localServer";
         }
 
-        protected override bool SendBytes(int channelId, byte[] bytes)
+        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {
