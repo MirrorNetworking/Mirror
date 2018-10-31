@@ -282,8 +282,9 @@ namespace Mirror
 
             if (netMsg.conn.clientOwnedObjects.Contains(message.netId))
             {
-                // deserialize message
-                foundSync.DeserializeFromReader(netMsg.reader, true);
+                // deserialize payload
+                NetworkReader reader = new NetworkReader(message.payload);
+                foundSync.DeserializeFromReader(reader, true);
 
                 // server-only mode does no interpolation to save computations,
                 // but let's set the position directly
