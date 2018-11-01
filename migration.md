@@ -30,15 +30,14 @@ public class Player : NetworkBehaviour {
 ```
 At this point,  you might get some compilation errors.  Don't panic,  these are easy to fix. Keep going
 
-## 4. Remove all channels
-As of this writing,  all messages are reliable, ordered, fragmented.  There is no need for channels at all.
-To avoid misleading code, we have removed channels.
+## 4. Remove channels from NetworkSettings
+NetworkSettings in HLAPI have channels,  but this is flat out broken. Rather than ignoring your settings we removed channels from NetworkSettings.
 
 For example, if you have this code:
 
 ```C#
-[Command(channel= Channels.DefaultReliable)]
-public void CmdMove(int x, int y)
+[NetworkSettings(channel=1,sendInterval=0.05f)]
+public class NetStreamer : NetworkBehaviour
 {
     ...
 }
@@ -46,19 +45,20 @@ public void CmdMove(int x, int y)
 
 replace it with:
 ```C#
-[Command]
-public void CmdMove(int x, int y)
+[NetworkSettings(sendInterval=0.05f)]
+public class NetStreamer : NetworkBehaviour
 {
     ...
 }
 ```
-The same applies for `[ClientRPC]`, `[NetworkSettings]`, `[SyncEvent]`, `[SyncVar]`, `[TargetRPC]`
+
+Please note that the default transport (Telepathy),  completely ignores channels,  all messages are reliable, sequenced and fragmented.  They just work with no fuss.  If you want to take advantage of unreliable channels use LLAPITransport instead.
 
 ## 5. Rename SyncListStruct to SyncListSTRUCT
 There is a bug in the original UNET Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace.
 Until Unity officially removes UNET in 2019.1, we will have to use the name `SyncListSTRUCT` instead.
 
-So for example, if you have definitions like:
+For example, if you have definitions like:
 
 ```C#
 public class SyncListQuest : SyncListStruct<Quest> {}
