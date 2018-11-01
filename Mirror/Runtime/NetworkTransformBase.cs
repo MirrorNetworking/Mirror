@@ -292,7 +292,7 @@ namespace Mirror
                     foundSync.ApplyPositionAndRotation(foundSync.goal.position, foundSync.goal.rotation);
 
                 // set dirty so that OnSerialize broadcasts it
-                foundSync.SetDirtyBit(1L);
+                foundSync.SetDirtyBit(1UL);
             }
             else
             {
@@ -387,7 +387,7 @@ namespace Mirror
             {
                 // just use OnSerialize via SetDirtyBit only sync when position
                 // changed. set dirty bits 0 or 1
-                SetDirtyBit((ulong)(HasMovedOrRotated() ? 1L : 0L));
+                SetDirtyBit(HasMovedOrRotated() ? 1UL : 0UL);
             }
 
             // no 'else if' since host mode would be both
