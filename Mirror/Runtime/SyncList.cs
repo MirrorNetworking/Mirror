@@ -105,7 +105,7 @@ namespace Mirror
 
         public int Count { get { return m_Objects.Count; } }
         public bool IsReadOnly { get { return false; } }
-        public SyncListChanged Callback { get { return m_Callback; } set { m_Callback = value; } }
+        public event SyncListChanged Callback;
 
         public enum Operation : byte
         {
@@ -131,8 +131,6 @@ namespace Mirror
         // we might later receive changes that have already been applied
         // so we need to skip them
         int changesAhead = 0;
-
-        SyncListChanged m_Callback;
 
         protected abstract void SerializeItem(NetworkWriter writer, T item);
         protected abstract T DeserializeItem(NetworkReader reader);
@@ -163,10 +161,10 @@ namespace Mirror
 
             Changes.Add(change);
 
-            // ensure it is invoked on host
-            if (m_Callback != null)
+            SyncListChanged listChanged = Callback;
+            if (listChanged != null)
             {
-                m_Callback.Invoke(op, itemIndex);
+                listChanged(op, itemIndex);
             }
         }
 
@@ -321,9 +319,10 @@ namespace Mirror
                         break;
                 }
 
-                if (m_Callback != null && apply)
+                SyncListChanged listChanged = Callback;
+                if (apply && listChanged != null)
                 {
-                    m_Callback.Invoke(operation, index);
+                    listChanged(operation, index);
                 }
 
                 // we just skipped this change
