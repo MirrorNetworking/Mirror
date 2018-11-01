@@ -73,7 +73,7 @@ namespace Mirror
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        static bool SerializeIntoWriter(NetworkWriter writer, bool initialState, Vector3 position, Quaternion rotation, Compression compressRotation)
+        static bool SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation)
         {
             // serialize position
             writer.Write(position);
@@ -116,7 +116,7 @@ namespace Mirror
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            return SerializeIntoWriter(writer, initialState, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            return SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
         }
 
         // try to estimate movement speed for a data point based on how far it
@@ -132,7 +132,7 @@ namespace Mirror
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        public void DeserializeFromReader(NetworkReader reader, bool initialState)
+        public void DeserializeFromReader(NetworkReader reader)
         {
             // put it into a data point immediately
             DataPoint temp = new DataPoint();
@@ -243,7 +243,7 @@ namespace Mirror
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
             // deserialize
-            DeserializeFromReader(reader, initialState);
+            DeserializeFromReader(reader);
         }
 
         // local authority client sends sync message to server for broadcasting
@@ -284,7 +284,7 @@ namespace Mirror
             {
                 // deserialize payload
                 NetworkReader reader = new NetworkReader(message.payload);
-                foundSync.DeserializeFromReader(reader, true);
+                foundSync.DeserializeFromReader(reader);
 
                 // server-only mode does no interpolation to save computations,
                 // but let's set the position directly
@@ -404,7 +404,7 @@ namespace Mirror
                         {
                             // serialize
                             NetworkWriter writer = new NetworkWriter();
-                            SerializeIntoWriter(writer, true, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+                            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
 
                             // send message to server
                             TransformMessage message = new TransformMessage();
