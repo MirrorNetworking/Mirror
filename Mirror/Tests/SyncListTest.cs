@@ -166,7 +166,7 @@ namespace Mirror.Tests
         public void CallbackTest()
         {
             bool called = false;
-            clientSyncList.Callback = (op, index) => { called = true; };
+            clientSyncList.Callback += (op, index) => { called = true; };
 
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
