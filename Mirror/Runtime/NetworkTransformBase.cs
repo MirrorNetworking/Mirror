@@ -73,7 +73,7 @@ namespace Mirror
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        static bool SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation)
+        static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation)
         {
             // serialize position
             writer.Write(position);
@@ -110,13 +110,12 @@ namespace Mirror
                 // write 2 byte, 5 bits for each float
                 writer.Write(Utils.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
             }
-
-            return true;
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            return SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            return true;
         }
 
         // try to estimate movement speed for a data point based on how far it
