@@ -131,7 +131,7 @@ namespace Mirror
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        public void DeserializeFromReader(NetworkReader reader)
+        void DeserializeFromReader(NetworkReader reader)
         {
             // put it into a data point immediately
             DataPoint temp = new DataPoint();
