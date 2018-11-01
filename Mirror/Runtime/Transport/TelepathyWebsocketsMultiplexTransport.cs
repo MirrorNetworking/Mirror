@@ -36,9 +36,9 @@ namespace Mirror
         {
             client.ClientConnect(address, port);
         }
-        public bool ClientSend(byte[] data)
+        public bool ClientSend(int channelId, byte[] data)
         {
-            return client.ClientSend(data);
+            return client.ClientSend(channelId, data);
         }
         public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
@@ -81,9 +81,9 @@ namespace Mirror
             else Debug.LogWarning("ServerStartWebsockets can't be called in WebGL.");
         }
 
-        public bool ServerSend(int connectionId, byte[] data)
+        public bool ServerSend(int connectionId, int channelId, byte[] data)
         {
-            return server != null && server.ServerSend(connectionId, data);
+            return server != null && server.ServerSend(connectionId, channelId, data);
         }
 
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)

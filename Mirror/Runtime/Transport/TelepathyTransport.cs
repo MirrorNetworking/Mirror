@@ -25,7 +25,7 @@ namespace Mirror
         // client
         public bool ClientConnected() { return client.Connected; }
         public void ClientConnect(string address, int port) { client.Connect(address, port); }
-        public bool ClientSend(byte[] data) { return client.Send(data); }
+        public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
         public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
@@ -59,7 +59,7 @@ namespace Mirror
         {
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
-        public bool ServerSend(int connectionId, byte[] data) { return server.Send(connectionId, data); }
+        public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;

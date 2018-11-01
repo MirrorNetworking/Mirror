@@ -501,6 +501,19 @@ namespace Mirror.Weaver
             m_td.Methods.Add(serialize);
         }
 
+        static int GetChannelId(CustomAttribute ca)
+        {
+            foreach (CustomAttributeNamedArgument customField in ca.Fields)
+            {
+                if (customField.Name == "channel")
+                {
+                    return (int)customField.Argument.Value;
+                }
+            }
+
+            return 0;
+        }
+
         // returns false for error, not for no-hook-exists
         bool CheckForHookFunction(FieldDefinition syncVar, out MethodDefinition foundMethod)
         {
@@ -900,7 +913,7 @@ namespace Mirror.Weaver
                 base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, cmdName);
             }
         */
-        MethodDefinition ProcessCommandCall(MethodDefinition md)
+        MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -965,6 +978,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant)); // cmdHash
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
@@ -1046,7 +1060,7 @@ namespace Mirror.Weaver
             }
         }
         */
-        MethodDefinition ProcessTargetRpcCall(MethodDefinition md)
+        MethodDefinition ProcessTargetRpcCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -1101,6 +1115,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 
@@ -1121,7 +1136,7 @@ namespace Mirror.Weaver
             }
         }
         */
-        MethodDefinition ProcessRpcCall(MethodDefinition md)
+        MethodDefinition ProcessRpcCall(MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -1163,6 +1178,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
@@ -1379,7 +1395,7 @@ namespace Mirror.Weaver
                             m_CmdInvocationFuncs.Add(cmdFunc);
                         }
 
-                        MethodDefinition cmdCallFunc = ProcessCommandCall(md);
+                        MethodDefinition cmdCallFunc = ProcessCommandCall(md, ca);
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
@@ -1409,7 +1425,7 @@ namespace Mirror.Weaver
                             m_TargetRpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = ProcessTargetRpcCall(md);
+                        MethodDefinition rpcCallFunc = ProcessTargetRpcCall(md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
@@ -1439,7 +1455,7 @@ namespace Mirror.Weaver
                             m_RpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = ProcessRpcCall(md);
+                        MethodDefinition rpcCallFunc = ProcessRpcCall(md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);
@@ -1537,7 +1553,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        MethodDefinition ProcessEventCall(EventDefinition ed)
+        MethodDefinition ProcessEventCall(EventDefinition ed, CustomAttribute ca)
         {
             MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
             MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
@@ -1572,6 +1588,7 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
             evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant)); // eventHash
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
@@ -1615,7 +1632,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(m_td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = ProcessEventCall(ed);
+                        MethodDefinition eventCallFunc = ProcessEventCall(ed, ca);
                         m_td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);

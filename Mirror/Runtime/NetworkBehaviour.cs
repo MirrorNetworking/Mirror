@@ -74,7 +74,7 @@ namespace Mirror
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, string cmdName)
+        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -96,7 +96,7 @@ namespace Mirror
             message.cmdHash = cmdHash;
             message.payload = writer.ToArray();
 
-            ClientScene.readyConnection.Send((short)MsgType.Command, message);
+            ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -108,7 +108,7 @@ namespace Mirror
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, string rpcName)
+        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, int channelId, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -124,11 +124,11 @@ namespace Mirror
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
-            NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message);
+            NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -144,7 +144,7 @@ namespace Mirror
             message.rpcHash = rpcHash;
             message.payload = writer.ToArray();
 
-            conn.Send((short)MsgType.Rpc, message);
+            conn.Send((short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -156,7 +156,7 @@ namespace Mirror
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(int eventHash, NetworkWriter writer, string eventName)
+        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
         {
             if (!NetworkServer.active)
             {
@@ -171,7 +171,7 @@ namespace Mirror
             message.eventHash = eventHash;
             message.payload = writer.ToArray();
 
-            NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message);
+            NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
