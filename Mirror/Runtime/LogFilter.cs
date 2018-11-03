@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace Mirror
 {
     public static class LogFilter
