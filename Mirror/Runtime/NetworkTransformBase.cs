@@ -456,11 +456,21 @@ namespace Mirror
             Gizmos.DrawRay(data.position + offset, data.rotation * Vector3.up);
         }
 
+        static void DrawLineBetweenDataPoints(DataPoint data1, DataPoint data2, Color color)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(data1.position, data2.position);
+        }
+
         // draw the data points for easier debugging
         void OnDrawGizmos()
         {
+            // draw start and goal points
             if (start != null) DrawDataPointGizmo(start, Color.gray);
             if (goal != null) DrawDataPointGizmo(goal, Color.white);
+
+            // draw line between them
+            if (start != null && goal != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
     }
 }
