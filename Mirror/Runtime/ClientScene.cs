@@ -229,24 +229,6 @@ namespace Mirror
         }
 
         // ------------------------ NetworkScene pass-throughs ---------------------
-
-        internal static string GetStringForAssetId(Guid assetId)
-        {
-            GameObject prefab;
-            if (NetworkScene.GetPrefab(assetId, out prefab))
-            {
-                return prefab.name;
-            }
-
-            SpawnDelegate handler;
-            if (NetworkScene.GetSpawnHandler(assetId, out handler))
-            {
-                return handler.GetMethodName();
-            }
-
-            return "unknown";
-        }
-
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
