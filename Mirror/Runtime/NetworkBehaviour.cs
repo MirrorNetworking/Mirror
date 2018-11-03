@@ -183,7 +183,6 @@ namespace Mirror
         // ----------------------------- Code Gen Path Helpers  --------------------------------
 
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
-        protected delegate void EventDelegate(List<Delegate> targets, NetworkReader reader);
 
         protected enum UNetInvokeType
         {
