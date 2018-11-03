@@ -48,9 +48,9 @@ namespace Mirror
             }
         }
 
-        public int ComponentIndex 
-        { 
-            get 
+        public int ComponentIndex
+        {
+            get
             {
                 int index = Array.FindIndex(m_MyView.NetworkBehaviours, component => component == this);
                 if (index < 0)
@@ -60,7 +60,7 @@ namespace Mirror
                 }
 
                 return index;
-            } 
+            }
         }
 
         // this gets called in the constructor by the weaver
