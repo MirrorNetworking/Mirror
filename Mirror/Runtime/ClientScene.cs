@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
 
@@ -168,23 +169,22 @@ namespace Mirror
             }
         }
 
+        // this is only used by PrepareToSpawnSceneObjects.
+        internal static bool ConsiderForSpawning(NetworkIdentity networkIdentity)
+        {
+            // not spawned yet, not hidden, etc.?
+            return !networkIdentity.gameObject.activeSelf &&
+                   networkIdentity.gameObject.hideFlags != HideFlags.NotEditable &&
+                   networkIdentity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+                   networkIdentity.sceneId != 0;
+        }
+
         internal static void PrepareToSpawnSceneObjects()
         {
-            //NOTE: what is there are already objects in this dict?! should we merge with them?
-            s_SpawnableObjects = new Dictionary<uint, NetworkIdentity>();
-            var uvs = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
-            for (int i = 0; i < uvs.Length; i++)
-            {
-                var uv = uvs[i];
-                // not spawned yet etc.?
-                if (!uv.gameObject.activeSelf &&
-                    uv.gameObject.hideFlags != HideFlags.NotEditable && uv.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                    uv.sceneId != 0)
-                {
-                    s_SpawnableObjects[uv.sceneId] = uv;
-                    if (LogFilter.Debug) { Debug.Log("ClientScene::PrepareSpawnObjects sceneId:" + uv.sceneId); }
-                }
-            }
+            // add all unspawned NetworkIdentities to spawnable objects
+            s_SpawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
+                                 .Where(ConsiderForSpawning)
+                                 .ToDictionary(uv => uv.sceneId, uv => uv);
         }
 
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
