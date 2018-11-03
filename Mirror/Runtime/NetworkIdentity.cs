@@ -6,6 +6,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.Experimental.SceneManagement;
 #endif
 
 namespace Mirror
@@ -206,30 +207,81 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
+            AssignAssetID(path);
+        }
+
+        void AssignAssetID(String path)
+        {
             m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        }
+
+        bool ThisIsAPrefab20183()
+        {
+            return PrefabUtility.IsPartOfPrefabAsset(gameObject);
         }
 
         bool ThisIsAPrefab()
         {
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.Prefab)
-                return true;
-            return false;
+            if(String.Compare(Application.unityVersion, "2018.3") > 0)
+            {
+                return ThisIsAPrefab20183();
+            }
+            else
+            {
+                PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+                if (prefabType == PrefabType.Prefab)
+                    return true;
+                return false;
+            }
+        }
+
+        bool ThisIsASceneObjectWithPrefabParent20183(out GameObject prefab)
+        {
+            prefab = null;
+
+            if (!PrefabUtility.IsPartOfNonAssetPrefabInstance(gameObject))
+                return false;
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+            return true;
         }
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
             prefab = null;
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.None)
-                return false;
-            prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
+            if (String.Compare(Application.unityVersion, "2018.3") > 0)
+            {
+                if( !ThisIsASceneObjectWithPrefabParent20183(out prefab) )
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+                if (prefabType == PrefabType.None)
+                    return false;
+                prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
+            }
             if (prefab == null)
             {
                 Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
                 return false;
             }
             return true;
+        }
+
+        void SetupIDs20183()
+        {
+            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            {
+                ForceSceneId(0);
+                string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
+                AssignAssetID(path);
+            }
+            else
+            {
+                m_AssetId = "";
+            }
         }
 
         void SetupIDs()
@@ -243,6 +295,10 @@ namespace Mirror
             else if (ThisIsASceneObjectWithPrefabParent(out prefab))
             {
                 AssignAssetID(prefab);
+            }
+            else if (String.Compare(Application.unityVersion, "2018.3") > 0 )
+            {
+                SetupIDs20183();
             }
             else
             {
