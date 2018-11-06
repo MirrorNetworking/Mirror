@@ -101,7 +101,7 @@ namespace Mirror
 
         public static bool Listen(int serverPort, int maxConnections)
         {
-            return InternalListen(null, serverPort, maxConnections);
+            return InternalListen("127.0.0.1", serverPort, maxConnections);
         }
 
         public static bool Listen(string ipAddress, int serverPort, int maxConnections)
@@ -134,7 +134,7 @@ namespace Mirror
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "") + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server listen: " + ipAddress + ":" + s_ServerPort); }
             }
 
             s_Active = true;
