@@ -77,7 +77,6 @@ namespace Mirror
         // this is used to persist network address between scenes.
         static string s_Address;
 
-#if UNITY_EDITOR
         static bool s_DomainReload;
         static NetworkManager s_PendingSingleton;
 
@@ -90,7 +89,6 @@ namespace Mirror
         {
             s_PendingSingleton = this;
         }
-#endif
 
         // protected so that inheriting classes' Awake() can call base.Awake() too
         protected void Awake()
@@ -464,29 +462,30 @@ namespace Mirror
 
         internal static void UpdateScene()
         {
-#if UNITY_EDITOR
-            // In the editor, reloading scripts in play mode causes a Mono Domain Reload.
-            // This gets the transport layer (C++) and HLAPI (C#) out of sync.
-            // This check below detects that problem and shuts down the transport layer to bring both systems back in sync.
-            if (singleton == null && s_PendingSingleton != null && s_DomainReload)
+            if (Application.isEditor)
             {
-                Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down.");
-
-                s_DomainReload = false;
-                s_PendingSingleton.InitializeSingleton();
-
-                // destroy network objects
-                var uvs = FindObjectsOfType<NetworkIdentity>();
-                foreach (var uv in uvs)
+                // In the editor, reloading scripts in play mode causes a Mono Domain Reload.
+                // This gets the transport layer (C++) and HLAPI (C#) out of sync.
+                // This check below detects that problem and shuts down the transport layer to bring both systems back in sync.
+                if (singleton == null && s_PendingSingleton != null && s_DomainReload)
                 {
-                    Destroy(uv.gameObject);
+                    Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down.");
+
+                    s_DomainReload = false;
+                    s_PendingSingleton.InitializeSingleton();
+
+                    // destroy network objects
+                    var uvs = FindObjectsOfType<NetworkIdentity>();
+                    foreach (var uv in uvs)
+                    {
+                        Destroy(uv.gameObject);
+                    }
+
+                    singleton.StopHost();
+
+                    Transport.layer.Shutdown();
                 }
-
-                singleton.StopHost();
-
-                Transport.layer.Shutdown();
             }
-#endif
 
             if (singleton == null)
                 return;

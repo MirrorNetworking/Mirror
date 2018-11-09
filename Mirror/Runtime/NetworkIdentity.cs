@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 
 namespace Mirror
 {
@@ -73,11 +71,13 @@ namespace Mirror
         {
             get
             {
-#if UNITY_EDITOR
-                // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
-                    SetupIDs();
-#endif
+                if (Application.isEditor)
+                {
+                    // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
+                    if (string.IsNullOrEmpty(m_AssetId))
+                        SetupIDs();
+                }
+
                 // convert string to Guid and use .Empty to avoid exception if
                 // we would use 'new Guid("")'
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
@@ -191,7 +191,6 @@ namespace Mirror
             }
         }
 
-#if UNITY_EDITOR
         void OnValidate()
         {
             if (m_ServerOnly && m_LocalPlayerAuthority)
@@ -250,7 +249,6 @@ namespace Mirror
             }
         }
 
-#endif
         void OnDestroy()
         {
             if (m_IsServer && NetworkServer.active)
@@ -965,14 +963,12 @@ namespace Mirror
             m_ClientAuthorityOwner = null;
         }
 
-#if UNITY_EDITOR
         // this is invoked by the UnityEngine when a Mono Domain reload happens in the editor.
         // the transport layer has state in C++, so when the C# state is lost (on domain reload), the C++ transport layer must be shutown as well.
         static internal void UNetDomainReload()
         {
             NetworkManager.OnDomainReload();
         }
-#endif
 
         // this is invoked by the UnityEngine
         public static void UNetStaticUpdate()

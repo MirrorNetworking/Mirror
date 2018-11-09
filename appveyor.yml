@@ -3,16 +3,12 @@ version: '{branch}-{build}'
 before_build:
   - nuget restore Mirror/Networking.sln
 
-#build:
-#  project: Mirror/Networking.sln
-#  verbosity: minimal
+build:
+  project: Mirror/Networking.sln
+  verbosity: minimal
   
 # Do not build on tags (GitHub only)
 skip_tags: true
-
-build_script:
-  - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
-  - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
 
 artifacts:
   - path: Mirror/Output

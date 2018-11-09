@@ -1096,11 +1096,14 @@ namespace Mirror
 
         static bool CheckForPrefab(GameObject obj)
         {
-#if UNITY_EDITOR
-            return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-#else
-            return false;
-#endif
+            if (Application.isEditor)
+            {
+                return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         static bool VerifyCanSpawn(GameObject obj)
@@ -1216,10 +1219,11 @@ namespace Mirror
             if (netId.gameObject.hideFlags == HideFlags.NotEditable || netId.gameObject.hideFlags == HideFlags.HideAndDontSave)
                 return false;
 
-#if UNITY_EDITOR
-            if (UnityEditor.EditorUtility.IsPersistent(netId.gameObject))
-                return false;
-#endif
+            if (Application.isEditor)
+            {
+                if (UnityEditor.EditorUtility.IsPersistent(netId.gameObject))
+                    return false;
+            }
 
             // If not a scene object
             return netId.sceneId != 0;
