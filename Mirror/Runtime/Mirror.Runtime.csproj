@@ -83,10 +83,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="AfterBuild" DependsOnTargets="AfterBuild">
-    <Copy SourceFiles="$(TargetDir)Telepathy.dll" DestinationFiles="$(ProjectDir)..\Output\Telepathy.dll" />
-  </Target>
   <Target Name="AfterBuild">
+    <Copy SourceFiles="$(TargetDir)Telepathy.dll" DestinationFiles="$(ProjectDir)..\Output\Telepathy.dll" />
     <MakeDir Directories="$(ProjectDir)..\Output\Runtime" />
     <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\Output\Runtime\$(TargetName).dll" />
     <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\Output\Runtime\$(TargetName).dll.mdb" />
