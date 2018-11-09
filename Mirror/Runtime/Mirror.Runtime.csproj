@@ -41,7 +41,7 @@
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor" Condition=" '$(Configuration)' == 'Release-Editor' or '$(Configuration)' == 'Debug-Editor'">
+    <Reference Include="UnityEditor">
       <HintPath>..\lib\UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
