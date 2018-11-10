@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -135,6 +136,19 @@ namespace Mirror
             var uvs = FindObjectsOfType<NetworkIdentity>().ToList();
             uvs.Sort(CompareNetworkIdentitySiblingPaths);
 
+            // sceneId assignments need to work with additive scene loading, so
+            // it can't always start at 1,2,3,4,..., otherwise there will be
+            // sceneId duplicates.
+            // -> we need an offset to start at 1000+1,+2,+3, etc.
+            // -> the most robust way is to split uint value range by sceneCount
+            uint offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
+
+            // make sure that there aren't more sceneIds than offsetPerScene
+            if (uvs.Count >= offsetPerScene)
+            {
+                Debug.LogWarning(">" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
+            }
+
             uint nextSceneId = 1;
             foreach (NetworkIdentity uv in uvs)
             {
@@ -148,7 +162,10 @@ namespace Mirror
                     continue;
 
                 uv.gameObject.SetActive(false);
-                uv.ForceSceneId(nextSceneId++);
+
+                // assign offset + next sceneId
+                uint offset = (uint)uv.gameObject.scene.buildIndex * offsetPerScene;
+                uv.ForceSceneId(offset + nextSceneId++);
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
 
                 // saftey check for prefabs with more than one NetworkIdentity
