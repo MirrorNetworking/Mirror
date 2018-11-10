@@ -69,12 +69,37 @@ replace them with:
 public class SyncListQuest : SyncListSTRUCT<Quest> {}
 ```
 
-## 6. Replace Components
+## 6. Replace NetworkHas128 and NetworkInstanceId
+These have been changed to System.Guid and uint, respectively.
+
+For example, if you have something like this:
+```C#
+    public sealed class SpawnItemMessage : MessageBase
+    {
+        public NetworkHash128 assetID;
+        public NetworkInstanceId networkInstanceID;
+        public Vector3 position;
+        public Quaternion rotation;
+    }
+```
+
+replace with:
+```C#
+    public sealed class SpawnItemMessage : MessageBase
+    {
+        public System.Guid assetID;
+        public uint networkInstanceID;
+        public Vector3 position;
+        public Quaternion rotation;
+    }
+```
+
+## 7. Replace Components
 Every networked prefab and scene object needs to be adjusted.  They will be using `NetworkIdentity` from Unet,  and you need to replace that componenent with `NetworkIdentity` from Mirror.  You may be using other network components,  such as `NetworkAnimator` or `NetworkTransform`.   All components from Unet should be replaced with their corresponding component from Mirror.
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 7. Update your firewall and router
+## 8. Update your firewall and router
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system.
