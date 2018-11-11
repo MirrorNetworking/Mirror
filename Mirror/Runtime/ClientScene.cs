@@ -9,8 +9,6 @@ namespace Mirror
     {
         static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;
-        // scene id to NetworkIdentity
-        static Dictionary<uint, NetworkIdentity> s_SpawnableObjects;
 
         static bool s_IsReady;
         static bool s_IsSpawnFinished;
@@ -31,14 +29,11 @@ namespace Mirror
         // objects by net id
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
-        // scene id to NetworkIdentity
-        public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
 
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
             s_PendingOwnerNetIds = new List<uint>();
-            s_SpawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
             s_IsSpawnFinished = false;
@@ -169,29 +164,14 @@ namespace Mirror
             }
         }
 
-        internal static bool ConsiderForSpawning(NetworkIdentity networkIdentity)
-        {
-            // not spawned yet, not hidden, etc.?
-            return !networkIdentity.gameObject.activeSelf &&
-                   networkIdentity.gameObject.hideFlags != HideFlags.NotEditable &&
-                   networkIdentity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                   networkIdentity.sceneId != 0;
-        }
-
-        internal static void PrepareToSpawnSceneObjects()
-        {
-            // add all unspawned NetworkIdentities to spawnable objects
-            s_SpawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
-                                 .Where(ConsiderForSpawning)
-                                 .ToDictionary(uv => uv.sceneId, uv => uv);
-        }
-
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
-            if (s_SpawnableObjects.ContainsKey(sceneId))
+            // spawn object and remove from spawnable objects
+            NetworkIdentity foundId;
+            if (NetworkIdentity.spawnableObjects.TryGetValue(sceneId, out foundId))
             {
-                NetworkIdentity foundId = s_SpawnableObjects[sceneId];
-                s_SpawnableObjects.Remove(sceneId);
+                Debug.LogWarning("spawnableObjects remove SpawnSceneObject [" + sceneId + "]=" + foundId.name);
+                NetworkIdentity.spawnableObjects.Remove(sceneId);
                 return foundId;
             }
             return null;
@@ -394,10 +374,7 @@ namespace Mirror
             NetworkIdentity spawnedId = SpawnSceneObject(msg.sceneId);
             if (spawnedId == null)
             {
-                Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + s_SpawnableObjects.Count);
-                // dump the whole spawnable objects dict for easier debugging
-                foreach (var kvp in s_SpawnableObjects)
-                    Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
+                Debug.LogError("Spawn scene object not found for sceneId:" + msg.sceneId);
                 return;
             }
 
@@ -414,7 +391,6 @@ namespace Mirror
 
             if (msg.state == 0)
             {
-                PrepareToSpawnSceneObjects();
                 s_IsSpawnFinished = false;
                 return;
             }
@@ -452,7 +428,6 @@ namespace Mirror
                     {
                         // scene object.. disable it in scene instead of destroying
                         localObject.gameObject.SetActive(false);
-                        s_SpawnableObjects[localObject.sceneId] = localObject;
                     }
                 }
                 s_NetworkScene.RemoveLocalObject(msg.netId);

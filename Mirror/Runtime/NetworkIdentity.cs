@@ -50,7 +50,14 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
-        public NetworkBehaviour[] NetworkBehaviours 
+        // NetworkIdentities with a sceneId != 0 add themselves to s_SpawnableObjects automatically
+        // (this used to live in ClientScene via FindObjectsOfType)
+        // (the NetworkIdentities are in here while disabled.
+        //  removed when enabled.
+        //  added again when disabled.)
+        public static Dictionary<uint, NetworkIdentity> spawnableObjects = new Dictionary<uint, NetworkIdentity>();
+
+        public NetworkBehaviour[] NetworkBehaviours
         {
             get
             {
@@ -83,6 +90,20 @@ namespace Mirror
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
+
+        void OnDisable()
+        {
+            // ClientScene.OnObjectDestroy message only deactivates the object
+            // if it has a sceneId (instead of destroying it).
+            // it would also ADD it to spawnableObjects then, so it can be
+            // spawned again.
+            if (sceneId != 0)
+            {
+                spawnableObjects[sceneId] = this;
+                Debug.LogWarning("spawnableObjects add OnDisable [" + sceneId + "]=" + name);
+            }
+        }
+
         internal void SetDynamicAssetId(Guid newAssetId)
         {
             string newAssetIdString = newAssetId.ToString("N");

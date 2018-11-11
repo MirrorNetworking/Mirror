@@ -161,12 +161,15 @@ namespace Mirror
                 if (uv.isClient || uv.isServer)
                     continue;
 
-                uv.gameObject.SetActive(false);
-
                 // assign offset + next sceneId
                 uint offset = (uint)uv.gameObject.scene.buildIndex * offsetPerScene;
                 uv.ForceSceneId(offset + nextSceneId++);
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
+
+                // disable it AFTER assigning the sceneId.
+                // -> this way NetworkIdentity.OnDisable adds itself to the
+                //    spawnableObjects dictionary (only if sceneId != 0)
+                uv.gameObject.SetActive(false);
 
                 // saftey check for prefabs with more than one NetworkIdentity
                 var prefabGO = PrefabUtility.GetPrefabParent(uv.gameObject) as GameObject;
