@@ -4,8 +4,8 @@ namespace Mirror
 {
     public class TelepathyTransport : TransportLayer
     {
-        Telepathy.Client client = new Telepathy.Client();
-        Telepathy.Server server = new Telepathy.Server();
+        protected Telepathy.Client client = new Telepathy.Client();
+        protected Telepathy.Server server = new Telepathy.Server();
 
         public TelepathyTransport()
         {
