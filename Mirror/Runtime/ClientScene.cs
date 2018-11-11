@@ -174,6 +174,10 @@ namespace Mirror
                 NetworkIdentity.spawnableObjects.Remove(sceneId);
                 return foundId;
             }
+            else
+            {
+                Debug.LogWarning("Could not find scene object with sceneId: " + sceneId);
+            }
             return null;
         }
 
