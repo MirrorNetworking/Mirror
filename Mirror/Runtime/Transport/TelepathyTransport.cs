@@ -4,8 +4,8 @@ namespace Mirror
 {
     public class TelepathyTransport : TransportLayer
     {
-        Telepathy.Client client = new Telepathy.Client();
-        Telepathy.Server server = new Telepathy.Server();
+        protected Telepathy.Client client = new Telepathy.Client();
+        protected Telepathy.Server server = new Telepathy.Server();
 
         public TelepathyTransport()
         {
@@ -23,10 +23,10 @@ namespace Mirror
         }
 
         // client
-        public bool ClientConnected() { return client.Connected; }
-        public void ClientConnect(string address, int port) { client.Connect(address, port); }
-        public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public virtual bool ClientConnected() { return client.Connected; }
+        public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
+        public virtual bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+        public virtual bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -50,17 +50,17 @@ namespace Mirror
             data = null;
             return false;
         }
-        public void ClientDisconnect() { client.Disconnect(); }
+        public virtual void ClientDisconnect() { client.Disconnect(); }
 
         // server
-        public bool ServerActive() { return server.Active; }
-        public void ServerStart(string address, int port, int maxConnections) { server.Start(port, maxConnections); }
-        public void ServerStartWebsockets(string address, int port, int maxConnections)
+        public virtual bool ServerActive() { return server.Active; }
+        public virtual void ServerStart(string address, int port, int maxConnections) { server.Start(port, maxConnections); }
+        public virtual void ServerStartWebsockets(string address, int port, int maxConnections)
         {
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
-        public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public virtual bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public virtual bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -86,15 +86,15 @@ namespace Mirror
             data = null;
             return false;
         }
-        public bool ServerDisconnect(int connectionId)
+        public virtual bool ServerDisconnect(int connectionId)
         {
             return server.Disconnect(connectionId);
         }
-        public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public void ServerStop() { server.Stop(); }
+        public virtual bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public virtual void ServerStop() { server.Stop(); }
 
         // common
-        public void Shutdown()
+        public virtual void Shutdown()
         {
             Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();

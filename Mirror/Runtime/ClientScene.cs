@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
@@ -176,7 +176,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("Could not find scene object with sceneId: " + sceneId);
+                Debug.LogWarning("Could not find scene object with sceneid:" + sceneId);
             }
             return null;
         }
