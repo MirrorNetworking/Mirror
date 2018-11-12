@@ -69,7 +69,7 @@ replace them with:
 public class SyncListQuest : SyncListSTRUCT<Quest> {}
 ```
 
-## 6. Replace NetworkHas128 and NetworkInstanceId
+## 6. Replace NetworkHash128 and NetworkInstanceId
 These have been changed to System.Guid and uint, respectively.
 
 For example, if you have something like this:
