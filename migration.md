@@ -99,7 +99,16 @@ Every networked prefab and scene object needs to be adjusted.  They will be usin
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 8. Update your firewall and router
+## 8. Update Extended Components
+Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. In your newly Mirror-capable NetworkManager, if you are using the OnServerAddPlayer override, make sure that it takes the correct parameters:
+```
+public override void OnServerAddPlayer(NetworkConnection conn){
+    base.OnServerAddPlayer(conn);
+    // your code
+}
+```
+
+## 9. Update your firewall and router
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system.
