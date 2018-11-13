@@ -1,7 +1,8 @@
 ![Mirror Logo](https://i.imgur.com/5dUNWxl.png)
 ([Download](https://www.assetstore.unity3d.com/#!/content/129321)) ([Discord](https://discordapp.com/invite/N9QVxbM)) ([Forum](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)) ([Donations](https://www.patreon.com/MirrorTelepathy))
 
-[![Download](https://img.shields.io/badge/download-asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
+[![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
+[![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror/tests)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
