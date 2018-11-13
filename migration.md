@@ -69,7 +69,7 @@ replace them with:
 public class SyncListQuest : SyncListSTRUCT<Quest> {}
 ```
 
-## 6. Replace NetworkHas128 and NetworkInstanceId
+## 6. Replace NetworkHash128 and NetworkInstanceId
 These have been changed to System.Guid and uint, respectively.
 
 For example, if you have something like this:
@@ -99,7 +99,25 @@ Every networked prefab and scene object needs to be adjusted.  They will be usin
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 8. Update your firewall and router
+## 8. Update Extended Components
+Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
+```C#
+public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader extraMessageReader)
+{
+    base.OnServerAddPlayer(conn, playerControllerId, extraMessageReader);
+    // your code
+}
+```
+In your newly Mirror-capable NetworkManager, if you are using the OnServerAddPlayer override, remove the "playerControllerId" parameter from your override and the base call:
+```C#
+public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader extraMessageReader){
+    base.OnServerAddPlayer(conn, extraMessageReader);
+    // your code
+}
+```
+Note that in both HLAPI and Mirror the parameter "extraMessageReader" is optional.
+
+## 9. Update your firewall and router
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system.
