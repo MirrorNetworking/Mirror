@@ -1,5 +1,5 @@
 ![Mirror Logo](https://i.imgur.com/5dUNWxl.png)
-([Download](https://www.assetstore.unity3d.com/#!/content/129321)) ([Discord](https://discordapp.com/invite/N9QVxbM)) ([Forum](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/))
+([Download](https://www.assetstore.unity3d.com/#!/content/129321)) ([Discord](https://discordapp.com/invite/N9QVxbM)) ([Forum](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)) ([Donations](https://www.patreon.com/MirrorTelepathy))
 
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror/tests)
