@@ -9,6 +9,7 @@ namespace Mirror
     public class LLAPITransport : TransportLayer
     {
         readonly ConnectionConfig connectionConfig;
+        readonly GlobalConfig globalConfig;
         readonly int channelId; // always use first channel
         byte error;
 
@@ -36,6 +37,7 @@ namespace Mirror
                 globalConfig.MinTimerTimeout = 1;
                 globalConfig.MaxTimerTimeout = 12000;
             }
+            this.globalConfig = globalConfig;
             NetworkTransport.Init(globalConfig);
 
             // create connection config if none passed
@@ -256,6 +258,11 @@ namespace Mirror
             serverHostId = -1;
             clientConnectionId = -1;
             Debug.Log("LLAPITransport.Shutdown");
+        }
+
+        public int GetMaxPacketSize()
+        {
+            return globalConfig.MaxPacketSize;
         }
     }
 }

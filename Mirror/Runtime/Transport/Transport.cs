@@ -6,9 +6,6 @@ namespace Mirror
     // Transport class used by HLAPI ///////////////////////////////////////////
     public static class Transport
     {
-        // hlapi needs to know max packet size to show warnings
-        public static int MaxPacketSize = ushort.MaxValue;
-
         // selected transport layer
         // the transport is normally initialized in NetworkManager InitializeTransport
         // initialize it yourself if you are not using NetworkManager
@@ -39,5 +36,6 @@ namespace Mirror
 
         // common
         void Shutdown();
+        int GetMaxPacketSize();
     }
 }
