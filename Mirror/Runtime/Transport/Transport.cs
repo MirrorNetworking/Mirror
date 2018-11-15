@@ -7,7 +7,7 @@ namespace Mirror
     public static class Transport
     {
         // hlapi needs to know max packet size to show warnings
-        public static int MaxPacketSize = ushort.MaxValue;
+        public static int MaxPacketSize = int.MaxValue;
 
         // selected transport layer
         // the transport is normally initialized in NetworkManager InitializeTransport
