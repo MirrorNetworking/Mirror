@@ -200,6 +200,7 @@ namespace Mirror
             {
                 Change change = Changes[i];
                 writer.Write((byte)change.operation);
+                writer.Write(change.index);
 
                 switch (change.operation)
                 {
@@ -211,7 +212,6 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        writer.Write(change.index);
                         SerializeItem(writer, change.item);
                         break;
 
@@ -220,12 +220,10 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        writer.Write(change.index);
                         break;
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        writer.Write(change.index);
                         SerializeItem(writer, change.item);
                         break;
                 }
@@ -259,11 +257,11 @@ namespace Mirror
             for (int i = 0; i < changesCount; i++)
             {
                 Operation operation = (Operation)reader.ReadByte();
+                int index = reader.ReadInt32();
 
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                int index = 0;
                 T item;
 
                 switch (operation)
@@ -284,7 +282,6 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        index = reader.ReadInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
@@ -301,7 +298,6 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        index = reader.ReadInt32();
                         if (apply)
                         {
                             m_Objects.RemoveAt(index);
@@ -310,7 +306,6 @@ namespace Mirror
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        index = reader.ReadInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
