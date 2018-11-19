@@ -166,11 +166,14 @@ namespace Mirror.Tests
         public void CallbackTest()
         {
             bool called = false;
-            clientSyncList.Callback += (op, index) => { called = true; };
+            int calledIndex = 0;
+
+            clientSyncList.Callback += (op, index) => { called = true; calledIndex = index; };
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
             Assert.That(called, Is.True);
+            Assert.That(calledIndex, Is.EqualTo(3));
         }
 
         [Test]

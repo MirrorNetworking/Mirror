@@ -272,6 +272,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
+                            index = m_Objects.Count;
                             m_Objects.Add(item);
                         }
                         break;
