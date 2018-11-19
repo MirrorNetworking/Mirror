@@ -211,7 +211,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         SerializeItem(writer, change.item);
                         break;
 
@@ -220,12 +220,12 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         break;
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         SerializeItem(writer, change.item);
                         break;
                 }
@@ -285,7 +285,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
@@ -302,7 +302,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         if (apply)
                         {
                             m_Objects.RemoveAt(index);
@@ -311,7 +311,7 @@ namespace Mirror
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
