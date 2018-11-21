@@ -99,7 +99,7 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncList<T> : IList<T>, SyncObject
     {
-        public delegate void SyncListChanged(Operation op, int itemIndex);
+        public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
         readonly List<T> m_Objects = new List<T>();
 
@@ -164,7 +164,7 @@ namespace Mirror
             SyncListChanged listChanged = Callback;
             if (listChanged != null)
             {
-                listChanged(op, itemIndex);
+                listChanged(op, itemIndex, item);
             }
         }
 
@@ -264,7 +264,7 @@ namespace Mirror
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
                 int index = 0;
-                T item;
+                T item = default(T);
 
                 switch (operation)
                 {
@@ -305,6 +305,7 @@ namespace Mirror
                         index = (int)reader.ReadPackedUInt32();
                         if (apply)
                         {
+                            item = m_Objects[index];
                             m_Objects.RemoveAt(index);
                         }
                         break;
@@ -323,7 +324,7 @@ namespace Mirror
                 SyncListChanged listChanged = Callback;
                 if (apply && listChanged != null)
                 {
-                    listChanged(operation, index);
+                    listChanged(operation, index, item);
                 }
 
                 // we just skipped this change
