@@ -166,14 +166,59 @@ namespace Mirror.Tests
         public void CallbackTest()
         {
             bool called = false;
-            int calledIndex = 0;
 
-            clientSyncList.Callback += (op, index) => { called = true; calledIndex = index; };
+            clientSyncList.Callback += (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_ADD));
+                Assert.That(index, Is.EqualTo(3));
+                Assert.That(item, Is.EqualTo("yay"));
+            };
+
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
+
             Assert.That(called, Is.True);
-            Assert.That(calledIndex, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void CallbackRemoveTest()
+        {
+            bool called = false;
+
+            clientSyncList.Callback += (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVE));
+                Assert.That(item, Is.EqualTo("World"));
+            };
+            serverSyncList.Remove("World");
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+
+            Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void CallbackRemoveAtTest()
+        {
+            bool called = false;
+
+            clientSyncList.Callback += (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
+                Assert.That(index, Is.EqualTo(1));
+                Assert.That(item, Is.EqualTo("World"));
+            };
+
+            serverSyncList.RemoveAt(1);
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+
+            Assert.That(called, Is.True);
         }
 
         [Test]
