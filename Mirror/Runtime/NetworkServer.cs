@@ -947,7 +947,7 @@ namespace Mirror
 
                 // serialize all components with initialState = true
                 NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
+                uv.OnSerializeAllSafely(ref writer, true);
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client
@@ -971,7 +971,7 @@ namespace Mirror
 
                 // include synch data
                 NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
+                uv.OnSerializeAllSafely(ref writer, true);
                 msg.payload = writer.ToArray();
 
                 // conn is != null when spawning it for a client

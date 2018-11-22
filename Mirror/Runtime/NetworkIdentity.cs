@@ -437,7 +437,7 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns TRUE if any date other than dirtyMask was written!
-        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState)
+        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, ref NetworkWriter writer, bool initialState)
         {
             if (components.Length > 64)
             {
@@ -447,7 +447,8 @@ namespace Mirror
 
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
-            NetworkWriter payload = new NetworkWriter();
+            NetworkWriter payload = null;
+            
             for (int i = 0; i < components.Length; ++i)
             {
                 // is this component dirty?
@@ -458,7 +459,8 @@ namespace Mirror
                 {
                     // set bit #i to 1 in dirty mask
                     dirtyComponentsMask |= (ulong)(1L << i);
-
+                    if (payload == null) payload = new NetworkWriter();
+                    
                     // serialize the data
                     if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
                     OnSerializeSafely(comp, payload, initialState);
@@ -475,18 +477,19 @@ namespace Mirror
             // did we write anything? then write dirty, payload and return true
             if (dirtyComponentsMask != 0L)
             {
+                if (writer == null) writer = new NetworkWriter();
                 byte[] payloadBytes = payload.ToArray();
                 writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
                 writer.Write(payloadBytes, 0, payloadBytes.Length);
                 return true;
             }
-
+            
             // didn't write anything, return false
             return false;
         }
 
         // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState); }
+        internal void OnSerializeAllSafely(ref NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, ref writer, initialState); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -655,13 +658,11 @@ namespace Mirror
         internal void UNetUpdate()
         {
             // serialize all the dirty components and send (if any were dirty)
-            NetworkWriter writer = new NetworkWriter();
-            if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
+            NetworkWriter writer = null;
+            if (OnSerializeAllSafely(m_NetworkBehaviours, ref writer, false))
             {
                 // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = writer.ToArray();
+                var message = new UpdateVarsMessage {netId = netId, payload = writer.ToArray()};
 
                 NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
             }
