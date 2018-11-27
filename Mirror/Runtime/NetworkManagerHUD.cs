@@ -3,6 +3,7 @@
 using System;
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Mirror
 {
@@ -19,6 +20,12 @@ namespace Mirror
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
+
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+            {
+                // headless mode.   Just start the server
+                manager.StartServer();
+            }
         }
 
         void OnGUI()
