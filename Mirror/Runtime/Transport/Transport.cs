@@ -36,6 +36,6 @@ namespace Mirror
 
         // common
         void Shutdown();
-        int GetMaxPacketSize();
+        int GetMaxPacketSize(int channelId=Channels.DefaultReliable);
     }
 }
