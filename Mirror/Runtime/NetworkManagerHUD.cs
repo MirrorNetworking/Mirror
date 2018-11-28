@@ -23,7 +23,7 @@ namespace Mirror
 
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
-                // headless mode.   Just start the server
+                // headless mode. Just start the server
                 manager.StartServer();
             }
         }
