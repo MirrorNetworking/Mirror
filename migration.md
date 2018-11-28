@@ -94,12 +94,59 @@ replace with:
     }
 ```
 
-## 7. Replace Components
+## 7. Update your synclist callbacks
+In HLAPI SyncLists have a callback delegate that gets called in the client whenever the list is updated
+We have changed the callback to be a C# event instead and we also pass the item that was updated/removed
+
+For example, if you have this code:
+```csharp
+using UnityEngine;
+using UnityEngine.Networking;
+
+public  class MyBehaviour : NetworkBehaviour
+{
+    public SyncListInt m_ints = new SyncListInt();
+
+    private void OnIntChanged(SyncListInt.Operation op, int index)
+    {
+        Debug.Log("list changed " + op);
+    }
+
+    public override void OnStartClient()
+    {
+        m_ints.Callback = OnIntChanged;
+    }
+}
+```
+replace it with:
+```csharp
+using UnityEngine;
+using Mirror;
+
+public  class MyBehaviour : NetworkBehaviour
+{
+    public SyncListInt m_ints = new SyncListInt();
+
+    private void OnIntChanged(SyncListInt.Operation op, int index, int item)
+    {
+        Debug.Log("list changed " + op + " item " + item);
+    }
+
+    public override void OnStartClient()
+    {
+        m_ints.Callback += OnIntChanged;
+    }
+}
+```
+
+Notice the callback will also work in the server in Mirror.
+
+## 8. Replace Components
 Every networked prefab and scene object needs to be adjusted.  They will be using `NetworkIdentity` from Unet,  and you need to replace that componenent with `NetworkIdentity` from Mirror.  You may be using other network components,  such as `NetworkAnimator` or `NetworkTransform`.   All components from Unet should be replaced with their corresponding component from Mirror.
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 8. Update Extended Components
+## 9. Update Extended Components
 Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
 ```C#
 public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader extraMessageReader)
@@ -117,7 +164,7 @@ public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader ext
 ```
 Note that in both HLAPI and Mirror the parameter "extraMessageReader" is optional.
 
-## 9. Update your firewall and router
+## 10. Update your firewall and router
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system.
