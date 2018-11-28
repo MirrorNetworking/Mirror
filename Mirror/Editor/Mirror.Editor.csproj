@@ -59,7 +59,6 @@
   <ItemGroup>
     <Compile Include="NetworkAnimatorEditor.cs" />
     <Compile Include="NetworkManagerEditor.cs" />
-    <Compile Include="NetworkManagerPreview.cs" />
     <Compile Include="NetworkTransformChildEditor.cs" />
     <Compile Include="NetworkTransformEditor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
