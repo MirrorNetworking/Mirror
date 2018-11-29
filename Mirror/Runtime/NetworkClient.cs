@@ -112,7 +112,6 @@ namespace Mirror
             SetActive(true);
             RegisterSystemHandlers(false);
             m_ClientId = 0;
-            NetworkClient.pauseMessageHandling = false;
         }
 
         public virtual void Disconnect()
