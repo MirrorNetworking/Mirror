@@ -113,8 +113,6 @@ namespace Mirror
         {
             Initialize();
 
-            connections.Clear();
-
             // only start server if we want to listen
             if (!s_DontListen)
             {
@@ -297,7 +295,6 @@ namespace Mirror
                 conn.Disconnect();
                 conn.Dispose();
             }
-            connections.Clear();
         }
 
         internal static void InternalDisconnectAll()
