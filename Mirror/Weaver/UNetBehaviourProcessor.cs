@@ -1266,13 +1266,6 @@ namespace Mirror.Weaver
 
         private bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
-            {
-                Log.Error("Command function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Log.Error("Command function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
@@ -1294,16 +1287,6 @@ namespace Mirror.Weaver
 
         bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute ca)
         {
-            const string targetPrefix = "Target";
-            int prefixLen = targetPrefix.Length;
-
-            if (md.Name.Length > prefixLen && md.Name.Substring(0, prefixLen) != targetPrefix)
-            {
-                Log.Error("Target Rpc function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Log.Error("TargetRpc function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
@@ -1339,13 +1322,6 @@ namespace Mirror.Weaver
 
         bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
-            {
-                Log.Error("Rpc function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
             if (md.IsStatic)
             {
                 Log.Error("ClientRpc function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
