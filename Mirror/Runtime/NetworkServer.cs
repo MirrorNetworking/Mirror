@@ -84,6 +84,9 @@ namespace Mirror
 
             s_Initialized = true;
             if (LogFilter.Debug) { Debug.Log("NetworkServer Created version " + Version.Current); }
+
+            //Make sure connections are cleared in case any old connections references exist from previous sessions
+            connections.Clear();
         }
 
         internal static void RegisterMessageHandlers()
@@ -112,8 +115,6 @@ namespace Mirror
         internal static bool InternalListen(string ipAddress, int serverPort, int maxConnections)
         {
             Initialize();
-
-            connections.Clear();
 
             // only start server if we want to listen
             if (!s_DontListen)
