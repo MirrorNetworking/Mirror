@@ -35,6 +35,10 @@ bin/
 Mirror/packages
 .mfractor
 
+# Unity generated
+Library
+
+
 # ============ #
 # OS generated #
 # ============ #
