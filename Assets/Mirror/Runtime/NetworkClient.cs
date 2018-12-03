@@ -100,18 +100,15 @@ namespace Mirror
 
             connectState = ConnectState.Connecting;
 
-            InitializeConnectionListeners();
-
             // setup all the handlers
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
 
             Transport.layer.ClientConnect(serverIp, serverPort);
-
         }
 
-        private void InitializeConnectionListeners()
+        private void InitializeTransportHandlers()
         {
             Transport.layer.OnClientConnect += OnClientConnect;
             Transport.layer.OnClientData += OnClientData;
@@ -165,6 +162,8 @@ namespace Mirror
             RegisterSystemHandlers(false);
             m_ClientId = 0;
             NetworkClient.pauseMessageHandling = false;
+
+            InitializeTransportHandlers();
         }
 
         public virtual void Disconnect()
@@ -176,8 +175,19 @@ namespace Mirror
                 m_Connection.Disconnect();
                 m_Connection.Dispose();
                 m_Connection = null;
+                RemoveTransportHandlers();
+
                 m_ClientId = -1;
             }
+        }
+
+        private void RemoveTransportHandlers()
+        {
+            // so that we don't register them more than once
+            Transport.layer.OnClientConnect -= OnClientConnect;
+            Transport.layer.OnClientData -= OnClientData;
+            Transport.layer.OnClientDisconnect -= OnClientDisconnect;
+            Transport.layer.OnClientError -= OnClientError;
         }
 
         public bool Send(short msgType, MessageBase msg)
