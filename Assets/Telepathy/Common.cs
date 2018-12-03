@@ -39,38 +39,22 @@ namespace Telepathy
         }
 
         // send message (via stream) with the <size,content> message structure
-        protected static bool SendMessage(NetworkStream stream, byte[] content)
+        // throws exception if there is a problem
+        protected static void SendMessage(NetworkStream stream, byte[] content)
         {
-            // can we still write to this socket (not disconnected?)
-            if (!stream.CanWrite)
-            {
-                Logger.LogWarning("Send: stream not writeable: " + stream);
-                return false;
-            }
-
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
-            try
-            {
-                // construct header (size)
-                byte[] header = IntToBytes(content.Length);
+           
+            // construct header (size)
+            byte[] header = IntToBytes(content.Length);
 
-                // write header+content at once via payload array. writing
-                // header,payload separately would cause 2 TCP packets to be
-                // sent if nagle's algorithm is disabled(2x TCP header overhead)
-                byte[] payload = new byte[header.Length + content.Length];
-                Array.Copy(header, payload, header.Length);
-                Array.Copy(content, 0, payload, header.Length, content.Length);
-                stream.Write(payload, 0, payload.Length);
-
-                return true;
-            }
-            catch (Exception exception)
-            {
-                // log as regular message because servers do shut down sometimes
-                Logger.Log("Send: stream.Write exception: " + exception);
-                return false;
-            }
+            // write header+content at once via payload array. writing
+            // header,payload separately would cause 2 TCP packets to be
+            // sent if nagle's algorithm is disabled(2x TCP header overhead)
+            byte[] payload = new byte[header.Length + content.Length];
+            Array.Copy(header, payload, header.Length);
+            Array.Copy(content, 0, payload, header.Length, content.Length);
+            stream.Write(payload, 0, payload.Length);
         }
 
         // read message (via stream) with the <size,content> message structure

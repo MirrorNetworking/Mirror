@@ -29,7 +29,7 @@ namespace Mirror
         bool ClientConnected();
         // connect to a given ip address and port,  do not block
         void ClientConnect(string address, int port);
-        bool ClientSend(int channelId, byte[] data);
+        void ClientSend(int channelId, byte[] data);
         void ClientDisconnect();
 
 
@@ -43,7 +43,7 @@ namespace Mirror
         bool ServerActive();
         void ServerStart(string address, int port, int maxConnections);
         void ServerStartWebsockets(string address, int port, int maxConnections);
-        bool ServerSend(int connectionId, int channelId, byte[] data);
+        void ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerDisconnect(int connectionId);
         bool GetConnectionInfo(int connectionId, out string address);
         void ServerStop();

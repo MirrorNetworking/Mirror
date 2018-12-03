@@ -96,14 +96,17 @@ namespace Telepathy
             }
         }
 
-        public bool Send(byte[] data)
+        // send the data or throw exception
+        public void Send(byte[] data)
         {
-            if (Connected)
+            if (client != null)
             {
-                return SendMessage(client.GetStream(), data);
+                SendMessage(client.GetStream(), data);
             }
-            Logger.LogWarning("Client.Send: not connected!");
-            return false;
+            else
+            {
+                throw new SocketException((int)SocketError.NotConnected);
+            }
         }
     }
 }

@@ -26,7 +26,6 @@ public static class NetworkStreamExtensions
             }
 
             offset += received;
-
         }
 
         return data;

@@ -183,27 +183,20 @@ namespace Telepathy
             listener = null;
         }
 
-        // send message to client using socket connection.
-        public bool Send(int connectionId, byte[] data)
+        // send message to client using socket connection or throws exception
+        public void Send(int connectionId, byte[] data)
         {
             // find the connection
             TcpClient client;
             if (clients.TryGetValue(connectionId, out client))
             {
-                // GetStream() might throw exception if client is disconnected
-                try
-                {
-                    NetworkStream stream = client.GetStream();
-                    return SendMessage(stream, data);
-                }
-                catch (Exception exception)
-                {
-                    Logger.LogWarning("Server.Send exception: " + exception);
-                    return false;
-                }
+                NetworkStream stream = client.GetStream();
+                SendMessage(stream, data);
             }
-            Logger.LogWarning("Server.Send: invalid connectionId: " + connectionId);
-            return false;
+            else
+            {
+                throw new SocketException((int)SocketError.NotConnected);
+            }
         }
 
         // get connection info in case it's needed (IP etc.)
