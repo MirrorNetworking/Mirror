@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 #if UNITY_EDITOR
 using UnityEditor;
