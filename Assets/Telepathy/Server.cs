@@ -61,7 +61,7 @@ namespace Telepathy
         }
 
         // the listener thread's listen function
-        async public void Listen(int port, int maxConnections)
+        async public void Listen(int port, int maxConnections = int.MaxValue)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
