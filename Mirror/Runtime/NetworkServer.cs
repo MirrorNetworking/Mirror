@@ -296,6 +296,7 @@ namespace Mirror
             {
                 NetworkConnection conn = kvp.Value;
                 conn.Disconnect();
+                OnDisconnected(conn);
                 conn.Dispose();
             }
             connections.Clear();
