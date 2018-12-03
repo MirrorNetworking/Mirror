@@ -15,7 +15,7 @@ public static class NetworkStreamExtensions
         int offset = 0;
 
         // keep reading until we fill up the buffer;
-        do
+        while (offset < size)
         {
             int received = await stream.ReadAsync(data, offset, size - offset);
 
@@ -27,7 +27,7 @@ public static class NetworkStreamExtensions
 
             offset += received;
 
-        } while (offset < size);
+        }
 
         return data;
     }
