@@ -28,6 +28,7 @@ namespace Telepathy
             {
                 // paul:  exceptions are better than silence
                 ReceivedError?.Invoke(new Exception("Client already connected"));
+                return;
             }
 
             // We are connecting from now until Connect succeeds or fails
