@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +21,7 @@ namespace Telepathy
         public bool Connecting { get; set; }
         public bool Connected { get; set; }
 
-        public async void Connect(string ip, int port)
+        public async void Connect(string host, int port)
         {
             // not if already started
             if (client != null)
@@ -41,7 +43,9 @@ namespace Telepathy
 
             try
             {
-                await client.ConnectAsync(ip, port);
+                IPAddress ipAddress = await ResolveAsync(host);
+
+                await client.ConnectAsync(ipAddress, port);
 
                 // now we are connected:
                 Connected = true;
@@ -64,6 +68,17 @@ namespace Telepathy
                 Disconnect();
                 Disconnected?.Invoke();
             }
+        }
+
+        // resolve the host to an ip address
+        private async Task<IPAddress> ResolveAsync(string host)
+        {
+            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(host);
+            IPAddress ipAddress = ipHostInfo.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
+            if (ipAddress == null)
+                throw new SocketException((int)SocketError.AddressFamilyNotSupported);
+
+            return ipAddress;
         }
 
         private async Task ReceiveLoop(TcpClient client)
