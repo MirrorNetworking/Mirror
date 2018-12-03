@@ -61,9 +61,7 @@ namespace Telepathy
             }
             finally
             {
-                Connected = false;
-                Connecting = false;
-                client.Close();
+                Disconnect();
                 Disconnected?.Invoke();
             }
         }
@@ -88,10 +86,13 @@ namespace Telepathy
         public void Disconnect()
         {
             // only if started
-            if (Connecting || Connected)
+            if (client != null)
             {
                 // close client
                 client.Close();
+                client = null;
+                Connecting = false;
+                Connected = false;
             }
         }
 
