@@ -69,7 +69,10 @@ namespace Telepathy
             {
 
                 if (listener != null)
-                    throw new Exception("Already listening");
+                {
+                    ReceivedError?.Invoke(0, new Exception("Already listening"));
+                    return;
+                }
 
                 // start listener
                 listener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
@@ -108,14 +111,9 @@ namespace Telepathy
             {
                 Logger.Log("Server dispossed");
             }
-            catch (SocketException exception)
-            {
-                // calling StopServer will interrupt this thread with a
-                // 'SocketException: interrupted'. that's okay.
-                Logger.Log("Server Thread stopped. That's okay. " + exception);
-            }
             catch (Exception exception)
             {
+                ReceivedError?.Invoke(0, exception);
                 // something went wrong. probably important.
                 Logger.LogError("Server Exception: " + exception);
             }
