@@ -83,12 +83,7 @@ namespace Telepathy
 
             int messageSize = BytesToInt(messageSizeBuffer);
 
-            byte[] data = await stream.ReadExactlyAsync(messageSize);
-
-            if (data == null)
-                return null;
-
-            return data;
+            return await stream.ReadExactlyAsync(messageSize);
         }
 
     }
