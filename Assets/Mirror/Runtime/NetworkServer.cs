@@ -71,11 +71,15 @@ namespace Mirror
                     s_ServerHostId = -1;
                 }
 
+                Transport.layer.OnServerData -= HandleData;
+                Transport.layer.OnServerConnect -= HandleConnect;
+                Transport.layer.OnServerDisconnect -= HandleDisconnect;
                 s_Initialized = false;
             }
             s_DontListen = false;
             s_Active = false;
         }
+
 
         public static void Initialize()
         {
@@ -87,6 +91,9 @@ namespace Mirror
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
+            Transport.layer.OnServerDisconnect += HandleDisconnect;
+            Transport.layer.OnServerConnect += HandleConnect;
+            Transport.layer.OnServerData += HandleData;
         }
 
         internal static void RegisterMessageHandlers()
@@ -149,6 +156,7 @@ namespace Mirror
         {
             if (!s_Connections.ContainsKey(conn.connectionId))
             {
+                Debug.Log("Added connection " + conn.connectionId);
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
                 s_Connections[conn.connectionId] = conn;
@@ -351,40 +359,12 @@ namespace Mirror
             if (s_ServerHostId == -1)
                 return;
 
-            int connectionId;
-            TransportEvent transportEvent;
-            byte[] data;
-            while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
-            {
-                switch (transportEvent)
-                {
-                    case TransportEvent.Connected:
-                        //Debug.Log("NetworkServer loop: Connected");
-                        HandleConnect(connectionId, 0);
-                        break;
-                    case TransportEvent.Data:
-                        //Debug.Log("NetworkServer loop: clientId: " + message.connectionId + " Data: " + BitConverter.ToString(message.data));
-                        HandleData(connectionId, data, 0);
-                        break;
-                    case TransportEvent.Disconnected:
-                        //Debug.Log("NetworkServer loop: Disconnected");
-                        HandleDisconnect(connectionId, 0);
-                        break;
-                }
-            }
-
             UpdateServerObjects();
         }
 
-        static void HandleConnect(int connectionId, byte error)
+        static void HandleConnect(int connectionId)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + connectionId); }
-
-            if (error != 0)
-            {
-                GenerateConnectError(error);
-                return;
-            }
 
             // get ip address from connection
             string address;
@@ -403,7 +383,7 @@ namespace Mirror
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
-        static void HandleDisconnect(int connectionId, byte error)
+        static void HandleDisconnect(int connectionId)
         {
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
@@ -433,7 +413,7 @@ namespace Mirror
             conn.Dispose();
         }
 
-        static void HandleData(int connectionId, byte[] data, byte error)
+        static void HandleData(int connectionId, byte[] data)
         {
             NetworkConnection conn;
             if (s_Connections.TryGetValue(connectionId, out conn))
@@ -448,46 +428,8 @@ namespace Mirror
 
         static void OnData(NetworkConnection conn, byte[] data)
         {
+            Debug.Log("Received data");
             conn.TransportReceive(data);
-        }
-
-        static void GenerateConnectError(byte error)
-        {
-            Debug.LogError("UNet Server Connect Error: " + error);
-            GenerateError(null, error);
-        }
-
-        /* TODO use or remove
-        static void GenerateDataError(NetworkConnection conn, byte error)
-        {
-            NetworkError dataError = (NetworkError)error;
-            Debug.LogError("UNet Server Data Error: " + dataError);
-            GenerateError(conn, error);
-        }
-
-        static void GenerateDisconnectError(NetworkConnection conn, byte error)
-        {
-            NetworkError disconnectError = (NetworkError)error;
-            Debug.LogError("UNet Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId);
-            GenerateError(conn, error);
-        }
-        */
-
-        static void GenerateError(NetworkConnection conn, byte error)
-        {
-            if (handlers.ContainsKey((short)MsgType.Error))
-            {
-                ErrorMessage msg = new ErrorMessage();
-                msg.errorCode = error;
-
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler((short)MsgType.Error, reader);
-            }
         }
 
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)

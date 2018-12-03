@@ -28,6 +28,14 @@ namespace Mirror.Weaver
                     return;
                 }
 
+                string assemblyName = Path.GetFileName(assemblyPath);
+
+                if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+                {
+                    // don't weave mirror files
+                    return;
+                }
+
                 // UnityEngineCoreModule.DLL path:
                 string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
 
@@ -37,13 +45,8 @@ namespace Mirror.Weaver
                 string mirrorRuntimeDll = FindMirrorRuntime();
                 if (!File.Exists(mirrorRuntimeDll))
                 {
-                    Debug.LogError("Could not find Mirror.Runtime.dll, make sure the file is in your project");
-                    return;
-                }
-
-                if (assemblyPath == mirrorRuntimeDll)
-                {
-                    Debug.Log("Cannot weave mirror runtime");
+                    Debug.LogWarning("Weaving " + assemblyPath);
+                    Debug.LogWarning("Could not find Mirror.dll, make sure the file is in your project");
                     return;
                 }
 

@@ -1,3 +1,10 @@
-﻿{
-	"name": "Mirror.Weaver"
+{
+    "name": "Mirror.Weaver",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }

@@ -6,6 +6,7 @@ using UnityEngine.Networking.Types;
 
 namespace Mirror
 {
+    /*
     public class LLAPITransport : TransportLayer
     {
         readonly ConnectionConfig connectionConfig;
@@ -83,7 +84,7 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address, int port)
+        public async void ClientConnect(string address, int port)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -93,12 +94,15 @@ namespace Mirror
             clientId = NetworkTransport.AddHost(hostTopology, 0);
 
             clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
+
             NetworkError networkError = (NetworkError) error;
             if (networkError != NetworkError.Ok)
             {
                 Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
                 clientConnectionId = -1;
             }
+
+            while ()
         }
 
         public bool ClientSend(int channelId, byte[] data)
@@ -201,14 +205,7 @@ namespace Mirror
             {
                 Debug.Log("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
             }
-
-            // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
-            // ignore all messages that aren't for our selected channel.
-            /*if (channel != channelId)
-            {
-                return false;
-            }*/
-
+            
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
@@ -265,4 +262,5 @@ namespace Mirror
             return globalConfig.MaxPacketSize;
         }
     }
+    */
 }

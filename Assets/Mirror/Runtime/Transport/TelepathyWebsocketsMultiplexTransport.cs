@@ -4,6 +4,7 @@
 using UnityEngine;
 namespace Mirror
 {
+    /*
     public class TelepathyWebsocketsMultiplexTransport : TransportLayer
     {
         // client & server transports are assigned dynamically
@@ -124,4 +125,5 @@ namespace Mirror
             return 0;
         }
     }
+    */
 }

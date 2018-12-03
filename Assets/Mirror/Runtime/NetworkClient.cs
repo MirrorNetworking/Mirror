@@ -99,12 +99,64 @@ namespace Mirror
             m_ServerIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            Transport.layer.ClientConnect(serverIp, serverPort);
+
+            InitializeConnectionListeners();
 
             // setup all the handlers
             m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
+
+            Transport.layer.ClientConnect(serverIp, serverPort);
+
+        }
+
+        private void InitializeConnectionListeners()
+        {
+            Transport.layer.OnClientConnect += OnClientConnect;
+            Transport.layer.OnClientData += OnClientData;
+            Transport.layer.OnClientDisconnect += OnClientDisconnect;
+            Transport.layer.OnClientError += OnClientError;
+        }
+
+        private void OnClientError(Exception obj)
+        {
+            Debug.Log("Error " + obj);
+        }
+
+        private void OnClientDisconnect()
+        {
+            connectState = ConnectState.Disconnected;
+
+            ClientScene.HandleClientDisconnect(m_Connection);
+            if (m_Connection != null)
+            {
+                m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
+            }
+        }
+
+        private void OnClientData(byte[] data)
+        {
+            if (m_Connection != null)
+            {
+                m_Connection.TransportReceive(data);
+            }
+            else Debug.LogError("Skipped Data message handling because m_Connection is null.");
+        }
+
+        private void OnClientConnect()
+        {
+            if (m_Connection != null)
+            {
+                // reset network time stats
+                NetworkTime.Reset();
+
+                // the handler may want to send messages to the client
+                // thus we should set the connected state before calling the handler
+                connectState = ConnectState.Connected;
+                m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
+            }
+            else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
 
         void PrepareForConnect()
@@ -189,56 +241,7 @@ namespace Mirror
 
             if (connectState == ConnectState.Connected)
             {
-                NetworkTime.UpdateClient(this);
-            }
-
-            // any new message?
-            // -> calling it once per frame is okay, but really why not just
-            //    process all messages and make it empty..
-            TransportEvent transportEvent;
-            byte[] data;
-            while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
-            {
-                switch (transportEvent)
-                {
-                    case TransportEvent.Connected:
-                        //Debug.Log("NetworkClient loop: Connected");
-
-                        if (m_Connection != null)
-                        {
-                            // reset network time stats
-                            NetworkTime.Reset();
-
-                            // the handler may want to send messages to the client
-                            // thus we should set the connected state before calling the handler
-                            connectState = ConnectState.Connected;
-                            m_Connection.InvokeHandlerNoData((short) MsgType.Connect);
-                        }
-                        else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
-
-                        break;
-                    case TransportEvent.Data:
-                        //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(data));
-
-                        if (m_Connection != null)
-                        {
-                            m_Connection.TransportReceive(data);
-                        }
-                        else Debug.LogError("Skipped Data message handling because m_Connection is null.");
-
-                        break;
-                    case TransportEvent.Disconnected:
-                        //Debug.Log("NetworkClient loop: Disconnected");
-                        connectState = ConnectState.Disconnected;
-
-                        //GenerateDisconnectError(error); TODO which one?
-                        ClientScene.HandleClientDisconnect(m_Connection);
-                        if (m_Connection != null)
-                        {
-                            m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
-                        }
-                        break;
-                }
+                //NetworkTime.UpdateClient(this);
             }
         }
 

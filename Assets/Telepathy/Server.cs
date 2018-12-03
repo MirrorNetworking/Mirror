@@ -8,12 +8,16 @@ namespace Telepathy
 {
     public class Server : Common
     {
+        public event Action<int> Connected;
+        public event Action<int, byte[]> ReceivedData;
+        public event Action<int> Disconnected;
+        public event Action<int, Exception> ReceivedError;
+
         // listener
         TcpListener listener;
-        Thread listenerThread;
 
         // clients with <connectionId, TcpClient>
-        SafeDictionary<int, TcpClient> clients = new SafeDictionary<int, TcpClient>();
+        Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
 
         public bool NoDelay = true;
 
@@ -47,28 +51,30 @@ namespace Telepathy
         // check if the server is running
         public bool Active
         {
-            get { return listenerThread != null && listenerThread.IsAlive; }
+            get { return listener != null; }
         }
 
         public TcpClient GetClient(int connectionId)
         {
-            TcpClient client;
-            if (clients.TryGetValue(connectionId, out client))
-            {
-                return client;
-            }
-            return null;
+            // paul:  null is evil,  throw exception if not found
+            return clients[connectionId];
         }
 
         // the listener thread's listen function
-        void Listen(int port, int maxConnections)
+        async public void Listen(int port, int maxConnections)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
             try
             {
+
+                if (listener != null)
+                    throw new Exception("Already listening");
+
                 // start listener
                 listener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
+
+
                 // NoDelay disables nagle algorithm. lowers CPU% and latency
                 // but increases bandwidth
                 listener.Server.NoDelay = this.NoDelay;
@@ -78,49 +84,29 @@ namespace Telepathy
                 // keep accepting new clients
                 while (true)
                 {
-                    // wait and accept new client
-                    // note: 'using' sucks here because it will try to
-                    // dispose after thread was started but we still need it
-                    // in the thread
-                    TcpClient client = listener.AcceptTcpClient();
+                    // wait for a tcp client;
+                    TcpClient tcpClient = await listener.AcceptTcpClientAsync();
 
                     // are more connections allowed?
                     if (clients.Count < maxConnections)
                     {
-                        // generate the next connection id (thread safely)
-                        int connectionId = NextConnectionId();
-
-                        // spawn a thread for each client to listen to his
-                        // messages
-                        Thread thread = new Thread(() =>
-                        {
-                            // add to dict immediately
-                            clients.Add(connectionId, client);
-
-                            // run the receive loop
-                            ReceiveLoop(connectionId, client, messageQueue);
-
-                            // remove client from clients dict afterwards
-                            clients.Remove(connectionId);
-                        });
-                        thread.IsBackground = true;
-                        thread.Start();
+                        // non blocking receive loop
+                        ReceiveLoop(tcpClient);
                     }
-                    // connection limit reached. disconnect the client and show
-                    // a small log message so we know why it happened.
-                    // note: no extra Sleep because Accept is blocking anyway
                     else
                     {
-                        client.Close();
+                        // connection limit reached. disconnect the client and show
+                        // a small log message so we know why it happened.
+                        // note: no extra Sleep because Accept is blocking anyway
+
+                        tcpClient.Close();
                         Logger.Log("Server too full, disconnected a client");
                     }
                 }
             }
-            catch (ThreadAbortException exception)
+            catch(ObjectDisposedException)
             {
-                // UnityEditor causes AbortException if thread is still
-                // running when we press Play again next time. that's okay.
-                Logger.Log("Server thread aborted. That's okay. " + exception);
+                Logger.Log("Server dispossed");
             }
             catch (SocketException exception)
             {
@@ -133,26 +119,46 @@ namespace Telepathy
                 // something went wrong. probably important.
                 Logger.LogError("Server Exception: " + exception);
             }
+            finally
+            {
+                listener = null;
+            }
         }
 
-        // start listening for new connections in a background thread and spawn
-        // a new thread for each one.
-        public void Start(int port, int maxConnections = int.MaxValue)
+        private async void ReceiveLoop(TcpClient tcpClient)
         {
-            // not if already started
-            if (Active) return;
+            int connectionId = NextConnectionId();
+            clients.Add(connectionId, tcpClient);
 
-            // clear old messages in queue, just to be sure that the caller
-            // doesn't receive data from last time and gets out of sync.
-            // -> calling this in Stop isn't smart because the caller may
-            //    still want to process all the latest messages afterwards
-            messageQueue.Clear();
+            try
+            { 
+                // someone connected,  raise event
+                Connected?.Invoke(connectionId);
 
-            // start the listener thread
-            Logger.Log("Server: Start port=" + port + " max=" + maxConnections);
-            listenerThread = new Thread(() => { Listen(port, maxConnections); });
-            listenerThread.IsBackground = true;
-            listenerThread.Start();
+                using (NetworkStream networkStream = tcpClient.GetStream())
+                {
+                    while (true)
+                    {
+                        byte[] data = await ReadMessageAsync(networkStream);
+
+                        if (data == null)
+                            break;
+
+                        // we received some data,  raise event
+                        ReceivedData?.Invoke(connectionId, data);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                ReceivedError?.Invoke(connectionId, exception);
+            }
+            finally
+            {
+                // TODO client disconnected
+                clients.Remove(connectionId);
+                Disconnected?.Invoke(connectionId);
+            }
         }
 
         public void Stop()
@@ -167,17 +173,16 @@ namespace Telepathy
             listener.Stop();
 
             // close all client connections
-            List<TcpClient> connections = clients.GetValues();
-            foreach (TcpClient client in connections)
+            foreach (var kvp in clients)
             {
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
-                try { client.GetStream().Close(); } catch {}
-                client.Close();
+                try { kvp.Value.Close(); } catch {}
             }
 
             // clear clients list
             clients.Clear();
+            listener = null;
         }
 
         // send message to client using socket connection.
@@ -211,7 +216,7 @@ namespace Telepathy
             TcpClient client;
             if (clients.TryGetValue(connectionId, out client))
             {
-                address = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+                address = ((IPEndPoint)client.Client.RemoteEndPoint).ToString();
                 return true;
             }
             address = null;

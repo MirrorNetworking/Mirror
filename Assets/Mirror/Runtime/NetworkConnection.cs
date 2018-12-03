@@ -27,7 +27,7 @@ namespace Mirror
         public float lastMessageTime;
         public NetworkIdentity playerController { get { return m_PlayerController; } }
         public HashSet<uint> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
-        public bool logNetworkMessages;
+        public bool logNetworkMessages = false;
         public bool isConnected { get { return hostId != -1; }}
 
         public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
@@ -187,8 +187,7 @@ namespace Mirror
                 return false;
             }
 
-            byte error;
-            return TransportSend(channelId, bytes, out error);
+            return TransportSend(channelId, bytes);
         }
 
         // handle this message
@@ -269,9 +268,8 @@ namespace Mirror
             HandleBytes(bytes);
         }
 
-        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
+        public virtual bool TransportSend(int channelId, byte[] bytes)
         {
-            error = 0;
             if (Transport.layer.ClientConnected())
             {
                 Transport.layer.ClientSend(channelId, bytes);
@@ -282,6 +280,7 @@ namespace Mirror
                 Transport.layer.ServerSend(connectionId, channelId, bytes);
                 return true;
             }
+
             return false;
         }
 
