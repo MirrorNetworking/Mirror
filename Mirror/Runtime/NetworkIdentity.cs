@@ -654,16 +654,19 @@ namespace Mirror
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            // serialize all the dirty components and send (if any were dirty)
-            NetworkWriter writer = new NetworkWriter();
-            if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
+            if (m_NetworkBehaviours.Any(comp => comp.IsDirty()))
             {
-                // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = writer.ToArray();
+                // serialize all the dirty components and send (if any were dirty)
+                NetworkWriter writer = new NetworkWriter();
+                if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
+                {
+                    // construct message and send
+                    UpdateVarsMessage message = new UpdateVarsMessage();
+                    message.netId = netId;
+                    message.payload = writer.ToArray();
 
-                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
+                    NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
+                }
             }
         }
 
