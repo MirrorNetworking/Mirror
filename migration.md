@@ -3,6 +3,9 @@
 This guide gives you a step by step instruction for migrating your project from HLAP to Mirror.
 Mirror is a fork of HLAPI.  As such the migration is straight forward for most projects.
 
+There's also a Migration Tool you can try:
+    https://gist.github.com/Lymdun/dae130c5a69d69ab202bd621af2de1ad
+
 ## 1. BACKUP
 You have been warned.
 
