@@ -479,7 +479,6 @@ namespace Mirror
 
         private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
         {
-
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
             for (int i = 0; i < components.Length; ++i)
