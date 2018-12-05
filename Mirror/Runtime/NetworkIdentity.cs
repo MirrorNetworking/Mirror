@@ -444,10 +444,13 @@ namespace Mirror
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return false;
             }
+            ulong dirtyComponentsMask = GetDirtyMask(components, initialState);
 
-            // loop through all components only once and then write dirty+payload into the writer afterwards
-            ulong dirtyComponentsMask = 0L;
-            NetworkWriter payload = new NetworkWriter();
+            if (dirtyComponentsMask != 0L)
+            {
+                writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+            }
+
             for (int i = 0; i < components.Length; ++i)
             {
                 // is this component dirty?
@@ -456,12 +459,9 @@ namespace Mirror
                 NetworkBehaviour comp = m_NetworkBehaviours[i];
                 if (initialState || comp.IsDirty())
                 {
-                    // set bit #i to 1 in dirty mask
-                    dirtyComponentsMask |= (ulong)(1L << i);
-
                     // serialize the data
                     if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
-                    OnSerializeSafely(comp, payload, initialState);
+                    OnSerializeSafely(comp, writer, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
                     // This preserves the behavior in HLAPI
@@ -473,16 +473,24 @@ namespace Mirror
             }
 
             // did we write anything? then write dirty, payload and return true
-            if (dirtyComponentsMask != 0L)
+            return dirtyComponentsMask != 0;
+        }
+
+        private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        {
+
+            // loop through all components only once and then write dirty+payload into the writer afterwards
+            ulong dirtyComponentsMask = 0L;
+            for (int i = 0; i < components.Length; ++i)
             {
-                byte[] payloadBytes = payload.ToArray();
-                writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
-                writer.Write(payloadBytes, 0, payloadBytes.Length);
-                return true;
+                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                if (initialState || comp.IsDirty())
+                {
+                    dirtyComponentsMask |= (ulong)(1L << i);
+                }
             }
 
-            // didn't write anything, return false
-            return false;
+            return dirtyComponentsMask;
         }
 
         // extra version that uses m_NetworkBehaviours so we can call it from the outside
