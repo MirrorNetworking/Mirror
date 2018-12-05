@@ -24,9 +24,7 @@ namespace Mirror
         public byte[] ToArray()
         {
             writer.Flush();
-            byte[] slice = new byte[Position];
-            Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
-            return slice;
+            return ((MemoryStream)writer.BaseStream).ToArray();
         }
 
         public void Write(byte value)  { writer.Write(value); }
