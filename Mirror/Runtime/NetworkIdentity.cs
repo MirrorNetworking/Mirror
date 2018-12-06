@@ -472,8 +472,7 @@ namespace Mirror
                     }
                 }
             }
-
-            // did we write anything? then write dirty, payload and return true
+            
             return writer.ToArray();
         }
 
