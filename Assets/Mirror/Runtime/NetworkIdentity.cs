@@ -471,7 +471,7 @@ namespace Mirror
                     }
                 }
             }
-            
+
             return writer.ToArray();
         }
 
@@ -531,9 +531,6 @@ namespace Mirror
                 }
             }
         }
-
-        // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState) { OnDeserializeAllSafely(m_NetworkBehaviours, reader, initialState); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
