@@ -483,18 +483,7 @@ namespace Mirror
             if (Time.time - m_LastSendTime > GetNetworkSendInterval())
             {
                 return m_SyncVarDirtyBits != 0L
-                        || IsSyncObjectDirty();
-            }
-            return false;
-        }
-
-        internal bool IsSyncObjectDirty()
-        {
-            for (int i= 0; i< m_SyncObjects.Count; i++)
-            {
-                var syncObject = m_SyncObjects[i];
-                if (syncObject.IsDirty)
-                    return true;
+                        || m_SyncObjects.Any(obj => obj.IsDirty);
             }
             return false;
         }
