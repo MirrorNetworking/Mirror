@@ -892,9 +892,7 @@ namespace Mirror
                 msg.rotation = uv.transform.rotation;
 
                 // serialize all components with initialState = true
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
-                msg.payload = writer.ToArray();
+                msg.payload = uv.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -916,9 +914,7 @@ namespace Mirror
                 msg.position = uv.transform.position;
 
                 // include synch data
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
-                msg.payload = writer.ToArray();
+                msg.payload = uv.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
