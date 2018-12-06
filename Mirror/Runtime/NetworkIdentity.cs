@@ -452,12 +452,11 @@ namespace Mirror
             NetworkWriter writer = new NetworkWriter();
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
-            for (int i = 0; i < m_NetworkBehaviours.Length; ++i)
+            foreach (NetworkBehaviour comp in m_NetworkBehaviours)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
                 if (initialState || comp.IsDirty())
                 {
                     // serialize the data
