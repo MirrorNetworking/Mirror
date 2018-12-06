@@ -429,7 +429,6 @@ namespace Mirror
 
         static void OnData(NetworkConnection conn, byte[] data)
         {
-            Debug.Log("Received data");
             conn.TransportReceive(data);
         }
 
