@@ -436,32 +436,32 @@ namespace Mirror
         }
 
         // serialize all components (or only dirty ones if not initial state)
-        // -> returns TRUE if any date other than dirtyMask was written!
-        internal bool OnSerializeAllSafely(NetworkBehaviour[] components, NetworkWriter writer, bool initialState)
+        // -> returns serialized data of everything dirty,  null if nothing was dirty
+        internal byte[] OnSerializeAllSafely(bool initialState)
         {
-            if (components.Length > 64)
+            if (m_NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-                return false;
+                return null;
             }
+            ulong dirtyComponentsMask = GetDirtyMask(m_NetworkBehaviours, initialState);
 
-            // loop through all components only once and then write dirty+payload into the writer afterwards
-            ulong dirtyComponentsMask = 0L;
-            NetworkWriter payload = new NetworkWriter();
-            for (int i = 0; i < components.Length; ++i)
+            if (dirtyComponentsMask == 0L)
+                return null;
+
+            NetworkWriter writer = new NetworkWriter();
+            writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+
+            foreach (NetworkBehaviour comp in m_NetworkBehaviours)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
                 if (initialState || comp.IsDirty())
                 {
-                    // set bit #i to 1 in dirty mask
-                    dirtyComponentsMask |= (ulong)(1L << i);
-
                     // serialize the data
                     if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
-                    OnSerializeSafely(comp, payload, initialState);
+                    OnSerializeSafely(comp, writer, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
                     // This preserves the behavior in HLAPI
@@ -471,22 +471,25 @@ namespace Mirror
                     }
                 }
             }
-
-            // did we write anything? then write dirty, payload and return true
-            if (dirtyComponentsMask != 0L)
-            {
-                byte[] payloadBytes = payload.ToArray();
-                writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
-                writer.Write(payloadBytes, 0, payloadBytes.Length);
-                return true;
-            }
-
-            // didn't write anything, return false
-            return false;
+            
+            return writer.ToArray();
         }
 
-        // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal void OnSerializeAllSafely(NetworkWriter writer, bool initialState) { OnSerializeAllSafely(m_NetworkBehaviours, writer, initialState); }
+        private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        {
+            // loop through all components only once and then write dirty+payload into the writer afterwards
+            ulong dirtyComponentsMask = 0L;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour comp = components[i];
+                if (initialState || comp.IsDirty())
+                {
+                    dirtyComponentsMask |= (ulong)(1L << i);
+                }
+            }
+
+            return dirtyComponentsMask;
+        }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -654,19 +657,16 @@ namespace Mirror
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            if (m_NetworkBehaviours.Any(comp => comp.IsDirty()))
+            // serialize all the dirty components and send (if any were dirty)
+            byte[] payload = OnSerializeAllSafely(false);
+            if (payload != null)
             {
-                // serialize all the dirty components and send (if any were dirty)
-                NetworkWriter writer = new NetworkWriter();
-                if (OnSerializeAllSafely(m_NetworkBehaviours, writer, false))
-                {
-                    // construct message and send
-                    UpdateVarsMessage message = new UpdateVarsMessage();
-                    message.netId = netId;
-                    message.payload = writer.ToArray();
+                // construct message and send
+                UpdateVarsMessage message = new UpdateVarsMessage();
+                message.netId = netId;
+                message.payload = payload;
 
-                    NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
-                }
+                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
             }
         }
 
