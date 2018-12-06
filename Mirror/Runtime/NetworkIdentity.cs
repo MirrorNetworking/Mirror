@@ -437,14 +437,14 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
-        internal byte[] OnSerializeAllSafely(NetworkBehaviour[] components, bool initialState)
+        internal byte[] OnSerializeAllSafely(bool initialState)
         {
-            if (components.Length > 64)
+            if (m_NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return null;
             }
-            ulong dirtyComponentsMask = GetDirtyMask(components, initialState);
+            ulong dirtyComponentsMask = GetDirtyMask(m_NetworkBehaviours, initialState);
 
             if (dirtyComponentsMask == 0L)
                 return null;
@@ -452,7 +452,7 @@ namespace Mirror
             NetworkWriter writer = new NetworkWriter();
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
-            for (int i = 0; i < components.Length; ++i)
+            for (int i = 0; i < m_NetworkBehaviours.Length; ++i)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
@@ -483,7 +483,7 @@ namespace Mirror
             ulong dirtyComponentsMask = 0L;
             for (int i = 0; i < components.Length; ++i)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
+                NetworkBehaviour comp = components[i];
                 if (initialState || comp.IsDirty())
                 {
                     dirtyComponentsMask |= (ulong)(1L << i);
@@ -492,9 +492,6 @@ namespace Mirror
 
             return dirtyComponentsMask;
         }
-
-        // extra version that uses m_NetworkBehaviours so we can call it from the outside
-        internal byte[] OnSerializeAllSafely(bool initialState) { return OnSerializeAllSafely(m_NetworkBehaviours, initialState); }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
