@@ -47,9 +47,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug-Editor|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;ENABLE_UNET;UNITY_EDITOR;ENABLE_PROFILER</DefineConstants>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
