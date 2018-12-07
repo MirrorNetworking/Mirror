@@ -861,8 +861,7 @@ namespace Mirror
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkMessage netMsg)
         {
-            RemovePlayerMessage msg = new RemovePlayerMessage();
-            netMsg.ReadMessage(msg);
+            RemovePlayerMessage msg = netMsg.ReadMessage<RemovePlayerMessage>();
 
             if (netMsg.conn.playerController != null)
             {
