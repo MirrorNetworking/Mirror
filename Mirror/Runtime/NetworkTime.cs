@@ -54,8 +54,7 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkMessage netMsg)
         {
-            var pingMsg = new NetworkPingMessage();
-            netMsg.ReadMessage(pingMsg);
+            var pingMsg = netMsg.ReadMessage<NetworkPingMessage>();
 
             if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
 
@@ -73,8 +72,7 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkMessage netMsg)
         {
-            NetworkPongMessage pongMsg = new NetworkPongMessage();
-            netMsg.ReadMessage(pongMsg);
+            NetworkPongMessage pongMsg = netMsg.ReadMessage<NetworkPongMessage>();
 
             // how long did this message take to come back
             double rtt = LocalTime() - pongMsg.clientTime;
