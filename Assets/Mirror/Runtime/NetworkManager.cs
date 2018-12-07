@@ -571,8 +571,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerAddPlayerMessageInternal"); }
 
-            AddPlayerMessage msg = new AddPlayerMessage();
-            netMsg.ReadMessage(msg);
+            AddPlayerMessage msg = netMsg.ReadMessage<AddPlayerMessage>();
 
             if (msg.msgData != null && msg.msgData.Length > 0)
             {
@@ -589,8 +588,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
 
-            RemovePlayerMessage msg = new RemovePlayerMessage();
-            netMsg.ReadMessage(msg);
+            RemovePlayerMessage msg = netMsg.ReadMessage<RemovePlayerMessage>();
 
             if (netMsg.conn.playerController != null)
             {
@@ -603,8 +601,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
-            ErrorMessage msg = new ErrorMessage();
-            netMsg.ReadMessage(msg);
+            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnServerError(netMsg.conn, msg.errorCode);
         }
 
@@ -653,8 +650,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
-            ErrorMessage msg = new ErrorMessage();
-            netMsg.ReadMessage(msg);
+            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnClientError(netMsg.conn, msg.errorCode);
         }
 

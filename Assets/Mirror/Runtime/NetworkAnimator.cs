@@ -366,8 +366,7 @@ namespace Mirror
 
         internal static void OnAnimationServerMessage(NetworkMessage netMsg)
         {
-            AnimationMessage msg = new AnimationMessage();
-            netMsg.ReadMessage(msg);
+            AnimationMessage msg = netMsg.ReadMessage<AnimationMessage>();
             if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
             GameObject go = NetworkServer.FindLocalObject(msg.netId);
@@ -387,8 +386,7 @@ namespace Mirror
 
         internal static void OnAnimationParametersServerMessage(NetworkMessage netMsg)
         {
-            AnimationParametersMessage msg = new AnimationParametersMessage();
-            netMsg.ReadMessage(msg);
+            AnimationParametersMessage msg = netMsg.ReadMessage<AnimationParametersMessage>();
 
             if (LogFilter.Debug) { Debug.Log("OnAnimationParametersMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
@@ -408,8 +406,7 @@ namespace Mirror
 
         internal static void OnAnimationTriggerServerMessage(NetworkMessage netMsg)
         {
-            AnimationTriggerMessage msg = new AnimationTriggerMessage();
-            netMsg.ReadMessage(msg);
+            AnimationTriggerMessage msg = netMsg.ReadMessage<AnimationTriggerMessage>();
             if (LogFilter.Debug) { Debug.Log("OnAnimationTriggerMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
 
             GameObject go = NetworkServer.FindLocalObject(msg.netId);
@@ -430,8 +427,7 @@ namespace Mirror
 
         internal static void OnAnimationClientMessage(NetworkMessage netMsg)
         {
-            AnimationMessage msg = new AnimationMessage();
-            netMsg.ReadMessage(msg);
+            AnimationMessage msg = netMsg.ReadMessage<AnimationMessage>();
 
             GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
@@ -448,8 +444,7 @@ namespace Mirror
 
         internal static void OnAnimationParametersClientMessage(NetworkMessage netMsg)
         {
-            AnimationParametersMessage msg = new AnimationParametersMessage();
-            netMsg.ReadMessage(msg);
+            AnimationParametersMessage msg = netMsg.ReadMessage<AnimationParametersMessage>();
 
             GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
@@ -466,8 +461,7 @@ namespace Mirror
 
         internal static void OnAnimationTriggerClientMessage(NetworkMessage netMsg)
         {
-            AnimationTriggerMessage msg = new AnimationTriggerMessage();
-            netMsg.ReadMessage(msg);
+            AnimationTriggerMessage msg = netMsg.ReadMessage<AnimationTriggerMessage>();
 
             GameObject go = ClientScene.FindLocalObject(msg.netId);
             if (go == null)
