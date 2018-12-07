@@ -588,8 +588,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
 
-            RemovePlayerMessage msg = netMsg.ReadMessage<RemovePlayerMessage>();
-
             if (netMsg.conn.playerController != null)
             {
                 OnServerRemovePlayer(netMsg.conn, netMsg.conn.playerController);
