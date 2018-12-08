@@ -42,6 +42,7 @@ This branch is to be imported in source form in Unity 2018.2 or later.  To insta
 
 1. Clone this repository or download as a zip file
 2. Add all files to your unity project
+3. Go to player settings and set your scripting runtime version to `.Net 4.x Equivalent`
 3. Restart unity
 
 ## Migration Guide
