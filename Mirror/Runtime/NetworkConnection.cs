@@ -205,7 +205,19 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content)); }
+                if (logNetworkMessages) 
+                { 
+                    if (Enum.IsDefined(typeof(MsgType), msgType))
+                    {
+                        // one of Mirror mesage types,  display the message name
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
+                    }
+                    else
+                    {
+                        // user defined message,  display the number
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
+                    }
+                }
 
                 NetworkMessageDelegate msgDelegate;
                 if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
