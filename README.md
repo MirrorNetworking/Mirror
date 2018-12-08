@@ -3,10 +3,7 @@
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorTelepathy)
-[![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
-[![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror/tests)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
-[![Codecov](https://codecov.io/gh/vis2k/mirror/branch/mirror/graph/badge.svg)](https://codecov.io/gh/vis2k/mirror/branch/mirror)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
@@ -24,6 +21,14 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
+## Changelog
+This is a work in progress branch.  The differences with mirror branch are:
+
+ * It is no longer built as dlls,  you import the source directly in your unity project
+ * The TCP transport uses asynchronous instead of threads.  From our testing,  this scales a lot better.
+ * It only works in Unity 2018.2 and later,  support for 2017.4 has been dropped
+ * Only TCP transport is provided as of this writing,  LLAPI and websockets are WIP
+
 ## Documentation
 Check out our [Wiki](https://github.com/vis2k/Mirror/wiki) and read the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html), Mirror is still similar enough.
 
@@ -32,14 +37,12 @@ The main difference is that you have to use `using Mirror;` instead of `using Un
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 ## Usage Guide
-Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
-Alternatively,  you can install it manually:
+This branch is to be imported in source form in Unity 2018.2 or later.  To install it:
 
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
-2. Drop the DLLs into your Project's Plugins folder
-3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
-4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
+1. Clone this repository or download as a zip file
+2. Add all files to your unity project
+3. Restart unity
 
 ## Migration Guide
 If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://github.com/vis2k/Mirror/blob/mirror/migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
@@ -53,6 +56,8 @@ For a fully polished complete project example, consider [uMMORPG](https://www.as
 If you don't want to use Telepathy or UNET's LLAPI as low level transport, then check out:
 * https://github.com/FizzCube/SteamNetNetworkTransport (SteamNetwork)
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
+
+Note those transports have not been ported to 2018 branch.
 
 ## Donations
 Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
