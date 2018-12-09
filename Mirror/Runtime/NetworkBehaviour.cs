@@ -27,7 +27,7 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
-        internal NetworkIdentity netIdentity { get { return myView; } }
+        protected NetworkIdentity netIdentity { get { return myView; } }
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
