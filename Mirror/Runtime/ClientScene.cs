@@ -420,7 +420,10 @@ namespace Mirror
                 return;
             }
 
-            foreach (var uv in objects.Values)
+            // paul: Initialize the objects in the same order as they were initialized
+            // in the server.   This is important if spawned objects
+            // use data from scene objects
+            foreach (var uv in objects.Values.OrderBy(uv => uv.netId))
             {
                 if (!uv.isClient)
                 {
