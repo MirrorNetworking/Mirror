@@ -6,13 +6,8 @@ namespace Mirror
 {
     sealed class LocalClient : NetworkClient
     {
-        struct InternalMsg
-        {
-            internal ushort msgType;
-            internal byte[] content;
-        }
-
-        List<InternalMsg> m_InternalMsgs = new List<InternalMsg>();
+       
+        Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
 
         bool m_Connected;
 
@@ -68,10 +63,11 @@ namespace Mirror
 
         private void PostInternalMessage(short msgType, byte[] content)
         {
-            InternalMsg msg = new InternalMsg();
-            msg.msgType = (ushort)msgType;
-            msg.content = content;
-            m_InternalMsgs.Add(msg);
+            NetworkMessage msg = new NetworkMessage();
+            msg.msgType = msgType;
+            msg.reader = new NetworkReader(content);
+            msg.conn = connection;
+            m_InternalMsgs.Enqueue(msg);
         }
 
         private void PostInternalMessage(short msgType)
@@ -83,29 +79,9 @@ namespace Mirror
 
         private void ProcessInternalMessages()
         {
-            if (m_InternalMsgs.Count == 0)
+            while (m_InternalMsgs.Count > 0)
             {
-                return;
-            }
-
-            // we will process all existing messages,
-            // but new messages might be added in the process because host mode
-            // local client messages don't go over the network. they are added
-            // here directly. (probably...)
-            // so we make a copy of the list first
-            List<InternalMsg> tmp = new List<InternalMsg>(m_InternalMsgs);
-            m_InternalMsgs.Clear();
-
-            // iterate through existing set
-            for (int i = 0; i < tmp.Count; i++)
-            {
-                InternalMsg msg = tmp[i];
-
-                NetworkMessage internalMessage = new NetworkMessage();
-                internalMessage.msgType = (short)msg.msgType;
-                internalMessage.reader = new NetworkReader(msg.content);
-                internalMessage.conn = connection;
-
+                NetworkMessage internalMessage = m_InternalMsgs.Dequeue();
                 m_Connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
             }
