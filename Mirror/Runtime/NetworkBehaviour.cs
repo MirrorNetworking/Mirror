@@ -37,7 +37,7 @@ namespace Mirror
 
         // NetworkIdentity component caching for easier access
         NetworkIdentity m_netIdentity;
-        protected NetworkIdentity netIdentity
+        public NetworkIdentity netIdentity
         {
             get
             {
