@@ -826,10 +826,7 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                if (conn != null)
-                {
-                    SetClientNotReady(conn);
-                }
+                SetClientNotReady(conn);
             }
         }
 
