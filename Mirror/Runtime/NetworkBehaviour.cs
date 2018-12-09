@@ -20,6 +20,8 @@ namespace Mirror
         public bool isServer { get { return netIdentity.isServer; } }
         public bool isClient { get { return netIdentity.isClient; } }
         public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
+        public bool isServerOnly { get { return isServer && !isClient; } }
+        public bool isClientOnly { get { return isClient && !isServer; } }
         public bool hasAuthority { get { return netIdentity.hasAuthority; } }
         public uint netId { get { return netIdentity.netId; } }
         public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
