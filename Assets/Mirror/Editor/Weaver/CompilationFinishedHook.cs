@@ -45,8 +45,10 @@ namespace Mirror.Weaver
                 string mirrorRuntimeDll = FindMirrorRuntime();
                 if (!File.Exists(mirrorRuntimeDll))
                 {
-                    Debug.LogWarning("Weaving " + assemblyPath);
-                    Debug.LogWarning("Could not find Mirror.dll, make sure the file is in your project");
+                    // this is normal,  it happens with any assembly that is built before mirror
+                    // such as unity packages or your own assemblies
+                    // those don't need to be weaved
+                    // if any assembly depends on mirror,  then it will be built after
                     return;
                 }
 
