@@ -112,15 +112,22 @@ namespace Telepathy
         }
 
         // send the data or throw exception
-        public void Send(byte[] data)
+        public async void Send(byte[] data)
         {
-            if (client != null)
+            if (client == null)
             {
-                SendMessage(client.GetStream(), data);
+                ReceivedError?.Invoke(new SocketException((int)SocketError.NotConnected));
+                return;
             }
-            else
+
+            try
             {
-                throw new SocketException((int)SocketError.NotConnected);
+                await SendMessage(client.GetStream(), data);
+            }
+            catch (Exception ex)
+            {
+                Disconnect();
+                ReceivedError?.Invoke(ex);
             }
         }
     }

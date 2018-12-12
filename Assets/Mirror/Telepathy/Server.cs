@@ -151,7 +151,6 @@ namespace Telepathy
             }
             finally
             {
-                // TODO client disconnected
                 clients.Remove(connectionId);
                 Disconnected?.Invoke(connectionId);
             }
@@ -182,18 +181,37 @@ namespace Telepathy
         }
 
         // send message to client using socket connection or throws exception
-        public void Send(int connectionId, byte[] data)
+        public async void Send(int connectionId, byte[] data)
         {
             // find the connection
             TcpClient client;
             if (clients.TryGetValue(connectionId, out client))
             {
-                NetworkStream stream = client.GetStream();
-                SendMessage(stream, data);
+                try
+                {
+                    NetworkStream stream = client.GetStream();
+                    await SendMessage(stream, data);
+                }
+                catch (Exception exception)
+                {
+                    if (clients.ContainsKey(connectionId))
+                    {
+                        // paul:  If someone unplugs their internet
+                        // we can potentially get hundreds of errors here all at once
+                        // because all the WriteAsync wake up at once and throw exceptions
+
+                        // by hiding inside this if, I ensure that we only report the first error
+                        // all other errors are swallowed.  
+                        // this prevents a log storm that freezes the server for several seconds
+                        ReceivedError?.Invoke(connectionId, exception);
+                    }
+
+                    Disconnect(connectionId);
+                }
             }
             else
             {
-                throw new SocketException((int)SocketError.NotConnected);
+                ReceivedError?.Invoke(connectionId, new SocketException((int)SocketError.NotConnected));
             }
         }
 
@@ -219,6 +237,7 @@ namespace Telepathy
             TcpClient client;
             if (clients.TryGetValue(connectionId, out client))
             {
+                clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.
                 client.Close();
                 Logger.Log("Server.Disconnect connectionId:" + connectionId);

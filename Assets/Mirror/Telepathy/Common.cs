@@ -40,7 +40,7 @@ namespace Telepathy
 
         // send message (via stream) with the <size,content> message structure
         // throws exception if there is a problem
-        protected static void SendMessage(NetworkStream stream, byte[] content)
+        protected static async Task SendMessage(NetworkStream stream, byte[] content)
         {
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
@@ -54,7 +54,7 @@ namespace Telepathy
             byte[] payload = new byte[header.Length + content.Length];
             Array.Copy(header, payload, header.Length);
             Array.Copy(content, 0, payload, header.Length, content.Length);
-            stream.Write(payload, 0, payload.Length);
+            await stream.WriteAsync(payload, 0, payload.Length);
         }
 
         // read message (via stream) with the <size,content> message structure
