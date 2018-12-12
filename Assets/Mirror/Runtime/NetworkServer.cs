@@ -80,8 +80,7 @@ namespace Mirror
             s_Active = false;
         }
 
-
-        public static void Initialize()
+        static void Initialize()
         {
             if (s_Initialized)
                 return;
