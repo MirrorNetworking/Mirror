@@ -284,13 +284,11 @@ namespace Mirror
         {
             if (Transport.layer.ClientConnected())
             {
-                Transport.layer.ClientSend(channelId, bytes);
-                return true;
+                return Transport.layer.ClientSend(channelId, bytes);
             }
             else if (Transport.layer.ServerActive())
             {
-                Transport.layer.ServerSend(connectionId, channelId, bytes);
-                return true;
+                return Transport.layer.ServerSend(connectionId, channelId, bytes);
             }
 
             return false;
