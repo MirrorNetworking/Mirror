@@ -97,7 +97,6 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
             InitializeSingleton();
-            InitializeTransport();
         }
 
         void InitializeSingleton()
@@ -107,6 +106,7 @@ namespace Mirror
                 return;
             }
 
+            InitializeTransport();
             // do this early
             LogFilter.Debug = showDebugMessages;
 
