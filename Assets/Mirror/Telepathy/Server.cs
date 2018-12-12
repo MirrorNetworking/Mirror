@@ -192,6 +192,10 @@ namespace Telepathy
                     NetworkStream stream = client.GetStream();
                     await SendMessage(stream, data);
                 }
+                catch (ObjectDisposedException) {
+                    // connection has been closed,  swallow exception
+                    Disconnect(connectionId);
+                }
                 catch (Exception exception)
                 {
                     if (clients.ContainsKey(connectionId))
