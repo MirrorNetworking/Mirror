@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using Exception = System.Exception;
+
 namespace Mirror
 {
     public enum PlayerSpawnMethod
@@ -599,8 +601,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
-            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnServerError(netMsg.conn, msg.errorCode);
+            NetworkError errorMessage = (NetworkError)netMsg;
+            OnServerError(netMsg.conn, errorMessage.exception);
         }
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
@@ -648,8 +650,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
-            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnClientError(netMsg.conn, msg.errorCode);
+            NetworkError networkError = (NetworkError)netMsg;
+            OnClientError(netMsg.conn, networkError.exception);
         }
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)
@@ -763,8 +765,10 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode)
+        public virtual void OnServerError(NetworkConnection conn, Exception exception)
         {
+            // default implementation just logs the exception
+            Debug.LogException(exception, this);
         }
 
         public virtual void OnServerSceneChanged(string sceneName)
@@ -791,8 +795,10 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode)
+        public virtual void OnClientError(NetworkConnection conn, Exception exception)
         {
+            // default implementation just logs the exception
+            Debug.LogException(exception, this);
         }
 
         public virtual void OnClientNotReady(NetworkConnection conn)

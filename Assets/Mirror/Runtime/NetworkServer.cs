@@ -74,6 +74,7 @@ namespace Mirror
                 Transport.layer.OnServerData -= HandleData;
                 Transport.layer.OnServerConnect -= HandleConnect;
                 Transport.layer.OnServerDisconnect -= HandleDisconnect;
+                Transport.layer.OnServerError -= HandleError;
                 s_Initialized = false;
             }
             s_DontListen = false;
@@ -93,7 +94,9 @@ namespace Mirror
             Transport.layer.OnServerDisconnect += HandleDisconnect;
             Transport.layer.OnServerConnect += HandleConnect;
             Transport.layer.OnServerData += HandleData;
+            Transport.layer.OnServerError += HandleError;
         }
+
 
         internal static void RegisterMessageHandlers()
         {
@@ -429,6 +432,32 @@ namespace Mirror
         static void OnData(NetworkConnection conn, byte[] data)
         {
             conn.TransportReceive(data);
+        }
+
+        private static void HandleError(int connectionId, Exception exception)
+        {
+            NetworkConnection conn;
+            if (s_Connections.TryGetValue(connectionId, out conn))
+            {
+                OnError(conn, exception);
+            }
+            else
+            {
+                Debug.LogException(exception);
+            }
+
+        }
+
+        private static void OnError(NetworkConnection conn, Exception exception)
+        {
+            NetworkError errorMessage = new NetworkError
+            {
+                msgType = (short)MsgType.Error,
+                conn = conn,
+                exception = exception,
+            };
+
+            conn.InvokeHandler(errorMessage);
         }
 
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)

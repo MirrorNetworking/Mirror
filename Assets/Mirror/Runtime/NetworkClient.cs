@@ -116,9 +116,23 @@ namespace Mirror
             Transport.layer.OnClientError += OnClientError;
         }
 
-        private void OnClientError(Exception obj)
+        private void OnClientError(Exception exception)
         {
-            Debug.Log("Error " + obj);
+            NetworkError errorMessage = new NetworkError
+            {
+                msgType = (short)MsgType.Error,
+                conn = m_Connection,
+                exception = exception
+            };
+
+            if (m_Connection != null)
+            {
+                m_Connection.InvokeHandler(errorMessage);
+            }
+            else
+            {
+                Debug.LogException(exception);
+            }
         }
 
         private void OnClientDisconnect()

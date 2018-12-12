@@ -28,6 +28,7 @@ This is a work in progress branch.  The differences with mirror branch are:
  * The TCP transport uses asynchronous instead of threads.  From our testing,  this scales a lot better.
  * It only works in Unity 2018.2 and later,  support for 2017.4 has been dropped
  * Only TCP transport is provided as of this writing,  LLAPI and websockets are WIP
+ * Proper error handling.  Just override OnClientError and OnServerError in your network manager
 
 ## Documentation
 Check out our [Wiki](https://github.com/vis2k/Mirror/wiki) and read the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html), Mirror is still similar enough.

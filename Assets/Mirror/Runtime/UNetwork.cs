@@ -70,6 +70,11 @@ namespace Mirror
         }
     }
 
+    public class NetworkError : NetworkMessage
+    {
+        public Exception exception;
+    }
+
     public enum Version
     {
         Current = 1

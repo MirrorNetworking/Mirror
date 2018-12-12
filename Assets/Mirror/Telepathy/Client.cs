@@ -61,7 +61,6 @@ namespace Telepathy
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to connect " + ex);
                 ReceivedError?.Invoke(ex);
             }
             finally

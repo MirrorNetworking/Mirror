@@ -114,8 +114,6 @@ namespace Telepathy
             catch (Exception exception)
             {
                 ReceivedError?.Invoke(0, exception);
-                // something went wrong. probably important.
-                Logger.LogError("Server Exception: " + exception);
             }
             finally
             {
