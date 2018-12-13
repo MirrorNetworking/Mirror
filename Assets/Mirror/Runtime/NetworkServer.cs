@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -1040,7 +1040,11 @@ namespace Mirror
         static bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
-            return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
+#if UNITY_2018_3_OR_NEWER
+            return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
+#else
+            return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
+#endif
 #else
             return false;
 #endif
