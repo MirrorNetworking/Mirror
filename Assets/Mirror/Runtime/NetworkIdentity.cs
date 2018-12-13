@@ -237,16 +237,13 @@ namespace Mirror
 
 #if UNITY_2018_3_OR_NEWER
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
-            {
                 return false;
-            }
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             if (prefabType == PrefabType.None)
                 return false;
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #endif
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 
             if (prefab == null)
             {
