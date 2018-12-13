@@ -140,7 +140,7 @@ namespace Mirror
         }
     }
 
-    public class RemovePlayerMessage : MessageBase
+    public class RemovePlayerMessage : EmptyMessage
     {
     }
 

@@ -77,13 +77,16 @@ namespace Mirror
             s_Active = false;
         }
 
-        public static void Initialize()
+        static void Initialize()
         {
             if (s_Initialized)
                 return;
 
             s_Initialized = true;
             if (LogFilter.Debug) { Debug.Log("NetworkServer Created version " + Version.Current); }
+
+            //Make sure connections are cleared in case any old connections references exist from previous sessions
+            connections.Clear();
         }
 
         internal static void RegisterMessageHandlers()
@@ -293,8 +296,10 @@ namespace Mirror
             {
                 NetworkConnection conn = kvp.Value;
                 conn.Disconnect();
+                OnDisconnected(conn);
                 conn.Dispose();
             }
+            connections.Clear();
         }
 
         internal static void InternalDisconnectAll()
@@ -821,10 +826,7 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 NetworkConnection conn = kvp.Value;
-                if (conn != null)
-                {
-                    SetClientNotReady(conn);
-                }
+                SetClientNotReady(conn);
             }
         }
 
@@ -856,9 +858,6 @@ namespace Mirror
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkMessage netMsg)
         {
-            RemovePlayerMessage msg = new RemovePlayerMessage();
-            netMsg.ReadMessage(msg);
-
             if (netMsg.conn.playerController != null)
             {
                 netMsg.conn.RemovePlayerController();
@@ -946,9 +945,7 @@ namespace Mirror
                 msg.rotation = uv.transform.rotation;
 
                 // serialize all components with initialState = true
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
-                msg.payload = writer.ToArray();
+                msg.payload = uv.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -970,9 +967,7 @@ namespace Mirror
                 msg.position = uv.transform.position;
 
                 // include synch data
-                NetworkWriter writer = new NetworkWriter();
-                uv.OnSerializeAllSafely(writer, true);
-                msg.payload = writer.ToArray();
+                msg.payload = uv.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)

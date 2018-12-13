@@ -97,7 +97,6 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
             InitializeSingleton();
-            InitializeTransport();
         }
 
         void InitializeSingleton()
@@ -107,6 +106,7 @@ namespace Mirror
                 return;
             }
 
+            InitializeTransport();
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -571,8 +571,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerAddPlayerMessageInternal"); }
 
-            AddPlayerMessage msg = new AddPlayerMessage();
-            netMsg.ReadMessage(msg);
+            AddPlayerMessage msg = netMsg.ReadMessage<AddPlayerMessage>();
 
             if (msg.msgData != null && msg.msgData.Length > 0)
             {
@@ -589,9 +588,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
 
-            RemovePlayerMessage msg = new RemovePlayerMessage();
-            netMsg.ReadMessage(msg);
-
             if (netMsg.conn.playerController != null)
             {
                 OnServerRemovePlayer(netMsg.conn, netMsg.conn.playerController);
@@ -603,8 +599,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
-            ErrorMessage msg = new ErrorMessage();
-            netMsg.ReadMessage(msg);
+            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnServerError(netMsg.conn, msg.errorCode);
         }
 
@@ -653,8 +648,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
-            ErrorMessage msg = new ErrorMessage();
-            netMsg.ReadMessage(msg);
+            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnClientError(netMsg.conn, msg.errorCode);
         }
 

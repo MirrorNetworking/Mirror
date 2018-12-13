@@ -100,5 +100,11 @@ namespace Mirror
             client.Disconnect();
             server.Stop();
         }
+
+        public int GetMaxPacketSize(int channelId)
+        {
+            // Telepathy's limit is Array.Length, which is int
+            return int.MaxValue;
+        }
     }
 }

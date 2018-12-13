@@ -99,7 +99,7 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncList<T> : IList<T>, SyncObject
     {
-        public delegate void SyncListChanged(Operation op, int itemIndex);
+        public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
         readonly List<T> m_Objects = new List<T>();
 
@@ -164,7 +164,7 @@ namespace Mirror
             SyncListChanged listChanged = Callback;
             if (listChanged != null)
             {
-                listChanged(op, itemIndex);
+                listChanged(op, itemIndex, item);
             }
         }
 
@@ -211,7 +211,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         SerializeItem(writer, change.item);
                         break;
 
@@ -220,12 +220,12 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         break;
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        writer.Write(change.index);
+                        writer.WritePackedUInt32((uint)change.index);
                         SerializeItem(writer, change.item);
                         break;
                 }
@@ -264,7 +264,7 @@ namespace Mirror
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
                 int index = 0;
-                T item;
+                T item = default(T);
 
                 switch (operation)
                 {
@@ -272,6 +272,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
+                            index = m_Objects.Count;
                             m_Objects.Add(item);
                         }
                         break;
@@ -284,7 +285,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
@@ -301,16 +302,17 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         if (apply)
                         {
+                            item = m_Objects[index];
                             m_Objects.RemoveAt(index);
                         }
                         break;
 
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
-                        index = reader.ReadInt32();
+                        index = (int)reader.ReadPackedUInt32();
                         item = DeserializeItem(reader);
                         if (apply)
                         {
@@ -322,7 +324,7 @@ namespace Mirror
                 SyncListChanged listChanged = Callback;
                 if (apply && listChanged != null)
                 {
-                    listChanged(operation, index);
+                    listChanged(operation, index, item);
                 }
 
                 // we just skipped this change

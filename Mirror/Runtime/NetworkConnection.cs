@@ -174,9 +174,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > Transport.MaxPacketSize)
+            if (bytes.Length > Transport.layer.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.MaxPacketSize + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.layer.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -205,7 +205,19 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content)); }
+                if (logNetworkMessages) 
+                { 
+                    if (Enum.IsDefined(typeof(MsgType), msgType))
+                    {
+                        // one of Mirror mesage types,  display the message name
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
+                    }
+                    else
+                    {
+                        // user defined message,  display the number
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
+                    }
+                }
 
                 NetworkMessageDelegate msgDelegate;
                 if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
@@ -274,13 +286,11 @@ namespace Mirror
             error = 0;
             if (Transport.layer.ClientConnected())
             {
-                Transport.layer.ClientSend(channelId, bytes);
-                return true;
+                return Transport.layer.ClientSend(channelId, bytes);
             }
             else if (Transport.layer.ServerActive())
             {
-                Transport.layer.ServerSend(connectionId, channelId, bytes);
-                return true;
+                return Transport.layer.ServerSend(connectionId, channelId, bytes);
             }
             return false;
         }

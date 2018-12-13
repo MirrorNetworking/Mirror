@@ -16,35 +16,37 @@ namespace Mirror
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
-        public bool localPlayerAuthority { get { return myView.localPlayerAuthority; } }
-        public bool isServer { get { return myView.isServer; } }
-        public bool isClient { get { return myView.isClient; } }
-        public bool isLocalPlayer { get { return myView.isLocalPlayer; } }
-        public bool hasAuthority { get { return myView.hasAuthority; } }
-        public uint netId { get { return myView.netId; } }
-        public NetworkConnection connectionToServer { get { return myView.connectionToServer; } }
-        public NetworkConnection connectionToClient { get { return myView.connectionToClient; } }
+        public bool localPlayerAuthority { get { return netIdentity.localPlayerAuthority; } }
+        public bool isServer { get { return netIdentity.isServer; } }
+        public bool isClient { get { return netIdentity.isClient; } }
+        public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
+        public bool isServerOnly { get { return isServer && !isClient; } }
+        public bool isClientOnly { get { return isClient && !isServer; } }
+        public bool hasAuthority { get { return netIdentity.hasAuthority; } }
+        public uint netId { get { return netIdentity.netId; } }
+        public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
+        public NetworkConnection connectionToClient { get { return netIdentity.connectionToClient; } }
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
-        internal NetworkIdentity netIdentity { get { return myView; } }
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
 
         const float k_DefaultSendInterval = 0.1f;
 
-        NetworkIdentity m_MyView;
-        NetworkIdentity myView
+        // NetworkIdentity component caching for easier access
+        NetworkIdentity m_netIdentity;
+        public NetworkIdentity netIdentity
         {
             get
             {
-                m_MyView = m_MyView ?? GetComponent<NetworkIdentity>();
-                if (m_MyView == null)
+                m_netIdentity = m_netIdentity ?? GetComponent<NetworkIdentity>();
+                if (m_netIdentity == null)
                 {
                     Debug.LogError("There is no NetworkIdentity on this object. Please add one.");
                 }
-                return m_MyView;
+                return m_netIdentity;
             }
         }
 
@@ -52,11 +54,11 @@ namespace Mirror
         {
             get
             {
-                int index = Array.FindIndex(m_MyView.NetworkBehaviours, component => component == this);
+                int index = Array.FindIndex(netIdentity.NetworkBehaviours, component => component == this);
                 if (index < 0)
                 {
                     // this should never happen
-                    Debug.LogError("Could not find component in gameobject. You shoud not add/remove components in networked objects dynamically", this);
+                    Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
                 }
 
                 return index;

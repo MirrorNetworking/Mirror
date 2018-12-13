@@ -316,8 +316,7 @@ namespace Mirror
 
         static void OnSpawnPrefab(NetworkMessage netMsg)
         {
-            SpawnPrefabMessage msg = new SpawnPrefabMessage();
-            netMsg.ReadMessage(msg);
+            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
             if (msg.assetId == Guid.Empty)
             {
@@ -381,8 +380,7 @@ namespace Mirror
 
         static void OnSpawnSceneObject(NetworkMessage netMsg)
         {
-            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-            netMsg.ReadMessage(msg);
+            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
 
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
@@ -412,8 +410,7 @@ namespace Mirror
 
         static void OnObjectSpawnFinished(NetworkMessage netMsg)
         {
-            ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
-            netMsg.ReadMessage(msg);
+            ObjectSpawnFinishedMessage msg = netMsg.ReadMessage<ObjectSpawnFinishedMessage>();
             if (LogFilter.Debug) { Debug.Log("SpawnFinished:" + msg.state); }
 
             if (msg.state == 0)
@@ -423,7 +420,10 @@ namespace Mirror
                 return;
             }
 
-            foreach (var uv in objects.Values)
+            // paul: Initialize the objects in the same order as they were initialized
+            // in the server.   This is important if spawned objects
+            // use data from scene objects
+            foreach (var uv in objects.Values.OrderBy(uv => uv.netId))
             {
                 if (!uv.isClient)
                 {
@@ -436,8 +436,7 @@ namespace Mirror
 
         static void OnObjectDestroy(NetworkMessage netMsg)
         {
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            netMsg.ReadMessage(msg);
+            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnObjDestroy netId:" + msg.netId); }
 
             NetworkIdentity localObject;
@@ -470,8 +469,7 @@ namespace Mirror
 
         static void OnLocalClientObjectDestroy(NetworkMessage netMsg)
         {
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            netMsg.ReadMessage(msg);
+            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjDestroy netId:" + msg.netId); }
 
             s_NetworkScene.RemoveLocalObject(msg.netId);
@@ -479,8 +477,7 @@ namespace Mirror
 
         static void OnLocalClientObjectHide(NetworkMessage netMsg)
         {
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            netMsg.ReadMessage(msg);
+            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId); }
 
             NetworkIdentity localObject;
@@ -492,8 +489,7 @@ namespace Mirror
 
         static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
         {
-            SpawnPrefabMessage msg = new SpawnPrefabMessage();
-            netMsg.ReadMessage(msg);
+            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
             NetworkIdentity localObject;
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localObject))
@@ -504,8 +500,7 @@ namespace Mirror
 
         static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
         {
-            SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-            netMsg.ReadMessage(msg);
+            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
 
             NetworkIdentity localObject;
             if (s_NetworkScene.GetNetworkIdentity(msg.netId, out localObject))
@@ -568,8 +563,7 @@ namespace Mirror
 
         static void OnClientAuthority(NetworkMessage netMsg)
         {
-            ClientAuthorityMessage msg = new ClientAuthorityMessage();
-            netMsg.ReadMessage(msg);
+            ClientAuthorityMessage msg = netMsg.ReadMessage<ClientAuthorityMessage>();
 
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
@@ -583,8 +577,7 @@ namespace Mirror
         // OnClientAddedPlayer?
         static void OnOwnerMessage(NetworkMessage netMsg)
         {
-            OwnerMessage msg = new OwnerMessage();
-            netMsg.ReadMessage(msg);
+            OwnerMessage msg = netMsg.ReadMessage<OwnerMessage>();
 
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 

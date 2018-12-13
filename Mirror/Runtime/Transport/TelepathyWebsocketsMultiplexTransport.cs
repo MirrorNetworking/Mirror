@@ -116,5 +116,12 @@ namespace Mirror
             client.Shutdown();
             if (server != null) server.Shutdown();
         }
+
+        public int GetMaxPacketSize(int channelId)
+        {
+            if (server != null) return server.GetMaxPacketSize(channelId);
+            if (client != null) return client.GetMaxPacketSize(channelId);
+            return 0;
+        }
     }
 }

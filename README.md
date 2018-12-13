@@ -1,9 +1,13 @@
 ![Mirror Logo](https://i.imgur.com/5dUNWxl.png)
 
+[![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
+[![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
+[![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorTelepathy)
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![AppVeyor tests branch](https://img.shields.io/appveyor/tests/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror/tests)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![Codecov](https://codecov.io/gh/vis2k/mirror/branch/mirror/graph/badge.svg)](https://codecov.io/gh/vis2k/mirror/branch/mirror)
+[![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
@@ -28,7 +32,7 @@ The main difference is that you have to use `using Mirror;` instead of `using Un
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 ## Usage Guide
-Import mirror from the [asset store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
+Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
 Alternatively,  you can install it manually:
 
@@ -41,7 +45,7 @@ Alternatively,  you can install it manually:
 If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://github.com/vis2k/Mirror/blob/mirror/migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Example Projects
-We are building several easy to understand example projects that we will add here soon.
+Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
 
 For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
