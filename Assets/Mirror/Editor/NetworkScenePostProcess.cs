@@ -155,7 +155,11 @@ namespace Mirror
                 var prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(uv.gameObject) as GameObject;
                 if (prefabGO)
                 {
+#if UNITY_2018_3_OR_NEWER
+                    var prefabRootGO = prefabGO.transform.root.gameObject;
+#else
                     var prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+#endif
                     if (prefabRootGO)
                     {
                         var identities = prefabRootGO.GetComponentsInChildren<NetworkIdentity>();
