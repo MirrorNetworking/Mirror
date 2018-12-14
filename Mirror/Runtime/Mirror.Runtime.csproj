@@ -72,7 +72,7 @@
     <Compile Include="NetworkProximityChecker.cs" />
     <Compile Include="NetworkScene.cs" />
     <Compile Include="NetworkStartPosition.cs" />
-    <Compile Include="NetworkTranformChild.cs" />
+    <Compile Include="NetworkTransformChild.cs" />
     <Compile Include="NetworkTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NetworkClient.cs" />
