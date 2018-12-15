@@ -1219,10 +1219,10 @@ namespace Mirror
                     writer.Write(angle);
                     break;
                 case CompressionSyncMode.Low:
-                    writer.Write((short)angle);
+                    writer.Write((short)(angle / (2 * Math.PI) * short.MaxValue));
                     break;
                 case CompressionSyncMode.High:
-                    writer.Write((byte)angle);
+                    writer.Write((byte)(angle / (2 * Math.PI) * byte.MaxValue));
                     break;
             }
         }
