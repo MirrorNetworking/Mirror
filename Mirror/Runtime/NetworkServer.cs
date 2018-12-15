@@ -17,8 +17,6 @@ namespace Mirror
 
         static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
 
-        // <connectionId, NetworkConnection>
-        static Dictionary<int, NetworkConnection> s_Connections = new Dictionary<int, NetworkConnection>();
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
@@ -33,7 +31,8 @@ namespace Mirror
         public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
-        public static Dictionary<int, NetworkConnection> connections { get { return s_Connections; } }
+        // <connectionId, NetworkConnection>
+        public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
         public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
 
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
@@ -147,11 +146,11 @@ namespace Mirror
 
         public static bool AddConnection(NetworkConnection conn)
         {
-            if (!s_Connections.ContainsKey(conn.connectionId))
+            if (!connections.ContainsKey(conn.connectionId))
             {
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
-                s_Connections[conn.connectionId] = conn;
+                connections[conn.connectionId] = conn;
                 conn.SetHandlers(s_MessageHandlers);
                 return true;
             }
@@ -161,7 +160,7 @@ namespace Mirror
 
         public static bool RemoveConnection(int connectionId)
         {
-            return s_Connections.Remove(connectionId);
+            return connections.Remove(connectionId);
         }
 
         // called by LocalClient to add itself. dont call directly.
@@ -409,7 +408,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
             NetworkConnection conn;
-            if (s_Connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -437,7 +436,7 @@ namespace Mirror
         static void HandleData(int connectionId, byte[] data, byte error)
         {
             NetworkConnection conn;
-            if (s_Connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 OnData(conn, data);
             }
