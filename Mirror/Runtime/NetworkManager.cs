@@ -57,7 +57,7 @@ namespace Mirror
         // protected so that inheriting classes' Awake() can call base.Awake() too
         protected void Awake()
         {
-            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
+            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
             InitializeSingleton();
         }
 
