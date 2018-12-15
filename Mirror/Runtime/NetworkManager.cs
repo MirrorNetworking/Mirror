@@ -78,13 +78,7 @@ namespace Mirror
         static string s_Address;
 
 #if UNITY_EDITOR
-        static bool s_DomainReload;
         static NetworkManager s_PendingSingleton;
-
-        internal static void OnDomainReload()
-        {
-            s_DomainReload = true;
-        }
 
         public NetworkManager()
         {
@@ -468,11 +462,10 @@ namespace Mirror
             // In the editor, reloading scripts in play mode causes a Mono Domain Reload.
             // This gets the transport layer (C++) and HLAPI (C#) out of sync.
             // This check below detects that problem and shuts down the transport layer to bring both systems back in sync.
-            if (singleton == null && s_PendingSingleton != null && s_DomainReload)
+            if (singleton == null && s_PendingSingleton != null)
             {
                 Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down.");
 
-                s_DomainReload = false;
                 s_PendingSingleton.InitializeSingleton();
 
                 // destroy network objects
