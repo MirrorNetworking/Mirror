@@ -799,7 +799,7 @@ namespace Mirror
             }
 
             // apply changes from rebuild
-            foreach (var conn in newObservers)
+            foreach (NetworkConnection conn in newObservers)
             {
                 if (conn == null)
                 {
@@ -821,7 +821,7 @@ namespace Mirror
                 }
             }
 
-            foreach (var conn in oldObservers)
+            foreach (NetworkConnection conn in oldObservers)
             {
                 if (!newObservers.Contains(conn))
                 {
