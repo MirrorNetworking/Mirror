@@ -322,6 +322,26 @@ namespace Mirror
             }
         }
 
+        public void Write(NetworkBehaviour value)
+        {
+            if (value == null)
+            {
+                WritePackedUInt32(0);
+                return;
+            }
+            var uv = value.GetComponent<NetworkIdentity>();
+            if (uv != null)
+            {
+                WritePackedUInt32(uv.netId);
+                WritePackedUInt32((uint)value.ComponentIndex);
+            }
+            else
+            {
+                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                WritePackedUInt32(0);
+            }
+        }
+
         public void Write(MessageBase msg)
         {
             msg.Serialize(this);

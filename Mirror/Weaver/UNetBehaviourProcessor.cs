@@ -1248,8 +1248,13 @@ namespace Mirror.Weaver
                     Weaver.fail = true;
                     return false;
                 }
-                if (Weaver.IsDerivedFrom(p.ParameterType.Resolve(), Weaver.ComponentType))
+                if (Weaver.IsNetworkBehaviour(p.ParameterType.Resolve()))
                 {
+                    // no problem,  we can pass NetworkBehaviours
+                }
+                else if (Weaver.IsDerivedFrom(p.ParameterType.Resolve(), Weaver.ComponentType))
+                {
+
                     if (p.ParameterType.FullName != Weaver.NetworkIdentityType.FullName)
                     {
                         Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] parameter [" + p.Name +

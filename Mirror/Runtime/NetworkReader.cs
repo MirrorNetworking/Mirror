@@ -265,6 +265,40 @@ namespace Mirror
             return go.GetComponent<NetworkIdentity>();
         }
 
+        public NetworkBehaviour ReadNetworkBehaviour()
+        {
+            uint netId = ReadPackedUInt32();
+            if (netId == 0)
+            {
+                return null;
+            }
+            GameObject go;
+            if (NetworkServer.active)
+            {
+                go = NetworkServer.FindLocalObject(netId);
+            }
+            else
+            {
+                go = ClientScene.FindLocalObject(netId);
+            }
+            uint componentIndex = ReadPackedUInt32();
+
+            if (go == null)
+            {
+                if (LogFilter.Debug) { Debug.Log("ReadNetworkBehaviour netId:" + netId + "go: null"); }
+                return null;
+            }
+            NetworkIdentity uv = go.GetComponent<NetworkIdentity>();
+            NetworkBehaviour[] behaviours = uv.NetworkBehaviours;
+
+            if (componentIndex < 0 || componentIndex >= behaviours.Length)
+            {
+                Debug.LogError("ReadNetworkBehaviour netId:" + netId + " component: null"); 
+                return null;
+            }
+
+            return behaviours[componentIndex];
+        }
         public override string ToString()
         {
             return reader.ToString();

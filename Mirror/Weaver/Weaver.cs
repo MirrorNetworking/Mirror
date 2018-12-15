@@ -268,6 +268,10 @@ namespace Mirror.Weaver
                     return foundFunc;
                 }
             }
+            if (IsNetworkBehaviour(variable.Resolve()))
+            {
+                return lists.writeFuncs[NetworkBehaviourType.FullName];
+            }
 
             if (variable.IsByReference)
             {
@@ -332,6 +336,11 @@ namespace Mirror.Weaver
             {
                 Log.Error("GetReadFunc unsupported type " + variable.FullName);
                 return null;
+            }
+
+            if (Weaver.IsNetworkBehaviour(td))
+            {
+                return lists.readFuncs[NetworkBehaviourType.FullName];
             }
 
             if (variable.IsByReference)
@@ -1420,6 +1429,7 @@ namespace Mirror.Weaver
                 { guidType.FullName, ResolveMethod(NetworkReaderType, "ReadGuid") },
                 { gameObjectType.FullName, ResolveMethod(NetworkReaderType, "ReadGameObject") },
                 { NetworkIdentityType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkIdentity") },
+                { NetworkBehaviourType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkBehaviour") },
                 { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
                 { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
             };
@@ -1456,12 +1466,13 @@ namespace Mirror.Weaver
                 { guidType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", guidType) },
                 { gameObjectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", gameObjectType) },
                 { NetworkIdentityType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkIdentityType) },
+                { NetworkBehaviourType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkBehaviourType) },
                 { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
                 { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") }
             };
         }
 
-        static bool IsNetworkBehaviour(TypeDefinition td)
+        static public bool IsNetworkBehaviour(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
