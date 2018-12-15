@@ -15,9 +15,6 @@ namespace Mirror
 
         static NetworkScene s_NetworkScene = new NetworkScene();
 
-        static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
-
-
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static bool s_UseWebSockets;
@@ -33,7 +30,7 @@ namespace Mirror
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
-        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
+        public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
@@ -151,7 +148,7 @@ namespace Mirror
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
                 connections[conn.connectionId] = conn;
-                conn.SetHandlers(s_MessageHandlers);
+                conn.SetHandlers(handlers);
                 return true;
             }
             // already a connection with this id
@@ -492,11 +489,11 @@ namespace Mirror
 
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            if (s_MessageHandlers.ContainsKey(msgType))
+            if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
             }
-            s_MessageHandlers[msgType] = handler;
+            handlers[msgType] = handler;
         }
 
         static public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -506,7 +503,7 @@ namespace Mirror
 
         public static void UnregisterHandler(short msgType)
         {
-            s_MessageHandlers.Remove(msgType);
+            handlers.Remove(msgType);
         }
 
         public static void UnregisterHandler(MsgType msgType)
@@ -516,7 +513,7 @@ namespace Mirror
 
         public static void ClearHandlers()
         {
-            s_MessageHandlers.Clear();
+            handlers.Clear();
         }
 
         public static void ClearSpawners()
