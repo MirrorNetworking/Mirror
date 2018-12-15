@@ -16,7 +16,6 @@ namespace Mirror
 
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
-        static bool s_UseWebSockets;
         static bool s_Initialized;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
@@ -33,7 +32,7 @@ namespace Mirror
 
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen;
-        public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
+        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -116,7 +115,7 @@ namespace Mirror
             {
                 s_ServerPort = serverPort;
 
-                if (s_UseWebSockets)
+                if (useWebSockets)
                 {
                     Transport.layer.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
