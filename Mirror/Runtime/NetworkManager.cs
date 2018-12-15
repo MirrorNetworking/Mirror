@@ -28,7 +28,6 @@ namespace Mirror
         [SerializeField] PlayerSpawnMethod m_PlayerSpawnMethod;
         [SerializeField] string m_OfflineScene = "";
         [SerializeField] string m_OnlineScene = "";
-        [SerializeField] List<GameObject> m_SpawnPrefabs = new List<GameObject>();
 
         [SerializeField] int m_MaxConnections = 4;
 
@@ -49,9 +48,9 @@ namespace Mirror
         public PlayerSpawnMethod playerSpawnMethod { get { return m_PlayerSpawnMethod; } set { m_PlayerSpawnMethod = value; } }
         public string offlineScene           { get { return m_OfflineScene; }  set { m_OfflineScene = value; } }
         public string onlineScene            { get { return m_OnlineScene; }  set { m_OnlineScene = value; } }
-        public List<GameObject> spawnPrefabs { get { return m_SpawnPrefabs; }}
+        public List<GameObject> spawnPrefabs = new List<GameObject>();
 
-        public List<Transform> startPositions { get { return s_StartPositions; }}
+        public static List<Transform> startPositions = new List<Transform>();
 
         public int maxConnections            { get { return m_MaxConnections; } set { m_MaxConnections = value; } }
 
@@ -66,7 +65,6 @@ namespace Mirror
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
         public bool isNetworkActive;
         public NetworkClient client;
-        static List<Transform> s_StartPositions = new List<Transform>();
         static int s_StartPositionIndex;
 
         public static NetworkManager singleton;
@@ -245,9 +243,9 @@ namespace Mirror
             {
                 ClientScene.RegisterPrefab(m_PlayerPrefab);
             }
-            for (int i = 0; i < m_SpawnPrefabs.Count; i++)
+            for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = m_SpawnPrefabs[i];
+                var prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
@@ -369,7 +367,7 @@ namespace Mirror
             NetworkServer.SendToAll((short)MsgType.Scene, msg);
 
             s_StartPositionIndex = 0;
-            s_StartPositions.Clear();
+            startPositions.Clear();
         }
 
         void CleanupNetworkIdentities()
@@ -473,13 +471,13 @@ namespace Mirror
         public static void RegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
-            s_StartPositions.Add(start);
+            startPositions.Add(start);
         }
 
         public static void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
-            s_StartPositions.Remove(start);
+            startPositions.Remove(start);
         }
 
         public bool IsClientConnected()
@@ -493,7 +491,7 @@ namespace Mirror
             if (singleton == null)
                 return;
 
-            s_StartPositions.Clear();
+            startPositions.Clear();
             s_StartPositionIndex = 0;
             s_ClientReadyConnection = null;
 
@@ -694,22 +692,22 @@ namespace Mirror
         public Transform GetStartPosition()
         {
             // first remove any dead transforms
-            s_StartPositions.RemoveAll(t => t == null);
+            startPositions.RemoveAll(t => t == null);
 
-            if (m_PlayerSpawnMethod == PlayerSpawnMethod.Random && s_StartPositions.Count > 0)
+            if (m_PlayerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
             {
                 // try to spawn at a random start location
-                int index = Random.Range(0, s_StartPositions.Count);
-                return s_StartPositions[index];
+                int index = Random.Range(0, startPositions.Count);
+                return startPositions[index];
             }
-            if (m_PlayerSpawnMethod == PlayerSpawnMethod.RoundRobin && s_StartPositions.Count > 0)
+            if (m_PlayerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
             {
-                if (s_StartPositionIndex >= s_StartPositions.Count)
+                if (s_StartPositionIndex >= startPositions.Count)
                 {
                     s_StartPositionIndex = 0;
                 }
 
-                Transform startPos = s_StartPositions[s_StartPositionIndex];
+                Transform startPos = startPositions[s_StartPositionIndex];
                 s_StartPositionIndex += 1;
                 return startPos;
             }
