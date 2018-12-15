@@ -6,9 +6,7 @@ namespace Mirror
 {
     sealed class LocalClient : NetworkClient
     {
-       
         Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
-
         bool m_Connected;
 
         public override void Disconnect()
