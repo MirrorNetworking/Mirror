@@ -9,7 +9,6 @@ namespace Mirror
     public sealed class NetworkServer
     {
         static bool s_Active;
-        static bool s_DontListen;
         static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
 
@@ -33,7 +32,7 @@ namespace Mirror
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
-        public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
+        public static bool dontListen;
         public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
 
         public static bool active { get { return s_Active; } }
@@ -57,7 +56,7 @@ namespace Mirror
             {
                 InternalDisconnectAll();
 
-                if (s_DontListen)
+                if (dontListen)
                 {
                     // was never started, so dont stop
                 }
@@ -69,7 +68,7 @@ namespace Mirror
 
                 s_Initialized = false;
             }
-            s_DontListen = false;
+            dontListen = false;
             s_Active = false;
         }
 
@@ -113,7 +112,7 @@ namespace Mirror
             Initialize();
 
             // only start server if we want to listen
-            if (!s_DontListen)
+            if (!dontListen)
             {
                 s_ServerPort = serverPort;
 
