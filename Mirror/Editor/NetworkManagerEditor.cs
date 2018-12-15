@@ -99,7 +99,7 @@ namespace Mirror
             m_PlayerPrefabProperty = serializedObject.FindProperty("m_PlayerPrefab");
             m_AutoCreatePlayerProperty = serializedObject.FindProperty("m_AutoCreatePlayer");
             m_PlayerSpawnMethodProperty = serializedObject.FindProperty("m_PlayerSpawnMethod");
-            m_SpawnListProperty = serializedObject.FindProperty("m_SpawnPrefabs");
+            m_SpawnListProperty = serializedObject.FindProperty("spawnPrefabs");
 
             m_SpawnList = new ReorderableList(serializedObject, m_SpawnListProperty);
             m_SpawnList.drawHeaderCallback = DrawHeader;
