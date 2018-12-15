@@ -12,107 +12,107 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkManagerEditor : Editor
     {
-        protected SerializedProperty m_DontDestroyOnLoadProperty;
-        protected SerializedProperty m_RunInBackgroundProperty;
-        SerializedProperty m_NetworkAddressProperty;
+        protected SerializedProperty dontDestroyOnLoadProperty;
+        protected SerializedProperty runInBackgroundProperty;
+        SerializedProperty networkAddressProperty;
 
-        SerializedProperty m_NetworkPortProperty;
-        SerializedProperty m_ServerBindToIPProperty;
-        SerializedProperty m_ServerBindAddressProperty;
+        SerializedProperty networkPortProperty;
+        SerializedProperty serverBindToIPProperty;
+        SerializedProperty serverBindAddressProperty;
 
-        protected SerializedProperty m_ShowDebugMessagesProperty;
+        protected SerializedProperty showDebugMessagesProperty;
 
-        SerializedProperty m_PlayerPrefabProperty;
-        SerializedProperty m_AutoCreatePlayerProperty;
-        SerializedProperty m_PlayerSpawnMethodProperty;
-        SerializedProperty m_SpawnListProperty;
+        SerializedProperty playerPrefabProperty;
+        SerializedProperty autoCreatePlayerProperty;
+        SerializedProperty playerSpawnMethodProperty;
+        SerializedProperty spawnListProperty;
 
-        SerializedProperty m_UseWebSocketsProperty;
+        SerializedProperty useWebSocketsProperty;
 
-        GUIContent m_ShowNetworkLabel;
-        GUIContent m_ShowSpawnLabel;
+        GUIContent showNetworkLabel;
+        GUIContent showSpawnLabel;
 
-        GUIContent m_OfflineSceneLabel;
-        GUIContent m_OnlineSceneLabel;
-        protected GUIContent m_DontDestroyOnLoadLabel;
-        protected GUIContent m_RunInBackgroundLabel;
-        protected GUIContent m_ShowDebugMessagesLabel;
+        GUIContent offlineSceneLabel;
+        GUIContent onlineSceneLabel;
+        protected GUIContent dontDestroyOnLoadLabel;
+        protected GUIContent runInBackgroundLabel;
+        protected GUIContent showDebugMessagesLabel;
 
-        GUIContent m_MaxConnectionsLabel;
+        GUIContent maxConnectionsLabel;
 
-        GUIContent m_UseWebSocketsLabel;
+        GUIContent useWebSocketsLabel;
 
-        GUIContent m_NetworkAddressLabel;
-        GUIContent m_NetworkPortLabel;
-        GUIContent m_ServerBindToIPLabel;
-        GUIContent m_ServerBindAddressLabel;
+        GUIContent networkAddressLabel;
+        GUIContent networkPortLabel;
+        GUIContent serverBindToIPLabel;
+        GUIContent serverBindAddressLabel;
 
-        GUIContent m_PlayerPrefabLabel;
-        GUIContent m_AutoCreatePlayerLabel;
-        GUIContent m_PlayerSpawnMethodLabel;
+        GUIContent playerPrefabLabel;
+        GUIContent autoCreatePlayerLabel;
+        GUIContent playerSpawnMethodLabel;
 
-        ReorderableList m_SpawnList;
+        ReorderableList spawnList;
 
-        protected bool m_Initialized;
+        protected bool initialized;
 
-        protected NetworkManager m_NetworkManager;
+        protected NetworkManager networkManager;
 
         protected void Init()
         {
-            if (m_Initialized)
+            if (initialized)
             {
                 return;
             }
-            m_Initialized = true;
-            m_NetworkManager = target as NetworkManager;
+            initialized = true;
+            networkManager = target as NetworkManager;
 
-            m_ShowNetworkLabel = new GUIContent("Network Info", "Network host settings");
-            m_ShowSpawnLabel = new GUIContent("Spawn Info", "Registered spawnable objects");
-            m_OfflineSceneLabel = new GUIContent("Offline Scene", "The scene loaded when the network goes offline (disconnected from server)");
-            m_OnlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
-            m_DontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
-            m_RunInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
-            m_ShowDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
+            showNetworkLabel = new GUIContent("Network Info", "Network host settings");
+            showSpawnLabel = new GUIContent("Spawn Info", "Registered spawnable objects");
+            offlineSceneLabel = new GUIContent("Offline Scene", "The scene loaded when the network goes offline (disconnected from server)");
+            onlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
+            dontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
+            runInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
+            showDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
-            m_MaxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
-            m_UseWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
-            m_NetworkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
-            m_NetworkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
-            m_ServerBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
-            m_ServerBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
-            m_PlayerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
-            m_AutoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
-            m_PlayerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
+            maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
+            useWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
+            networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
+            networkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
+            serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
+            serverBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
+            playerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
+            autoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
+            playerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
 
             // top-level properties
-            m_DontDestroyOnLoadProperty = serializedObject.FindProperty("m_DontDestroyOnLoad");
-            m_RunInBackgroundProperty = serializedObject.FindProperty("m_RunInBackground");
-            m_ShowDebugMessagesProperty = serializedObject.FindProperty("m_ShowDebugMessages");
+            dontDestroyOnLoadProperty = serializedObject.FindProperty("dontDestroyOnLoad");
+            runInBackgroundProperty = serializedObject.FindProperty("runInBackground");
+            showDebugMessagesProperty = serializedObject.FindProperty("showDebugMessages");
 
             // network foldout properties
-            m_NetworkAddressProperty = serializedObject.FindProperty("m_NetworkAddress");
-            m_NetworkPortProperty = serializedObject.FindProperty("m_NetworkPort");
-            m_ServerBindToIPProperty = serializedObject.FindProperty("m_ServerBindToIP");
-            m_ServerBindAddressProperty = serializedObject.FindProperty("m_ServerBindAddress");
+            networkAddressProperty = serializedObject.FindProperty("networkAddress");
+            networkPortProperty = serializedObject.FindProperty("networkPort");
+            serverBindToIPProperty = serializedObject.FindProperty("serverBindToIP");
+            serverBindAddressProperty = serializedObject.FindProperty("serverBindAddress");
 
             // spawn foldout properties
-            m_PlayerPrefabProperty = serializedObject.FindProperty("m_PlayerPrefab");
-            m_AutoCreatePlayerProperty = serializedObject.FindProperty("m_AutoCreatePlayer");
-            m_PlayerSpawnMethodProperty = serializedObject.FindProperty("m_PlayerSpawnMethod");
-            m_SpawnListProperty = serializedObject.FindProperty("m_SpawnPrefabs");
+            playerPrefabProperty = serializedObject.FindProperty("playerPrefab");
+            autoCreatePlayerProperty = serializedObject.FindProperty("autoCreatePlayer");
+            playerSpawnMethodProperty = serializedObject.FindProperty("playerSpawnMethod");
+            spawnListProperty = serializedObject.FindProperty("spawnPrefabs");
 
-            m_SpawnList = new ReorderableList(serializedObject, m_SpawnListProperty);
-            m_SpawnList.drawHeaderCallback = DrawHeader;
-            m_SpawnList.drawElementCallback = DrawChild;
-            m_SpawnList.onReorderCallback = Changed;
-            m_SpawnList.onRemoveCallback = RemoveButton;
-            m_SpawnList.onChangedCallback = Changed;
-            m_SpawnList.onReorderCallback = Changed;
-            m_SpawnList.onAddCallback = AddButton;
-            m_SpawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
+            spawnList = new ReorderableList(serializedObject, spawnListProperty);
+            spawnList.drawHeaderCallback = DrawHeader;
+            spawnList.drawElementCallback = DrawChild;
+            spawnList.onReorderCallback = Changed;
+            spawnList.onRemoveCallback = RemoveButton;
+            spawnList.onChangedCallback = Changed;
+            spawnList.onReorderCallback = Changed;
+            spawnList.onAddCallback = AddButton;
+            spawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
 
             // web sockets
-            m_UseWebSocketsProperty = serializedObject.FindProperty("m_UseWebSockets");
+            useWebSocketsProperty = serializedObject.FindProperty("useWebSockets");
         }
 
         static void ShowPropertySuffix(GUIContent content, SerializedProperty prop, string suffix)
@@ -125,20 +125,20 @@ namespace Mirror
 
         protected void ShowSpawnInfo()
         {
-            m_PlayerPrefabProperty.isExpanded = EditorGUILayout.Foldout(m_PlayerPrefabProperty.isExpanded, m_ShowSpawnLabel);
-            if (!m_PlayerPrefabProperty.isExpanded)
+            playerPrefabProperty.isExpanded = EditorGUILayout.Foldout(playerPrefabProperty.isExpanded, showSpawnLabel);
+            if (!playerPrefabProperty.isExpanded)
             {
                 return;
             }
 
             EditorGUI.indentLevel += 1;
 
-            EditorGUILayout.PropertyField(m_PlayerPrefabProperty, m_PlayerPrefabLabel);
-            EditorGUILayout.PropertyField(m_AutoCreatePlayerProperty, m_AutoCreatePlayerLabel);
-            EditorGUILayout.PropertyField(m_PlayerSpawnMethodProperty, m_PlayerSpawnMethodLabel);
+            EditorGUILayout.PropertyField(playerPrefabProperty, playerPrefabLabel);
+            EditorGUILayout.PropertyField(autoCreatePlayerProperty, autoCreatePlayerLabel);
+            EditorGUILayout.PropertyField(playerSpawnMethodProperty, playerSpawnMethodLabel);
 
             EditorGUI.BeginChangeCheck();
-            m_SpawnList.DoLayoutList();
+            spawnList.DoLayoutList();
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
@@ -168,38 +168,38 @@ namespace Mirror
 
         protected void ShowNetworkInfo()
         {
-            m_NetworkAddressProperty.isExpanded = EditorGUILayout.Foldout(m_NetworkAddressProperty.isExpanded, m_ShowNetworkLabel);
-            if (!m_NetworkAddressProperty.isExpanded)
+            networkAddressProperty.isExpanded = EditorGUILayout.Foldout(networkAddressProperty.isExpanded, showNetworkLabel);
+            if (!networkAddressProperty.isExpanded)
             {
                 return;
             }
             EditorGUI.indentLevel += 1;
 
-            if (EditorGUILayout.PropertyField(m_UseWebSocketsProperty, m_UseWebSocketsLabel))
+            if (EditorGUILayout.PropertyField(useWebSocketsProperty, useWebSocketsLabel))
             {
-                NetworkServer.useWebSockets = m_NetworkManager.useWebSockets;
+                NetworkServer.useWebSockets = networkManager.useWebSockets;
             }
 
-            EditorGUILayout.PropertyField(m_NetworkAddressProperty, m_NetworkAddressLabel);
-            EditorGUILayout.PropertyField(m_NetworkPortProperty, m_NetworkPortLabel);
-            EditorGUILayout.PropertyField(m_ServerBindToIPProperty, m_ServerBindToIPLabel);
-            if (m_NetworkManager.serverBindToIP)
+            EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
+            EditorGUILayout.PropertyField(networkPortProperty, networkPortLabel);
+            EditorGUILayout.PropertyField(serverBindToIPProperty, serverBindToIPLabel);
+            if (networkManager.serverBindToIP)
             {
                 EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(m_ServerBindAddressProperty, m_ServerBindAddressLabel);
+                EditorGUILayout.PropertyField(serverBindAddressProperty, serverBindAddressLabel);
                 EditorGUI.indentLevel -= 1;
             }
 
             var maxConn = serializedObject.FindProperty("m_MaxConnections");
-            ShowPropertySuffix(m_MaxConnectionsLabel, maxConn, "connections");
+            ShowPropertySuffix(maxConnectionsLabel, maxConn, "connections");
 
             EditorGUI.indentLevel -= 1;
         }
 
         protected void ShowScenes()
         {
-            var offlineObj = GetSceneObject(m_NetworkManager.offlineScene);
-            var newOfflineScene = EditorGUILayout.ObjectField(m_OfflineSceneLabel, offlineObj, typeof(SceneAsset), false);
+            var offlineObj = GetSceneObject(networkManager.offlineScene);
+            var newOfflineScene = EditorGUILayout.ObjectField(offlineSceneLabel, offlineObj, typeof(SceneAsset), false);
             if (newOfflineScene == null)
             {
                 var prop = serializedObject.FindProperty("m_OfflineScene");
@@ -208,7 +208,7 @@ namespace Mirror
             }
             else
             {
-                if (newOfflineScene.name != m_NetworkManager.offlineScene)
+                if (newOfflineScene.name != networkManager.offlineScene)
                 {
                     var sceneObj = GetSceneObject(newOfflineScene.name);
                     if (sceneObj == null)
@@ -224,8 +224,8 @@ namespace Mirror
                 }
             }
 
-            var onlineObj = GetSceneObject(m_NetworkManager.onlineScene);
-            var newOnlineScene = EditorGUILayout.ObjectField(m_OnlineSceneLabel, onlineObj, typeof(SceneAsset), false);
+            var onlineObj = GetSceneObject(networkManager.onlineScene);
+            var newOnlineScene = EditorGUILayout.ObjectField(onlineSceneLabel, onlineObj, typeof(SceneAsset), false);
             if (newOnlineScene == null)
             {
                 var prop = serializedObject.FindProperty("m_OnlineScene");
@@ -234,7 +234,7 @@ namespace Mirror
             }
             else
             {
-                if (newOnlineScene.name != m_NetworkManager.onlineScene)
+                if (newOnlineScene.name != networkManager.onlineScene)
                 {
                     var sceneObj = GetSceneObject(newOnlineScene.name);
                     if (sceneObj == null)
@@ -296,18 +296,18 @@ namespace Mirror
 
         public override void OnInspectorGUI()
         {
-            if (m_DontDestroyOnLoadProperty == null || m_DontDestroyOnLoadLabel == null || m_ShowDebugMessagesLabel == null)
-                m_Initialized = false;
+            if (dontDestroyOnLoadProperty == null || dontDestroyOnLoadLabel == null || showDebugMessagesLabel == null)
+                initialized = false;
 
             Init();
 
             serializedObject.Update();
-            EditorGUILayout.PropertyField(m_DontDestroyOnLoadProperty, m_DontDestroyOnLoadLabel);
-            EditorGUILayout.PropertyField(m_RunInBackgroundProperty, m_RunInBackgroundLabel);
+            EditorGUILayout.PropertyField(dontDestroyOnLoadProperty, dontDestroyOnLoadLabel);
+            EditorGUILayout.PropertyField(runInBackgroundProperty, runInBackgroundLabel);
 
-            if (EditorGUILayout.PropertyField(m_ShowDebugMessagesProperty, m_ShowDebugMessagesLabel))
+            if (EditorGUILayout.PropertyField(showDebugMessagesProperty, showDebugMessagesLabel))
             {
-                LogFilter.Debug = m_NetworkManager.showDebugMessages;
+                LogFilter.Debug = networkManager.showDebugMessages;
             }
 
             ShowScenes();
@@ -325,7 +325,7 @@ namespace Mirror
 
         internal void DrawChild(Rect r, int index, bool isActive, bool isFocused)
         {
-            SerializedProperty prefab = m_SpawnListProperty.GetArrayElementAtIndex(index);
+            SerializedProperty prefab = spawnListProperty.GetArrayElementAtIndex(index);
             GameObject go = (GameObject)prefab.objectReferenceValue;
 
             GUIContent label;
@@ -366,24 +366,24 @@ namespace Mirror
 
         internal void AddButton(ReorderableList list)
         {
-            m_SpawnListProperty.arraySize += 1;
-            list.index = m_SpawnListProperty.arraySize - 1;
+            spawnListProperty.arraySize += 1;
+            list.index = spawnListProperty.arraySize - 1;
 
-            var obj = m_SpawnListProperty.GetArrayElementAtIndex(m_SpawnListProperty.arraySize - 1);
+            var obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
             if (obj.objectReferenceValue != null)
                 obj.objectReferenceValue = null;
 
-            m_SpawnList.index = m_SpawnList.count - 1;
+            spawnList.index = spawnList.count - 1;
 
             Changed(list);
         }
 
         internal void RemoveButton(ReorderableList list)
         {
-            m_SpawnListProperty.DeleteArrayElementAtIndex(m_SpawnList.index);
-            if (list.index >= m_SpawnListProperty.arraySize)
+            spawnListProperty.DeleteArrayElementAtIndex(spawnList.index);
+            if (list.index >= spawnListProperty.arraySize)
             {
-                list.index = m_SpawnListProperty.arraySize - 1;
+                list.index = spawnListProperty.arraySize - 1;
             }
         }
     }
