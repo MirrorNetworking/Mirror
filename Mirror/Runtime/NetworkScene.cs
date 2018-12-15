@@ -11,17 +11,11 @@ namespace Mirror
         // localObjects is NOT static. For the Host, even though there is one scene and gameObjects are
         // shared with the localClient, the set of active objects for each must be separate to prevent
         // out-of-order object initialization problems.
-        readonly Dictionary<uint, NetworkIdentity> m_LocalObjects = new Dictionary<uint, NetworkIdentity>();
+        internal Dictionary<uint, NetworkIdentity> localObjects = new Dictionary<uint, NetworkIdentity>();
 
-        static Dictionary<Guid, GameObject> s_GuidToPrefab = new Dictionary<Guid, GameObject>();
-        static Dictionary<Guid, SpawnDelegate> s_SpawnHandlers = new Dictionary<Guid, SpawnDelegate>();
-        static Dictionary<Guid, UnSpawnDelegate> s_UnspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
-
-        internal Dictionary<uint, NetworkIdentity> localObjects { get { return m_LocalObjects; }}
-
-        internal static Dictionary<Guid, GameObject> guidToPrefab { get { return s_GuidToPrefab; }}
-        internal static Dictionary<Guid, SpawnDelegate> spawnHandlers { get { return s_SpawnHandlers; }}
-        internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers { get { return s_UnspawnHandlers; }}
+        internal static Dictionary<Guid, GameObject> guidToPrefab = new Dictionary<Guid, GameObject>();
+        internal static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
+        internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         internal void Shutdown()
         {
@@ -35,20 +29,20 @@ namespace Mirror
 
             if (obj == null)
             {
-                m_LocalObjects[netId] = null;
+                localObjects[netId] = null;
                 return;
             }
 
             NetworkIdentity foundNetworkIdentity = null;
-            if (m_LocalObjects.ContainsKey(netId))
+            if (localObjects.ContainsKey(netId))
             {
-                foundNetworkIdentity = m_LocalObjects[netId];
+                foundNetworkIdentity = localObjects[netId];
             }
 
             if (foundNetworkIdentity == null)
             {
                 foundNetworkIdentity = obj.GetComponent<NetworkIdentity>();
-                m_LocalObjects[netId] = foundNetworkIdentity;
+                localObjects[netId] = foundNetworkIdentity;
             }
 
             foundNetworkIdentity.UpdateClientServer(isClient, isServer);
@@ -69,17 +63,17 @@ namespace Mirror
 
         internal bool GetNetworkIdentity(uint netId, out NetworkIdentity uv)
         {
-            return m_LocalObjects.TryGetValue(netId, out uv) && uv != null;
+            return localObjects.TryGetValue(netId, out uv) && uv != null;
         }
 
         internal bool RemoveLocalObject(uint netId)
         {
-            return m_LocalObjects.Remove(netId);
+            return localObjects.Remove(netId);
         }
 
         internal void ClearLocalObjects()
         {
-            m_LocalObjects.Clear();
+            localObjects.Clear();
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
@@ -90,7 +84,7 @@ namespace Mirror
                 view.SetDynamicAssetId(newAssetId);
 
                 if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
-                s_GuidToPrefab[view.assetId] = prefab;
+                guidToPrefab[view.assetId] = prefab;
             }
             else
             {
@@ -104,7 +98,7 @@ namespace Mirror
             if (view)
             {
                 if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + view.assetId); }
-                s_GuidToPrefab[view.assetId] = prefab;
+                guidToPrefab[view.assetId] = prefab;
 
                 var uvs = prefab.GetComponentsInChildren<NetworkIdentity>();
                 if (uvs.Length > 1)
@@ -132,15 +126,15 @@ namespace Mirror
 
         internal static void ClearSpawners()
         {
-            s_GuidToPrefab.Clear();
-            s_SpawnHandlers.Clear();
-            s_UnspawnHandlers.Clear();
+            guidToPrefab.Clear();
+            spawnHandlers.Clear();
+            unspawnHandlers.Clear();
         }
 
         public static void UnregisterSpawnHandler(Guid assetId)
         {
-            s_SpawnHandlers.Remove(assetId);
-            s_UnspawnHandlers.Remove(assetId);
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
         }
 
         internal static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
@@ -153,8 +147,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
-            s_SpawnHandlers[assetId] = spawnHandler;
-            s_UnspawnHandlers[assetId] = unspawnHandler;
+            spawnHandlers[assetId] = spawnHandler;
+            unspawnHandlers[assetId] = unspawnHandler;
         }
 
         internal static void UnregisterPrefab(GameObject prefab)
@@ -165,8 +159,8 @@ namespace Mirror
                 Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
                 return;
             }
-            s_SpawnHandlers.Remove(identity.assetId);
-            s_UnspawnHandlers.Remove(identity.assetId);
+            spawnHandlers.Remove(identity.assetId);
+            unspawnHandlers.Remove(identity.assetId);
         }
 
         internal static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
@@ -192,15 +186,15 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + identity.assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName()); }
 
-            s_SpawnHandlers[identity.assetId] = spawnHandler;
-            s_UnspawnHandlers[identity.assetId] = unspawnHandler;
+            spawnHandlers[identity.assetId] = spawnHandler;
+            unspawnHandlers[identity.assetId] = unspawnHandler;
         }
 
         internal static bool GetSpawnHandler(Guid assetId, out SpawnDelegate handler)
         {
-            if (s_SpawnHandlers.ContainsKey(assetId))
+            if (spawnHandlers.ContainsKey(assetId))
             {
-                handler = s_SpawnHandlers[assetId];
+                handler = spawnHandlers[assetId];
                 return true;
             }
             handler = null;
@@ -209,9 +203,9 @@ namespace Mirror
 
         internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
-            if (s_UnspawnHandlers.ContainsKey(assetId) && s_UnspawnHandlers[assetId] != null)
+            if (unspawnHandlers.ContainsKey(assetId) && unspawnHandlers[assetId] != null)
             {
-                UnSpawnDelegate handler = s_UnspawnHandlers[assetId];
+                UnSpawnDelegate handler = unspawnHandlers[assetId];
                 handler(obj);
                 return true;
             }
@@ -220,9 +214,9 @@ namespace Mirror
 
         internal void DestroyAllClientObjects()
         {
-            foreach (var netId in m_LocalObjects.Keys)
+            foreach (var netId in localObjects.Keys)
             {
-                NetworkIdentity uv = m_LocalObjects[netId];
+                NetworkIdentity uv = localObjects[netId];
 
                 if (uv != null && uv.gameObject != null)
                 {
