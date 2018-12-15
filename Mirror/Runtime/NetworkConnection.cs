@@ -6,10 +6,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /*
-    * wire protocol is a list of :   size   |  msgType     | payload
-    *                               (short)  (variable)   (buffer)
-    */
     public class NetworkConnection : IDisposable
     {
         NetworkIdentity m_PlayerController;
@@ -205,8 +201,8 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (logNetworkMessages) 
-                { 
+                if (logNetworkMessages)
+                {
                     if (Enum.IsDefined(typeof(MsgType), msgType))
                     {
                         // one of Mirror mesage types,  display the message name
