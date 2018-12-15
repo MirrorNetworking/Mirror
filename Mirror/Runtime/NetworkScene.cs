@@ -77,17 +77,6 @@ namespace Mirror
             return m_LocalObjects.Remove(netId);
         }
 
-        internal bool RemoveLocalObjectAndDestroy(uint netId)
-        {
-            if (m_LocalObjects.ContainsKey(netId))
-            {
-                NetworkIdentity localObject = m_LocalObjects[netId];
-                Object.Destroy(localObject.gameObject);
-                return m_LocalObjects.Remove(netId);
-            }
-            return false;
-        }
-
         internal void ClearLocalObjects()
         {
             m_LocalObjects.Clear();
