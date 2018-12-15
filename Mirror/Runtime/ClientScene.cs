@@ -338,7 +338,7 @@ namespace Mirror
             SpawnDelegate handler;
             if (NetworkScene.GetPrefab(msg.assetId, out prefab))
             {
-                var obj = (GameObject)Object.Instantiate(prefab, msg.position, msg.rotation);
+                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
                 if (LogFilter.Debug)
                 {
                     Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
