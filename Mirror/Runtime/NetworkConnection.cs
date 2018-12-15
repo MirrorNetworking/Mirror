@@ -9,8 +9,7 @@ namespace Mirror
     public class NetworkConnection : IDisposable
     {
         NetworkIdentity m_PlayerController;
-        HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
-        public HashSet<NetworkIdentity> visList { get { return m_VisList; } }
+        public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
@@ -246,7 +245,7 @@ namespace Mirror
 
         internal void AddToVisList(NetworkIdentity uv)
         {
-            m_VisList.Add(uv);
+            visList.Add(uv);
 
             // spawn uv for this conn
             NetworkServer.ShowForConnection(uv, this);
@@ -254,7 +253,7 @@ namespace Mirror
 
         internal void RemoveFromVisList(NetworkIdentity uv, bool isDestroyed)
         {
-            m_VisList.Remove(uv);
+            visList.Remove(uv);
 
             if (!isDestroyed)
             {
@@ -265,11 +264,11 @@ namespace Mirror
 
         internal void RemoveObservers()
         {
-            foreach (var uv in m_VisList)
+            foreach (var uv in visList)
             {
                 uv.RemoveObserverInternal(this);
             }
-            m_VisList.Clear();
+            visList.Clear();
         }
 
         public virtual void TransportReceive(byte[] bytes)
