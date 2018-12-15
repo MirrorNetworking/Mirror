@@ -1234,9 +1234,9 @@ namespace Mirror
                 case CompressionSyncMode.None:
                     return reader.ReadSingle();
                 case CompressionSyncMode.Low:
-                    return reader.ReadInt16() * (2 * Math.PI / short.MaxValue);
+                    return reader.ReadInt16() * (float)(2 * Math.PI / short.MaxValue);
                 case CompressionSyncMode.High:
-                    return reader.ReadByte() * (2 * Math.PI / byte.MaxValue);
+                    return reader.ReadByte() * (float)(2 * Math.PI / byte.MaxValue);
             }
             return 0;
         }
