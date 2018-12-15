@@ -28,7 +28,6 @@ namespace Mirror
         [SerializeField] PlayerSpawnMethod m_PlayerSpawnMethod;
         [SerializeField] string m_OfflineScene = "";
         [SerializeField] string m_OnlineScene = "";
-        [SerializeField] List<GameObject> m_SpawnPrefabs = new List<GameObject>();
 
         [SerializeField] int m_MaxConnections = 4;
 
@@ -49,7 +48,7 @@ namespace Mirror
         public PlayerSpawnMethod playerSpawnMethod { get { return m_PlayerSpawnMethod; } set { m_PlayerSpawnMethod = value; } }
         public string offlineScene           { get { return m_OfflineScene; }  set { m_OfflineScene = value; } }
         public string onlineScene            { get { return m_OnlineScene; }  set { m_OnlineScene = value; } }
-        public List<GameObject> spawnPrefabs { get { return m_SpawnPrefabs; }}
+        public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public List<Transform> startPositions { get { return s_StartPositions; }}
 
@@ -260,9 +259,9 @@ namespace Mirror
             {
                 ClientScene.RegisterPrefab(m_PlayerPrefab);
             }
-            for (int i = 0; i < m_SpawnPrefabs.Count; i++)
+            for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = m_SpawnPrefabs[i];
+                var prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
