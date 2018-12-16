@@ -1048,7 +1048,6 @@ namespace Mirror
             if (NetworkClient.active && s_LocalClientActive)
             {
                 uv.OnNetworkDestroy();
-                ClientScene.SetLocalObject(msg.netId, null);
             }
 
             // when unspawning, dont destroy the server's object
