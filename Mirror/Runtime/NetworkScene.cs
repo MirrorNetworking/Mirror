@@ -14,7 +14,7 @@ namespace Mirror
 
         internal void Shutdown()
         {
-            ClearLocalObjects();
+            NetworkIdentity.spawned.Clear();
             ClearSpawners();
         }
 
@@ -64,11 +64,6 @@ namespace Mirror
         internal bool RemoveLocalObject(uint netId)
         {
             return NetworkIdentity.spawned.Remove(netId);
-        }
-
-        internal void ClearLocalObjects()
-        {
-            NetworkIdentity.spawned.Clear();
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
@@ -229,7 +224,7 @@ namespace Mirror
                     }
                 }
             }
-            ClearLocalObjects();
+            NetworkIdentity.spawned.Clear();
         }
     }
 }

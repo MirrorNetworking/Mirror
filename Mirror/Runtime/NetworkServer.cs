@@ -1069,11 +1069,6 @@ namespace Mirror
             uv.MarkForReset();
         }
 
-        public static void ClearLocalObjects()
-        {
-            NetworkIdentity.spawned.Clear();
-        }
-
         public static void Spawn(GameObject obj)
         {
             if (VerifyCanSpawn(obj))
