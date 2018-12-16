@@ -1219,10 +1219,10 @@ namespace Mirror
                     writer.Write(angle);
                     break;
                 case CompressionSyncMode.Low:
-                    writer.Write((short)angle);
+                    writer.Write((short)(angle / (2 * Math.PI) * short.MaxValue));
                     break;
                 case CompressionSyncMode.High:
-                    writer.Write((byte)angle);
+                    writer.Write((byte)(angle / (2 * Math.PI) * byte.MaxValue));
                     break;
             }
         }
@@ -1234,9 +1234,9 @@ namespace Mirror
                 case CompressionSyncMode.None:
                     return reader.ReadSingle();
                 case CompressionSyncMode.Low:
-                    return reader.ReadInt16();
+                    return reader.ReadInt16() * (float)(2 * Math.PI / short.MaxValue);
                 case CompressionSyncMode.High:
-                    return reader.ReadByte();
+                    return reader.ReadByte() * (float)(2 * Math.PI / byte.MaxValue);
             }
             return 0;
         }
