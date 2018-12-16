@@ -28,11 +28,8 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity foundNetworkIdentity = null;
-            if (NetworkIdentity.spawned.ContainsKey(netId))
-            {
-                foundNetworkIdentity = NetworkIdentity.spawned[netId];
-            }
+            NetworkIdentity foundNetworkIdentity;
+            NetworkIdentity.spawned.TryGetValue(netId, out foundNetworkIdentity);
 
             if (foundNetworkIdentity == null)
             {
