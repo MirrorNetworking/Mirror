@@ -186,11 +186,11 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void SetLocalObjectOnServer(uint netId, GameObject obj)
+        internal static void SetLocalObjectOnServer(uint netId, NetworkIdentity ni)
         {
-            if (LogFilter.Debug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
+            if (LogFilter.Debug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + ni); }
 
-            s_NetworkScene.SetLocalObject(netId, obj, false, true);
+            s_NetworkScene.SetLocalObject(netId, ni, false, true);
         }
 
         internal static void ActivateLocalClientScene()
@@ -204,9 +204,9 @@ namespace Mirror
             {
                 if (!uv.isClient)
                 {
-                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
+                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv); }
 
-                    ClientScene.SetLocalObject(uv.netId, uv.gameObject);
+                    ClientScene.SetLocalObject(uv.netId, uv);
                     uv.OnStartClient();
                 }
             }

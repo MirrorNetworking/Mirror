@@ -52,7 +52,7 @@ namespace Mirror
             NetworkIdentity uv = localPlayer;
             if (uv != null)
             {
-                ClientScene.SetLocalObject(uv.netId, localPlayer.gameObject);
+                ClientScene.SetLocalObject(uv.netId, localPlayer);
                 uv.SetConnectionToServer(m_Connection);
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead

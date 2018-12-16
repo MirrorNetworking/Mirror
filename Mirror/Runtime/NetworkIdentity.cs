@@ -287,8 +287,8 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
-            NetworkServer.SetLocalObjectOnServer(netId, gameObject);
+            if (LogFilter.Debug) { Debug.Log("OnStartServer " + this + " GUID:" + netId); }
+            NetworkServer.SetLocalObjectOnServer(netId, this);
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -305,7 +305,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                ClientScene.SetLocalObject(netId, gameObject);
+                ClientScene.SetLocalObject(netId, this);
                 OnStartClient();
             }
 

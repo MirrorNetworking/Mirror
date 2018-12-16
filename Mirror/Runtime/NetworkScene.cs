@@ -18,26 +18,22 @@ namespace Mirror
             ClearSpawners();
         }
 
-        internal void SetLocalObject(uint netId, GameObject obj, bool isClient, bool isServer)
+        internal void SetLocalObject(uint netId, NetworkIdentity ni, bool isClient, bool isServer)
         {
-            if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
+            if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + ni); }
 
-            if (obj == null)
+            if (ni == null)
             {
                 NetworkIdentity.spawned[netId] = null;
                 return;
             }
 
-            NetworkIdentity foundNetworkIdentity;
-            NetworkIdentity.spawned.TryGetValue(netId, out foundNetworkIdentity);
-
-            if (foundNetworkIdentity == null)
+            if (!NetworkIdentity.spawned.ContainsKey(netId))
             {
-                foundNetworkIdentity = obj.GetComponent<NetworkIdentity>();
-                NetworkIdentity.spawned[netId] = foundNetworkIdentity;
+                NetworkIdentity.spawned[netId] = ni;
             }
 
-            foundNetworkIdentity.UpdateClientServer(isClient, isServer);
+            ni.UpdateClientServer(isClient, isServer);
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)

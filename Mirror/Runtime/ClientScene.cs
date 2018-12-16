@@ -271,10 +271,10 @@ namespace Mirror
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        public static void SetLocalObject(uint netId, GameObject obj)
+        public static void SetLocalObject(uint netId, NetworkIdentity ni)
         {
             // if still receiving initial state, dont set isClient
-            s_NetworkScene.SetLocalObject(netId, obj, s_IsSpawnFinished, false);
+            s_NetworkScene.SetLocalObject(netId, ni, s_IsSpawnFinished, false);
         }
 
         public static GameObject FindLocalObject(uint netId)
@@ -287,7 +287,7 @@ namespace Mirror
             return null;
         }
 
-        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId, GameObject newGameObject)
+        static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId)
         {
             if (!uv.gameObject.activeSelf)
             {
@@ -299,14 +299,9 @@ namespace Mirror
                 var payloadReader = new NetworkReader(payload);
                 uv.OnUpdateVars(payloadReader, true);
             }
-            if (newGameObject == null)
-            {
-                return;
-            }
 
-            newGameObject.SetActive(true);
             uv.SetNetworkInstanceId(netId);
-            SetLocalObject(netId, newGameObject);
+            SetLocalObject(netId, uv);
 
             // objects spawned as part of initial state are started on a second pass
             if (s_IsSpawnFinished)
@@ -332,7 +327,7 @@ namespace Mirror
             {
                 // this object already exists (was in the scene), just apply the update to existing object
                 localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, null);
+                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
                 return;
             }
 
@@ -353,7 +348,7 @@ namespace Mirror
                     return;
                 }
                 localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, obj);
+                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
             }
             // lookup registered factory for type:
             else if (NetworkScene.GetSpawnHandler(msg.assetId, out handler))
@@ -372,7 +367,7 @@ namespace Mirror
                 }
                 localNetworkIdentity.Reset();
                 localNetworkIdentity.SetDynamicAssetId(msg.assetId);
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, obj);
+                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
             }
             else
             {
@@ -391,7 +386,7 @@ namespace Mirror
             {
                 // this object already exists (was in the scene)
                 localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId, localNetworkIdentity.gameObject);
+                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
                 return;
             }
 
@@ -407,7 +402,7 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name); }
             spawnedId.Reset();
-            ApplySpawnPayload(spawnedId, msg.position, msg.payload, msg.netId, spawnedId.gameObject);
+            ApplySpawnPayload(spawnedId, msg.position, msg.payload, msg.netId);
         }
 
         static void OnObjectSpawnFinished(NetworkMessage netMsg)
