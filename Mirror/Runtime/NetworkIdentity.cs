@@ -799,7 +799,7 @@ namespace Mirror
             }
 
             // apply changes from rebuild
-            foreach (var conn in newObservers)
+            foreach (NetworkConnection conn in newObservers)
             {
                 if (conn == null)
                 {
@@ -821,7 +821,7 @@ namespace Mirror
                 }
             }
 
-            foreach (var conn in oldObservers)
+            foreach (NetworkConnection conn in oldObservers)
             {
                 if (!newObservers.Contains(conn))
                 {
@@ -964,15 +964,6 @@ namespace Mirror
             ClearObservers();
             m_ClientAuthorityOwner = null;
         }
-
-#if UNITY_EDITOR
-        // this is invoked by the UnityEngine when a Mono Domain reload happens in the editor.
-        // the transport layer has state in C++, so when the C# state is lost (on domain reload), the C++ transport layer must be shutown as well.
-        static internal void UNetDomainReload()
-        {
-            NetworkManager.OnDomainReload();
-        }
-#endif
 
         // this is invoked by the UnityEngine
         public static void UNetStaticUpdate()

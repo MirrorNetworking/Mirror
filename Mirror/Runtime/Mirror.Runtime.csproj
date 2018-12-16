@@ -50,8 +50,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Telepathy, Version=1.0.204.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Telepathy.1.0.204\lib\net35\Telepathy.dll</HintPath>
+    <Reference Include="Telepathy, Version=1.0.206.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Telepathy.1.0.206\lib\net35\Telepathy.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="UnityEngine">
@@ -72,7 +72,7 @@
     <Compile Include="NetworkProximityChecker.cs" />
     <Compile Include="NetworkScene.cs" />
     <Compile Include="NetworkStartPosition.cs" />
-    <Compile Include="NetworkTranformChild.cs" />
+    <Compile Include="NetworkTransformChild.cs" />
     <Compile Include="NetworkTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NetworkClient.cs" />

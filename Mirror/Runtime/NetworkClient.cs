@@ -10,10 +10,9 @@ namespace Mirror
     {
         Type m_NetworkConnectionClass = typeof(NetworkConnection);
 
-        static List<NetworkClient> s_Clients = new List<NetworkClient>();
         static bool s_IsActive;
 
-        public static List<NetworkClient> allClients { get { return s_Clients; } }
+        public static List<NetworkClient> allClients = new List<NetworkClient>();
         public static bool active { get { return s_IsActive; } }
 
         public static bool pauseMessageHandling;
@@ -112,7 +111,7 @@ namespace Mirror
             SetActive(true);
             RegisterSystemHandlers(false);
             m_ClientId = 0;
-            NetworkClient.pauseMessageHandling = false;
+            pauseMessageHandling = false;
         }
 
         public virtual void Disconnect()
@@ -148,7 +147,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
             RemoveClient(this);
-            if (s_Clients.Count == 0)
+            if (allClients.Count == 0)
             {
                 SetActive(false);
             }
@@ -321,33 +320,33 @@ namespace Mirror
 
         internal static void AddClient(NetworkClient client)
         {
-            s_Clients.Add(client);
+            allClients.Add(client);
         }
 
         internal static bool RemoveClient(NetworkClient client)
         {
-            return s_Clients.Remove(client);
+            return allClients.Remove(client);
         }
 
         internal static void UpdateClients()
         {
             // remove null clients first
-            s_Clients.RemoveAll(cl => cl == null);
+            allClients.RemoveAll(cl => cl == null);
 
             // now update valid clients
-            for (int i = 0; i < s_Clients.Count; ++i)
+            for (int i = 0; i < allClients.Count; ++i)
             {
-                s_Clients[i].Update();
+                allClients[i].Update();
             }
         }
 
         public static void ShutdownAll()
         {
-            while (s_Clients.Count != 0)
+            while (allClients.Count != 0)
             {
-                s_Clients[0].Shutdown();
+                allClients[0].Shutdown();
             }
-            s_Clients = new List<NetworkClient>();
+            allClients = new List<NetworkClient>();
             s_IsActive = false;
             ClientScene.Shutdown();
         }

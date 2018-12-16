@@ -3,6 +3,7 @@ using System.Net;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -16,48 +17,25 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour
     {
         // configuration
-        [SerializeField] int m_NetworkPort = 7777;
-        [SerializeField] bool m_ServerBindToIP;
-        [SerializeField] string m_ServerBindAddress = "";
-        [SerializeField] string m_NetworkAddress = "localhost";
-        [SerializeField] bool m_DontDestroyOnLoad = true;
-        [SerializeField] bool m_RunInBackground = true;
-        [SerializeField] bool m_ShowDebugMessages;
-        [SerializeField] GameObject m_PlayerPrefab;
-        [SerializeField] bool m_AutoCreatePlayer = true;
-        [SerializeField] PlayerSpawnMethod m_PlayerSpawnMethod;
-        [SerializeField] string m_OfflineScene = "";
-        [SerializeField] string m_OnlineScene = "";
-        [SerializeField] List<GameObject> m_SpawnPrefabs = new List<GameObject>();
+        [FormerlySerializedAs("m_NetworkPort")] public int networkPort = 7777;
+        [FormerlySerializedAs("m_ServerBindToIP")] public bool serverBindToIP;
+        [FormerlySerializedAs("m_ServerBindAddress")] public string serverBindAddress = "";
+        [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
+        [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
+        [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
+        [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
+        [FormerlySerializedAs("m_PlayerPrefab")] public GameObject playerPrefab;
+        [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
+        [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
+        [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
+        [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
+        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
+        [FormerlySerializedAs("m_UseWebSockets")] public bool useWebSockets;
+        [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
 
-        [SerializeField] int m_MaxConnections = 4;
+        public static List<Transform> startPositions = new List<Transform>();
 
-        [SerializeField] bool m_UseWebSockets;
-
-        bool m_ClientLoadedScene;
-
-        // properties
-        public int networkPort               { get { return m_NetworkPort; } set { m_NetworkPort = value; } }
-        public bool serverBindToIP           { get { return m_ServerBindToIP; } set { m_ServerBindToIP = value; }}
-        public string serverBindAddress      { get { return m_ServerBindAddress; } set { m_ServerBindAddress = value; }}
-        public string networkAddress         { get { return m_NetworkAddress; }  set { m_NetworkAddress = value; } }
-        public bool dontDestroyOnLoad        { get { return m_DontDestroyOnLoad; }  set { m_DontDestroyOnLoad = value; } }
-        public bool runInBackground          { get { return m_RunInBackground; }  set { m_RunInBackground = value; } }
-        public bool showDebugMessages        { get { return m_ShowDebugMessages; }  set { m_ShowDebugMessages = value; LogFilter.Debug = value; } }
-        public GameObject playerPrefab       { get { return m_PlayerPrefab; }  set { m_PlayerPrefab = value; } }
-        public bool autoCreatePlayer         { get { return m_AutoCreatePlayer; } set { m_AutoCreatePlayer = value; } }
-        public PlayerSpawnMethod playerSpawnMethod { get { return m_PlayerSpawnMethod; } set { m_PlayerSpawnMethod = value; } }
-        public string offlineScene           { get { return m_OfflineScene; }  set { m_OfflineScene = value; } }
-        public string onlineScene            { get { return m_OnlineScene; }  set { m_OnlineScene = value; } }
-        public List<GameObject> spawnPrefabs { get { return m_SpawnPrefabs; }}
-
-        public List<Transform> startPositions { get { return s_StartPositions; }}
-
-        public int maxConnections            { get { return m_MaxConnections; } set { m_MaxConnections = value; } }
-
-        public bool useWebSockets            { get { return m_UseWebSockets; } set { m_UseWebSockets = value; } }
-
-        public bool clientLoadedScene        { get { return m_ClientLoadedScene; } set { m_ClientLoadedScene = value; } }
+        public bool clientLoadedScene;
 
         // only really valid on the server
         public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value.playerController != null); } }
@@ -66,7 +44,6 @@ namespace Mirror
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
         public bool isNetworkActive;
         public NetworkClient client;
-        static List<Transform> s_StartPositions = new List<Transform>();
         static int s_StartPositionIndex;
 
         public static NetworkManager singleton;
@@ -77,25 +54,10 @@ namespace Mirror
         // this is used to persist network address between scenes.
         static string s_Address;
 
-#if UNITY_EDITOR
-        static bool s_DomainReload;
-        static NetworkManager s_PendingSingleton;
-
-        internal static void OnDomainReload()
-        {
-            s_DomainReload = true;
-        }
-
-        public NetworkManager()
-        {
-            s_PendingSingleton = this;
-        }
-#endif
-
         // protected so that inheriting classes' Awake() can call base.Awake() too
         protected void Awake()
         {
-            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/unet-hlapi-community-edition.425437/");
+            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
             InitializeSingleton();
         }
 
@@ -110,7 +72,7 @@ namespace Mirror
             // do this early
             LogFilter.Debug = showDebugMessages;
 
-            if (m_DontDestroyOnLoad)
+            if (dontDestroyOnLoad)
             {
                 if (singleton != null)
                 {
@@ -129,13 +91,13 @@ namespace Mirror
             }
 
             // persistent network address between scene changes
-            if (m_NetworkAddress != "")
+            if (networkAddress != "")
             {
-                s_Address = m_NetworkAddress;
+                s_Address = networkAddress;
             }
             else if (s_Address != "")
             {
-                m_NetworkAddress = s_Address;
+                networkAddress = s_Address;
             }
         }
 
@@ -174,12 +136,12 @@ namespace Mirror
         // protected so that inheriting classes' OnValidate() can call base.OnValidate() too
         protected void OnValidate()
         {
-            m_MaxConnections = Mathf.Clamp(m_MaxConnections, 1, 32000); // [1, 32000]
+            maxConnections = Mathf.Clamp(maxConnections, 1, 32000); // [1, 32000]
 
-            if (m_PlayerPrefab != null && m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
-                m_PlayerPrefab = null;
+                playerPrefab = null;
             }
         }
 
@@ -197,22 +159,22 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            if (m_RunInBackground)
+            if (runInBackground)
                 Application.runInBackground = true;
 
-            NetworkServer.useWebSockets = m_UseWebSockets;
+            NetworkServer.useWebSockets = useWebSockets;
 
-            if (m_ServerBindToIP && !string.IsNullOrEmpty(m_ServerBindAddress))
+            if (serverBindToIP && !string.IsNullOrEmpty(serverBindAddress))
             {
-                if (!NetworkServer.Listen(m_ServerBindAddress, m_NetworkPort, m_MaxConnections))
+                if (!NetworkServer.Listen(serverBindAddress, networkPort, maxConnections))
                 {
-                    Debug.LogError("StartServer listen on " + m_ServerBindAddress + " failed.");
+                    Debug.LogError("StartServer listen on " + serverBindAddress + " failed.");
                     return false;
                 }
             }
             else
             {
-                if (!NetworkServer.Listen(m_NetworkPort, m_MaxConnections))
+                if (!NetworkServer.Listen(networkPort, maxConnections))
                 {
                     Debug.LogError("StartServer listen failed.");
                     return false;
@@ -232,14 +194,14 @@ namespace Mirror
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
 
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartServer port:" + m_NetworkPort); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartServer port:" + networkPort); }
             isNetworkActive = true;
 
             // Only change scene if the requested online scene is not blank, and is not already loaded
             string loadedSceneName = SceneManager.GetSceneAt(0).name;
-            if (!string.IsNullOrEmpty(m_OnlineScene) && m_OnlineScene != loadedSceneName && m_OnlineScene != m_OfflineScene)
+            if (!string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene)
             {
-                ServerChangeScene(m_OnlineScene);
+                ServerChangeScene(onlineScene);
             }
             else
             {
@@ -256,13 +218,13 @@ namespace Mirror
             client.RegisterHandler(MsgType.Error, OnClientErrorInternal);
             client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
 
-            if (m_PlayerPrefab != null)
+            if (playerPrefab != null)
             {
-                ClientScene.RegisterPrefab(m_PlayerPrefab);
+                ClientScene.RegisterPrefab(playerPrefab);
             }
-            for (int i = 0; i < m_SpawnPrefabs.Count; i++)
+            for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = m_SpawnPrefabs[i];
+                var prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
@@ -274,7 +236,7 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            if (m_RunInBackground)
+            if (runInBackground)
                 Application.runInBackground = true;
 
             isNetworkActive = true;
@@ -284,17 +246,17 @@ namespace Mirror
 
             RegisterClientMessages(client);
 
-            if (string.IsNullOrEmpty(m_NetworkAddress))
+            if (string.IsNullOrEmpty(networkAddress))
             {
                 Debug.LogError("Must set the Network Address field in the manager");
                 return null;
             }
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartClient address:" + m_NetworkAddress + " port:" + m_NetworkPort); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartClient address:" + networkAddress + " port:" + networkPort); }
 
-            client.Connect(m_NetworkAddress, m_NetworkPort);
+            client.Connect(networkAddress, networkPort);
 
             OnStartClient(client);
-            s_Address = m_NetworkAddress;
+            s_Address = networkAddress;
             return client;
         }
 
@@ -312,8 +274,8 @@ namespace Mirror
 
         NetworkClient ConnectLocalClient()
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartHost port:" + m_NetworkPort); }
-            m_NetworkAddress = "localhost";
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartHost port:" + networkPort); }
+            networkAddress = "localhost";
             client = ClientScene.ConnectLocalServer();
             RegisterClientMessages(client);
             return client;
@@ -337,9 +299,9 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager StopServer"); }
             isNetworkActive = false;
             NetworkServer.Shutdown();
-            if (!string.IsNullOrEmpty(m_OfflineScene))
+            if (!string.IsNullOrEmpty(offlineScene))
             {
-                ServerChangeScene(m_OfflineScene);
+                ServerChangeScene(offlineScene);
             }
             CleanupNetworkIdentities();
         }
@@ -359,9 +321,9 @@ namespace Mirror
             }
 
             ClientScene.DestroyAllClientObjects();
-            if (!string.IsNullOrEmpty(m_OfflineScene))
+            if (!string.IsNullOrEmpty(offlineScene))
             {
-                ClientChangeScene(m_OfflineScene, false);
+                ClientChangeScene(offlineScene, false);
             }
             CleanupNetworkIdentities();
         }
@@ -384,7 +346,7 @@ namespace Mirror
             NetworkServer.SendToAll((short)MsgType.Scene, msg);
 
             s_StartPositionIndex = 0;
-            s_StartPositions.Clear();
+            startPositions.Clear();
         }
 
         void CleanupNetworkIdentities()
@@ -439,7 +401,7 @@ namespace Mirror
 
                 if (s_ClientReadyConnection != null)
                 {
-                    m_ClientLoadedScene = true;
+                    clientLoadedScene = true;
                     OnClientConnect(s_ClientReadyConnection);
                     s_ClientReadyConnection = null;
                 }
@@ -464,30 +426,6 @@ namespace Mirror
 
         internal static void UpdateScene()
         {
-#if UNITY_EDITOR
-            // In the editor, reloading scripts in play mode causes a Mono Domain Reload.
-            // This gets the transport layer (C++) and HLAPI (C#) out of sync.
-            // This check below detects that problem and shuts down the transport layer to bring both systems back in sync.
-            if (singleton == null && s_PendingSingleton != null && s_DomainReload)
-            {
-                Debug.LogWarning("NetworkManager detected a script reload in the editor. This has caused the network to be shut down.");
-
-                s_DomainReload = false;
-                s_PendingSingleton.InitializeSingleton();
-
-                // destroy network objects
-                var uvs = FindObjectsOfType<NetworkIdentity>();
-                foreach (var uv in uvs)
-                {
-                    Destroy(uv.gameObject);
-                }
-
-                singleton.StopHost();
-
-                Transport.layer.Shutdown();
-            }
-#endif
-
             if (singleton == null)
                 return;
 
@@ -512,13 +450,13 @@ namespace Mirror
         public static void RegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
-            s_StartPositions.Add(start);
+            startPositions.Add(start);
         }
 
         public static void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
-            s_StartPositions.Remove(start);
+            startPositions.Remove(start);
         }
 
         public bool IsClientConnected()
@@ -532,7 +470,7 @@ namespace Mirror
             if (singleton == null)
                 return;
 
-            s_StartPositions.Clear();
+            startPositions.Clear();
             s_StartPositionIndex = 0;
             s_ClientReadyConnection = null;
 
@@ -546,7 +484,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
 
-            if (networkSceneName != "" && networkSceneName != m_OfflineScene)
+            if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
                 netMsg.conn.Send((short)MsgType.Scene, msg);
@@ -610,9 +548,9 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
 
             string loadedSceneName = SceneManager.GetSceneAt(0).name;
-            if (string.IsNullOrEmpty(m_OnlineScene) || (m_OnlineScene == m_OfflineScene) || (loadedSceneName == m_OnlineScene))
+            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
-                m_ClientLoadedScene = false;
+                clientLoadedScene = false;
                 OnClientConnect(netMsg.conn);
             }
             else
@@ -626,9 +564,9 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientDisconnectInternal"); }
 
-            if (!string.IsNullOrEmpty(m_OfflineScene))
+            if (!string.IsNullOrEmpty(offlineScene))
             {
-                ClientChangeScene(m_OfflineScene, false);
+                ClientChangeScene(offlineScene, false);
             }
 
             OnClientDisconnect(netMsg.conn);
@@ -698,13 +636,13 @@ namespace Mirror
 
         void OnServerAddPlayerInternal(NetworkConnection conn)
         {
-            if (m_PlayerPrefab == null)
+            if (playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
                 return;
             }
 
-            if (m_PlayerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
@@ -720,11 +658,11 @@ namespace Mirror
             Transform startPos = GetStartPosition();
             if (startPos != null)
             {
-                player = Instantiate(m_PlayerPrefab, startPos.position, startPos.rotation);
+                player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
             }
             else
             {
-                player = Instantiate(m_PlayerPrefab, Vector3.zero, Quaternion.identity);
+                player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
             }
 
             NetworkServer.AddPlayerForConnection(conn, player);
@@ -733,22 +671,22 @@ namespace Mirror
         public Transform GetStartPosition()
         {
             // first remove any dead transforms
-            s_StartPositions.RemoveAll(t => t == null);
+            startPositions.RemoveAll(t => t == null);
 
-            if (m_PlayerSpawnMethod == PlayerSpawnMethod.Random && s_StartPositions.Count > 0)
+            if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
             {
                 // try to spawn at a random start location
-                int index = Random.Range(0, s_StartPositions.Count);
-                return s_StartPositions[index];
+                int index = Random.Range(0, startPositions.Count);
+                return startPositions[index];
             }
-            if (m_PlayerSpawnMethod == PlayerSpawnMethod.RoundRobin && s_StartPositions.Count > 0)
+            if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
             {
-                if (s_StartPositionIndex >= s_StartPositions.Count)
+                if (s_StartPositionIndex >= startPositions.Count)
                 {
                     s_StartPositionIndex = 0;
                 }
 
-                Transform startPos = s_StartPositions[s_StartPositionIndex];
+                Transform startPos = startPositions[s_StartPositionIndex];
                 s_StartPositionIndex += 1;
                 return startPos;
             }
@@ -779,7 +717,7 @@ namespace Mirror
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
                 ClientScene.Ready(conn);
-                if (m_AutoCreatePlayer)
+                if (autoCreatePlayer)
                 {
                     ClientScene.AddPlayer();
                 }
@@ -805,7 +743,7 @@ namespace Mirror
             ClientScene.Ready(conn);
 
             // vis2k: replaced all this weird code with something more simple
-            if (m_AutoCreatePlayer)
+            if (autoCreatePlayer)
             {
                 // add player if existing one is null
                 if (ClientScene.localPlayer == null)

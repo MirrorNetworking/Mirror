@@ -9,8 +9,6 @@ namespace Mirror
     {
         static NetworkIdentity s_LocalPlayer;
         static NetworkConnection s_ReadyConnection;
-        // scene id to NetworkIdentity
-        static Dictionary<uint, NetworkIdentity> s_SpawnableObjects;
 
         static bool s_IsReady;
         static bool s_IsSpawnFinished;
@@ -32,13 +30,13 @@ namespace Mirror
         public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
-        public static Dictionary<uint, NetworkIdentity> spawnableObjects { get { return s_SpawnableObjects; } }
+        public static Dictionary<uint, NetworkIdentity> spawnableObjects;
 
         internal static void Shutdown()
         {
             s_NetworkScene.Shutdown();
             s_PendingOwnerNetIds = new List<uint>();
-            s_SpawnableObjects = null;
+            spawnableObjects = null;
             s_ReadyConnection = null;
             s_IsReady = false;
             s_IsSpawnFinished = false;
@@ -181,17 +179,17 @@ namespace Mirror
         internal static void PrepareToSpawnSceneObjects()
         {
             // add all unspawned NetworkIdentities to spawnable objects
-            s_SpawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
-                                 .Where(ConsiderForSpawning)
-                                 .ToDictionary(uv => uv.sceneId, uv => uv);
+            spawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
+                               .Where(ConsiderForSpawning)
+                               .ToDictionary(uv => uv.sceneId, uv => uv);
         }
 
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
-            if (s_SpawnableObjects.ContainsKey(sceneId))
+            if (spawnableObjects.ContainsKey(sceneId))
             {
-                NetworkIdentity foundId = s_SpawnableObjects[sceneId];
-                s_SpawnableObjects.Remove(sceneId);
+                NetworkIdentity foundId = spawnableObjects[sceneId];
+                spawnableObjects.Remove(sceneId);
                 return foundId;
             }
             else
@@ -338,7 +336,7 @@ namespace Mirror
             SpawnDelegate handler;
             if (NetworkScene.GetPrefab(msg.assetId, out prefab))
             {
-                var obj = (GameObject)Object.Instantiate(prefab, msg.position, msg.rotation);
+                GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
                 if (LogFilter.Debug)
                 {
                     Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
@@ -396,9 +394,9 @@ namespace Mirror
             NetworkIdentity spawnedId = SpawnSceneObject(msg.sceneId);
             if (spawnedId == null)
             {
-                Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + s_SpawnableObjects.Count);
+                Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + spawnableObjects.Count);
                 // dump the whole spawnable objects dict for easier debugging
-                foreach (var kvp in s_SpawnableObjects)
+                foreach (var kvp in spawnableObjects)
                     Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 return;
             }
@@ -455,7 +453,7 @@ namespace Mirror
                     {
                         // scene object.. disable it in scene instead of destroying
                         localObject.gameObject.SetActive(false);
-                        s_SpawnableObjects[localObject.sceneId] = localObject;
+                        spawnableObjects[localObject.sceneId] = localObject;
                     }
                 }
                 s_NetworkScene.RemoveLocalObject(msg.netId);

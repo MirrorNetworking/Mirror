@@ -6,19 +6,12 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /*
-    * wire protocol is a list of :   size   |  msgType     | payload
-    *                               (short)  (variable)   (buffer)
-    */
     public class NetworkConnection : IDisposable
     {
         NetworkIdentity m_PlayerController;
-        HashSet<NetworkIdentity> m_VisList = new HashSet<NetworkIdentity>();
-        public HashSet<NetworkIdentity> visList { get { return m_VisList; } }
+        public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
-
-        HashSet<uint> m_ClientOwnedObjects;
 
         public int hostId = -1;
         public int connectionId = -1;
@@ -26,7 +19,7 @@ namespace Mirror
         public string address;
         public float lastMessageTime;
         public NetworkIdentity playerController { get { return m_PlayerController; } }
-        public HashSet<uint> clientOwnedObjects { get { return m_ClientOwnedObjects; } }
+        public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
         public bool isConnected { get { return hostId != -1; }}
 
@@ -53,9 +46,9 @@ namespace Mirror
 
         protected virtual void Dispose(bool disposing)
         {
-            if (m_ClientOwnedObjects != null)
+            if (clientOwnedObjects != null)
             {
-                foreach (var netId in m_ClientOwnedObjects)
+                foreach (var netId in clientOwnedObjects)
                 {
                     var obj = NetworkServer.FindLocalObject(netId);
                     if (obj != null)
@@ -64,7 +57,7 @@ namespace Mirror
                     }
                 }
             }
-            m_ClientOwnedObjects = null;
+            clientOwnedObjects = null;
         }
 
         public void Disconnect()
@@ -205,8 +198,8 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (logNetworkMessages) 
-                { 
+                if (logNetworkMessages)
+                {
                     if (Enum.IsDefined(typeof(MsgType), msgType))
                     {
                         // one of Mirror mesage types,  display the message name
@@ -250,7 +243,7 @@ namespace Mirror
 
         internal void AddToVisList(NetworkIdentity uv)
         {
-            m_VisList.Add(uv);
+            visList.Add(uv);
 
             // spawn uv for this conn
             NetworkServer.ShowForConnection(uv, this);
@@ -258,7 +251,7 @@ namespace Mirror
 
         internal void RemoveFromVisList(NetworkIdentity uv, bool isDestroyed)
         {
-            m_VisList.Remove(uv);
+            visList.Remove(uv);
 
             if (!isDestroyed)
             {
@@ -269,11 +262,11 @@ namespace Mirror
 
         internal void RemoveObservers()
         {
-            foreach (var uv in m_VisList)
+            foreach (var uv in visList)
             {
                 uv.RemoveObserverInternal(this);
             }
-            m_VisList.Clear();
+            visList.Clear();
         }
 
         public virtual void TransportReceive(byte[] bytes)
@@ -297,20 +290,20 @@ namespace Mirror
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
-            if (m_ClientOwnedObjects == null)
+            if (clientOwnedObjects == null)
             {
-                m_ClientOwnedObjects = new HashSet<uint>();
+                clientOwnedObjects = new HashSet<uint>();
             }
-            m_ClientOwnedObjects.Add(obj.netId);
+            clientOwnedObjects.Add(obj.netId);
         }
 
         internal void RemoveOwnedObject(NetworkIdentity obj)
         {
-            if (m_ClientOwnedObjects == null)
+            if (clientOwnedObjects == null)
             {
                 return;
             }
-            m_ClientOwnedObjects.Remove(obj.netId);
+            clientOwnedObjects.Remove(obj.netId);
         }
     }
 }
