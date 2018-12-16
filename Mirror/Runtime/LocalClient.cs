@@ -51,7 +51,8 @@ namespace Mirror
             m_Connection.SetPlayerController(localPlayer);
             if (localPlayer != null)
             {
-                ClientScene.SetLocalObject(localPlayer.netId, localPlayer);
+                localPlayer.EnableIsClient();
+                NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
                 localPlayer.SetConnectionToServer(m_Connection);
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead
