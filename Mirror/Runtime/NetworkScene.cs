@@ -40,19 +40,6 @@ namespace Mirror
             foundNetworkIdentity.UpdateClientServer(isClient, isServer);
         }
 
-        // this lets the client take an instance ID from the server and find
-        // the local object that it corresponds too. This is temporary until
-        // object references can be serialized transparently.
-        internal GameObject FindLocalObject(uint netId)
-        {
-            NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
-            {
-                return identity.gameObject;
-            }
-            return null;
-        }
-
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkIdentity view = prefab.GetComponent<NetworkIdentity>();

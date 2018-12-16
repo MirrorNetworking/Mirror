@@ -1188,7 +1188,12 @@ namespace Mirror
 
         public static GameObject FindLocalObject(uint netId)
         {
-            return s_NetworkScene.FindLocalObject(netId);
+            NetworkIdentity ni;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out ni) && ni != null)
+            {
+                return ni.gameObject;
+            }
+            return null;
         }
 
         static bool ValidateSceneObject(NetworkIdentity netId)

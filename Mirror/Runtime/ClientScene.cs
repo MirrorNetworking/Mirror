@@ -279,7 +279,12 @@ namespace Mirror
 
         public static GameObject FindLocalObject(uint netId)
         {
-            return s_NetworkScene.FindLocalObject(netId);
+            NetworkIdentity ni;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out ni) && ni != null)
+            {
+                return ni.gameObject;
+            }
+            return null;
         }
 
         static void ApplySpawnPayload(NetworkIdentity uv, Vector3 position, byte[] payload, uint netId, GameObject newGameObject)
