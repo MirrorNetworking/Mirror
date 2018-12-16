@@ -163,6 +163,10 @@ namespace Mirror
         }
 
         // only used in SetLocalObject
+        // note: |= because for hosts:
+        //   client might set client=true server=false
+        //   server might set client=false server=true
+        //   but in the end, host is client=true and server=true ( hence |= )
         internal void UpdateClientServer(bool isClientFlag, bool isServerFlag)
         {
             m_IsClient |= isClientFlag;
