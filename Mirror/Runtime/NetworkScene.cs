@@ -22,18 +22,21 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + ni); }
 
-            if (ni == null)
+            if (ni != null)
+            {
+                ni.UpdateClientServer(isClient, isServer);
+
+                // !Contains check needed to avoid dictionary 'out of sync' error
+                // because SetLocalObject is called from a foreach loop
+                if (!NetworkIdentity.spawned.ContainsKey(netId))
+                {
+                    NetworkIdentity.spawned[netId] = ni;
+                }
+            }
+            else
             {
                 NetworkIdentity.spawned[netId] = null;
-                return;
             }
-
-            if (!NetworkIdentity.spawned.ContainsKey(netId))
-            {
-                NetworkIdentity.spawned[netId] = ni;
-            }
-
-            ni.UpdateClientServer(isClient, isServer);
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
