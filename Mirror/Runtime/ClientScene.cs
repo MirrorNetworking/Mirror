@@ -317,7 +317,8 @@ namespace Mirror
             }
 
             uv.SetNetworkInstanceId(netId);
-            SetLocalObject(netId, uv);
+            uv.EnableIsClient();
+            NetworkIdentity.spawned[netId] = uv;
 
             // objects spawned as part of initial state are started on a second pass
             if (s_IsSpawnFinished)
