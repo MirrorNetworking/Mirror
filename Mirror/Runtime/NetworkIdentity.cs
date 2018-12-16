@@ -50,6 +50,9 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
+        // all spawned NetworkIdentities by netId. needed on server and client.
+        public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+
         public NetworkBehaviour[] NetworkBehaviours
         {
             get

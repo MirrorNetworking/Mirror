@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
+using Object = UnityEngine.Object;
 
 namespace Mirror
 {
@@ -25,9 +27,6 @@ namespace Mirror
         public static bool ready { get { return s_IsReady; } }
         public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
 
-        //NOTE: spawn handlers, prefabs and local objects now live in NetworkScene
-        // objects by net id
-        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static Dictionary<Guid, GameObject> prefabs { get { return NetworkScene.guidToPrefab; } }
         // scene id to NetworkIdentity
         public static Dictionary<uint, NetworkIdentity> spawnableObjects;
@@ -421,7 +420,7 @@ namespace Mirror
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects
             // use data from scene objects
-            foreach (var uv in objects.Values.OrderBy(uv => uv.netId))
+            foreach (var uv in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
                 if (!uv.isClient)
                 {

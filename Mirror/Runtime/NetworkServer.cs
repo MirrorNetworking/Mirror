@@ -30,7 +30,6 @@ namespace Mirror
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
-        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
         public static bool dontListen;
         public static bool useWebSockets;
 
@@ -201,7 +200,7 @@ namespace Mirror
 
             // ClientScene for a local connection is becoming active. any spawned objects need to be started as client objects
             s_LocalClientActive = true;
-            foreach (var uv in objects.Values)
+            foreach (var uv in NetworkIdentity.spawned.Values)
             {
                 if (!uv.isClient)
                 {
@@ -322,7 +321,7 @@ namespace Mirror
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
             List<uint> removeNetIds = new List<uint>();
-            foreach (var kvp in objects)
+            foreach (var kvp in NetworkIdentity.spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -337,7 +336,7 @@ namespace Mirror
             // now remove
             foreach (uint netId in removeNetIds)
             {
-                objects.Remove(netId);
+                NetworkIdentity.spawned.Remove(netId);
             }
         }
 
@@ -748,7 +747,7 @@ namespace Mirror
                 // Setup spawned objects for local player
                 // Only handle the local objects for the first player (no need to redo it when doing more local players)
                 // and don't handle player objects here, they were done above
-                foreach (NetworkIdentity uv in objects.Values)
+                foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
                 {
                     // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
                     // in the above SetLocalPlayer call
@@ -770,13 +769,13 @@ namespace Mirror
             }
 
             // Spawn/update all current server objects
-            if (LogFilter.Debug) { Debug.Log("Spawning " + objects.Count + " objects for conn " + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId); }
 
             ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
             msg.state = 0;
             conn.Send((short)MsgType.SpawnFinished, msg);
 
-            foreach (NetworkIdentity uv in objects.Values)
+            foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
             {
                 if (uv == null)
                 {
@@ -1041,9 +1040,9 @@ namespace Mirror
         static void DestroyObject(NetworkIdentity uv, bool destroyServerObject)
         {
             if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + uv.netId); }
-            if (objects.ContainsKey(uv.netId))
+            if (NetworkIdentity.spawned.ContainsKey(uv.netId))
             {
-                objects.Remove(uv.netId);
+                NetworkIdentity.spawned.Remove(uv.netId);
             }
 
             if (uv.clientAuthorityOwner != null)
@@ -1072,7 +1071,7 @@ namespace Mirror
 
         public static void ClearLocalObjects()
         {
-            objects.Clear();
+            NetworkIdentity.spawned.Clear();
         }
 
         public static void Spawn(GameObject obj)
