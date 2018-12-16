@@ -186,27 +186,6 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void SetLocalObjectOnServer(uint netId, NetworkIdentity ni)
-        {
-            if (LogFilter.Debug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + ni); }
-
-            if (ni != null)
-            {
-                ni.EnableIsServer();
-
-                // !Contains check needed to avoid dictionary 'out of sync' error
-                // because SetLocalObject is called from a foreach loop
-                if (!NetworkIdentity.spawned.ContainsKey(netId))
-                {
-                    NetworkIdentity.spawned[netId] = ni;
-                }
-            }
-            else
-            {
-                NetworkIdentity.spawned[netId] = null;
-            }
-        }
-
         internal static void ActivateLocalClientScene()
         {
             if (s_LocalClientActive)

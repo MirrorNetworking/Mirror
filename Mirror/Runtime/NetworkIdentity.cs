@@ -293,7 +293,10 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) { Debug.Log("OnStartServer " + this + " GUID:" + netId); }
-            NetworkServer.SetLocalObjectOnServer(netId, this);
+
+            // add to spawned (note: the original EnableIsServer isn't needed
+            // because we already set m_isServer=true above)
+            spawned[netId] = this;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
