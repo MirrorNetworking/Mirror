@@ -1040,10 +1040,7 @@ namespace Mirror
         static void DestroyObject(NetworkIdentity uv, bool destroyServerObject)
         {
             if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + uv.netId); }
-            if (NetworkIdentity.spawned.ContainsKey(uv.netId))
-            {
-                NetworkIdentity.spawned.Remove(uv.netId);
-            }
+            NetworkIdentity.spawned.Remove(uv.netId);
 
             if (uv.clientAuthorityOwner != null)
             {
