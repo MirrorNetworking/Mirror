@@ -46,16 +46,11 @@ namespace Mirror
         internal GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;
-            if (GetNetworkIdentity(netId, out identity))
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
             {
                 return identity.gameObject;
             }
             return null;
-        }
-
-        internal bool GetNetworkIdentity(uint netId, out NetworkIdentity uv)
-        {
-            return NetworkIdentity.spawned.TryGetValue(netId, out uv) && uv != null;
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
