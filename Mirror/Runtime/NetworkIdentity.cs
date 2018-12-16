@@ -313,7 +313,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                ClientScene.SetLocalObject(netId, this);
+                EnableIsClient();
                 OnStartClient();
             }
 
