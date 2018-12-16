@@ -271,28 +271,6 @@ namespace Mirror
             s_NetworkScene.DestroyAllClientObjects();
         }
 
-        public static void SetLocalObject(uint netId, NetworkIdentity ni)
-        {
-            if (LogFilter.Debug) { Debug.Log("ClientScene.SetLocalObject " + netId + " " + ni); }
-
-            if (ni != null)
-            {
-                // if still receiving initial state, dont set isClient
-                if (s_IsSpawnFinished) ni.EnableIsClient();
-
-                // !Contains check needed to avoid dictionary 'out of sync' error
-                // because SetLocalObject is called from a foreach loop
-                if (!NetworkIdentity.spawned.ContainsKey(netId))
-                {
-                    NetworkIdentity.spawned[netId] = ni;
-                }
-            }
-            else
-            {
-                NetworkIdentity.spawned[netId] = null;
-            }
-        }
-
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity ni;
