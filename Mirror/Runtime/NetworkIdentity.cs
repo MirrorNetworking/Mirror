@@ -165,13 +165,11 @@ namespace Mirror
             m_SceneId = newSceneId;
         }
 
-        // only used in SetLocalObject
         internal void EnableIsClient()
         {
             m_IsClient = true;
         }
 
-        // only used in SetLocalObject
         internal void EnableIsServer()
         {
             m_IsServer = true;
