@@ -199,7 +199,7 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv); }
 
-                    ClientScene.SetLocalObject(uv.netId, uv);
+                    uv.EnableIsClient();
                     uv.OnStartClient();
                 }
             }
