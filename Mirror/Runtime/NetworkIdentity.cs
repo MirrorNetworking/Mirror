@@ -166,10 +166,15 @@ namespace Mirror
         }
 
         // only used in SetLocalObject
-        internal void UpdateClientServer(bool isClientFlag, bool isServerFlag)
+        internal void EnableIsClient()
         {
-            m_IsClient |= isClientFlag;
-            m_IsServer |= isServerFlag;
+            m_IsClient = true;
+        }
+
+        // only used in SetLocalObject
+        internal void EnableIsServer()
+        {
+            m_IsServer = true;
         }
 
         // used when the player object for a connection changes

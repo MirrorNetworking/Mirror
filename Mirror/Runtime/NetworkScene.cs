@@ -24,7 +24,8 @@ namespace Mirror
 
             if (ni != null)
             {
-                ni.UpdateClientServer(isClient, isServer);
+                if (isClient) ni.EnableIsClient();
+                if (isServer) ni.EnableIsServer();
 
                 // !Contains check needed to avoid dictionary 'out of sync' error
                 // because SetLocalObject is called from a foreach loop
