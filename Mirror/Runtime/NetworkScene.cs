@@ -61,11 +61,6 @@ namespace Mirror
             return NetworkIdentity.spawned.TryGetValue(netId, out uv) && uv != null;
         }
 
-        internal bool RemoveLocalObject(uint netId)
-        {
-            return NetworkIdentity.spawned.Remove(netId);
-        }
-
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkIdentity view = prefab.GetComponent<NetworkIdentity>();

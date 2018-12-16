@@ -455,7 +455,7 @@ namespace Mirror
                         spawnableObjects[localObject.sceneId] = localObject;
                     }
                 }
-                s_NetworkScene.RemoveLocalObject(msg.netId);
+                NetworkIdentity.spawned.Remove(msg.netId);
                 localObject.MarkForReset();
             }
             else
@@ -469,7 +469,7 @@ namespace Mirror
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjDestroy netId:" + msg.netId); }
 
-            s_NetworkScene.RemoveLocalObject(msg.netId);
+            NetworkIdentity.spawned.Remove(msg.netId);
         }
 
         static void OnLocalClientObjectHide(NetworkMessage netMsg)
