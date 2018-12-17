@@ -309,10 +309,7 @@ namespace Mirror
 
         static void UpdateServerObjects()
         {
-            // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
-            // probably even slower than removing null entries each time (hence less iterations next time).
-            List<uint> removeNetIds = new List<uint>();
-            foreach (var kvp in NetworkIdentity.spawned)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -320,14 +317,10 @@ namespace Mirror
                 }
                 else
                 {
-                    removeNetIds.Add(kvp.Key);
+                    // spawned list should have no null entries because we
+                    // always call Remove in OnObjectDestroy everywhere.
+                    Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
-            }
-
-            // now remove
-            foreach (uint netId in removeNetIds)
-            {
-                NetworkIdentity.spawned.Remove(netId);
             }
         }
 
