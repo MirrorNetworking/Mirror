@@ -223,21 +223,14 @@ namespace Mirror
                 return null;
             }
 
-            GameObject go;
-            if (NetworkServer.active)
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
-                go = NetworkServer.FindLocalObject(netId);
-            }
-            else
-            {
-                go = ClientScene.FindLocalObject(netId);
-            }
-            if (go == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + "go: null"); }
+                return identity.gameObject;
             }
 
-            return go;
+            if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + " not found in spawned"); }
+            return null;
         }
 
         public NetworkIdentity ReadNetworkIdentity()
@@ -247,22 +240,15 @@ namespace Mirror
             {
                 return null;
             }
-            GameObject go;
-            if (NetworkServer.active)
+
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
-                go = NetworkServer.FindLocalObject(netId);
-            }
-            else
-            {
-                go = ClientScene.FindLocalObject(netId);
-            }
-            if (go == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + "go: null"); }
-                return null;
+                return identity;
             }
 
-            return go.GetComponent<NetworkIdentity>();
+            if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned"); }
+            return null;
         }
 
         public override string ToString()
