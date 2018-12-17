@@ -38,7 +38,7 @@ namespace Mirror
 
             if (Time.time - m_VisUpdateTime > visUpdateInterval)
             {
-                GetComponent<NetworkIdentity>().RebuildObservers(false);
+                netIdentity.RebuildObservers(false);
                 m_VisUpdateTime = Time.time;
             }
         }
