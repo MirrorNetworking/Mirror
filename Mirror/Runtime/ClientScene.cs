@@ -351,9 +351,9 @@ namespace Mirror
 
         internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
-            if (unspawnHandlers.ContainsKey(assetId) && unspawnHandlers[assetId] != null)
+            UnSpawnDelegate handler;
+            if (unspawnHandlers.TryGetValue(assetId, out handler) && handler != null)
             {
-                UnSpawnDelegate handler = unspawnHandlers[assetId];
                 handler(obj);
                 return true;
             }
