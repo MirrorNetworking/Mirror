@@ -189,9 +189,9 @@ namespace Mirror
 
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
-            if (spawnableObjects.ContainsKey(sceneId))
+            NetworkIdentity foundId;
+            if (spawnableObjects.TryGetValue(sceneId, out foundId))
             {
-                NetworkIdentity foundId = spawnableObjects[sceneId];
                 spawnableObjects.Remove(sceneId);
                 return foundId;
             }
