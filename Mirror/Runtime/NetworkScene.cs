@@ -8,72 +8,14 @@ namespace Mirror
     // This code (mostly) used to be in ClientScene.
     internal class NetworkScene
     {
-        // localObjects is NOT static. For the Host, even though there is one scene and gameObjects are
-        // shared with the localClient, the set of active objects for each must be separate to prevent
-        // out-of-order object initialization problems.
-        internal Dictionary<uint, NetworkIdentity> localObjects = new Dictionary<uint, NetworkIdentity>();
-
         internal static Dictionary<Guid, GameObject> guidToPrefab = new Dictionary<Guid, GameObject>();
         internal static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
         internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         internal void Shutdown()
         {
-            ClearLocalObjects();
+            NetworkIdentity.spawned.Clear();
             ClearSpawners();
-        }
-
-        internal void SetLocalObject(uint netId, GameObject obj, bool isClient, bool isServer)
-        {
-            if (LogFilter.Debug) { Debug.Log("SetLocalObject " + netId + " " + obj); }
-
-            if (obj == null)
-            {
-                localObjects[netId] = null;
-                return;
-            }
-
-            NetworkIdentity foundNetworkIdentity = null;
-            if (localObjects.ContainsKey(netId))
-            {
-                foundNetworkIdentity = localObjects[netId];
-            }
-
-            if (foundNetworkIdentity == null)
-            {
-                foundNetworkIdentity = obj.GetComponent<NetworkIdentity>();
-                localObjects[netId] = foundNetworkIdentity;
-            }
-
-            foundNetworkIdentity.UpdateClientServer(isClient, isServer);
-        }
-
-        // this lets the client take an instance ID from the server and find
-        // the local object that it corresponds too. This is temporary until
-        // object references can be serialized transparently.
-        internal GameObject FindLocalObject(uint netId)
-        {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(netId, out identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
-        }
-
-        internal bool GetNetworkIdentity(uint netId, out NetworkIdentity uv)
-        {
-            return localObjects.TryGetValue(netId, out uv) && uv != null;
-        }
-
-        internal bool RemoveLocalObject(uint netId)
-        {
-            return localObjects.Remove(netId);
-        }
-
-        internal void ClearLocalObjects()
-        {
-            localObjects.Clear();
         }
 
         internal static void RegisterPrefab(GameObject prefab, Guid newAssetId)
@@ -214,9 +156,9 @@ namespace Mirror
 
         internal void DestroyAllClientObjects()
         {
-            foreach (var netId in localObjects.Keys)
+            foreach (var netId in NetworkIdentity.spawned.Keys)
             {
-                NetworkIdentity uv = localObjects[netId];
+                NetworkIdentity uv = NetworkIdentity.spawned[netId];
 
                 if (uv != null && uv.gameObject != null)
                 {
@@ -234,7 +176,7 @@ namespace Mirror
                     }
                 }
             }
-            ClearLocalObjects();
+            NetworkIdentity.spawned.Clear();
         }
     }
 }
