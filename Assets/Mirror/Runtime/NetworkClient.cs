@@ -10,18 +10,15 @@ namespace Mirror
     {
         Type m_NetworkConnectionClass = typeof(NetworkConnection);
 
-        static List<NetworkClient> s_Clients = new List<NetworkClient>();
         static bool s_IsActive;
 
-        public static List<NetworkClient> allClients { get { return s_Clients; } }
+        public static List<NetworkClient> allClients = new List<NetworkClient>();
         public static bool active { get { return s_IsActive; } }
 
         public static bool pauseMessageHandling;
 
-        int m_HostPort;
-
         string m_ServerIp = "";
-        int m_ServerPort;
+        ushort m_ServerPort;
         int m_ClientId = -1;
 
         readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
@@ -42,24 +39,11 @@ namespace Mirror
         }
 
         public string serverIp { get { return m_ServerIp; } }
-        public int serverPort { get { return m_ServerPort; } }
+        public ushort serverPort { get { return m_ServerPort; } }
+        public ushort hostPort;
         public NetworkConnection connection { get { return m_Connection; } }
 
         public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
-        public int hostPort
-        {
-            get { return m_HostPort; }
-            set
-            {
-                if (value < 0)
-                    throw new ArgumentException("Port must not be a negative number.");
-
-                if (value > 65535)
-                    throw new ArgumentException("Port must not be greater than 65535.");
-
-                m_HostPort = value;
-            }
-        }
 
         public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
@@ -88,7 +72,7 @@ namespace Mirror
             RegisterSystemHandlers(false);
         }
 
-        public void Connect(string serverIp, int serverPort)
+        public void Connect(string serverIp, ushort serverPort)
         {
             PrepareForConnect();
 
@@ -176,8 +160,7 @@ namespace Mirror
             SetActive(true);
             RegisterSystemHandlers(false);
             m_ClientId = 0;
-            NetworkClient.pauseMessageHandling = false;
-
+            pauseMessageHandling = false;
             InitializeTransportHandlers();
         }
 
@@ -225,7 +208,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
             RemoveClient(this);
-            if (s_Clients.Count == 0)
+            if (allClients.Count == 0)
             {
                 SetActive(false);
             }
@@ -307,33 +290,33 @@ namespace Mirror
 
         internal static void AddClient(NetworkClient client)
         {
-            s_Clients.Add(client);
+            allClients.Add(client);
         }
 
         internal static bool RemoveClient(NetworkClient client)
         {
-            return s_Clients.Remove(client);
+            return allClients.Remove(client);
         }
 
         internal static void UpdateClients()
         {
             // remove null clients first
-            s_Clients.RemoveAll(cl => cl == null);
+            allClients.RemoveAll(cl => cl == null);
 
             // now update valid clients
-            for (int i = 0; i < s_Clients.Count; ++i)
+            for (int i = 0; i < allClients.Count; ++i)
             {
-                s_Clients[i].Update();
+                allClients[i].Update();
             }
         }
 
         public static void ShutdownAll()
         {
-            while (s_Clients.Count != 0)
+            while (allClients.Count != 0)
             {
-                s_Clients[0].Shutdown();
+                allClients[0].Shutdown();
             }
-            s_Clients = new List<NetworkClient>();
+            allClients = new List<NetworkClient>();
             s_IsActive = false;
             ClientScene.Shutdown();
         }

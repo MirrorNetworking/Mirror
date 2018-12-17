@@ -6,9 +6,7 @@ namespace Mirror
 {
     sealed class LocalClient : NetworkClient
     {
-       
         Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
-
         bool m_Connected;
 
         public override void Disconnect()
@@ -51,14 +49,14 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
             m_Connection.isReady = true;
             m_Connection.SetPlayerController(localPlayer);
-            NetworkIdentity uv = localPlayer;
-            if (uv != null)
+            if (localPlayer != null)
             {
-                ClientScene.SetLocalObject(uv.netId, localPlayer.gameObject);
-                uv.SetConnectionToServer(m_Connection);
+                localPlayer.EnableIsClient();
+                NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
+                localPlayer.SetConnectionToServer(m_Connection);
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead
-            ClientScene.InternalAddPlayer(uv);
+            ClientScene.InternalAddPlayer(localPlayer);
         }
 
         private void PostInternalMessage(short msgType, byte[] content)

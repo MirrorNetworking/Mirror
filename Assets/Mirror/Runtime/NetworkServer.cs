@@ -9,20 +9,11 @@ namespace Mirror
     public sealed class NetworkServer
     {
         static bool s_Active;
-        static bool s_DontListen;
         static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
 
-        static NetworkScene s_NetworkScene = new NetworkScene();
-
-        static Dictionary<short, NetworkMessageDelegate> s_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
-
-        // <connectionId, NetworkConnection>
-        static Dictionary<int, NetworkConnection> s_Connections = new Dictionary<int, NetworkConnection>();
-
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
-        static bool s_UseWebSockets;
         static bool s_Initialized;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
@@ -33,12 +24,12 @@ namespace Mirror
         public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
-        public static Dictionary<int, NetworkConnection> connections { get { return s_Connections; } }
-        public static Dictionary<short, NetworkMessageDelegate> handlers { get { return s_MessageHandlers; } }
+        // <connectionId, NetworkConnection>
+        public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
+        public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
-        public static Dictionary<uint, NetworkIdentity> objects { get { return s_NetworkScene.localObjects; } }
-        public static bool dontListen { get { return s_DontListen; } set { s_DontListen = value; } }
-        public static bool useWebSockets { get { return s_UseWebSockets; } set { s_UseWebSockets = value; } }
+        public static bool dontListen;
+        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -61,7 +52,7 @@ namespace Mirror
             {
                 InternalDisconnectAll();
 
-                if (s_DontListen)
+                if (dontListen)
                 {
                     // was never started, so dont stop
                 }
@@ -77,7 +68,7 @@ namespace Mirror
                 Transport.layer.OnServerError -= HandleError;
                 s_Initialized = false;
             }
-            s_DontListen = false;
+            dontListen = false;
             s_Active = false;
         }
 
@@ -126,11 +117,11 @@ namespace Mirror
             Initialize();
 
             // only start server if we want to listen
-            if (!s_DontListen)
+            if (!dontListen)
             {
                 s_ServerPort = serverPort;
 
-                if (s_UseWebSockets)
+                if (useWebSockets)
                 {
                     Transport.layer.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
@@ -156,13 +147,13 @@ namespace Mirror
 
         public static bool AddConnection(NetworkConnection conn)
         {
-            if (!s_Connections.ContainsKey(conn.connectionId))
+            if (!connections.ContainsKey(conn.connectionId))
             {
                 Debug.Log("Added connection " + conn.connectionId);
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
-                s_Connections[conn.connectionId] = conn;
-                conn.SetHandlers(s_MessageHandlers);
+                connections[conn.connectionId] = conn;
+                conn.SetHandlers(handlers);
                 return true;
             }
             // already a connection with this id
@@ -171,7 +162,7 @@ namespace Mirror
 
         public static bool RemoveConnection(int connectionId)
         {
-            return s_Connections.Remove(connectionId);
+            return connections.Remove(connectionId);
         }
 
         // called by LocalClient to add itself. dont call directly.
@@ -203,13 +194,6 @@ namespace Mirror
             RemoveConnection(0);
         }
 
-        internal static void SetLocalObjectOnServer(uint netId, GameObject obj)
-        {
-            if (LogFilter.Debug) { Debug.Log("SetLocalObjectOnServer " + netId + " " + obj); }
-
-            s_NetworkScene.SetLocalObject(netId, obj, false, true);
-        }
-
         internal static void ActivateLocalClientScene()
         {
             if (s_LocalClientActive)
@@ -217,13 +201,13 @@ namespace Mirror
 
             // ClientScene for a local connection is becoming active. any spawned objects need to be started as client objects
             s_LocalClientActive = true;
-            foreach (var uv in objects.Values)
+            foreach (var uv in NetworkIdentity.spawned.Values)
             {
                 if (!uv.isClient)
                 {
-                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv.gameObject); }
+                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv); }
 
-                    ClientScene.SetLocalObject(uv.netId, uv.gameObject);
+                    uv.EnableIsClient();
                     uv.OnStartClient();
                 }
             }
@@ -338,7 +322,7 @@ namespace Mirror
             // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
             // probably even slower than removing null entries each time (hence less iterations next time).
             List<uint> removeNetIds = new List<uint>();
-            foreach (var kvp in objects)
+            foreach (var kvp in NetworkIdentity.spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -353,7 +337,7 @@ namespace Mirror
             // now remove
             foreach (uint netId in removeNetIds)
             {
-                objects.Remove(netId);
+                NetworkIdentity.spawned.Remove(netId);
             }
         }
 
@@ -391,7 +375,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
             NetworkConnection conn;
-            if (s_Connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -419,7 +403,7 @@ namespace Mirror
         static void HandleData(int connectionId, byte[] data)
         {
             NetworkConnection conn;
-            if (s_Connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 OnData(conn, data);
             }
@@ -437,7 +421,7 @@ namespace Mirror
         private static void HandleError(int connectionId, Exception exception)
         {
             NetworkConnection conn;
-            if (s_Connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 OnError(conn, exception);
             }
@@ -462,11 +446,11 @@ namespace Mirror
 
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            if (s_MessageHandlers.ContainsKey(msgType))
+            if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
             }
-            s_MessageHandlers[msgType] = handler;
+            handlers[msgType] = handler;
         }
 
         static public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -476,7 +460,7 @@ namespace Mirror
 
         public static void UnregisterHandler(short msgType)
         {
-            s_MessageHandlers.Remove(msgType);
+            handlers.Remove(msgType);
         }
 
         public static void UnregisterHandler(MsgType msgType)
@@ -486,12 +470,7 @@ namespace Mirror
 
         public static void ClearHandlers()
         {
-            s_MessageHandlers.Clear();
-        }
-
-        public static void ClearSpawners()
-        {
-            NetworkScene.ClearSpawners();
+            handlers.Clear();
         }
 
         // send this message to the player only
@@ -723,7 +702,7 @@ namespace Mirror
                 // Setup spawned objects for local player
                 // Only handle the local objects for the first player (no need to redo it when doing more local players)
                 // and don't handle player objects here, they were done above
-                foreach (NetworkIdentity uv in objects.Values)
+                foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
                 {
                     // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
                     // in the above SetLocalPlayer call
@@ -745,13 +724,13 @@ namespace Mirror
             }
 
             // Spawn/update all current server objects
-            if (LogFilter.Debug) { Debug.Log("Spawning " + objects.Count + " objects for conn " + conn.connectionId); }
+            if (LogFilter.Debug) { Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId); }
 
             ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
             msg.state = 0;
             conn.Send((short)MsgType.SpawnFinished, msg);
 
-            foreach (NetworkIdentity uv in objects.Values)
+            foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
             {
                 if (uv == null)
                 {
@@ -1016,10 +995,7 @@ namespace Mirror
         static void DestroyObject(NetworkIdentity uv, bool destroyServerObject)
         {
             if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + uv.netId); }
-            if (objects.ContainsKey(uv.netId))
-            {
-                objects.Remove(uv.netId);
-            }
+            NetworkIdentity.spawned.Remove(uv.netId);
 
             if (uv.clientAuthorityOwner != null)
             {
@@ -1034,7 +1010,6 @@ namespace Mirror
             if (NetworkClient.active && s_LocalClientActive)
             {
                 uv.OnNetworkDestroy();
-                ClientScene.SetLocalObject(msg.netId, null);
             }
 
             // when unspawning, dont destroy the server's object
@@ -1043,11 +1018,6 @@ namespace Mirror
                 UnityEngine.Object.Destroy(uv.gameObject);
             }
             uv.MarkForReset();
-        }
-
-        public static void ClearLocalObjects()
-        {
-            objects.Clear();
         }
 
         public static void Spawn(GameObject obj)
@@ -1176,7 +1146,12 @@ namespace Mirror
 
         public static GameObject FindLocalObject(uint netId)
         {
-            return s_NetworkScene.FindLocalObject(netId);
+            NetworkIdentity ni;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out ni) && ni != null)
+            {
+                return ni.gameObject;
+            }
+            return null;
         }
 
         static bool ValidateSceneObject(NetworkIdentity netId)
