@@ -291,7 +291,7 @@ namespace Mirror
                 WritePackedUInt32(0);
                 return;
             }
-            NetworkIdentity identity = value.gameObject.GetComponent<NetworkIdentity>();
+            NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
                 WritePackedUInt32(identity.netId);
