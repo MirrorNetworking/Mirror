@@ -237,12 +237,8 @@ namespace Mirror
         internal static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
-            if (assetId != Guid.Empty && prefabs.ContainsKey(assetId) && prefabs[assetId] != null)
-            {
-                prefab = prefabs[assetId];
-                return true;
-            }
-            return false;
+            return assetId != Guid.Empty &&
+                   prefabs.TryGetValue(assetId, out prefab) && prefab != null;
         }
 
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
