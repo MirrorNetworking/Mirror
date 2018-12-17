@@ -50,6 +50,9 @@ namespace Mirror
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
 
+        // all spawned NetworkIdentities by netId. needed on server and client.
+        public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+
         public NetworkBehaviour[] NetworkBehaviours
         {
             get
@@ -162,15 +165,14 @@ namespace Mirror
             m_SceneId = newSceneId;
         }
 
-        // only used in SetLocalObject
-        // note: |= because for hosts:
-        //   client might set client=true server=false
-        //   server might set client=false server=true
-        //   but in the end, host is client=true and server=true ( hence |= )
-        internal void UpdateClientServer(bool isClientFlag, bool isServerFlag)
+        internal void EnableIsClient()
         {
-            m_IsClient |= isClientFlag;
-            m_IsServer |= isServerFlag;
+            m_IsClient = true;
+        }
+
+        internal void EnableIsServer()
+        {
+            m_IsServer = true;
         }
 
         // used when the player object for a connection changes
@@ -288,8 +290,11 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnStartServer " + gameObject + " GUID:" + netId); }
-            NetworkServer.SetLocalObjectOnServer(netId, gameObject);
+            if (LogFilter.Debug) { Debug.Log("OnStartServer " + this + " GUID:" + netId); }
+
+            // add to spawned (note: the original EnableIsServer isn't needed
+            // because we already set m_isServer=true above)
+            spawned[netId] = this;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -306,7 +311,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                ClientScene.SetLocalObject(netId, gameObject);
+                EnableIsClient();
                 OnStartClient();
             }
 
