@@ -504,11 +504,6 @@ namespace Mirror
             handlers.Clear();
         }
 
-        public static void ClearSpawners()
-        {
-            NetworkScene.ClearSpawners();
-        }
-
         // send this message to the player only
         public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
         {
