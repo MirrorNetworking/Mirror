@@ -311,25 +311,15 @@ namespace Mirror
 
         static void UpdateServerObjects()
         {
-            // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
-            // probably even slower than removing null entries each time (hence less iterations next time).
-            List<uint> removeNetIds = new List<uint>();
-            foreach (var kvp in NetworkIdentity.spawned)
-            {
-                if (kvp.Value != null && kvp.Value.gameObject != null)
-                {
-                    kvp.Value.UNetUpdate();
-                }
-                else
-                {
-                    removeNetIds.Add(kvp.Key);
-                }
-            }
+            // remove null entries first (Dictionary has no .RemoveAll)
+            NetworkIdentity.spawned = NetworkIdentity.spawned
+                                        .Where(entry => entry.Value != null && entry.Value.gameObject != null)
+                                        .ToDictionary(entry => entry.Key, entry=>entry.Value);
 
-            // now remove
-            foreach (uint netId in removeNetIds)
+            // now update valid entries
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
-                NetworkIdentity.spawned.Remove(netId);
+                kvp.Value.UNetUpdate();
             }
         }
 
