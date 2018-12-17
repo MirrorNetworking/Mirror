@@ -81,11 +81,11 @@ namespace Mirror
                             Collider hit = hits[i];
                             // collider might be on pelvis, often the NetworkIdentity is in a parent
                             // (looks in the object itself and then parents)
-                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                             // (if an object has a connectionToClient, it is a player)
-                            if (uv != null && uv.connectionToClient != null)
+                            if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(uv.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
@@ -99,11 +99,11 @@ namespace Mirror
                             Collider2D hit = hits[i];
                             // collider might be on pelvis, often the NetworkIdentity is in a parent
                             // (looks in the object itself and then parents)
-                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                             // (if an object has a connectionToClient, it is a player)
-                            if (uv != null && uv.connectionToClient != null)
+                            if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(uv.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
