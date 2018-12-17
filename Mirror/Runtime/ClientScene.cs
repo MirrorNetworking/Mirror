@@ -317,12 +317,12 @@ namespace Mirror
             }
             if (LogFilter.Debug) { Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + "]"); }
 
-            NetworkIdentity localNetworkIdentity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localNetworkIdentity) && localNetworkIdentity != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists (was in the scene), just apply the update to existing object
-                localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
+                localObject.Reset();
+                ApplySpawnPayload(localObject, msg.position, msg.payload, msg.netId);
                 return;
             }
 
@@ -336,14 +336,14 @@ namespace Mirror
                     Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
                 }
 
-                localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
-                if (localNetworkIdentity == null)
+                localObject = obj.GetComponent<NetworkIdentity>();
+                if (localObject == null)
                 {
                     Debug.LogError("Client object spawned for " + msg.assetId + " does not have a NetworkIdentity");
                     return;
                 }
-                localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
+                localObject.Reset();
+                ApplySpawnPayload(localObject, msg.position, msg.payload, msg.netId);
             }
             // lookup registered factory for type:
             else if (NetworkScene.GetSpawnHandler(msg.assetId, out handler))
@@ -354,15 +354,15 @@ namespace Mirror
                     Debug.LogWarning("Client spawn handler for " + msg.assetId + " returned null");
                     return;
                 }
-                localNetworkIdentity = obj.GetComponent<NetworkIdentity>();
-                if (localNetworkIdentity == null)
+                localObject = obj.GetComponent<NetworkIdentity>();
+                if (localObject == null)
                 {
                     Debug.LogError("Client object spawned for " + msg.assetId + " does not have a network identity");
                     return;
                 }
-                localNetworkIdentity.Reset();
-                localNetworkIdentity.SetDynamicAssetId(msg.assetId);
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
+                localObject.Reset();
+                localObject.SetDynamicAssetId(msg.assetId);
+                ApplySpawnPayload(localObject, msg.position, msg.payload, msg.netId);
             }
             else
             {
@@ -376,12 +376,12 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
-            NetworkIdentity localNetworkIdentity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localNetworkIdentity) && localNetworkIdentity != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists (was in the scene)
-                localNetworkIdentity.Reset();
-                ApplySpawnPayload(localNetworkIdentity, msg.position, msg.payload, msg.netId);
+                localObject.Reset();
+                ApplySpawnPayload(localObject, msg.position, msg.payload, msg.netId);
                 return;
             }
 
@@ -503,53 +503,53 @@ namespace Mirror
 
         static void OnUpdateVarsMessage(NetworkMessage netMsg)
         {
-            UpdateVarsMessage message = netMsg.ReadMessage<UpdateVarsMessage>();
+            UpdateVarsMessage msg = netMsg.ReadMessage<UpdateVarsMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnUpdateVarsMessage " + message.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnUpdateVarsMessage " + msg.netId); }
 
             NetworkIdentity localObject;
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
-                localObject.OnUpdateVars(new NetworkReader(message.payload), false);
+                localObject.OnUpdateVars(new NetworkReader(msg.payload), false);
             }
             else
             {
-                Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+                Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
             }
         }
 
         static void OnRPCMessage(NetworkMessage netMsg)
         {
-            RpcMessage message = netMsg.ReadMessage<RpcMessage>();
+            RpcMessage msg = netMsg.ReadMessage<RpcMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + message.rpcHash + " netId:" + message.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.rpcHash + " netId:" + msg.netId); }
 
             NetworkIdentity uv;
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out uv) && uv != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out uv) && uv != null)
             {
-                uv.HandleRPC(message.componentIndex, message.rpcHash, new NetworkReader(message.payload));
+                uv.HandleRPC(msg.componentIndex, msg.rpcHash, new NetworkReader(msg.payload));
             }
             else
             {
-                string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(message.rpcHash);
-                Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", message.netId, errorRpcName);
+                string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(msg.rpcHash);
+                Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", msg.netId, errorRpcName);
             }
         }
 
         static void OnSyncEventMessage(NetworkMessage netMsg)
         {
-            SyncEventMessage message = netMsg.ReadMessage<SyncEventMessage>();
+            SyncEventMessage msg = netMsg.ReadMessage<SyncEventMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnSyncEventMessage " + message.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnSyncEventMessage " + msg.netId); }
 
             NetworkIdentity uv;
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out uv) && uv != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out uv) && uv != null)
             {
-                uv.HandleSyncEvent(message.componentIndex, message.eventHash, new NetworkReader(message.payload));
+                uv.HandleSyncEvent(msg.componentIndex, msg.eventHash, new NetworkReader(msg.payload));
             }
             else
             {
-                Debug.LogWarning("Did not find target for SyncEvent message for " + message.netId);
+                Debug.LogWarning("Did not find target for SyncEvent message for " + msg.netId);
             }
         }
 
@@ -579,13 +579,13 @@ namespace Mirror
                 netMsg.conn.playerController.SetNotLocalPlayer();
             }
 
-            NetworkIdentity localNetworkIdentity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localNetworkIdentity) && localNetworkIdentity != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists
-                localNetworkIdentity.SetConnectionToServer(netMsg.conn);
-                localNetworkIdentity.SetLocalPlayer();
-                InternalAddPlayer(localNetworkIdentity);
+                localObject.SetConnectionToServer(netMsg.conn);
+                localObject.SetLocalPlayer();
+                InternalAddPlayer(localObject);
             }
             else
             {
