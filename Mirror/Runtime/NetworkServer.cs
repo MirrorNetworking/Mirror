@@ -12,8 +12,6 @@ namespace Mirror
         static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
 
-        static NetworkScene s_NetworkScene = new NetworkScene();
-
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static bool s_Initialized;
