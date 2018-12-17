@@ -846,17 +846,11 @@ namespace Mirror
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            var cmdObject = FindLocalObject(message.netId);
-            if (cmdObject == null)
-            {
-                Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]");
-                return;
-            }
-
-            NetworkIdentity identity = cmdObject.GetComponent<NetworkIdentity>();
+            NetworkIdentity identity;
+            NetworkIdentity.spawned.TryGetValue(message.netId, out identity);
             if (identity == null)
             {
-                Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]");
+                Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
             }
 
