@@ -426,10 +426,10 @@ namespace Mirror
             uint newGameObjectNetId = 0;
             if (newGameObject != null)
             {
-                var uv = newGameObject.GetComponent<NetworkIdentity>();
-                if (uv != null)
+                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
+                if (identity != null)
                 {
-                    newGameObjectNetId = uv.netId;
+                    newGameObjectNetId = identity.netId;
                     if (newGameObjectNetId == 0)
                     {
                         Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
