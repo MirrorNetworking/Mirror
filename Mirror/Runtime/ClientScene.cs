@@ -349,17 +349,6 @@ namespace Mirror
             unspawnHandlers.Clear();
         }
 
-        internal static bool GetSpawnHandler(Guid assetId, out SpawnDelegate handler)
-        {
-            if (spawnHandlers.ContainsKey(assetId))
-            {
-                handler = spawnHandlers[assetId];
-                return true;
-            }
-            handler = null;
-            return false;
-        }
-
         internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
             if (unspawnHandlers.ContainsKey(assetId) && unspawnHandlers[assetId] != null)
@@ -471,7 +460,7 @@ namespace Mirror
                 ApplySpawnPayload(localObject, msg.position, msg.payload, msg.netId);
             }
             // lookup registered factory for type:
-            else if (GetSpawnHandler(msg.assetId, out handler))
+            else if (spawnHandlers.TryGetValue(msg.assetId, out handler))
             {
                 GameObject obj = handler(msg.position, msg.assetId);
                 if (obj == null)
