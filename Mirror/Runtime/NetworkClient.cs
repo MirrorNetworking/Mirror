@@ -17,10 +17,8 @@ namespace Mirror
 
         public static bool pauseMessageHandling;
 
-        int m_HostPort;
-
         string m_ServerIp = "";
-        int m_ServerPort;
+        ushort m_ServerPort;
         int m_ClientId = -1;
 
         readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
@@ -41,24 +39,11 @@ namespace Mirror
         }
 
         public string serverIp { get { return m_ServerIp; } }
-        public int serverPort { get { return m_ServerPort; } }
+        public ushort serverPort { get { return m_ServerPort; } }
+        public ushort hostPort;
         public NetworkConnection connection { get { return m_Connection; } }
 
         public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
-        public int hostPort
-        {
-            get { return m_HostPort; }
-            set
-            {
-                if (value < 0)
-                    throw new ArgumentException("Port must not be a negative number.");
-
-                if (value > 65535)
-                    throw new ArgumentException("Port must not be greater than 65535.");
-
-                m_HostPort = value;
-            }
-        }
 
         public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
@@ -87,7 +72,7 @@ namespace Mirror
             RegisterSystemHandlers(false);
         }
 
-        public void Connect(string serverIp, int serverPort)
+        public void Connect(string serverIp, ushort serverPort)
         {
             PrepareForConnect();
 

@@ -17,7 +17,7 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour
     {
         // configuration
-        [FormerlySerializedAs("m_NetworkPort")] public int networkPort = 7777;
+        [FormerlySerializedAs("m_NetworkPort")] public ushort networkPort = 7777;
         [FormerlySerializedAs("m_ServerBindToIP")] public bool serverBindToIP;
         [FormerlySerializedAs("m_ServerBindAddress")] public string serverBindAddress = "";
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
@@ -232,7 +232,7 @@ namespace Mirror
             }
         }
 
-        public NetworkClient StartClient(int hostPort=0)
+        public NetworkClient StartClient(ushort hostPort=0)
         {
             InitializeSingleton();
 
