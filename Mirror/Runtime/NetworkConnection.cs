@@ -241,30 +241,30 @@ namespace Mirror
             return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
         }
 
-        internal void AddToVisList(NetworkIdentity uv)
+        internal void AddToVisList(NetworkIdentity identity)
         {
-            visList.Add(uv);
+            visList.Add(identity);
 
             // spawn uv for this conn
-            NetworkServer.ShowForConnection(uv, this);
+            NetworkServer.ShowForConnection(identity, this);
         }
 
-        internal void RemoveFromVisList(NetworkIdentity uv, bool isDestroyed)
+        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
         {
-            visList.Remove(uv);
+            visList.Remove(identity);
 
             if (!isDestroyed)
             {
                 // hide uv for this conn
-                NetworkServer.HideForConnection(uv, this);
+                NetworkServer.HideForConnection(identity, this);
             }
         }
 
         internal void RemoveObservers()
         {
-            foreach (var uv in visList)
+            foreach (NetworkIdentity identity in visList)
             {
-                uv.RemoveObserverInternal(this);
+                identity.RemoveObserverInternal(this);
             }
             visList.Clear();
         }
