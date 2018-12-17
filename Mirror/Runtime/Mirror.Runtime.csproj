@@ -70,7 +70,6 @@
     <Compile Include="Messages.cs" />
     <Compile Include="NetworkAnimator.cs" />
     <Compile Include="NetworkProximityChecker.cs" />
-    <Compile Include="NetworkScene.cs" />
     <Compile Include="NetworkStartPosition.cs" />
     <Compile Include="NetworkTransformChild.cs" />
     <Compile Include="NetworkTransform.cs" />
