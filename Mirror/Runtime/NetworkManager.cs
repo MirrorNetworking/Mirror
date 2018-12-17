@@ -54,8 +54,8 @@ namespace Mirror
         // this is used to persist network address between scenes.
         static string s_Address;
 
-        // protected so that inheriting classes' Awake() can call base.Awake() too
-        protected void Awake()
+        // virtual so that inheriting classes' Awake() can call base.Awake() too
+        public virtual void Awake()
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
             InitializeSingleton();
@@ -112,8 +112,8 @@ namespace Mirror
         // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
         // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
         //
-        // protected so that inheriting classes' LateUpdate() can call base.LateUpdate() too
-        protected void LateUpdate()
+        // virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
+        public virtual void LateUpdate()
         {
             // call it while the NetworkManager exists.
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
@@ -127,14 +127,14 @@ namespace Mirror
         // so they don't keep running until we press Play again.
         // (this is not a problem in builds)
         //
-        // protected so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
-        protected void OnApplicationQuit()
+        // virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
+        public virtual void OnApplicationQuit()
         {
             Transport.layer.Shutdown();
         }
 
-        // protected so that inheriting classes' OnValidate() can call base.OnValidate() too
-        protected void OnValidate()
+        // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
+        public virtual void OnValidate()
         {
             maxConnections = Mathf.Clamp(maxConnections, 1, 32000); // [1, 32000]
 
@@ -441,8 +441,8 @@ namespace Mirror
             s_LoadingSceneAsync = null;
         }
 
-        // protected so that inheriting classes' OnDestroy() can call base.OnDestroy() too
-        protected void OnDestroy()
+        // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
+        public virtual void OnDestroy()
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager destroyed"); }
         }
