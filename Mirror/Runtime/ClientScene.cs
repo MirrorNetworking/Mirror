@@ -358,7 +358,7 @@ namespace Mirror
 
         public static void DestroyAllClientObjects()
         {
-            foreach (var netId in NetworkIdentity.spawned.Keys)
+            foreach (uint netId in NetworkIdentity.spawned.Keys)
             {
                 NetworkIdentity uv = NetworkIdentity.spawned[netId];
 
