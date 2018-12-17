@@ -117,11 +117,11 @@ namespace Mirror
         }
 
         // called hiding and showing objects on the host
-        public override void OnSetLocalVisibility(bool vis)
+        public override void OnSetLocalVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
             {
-                rend.enabled = vis;
+                rend.enabled = visible;
             }
         }
     }
