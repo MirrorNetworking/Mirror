@@ -62,10 +62,9 @@ namespace Mirror
             if (forceHidden)
             {
                 // ensure player can still see themself
-                NetworkIdentity uv = GetComponent<NetworkIdentity>();
-                if (uv.connectionToClient != null)
+                if (connectionToClient != null)
                 {
-                    observers.Add(uv.connectionToClient);
+                    observers.Add(connectionToClient);
                 }
             }
             // otherwise add everyone in proximity
