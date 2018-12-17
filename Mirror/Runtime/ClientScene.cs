@@ -715,7 +715,7 @@ namespace Mirror
                     identity.SetConnectionToServer(s_ReadyConnection);
                     identity.SetLocalPlayer();
 
-                    if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + identity.gameObject.name); }
+                    if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + identity.name); }
                     if (s_ReadyConnection.connectionId < 0)
                     {
                         Debug.LogError("Owner message received on a local client.");
