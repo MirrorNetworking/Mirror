@@ -6,12 +6,6 @@ namespace Mirror
     // Handles network messages on client and server
     public delegate void NetworkMessageDelegate(NetworkMessage netMsg);
 
-    // Handles requests to spawn objects on the client
-    public delegate GameObject SpawnDelegate(Vector3 position, Guid assetId);
-
-    // Handles requests to unspawn objects on the client
-    public delegate void UnSpawnDelegate(GameObject spawned);
-
     // built-in system network messages
     // original HLAPI uses short, so let's keep short to not break packet header etc.
     // => use .ToString() to get the field name from the field value
