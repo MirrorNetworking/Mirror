@@ -1,7 +1,3 @@
----
-layout: default
----
-
 This is an example for documentation.
 
 Create a document inside docs in markdown.

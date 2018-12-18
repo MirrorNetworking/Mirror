@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # Class A
 
 This is an example of how to document a class A
