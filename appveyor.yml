@@ -44,4 +44,4 @@ deploy:
   draft: false
   prerelease: false
   on:
-    branch: mirror
+    branch: master
