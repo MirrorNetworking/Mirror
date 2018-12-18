@@ -847,8 +847,7 @@ namespace Mirror
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
             NetworkIdentity identity;
-            NetworkIdentity.spawned.TryGetValue(message.netId, out identity);
-            if (identity == null)
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
