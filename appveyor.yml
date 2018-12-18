@@ -34,7 +34,7 @@ skip_commits:
     - '**/*.md'
     - '**/*.txt'
     - '.gitignore'
-    - 'docs/*'
+    - 'docs/'
 
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
