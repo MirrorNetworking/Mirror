@@ -1,0 +1,27 @@
+# Site settings
+## Change the values as needed.
+title: Mirror Documentation
+email: paulpach@gmail.com
+description: "A high level networking library for Unity"
+keywords: "Mirror, HLAPI, UNET, Network"
+
+paginate_path: "page:num"
+# Build settings
+markdown: kramdown
+highlighter: pygments
+sass:
+  sass_dir: _sass
+  style: :compressed
+links:
+  discord: 
+  github: paulpach/Mirror
+exclude:
+  - bower_components
+  - README.md
+
+##set this to enable disqus commenting
+disqus: bitwiser
+
+##set this to enable google analytics
+#ga_id: analyticsID
+#ga_domain: bitwiser.in

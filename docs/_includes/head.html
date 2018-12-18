@@ -1,0 +1,45 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description | strip_newlines }}{% endif %}">
+  
+  <link href="//fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,700" rel="stylesheet" type="text/css" />
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+
+  <link rel="stylesheet" href="{{ "/css/main.css" | relative_url  }}">
+  <link rel="canonical" href="{{ page.url | replace:'index.html',''}}">
+  <script src="{{ "/js/mui.min.js" | relative_url }}"></script>
+  <style>
+      body {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial;
+      }
+  </style>
+
+  <meta property="og:title" content="{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}" />
+  <meta name="twitter:title" content="{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}" />
+  {% if page.tags and page.tags.size > 0 %}
+  <meta name="keywords" content="{% for tag in page.tags %}{{ tag }}, {% endfor %}" />
+  {% elsif site.keywords %}
+  <meta name="keywords" content="{{ site.keywords }}" />
+  {% endif %}
+  <meta property="og:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description | strip_newlines }}{% endif %}" />
+  <meta name="twitter:description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description | strip_newlines }}{% endif %}" />
+  {% if page.title %}
+  <meta property="og:type" content="article" />
+  {% else %}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{{ page.url | replace:'index.html',''  }}" />
+  {% endif %}
+  <meta property="og:site_name" content="{{ site.title }}" />
+  {% if page.cover %}
+  <meta property="og:image" content="{{ site.base_url }}/{{page.cover}}" />
+  <meta property="twitter:image" content="{{ site.base_url }}/{{page.cover}}" />
+  {% else %}
+  <meta name="og:image" content="{{ site.base_url }}/img/sharer.png" />
+  <meta name="twitter:image" content="{{ site.base_url }}/img/sharer.png" />
+  {% endif %}
+  <meta name="twitter:card" content="summary" />
+</head>
