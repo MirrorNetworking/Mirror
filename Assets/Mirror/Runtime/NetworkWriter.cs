@@ -291,10 +291,10 @@ namespace Mirror
                 WritePackedUInt32(0);
                 return;
             }
-            var uv = value.gameObject.GetComponent<NetworkIdentity>();
-            if (uv != null)
+            NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
+            if (identity != null)
             {
-                WritePackedUInt32(uv.netId);
+                WritePackedUInt32(identity.netId);
             }
             else
             {
@@ -310,10 +310,10 @@ namespace Mirror
                 WritePackedUInt32(0);
                 return;
             }
-            var uv = value.GetComponent<NetworkIdentity>();
-            if (uv != null)
+            NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
+            if (identity != null)
             {
-                WritePackedUInt32(uv.netId);
+                WritePackedUInt32(identity.netId);
             }
             else
             {

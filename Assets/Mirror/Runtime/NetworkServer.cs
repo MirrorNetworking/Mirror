@@ -201,14 +201,14 @@ namespace Mirror
 
             // ClientScene for a local connection is becoming active. any spawned objects need to be started as client objects
             s_LocalClientActive = true;
-            foreach (var uv in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                if (!uv.isClient)
+                if (!identity.isClient)
                 {
-                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + uv.netId + " " + uv); }
+                    if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + identity.netId + " " + identity); }
 
-                    uv.EnableIsClient();
-                    uv.OnStartClient();
+                    identity.EnableIsClient();
+                    identity.OnStartClient();
                 }
             }
         }
@@ -219,11 +219,11 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
-            NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
-            if (uv != null && uv.observers != null)
+            NetworkIdentity identity = contextObj.GetComponent<NetworkIdentity>();
+            if (identity != null && identity.observers != null)
             {
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     result &= kvp.Value.Send(msgType, msg);
                 }
@@ -263,11 +263,11 @@ namespace Mirror
                 return true;
             }
 
-            NetworkIdentity uv = contextObj.GetComponent<NetworkIdentity>();
-            if (uv != null && uv.observers != null)
+            NetworkIdentity identity = contextObj.GetComponent<NetworkIdentity>();
+            if (identity != null && identity.observers != null)
             {
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in uv.observers)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     if (kvp.Value.isReady)
                     {
@@ -319,10 +319,7 @@ namespace Mirror
 
         static void UpdateServerObjects()
         {
-            // vis2k: original code only removed null entries every 100 frames. this was unnecessarily complicated and
-            // probably even slower than removing null entries each time (hence less iterations next time).
-            List<uint> removeNetIds = new List<uint>();
-            foreach (var kvp in NetworkIdentity.spawned)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 if (kvp.Value != null && kvp.Value.gameObject != null)
                 {
@@ -330,14 +327,10 @@ namespace Mirror
                 }
                 else
                 {
-                    removeNetIds.Add(kvp.Key);
+                    // spawned list should have no null entries because we
+                    // always call Remove in OnObjectDestroy everywhere.
+                    Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
-            }
-
-            // now remove
-            foreach (uint netId in removeNetIds)
-            {
-                NetworkIdentity.spawned.Remove(netId);
             }
         }
 
@@ -503,10 +496,10 @@ namespace Mirror
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity id;
-            if (GetNetworkIdentity(player, out id))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(player, out identity))
             {
-                id.SetDynamicAssetId(assetId);
+                identity.SetDynamicAssetId(assetId);
             }
             return InternalReplacePlayerForConnection(conn, player);
         }
@@ -518,10 +511,10 @@ namespace Mirror
 
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity id;
-            if (GetNetworkIdentity(player, out id))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(player, out identity))
             {
-                id.SetDynamicAssetId(assetId);
+                identity.SetDynamicAssetId(assetId);
             }
             return InternalAddPlayerForConnection(conn, player);
         }
@@ -533,13 +526,13 @@ namespace Mirror
 
         internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
-            NetworkIdentity playerNetworkIdentity;
-            if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
+            NetworkIdentity identity;
+            if (!GetNetworkIdentity(playerGameObject, out identity))
             {
                 Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
             }
-            playerNetworkIdentity.Reset();
+            identity.Reset();
 
             // cannot have a player object in "Add" version
             if (conn.playerController != null)
@@ -548,31 +541,31 @@ namespace Mirror
                 return false;
             }
 
-            conn.SetPlayerController(playerNetworkIdentity);
+            conn.SetPlayerController(identity);
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            playerNetworkIdentity.SetConnectionToClient(conn);
+            identity.SetConnectionToClient(conn);
 
             SetClientReady(conn);
 
-            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
+            if (SetupLocalPlayerForConnection(conn, identity))
             {
                 return true;
             }
 
             if (LogFilter.Debug) { Debug.Log("Adding new playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
 
-            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
+            FinishPlayerForConnection(conn, identity, playerGameObject);
+            if (identity.localPlayerAuthority)
             {
-                playerNetworkIdentity.SetClientOwner(conn);
+                identity.SetClientOwner(conn);
             }
             return true;
         }
 
-        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity uv)
+        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity identity)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + uv.netId); }
+            if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId); }
 
             var localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
@@ -580,32 +573,32 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
                 // Spawn this player for other players, instead of SpawnObject:
-                if (uv.netId == 0)
+                if (identity.netId == 0)
                 {
                     // it is allowed to provide an already spawned object as the new player object.
                     // so dont spawn it again.
-                    uv.OnStartServer(true);
+                    identity.OnStartServer(true);
                 }
-                uv.RebuildObservers(true);
-                SendSpawnMessage(uv, null);
+                identity.RebuildObservers(true);
+                SendSpawnMessage(identity, null);
 
                 // Set up local player instance on the client instance and update local object map
-                localConnection.localClient.AddLocalPlayer(uv);
-                uv.SetClientOwner(conn);
+                localConnection.localClient.AddLocalPlayer(identity);
+                identity.SetClientOwner(conn);
 
                 // Trigger OnAuthority
-                uv.ForceAuthority(true);
+                identity.ForceAuthority(true);
 
                 // Trigger OnStartLocalPlayer
-                uv.SetLocalPlayer();
+                identity.SetLocalPlayer();
                 return true;
             }
             return false;
         }
 
-        static void FinishPlayerForConnection(NetworkConnection conn, NetworkIdentity uv, GameObject playerGameObject)
+        static void FinishPlayerForConnection(NetworkConnection conn, NetworkIdentity identity, GameObject playerGameObject)
         {
-            if (uv.netId == 0)
+            if (identity.netId == 0)
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
@@ -613,7 +606,7 @@ namespace Mirror
             }
 
             OwnerMessage owner = new OwnerMessage();
-            owner.netId = uv.netId;
+            owner.netId = identity.netId;
             conn.Send((short)MsgType.Owner, owner);
         }
 
@@ -660,10 +653,10 @@ namespace Mirror
             return true;
         }
 
-        static bool GetNetworkIdentity(GameObject go, out NetworkIdentity view)
+        static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
-            view = go.GetComponent<NetworkIdentity>();
-            if (view == null)
+            identity = go.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.LogError("UNET failure. GameObject doesn't have NetworkIdentity.");
                 return false;
@@ -702,21 +695,21 @@ namespace Mirror
                 // Setup spawned objects for local player
                 // Only handle the local objects for the first player (no need to redo it when doing more local players)
                 // and don't handle player objects here, they were done above
-                foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
                     // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
                     // in the above SetLocalPlayer call
-                    if (uv != null && uv.gameObject != null)
+                    if (identity != null && identity.gameObject != null)
                     {
-                        var vis = uv.OnCheckObserver(conn);
+                        var vis = identity.OnCheckObserver(conn);
                         if (vis)
                         {
-                            uv.AddObserver(conn);
+                            identity.AddObserver(conn);
                         }
-                        if (!uv.isClient)
+                        if (!identity.isClient)
                         {
                             if (LogFilter.Debug) { Debug.Log("LocalClient.SetSpawnObject calling OnStartClient"); }
-                            uv.OnStartClient();
+                            identity.OnStartClient();
                         }
                     }
                 }
@@ -730,24 +723,24 @@ namespace Mirror
             msg.state = 0;
             conn.Send((short)MsgType.SpawnFinished, msg);
 
-            foreach (NetworkIdentity uv in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                if (uv == null)
+                if (identity == null)
                 {
                     Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity).");
                     continue;
                 }
-                if (!uv.gameObject.activeSelf)
+                if (!identity.gameObject.activeSelf)
                 {
                     continue;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Sending spawn message for current server objects name='" + uv.gameObject.name + "' netId=" + uv.netId); }
+                if (LogFilter.Debug) { Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId); }
 
-                var vis = uv.OnCheckObserver(conn);
+                var vis = identity.OnCheckObserver(conn);
                 if (vis)
                 {
-                    uv.AddObserver(conn);
+                    identity.AddObserver(conn);
                 }
             }
 
@@ -755,16 +748,16 @@ namespace Mirror
             conn.Send((short)MsgType.SpawnFinished, msg);
         }
 
-        internal static void ShowForConnection(NetworkIdentity uv, NetworkConnection conn)
+        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
             if (conn.isReady)
-                SendSpawnMessage(uv, conn);
+                SendSpawnMessage(identity, conn);
         }
 
-        internal static void HideForConnection(NetworkIdentity uv, NetworkConnection conn)
+        internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = uv.netId;
+            msg.netId = identity.netId;
             conn.Send((short)MsgType.ObjectHide, msg);
         }
 
@@ -822,26 +815,20 @@ namespace Mirror
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            var cmdObject = FindLocalObject(message.netId);
-            if (cmdObject == null)
+            NetworkIdentity identity;
+            NetworkIdentity.spawned.TryGetValue(message.netId, out identity);
+            if (identity == null)
             {
-                Debug.LogWarning("Instance not found when handling Command message [netId=" + message.netId + "]");
-                return;
-            }
-
-            var uv = cmdObject.GetComponent<NetworkIdentity>();
-            if (uv == null)
-            {
-                Debug.LogWarning("NetworkIdentity deleted when handling Command message [netId=" + message.netId + "]");
+                Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
             }
 
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (netMsg.conn.playerController != null && netMsg.conn.playerController.netId != uv.netId)
+            if (netMsg.conn.playerController != null && netMsg.conn.playerController.netId != identity.netId)
             {
-                if (uv.clientAuthorityOwner != netMsg.conn)
+                if (identity.clientAuthorityOwner != netMsg.conn)
                 {
                     Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]");
                     return;
@@ -849,7 +836,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
-            uv.HandleCommand(message.componentIndex, message.cmdHash, new NetworkReader(message.payload));
+            identity.HandleCommand(message.componentIndex, message.cmdHash, new NetworkReader(message.payload));
         }
 
         internal static void SpawnObject(GameObject obj)
@@ -860,40 +847,40 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity objNetworkIdentity;
-            if (!GetNetworkIdentity(obj, out objNetworkIdentity))
+            NetworkIdentity identity;
+            if (!GetNetworkIdentity(obj, out identity))
             {
                 Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
             }
-            objNetworkIdentity.Reset();
+            identity.Reset();
 
-            objNetworkIdentity.OnStartServer(false);
+            identity.OnStartServer(false);
 
-            if (LogFilter.Debug) { Debug.Log("SpawnObject instance ID " + objNetworkIdentity.netId + " asset ID " + objNetworkIdentity.assetId); }
+            if (LogFilter.Debug) { Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId); }
 
-            objNetworkIdentity.RebuildObservers(true);
+            identity.RebuildObservers(true);
             //SendSpawnMessage(objNetworkIdentity, null);
         }
 
-        internal static void SendSpawnMessage(NetworkIdentity uv, NetworkConnection conn)
+        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (uv.serverOnly)
+            if (identity.serverOnly)
                 return;
 
-            if (LogFilter.Debug) { Debug.Log("Server SendSpawnMessage: name=" + uv.name + " sceneId=" + uv.sceneId + " netid=" + uv.netId); } // for easier debugging
+            if (LogFilter.Debug) { Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId + " netid=" + identity.netId); } // for easier debugging
 
             // 'uv' is a prefab that should be spawned
-            if (uv.sceneId == 0)
+            if (identity.sceneId == 0)
             {
                 SpawnPrefabMessage msg = new SpawnPrefabMessage();
-                msg.netId = uv.netId;
-                msg.assetId = uv.assetId;
-                msg.position = uv.transform.position;
-                msg.rotation = uv.transform.rotation;
+                msg.netId = identity.netId;
+                msg.assetId = identity.assetId;
+                msg.position = identity.transform.position;
+                msg.rotation = identity.transform.rotation;
 
                 // serialize all components with initialState = true
-                msg.payload = uv.OnSerializeAllSafely(true);
+                msg.payload = identity.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -903,19 +890,19 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnPrefab, msg);
+                    SendToReady(identity.gameObject, (short)MsgType.SpawnPrefab, msg);
                 }
             }
             // 'uv' is a scene object that should be spawned again
             else
             {
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-                msg.netId = uv.netId;
-                msg.sceneId = uv.sceneId;
-                msg.position = uv.transform.position;
+                msg.netId = identity.netId;
+                msg.sceneId = identity.sceneId;
+                msg.position = identity.transform.position;
 
                 // include synch data
-                msg.payload = uv.OnSerializeAllSafely(true);
+                msg.payload = identity.OnSerializeAllSafely(true);
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -925,7 +912,7 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(uv.gameObject, (short)MsgType.SpawnSceneObject, msg);
+                    SendToReady(identity.gameObject, (short)MsgType.SpawnSceneObject, msg);
                 }
             }
         }
@@ -967,15 +954,15 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity objNetworkIdentity;
-            if (!GetNetworkIdentity(obj, out objNetworkIdentity)) return;
+            NetworkIdentity identity;
+            if (!GetNetworkIdentity(obj, out identity)) return;
 
-            UnSpawnObject(objNetworkIdentity);
+            UnSpawnObject(identity);
         }
 
-        static void UnSpawnObject(NetworkIdentity uv)
+        static void UnSpawnObject(NetworkIdentity identity)
         {
-            DestroyObject(uv, false);
+            DestroyObject(identity, false);
         }
 
         static void DestroyObject(GameObject obj)
@@ -986,38 +973,38 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity objNetworkIdentity;
-            if (!GetNetworkIdentity(obj, out objNetworkIdentity)) return;
+            NetworkIdentity identity;
+            if (!GetNetworkIdentity(obj, out identity)) return;
 
-            DestroyObject(objNetworkIdentity, true);
+            DestroyObject(identity, true);
         }
 
-        static void DestroyObject(NetworkIdentity uv, bool destroyServerObject)
+        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
-            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + uv.netId); }
-            NetworkIdentity.spawned.Remove(uv.netId);
+            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
+            NetworkIdentity.spawned.Remove(identity.netId);
 
-            if (uv.clientAuthorityOwner != null)
+            if (identity.clientAuthorityOwner != null)
             {
-                uv.clientAuthorityOwner.RemoveOwnedObject(uv);
+                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
             }
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = uv.netId;
-            SendToObservers(uv.gameObject, (short)MsgType.ObjectDestroy, msg);
+            msg.netId = identity.netId;
+            SendToObservers(identity.gameObject, (short)MsgType.ObjectDestroy, msg);
 
-            uv.ClearObservers();
+            identity.ClearObservers();
             if (NetworkClient.active && s_LocalClientActive)
             {
-                uv.OnNetworkDestroy();
+                identity.OnNetworkDestroy();
             }
 
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)
             {
-                UnityEngine.Object.Destroy(uv.gameObject);
+                UnityEngine.Object.Destroy(identity.gameObject);
             }
-            uv.MarkForReset();
+            identity.MarkForReset();
         }
 
         public static void Spawn(GameObject obj)
@@ -1054,20 +1041,20 @@ namespace Mirror
 
         public static Boolean SpawnWithClientAuthority(GameObject obj, GameObject player)
         {
-            var uv = player.GetComponent<NetworkIdentity>();
-            if (uv == null)
+            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.LogError("SpawnWithClientAuthority player object has no NetworkIdentity");
                 return false;
             }
 
-            if (uv.connectionToClient == null)
+            if (identity.connectionToClient == null)
             {
                 Debug.LogError("SpawnWithClientAuthority player object is not a player.");
                 return false;
             }
 
-            return SpawnWithClientAuthority(obj, uv.connectionToClient);
+            return SpawnWithClientAuthority(obj, identity.connectionToClient);
         }
 
         public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection conn)
@@ -1080,38 +1067,38 @@ namespace Mirror
 
             Spawn(obj);
 
-            var uv = obj.GetComponent<NetworkIdentity>();
-            if (uv == null || !uv.isServer)
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            if (identity == null || !identity.isServer)
             {
                 // spawning the object failed.
                 return false;
             }
 
-            return uv.AssignClientAuthority(conn);
+            return identity.AssignClientAuthority(conn);
         }
 
         public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
 
-            var uv = obj.GetComponent<NetworkIdentity>();
-            if (uv == null || !uv.isServer)
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            if (identity == null || !identity.isServer)
             {
                 // spawning the object failed.
                 return false;
             }
 
-            return uv.AssignClientAuthority(conn);
+            return identity.AssignClientAuthority(conn);
         }
 
         public static void Spawn(GameObject obj, Guid assetId)
         {
             if (VerifyCanSpawn(obj))
             {
-                NetworkIdentity id;
-                if (GetNetworkIdentity(obj, out id))
+                NetworkIdentity identity;
+                if (GetNetworkIdentity(obj, out identity))
                 {
-                    id.SetDynamicAssetId(assetId);
+                    identity.SetDynamicAssetId(assetId);
                 }
                 SpawnObject(obj);
             }
@@ -1146,26 +1133,26 @@ namespace Mirror
 
         public static GameObject FindLocalObject(uint netId)
         {
-            NetworkIdentity ni;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out ni) && ni != null)
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
             {
-                return ni.gameObject;
+                return identity.gameObject;
             }
             return null;
         }
 
-        static bool ValidateSceneObject(NetworkIdentity netId)
+        static bool ValidateSceneObject(NetworkIdentity identity)
         {
-            if (netId.gameObject.hideFlags == HideFlags.NotEditable || netId.gameObject.hideFlags == HideFlags.HideAndDontSave)
+            if (identity.gameObject.hideFlags == HideFlags.NotEditable || identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
                 return false;
 
 #if UNITY_EDITOR
-            if (UnityEditor.EditorUtility.IsPersistent(netId.gameObject))
+            if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
                 return false;
 #endif
 
             // If not a scene object
-            return netId.sceneId != 0;
+            return identity.sceneId != 0;
         }
 
         public static bool SpawnObjects()
@@ -1173,27 +1160,27 @@ namespace Mirror
             if (!active)
                 return true;
 
-            NetworkIdentity[] netIds = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
-            for (int i = 0; i < netIds.Length; i++)
+            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+            for (int i = 0; i < identities.Length; i++)
             {
-                var netId = netIds[i];
-                if (!ValidateSceneObject(netId))
+                NetworkIdentity identity = identities[i];
+                if (!ValidateSceneObject(identity))
                     continue;
 
-                if (LogFilter.Debug) { Debug.Log("SpawnObjects sceneId:" + netId.sceneId + " name:" + netId.gameObject.name); }
-                netId.Reset();
-                netId.gameObject.SetActive(true);
+                if (LogFilter.Debug) { Debug.Log("SpawnObjects sceneId:" + identity.sceneId + " name:" + identity.gameObject.name); }
+                identity.Reset();
+                identity.gameObject.SetActive(true);
             }
-            for (int i = 0; i < netIds.Length; i++)
+            for (int i = 0; i < identities.Length; i++)
             {
-                var netId = netIds[i];
-                if (!ValidateSceneObject(netId))
+                NetworkIdentity identity = identities[i];
+                if (!ValidateSceneObject(identity))
                     continue;
 
-                Spawn(netId.gameObject);
+                Spawn(identity.gameObject);
 
                 // these objects are server authority - even if "localPlayerAuthority" is set on them
-                netId.ForceAuthority(true);
+                identity.ForceAuthority(true);
             }
             return true;
         }

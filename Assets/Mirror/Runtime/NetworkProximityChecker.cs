@@ -38,7 +38,7 @@ namespace Mirror
 
             if (Time.time - m_VisUpdateTime > visUpdateInterval)
             {
-                GetComponent<NetworkIdentity>().RebuildObservers(false);
+                netIdentity.RebuildObservers(false);
                 m_VisUpdateTime = Time.time;
             }
         }
@@ -62,10 +62,9 @@ namespace Mirror
             if (forceHidden)
             {
                 // ensure player can still see themself
-                NetworkIdentity uv = GetComponent<NetworkIdentity>();
-                if (uv.connectionToClient != null)
+                if (connectionToClient != null)
                 {
-                    observers.Add(uv.connectionToClient);
+                    observers.Add(connectionToClient);
                 }
             }
             // otherwise add everyone in proximity
@@ -82,11 +81,11 @@ namespace Mirror
                             Collider hit = hits[i];
                             // collider might be on pelvis, often the NetworkIdentity is in a parent
                             // (looks in the object itself and then parents)
-                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                             // (if an object has a connectionToClient, it is a player)
-                            if (uv != null && uv.connectionToClient != null)
+                            if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(uv.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
@@ -100,11 +99,11 @@ namespace Mirror
                             Collider2D hit = hits[i];
                             // collider might be on pelvis, often the NetworkIdentity is in a parent
                             // (looks in the object itself and then parents)
-                            NetworkIdentity uv = hit.GetComponentInParent<NetworkIdentity>();
+                            NetworkIdentity identity = hit.GetComponentInParent<NetworkIdentity>();
                             // (if an object has a connectionToClient, it is a player)
-                            if (uv != null && uv.connectionToClient != null)
+                            if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(uv.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
@@ -118,11 +117,11 @@ namespace Mirror
         }
 
         // called hiding and showing objects on the host
-        public override void OnSetLocalVisibility(bool vis)
+        public override void OnSetLocalVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
             {
-                rend.enabled = vis;
+                rend.enabled = visible;
             }
         }
     }
