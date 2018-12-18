@@ -8,7 +8,7 @@ keywords: "Mirror, HLAPI, UNET, Network"
 paginate_path: "page:num"
 # Build settings
 markdown: kramdown
-highlighter: pygments
+highlighter: rouge
 sass:
   sass_dir: _sass
   style: :compressed
