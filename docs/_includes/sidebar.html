@@ -1,13 +1,23 @@
-<div class="mui-col-md-4">
-  <div class="mui-panel">
+<div  class="col-12 col-md-3 col-xl-2 bd-sidebar">
+    
+    <nav class="collapse bd-links" id = "sidebar">
 
-    {% for category in site.data.navigation %}
-        <h2>{{category.title}}</h2>
-        <ul class="about-links">
-            {% for document in category.children %}
-                <li><a href="{{document.url | relative_url}}" class="mui-btn"><i class="fa"></i>{{document.title }}</a></li>
-            {%endfor%}
-        </ul>
-    {% endfor %}
-  </div>
+        {% for category in site.data.navigation %}
+            {% assign catid = forloop.index %}
+            <div class="bd-toc-item">
+                <a href="#submenu_{{catid}}" aria-controls="submenu_{{catid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{category.title}}</a>
+            
+                <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}">
+                    
+                    {% for document in category.children %}                   
+                        <li>
+                            <a href="{{document.url | relative_url}} ">{{document.title}}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+
+    </nav>
+
 </div>
