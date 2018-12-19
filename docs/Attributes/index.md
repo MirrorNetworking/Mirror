@@ -1,23 +1,27 @@
 # Attributes Overview
 
-General description of attributes
+Networking attributes are added to member functions of NetworkBehaviour scripts,
+to make them run on either the client or server.
 
- 
+These attributes can be used for Unity game loop methods like Start or Update,
+as well as other implemented methods.
 
 -   [NetworkSettings](NetworkSettings.md)  
     Something about this
 
 -   [Server](Server)  
-    Something about this
+    means don't allow a client to call that method (throws a warning or an error
+    when called on a client).
 
 -   [ServerCallback](ServerCallback.md)  
     Something about this
 
 -   [Client](Client.md)  
-    Something about this
+    means don't allow a server to call that method (throws a warning or an error
+    when called on the server).
 
 -   [ClientRpc](ClientRpc.md)  
-    Something about this
+    The server uses an Rpc to run that function on clients.
 
 -   [ClientCallback](ClientCallback.md)  
     Something about this
@@ -26,12 +30,10 @@ General description of attributes
     Something about this
 
 -   [Command](Command.md)  
-    Something about this
+    Call this from a client to run this function on the server.
 
 -   [SyncVar](SyncVar.md)  
     Something about this
 
 -   [SyncEvent](SyncEvent.md)  
     Something about this
-
- 

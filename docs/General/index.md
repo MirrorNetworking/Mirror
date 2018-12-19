@@ -10,3 +10,12 @@ General description of Mirror features
 
 -   [Support](Support.md)  
     Something about this
+
+-   [Clock Syncronization](ClockSync.md)  
+    Something about this
+
+-   [Conventions](Conventions.md)  
+    Something about this
+
+-   [Migration Guide](Migration.md)  
+    Something about this
