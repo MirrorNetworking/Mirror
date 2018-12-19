@@ -2,12 +2,10 @@
 
 General description of Mirror features
 
- 
-
 -   [Installation](Installation.md)  
     Something about this
 
--   Getting [Start](Start.md)ed  
+-   [Getting Started](Start.md)  
     Something about this
 
 -   [Support](Support.md)  
