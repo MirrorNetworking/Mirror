@@ -361,7 +361,7 @@ namespace Mirror
             foreach (uint netId in NetworkIdentity.spawned.Keys)
             {
                 NetworkIdentity identity = NetworkIdentity.spawned[netId];
-                if (identity != null && identity.gameObject != null)
+                if (identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                     {
@@ -383,7 +383,7 @@ namespace Mirror
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.gameObject;
             }
@@ -404,12 +404,12 @@ namespace Mirror
             }
 
             identity.SetNetworkInstanceId(netId);
-            identity.EnableIsClient();
             NetworkIdentity.spawned[netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
             if (s_IsSpawnFinished)
             {
+                identity.EnableIsClient();
                 identity.OnStartClient();
                 CheckForOwner(identity);
             }
@@ -634,7 +634,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.rpcHash + " netId:" + msg.netId); }
 
             NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleRPC(msg.componentIndex, msg.rpcHash, new NetworkReader(msg.payload));
             }
@@ -652,7 +652,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnSyncEventMessage " + msg.netId); }
 
             NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleSyncEvent(msg.componentIndex, msg.eventHash, new NetworkReader(msg.payload));
             }
@@ -669,7 +669,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
             NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleClientAuthority(msg.authority);
             }

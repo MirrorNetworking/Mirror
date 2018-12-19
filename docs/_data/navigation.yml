@@ -1,0 +1,18 @@
+- title: "Classes"
+  children:
+    - title: "Class A"
+      url: "/docs/A"
+    - title: "Class B"
+      url: "/docs/B"
+- title: "Guides"
+  children:
+    - title: "Child Page B1"
+      url: /
+    - title: "Child Page B2"
+      url: /
+    - title: "Child Page B3"
+      url: /
+    - title: "Child Page B4"
+      url: /
+    - title: "Child Page B5"
+      url: /

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+
+  {% include head.html %}
+
+  <body>
+
+  {{ content }}
+
+  {% if site.ga_id %}
+      {% include analytics.html %}
+  {% endif %}
+
+  <script id="dsq-count-scr" src="//mirror-1.disqus.com/count.js" async></script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+
+
+// Width of the content area
+$content-width:    700px;
+
+
+
+// Using media queries with like this:
+// @include media-query($on-palm) {
+//     .wrapper {
+//         padding-right: $spacing-unit / 2;
+//         padding-left: $spacing-unit / 2;
+//     }
+// }
+@mixin media-query($device) {
+    @media screen and (max-width: $device) {
+        @content;
+    }
+}
+
+
+
+// Import partials from `sass_dir` (defaults to `_sass`)
+@import
+        "colors",
+        "mui",
+        "syntax-highlighting"
+;
+
+body {
+    padding-top: 93px;
+}
+
+i.fa {
+    margin-right: 5px;
+}
+
+.mui-container {
+    max-width: 800px;
+}
+
+.site-appbar {
+    background-color: mui-color("indigo", "500");
+    left: 0;
+    margin-bottom: 15px;
+    overflow: auto;
+    padding-left: 10px;
+    padding-top: 10px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 6;
+}
+
+.site-nav {
+    float: right;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        display: inline-block;
+
+        a {
+            color: #fff;
+        }
+    }
+}
+
+.mui-container-fluid {
+    &.post-content {
+        margin: 0 auto;
+        max-width: $content-width;
+    }
+
+    img {
+        display: block;
+        max-width: 100%;
+    }
+}
+
+.post-meta {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.sharer {
+    float: right;
+
+    .sh-fb {
+        color: #4A65A0;
+    }
+    .sh-twt {
+        color: #0088cc;
+    }
+}
+
+.post-content {
+    position: relative;
+    top: 135px;
+    z-index: 3;
+
+    .post-meta {
+        padding: 10px 0 10px 5px;
+    }
+
+    .article-title {
+        font-size: 45px;
+        font-weight: bold;
+        line-height: 50px;
+        padding-bottom: 10px;
+        transition: all 0.3s ease-in;
+
+        a {
+            color: #111;
+
+            &:hover {
+                color: #08c;
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+.site-title {
+
+    h1 {
+        color: #FFF;
+        display: inline-block;
+        margin: 0;
+    }
+}
+
+.post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-top: 15px;
+}
+
+.post-data {
+    padding: 15px;
+}
+
+article {
+    &.mui-panel {
+        padding: 0px;
+    }
+}
+
+.mui-panel {
+    .post-list-title {
+        margin-top: 0;
+    }
+}
+
+
+.bg-holder {
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    -webkit-background-size: cover;
+    background-color: mui-color('blue-grey', '500');
+    background-size: cover;
+    min-height: 180px;
+    position: relative;
+
+    a {
+        color: #fff;
+
+        &.overlay {
+            bottom: 0;
+            color: #fff;
+            display: block;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 4;
+        }
+    }
+
+    .img-overlay {
+        bottom: 0;
+        background-color: #000;
+        display: block;
+        left: 0;
+        opacity: 0.5;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 2;
+    }
+
+    h2 {
+        bottom: 15px;
+        font-size: 34px;
+        font-weight: bold;
+        left: 15px;
+        line-height: 40px;
+        right: 15px;
+        margin: 0;
+        position: absolute;
+        z-index: 3;
+    }
+}
+
+.post-full {
+    position: relative;
+
+    .bg-holder {
+        left: 0;
+        min-height: 250px;
+        position: fixed;
+        right: 0;
+        top: 0;
+
+        h1 {
+            bottom: 25px;
+            line-height: 50px;
+        }
+
+        a.overlay {
+            position: fixed;
+            background: #414040;
+            padding: 5px;
+            top: 15px;
+            left: 15px;
+            bottom: initial;
+            right: initial;
+            border-radius: 2px;
+
+            i {
+                margin: 0;
+            }
+        }
+
+        a:hover {
+            text-decoration : none;
+        }
+    }
+}
+
+.post-excerpt {
+    font-size: 16px;
+}
+.post-tag {
+    background-color: mui-color('indigo','400');
+    color: #fff;
+    display: inline-block;
+    margin-bottom: 1px;
+    padding: 2px 4px;
+}
+
+.post-page {
+    h1 {
+        bottom: 15px;
+        font-size: 48px;
+        font-weight: bold;
+        left: 0;
+        margin: 0;
+        position: absolute;
+        text-align: center;
+        width: 100%;
+        z-index: 3;
+    }
+}
+
+.post-html {
+    border-top: 1px solid mui-color('blue-grey','400');
+    font-size: 18px;
+    padding-top: 20px;
+
+    p {
+        margin-bottom: 20px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: bold;
+    }
+    pre {
+        @extend .mui-panel;
+
+        code {
+            color: initial;
+        }
+    }
+    code {
+        color: mui-color('red', '500');
+    }
+
+    blockquote {
+        border-left: 2px solid mui-color('teal', '400');
+        margin: 0;
+        padding-left: 15px;
+    }
+    img {
+        width: 100%;
+    }
+}
+
+article {
+    footer {
+        border-top: 1px solid mui-color('grey', '500');
+        font-size: 18px;
+        padding: 20px 0;
+        text-align: center;
+    }
+}
+
+.paginator {
+    text-align: center;
+}
+.about-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .mui-btn {
+        display: block;
+        text-align: left;
+    }
+}
+.site-footer {
+    text-align: center;
+    background-color: mui-color('grey', '200');
+}
+
+.bg-grey {
+    background-color: mui-color('grey', '500');
+}
+.bg-orange {
+    background-color: mui-color('orange', '500');
+    a {
+        color: #000;
+    }
+}
+.bg-yellow {
+    background-color: mui-color('yellow', '500');
+    a {
+        color: #000;
+    }
+}
+.bg-amber {
+    background-color: mui-color('amber', '500');
+    a {
+        color: #000;
+    }
+}
+.bg-light-blue {
+    background-color: mui-color('light-blue', '500');
+}
+.bg-lime {
+    background-color: mui-color('lime', '500');
+    a {
+        color: #000;
+    }
+}
+.bg-teal {
+    background-color: mui-color('teal', '500');
+}
+.bg-blue {
+    background-color: mui-color('blue', '500');
+}
+.bg-black-87 {
+    background-color: mui-color('black-alpha-87');
+}
+.bg-blue-grey {
+    background-color: mui-color('blue-grey', '500');
+}
+.bg-brown {
+    background-color: mui-color('brown', '500');
+}
+.bg-indigo {
+    background-color: mui-color('indigo', '500');
+}
+.bg-purple {
+    background-color: mui-color('purple', '500');
+}
+.bg-deep-purple {
+    background-color: mui-color('deep-purple', '500');
+}
+.bg-red {
+    background-color: mui-color('red', '500');
+}
+.bg-pink {
+    background-color: mui-color('pink', '500');
+}
+
+@media (max-width: 767px) {
+    .bg-holder {
+        h2 {
+            font-size: 25px;
+        }
+    }
+    .post-full {
+        .bg-holder {
+            min-height: 200px;
+
+            h1 {
+                bottom: 15px;
+                font-size: 32px;
+                line-height: 32px;
+            }
+            a.overlay {
+                left: initial;
+                right: 15px;
+            }
+        }
+    }
+    .sharer {
+        display: block;
+        float: none;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 82px;
+    }
+
+    .post-full {
+        .bg-holder {
+            min-height: 300px;
+        }
+    }
+}

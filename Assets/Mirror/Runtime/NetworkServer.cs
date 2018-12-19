@@ -699,7 +699,7 @@ namespace Mirror
                 {
                     // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
                     // in the above SetLocalPlayer call
-                    if (identity != null && identity.gameObject != null)
+                    if (identity.gameObject != null)
                     {
                         var vis = identity.OnCheckObserver(conn);
                         if (vis)
@@ -816,8 +816,7 @@ namespace Mirror
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
             NetworkIdentity identity;
-            NetworkIdentity.spawned.TryGetValue(message.netId, out identity);
-            if (identity == null)
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
@@ -1134,7 +1133,7 @@ namespace Mirror
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.gameObject;
             }

@@ -1,0 +1,20 @@
+---
+layout: base
+---
+
+{% include header.html %}
+
+<div class="mui-container">
+    <div class="home mui-row">
+        <div class="mui-col-md-8">
+                {{ content }}
+        </div>
+        {% include sidebar.html %}
+    </div>
+    <div class="home mui-row">
+        {% include disqus.html %}
+    </div>
+</div>
+
+
+{% include footer.html %}
