@@ -2,8 +2,6 @@
 
 General description of Other Events
 
- 
-
 -   [OnValidate](OnValidate.md)  
     Something about this
 

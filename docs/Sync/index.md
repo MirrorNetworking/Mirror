@@ -28,6 +28,20 @@ Structs. C\# structs are value types, just like int, float, Vector3 etc. You
 can't do synclist.value = newvalue; You have to copy the element, assign the new
 value, assign the new element to the synclist. You can use hooks like this:
 
+```
+// for the official things
+[SyncListString(hook="MyHook")] SyncListString mylist;
+void MyHook(SyncListString.Operation op, int index) {
+    // do things
+}
+     
+// for custom structs
+[SyncListString(hook="MyHook")] SyncListStructCustom mylist;
+void MyHook(SyncListStructCustom.Operation op, int index) {
+    // do things
+}
+```
+
 -   [SyncListString](SyncListString.md)  
     Something about this
 

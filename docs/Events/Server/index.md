@@ -2,8 +2,6 @@
 
 General description of Server Events
 
- 
-
 -   [OnServerConnect](OnServerConnect.md)  
     Something about this
 

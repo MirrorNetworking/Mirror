@@ -2,8 +2,6 @@
 
 General description of Application Events
 
- 
-
 -   [OnStartHost](OnStartHost.md)  
     Something about this
 

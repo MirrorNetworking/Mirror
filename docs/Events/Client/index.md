@@ -2,8 +2,6 @@
 
 General description of Client Events
 
- 
-
 -   [OnClientConnect](OnClientConnect.md)  
     Something about this
 

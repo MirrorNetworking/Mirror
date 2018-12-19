@@ -2,8 +2,6 @@
 
 General description of Events
 
- 
-
 -   [Application Events](Application/index.md)  
     Something about this
 

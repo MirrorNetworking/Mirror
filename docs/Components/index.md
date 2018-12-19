@@ -2,8 +2,6 @@
 
 General description of Components
 
- 
-
 -   [NetworkManagerHUD](NetworkManagerHUD.md)  
     Something about this
 
