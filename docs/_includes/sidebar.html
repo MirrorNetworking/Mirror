@@ -9,9 +9,23 @@
             
                 <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}">
                     
-                    {% for document in category.children %}                   
+                    {% for document in category.children %}  
+                        {% assign docid = forloop.index %}                 
                         <li>
-                            <a href="{{document.url | relative_url}} ">{{document.title}}</a>
+                            
+                            {% if document.children %}
+                                <a href="#submenu_{{catid}}_{{docid}}" aria-controls="submenu_{{catid}}_{{docid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{category.title}}</a>
+                                <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}_{{docid}}">
+                                    {% for child in document.children %}  
+                                        <li>
+                                            <a href="{{child.url | relative_url}}">{{child.title}}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <a href="{{document.url | relative_url}}">{{document.title}}</a>
+
+                            {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
