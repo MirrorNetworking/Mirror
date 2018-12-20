@@ -31,12 +31,12 @@ and control many things related to networking.
 
 **Note**: You should only ever have one active Network Manager in each Scene. Do
 not place the Network Manager component on a networked GameObject (one which has
-a [Network Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html)
+a [Network Identity]
 component), because Unity disables these when the Scene loads.
 
 If you are already familiar with multiplayer game development, you might find it
 useful to know that the Network Manager component is implemented entirely using
-the [High-level API](https://docs.unity3d.com/Manual/UNetUsingHLAPI.html)
+the [High-level API]
 (HLAPI), so everything it does is also available to you through scripting. For
 advanced users, if you find that you need to expand on the Network Manager
 component’s features, you can use scripting to derive your own class from
@@ -52,17 +52,17 @@ dedicated server, or as a “Host” which is both a client and a server at the 
 time.
 
 If you’re using the [Network Manager
-HUD](https://docs.unity3d.com/Manual/class-NetworkManagerHUD.html), it
+HUD], it
 automatically tells the Network Manager which mode to start in, based on which
 options the player selects. If you’re writing your own **UI** that allows the
 player to start the game, you’ll need to call these from your own code. These
 methods are:
 
--   [NetworkManager.StartClient](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.StartClient.html)
+-   [NetworkManager.StartClient]
 
--   [NetworkManager.StartServer](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.StartServer.html)
+-   [NetworkManager.StartServer]
 
--   [NetworkManager.StartHost](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.StartHost.html)
+-   [NetworkManager.StartHost]
 
 ![The network address and port settings in the Network Manager component](https://docs.unity3d.com/uploads/Main/NetworkAddressAndPortSettings.png)
 
@@ -75,13 +75,13 @@ During development of your game, it can be useful to put a fixed address and
 port setting into these properties. However, eventually you might want your
 players to be able to choose the host they to connect to. When you get to that
 stage, the [Network
-Discovery](https://docs.unity3d.com/Manual/class-NetworkDiscovery.html)
+Discovery]
 component (see [Local
-Discovery](https://docs.unity3d.com/Manual/UNetDiscovery.html)) can be used for
+Discovery]) can be used for
 broadcasting and finding addresses and ports on a local area network (LAN), and
 the Matchmaker service can be used for players to find internet matches to
 connect to (see [Multiplayer
-Service](https://docs.unity3d.com/Manual/UnityMultiplayerService.html)).
+Service]).
 
 ## Spawn management
 
@@ -95,7 +95,7 @@ a **Player Prefab** slot. You should assign this slot with your player Prefab.
 When you have a player Prefab set, a player GameObject is automatically spawned
 from that Prefab for each user in the game. This applies to the local player on
 a hosted server, and remote players on remote clients. You must attach a
-[Network Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html)
+[Network Identity]
 component to the Player Prefab.
 
 Once you have assigned a player Prefab, you can start the game as a host and see
@@ -109,7 +109,7 @@ want to dynamically spawn during gameplay with the Network Manager.
 
 You can add Prefabs to the list shown in the inspector labelled **Registered
 Spawnable Prefabs**. You can also can register prefabs via code, with the
-[ClientScene.RegisterPrefab()](https://docs.unity3d.com/ScriptReference/Networking.ClientScene.RegisterPrefab.html)
+[ClientScene.RegisterPrefab()]
 method.
 
 If you have only one Network Manager, you need to register to it all prefabs
@@ -119,7 +119,7 @@ each Scene, you only need to register the prefabs relevant for that Scene.
 ### Customizing Player Instantiation
 
 The Network Manager spawns player GameObjects using its implementation of
-[NetworkManager.OnServerAddPlayer()](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.OnServerAddPlayer.html).
+[NetworkManager.OnServerAddPlayer()].
 If you want to customize the way player GameObjects are created, you can
 override that virtual function. This code shows an example of the default
 implementation:
@@ -134,16 +134,16 @@ public virtual void OnServerAddPlayer(NetworkConnection conn, short playerContro
 
 **Note:** If you are implementing a custom version of OnServerAddPlayer, the
 method
-[NetworkServer.AddPlayerForConnection()](https://docs.unity3d.com/ScriptReference/Networking.NetworkServer.AddPlayerForConnection.html)
+[NetworkServer.AddPlayerForConnection()]
 must be called for the newly created player GameObject, so that it is spawned
 and associated with the client’s connection. AddPlayerForConnection spawns the
 GameObject, so you do not need to use
-[NetworkServer.Spawn()](https://docs.unity3d.com/ScriptReference/Networking.NetworkServer.Spawn.html).
+[NetworkServer.Spawn()].
 
 ## Start positions
 
 To control where players are spawned, you can use the [Network Start
-Position](https://docs.unity3d.com/Manual/class-NetworkStartPosition.html)
+Position]
 component. To use these, attach a Network Start Position component to a
 GameObject in the Scene, and position the GameObject where you would like one of
 the players to start. You can add as many start positions to your Scene as you
@@ -161,9 +161,9 @@ configure how start positions are chosen.
 If the Random or Round Robin modes don’t suit your game, you can customize how
 the start positions are selected by using code. You can access the available
 Network Start Position components by the list
-[NetworkManager.startPositions](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager-startPositions.html),
+[NetworkManager.startPositions],
 and you can use the helper method
-[GetStartPosition()](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.GetStartPosition.html)
+[GetStartPosition()]
 on the Network Manager that can be used in implementation of OnServerAddPlayer
 to find a start position.
 
@@ -181,7 +181,7 @@ networked Scene management.
 When a server or host is started, the Online Scene is loaded. This then becomes
 the current network Scene. Any clients that connect to that server are
 instructed to also load that Scene. The name of this Scene is stored in the
-[networkSceneName](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager-networkSceneName.html)
+[networkSceneName]
 property.
 
 When the network is stopped, by stopping the server or host or by a client
@@ -189,7 +189,7 @@ disconnecting, the offline Scene is loaded. This allows the game to
 automatically return to a menu Scene when disconnected from a multiplayer game.
 
 You can also change Scenes while the game is active by calling
-[NetworkManager.ServerChangeScene()](https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.ServerChangeScene.html).
+[NetworkManager.ServerChangeScene()].
 This makes all the currently connected clients change Scene too, and updates
 networkSceneName so that new clients also load the new Scene.
 
@@ -414,7 +414,7 @@ the **Prefabs **you use for spawning **GameObjects**, and the **Scenes**[ ](
 
 For more details on implementing the Network Manager in your game, see
 documentation on [Using the Network
-Manager](https://docs.unity3d.com/Manual/UNetManager.html).
+Manager].
 
 ![The Network Manager component in the Inspector window](https://docs.unity3d.com/uploads/Main/NetworkManagerUNetComponent.png)
 
@@ -441,7 +441,7 @@ checkbox is ticked by default. You need to enable this property if you want to
 run multiple instances of a program on the same machine, such as when testing
 using localhost. You should disable it when deploying to mobile platforms. When
 enabled, it sets
-[Application.runInBackground](https://docs.unity3d.com/ScriptReference/Application-runInBackground.html)
+[Application.runInBackground]
 to true when the Network Manager starts up. You can also set this property from
 the Unity menu: **Edit** \> **Project Settings**, then select the **Player**
 category, and navigate to the **Resolution and Presentation** panel.
@@ -534,9 +534,9 @@ zero disables HLAPI connection buffering. This is set to 0.01 by default.
 **Max Buffered Packets**
 
 The maximum number of packets that a
-[NetworkConnection](https://docs.unity3d.com/ScriptReference/Networking.NetworkConnection.html)
+[NetworkConnection]
 can buffer for each channel. This corresponds to the
-[ChannelOption.MaxPendingBuffers](https://docs.unity3d.com/ScriptReference/Networking.ChannelOption.MaxPendingBuffers.html)
+[ChannelOption.MaxPendingBuffers]
 channel option. This is set to 16 by default.
 
 **Packet Fragmentation**
@@ -561,7 +561,7 @@ match created via matchmaker by “Player B” (in Europe), they would need to b
 able to set their desired global region in your game. Therefore you would need
 to write a **UI** feature which allows them to select this. See API reference
 documentation on
-[NetworkMatch.baseUri](https://docs.unity3d.com/ScriptReference/Networking.Match.NetworkMatch-baseUri.html)
+[NetworkMatch.baseUri]
 for more information, and for the regional server URIs.
 
 **MatchMaker Port**
@@ -587,7 +587,7 @@ listed below
 
 Define the default prefab Unity should use to create player GameObjects on the
 server. Unity creates Player GameObjects in the default handler for
-[AddPlayer](https://docs.unity3d.com/ScriptReference/Networking.MsgType.AddPlayer.html)
+[AddPlayer]
 on the server. Implement
 (OnServerAddPlayer)[https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.OnServerAddPlayer.html]
 to override this behaviour.
@@ -598,7 +598,7 @@ Tick this checkbox if you want Unity to automatically create player GameObjects
 on connect, and when the Scene changes. This checkbox is ticked by default. Note
 that if you are using the MigrationManager and you do not enable Auto Create
 Player, you need to call
-[ClientScene.SendReconnectMessage](https://docs.unity3d.com/ScriptReference/Networking.ClientScene.SendReconnectMessage.html)
+[ClientScene.SendReconnectMessage]
 when your client reconnects.
 
 **Player Spawn Method**
@@ -635,7 +635,7 @@ A list containing the different communication channels the current Network
 Manager has, and the Quality Of Service (QoS) setting for each channel. Use this
 list to add or remove channels, and adjust their QoS setting. You can also
 configure the channels via scripting. For the descriptions of each QoS option,
-see [QosType](https://docs.unity3d.com/ScriptReference/Networking.QosType.html).
+see [QosType].
 
     Timeouts
 
@@ -646,7 +646,7 @@ network messages. The network thread doesn’t send multiplayer network messages
 immediately. Instead, it check each connection periodically at a fixed rate to
 see if it has something to send. This is set to 10ms by default. See API
 reference documentation on
-[MinUpdateTimeout](https://docs.unity3d.com/ScriptReference/Networking.ConnectionConfig.MinUpdateTimeout.html)
+[MinUpdateTimeout]
 for more information.
 
         Connect Timeout
@@ -654,7 +654,7 @@ for more information.
 Define the amount of time (in milliseconds) Unity should wait while trying to
 connect before attempting the connection again. This is set to 2000ms by
 default. See API reference documentation on
-[ConnectTimeout](https://docs.unity3d.com/ScriptReference/Networking.ConnectionConfig.ConnectTimeout.html)
+[ConnectTimeout]
 for more information.
 
         Disconnect Timeout
@@ -662,7 +662,7 @@ for more information.
 The amount of time (in milliseconds) before Unity considers a connection to be
 disconnected. This is set to 2000ms by default. See API reference documentation
 on
-[DisconnectTimeout](https://docs.unity3d.com/ScriptReference/Networking.ConnectionConfig.DisconnectTimeout.html)
+[DisconnectTimeout]
 for more information.
 
         Ping Timeout
@@ -673,7 +673,7 @@ one-third to one-quarter of the Disconnect Timeout duration, so that Unity
 doesn’t assume that clients are disconnected until the server has failed to
 receive at least three pings from the client. This is set to 500ms by default.
 See API reference documentation on
-[ConnectionConfig.PingTimeout](https://docs.unity3d.com/ScriptReference/Networking.ConnectionConfig.PingTimeout.html)
+[ConnectionConfig.PingTimeout]
 for more information.
 
     Global Config

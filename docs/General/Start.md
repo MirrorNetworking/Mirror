@@ -2,8 +2,7 @@
 
 This document describes steps to converting a single player game to a
 multiplayer game, using the new Unity Multiplayer
-**networking**<https://docs.unity3d.com/Manual/UNetOverview.html>  
-<https://docs.unity3d.com/Manual/Glossary.html#Networking> system. The process
+**networking** system. The process
 described here is a simplified, higher level version of the actual process for a
 real game; it doesn’t always work exactly like this, but it provides a basic
 recipe for the process.
@@ -17,8 +16,7 @@ recipe for the process.
 -   Add the **NetworkManagerHUD** component to the GameObject. This provides the
     default **UI **for managing the network game state.
 
-See [Using the
-NetworkManager](https://docs.unity3d.com/Manual/UNetManager.html).
+See [Using the NetworkManager].
 
 ## Player Prefab
 
@@ -35,8 +33,7 @@ NetworkManager](https://docs.unity3d.com/Manual/UNetManager.html).
 -   Remove the player GameObject instance from the Scene if it exists in the
     Scene
 
-See [Player
-Objects](https://docs.unity3d.com/Manual/UNetPlayers.htmlhttps://docs.unity3d.com/Manual/UNetPlayers.html)
+See [Player Objects]
 for more information.
 
 ## Player movement
@@ -75,7 +72,7 @@ public class Controls : NetworkBehaviour
 
 -   Make important member variables into SyncVars
 
-See [State Synchronization](https://docs.unity3d.com/Manual/UNetStateSync.html).
+See [State Synchronization].
 
 ## Networked actions
 
@@ -84,7 +81,7 @@ See [State Synchronization](https://docs.unity3d.com/Manual/UNetStateSync.html).
 
 -   Update functions that perform important player actions to be commands
 
-See [Networked Actions](https://docs.unity3d.com/Manual/UNetActions.html).
+See [Networked Actions].
 
 ## Non-player GameObjects
 

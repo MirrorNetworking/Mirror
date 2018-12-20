@@ -112,7 +112,7 @@ out to other clients. Other GameObjects (with server authority) synchronize
 their position from the server to clients.
 
 A GameObject with a Network Transform component must also have a [Network
-Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html) component.
+Identity] component.
 When you create a Network Transform component on a GameObject, Unity also
 creates a Network Identity component on that GameObject if it does not already
 have one.

@@ -2,7 +2,7 @@
 
 The Network Transform Child component synchronizes the position and rotation of
 the child **GameObject** of a **GameObject** with a [Network
-Transform](https://docs.unity3d.com/Manual/class-NetworkTransform.html)
+Transform]
 component. You should use this component in situations where you need to
 synchronize an independently-moving child object of a Networked GameObject.
 
@@ -71,7 +71,7 @@ of the child GameObject, and interpolates towards updated values. Use
 the rate of interpolation.
 
 A GameObject with a Network Transform Child component must also have a [Network
-Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html) component.
+Identity] component.
 When you create a Network Transform Child component on a GameObject, Unity also
 creates a Network Identity component on that GameObject if it does not already
 have one.

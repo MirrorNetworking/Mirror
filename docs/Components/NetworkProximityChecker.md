@@ -35,7 +35,7 @@ This component relies on physics to calculate visibility, so the GameObject must
 also have a **collider** component on it.
 
 A GameObject with a Network Proximity Checker component must also have a
-[Network Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html)
+[Network Identity]
 component. When you create a Network Proximity Checker component on a
 GameObject, Unity also creates a Network Identity component on that GameObject
 if it does not already have one.

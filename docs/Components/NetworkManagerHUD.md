@@ -3,9 +3,9 @@
 Note: This documentation assumes that you understand fundamental **networking**
 concepts such as the relationship between a host, server and client. To learn
 more about these concepts, see documentation on [Network System
-Concepts](https://docs.unity3d.com/Manual/UNetConcepts.html).
+Concepts].
 
-![The Network Manager HUD component, as viewed in the inspector](https://docs.unity3d.com/uploads/Main/NetworkManagerHUDComponent.png)
+![The Network Manager HUD component, as viewed in the inspector](https.com/uploads/Main/NetworkManagerHUDComponent.png)
 
 **Property:**
 
@@ -130,7 +130,7 @@ automatically find hosts on the same local network. However, this is not built
 into the **Network Manager** HUD, so you need to enter the address manually. You
 can integrate the Network Discovery system into your game when you replace the
 **Network Manager** HUD with your own **UI** See documentation on [Network
-Discovery](https://docs.unity3d.com/Manual/UNetDiscovery.html) to learn more.
+Discovery] to learn more.
 
 ### LAN Server Only
 

@@ -1,10 +1,10 @@
 # NetworkConnection
 
 NetworkConnection is a [high-level
-API](https://docs.unity3d.com/Manual/UNetUsingHLAPI.html) class that
+API] class that
 encapsulates a network connection. (NetworkClient)[class-NetworkClient] objects
 have a `NetworkConnection`, and
-[NetworkServers](https://docs.unity3d.com/Manual/class-NetworkServer.html) have
+[NetworkServers] have
 multiple connections - one from each client. NetworkConnections have the ability
 to send byte arrays, or serialized objects as network messages.
 
@@ -16,7 +16,7 @@ to send byte arrays, or serialized objects as network messages.
 
 **hostId**
 
-The [NetworkTransport](https://docs.unity3d.com/Manual/UNetUsingTransport.html)
+The [NetworkTransport]
 hostId for this connection.
 
 **connectionId**

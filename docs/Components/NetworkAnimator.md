@@ -2,12 +2,12 @@
 
 The Network **Animator componen** allows you to synchronize animation states for
 networked objects. It synchronizes state and parameters from an
-[AnimatorController](https://docs.unity3d.com/Manual/class-AnimatorController.html).
+[AnimatorController].
 
 Note that if you create a Network Animator component on an empty **GameObject**,
 Unity also creates a [Network
-Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html) component
-and an [Animator](https://docs.unity3d.com/Manual/class-Animator.html) component
+Identity] component
+and an [Animator] component
 on that GameObject.
 
 ![The Network Animator component in the Inspector window](https://docs.unity3d.com/uploads/Main/NetworkAnimatorComponent.png)
@@ -26,7 +26,7 @@ synchronize with.
 The Network Animator ensures the synchronisation of GameObject animation across
 the network - meaning that all players see the animation happen at the same.
 There are two kinds of authority for networked animation (see documentation on
-[Network system concepts](https://docs.unity3d.com/Manual/UNetConcepts.html) for
+[Network system concepts] for
 more information about authority)):
 
 -   If the GameObject has authority on the client, you should animate it locally
@@ -42,12 +42,12 @@ more information about authority)):
 The Network Animator synchronizes the **animation parameters** checked in the
 **Inspector** window. It does not automatically synchronize animation triggers.
 A GameObject with authority can use the function
-[SetTrigger](https://docs.unity3d.com/ScriptReference/Animator.SetTrigger.html)
+[SetTrigger]
 to fire an animation trigger on other clients.
 
 The
-[GetParameterAutoSend](https://docs.unity3d.com/ScriptReference/Networking.NetworkAnimator.GetParameterAutoSend.html)
+[GetParameterAutoSend]
 and
-[SetParameterAutoSend](https://docs.unity3d.com/ScriptReference/Networking.NetworkAnimator.SetParameterAutoSend.html)
+[SetParameterAutoSend]
 functions can be used to control which individual animator parameters should be
 automatically synchronized.

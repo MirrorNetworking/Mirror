@@ -3,13 +3,13 @@
 There are two kinds of users for the **Networking** feature:
 
 -   Users making a Multiplayer game with Unity. These users should start with
-    the [NetworkManager](https://docs.unity3d.com/Manual/UNetManager.html) or
+    the [NetworkManager] or
     the [High Level
-    API](https://docs.unity3d.com/Manual/UNetUsingHLAPI.htmlhttps://docs.unity3d.com/Manual/UNetUsingHLAPI.htmlhttps://docs.unity3d.com/Manual/Glossary.html#HighLevelAPI).
+    API].
 
 -   Users building network infrastructure or advanced multiplayer games. These
     users should start with the [NetworkTransport
-    API](https://docs.unity3d.com/Manual/UNetUsingTransport.html).
+    API].
 
 ## High level scripting API
 
@@ -39,11 +39,11 @@ work with components and visual aids to build your multiplayer game. It
 provides:
 
 -   A
-    [NetworkIdentity](https://docs.unity3d.com/ScriptReference/Networking.NetworkIdentity.htmlhttps://docs.unity3d.com/Manual/class-NetworkIdentity.html)  
+    [NetworkIdentity]  
     component for networked objects.
 
 -   A
-    [NetworkBehaviour](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.html)
+    [NetworkBehaviour]
     for networked **scripts**
 
 -   Configurable automatic synchronization of object transforms.
@@ -52,6 +52,6 @@ provides:
 
 -   Support for placing networked objects in Unity **scenes**.
 
--   [Network components](https://docs.unity3d.com/Manual/UNetReference.html)
+-   [Network components]
 
  

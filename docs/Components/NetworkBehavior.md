@@ -1,19 +1,19 @@
 # NetworkBehavior
 
 NetworkBehaviour **scripts** work with **GameObjects **that have a [Network
-Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html) component.
+Identity] component.
 These scripts can perform [high-level
-API](https://docs.unity3d.com/Manual/UNetUsingHLAPI.html) functions such as
-[Commands, ClientRPCs](https://docs.unity3d.com/Manual/UNetActions.html),
-[SyncEvents](https://docs.unity3d.com/ScriptReference/Networking.SyncEventAttribute.html)
-and [SyncVars](https://docs.unity3d.com/Manual/UNetStateSync.html).
+API] functions such as
+[Commands, ClientRPCs],
+[SyncEvents]
+and [SyncVars].
 
 With the server-authoritative system of the Unity Network System, the server
 must use the
-[NetworkServer.Spawn](https://docs.unity3d.com/ScriptReference/Networking.NetworkServer.Spawn.html)
+[NetworkServer.Spawn]
 function to spawn GameObjects with Network Identity components. Spawning them
 this way assigns them a
-[NetworkInstanceId](https://docs.unity3d.com/ScriptReference/Networking.NetworkInstanceId.html)
+[NetworkInstanceId]
 and creates them on clients connected to the server.
 
 **Note:** This is not a component that you can add to a GameObject directly.
@@ -97,7 +97,7 @@ to clients. The server is authoritative in this system, so synchronization only
 takes place in the direction of server to client.
 
 Use the
-[SyncVar](https://docs.unity3d.com/ScriptReference/Networking.SyncVarAttribute.html)
+[SyncVar]
 attribute to tag member variables as synchronized. Synchronized variables can be
 any basic type (bool, byte, sbyte, char, decimal, double, float, int, uint,
 long, ulong, short, ushort, string), but not classes, lists, or other
@@ -147,43 +147,43 @@ public class SpaceShip : NetworkBehaviour
 
 The built-in callbacks are:
 
--   [OnStartServer](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnStartServer.html)
+-   [OnStartServer]
 
     -   called when a GameObject spawns on the server, or when the server is
         started for GameObjects in the Scene
 
--   [OnStartClient](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnStartClient.html)
+-   [OnStartClient]
 
     -   called when the GameObject spawns on the client, or when the client
         connects to a server for GameObjects in the Scene
 
--   [OnSerialize](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnSerialize.html)
+-   [OnSerialize]
 
     -   called to gather state to send from the server to clients
 
--   [OnDeSerialize](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnDeserialize.html)
+-   [OnDeSerialize]
 
     -   called to apply state to GameObjects on clients
 
--   [OnNetworkDestroy](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnNetworkDestroy.html)
+-   [OnNetworkDestroy]
 
     -   called on clients when the server destroys the GameObject
 
--   [OnStartLocalPlayer](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnStartLocalPlayer.html)
+-   [OnStartLocalPlayer]
 
     -   called on clients for player GameObjects on the local client (only)
 
--   [OnRebuildObservers](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnRebuildObservers.html)
+-   [OnRebuildObservers]
 
     -   called on the server when the set of observers for a GameObjects is
         rebuilt
 
--   [OnSetLocalVisibility](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnSetLocalVisibility.html)
+-   [OnSetLocalVisibility]
 
     -   called on the client and/or server when the visibility of a GameObject
         changes for the local client
 
--   [OnCheckObserver](https://docs.unity3d.com/ScriptReference/Networking.NetworkBehaviour.OnCheckObserver.html)
+-   [OnCheckObserver]
 
     -   called on the server to check visibility state for a new client
 
@@ -249,13 +249,13 @@ not cause a warning to be generated.
 For more information, see API reference documentation on the attributes
 discussed:
 
--   [ClientAttribute](https://docs.unity3d.com/ScriptReference/Networking.ClientAttribute.html)
+-   [ClientAttribute]
 
--   [ClientCallbackAttribute](https://docs.unity3d.com/ScriptReference/Networking.ClientCallbackAttribute.html)
+-   [ClientCallbackAttribute]
 
--   [ServerAttribute](https://docs.unity3d.com/ScriptReference/Networking.ServerAttribute.html)
+-   [ServerAttribute]
 
--   [ServerCallbackAttribute](https://docs.unity3d.com/ScriptReference/Networking.ServerCallbackAttribute.html)
+-   [ServerCallbackAttribute]
 
 ### Sending commands
 
@@ -344,7 +344,7 @@ client GameObjects.
 
 Client RPC calls are not restricted to player GameObjects, and may be called on
 any GameObject with a [Network
-Identity](https://docs.unity3d.com/Manual/class-NetworkIdentity.html) component.
+Identity] component.
 
 To define a **client RPC call** in your code, you must write a function which:
 

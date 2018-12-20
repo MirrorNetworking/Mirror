@@ -1,15 +1,15 @@
 # NetworkClient
 
 `NetworkClient` is a [high-level
-API](https://docs.unity3d.com/Manual/UNetUsingHLAPI.html) class that manages a
+API] class that manages a
 network connection from a client to a server, and can send and receive messages
 between the client and the server. The `NetworkClient` class also helps to
 manage spawned network GameObjects, and routing of
-[RPC](https://docs.unity3d.com/Manual/UNetActions.html) message and network
+[RPC] message and network
 events.
 
 See the
-[NetworkClient](https://docs.unity3d.com/ScriptReference/Networking.NetworkClient.html)
+[NetworkClient]
 script reference for more information.
 
 ## Properties

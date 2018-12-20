@@ -46,14 +46,14 @@ client to treat as the source of authority.
 
 With the Unity’s server-authoritative networking system, the server must spawn
 networked GameObjects with network identities, using
-[NetworkServer.Spawn](https://docs.unity3d.com/ScriptReference/Networking.NetworkServer.Spawn.html).
+[NetworkServer.Spawn].
 This automatically creates them on clients that are connected to the server, and
 assigns them a
-[NetworkInstanceId](https://docs.unity3d.com/ScriptReference/Networking.NetworkInstanceId.html).
+[NetworkInstanceId].
 
 You must put a Network Identity component on any **Prefabs** that spawn at
 runtime for the network system to use them. See [Object
-Spawning](https://docs.unity3d.com/Manual/UNetSpawning.html) for more
+Spawning] for more
 information.
 
 ## Scene-based network GameObjects
@@ -70,7 +70,7 @@ not contain GameObjects at incorrect locations when they start playing, or that
 Unity does not spawn and immediately destroy GameObjects on connection (for
 example, if an event removed the GameObject before that client connected). See
 [Networked Scene
-GameObjects](https://docs.unity3d.com/Manual/UNetSceneObjects.html) for more
+GameObjects] for more
 information.
 
 ## Network Information in the preview pane
