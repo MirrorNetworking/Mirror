@@ -2,14 +2,14 @@
 
 General description of Services
 
--   [Match Service](Match.md)  
+-   [Match Service](Match)  
     Something about this
 
--   [Chat Service](Chat.md)  
+-   [Chat Service](Chat)  
     Something about this
 
--   [NAT Service](NAT.md)  
+-   [NAT Service](NAT)  
     Something about this
 
--   [Relay Service](Relay.md)  
+-   [Relay Service](Relay)  
     Something about this

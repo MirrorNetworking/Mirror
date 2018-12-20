@@ -2,20 +2,20 @@
 
 General description of Server Events
 
--   [OnServerConnect](OnServerConnect.md)  
+-   [OnServerConnect](OnServerConnect)  
     Something about this
 
--   [OnServerDisconnect](OnServerDisconnect.md)  
+-   [OnServerDisconnect](OnServerDisconnect)  
     Something about this
 
--   [OnServerAddPlayer](OnServerAddPlayer.md)  
+-   [OnServerAddPlayer](OnServerAddPlayer)  
     Something about this
 
--   [OnServerRemovePlayer](OnServerRemovePlayer.md)  
+-   [OnServerRemovePlayer](OnServerRemovePlayer)  
     Something about this
 
--   [OnServerSceneChanged](OnServerSceneChanged.md)  
+-   [OnServerSceneChanged](OnServerSceneChanged)  
     Something about this
 
--   OnServerError[OnServerError](OnServerError.md)  
+-   OnServerError[OnServerError](OnServerError)  
     Something about this

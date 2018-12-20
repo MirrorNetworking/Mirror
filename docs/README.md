@@ -14,8 +14,8 @@ A [Bootstrap 4](https://getbootstrap.com/) start up project for [Github Pages](h
 
 ## Contribution
 
-[See the contribution guide.](./CONTRIBUTING.md)
+[See the contribution guide.](./CONTRIBUTING)
 
 ## License
 
-[See the license file.](./LICENSE.md)
+[See the license file.](./LICENSE)

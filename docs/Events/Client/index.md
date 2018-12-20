@@ -2,17 +2,17 @@
 
 General description of Client Events
 
--   [OnClientConnect](OnClientConnect.md)  
+-   [OnClientConnect](OnClientConnect)  
     Something about this
 
--   [OnClientDisconnect](OnClientDisconnect.md)  
+-   [OnClientDisconnect](OnClientDisconnect)  
     Something about this
 
--   [OnClientNotReady](OnClientNotReady.md)  
+-   [OnClientNotReady](OnClientNotReady)  
     Something about this
 
--   [OnClientSceneChanged](OnClientSceneChanged.md)  
+-   [OnClientSceneChanged](OnClientSceneChanged)  
     Something about this
 
--   [OnClientError](OnClientError.md)  
+-   [OnClientError](OnClientError)  
     Something about this

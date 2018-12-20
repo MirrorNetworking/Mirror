@@ -1,12 +1,12 @@
 # Transports Overview
 
--   [TCP - Telepathy](Telepathy.md)  
+-   [TCP - Telepathy](Telepathy)  
     Something about this
 
 -   [UDP - Ignorance](Ignorance)  
     Something about this
 
--   [WebGL - Groove](Groove.md)  
+-   [WebGL - Groove](Groove)  
     Something about this
 
 -   [Steam - Misty](Misty)  

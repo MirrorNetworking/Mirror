@@ -42,26 +42,26 @@ void MyHook(SyncListStructCustom.Operation op, int index) {
 }
 ```
 
--   [SyncListString](SyncListString.md)  
+-   [SyncListString](SyncListString)  
     Something about this
 
--   [SyncListFloat](SyncListFloat.md)  
+-   [SyncListFloat](SyncListFloat)  
     Something about this
 
--   [SyncListInt](SyncListInt.md)  
+-   [SyncListInt](SyncListInt)  
     Something about this
 
--   [SyncListUInt](SyncListUInt.md)  
+-   [SyncListUInt](SyncListUInt)  
     Something about this
 
--   [SyncListBool](SyncListBool.md)  
+-   [SyncListBool](SyncListBool)  
     Something about this
 
--   [SyncListSTRUCT](SyncListSTRUCT.md)  
+-   [SyncListSTRUCT](SyncListSTRUCT)  
     Something about this
 
--   [SyncListT](SyncListT.md)  
+-   [SyncListT](SyncListT)  
     Something about this
 
--   [SyncObject](SyncObject.md)  
+-   [SyncObject](SyncObject)  
     Something about this

@@ -2,8 +2,8 @@
 
 General description of Other Events
 
--   [OnValidate](OnValidate.md)  
+-   [OnValidate](OnValidate)  
     Something about this
 
--   [OnDestroy](OnDestroy.md)  
+-   [OnDestroy](OnDestroy)  
     Something about this

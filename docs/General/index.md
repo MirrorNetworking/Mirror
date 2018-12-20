@@ -2,20 +2,20 @@
 
 General description of Mirror features
 
--   [Installation](Installation.md)  
+-   [Installation](Installation)  
     Something about this
 
--   [Getting Started](Start.md)  
+-   [Getting Started](Start)  
     Something about this
 
--   [Support](Support.md)  
+-   [Support](Support)  
     Something about this
 
--   [Clock Syncronization](ClockSync.md)  
+-   [Clock Syncronization](ClockSync)  
     Something about this
 
--   [Conventions](Conventions.md)  
+-   [Conventions](Conventions)  
     Something about this
 
--   [Migration Guide](Migration.md)  
+-   [Migration Guide](Migration)  
     Something about this

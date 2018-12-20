@@ -1,7 +1,7 @@
 - title: "General"
   children:
     - title: "Overview"
-      url: "/General/index"
+      url: "/General"
     - title: "Installation"
       url: "/General/Installation"
     - title: "Getting Started"
@@ -17,13 +17,13 @@
 - title: "Sample Projects"
   children:
     - title: "Overview"
-      url: "/Samples/index"
+      url: "/Samples"
     - title: "Pong"
       url: "/Samples/Pong"
 - title: "Components"
   children: 
     - title: "Overview"
-      url: "/Components/index"
+      url: "/Components"
     - title: "NetworkManager"
       url: "/Components/NetworkManager"
     - title: "NetworkManagerHUD"
@@ -51,9 +51,9 @@
 - title: "Events"
   children: 
     - title: "Overview"
-      url: "/Events/index"
+      url: "/Events"
     - title: "Application Events"
-      url: "/Events/Application/index"
+      url: "/Events/Application"
       children: 
         - title: "OnStartHost"
           url: "/Events/Application/OnStartHost"
@@ -70,7 +70,7 @@
         - title: "OnApplicationQuit"
           url: "/Events/Application/OnApplicationQuit"
     - title: "Server Events"
-      url: "/Events/Server/index"
+      url: "/Events/Server"
       children: 
         - title: "OnServerConnect"
           url: "/Events/Server/OnServerConnect"
@@ -87,7 +87,7 @@
         - title: "OnServerError"
           url: "/Events/Server/OnServerError"
     - title: "Client Events"
-      url: "/Events/Client/index"
+      url: "/Events/Client"
       children: 
         - title: "OnClientConnect"
           url: "/Events/Client/OnClientConnect"
@@ -100,7 +100,7 @@
         - title: "OnClientError"
           url: "/Events/Client/OnClientError"
     - title: "Other Events"
-      url: "/Events/Other/index"
+      url: "/Events/Other"
       children: 
         - title: "OnValidate"
           url: "/Events/Other/OnValidate"
@@ -109,7 +109,7 @@
 - title: "Code Attributes"
   children: 
     - title: "Overview"
-      url: "/Attributes/index"
+      url: "/Attributes"
     - title: "NetworkSettings"
       url: "/Attributes/NetworkSettings"
     - title: "Server"
@@ -133,7 +133,7 @@
 - title: "Sync Stuff"
   children: 
     - title: "Overview"
-      url: "/Sync/index"
+      url: "/Sync"
     - title: "SyncListString"
       url: "/Sync/SyncListString"
     - title: "SyncListFloat"
@@ -153,25 +153,25 @@
 - title: "Messages"
   children: 
     - title: "Overview"
-      url: "/Messages/index"
+      url: "/Messages"
     - title: "Details"
       url: "/Messages/Details"
 - title: "Transports"
   children: 
     - title: "Overview"
-      url: "/Transports/index"
+      url: "/Transports"
     - title: "TCP - Telepathy"
       url: "/Transports/Telepathy"
     - title: "UDP - Ignorance"
       url: "/Transports/Ignorance"
     - title: "WebGL - Groove"
       url: "/Transports/Groove"
-    - title: "Steam - Misty"
-      url: "/Transports/Misty"
+    - title: "Steam - Fizzy"
+      url: "/Transports/Fizzy"
 - title: "Services"
   children: 
     - title: "Overview"
-      url: "/Services/index"
+      url: "/Services"
     - title: "Match Service"
       url: "/Services/Match"
     - title: "Chat Service"
