@@ -5,9 +5,9 @@ which is included in the AssetStore package of Mirror. It illustrates the usage
 of NetworkManager, NetworkManagerHUD, NetworkBehaviour, NetworkIdentity,
 NetworkTransform, NetworkStartPosition and NetworkingAttributes.
 
-## Setting the number of players
-
 ![](Pong1.jpg)
+
+## Setting the number of players
 
 First of all, let's have a look at the NetworkManager object in the main scene.
 When adding the NetworkManager component to a gameobject, a few default settings
