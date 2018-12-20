@@ -48,6 +48,16 @@
       url: "/Components/NetworkAnimator"
     - title: "NetworkNavMeshAgent"
       url: "/Components/NetworkNavMeshAgent"
+- title: "Classes"
+  children:
+    - title: "Overview"
+      url: "/Classes"
+    - title: "NetworkClient"
+      url: "/Classes/NetworkClient"
+    - title: "NetworkConnection"
+      url: "/Classes/NetworkConnection"
+    - title: "NetworkServer"
+      url: "/Classes/NetworkServer"
 - title: "Events"
   children: 
     - title: "Overview"

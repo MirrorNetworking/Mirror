@@ -1,5 +1,9 @@
 # NetworkStartPosition
 
+NetworkStartPosition is used by the NetworkManager when creating player objects.
+The position and rotation of the NetworkStartPosition are used to place the
+newly created **player object**.
+
 The NetworkManager will spawn players at (0, 0, 0) by default. Adding this
 component to a gameobject will automatically register/unregister its gameobjects
 transform at the NetworkManager as available spawning position.
