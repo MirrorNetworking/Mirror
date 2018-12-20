@@ -1,37 +1,11 @@
 <div  class="col-12 col-md-3 col-xl-2 bd-sidebar">
     
     <nav class="collapse bd-links" id = "sidebar">
-
-        {% for category in site.data.navigation %}
-            {% assign catid = forloop.index %}
-            <div class="bd-toc-item">
-                <a href="#submenu_{{catid}}" aria-controls="submenu_{{catid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{category.title}}</a>
-            
-                <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}">
-                    
-                    {% for document in category.children %}  
-                        {% assign docid = forloop.index %}                 
-                        <li>
-                            
-                            {% if document.children %}
-                                <a href="#submenu_{{catid}}_{{docid}}" aria-controls="submenu_{{catid}}_{{docid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{document.title}}</a>
-                                <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}_{{docid}}">
-                                    {% for child in document.children %}  
-                                        <li>
-                                            <a href="{{child.url | relative_url}}">{{child.title}}</a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <a href="{{document.url | relative_url}}">{{document.title}}</a>
-
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
+        {% for child in site.data.navigation %}
+            <div class="bd-toc-item">            
+                {% assign childid = ("submenu_" | append: forloop.index) %}
+                {% include f_sidebar_nav.html item=child id=childid %}
             </div>
         {% endfor %}
-
     </nav>
-
 </div>
