@@ -14,7 +14,7 @@
                         <li>
                             
                             {% if document.children %}
-                                <a href="#submenu_{{catid}}_{{docid}}" aria-controls="submenu_{{catid}}_{{docid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{category.title}}</a>
+                                <a href="#submenu_{{catid}}_{{docid}}" aria-controls="submenu_{{catid}}_{{docid}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{document.title}}</a>
                                 <ul class="collapse nav bd-sidenav" id="submenu_{{catid}}_{{docid}}">
                                     {% for child in document.children %}  
                                         <li>
