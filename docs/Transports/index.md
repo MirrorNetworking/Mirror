@@ -9,5 +9,5 @@
 -   [WebGL - Groove](Groove)  
     Something about this
 
--   [Steam - Misty](Misty)  
+-   [Steam - Fizzy](Fizzy)  
     Something about this

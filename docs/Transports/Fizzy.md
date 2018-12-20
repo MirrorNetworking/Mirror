@@ -1,3 +1,3 @@
-# Misty
+# Fizzy
 
-General description of Misty
+General description of Fizzy
