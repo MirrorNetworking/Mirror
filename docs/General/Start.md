@@ -1,8 +1,7 @@
 # Getting Started
 
 This document describes steps to converting a single player game to a
-multiplayer game, using the new Unity Multiplayer
-**networking** system. The process
+multiplayer game, using the new Unity Multiplayer **networking** system. The process
 described here is a simplified, higher level version of the actual process for a
 real game; it doesn’t always work exactly like this, but it provides a basic
 recipe for the process.
