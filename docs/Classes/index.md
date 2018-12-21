@@ -2,11 +2,14 @@
 
 General description of Classes
 
--   [NetworkClient](NetworkClient)  
+-   [NetworkServer](NetworkServer)  
     Something about this
 
 -   [NetworkConnection](NetworkConnection)  
     Something about this
 
--   [NetworkServer](NetworkServer)  
+-   [NetworkClient](NetworkClient)  
+    Something about this
+
+-   [NetworkBehavior](NetworkBehavior)  
     Something about this

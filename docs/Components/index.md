@@ -2,25 +2,28 @@
 
 General description of Components
 
--   [NetworkManagerHUD](NetworkManagerHUD)  
+-   [NetworkManager](NetworkManager)  
     Something about this
 
--   [NetworkStartPosition](NetworkStartPosition)  
+-   [NetworkManagerHUD](NetworkManagerHUD)  
     Something about this
 
 -   [NetworkIdentity](NetworkIdentity/md)  
     Something about this
 
--   [NetworkProximityChecker](NetworkProximityChecker)  
+-   [NetworkStartPosition](NetworkStartPosition)  
     Something about this
 
--   [NetworkBehavior](NetworkBehavior)  
+-   [NetworkProximityChecker](NetworkProximityChecker)  
     Something about this
 
 -   [NetworkTransform](NetworkTransform)  
     Something about this
 
 -   [NetworkTransformChild](NetworkTransformChild)  
+    Something about this
+
+-   [NetworkNavMeshAgent](NetworkNavMeshAgent)  
     Something about this
 
 -   [NetworkController](NetworkController)  
@@ -30,7 +33,4 @@ General description of Components
     Something about this
 
 -   [NetworkAnimator](NetworkAnimator)  
-    Something about this
-
--   [NetworkNavMeshAgent](NetworkNavMeshAgent)  
     Something about this
