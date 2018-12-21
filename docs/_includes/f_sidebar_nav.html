@@ -8,9 +8,9 @@
     {% capture capturechild %}
         {% for child in include.item.children %}
 
-
         {% assign active = "" %}
-        {% if pageurl == child.url %}
+        {% assign childurlfolder = child.url | append: '/' %}
+        {% if pageurl == child.url or pageurl == childurlfolder %}
             {% assign active = "active bd-sidenav-active" %}
         {% endif %}
 
