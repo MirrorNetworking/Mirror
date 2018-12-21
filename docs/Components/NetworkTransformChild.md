@@ -11,7 +11,7 @@ GameObject as the Network Transform, and use the **Target** field to define
 which child GameObject to apply the component settings to. You can have multiple
 Network Transform Child components on one parent GameObject.
 
-![The Network Transform Child component](https://docs.unity3d.com/uploads/Main/NetworkTransformChild.png)
+![The Network Transform Child component](NetworkTransformChild.png)
 
 **Property**
 

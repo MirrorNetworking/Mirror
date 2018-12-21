@@ -4,7 +4,7 @@ The Network **Transform component** synchronizes the movement and rotation of
 **GameObjects** across the network. Note that the network **Transform
 component** only synchronizes spawned networked **GameObjects**.
 
-![The Network Transform component](https://docs.unity3d.com/uploads/Main/NetworkTransform.png)
+![The Network Transform component](NetworkTransform.png)
 
 **Property**
 

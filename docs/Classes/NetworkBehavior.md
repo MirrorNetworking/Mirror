@@ -88,7 +88,7 @@ NetworkBehaviour scripts have the following features:
 
 -   Networked events
 
-![](https://docs.unity3d.com/uploads/Main/UNetDirections.jpg)
+![](UNetDirections.jpg)
 
 ### Synchronized variables
 

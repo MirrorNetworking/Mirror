@@ -24,7 +24,7 @@ get started, create an empty **GameObject** in your starting Scene, and add the
 NetworkManager component. The newly added Network Manager component looks like
 this:
 
-![The Network Manager as seen in the inspector window](https://docs.unity3d.com/uploads/Main/NetworkManagerInspector.png)
+![The Network Manager as seen in the inspector window](NetworkManagerInspector.png)
 
 The **Inspector** for the Network Manager in the Editor allows you to configure
 and control many things related to networking.
@@ -64,7 +64,7 @@ methods are:
 
 -   [NetworkManager.StartHost]
 
-![The network address and port settings in the Network Manager component](https://docs.unity3d.com/uploads/Main/NetworkAddressAndPortSettings.png)
+![The network address and port settings in the Network Manager component](NetworkAddressAndPortSettings.png)
 
 Whichever mode the game starts in (client, server, or host), the **Network
 Address** and **Network Port** properties are used. In client mode, the game
@@ -88,7 +88,7 @@ Service]).
 Use the Network Manager to manage the spawning (networked instantiation) of
 networked GameObjects from **Prefabs**.
 
-![The “Spawn Info” section of the Network Manager component](https://docs.unity3d.com/uploads/Main/NetworkManagerSpawnInfo.png)
+![The “Spawn Info” section of the Network Manager component](NetworkManagerSpawnInfo.png)
 
 Most games have a Prefab which represents the player, so the Network Manager has
 a **Player Prefab** slot. You should assign this slot with your player Prefab.
@@ -220,8 +220,7 @@ GameObject for the connection.
 
 These are all the callbacks that can happen for host/server and clients, in some
 cases it’s important to invoke the base class function to maintain default
-behaviour. To see the implementation itself you can view it in the [networking
-bitbucket repository](https://bitbucket.org/Unity-Technologies/networking).
+behaviour. To see the implementation itself you can view it in the source code.
 
 ```
 using UnityEngine;
@@ -416,7 +415,7 @@ For more details on implementing the Network Manager in your game, see
 documentation on [Using the Network
 Manager].
 
-![The Network Manager component in the Inspector window](https://docs.unity3d.com/uploads/Main/NetworkManagerUNetComponent.png)
+![The Network Manager component in the Inspector window](NetworkManagerUNetComponent.png)
 
 **Property**
 
@@ -518,9 +517,8 @@ this to enter the specific IP address that the server should bind to.
 When this is enabled, Unity checks that the clients and the server are using
 matching scripts. This is useful to make sure outdated versions of your client
 are not connecting to the latest (updated) version of your server. This checkbox
-is ticked by default. It does this by performing a (CRC
-check)[https://en.wikipedia.org/wiki/Cyclic_redundancy_check] between the server
-and client that ensures the NetworkBehaviour scripts match. This may not be
+is ticked by default. It does this by performing a (CRC check)[https://en.wikipedia.org/wiki/Cyclic_redundancy_check]
+between the server and client that ensures the NetworkBehaviour scripts match. This may not be
 appropriate in some cases, such as when you are intentionally using different
 Unity projects for the client and server. In most other cases however, you
 should leave it enabled.
@@ -585,12 +583,7 @@ listed below
 
 **Player Prefab**
 
-Define the default prefab Unity should use to create player GameObjects on the
-server. Unity creates Player GameObjects in the default handler for
-[AddPlayer]
-on the server. Implement
-(OnServerAddPlayer)[https://docs.unity3d.com/ScriptReference/Networking.NetworkManager.OnServerAddPlayer.html]
-to override this behaviour.
+Define the default prefab Unity should use to create player GameObjects on the server. Unity creates Player GameObjects in the default handler for [AddPlayer] on the server. Implement [OnServerAddPlayer] to override this behaviour.
 
 **Auto Create Player**
 
