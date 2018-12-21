@@ -48,11 +48,11 @@ Unity LLAPI was also closed source, meaning the Mirror developers could not take
 ## Does Ignorance support Websockets?
 No, it does not. This is due to an issue with the fact that ENET is a C++ packet pumper and the ENET C# wrapper uses native C++ calls to talk to the network stack. Since it is not possible to convert a native ENET binary to WebGL, you will need to look elsewhere for Websockets support.
 
-# Where can I get Ignorance?
+## Where can I get Ignorance?
 [Grab the latest build from the releases page on the Ignorance repository](https://github.com/SoftwareGuy/Ignorance). Follow the instructions - it's simply a extra line or two of code plus dropping DLLs into your project.
 
-# Where can I get support?
+## Where can I get support?
 You can get support by opening a issue ticket on the [Ignorance repository issue tracker](https://github.com/SoftwareGuy/Ignorance/issues) or the #ignorance channel in the Mirror Discord server.
 
-# I still don't understand what this transport is, my head is spinning, help!
+## I still don't understand what this transport is, my head is spinning, help!
 Sorry, but this is probably not for you then. Come by the discord and we'll do our best to explain it in plain english.
