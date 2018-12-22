@@ -28,7 +28,7 @@ build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
   - cd docs
   - bundle exec jekyll build
-  - bundle exec htmlproofer ./_site
+  - bundle exec htmlproofer --assume-extension ./_site
   - cd ..
 
 artifacts:
