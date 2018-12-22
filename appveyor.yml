@@ -11,7 +11,7 @@ install:
   - cd docs
   - bundle install --quiet
   - cd ..
-  - cp c:\Tools\curl\bin\libcur.dll C:\Ruby25-x64\bin
+  - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
   
 before_build:
   - nuget restore Mirror/Networking.sln
