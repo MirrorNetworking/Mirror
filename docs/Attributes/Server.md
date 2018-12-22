@@ -2,7 +2,7 @@
 
 General description of Server
 
-```
+```cs
 public class Ball : NetworkBehaviour
 {
     public float Speed = 30;

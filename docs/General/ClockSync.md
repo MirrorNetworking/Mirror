@@ -5,7 +5,7 @@ the server. Mirror does that automatically for you.
 
 To get the current time use this code:
 
-```
+```cs
 double now = NetworkTime.time;
 ```
 
@@ -24,13 +24,13 @@ some time:
 
 Mirror will also calculate the RTT time as seen by the application:
 
-```
+```cs
 double rtt = NetworkTime.rtt;
 ```
 
 You can measure accuracy.
 
-```
+```cs
 double time_standard_deviation = NetworkTime.timeSd;
 ```
 
@@ -40,12 +40,12 @@ down roughly 0.2 s
 Network hickups are compensated against by smoothing out the values using EMA.  
 You can configure how often you want the the ping to be sent:
 
-```
+```cs
 NetworkTime.PingFrequency = 2.0f;
 ```
 
 You can also configure how many ping results are used in the calculation:
 
-```
+```cs
 NetworkTime.PingWindowSize = 10;
 ```

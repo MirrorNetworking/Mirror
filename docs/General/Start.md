@@ -1,10 +1,6 @@
 # Getting Started
 
-This document describes steps to converting a single player game to a
-multiplayer game, using the new Unity Multiplayer **networking** system. The process
-described here is a simplified, higher level version of the actual process for a
-real game; it doesn’t always work exactly like this, but it provides a basic
-recipe for the process.
+This document describes steps to converting a single player game to a multiplayer game, using the new Unity Multiplayer **networking** system. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
 ## NetworkManager set-up
 
@@ -12,28 +8,23 @@ recipe for the process.
 
 -   Add the **NetworkManager** component to the “NetworkManager” GameObject.
 
--   Add the **NetworkManagerHUD** component to the GameObject. This provides the
-    default **UI **for managing the network game state.
+-   Add the **NetworkManagerHUD** component to the GameObject. This provides the default **UI **for managing the network game state.
 
 See [Using the NetworkManager].
 
 ## Player Prefab
 
--   Find the Prefab for the player GameObject in the game, or create a Prefab
-    from the player GameObject
+-   Find the Prefab for the player GameObject in the game, or create a Prefab from the player GameObject
 
 -   Add the **NetworkIdentity** component to the player Prefab
 
 -   Check the LocalPlayerAuthority box on the NetworkIdentity
 
--   Set the `playerPrefab` in the NetworkManager’s **Spawn Info** section to the
-    player Prefab
+-   Set the `playerPrefab` in the NetworkManager’s **Spawn Info** section to the player Prefab
 
--   Remove the player GameObject instance from the Scene if it exists in the
-    Scene
+-   Remove the player GameObject instance from the Scene if it exists in the Scene
 
-See [Player Objects]
-for more information.
+See [Player Objects] for more information.
 
 ## Player movement
 
@@ -45,7 +36,7 @@ for more information.
 
 For example, this script only processes input for the local player:
 
-```
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -66,8 +57,7 @@ public class Controls : NetworkBehaviour
 
 ## Basic player game state
 
--   Make scripts that contain important data into NetworkBehaviours instead of
-    MonoBehaviours
+-   Make scripts that contain important data into NetworkBehaviours instead of MonoBehaviours
 
 -   Make important member variables into SyncVars
 
@@ -75,8 +65,7 @@ See [State Synchronization].
 
 ## Networked actions
 
--   Make scripts that perform important actions into NetworkBehaviours instead
-    of MonoBehaviours
+-   Make scripts that perform important actions into NetworkBehaviours instead of MonoBehaviours
 
 -   Update functions that perform important player actions to be commands
 

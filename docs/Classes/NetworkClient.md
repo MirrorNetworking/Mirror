@@ -1,22 +1,14 @@
 # NetworkClient
 
-`NetworkClient` is a [high-level
-API] class that manages a
-network connection from a client to a server, and can send and receive messages
-between the client and the server. The `NetworkClient` class also helps to
-manage spawned network GameObjects, and routing of
-[RPC] message and network
-events.
+`NetworkClient` is a [high-level API] class that manages a network connection from a client to a server, and can send and receive messages between the client and the server. The `NetworkClient` class also helps to manage spawned network GameObjects, and routing of [RPC] message and network events.
 
-See the
-[NetworkClient]
-script reference for more information.
+See the [NetworkClient] script reference for more information.
 
 ## Properties
 
-**Property:**
+**Property**
 
-**Function:**
+**Function**
 
 **serverIP**
 

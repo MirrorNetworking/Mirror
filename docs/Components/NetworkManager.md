@@ -124,7 +124,7 @@ If you want to customize the way player GameObjects are created, you can
 override that virtual function. This code shows an example of the default
 implementation:
 
-```
+```cs
 public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 {
     var player = (GameObject)GameObject.Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
@@ -222,7 +222,7 @@ These are all the callbacks that can happen for host/server and clients, in some
 cases it’s important to invoke the base class function to maintain default
 behaviour. To see the implementation itself you can view it in the source code.
 
-```
+```cs
 using UnityEngine;
 
 using UnityEngine.Networking;
@@ -376,9 +376,8 @@ The inspector for the NetworkManager provides the ability to change some
 connection parameters and timeouts. Some parameters have not been exposed here
 but can be changed through code.
 
-```
+```cs
 using UnityEngine;
-
 using UnityEngine.Networking;
 
 public class CustomManager : NetworkManager {
