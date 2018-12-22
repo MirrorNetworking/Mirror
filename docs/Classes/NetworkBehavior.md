@@ -18,7 +18,7 @@ With the server-authoritative system of the Unity Network System, the server mus
     Returns true if this GameObject is on the client and has been spawned by the server.
 
 -   **hasAuthority**  
-    Returns true if this GameObject is the authoritative version of the GameObject, meaning it is the source for changes to be synchronized. For most GameObjects, this returns true on the server. However, if the localPlayerAuthority value on the [NetworkIdentity](/docs/Components/NetworkIdentity) is true, the authority rests with that player’s client, and this value is true on that client instead of on the server.
+    Returns true if this GameObject is the authoritative version of the GameObject, meaning it is the source for changes to be synchronized. For most GameObjects, this returns true on the server. However, if the localPlayerAuthority value on the [NetworkIdentity](/Mirror/Components/NetworkIdentity) is true, the authority rests with that player’s client, and this value is true on that client instead of on the server.
 
 -   **netId**  
     The unique network ID of this GameObject. The server assigns this at runtime. It is unique for all GameObjects in that network session.
