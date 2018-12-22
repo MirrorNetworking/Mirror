@@ -1,21 +1,18 @@
 version: '{branch}-{build}'
 
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   - set PATH=C:\Ruby25-x64\bin;%PATH%
   - cd docs
   - bundle install --quiet
   - cd ..
-   # Download & extract libcurl
-  #- appveyor DownloadFile "https://curl.haxx.se/windows/dl-7.63.0/curl-7.63.0-win32-mingw.zip" -FileName curl.zip
-  #- 7z x curl.zip
-  #- set PATH=%CD%\curl-7.63.0-win32-mingw\bin;%PATH%
-
+  - cp c:\Tools\curl\bin\libcur.dll C:\Ruby25-x64\bin
+  
 before_build:
   - nuget restore Mirror/Networking.sln
 
