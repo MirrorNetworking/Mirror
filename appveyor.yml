@@ -3,7 +3,7 @@ version: '{branch}-{build}'
 install:
   - set PATH=C:\Ruby25\bin;%PATH%
   - cd docs
-  - bundle install
+  - bundle install --quiet
   - cd ..
 
 before_build:
@@ -23,7 +23,7 @@ build_script:
   - bundle exec jekyll build
   - bundle exec htmlproofer ./_site
   - cd ..
-  
+
 artifacts:
   - path: Mirror/Output
     name: Mirror
