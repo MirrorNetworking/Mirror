@@ -1,7 +1,7 @@
 version: '{branch}-{build}'
 
 install:
-  - set PATH=C:\Ruby22\bin;%PATH%
+  - set PATH=C:\Ruby25\bin;%PATH%
   - ps: cd docs
   - bundle install
 
