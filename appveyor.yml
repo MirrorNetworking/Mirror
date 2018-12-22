@@ -2,8 +2,9 @@ version: '{branch}-{build}'
 
 install:
   - set PATH=C:\Ruby25\bin;%PATH%
-  - ps: cd docs
+  - cd docs
   - bundle install
+  - cd ..
 
 before_build:
   - nuget restore Mirror/Networking.sln
