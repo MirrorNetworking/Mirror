@@ -66,7 +66,7 @@ If you have only one Network Manager, you need to register to it all prefabs whi
 
 The Network Manager spawns player GameObjects using its implementation of NetworkManager.OnServerAddPlayer. If you want to customize the way player GameObjects are created, you can override that virtual function. This code shows an example of the default implementation:
 
-``` cs
+```cs
 public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 {
     var player = (GameObject)GameObject.Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
@@ -112,7 +112,7 @@ There are virtual functions on the NetworkManager class that you can customize b
 
 These are all the callbacks that can happen for host/server and clients, in some cases it’s important to invoke the base class function to maintain default behaviour. To see the implementation itself you can view it in the source code.
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
@@ -235,7 +235,7 @@ public class CustomManager : NetworkManager {
 
 The inspector for the NetworkManager provides the ability to change some connection parameters and timeouts. Some parameters have not been exposed here but can be changed through code.
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 

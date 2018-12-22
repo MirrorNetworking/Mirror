@@ -57,7 +57,7 @@ You can synchronize member variables of NetworkBehaviour scripts from the server
 
 Use the [SyncVar] attribute to tag member variables as synchronized. Synchronized variables can be any basic type (bool, byte, sbyte, char, decimal, double, float, int, uint, long, ulong, short, ushort, string), but not classes, lists, or other collections.
 
-``` cs
+```cs
 public class SpaceShip : NetworkBehaviour
 {
     [SyncVar]
@@ -76,7 +76,7 @@ When the value of a `SyncVar` changes on the server, the server automatically se
 
 There are built-in callback functions which are invoked on NetworkBehaviour scripts for various network events. These are virtual functions on the base class, so you can override them in your own code like this:
 
-``` cs
+```cs
 public class SpaceShip : NetworkBehaviour
 {
     public override void OnStartServer()
@@ -135,7 +135,7 @@ Note that in a peer-hosted setup, when one of the clients is acting as both host
 
 You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. For example:
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -202,7 +202,7 @@ To define a **command** in your code, you must write a function which has:
 
 For example:
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.__Networking__;
 
@@ -261,7 +261,7 @@ To define a **client RPC call** in your code, you must write a function which:
 
 For example:
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -304,7 +304,7 @@ You can use events to build powerful networked game systems that can be extended
 
 **SyncEvent** is the base class that **Commands** and **ClientRPC** calls are derived from. You can use the SyncEvent attribute on your own functions to make your own event-driven networked gameplay code. Using SyncEvent, you can extend Unity’s Multiplayer features to better fit your own programming patterns. For example:
 
-``` cs
+```cs
 using UnityEngine;
 using UnityEngine.Networking;
 
