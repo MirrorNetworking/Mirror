@@ -48,10 +48,9 @@ after_test:
 
 skip_commits:
   files:
-    - '**/*.md'
+    - '/*.md'
     - '**/*.txt'
     - '.gitignore'
-    - 'docs/'
 
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
