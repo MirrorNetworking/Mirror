@@ -17,7 +17,6 @@ UDP vs. TCP, the technical aspects
 First of all, a quick word about the major differences between UDP and TCP.
 
 -   UDP has lower latency and is unreliable by default and hard to use correctly
-
 -   TCP has higher latency and is reliable by default and easy to use
 
 Now instead of having yet another technical UDP vs. TCP discussion, let's take a look at a real world example to see why we chose TCP over UDP.
@@ -37,7 +36,6 @@ But wait, let's go back a bit further. Minecraft was written in Java, which is o
 Here are the major differences between C++ and Java:
 
 -   C++ has a lower footprint, it's faster and it's hard to use correctly
-
 -   Java is slow, uses ungodly amounts of memory and is easy to use
 
 That discussion sounds oddly familiar. Speed vs. ease of use, just like UDP vs. TCP.
@@ -73,15 +71,10 @@ What sounds good in theory, was terrible in practice. We spent about half our wo
 If a monster didn't spawn on a client, we wouldn't know what caused it.
 
 -   Was the packet dropped by UDP?
-
 -   Was it a bug in the highly complex UNET source code?
-
 -   Was the reliable layer on top of UDP not working as intended?
-
 -   Was the reliable layer actually fully reliable?
-
 -   Did we use the right networking config for the host that we tested it on?
-
 -   Or was it a bug in our own project?
 
 After 3 years in UDP hell, we realized what Notch had realized a long time ago: if we ever wanted to finish our games, we would need a networking layer that just works.

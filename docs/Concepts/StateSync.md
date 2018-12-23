@@ -37,13 +37,9 @@ The server automatically sends SyncVar updates when the value of a SyncVar chang
 While SyncVars contain values, SyncLists contain lists of values. SyncList contents are included in initial state updates along with SyncVar states. Since SyncList is a class which synchronises its own contents, SyncLists do not require the SyncVar attribute. The following types of SyncList are available for basic types:
 
 -   SyncListString
-
 -   SyncListFloat
-
 -   SyncListInt
-
 -   SyncListUInt
-
 -   SyncListBool
 
 There is also SyncListStruct, which you can use to synchronize lists of your own struct types. When using SyncListStruct, the struct type that you choose to use can contain members of basic types, arrays, and common Unity types. They cannot contain complex classes or generic containers, and only public variables in these structs are serialized.

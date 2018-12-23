@@ -13,7 +13,6 @@ Remote actions allow you to call a method in your script across the network. You
 Networking callbacks allow you to hook into built-in Unity events which occur during the course of the game, such as when players join or leave, when GameObjects are created or destroyed, or when a new Scene is loaded. There are two types of networking callbacks that you can implement:
 
 -   Network manager callbacks, for callbacks relating to the network manager itself (such as when clients connect or disconnect)
-
 -   Network behaviour callbacks, for callbacks relating to individual networked GameObjects (such as when its Start function is called, or what this particular GameObject should do if a new player joins the game)
 
 ## Network Messages

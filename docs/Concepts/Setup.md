@@ -3,11 +3,8 @@
 This page contains an overview of the most basic and common things you need when setting up a multiplayer project. In terms of what you require in your project, these are:
 
 -   A Network Manager
-
 -   A user interface (for players to find and join games)
-
 -   Networked Player Prefabs (for players to control)
-
 -   Scripts which are multiplayer-aware
 
 There are variations on this list; for example, in a multiplayer chess game, or a real-time strategy (RTS) game, you don’t need a visible GameObject to represent the player. However, you might still want an invisible empty GameObject to represent the player, and attach scripts to it which relate to what the player is able to do.
@@ -17,7 +14,6 @@ This introductory page contains a brief description of each of the items listed 
 There are also some important concepts that you need to understand and make choices about when building your game. These concepts can broadly be summarised as:
 
 -   The relationship between a client, a server, and a host
-
 -   The idea of authority over GameObjects and actions
 
 To learn about these concepts, see documentation on Network System Concepts.

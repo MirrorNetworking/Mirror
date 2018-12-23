@@ -92,19 +92,12 @@ When running a game as a host with a LocalClient, ClientRpc calls will be invoke
 The arguments passed to commands and ClientRpc calls are serialized and sent over the network. These arguments can be:
 
 -   basic types (byte, int, float, string, UInt64, etc)
-
 -   arrays of basic types
-
 -   structs containing allowable types
-
 -   built-in unity math types (Vector3, Quaternion, etc)
-
 -   NetworkIdentity
-
 -   NetworkInstanceId
-
 -   NetworkHash128
-
 -   GameObject with a NetworkIdentity component attached
 
 Arguments to remote actions cannot be subcomponents of GameObjects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.

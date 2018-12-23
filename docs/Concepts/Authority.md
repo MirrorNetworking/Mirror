@@ -44,11 +44,8 @@ The `NetworkBehaviour` class contains properties that allow scripts
 to know what the context of a networked GameObject is at any time.
 
 -   isServer - true if the GameObject is on a server (or host) and has been spawned.
-
 -   isClient - true if the GameObject is on a client, and was created by the server.
-
 -   isLocalPlayer - true if the GameObject is a player GameObject for this client.
-
 -   hasAuthority - true if the GameObject is owned by the local process
 
 To see these properties, select the GameObject you want to inspect, and in the Inspector window, view the preview window for the NetworkBehaviour scripting components. You can use the value of these properties to execute code based on the context in which the script is running.

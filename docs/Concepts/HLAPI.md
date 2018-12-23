@@ -5,13 +5,9 @@ Mirror’s multiplayer High Level API (HLAPI) is a system for building multiplay
 The HLAPI is focused on ease of use and iterative development and provides useful functionality for multiplayer games, such as:
 
 -   Message handlers
-
 -   General purpose high performance serialization
-
 -   Distributed object management
-
 -   State synchronization
-
 -   Network classes: Server, Client, Connection, etc
 
 The HLAPI is built from a series of layers that add functionality:

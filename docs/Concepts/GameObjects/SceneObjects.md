@@ -3,7 +3,6 @@
 There are two types of networked GameObjects in Unity’s multiplayer system:
 
 -   Those that are created dynamically at runtime
-
 -   Those that are saved as part of a Scene
 
 GameObjects that are created dynamically at runtime use the multiplayer Spawning system, and the prefabs they are instantiated from must be registered in the Network Manager’s list of networked GameObject prefabs.
@@ -15,9 +14,7 @@ When the Scene is loaded, all networked GameObjects in the Scene are disabled on
 Saving networked GameObjects in your Scene (rather than dynamically spawning them after the scene has loaded) has some benefits:
 
 -   They are loaded with the level, so there will be no pause at runtime.
-
 -   They can have specific modifications that differ from prefabs
-
 -   Other GameObject instances in the Scene can reference them, which can avoid you having to use code to finding the GameObjects and make references to them up at runtime.
 
 When the Network Manager spawns the networked Scene GameObjects, those GameObjects behave like dynamically spawned GameObjects. Unity sends them updates and ClientRPC calls.

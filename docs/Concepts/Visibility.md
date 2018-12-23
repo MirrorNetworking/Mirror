@@ -7,7 +7,6 @@ If a particular player, at a certain point in time during gameplay, cannot see m
 This can benefit your game in two ways:
 
 -   It reduces the amount of data sent across the network between players. This can help improve the responsiveness of your game, and reduce bandwidth use. The bigger and more complex your multiplayer game, the more important this issue is.
-
 -   It also helps prevent hacking. Since a player client does not have information about things that can’t be seen, a hack on that player’s computer cannot reveal the information.
 
 The idea of “visibility” in the context of networking doesn’t necessarily relate to whether GameObjects are directly visible on-screen. Instead, it relates to whether data should or shouldn’t be sent about the GameObject in question to a particular client. Put simply, if a client can’t ‘see’ an GameObject, it does not need to be sent information about that GameObject across the network. Ideally you want to limit the amount of data you are sending across the network to only what is necessary, because sending large amounts of unnecessary data across the network can cause network performance problems.
@@ -25,7 +24,6 @@ To use this component, add it to the Prefab of the networked GameObject for whic
 The Network Proximity Checker has two configurable visibility parameters:
 
 -   Vis Range controls the distance threshold within which the network should consider a GameObject visible to a player.
-
 -   Vis Update Interval controls how often the distance test is performed. The value is the delay in seconds between checks. This allows you to optimise the check to perform as few tests as possible. The lower the number, the more frequently the updates occur. For slow-moving GameObjects you can set this interval to higher values. For fast-moving GameObjects, you should set it to lower values.
 
 You must attach a Collider component to any GameObjects you want to use with the Network Proximity Checker.

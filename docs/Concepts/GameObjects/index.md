@@ -9,9 +9,7 @@ A networked GameObject is one which has a Network Identity component attached. H
 What exactly should be synchronized on each networked GameObject depends on the type of game you are making, and what each GameObject’s purpose is. Some examples of what you might want to synchronize are:
 
 -   The position and rotation of moving GameObjects such as the players and non-player characters.
-
 -   The animation state of an animated GameObject
-
 -   The value of a variable, for example how much time is left in the current round of a game, or how much energy a player has.
 
 Some of these things can be automatically synchronized by Unity. The synchronized creation and destruction of networked GameObjects is managed by the NetworkManager, and is known as Spawning. You can use the Network Transform component to synchronize the position and rotation of a GameObject, and you can use the Network Animator component to synchronize the animation of a GameObject.

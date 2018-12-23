@@ -8,9 +8,7 @@ NetworkConnection is a high-level API class that encapsulates a network connecti
     The [NetworkTransport] hostId for this connection.
 
 -   **connectionId**
-
 -   The `NetworkTransport` connectionId for this connection.
-
 -   **isReady**  
     Flag to control whether state updates are sent to this connection
 

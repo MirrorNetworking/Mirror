@@ -202,9 +202,7 @@ See for yourself how uMMORPG was migrated to Mirror
 ## Possible Error Messages
 
 -   TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
-
 -   NullPointerException: The most likely cause is that you replaced NetworkIdentities or other components but you had them assigned somewhere. Reassign those references.
-
 -   `error CS0246: The type or namespace name 'UnityWebRequest'  could not be found. Are you missing 'UnityEngine.Networking' using  directive?`
 
     Add this to the top of your script:

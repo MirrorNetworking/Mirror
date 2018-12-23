@@ -15,11 +15,8 @@ float. Casting this down to a float means the clock will lose precision after
 some time:
 
 -   after 1 day, accuracy goes down to 8 ms
-
 -   after 10 days, accuracy is 62 ms
-
 -   after 30 days , accuracy is 250 ms
-
 -   after 60 days, accuracy is 500 ms
 
 Mirror will also calculate the RTT time as seen by the application:

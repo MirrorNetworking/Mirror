@@ -11,9 +11,7 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 **When a client connects:**
 
 -   `OnStartServer`
-
 -   `OnRebuildObservers`
-
 -   `Start()` function is called
 
 ### Callbacks in client mode
@@ -21,11 +19,8 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 **When a client connects:**
 
 -   `OnStartClient`
-
 -   `OnStartLocalPlayer`
-
 -   `OnStartAuthority`
-
 -   `Start()` function is called
 
 ### Callbacks in host mode
@@ -33,17 +28,11 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 These are only called on the **Player GameObjects** when a client connects:
 
 -   `OnStartServer`
-
 -   `OnStartClient`
-
 -   `OnRebuildObservers`
-
 -   `OnStartAuthority`
-
 -   `OnStartLocalPlayer`
-
 -   `Start()` function is called
-
 -   `OnSetLocalVisibility`
 
 **On any remaining clients, when a client disconnects:**

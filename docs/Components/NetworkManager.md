@@ -5,13 +5,9 @@ The Network Manager is a component for managing the networking aspects of a mult
 The Network Manager features include:
 
 -   Game state management
-
 -   Spawn management
-
 -   Scene management
-
 -   Debugging information
-
 -   Customization
 
 ## Getting Started with the Network Manager
@@ -33,9 +29,7 @@ A Networking multiplayer game can run in three modes - as a client, as a dedicat
 If you’re using the Network Manager HUD, it automatically tells the Network Manager which mode to start in, based on which options the player selects. If you’re writing your own UI that allows the player to start the game, you’ll need to call these from your own code. These methods are:
 
 -   NetworkManager.StartClient
-
 -   NetworkManager.StartServer
-
 -   NetworkManager.StartHost
 
 ![The network address and port settings in the Network Manager component](NetworkAddressAndPortSettings.png)
@@ -79,7 +73,6 @@ To control where players are spawned, you can use the Network Start Position com
 The Network Manager has a Player Spawn Method property, which allows you to configure how start positions are chosen.
 
 -   Choose Random to spawn players at randomly chosen startPosition options.
-
 -   Choose Round Robin to cycle through startPosition options in a set list.
 
 If the Random or Round Robin modes don’t suit your game, you can customize how the start positions are selected by using code. You can access the available Network Start Position components by the list NetworkManager.startPositions, and you can use the helper method GetStartPosition on the Network Manager that can be used in implementation of OnServerAddPlayer to find a start position.

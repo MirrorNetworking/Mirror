@@ -21,9 +21,7 @@ Message classes can contain members that are basic types, structs, and arrays, i
 There are built-in message classes for common types of network messages:
 
 -   EmptyMessage
-
 -   StringMessage
-
 -   IntegerMessage
 
 To send a message, use the `Send()` method on the NetworkClient, NetworkServer, and NetworkConnection classes which work the same way. It takes a message ID, and a message object that is derived from MessageBase. The code below demonstrates how to send and handle a message using one of the built-in message classes:

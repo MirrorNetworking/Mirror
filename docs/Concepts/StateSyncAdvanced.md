@@ -27,39 +27,24 @@ GameObjects with the Network Identity component attached can have multiple scrip
 On the server:
 
 -   Each `NetworkBehaviour` has a dirty mask. This mask is available inside `OnSerialize` as `syncVarDirtyBits`
-
 -   Each SyncVar in a `NetworkBehaviour` script is assigned a bit in the dirty mask.
-
 -   Changing the value of SyncVars causes the bit for that SyncVar to be set in the dirty mask
-
 -   Alternatively, calling `SetDirtyBit` writes directly to the dirty mask
-
 -   NetworkIdentity GameObjects are checked on the server as part of it’s update loop
-
 -   If any `NetworkBehaviours` on a `NetworkIdentity` are dirty, then an `UpdateVars` packet is created for that GameObject
-
 -   The `UpdateVars` packet is populated by calling `OnSerialize` on each `NetworkBehaviour` on the GameObject
-
 -   `NetworkBehaviours` that are not dirty write a zero to the packet for their dirty bits
-
 -   `NetworkBehaviours` that are dirty write their dirty mask, then the values for the SyncVars that have changed
-
 -   If `OnSerialize` returns true for a `NetworkBehaviour`, the dirty mask is reset for that `NetworkBehaviour` so it does not send again until its value changes.
-
 -   The `UpdateVars` packet is sent to ready clients that are observing the GameObject
 
 On the client:
 
 -   an `UpdateVars packet` is received for a GameObject
-
 -   The `OnDeserialize` function is called for each `NetworkBehaviour` script on the GameObject
-
 -   Each `NetworkBehaviour` script on the GameObject reads a dirty mask.
-
 -   If the dirty mask for a `NetworkBehaviour` is zero, the `OnDeserialize` function returns without reading any more
-
 -   If the dirty mask is non-zero value, then the `OnDeserialize` function reads the values for the SyncVars that correspond to the dirty bits that are set
-
 -   If there are SyncVar hook functions, those are invoked with the value read from the stream.
 
 So for this script:

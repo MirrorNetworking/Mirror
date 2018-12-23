@@ -17,15 +17,10 @@ We also raised the limit from 32 SyncVars to 64 per NetworkBehavior.
 A SyncList can only be of the following type
 
 -   Basic type (byte, int, float, string, UInt64, etc)
-
 -   Built-in Unity math type (Vector3, Quaternion, etc)
-
 -   NetworkIdentity
-
 -   NetworkInstanceId
-
 -   NetworkHash128
-
 -   GameObject with a NetworkIdentity component attached.
 
 ## Usage
