@@ -81,11 +81,6 @@
       margin-top: .75rem;
     }
   
-    > ul li,
-    > ol li {
-      margin-bottom: .25rem;
-    }
-  
     @include media-breakpoint-up(lg) {
       > ul,
       > ol,
