@@ -10,11 +10,11 @@
 
         {% assign active = "" %}
         {% assign childurlfolder = child.url | append: '/' %}
-        {% if pageurl == child.url or pageurl == childurlfolder %}
+        {% if child.url and (pageurl == child.url or pageurl == childurlfolder) %}
             {% assign active = "active bd-sidenav-active" %}
         {% endif %}
 
-        <li class="hello {{active}}">
+        <li class="{{active}}">
             {% assign childid = include.id | append: '_' | append: forloop.index %}
             {% include f_sidebar_nav.html item=child id=childid %}
         </li>
