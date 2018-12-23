@@ -1,5 +1,18 @@
 version: '{branch}-{build}'
 
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+  - set PATH=C:\Ruby25-x64\bin;%PATH%
+  - cd docs
+  - bundle install --quiet
+  - cd ..
+  - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
+  
 before_build:
   - nuget restore Mirror/Networking.sln
 
@@ -13,6 +26,10 @@ skip_tags: true
 build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
+  - cd docs
+  - bundle exec jekyll build
+  - ruby checksite.rb
+  - cd ..
 
 artifacts:
   - path: Mirror/Output
@@ -31,10 +48,9 @@ after_test:
 
 skip_commits:
   files:
-    - '**/*.md'
+    - '/*.md'
     - '**/*.txt'
     - '.gitignore'
-    - 'docs/'
 
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
