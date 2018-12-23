@@ -14,6 +14,20 @@ In Mirror SyncList were redesigned. The lists queue up their changes, and the ch
 
 We also raised the limit from 32 SyncVars to 64 per NetworkBehavior.
 
+A SyncList can only be of the following type
+
+-   Basic type (byte, int, float, string, UInt64, etc)
+
+-   Built-in Unity math type (Vector3, Quaternion, etc)
+
+-   NetworkIdentity
+
+-   NetworkInstanceId
+
+-   NetworkHash128
+
+-   GameObject with a NetworkIdentity component attached.
+
 ## Usage
 
 Don't modify them in Awake, use OnStartServer or Start. SyncListStructs use Structs. C\# structs are value types, just like int, float, Vector3 etc. You can't do synclist.value = newvalue; You have to copy the element, assign the new value, assign the new element to the synclist. You can use hooks like this:
