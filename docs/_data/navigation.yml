@@ -46,37 +46,28 @@
       children:
         - title: "Overview"
           url: "/Concepts/Communications"
-          children:
-            - title: "Remote Actions"
-              url: "/Concepts/Communications/RemoteActions"
-          children:
-            - title: "Network Manager Callbacks"
-              url: "/Concepts/Communications/NetworkManager"
-          children:
-            - title: "Network Behavior Callbacks"
-              url: "/Concepts/Communications/NetworkBehavior"
-          children:
-            - title: "Network Messages"
-              url: "/Concepts/Communications/NetworkMessages"
+        - title: "Remote Actions"
+          url: "/Concepts/Communications/RemoteActions"
+        - title: "Network Manager Callbacks"
+          url: "/Concepts/Communications/NetworkManager"
+        - title: "Network Behavior Callbacks"
+          url: "/Concepts/Communications/NetworkBehavior"
+        - title: "Network Messages"
+          url: "/Concepts/Communications/NetworkMessages"
     - title: "GameObjects"
       children:
         - title: "Overview"
           url: "/Concepts/GameObjects"
-          children:
-            - title: "Spawn Player"
-              url: "/Concepts/GameObjects/SpawnPlayer"
-          children:
-            - title: "Spawn Player - Custom"
-              url: "/Concepts/GameObjects/SpawnPlayerCustom"
-          children:
-            - title: "Spawn Object"
-              url: "/Concepts/GameObjects/SpawnObject"
-          children:
-            - title: "Spawn Object - Custom"
-              url: "/Concepts/GameObjects/SpawnObjectCustom"
-          children:
-            - title: "Scene Objects"
-              url: "/Concepts/GameObjects/SceneObjects"
+        - title: "Spawn Player"
+          url: "/Concepts/GameObjects/SpawnPlayer"
+        - title: "Spawn Player - Custom"
+          url: "/Concepts/GameObjects/SpawnPlayerCustom"
+        - title: "Spawn Object"
+          url: "/Concepts/GameObjects/SpawnObject"
+        - title: "Spawn Object - Custom"
+          url: "/Concepts/GameObjects/SpawnObjectCustom"
+        - title: "Scene Objects"
+          url: "/Concepts/GameObjects/SceneObjects"
 - title: "Sample Projects"
   children:
     - title: "Overview"
