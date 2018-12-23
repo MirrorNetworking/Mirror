@@ -8,24 +8,17 @@ See the [NetworkClient](#networkclient) script reference for more information.
 
 -   **serverIP**  
     The IP address of the server that this client is connected to.
-
 -   **serverPort**  
     The port of the server that this client is connected to.
-
 -   **connection**  
     The NetworkConnection GameObject this `NetworkClient` instance is using.
-
 -   **handlers**  
     The set of registered message handler functions.
-
 -   **numChannels**  
     The number of configured NetworkTransport QoS channels.
-
 -   **isConnected**  
     True if the client is connected to a server.
-
 -   **allClients**  
     List of active NetworkClients (static).
-
 -   **active**  
     True if any NetworkClients are active (static).

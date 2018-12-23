@@ -4,7 +4,6 @@ The Network Identity component is at the heart of the Unity networking high-leve
 
 -   **Server Only**  
     Tick this checkbox to ensure that Unity only spawns the GameObject on the server, and not on clients.
-
 -   **Local Player Authority**  
     Tick this checkbox to give authoritative network control of this GameObject to the client that owns it. The player GameObject on that client has authority over it. Other components such as Network Transform use this to determine which client to treat as the source of authority.
 
@@ -36,42 +35,29 @@ At runtime there is more information to display here (a disabled NetworkBehaviou
 
 -   **assetId**  
     This identifies the prefab associated with this object (for spawning).
-
 -   **clientAuthorityOwner**  
     The client that has authority for this object. This will be null if no client has authority.
-
 -   **connectionToClient**  
     The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.
-
 -   **connectionToServer**  
     The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
-
 -   **hasAuthority**  
     True if this object is the authoritative version of the object. This would mean either on a the server for normal objects, or on the client with localPlayerAuthority.
-
 -   **isClient**  
     True if this object is running on a client.
-
 -   **isLocalPlayer**  
     This returns true if this object is the one that represents the player on the local machine.
-
 -   **isServer**  
     True if this object is running on the server, and has been spawned.
-
 -   **localPlayerAuthority**  
     True if this object is controlled by the client that owns it - the local player object on that client has authority over it. This is used by other components such as NetworkTransform.
-
 -   **netId**  
     A unique identifier for this network session, assigned when spawned.
-
 -   **observers**  
     The list of client NetworkConnections that are able to see this object. This is read-only.
-
 -   **playerControllerId**  
     The identifier of the controller associated with this object. Only valid for player objects.
-
 -   **SceneId**  
     A unique identifier for networked objects in a Scene. This is only populated in play-mode.
-
 -   **serverOnly**  
     A flag to make this object not be spawned on clients.

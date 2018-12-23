@@ -6,13 +6,10 @@ The Network Proximity Checker component controls the visibility of GameObjects f
 
 -   **Vis Range**  
     Define the range that the GameObject should be visible in.
-
 -   **Vis Update Interval**  
     Define how often (in seconds) the GameObject should check for players entering its visible range.
-
 -   **Check Method**  
     Define which type of physics (2D or 3D) to use for proximity checking.
-
 -   **Force Hidden**  
     Tick this checkbox to hide this object from all players.
 

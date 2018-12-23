@@ -6,11 +6,11 @@ In most cases, the use of SyncVars is enough for your game scripts to serialize 
 
 To perform your own custom serialization, you can implement virtual functions on NetworkBehaviour to be used for SyncVar serialization. These functions are:
 
-```
+```cs
 public virtual bool OnSerialize(NetworkWriter writer, bool initialState);
 ```
 
-```
+```cs
 public virtual void OnDeSerialize(NetworkReader reader, bool initialState);
 ```
 
@@ -49,7 +49,7 @@ On the client:
 
 So for this script:
 
-```
+```cs
 public class data : NetworkBehaviour
 {
     [SyncVar]
@@ -65,7 +65,7 @@ public class data : NetworkBehaviour
 
 The following code sample demonstrates the generated `OnSerialize` function:
 
-```
+```cs
 public override bool OnSerialize(NetworkWriter writer, bool forceAll)
 {
     if (forceAll)
@@ -122,7 +122,7 @@ public override bool OnSerialize(NetworkWriter writer, bool forceAll)
 
 The following code sample demonstrates the `OnDeserialize` function:
 
-```
+```cs
 public override void OnDeserialize(NetworkReader reader, bool initialState)
 {
     if (initialState)

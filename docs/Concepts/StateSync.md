@@ -10,7 +10,7 @@ Data is not synchronized in the opposite direction - from remote clients to the 
 
 SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. When a GameObject is spawned, or a new player joins a game in progress, they are sent the latest state of all SyncVars on networked objects that are visible to them. Use the `SyncVar` custom attribute to specify which variables in your script you want to synchronize, like this:
 
-``` cs
+```cs
 class Player : NetworkBehaviour
 {
     [SyncVar]
@@ -46,7 +46,7 @@ There is also SyncListStruct, which you can use to synchronize lists of your own
 
 SyncLists have a SyncListChanged delegate named Callback that allows clients to be notified when the contents of the list change. This delegate is called with the type of operation that occurred, and the index of the item that the operation was for.
 
-``` cs
+```cs
 public class MyScript : NetworkBehaviour
 {
     public struct Buf

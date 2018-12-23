@@ -10,10 +10,8 @@ To start using the Network Manager HUD, create an empty GameObject in your Scene
 
 -   **Show Runtime GUI**  
     Tick this checkbox to show the **Network Manager** HUD GUI at run time. This allows you to reveal or hide it for quick debugging.
-
 -   **GUI Horizontal Offset**  
     Set the horizontal **pixel** offset of the HUD, measured from the left edge of the screen.
-
 -   **GUI Vertical Offset**  
     Set the vertical pixel offset of the HUD, measured from the top edge of the screen.
 

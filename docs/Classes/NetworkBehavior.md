@@ -10,28 +10,20 @@ With the server-authoritative system of the Unity Network System, the server mus
 
 -   **isLocalPlayer**  
     Returns true if this GameObject is the one that represents the player on the local client.
-
 -   **isServer**  
     Returns true if this GameObject is running on the server, and has been spawned.
-
 -   **isClient**  
     Returns true if this GameObject is on the client and has been spawned by the server.
-
 -   **hasAuthority**  
     Returns true if this GameObject is the authoritative version of the GameObject, meaning it is the source for changes to be synchronized. For most GameObjects, this returns true on the server. However, if the localPlayerAuthority value on the [NetworkIdentity](/Mirror/Components/NetworkIdentity) is true, the authority rests with that player’s client, and this value is true on that client instead of on the server.
-
 -   **netId**  
     The unique network ID of this GameObject. The server assigns this at runtime. It is unique for all GameObjects in that network session.
-
 -   **playerControllerId**  
     The ID of the player associated with this NetworkBehaviour script. This is only valid if the object is a local player.
-
 -   **connectionToServer**  
     The NetworkConnection associated with the Network Identity component attached to this GameObject. This is only valid for **player objects** on the client.
-
 -   **connectionToClient**  
     The NetworkConnection associated with the Network Identity component attached to this GameObject. This is only valid for player GameObjects on the server.
-
 -   **localPlayerAuthority**  
     This value is set on the Network Identity component and is accessible from the NetworkBehaviour script for convenient access in scripts.
 
@@ -52,7 +44,7 @@ You can synchronize member variables of NetworkBehaviour scripts from the server
 
 Use the SyncVar attribute to tag member variables as synchronized. Synchronized variables can be any basic type (bool, byte, sbyte, char, decimal, double, float, int, uint, long, ulong, short, ushort, string), but not classes, lists, or other collections.
 
-``` cs
+```cs
 public class SpaceShip : NetworkBehaviour
 {
     [SyncVar]
@@ -71,7 +63,7 @@ When the value of a `SyncVar` changes on the server, the server automatically se
 
 There are built-in callback functions which are invoked on NetworkBehaviour scripts for various network events. These are virtual functions on the base class, so you can override them in your own code like this:
 
-``` cs
+```cs
 public class SpaceShip : NetworkBehaviour
 {
     public override void OnStartServer()
@@ -89,39 +81,22 @@ public class SpaceShip : NetworkBehaviour
 The built-in callbacks are:
 
 -   **OnStartServer**
-
     called when a GameObject spawns on the server, or when the server is started for GameObjects in the Scene
-
 -   **OnStartClient**
-
     called when the GameObject spawns on the client, or when the client connects to a server for GameObjects in the Scene
-
 -   **OnSerialize**
-
     called to gather state to send from the server to clients
-
 -   **OnDeSerialize**
-
     called to apply state to GameObjects on clients
-
 -   **OnNetworkDestroy**
-
     called on clients when the server destroys the GameObject
-
 -   **OnStartLocalPlayer**
-
     called on clients for player GameObjects on the local client (only)
-
 -   **OnRebuildObservers**
-
     called on the server when the set of observers for a GameObjects is rebuilt
-
 -   **OnSetLocalVisibility**
-
     called on the client and/or server when the visibility of a GameObject changes for the local client
-
 -   **OnCheckObserver**
-
     called on the server to check visibility state for a new client
 
 Note that in a peer-hosted setup, when one of the clients is acting as both host and client, both `OnStartServer` and `OnStartClient` are called on the same GameObject. Both these functions are useful for actions that are specific to either the client or server, such as suppressing effects on a server, or setting up client-side events.
@@ -130,7 +105,7 @@ Note that in a peer-hosted setup, when one of the clients is acting as both host
 
 You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. For example:
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -193,7 +168,7 @@ To define a command in your code, you must write a function which has:
 
 For example:
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -251,7 +226,7 @@ To define a client RPC call in your code, you must write a function which:
 
 For example:
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -293,7 +268,7 @@ You can use events to build powerful networked game systems that can be extended
 
 SyncEvent is the base class that Commands and ClientRPC calls are derived from. You can use the SyncEvent attribute on your own functions to make your own event-driven networked gameplay code. Using SyncEvent, you can extend Unity’s Multiplayer features to better fit your own programming patterns. For example:
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 
