@@ -20,7 +20,7 @@
       url: "/Concepts/Authority"
     - title: "About IDs"
       url: "/Concepts/IDs"
-    - title: "ClientsServers"
+    - title: "Clients and Servers"
       url: "/Concepts/ClientsServers"
     - title: "Conversion"
       url: "/Concepts/Conversion"
@@ -40,7 +40,7 @@
       url: "/Concepts/StateSyncAdvanced"
     - title: "Visibility"
       url: "/Concepts/Visibility"
-    - title: "CustomVisibility"
+    - title: "Custom Visibility"
       url: "/Concepts/VisibilityCustom"
     - title: "Communications"
       children:
