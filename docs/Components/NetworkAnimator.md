@@ -4,7 +4,7 @@ The Network Animator component allows you to synchronize animation states for ne
 
 Note that if you create a Network Animator component on an empty GameObject, Unity also creates a Network Identity component and an Animator component on that GameObject.
 
-![The Network Animator component in the Inspector window](https://docs.unity3d.com/uploads/Main/NetworkAnimatorComponent.png)
+![The Network Animator component in the Inspector window](NetworkAnimatorComponent.png)
 
 -   **Animator**  
     Use this field to define the Animator component you want the Network Animator to synchronize with.

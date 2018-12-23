@@ -12,8 +12,6 @@ The Network Manager features include:
 
 -   Debugging information
 
--   Matchmaking
-
 -   Customization
 
 ## Getting Started with the Network Manager
@@ -24,15 +22,15 @@ The Network Manager is the core controlling component of a multiplayer game. To 
 
 The Inspector for the Network Manager in the Editor allows you to configure and control many things related to networking.
 
-Note: You should only ever have one active Network Manager in each Scene. Do not place the Network Manager component on a networked GameObject (one which has a [Network Identity] component), because Unity disables these when the Scene loads.
+Note: You should only ever have one active Network Manager in each Scene. Do not place the Network Manager component on a networked GameObject (one which has a Network Identity component), because Unity disables these when the Scene loads.
 
-If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the [High-level API] (HLAPI), so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from NetworkManager and customize its behaviour by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
+If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the High-level API (HLAPI), so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from NetworkManager and customize its behaviour by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
 
 ## Game State Management
 
 A Networking multiplayer game can run in three modes - as a client, as a dedicated server, or as a “Host” which is both a client and a server at the same time.
 
-If you’re using the [Network Manager HUD], it automatically tells the Network Manager which mode to start in, based on which options the player selects. If you’re writing your own UI that allows the player to start the game, you’ll need to call these from your own code. These methods are:
+If you’re using the Network Manager HUD, it automatically tells the Network Manager which mode to start in, based on which options the player selects. If you’re writing your own UI that allows the player to start the game, you’ll need to call these from your own code. These methods are:
 
 -   NetworkManager.StartClient
 
@@ -43,8 +41,6 @@ If you’re using the [Network Manager HUD], it automatically tells the Network 
 ![The network address and port settings in the Network Manager component](NetworkAddressAndPortSettings.png)
 
 Whichever mode the game starts in (client, server, or host), the Network Address and Network Port properties are used. In client mode, the game attempts to connect to the address and port specified. In server or host mode, the game listens for incoming connections on the port specified.
-
-During development of your game, it can be useful to put a fixed address and port setting into these properties. However, eventually you might want your players to be able to choose the host they to connect to. When you get to that stage, the [Network Discovery] component (see [Local Discovery]) can be used for broadcasting and finding addresses and ports on a local area network (LAN), and the Matchmaker service can be used for players to find internet matches to connect to (see [Multiplayer Service]).
 
 ## Spawn Management
 
@@ -66,7 +62,7 @@ If you have only one Network Manager, you need to register to it all prefabs whi
 
 The Network Manager spawns player GameObjects using its implementation of NetworkManager.OnServerAddPlayer. If you want to customize the way player GameObjects are created, you can override that virtual function. This code shows an example of the default implementation:
 
-```cs
+``` cs
 public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 {
     var player = (GameObject)GameObject.Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
@@ -78,7 +74,7 @@ Note: If you are implementing a custom version of OnServerAddPlayer, the method 
 
 ## Start Positions
 
-To control where players are spawned, you can use the [Network Start Position] component. To use these, attach a Network Start Position component to a GameObject in the Scene, and position the GameObject where you would like one of the players to start. You can add as many start positions to your Scene as you like. The Network Manager detects all start positions in your Scene, and when it spawns each player instance, it uses the position and orientation of one of them.
+To control where players are spawned, you can use the Network Start Position component. To use these, attach a Network Start Position component to a GameObject in the Scene, and position the GameObject where you would like one of the players to start. You can add as many start positions to your Scene as you like. The Network Manager detects all start positions in your Scene, and when it spawns each player instance, it uses the position and orientation of one of them.
 
 The Network Manager has a Player Spawn Method property, which allows you to configure how start positions are chosen.
 
@@ -86,7 +82,7 @@ The Network Manager has a Player Spawn Method property, which allows you to conf
 
 -   Choose Round Robin to cycle through startPosition options in a set list.
 
-If the Random or Round Robin modes don’t suit your game, you can customize how the start positions are selected by using code. You can access the available Network Start Position components by the list [NetworkManager.startPositions], and you can use the helper method [GetStartPosition()] on the Network Manager that can be used in implementation of OnServerAddPlayer to find a start position.
+If the Random or Round Robin modes don’t suit your game, you can customize how the start positions are selected by using code. You can access the available Network Start Position components by the list NetworkManager.startPositions, and you can use the helper method GetStartPosition on the Network Manager that can be used in implementation of OnServerAddPlayer to find a start position.
 
 ## Scene Management
 
@@ -94,11 +90,11 @@ Most games have more than one Scene. At the very least, there is usually a title
 
 There are two slots on the NetworkManager Inspector for scenes: the Offline Scene and the Online Scene. Dragging Scene assets into these slots activates networked Scene management.
 
-When a server or host is started, the Online Scene is loaded. This then becomes the current network Scene. Any clients that connect to that server are instructed to also load that Scene. The name of this Scene is stored in the [networkSceneName] property.
+When a server or host is started, the Online Scene is loaded. This then becomes the current network Scene. Any clients that connect to that server are instructed to also load that Scene. The name of this Scene is stored in the networkSceneName property.
 
 When the network is stopped, by stopping the server or host or by a client disconnecting, the offline Scene is loaded. This allows the game to automatically return to a menu Scene when disconnected from a multiplayer game.
 
-You can also change Scenes while the game is active by calling [NetworkManager.ServerChangeScene()]. This makes all the currently connected clients change Scene too, and updates networkSceneName so that new clients also load the new Scene.
+You can also change Scenes while the game is active by calling NetworkManager.ServerChangeScene. This makes all the currently connected clients change Scene too, and updates networkSceneName so that new clients also load the new Scene.
 
 While networked Scene management is active, any calls to game state management functions such NetworkManager.StartHost() or NetworkManager.StopClient() can cause Scene changes. This applies to the runtime control UI. By setting up Scenes and calling these methods, you can control the flow of your multiplayer game.
 
@@ -112,10 +108,9 @@ There are virtual functions on the NetworkManager class that you can customize b
 
 These are all the callbacks that can happen for host/server and clients, in some cases it’s important to invoke the base class function to maintain default behaviour. To see the implementation itself you can view it in the source code.
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.Networking.Match;
+using Mirror;
 
 public class CustomManager : NetworkManager {
     // Server callbacks
@@ -235,9 +230,9 @@ public class CustomManager : NetworkManager {
 
 The inspector for the NetworkManager provides the ability to change some connection parameters and timeouts. Some parameters have not been exposed here but can be changed through code.
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 public class CustomManager : NetworkManager {
 
@@ -257,7 +252,7 @@ public class CustomManager : NetworkManager {
 
 The Network Manager component allows you to control the state of a networked game. It provides an interface in the Editor for you to configure the network, the Prefabs you use for spawning GameObjects, and the Scenesyou use for different game states.
 
-For more details on implementing the Network Manager in your game, see documentation on [Using the Network Manager].
+For more details on implementing the Network Manager in your game, see documentation on Using the Network Manager.
 
 ![The Network Manager component in the Inspector window](NetworkManagerUNetComponent.png)
 
@@ -295,7 +290,7 @@ For more details on implementing the Network Manager in your game, see documenta
         This field is only visible when the Server Bind To IP checkbox is ticked. Use this to enter the specific IP address that the server should bind to.
 
     -   **Script CRC Check**  
-        When this is enabled, Unity checks that the clients and the server are using matching scripts. This is useful to make sure outdated versions of your client are not connecting to the latest (updated) version of your server. This checkbox is ticked by default. It does this by performing a (CRC check)[https://en.wikipedia.org/wiki/Cyclic_redundancy_check] between the server and client that ensures the NetworkBehaviour scripts match. This may not be appropriate in some cases, such as when you are intentionally using different Unity projects for the client and server. In most other cases however, you should leave it enabled.
+        When this is enabled, Unity checks that the clients and the server are using matching scripts. This is useful to make sure outdated versions of your client are not connecting to the latest (updated) version of your server. This checkbox is ticked by default. It does this by performing a ([CRC check](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)) between the server and client that ensures the NetworkBehaviour scripts match. This may not be appropriate in some cases, such as when you are intentionally using different Unity projects for the client and server. In most other cases however, you should leave it enabled.
 
     -   **Max Delay**  
         The maximum time in seconds to delay buffered messages. The default of 0.01 seconds means packets are delayed at most by 10 milliseconds. Setting this to zero disables HLAPI connection buffering. This is set to 0.01 by default.
@@ -305,18 +300,6 @@ For more details on implementing the Network Manager in your game, see documenta
 
     -   **Packet Fragmentation**  
         This allows the `NetworkConnection` instances to fragment packets that are larger than `maxPacketSize` to up a maximum of 64K. This can cause delays in sending large packets. This checkbox is ticked by default.
-
-    -   **MatchMaker Host URI**  
-        The host address for the MatchMaker server. By default this points to the global Unity Multiplayer Service at mm.unet.unity3d.com, and usually you should not need to change this. Unity automatically groups players of your game into regional servers around the world, which ensures fast multiplayer response times between players in the same region. This means, for example, that players from Europe, the US, and Asia generally end up playing with other players from their same global region. You can override this value to explicitly control which regional server your game connects to. You might want to do this via scripting if you want to give your players the option of joining a server outside of their global region. For example, if “Player A” (in the US) wanted to connect to a match created via matchmaker by “Player B” (in Europe), they would need to be able to set their desired global region in your game. Therefore you would need to write a UI feature which allows them to select this. See API reference documentation on NetworkMatch.baseUri for more information, and for the regional server URIs.
-
-    -   **MatchMaker Port**  
-        The host port for the Matchmaker server. By default this points to port 443, and usually you should not need to change this.
-
-    -   **Match Name**  
-        Define the name of the current match. This is set to “default” by default.
-
-    -   **Maximum Match Size**  
-        Define the maximum number of players in the current match. This is set to 4 by default.
 
 -   **SpawnInfo**  
     You can expand this section of the inspector to access spawn-related settings, listed below
@@ -346,7 +329,7 @@ For more details on implementing the Network Manager in your game, see documenta
         Define the maximum number of concurrent network connections to support. This is set to 4 by default.
 
     -   **Qos Channels**  
-        A list containing the different communication channels the current Network Manager has, and the Quality Of Service (QoS) setting for each channel. Use this list to add or remove channels, and adjust their QoS setting. You can also configure the channels via scripting. For the descriptions of each QoS option, see [QosType].
+        A list containing the different communication channels the current Network Manager has, and the Quality Of Service (QoS) setting for each channel. Use this list to add or remove channels, and adjust their QoS setting. You can also configure the channels via scripting. For the descriptions of each QoS option, see QosType.
 
 -   **Timeouts**
 

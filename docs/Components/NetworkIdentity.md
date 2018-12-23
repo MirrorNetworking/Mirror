@@ -1,6 +1,6 @@
 # NetworkIdentity
 
-The Network Identity component is at the heart of the Unity networking high-level API. It controls a GameObject’s unique identity on the network, and it uses that identity to make the networking system aware of the GameObject.  It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
+The Network Identity component is at the heart of the Unity networking high-level API. It controls a GameObject’s unique identity on the network, and it uses that identity to make the networking system aware of the GameObject. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
 
 -   **Server Only**  
     Tick this checkbox to ensure that Unity only spawns the GameObject on the server, and not on clients.
@@ -28,11 +28,11 @@ When building your game, Unity disables all Scene-based GameObjects with Network
 
 This component contains network tracking information, and displays that information in the preview pane. For example, the scene ID, network ID and asset ID the object has been assigned. This allows you to inspect the information which can be useful for investigation and debugging.
 
-![](https://docs.unity3d.com/uploads/Main/NetworkIdentityPreview.png)
+![](NetworkIdentityPreview.png)
 
 At runtime there is more information to display here (a disabled NetworkBehaviour is displayed non-bold):
 
-![](https://docs.unity3d.com/uploads/Main/NetworkIdentityPreviewRuntime.png)
+![](NetworkIdentityPreviewRuntime.png)
 
 -   **assetId**  
     This identifies the prefab associated with this object (for spawning).

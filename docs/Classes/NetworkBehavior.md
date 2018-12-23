@@ -1,8 +1,8 @@
 # NetworkBehavior
 
-NetworkBehaviour **scripts** work with **GameObjects** that have a [NetworkIdentity] component. These scripts can perform [high-level API] functions such as [Commands, ClientRPCs], [SyncEvents] and [SyncVars].
+NetworkBehaviour scripts work with GameObjects that have a NetworkIdentity component. These scripts can perform high-level API functions such as Commands, ClientRPCs, SyncEvents and SyncVars.
 
-With the server-authoritative system of the Unity Network System, the server must use the [NetworkServer.Spawn] function to spawn GameObjects with Network Identity components. Spawning them this way assigns them a [NetworkInstanceId] and creates them on clients connected to the server.
+With the server-authoritative system of the Unity Network System, the server must use the NetworkServer.Spawn function to spawn GameObjects with Network Identity components. Spawning them this way assigns them a NetworkInstanceId and creates them on clients connected to the server.
 
 **Note:** This is not a component that you can add to a GameObject directly. Instead, you must create a script which inherits from `NetworkBehaviour` (instead of the default `MonoBehaviour`), then you can add your script as a component to a GameObject.
 
@@ -55,9 +55,9 @@ NetworkBehaviour scripts have the following features:
 
 You can synchronize member variables of NetworkBehaviour scripts from the server to clients. The server is authoritative in this system, so synchronization only takes place in the direction of server to client.
 
-Use the [SyncVar] attribute to tag member variables as synchronized. Synchronized variables can be any basic type (bool, byte, sbyte, char, decimal, double, float, int, uint, long, ulong, short, ushort, string), but not classes, lists, or other collections.
+Use the SyncVar attribute to tag member variables as synchronized. Synchronized variables can be any basic type (bool, byte, sbyte, char, decimal, double, float, int, uint, long, ulong, short, ushort, string), but not classes, lists, or other collections.
 
-```cs
+``` cs
 public class SpaceShip : NetworkBehaviour
 {
     [SyncVar]
@@ -70,13 +70,13 @@ public class SpaceShip : NetworkBehaviour
 
 When the value of a `SyncVar` changes on the server, the server automatically sends the new value to all ready clients in the game, and updates the corresponding `SyncVar` values on those clients. When GameObjects spawn, they are created on the client with the latest state of all `SyncVar` attributes from the server.
 
-**Note:** To make a request from a client to the server, you need to use **commands**, not synchronized variables. See documentation on Sending commands for more information.
+**Note:** To make a request from a client to the server, you need to use commands, not synchronized variables. See documentation on Sending commands for more information.
 
 ## Network callbacks
 
 There are built-in callback functions which are invoked on NetworkBehaviour scripts for various network events. These are virtual functions on the base class, so you can override them in your own code like this:
 
-```cs
+``` cs
 public class SpaceShip : NetworkBehaviour
 {
     public override void OnStartServer()
@@ -93,39 +93,39 @@ public class SpaceShip : NetworkBehaviour
 
 The built-in callbacks are:
 
--   [**OnStartServer**]
+-   **OnStartServer**
 
     called when a GameObject spawns on the server, or when the server is started for GameObjects in the Scene
 
--   [**OnStartClient**]
+-   **OnStartClient**
 
     called when the GameObject spawns on the client, or when the client connects to a server for GameObjects in the Scene
 
--   [**OnSerialize**]
+-   **OnSerialize**
 
     called to gather state to send from the server to clients
 
--   [**OnDeSerialize**]
+-   **OnDeSerialize**
 
     called to apply state to GameObjects on clients
 
--   [**OnNetworkDestroy**]
+-   **OnNetworkDestroy**
 
     called on clients when the server destroys the GameObject
 
--   [**OnStartLocalPlayer**]
+-   **OnStartLocalPlayer**
 
     called on clients for player GameObjects on the local client (only)
 
--   [**OnRebuildObservers**]
+-   **OnRebuildObservers**
 
     called on the server when the set of observers for a GameObjects is rebuilt
 
--   [**OnSetLocalVisibility**]
+-   **OnSetLocalVisibility**
 
     called on the client and/or server when the visibility of a GameObject changes for the local client
 
--   [**OnCheckObserver**]
+-   **OnCheckObserver**
 
     called on the server to check visibility state for a new client
 
@@ -135,9 +135,9 @@ Note that in a peer-hosted setup, when one of the clients is acting as both host
 
 You can tag member functions in NetworkBehaviour scripts with custom attributes to designate them as server-only or client-only functions. For example:
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 public class SimpleSpaceShip : NetworkBehaviour
 {
@@ -170,41 +170,41 @@ public class SimpleSpaceShip : NetworkBehaviour
 }
 ```
 
-`[Server]` and `[ServerCallback]` return immediately if the client is not active. Likewise, `[Client]` and `[ClientCallback]` return immediately if the server is not active.
+`Server` and `[ServerCallback]` return immediately if the client is not active. Likewise, `Client` and `ClientCallback` return immediately if the server is not active.
 
-The `[Server]` and `[Client]` attributes are for your own custom callback functions. They do not generate compile time errors, but they do emit a warning log message if called in the wrong scope.
+The `[Server]` and `Client` attributes are for your own custom callback functions. They do not generate compile time errors, but they do emit a warning log message if called in the wrong scope.
 
-The `[ServerCallback]` and `[ClientCallback]` attributes are for built-in callback functions that are called automatically by Unity. These attributes do not cause a warning to be generated.
+The `ServerCallback` and `ClientCallback` attributes are for built-in callback functions that are called automatically by Unity. These attributes do not cause a warning to be generated.
 
 For more information, see API reference documentation on the attributes discussed:
 
--   [ClientAttribute]
+-   ClientAttribute
 
--   [ClientCallbackAttribute]
+-   ClientCallbackAttribute
 
--   [ServerAttribute]
+-   ServerAttribute
 
--   [ServerCallbackAttribute]
+-   ServerCallbackAttribute
 
 ## Sending commands
 
-To execute code on the server, you must use **commands**. The high-level API is a server-authoritative system, so commands are the only way for a client to trigger some code on the server.
+To execute code on the server, you must use commands. The high-level API is a server-authoritative system, so commands are the only way for a client to trigger some code on the server.
 
 Only player GameObjects can send commands.
 
 When client player GameObject sends a command, that command runs on the corresponding player GameObject on the server. This routing happens automatically, so it is impossible for a client to send a command for a different player.
 
-To define a **command** in your code, you must write a function which has:
+To define a command in your code, you must write a function which has:
 
 -   A name that begins with `Cmd`
 
--   The `[Command]` attribute
+-   The `Command` attribute
 
 For example:
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.__Networking__;
+using Mirror;
 
 public class SpaceShip : NetworkBehaviour
 {
@@ -251,19 +251,19 @@ Commands are type-safe, have built-in security and routing to the player, and us
 
 Client RPC calls are a way for server GameObjects to make things happen on client GameObjects.
 
-Client RPC calls are not restricted to player GameObjects, and may be called on any GameObject with a [Network Identity] component.
+Client RPC calls are not restricted to player GameObjects, and may be called on any GameObject with a Network Identity component.
 
-To define a **client RPC call** in your code, you must write a function which:
+To define a client RPC call in your code, you must write a function which:
 
 -   Has a name that begins with `Rpc`
 
--   Has the `[ClientRPC]` attribute
+-   Has the `ClientRPC` attribute
 
 For example:
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 public class SpaceShipRpc : NetworkBehaviour
 {
@@ -290,23 +290,23 @@ public class SpaceShipRpc : NetworkBehaviour
 
 ## Networked events
 
-**Networked events** are like **Client RPC** calls, but instead of calling a function on the GameObject, they trigger Events instead.
+Networked events are like Client RPC calls, but instead of calling a function on the GameObject, they trigger Events instead.
 
 This allows you to write scripts which can register for a callback when an event is triggered.
 
-To define a **Networked event** in your code, you must write a function which both:
+To define a Networked event in your code, you must write a function which both:
 
 -   Has a name that begins with `Event`
 
--   Has the `[SyncEvent]` attribute
+-   Has the `SyncEvent` attribute
 
 You can use events to build powerful networked game systems that can be extended by other scripts. This example shows how an effect script on the client can respond to events generated by a combat script on the server.
 
-**SyncEvent** is the base class that **Commands** and **ClientRPC** calls are derived from. You can use the SyncEvent attribute on your own functions to make your own event-driven networked gameplay code. Using SyncEvent, you can extend Unity’s Multiplayer features to better fit your own programming patterns. For example:
+SyncEvent is the base class that Commands and ClientRPC calls are derived from. You can use the SyncEvent attribute on your own functions to make your own event-driven networked gameplay code. Using SyncEvent, you can extend Unity’s Multiplayer features to better fit your own programming patterns. For example:
 
-```cs
+``` cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 // Server script
 public class MyCombat : NetworkBehaviour

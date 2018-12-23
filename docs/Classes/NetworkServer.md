@@ -1,68 +1,47 @@
 # NetworkServer
 
-NetworkServer is a High-Level-API class that manages connections from multiple
-clients.
+NetworkServer is a High-Level-API class that manages connections from multiple clients.
 
 ## Properties
 
-**Property:**
+-   **active**  
+    Checks if the server has been started.
 
-**Function:**
+-   **connections**  
+    A list of all the current connections from clients.
 
-active
+-   **dontListen**  
+    If you enable this, the server will not listen for incoming connections on the regular network port.
 
-Checks if the server has been started.
+-   **handlers**  
+    Dictionary of the message handlers registered with the server.
 
-connections
+-   **hostTopology**  
+    The host topology that the server is using.
 
-A list of all the current connections from clients.
+-   **listenPort**  
+    The port that the server is listening on.
 
-dontListen
+-   **localClientActive**  
+    True if a local client is currently active on the server.
 
-If you enable this, the server will not listen for incoming connections on the
-regular network port.
+-   **localConnections**  
+    A list of local connections on the server.
 
-handlers
+-   **maxDelay**  
+    The maximum delay before sending packets on connections.
 
-Dictionary of the message handlers registered with the server.
+-   **networkConnectionClass**  
+    The class to be used when creating new network connections.
 
-hostTopology
+-   **numChannels**  
+    The number of channels the network is configure with.
 
-The host topology that the server is using.
+-   **objects**  
+    This is a dictionary of networked objects that have been spawned on the server.
 
-listenPort
+-   **serverHostId**  
+    The transport layer hostId used by this server.
 
-The port that the server is listening on.
-
-localClientActive
-
-True if a local client is currently active on the server.
-
-localConnections
-
-A list of local connections on the server.
-
-maxDelay
-
-The maximum delay before sending packets on connections.
-
-networkConnectionClass
-
-The class to be used when creating new network connections.
-
-numChannels
-
-The number of channels the network is configure with.
-
-objects
-
-This is a dictionary of networked objects that have been spawned on the server.
-
-serverHostId
-
-The transport layer hostId used by this server.
-
-useWebSockets
-
-This makes the server listen for WebSockets connections instead of normal
-transport layer connections.
+-   **useWebSockets**  
+    This makes the server listen for WebSockets connections instead of normal transport layer connections.

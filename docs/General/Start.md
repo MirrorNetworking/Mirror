@@ -38,7 +38,7 @@ For example, this script only processes input for the local player:
 
 ```cs
 using UnityEngine;
-using UnityEngine.Networking;
+using Mirror;
 
 public class Controls : NetworkBehaviour
 {
