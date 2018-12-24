@@ -6,7 +6,7 @@ When you create a script which **inherits** from NetworkBehaviour, you can write
 
 This page lists all the virtual methods (the callbacks) that you can implement on Network Behaviour, and when they occur. A game can run in one of three modes, **host**, **client**, or **server-only**. The callbacks for each mode are listed below:
 
-### Callbacks in server mode
+## Callbacks in server mode
 
 **When a client connects:**
 
@@ -14,7 +14,7 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 -   `OnRebuildObservers`
 -   `Start()` function is called
 
-### Callbacks in client mode
+## Callbacks in client mode
 
 **When a client connects:**
 
@@ -23,7 +23,7 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 -   `OnStartAuthority`
 -   `Start()` function is called
 
-### Callbacks in host mode
+## Callbacks in host mode
 
 These are only called on the **Player GameObjects** when a client connects:
 

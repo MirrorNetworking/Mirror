@@ -8,7 +8,7 @@ Simple, message based, MMO Scale TCP networking in C\#. And no magic.
 - Telepathy is raw C\# and can be used in Unity3D too.
 - Telepathy is available on [GitHub](https://github.com/vis2k/Telepathy)
 
-### What makes Telepathy special?
+## What makes Telepathy special?
 
 Telepathy was originally designed for [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) after 3 years in UDP hell.
 
@@ -22,7 +22,7 @@ We needed a library that is:
 
 MMORPGs are insanely difficult to make and we created Telepathy so that we would never have to worry about low level Networking again.
 
-### What about...
+## What about...
 
 -   Async Sockets: didn't perform better in our benchmarks.
 -   ConcurrentQueue: .NET 3.5 compatibility is important for Unity. Wasn't faster than our SafeQueue anyway.
