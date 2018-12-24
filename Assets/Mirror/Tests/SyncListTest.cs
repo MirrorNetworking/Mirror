@@ -252,5 +252,26 @@ namespace Mirror.Tests
             // data has been flushed,  should go back to clear
             Assert.That(serverList.IsDirty, Is.False);
         }
+
+        [Test]
+        public void ReadonlyTest()
+        {
+            var serverList = new SyncListUInt();
+            var clientList = new SyncListUInt();
+
+            // data has been flushed,  should go back to clear
+            Assert.That(clientList.IsReadOnly, Is.False);
+
+            serverList.Add(1U);
+            serverList.Add(2U);
+            serverList.Add(3U);
+            SerializeDeltaTo(serverList, clientList);
+
+            // client list should now lock itself,  trying to modify it
+            // should produce an InvalidOperationException
+            Assert.That(clientList.IsReadOnly, Is.True);
+            Assert.Throws<InvalidOperationException>(() => { clientList.Add(5U); });
+
+        }
     }
 }
