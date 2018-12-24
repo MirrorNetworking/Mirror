@@ -70,12 +70,6 @@
           url: "/Concepts/GameObjects/SpawnObjectCustom"
         - title: "Scene Objects"
           url: "/Concepts/GameObjects/SceneObjects"
-- title: "Sample Projects"
-  children:
-    - title: "Overview"
-      url: "/Samples"
-    - title: "Pong"
-      url: "/Samples/Pong"
 - title: "Components"
   children: 
     - title: "Overview"
@@ -144,6 +138,12 @@
       url: "/Transports/Groove"
     - title: "Steam - Fizzy"
       url: "/Transports/Fizzy"
+- title: "Sample Projects"
+  children:
+    - title: "Overview"
+      url: "/Samples"
+    - title: "Pong"
+      url: "/Samples/Pong"
 - title: "Services"
   children: 
     - title: "Overview"
