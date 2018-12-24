@@ -59,7 +59,7 @@ Before creating enhancement suggestions, please check the list of enhancements s
 
 #### How Do I Submit A (Good) Enhancement Suggestion?
 
-Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue on the project's repository USING THE [TEMPLATE](https://github.com/vis2k/Mirror/issues/new?template=feature_request.md) and provide the following information:
+Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue on the project's repository using the [template](https://github.com/vis2k/Mirror/issues/new?template=feature_request.md) and provide the following information:
 
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
 * **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
