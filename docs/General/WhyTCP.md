@@ -1,6 +1,6 @@
 # Why TCP by default and not UDP?
 
-### The same old Discussion
+## The same old Discussion
 
 It's the year 2018 and every game developer swears by UDP. Yet we chose TCP as default for Mirror. Why is that?
 
@@ -13,7 +13,7 @@ First of all, a quick word about the major differences between UDP and TCP.
 
 Now instead of having yet another technical UDP vs. TCP discussion, let's take a look at a real world example to see why we chose TCP over UDP.
 
-### That Game again
+## That Game again
 
 Back in 2011, some guy named Markus Persson (aka Notch) created arguably the biggest multiplayer game of all time. The game is called Minecraft.
 
@@ -21,7 +21,7 @@ Minecraft uses TCP, but why is that? Nobody knows, except Markus Persson.
 
 But we can make an educated guess.
 
-### On Java vs. C++
+## On Java vs. C++
 
 But wait, let's go back a bit further. Minecraft was written in Java, which is outrageous given that back in 2011 every game developer used to swear by C++.
 
@@ -32,7 +32,7 @@ Here are the major differences between C++ and Java:
 
 That discussion sounds oddly familiar. Speed vs. ease of use, just like UDP vs. TCP.
 
-### Why?
+## Why?
 
 Okay so, why did Notch chose Java instead of C++ and TCP instead of UDP, given that they are both so much slower than their counter parts?
 
@@ -44,7 +44,7 @@ Oh, and Notch is a billionaire now.
 
 All the evidence points us to the fact that back in 2011, Notch knew something that others didn't.
 
-### The Riddle
+## The Riddle
 
 The answer to the riddle is the question about optimization.
 
@@ -54,7 +54,7 @@ Notch optimized for probability of success. That's why he chose Java and TCP.
 
 And it worked. What good would it be if Minecraft ran at twice the framerate and half the latency without ever seeing the light of day?
 
-### Summary
+## Summary
 
 Back in 2015 when we started uMMORPG and Cubica, we originally used Unity's built in Networking system aka UNET. UNET used UDP and avoided garbage collection at all costs.
 
