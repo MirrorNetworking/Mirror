@@ -2,10 +2,10 @@
 
 ## High level scripting API
 
-Mirrorís networking has a ìhigh-levelî scripting API (which weíll refer to as the HLAPI). Using this means you get access to commands which cover most of the common requirements for multiuser games without needing to worry about the ìlower levelî implementation details. The HLAPI allows you to:
+Mirror‚Äôs networking has a ‚Äúhigh-level‚Äù scripting API (which we‚Äôll refer to as the HLAPI). Using this means you get access to commands which cover most of the common requirements for multiuser games without needing to worry about the ‚Äúlower level‚Äù implementation details. The HLAPI allows you to:
 
--   Control the networked state of the game using a ìNetwork Manager".
--   Operate ìclient hostedî games, where the host is also a player client.
+-   Control the networked state of the game using a ‚ÄúNetwork Manager".
+-   Operate ‚Äúclient hosted‚Äù games, where the host is also a player client.
 -   Serialize data using a general-purpose serializer.
 -   Send and receive network messages.
 -   Send networked commands from clients to servers.
@@ -14,7 +14,7 @@ Mirrorís networking has a ìhigh-levelî scripting API (which weíll refer to as th
 
 ## Engine and Editor integration
 
-Mirrorís networking is integrated into the engine and the editor, allowing you to work with components and visual aids to build your multiplayer game. It provides:
+Mirror‚Äôs networking is integrated into the engine and the editor, allowing you to work with components and visual aids to build your multiplayer game. It provides:
 
 -   A NetworkIdentity component for networked objects.
 -   A NetworkBehaviour for networked scripts
