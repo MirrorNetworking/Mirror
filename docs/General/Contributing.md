@@ -10,7 +10,7 @@ This is an open source project and we love to receive contributions from our com
 
 If you haven't already, come find us in [Discord](https://discord.gg/wvesC6). We want you working on things you're excited about, and we can give you instant feedback.
 
-### I don't want to read this whole thing I just have a question!!!
+### I don't want to read this whole thing I just have a question!!
 
 We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use Stack Overlow instead.
 
