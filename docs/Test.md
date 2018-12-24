@@ -21,17 +21,35 @@ Lorem ipsum dolor sit amet, consectetur *adipiscing elit, sed do eiusmod tempor*
 2.  Two
 3.  Three
 
-```
-namespace Mirror
-{
-    public static class LogFilter
-    {
-        public static bool Debug = false;
-    }
-}
-```
-
 | Name  | Color  |
 |-------|--------|
 | Apple | Red    |
 | Peach | Orange |
+
+```cs
+using System;
+using UnityEngine;
+
+namespace Mirror
+{
+    // sending messages on this connection causes the client's handler function to be invoked directly
+    class ULocalConnectionToClient : NetworkConnection
+    {
+        LocalClient m_LocalClient;
+
+        public LocalClient localClient { get {  return m_LocalClient; } }
+
+        public ULocalConnectionToClient(LocalClient localClient)
+        {
+            address = "localClient";
+            m_LocalClient = localClient;
+        }
+
+        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        {
+            m_LocalClient.InvokeBytesOnClient(bytes);
+            return true;
+        }
+    }
+}
+```
