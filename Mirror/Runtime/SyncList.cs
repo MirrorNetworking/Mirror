@@ -103,8 +103,10 @@ namespace Mirror
 
         readonly List<T> m_Objects = new List<T>();
 
+        private bool _isReadOnly = false;
+
         public int Count { get { return m_Objects.Count; } }
-        public bool IsReadOnly { get { return false; } }
+        public bool IsReadOnly { get { return _isReadOnly; } }
         public event SyncListChanged Callback;
 
         public enum Operation : byte
@@ -152,6 +154,11 @@ namespace Mirror
 
         void AddOperation(Operation op, int itemIndex, T item)
         {
+            if (IsReadOnly)
+            {
+                throw new InvalidOperationException("Synclists can only be modified at the server");
+            }
+
             Change change = new Change
             {
                 operation = op,
@@ -234,6 +241,9 @@ namespace Mirror
 
         public void OnDeserializeAll(NetworkReader reader)
         {
+            // This list can now only be modified by synchronization
+            _isReadOnly = true;
+
             // if init,  write the full list content
             int count = reader.ReadInt32();
 
@@ -254,6 +264,9 @@ namespace Mirror
 
         public void OnDeserializeDelta(NetworkReader reader)
         {
+            // This list can now only be modified by synchronization
+            _isReadOnly = true;
+
             int changesCount = reader.ReadInt32();
 
             for (int i = 0; i < changesCount; i++)
