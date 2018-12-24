@@ -47,7 +47,7 @@ This branch is to be imported in source form in Unity 2018.2 or later.  To insta
 3. Restart unity
 
 ## Migration Guide
-If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://github.com/vis2k/Mirror/blob/mirror/migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Example Projects
 Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.

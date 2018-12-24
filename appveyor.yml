@@ -1,3 +1,31 @@
 version: '{branch}-{build}'
 
-build: off
+#init:
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+install:
+  - set PATH=C:\Ruby25-x64\bin;%PATH%
+  - cd docs
+  - bundle install --quiet
+  - cd ..
+  - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
+  
+#build:
+#  project: Mirror/Networking.sln
+#  verbosity: minimal
+  
+# Do not build on tags (GitHub only)
+skip_tags: true
+
+build_script:
+  - cd docs
+  - bundle exec jekyll build
+  - ruby checksite.rb
+  - cd ..
+
+image: Visual Studio 2017
+
+

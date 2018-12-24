@@ -1,13 +1,11 @@
-<div class="mui-col-md-4">
-  <div class="mui-panel">
-
-    {% for category in site.data.navigation %}
-        <h2>{{category.title}}</h2>
-        <ul class="about-links">
-            {% for document in category.children %}
-                <li><a href="{{document.url | relative_url}}" class="mui-btn"><i class="fa"></i>{{document.title }}</a></li>
-            {%endfor%}
-        </ul>
-    {% endfor %}
-  </div>
+<div  class="col-12 col-md-3 col-xl-2 bd-sidebar">
+    
+    <nav class="collapse bd-links" id = "sidebar">
+        {% for child in site.data.navigation %}
+            <div class="bd-toc-item">            
+                {% assign childid = ("submenu_" | append: forloop.index) %}
+                {% include f_sidebar_nav.html item=child id=childid %}
+            </div>
+        {% endfor %}
+    </nav>
 </div>
