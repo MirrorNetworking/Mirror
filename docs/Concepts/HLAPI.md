@@ -16,7 +16,7 @@ The HLAPI is built from a series of layers that add functionality:
 
 ## Server and Host
 
-In Unity’s High Level API (HLAPI) system, multiplayer games include:
+In Mirror’s High Level API (HLAPI) system, multiplayer games include:
 
 -   **Server**  
     A server is an instance of the game which all other players connect to when they want to play together. A server often manages various aspects of the game, such as keeping score, and transmit that data back to the client.
@@ -38,22 +38,22 @@ The diagram below represents three players in a multiplayer game. In this game, 
 
 ![This diagram shows two remote clients connected to a host.](NetworkHost.png)
 
-The host is a single instance of your game, acting as both server and client at the same time. The host uses a special kind of internal client for local client communication, while other clients are remote clients. The local client communicates with the server through direct function calls and message queues, because it is in the same process. It actually shares the Scene with the server. Remote clients communicate with the server over a regular network connection. When you use Unity’s HLAPI, this is all handled automatically for you.
+The host is a single instance of your game, acting as both server and client at the same time. The host uses a special kind of internal client for local client communication, while other clients are remote clients. The local client communicates with the server through direct function calls and message queues, because it is in the same process. It actually shares the Scene with the server. Remote clients communicate with the server over a regular network connection. When you use Mirror’s HLAPI, this is all handled automatically for you.
 
-One of the aims of the multiplayer system is for the code for local clients and remote clients to be the same, so that you only have to think about one type of client most of the time when developing your game. In most cases, Unity handles this difference automatically, so you should rarely need to think about the difference between your code running on a local client or a remote client.
+One of the aims of the multiplayer system is for the code for local clients and remote clients to be the same, so that you only have to think about one type of client most of the time when developing your game. In most cases, Mirror handles this difference automatically, so you should rarely need to think about the difference between your code running on a local client or a remote client.
 
 ## Instantiate and Spawn
 
-When you make a single player game In Unity, you usually use the `GameObject.Instantiate` method to create new GameObjects at runtime. However, with a multiplayer system, the server itself must “spawn” GameObjects in order for them to be active within the networked game. When the server spawns GameObjects, it triggers the creation of GameObjects on connected clients. The spawning system manages the lifecycle of the GameObject, and synchronizes the state of the GameObject based on how you set the GameObject up.
+When you make a single player game In Mirror, you usually use the `GameObject.Instantiate` method to create new GameObjects at runtime. However, with a multiplayer system, the server itself must “spawn” GameObjects in order for them to be active within the networked game. When the server spawns GameObjects, it triggers the creation of GameObjects on connected clients. The spawning system manages the lifecycle of the GameObject, and synchronizes the state of the GameObject based on how you set the GameObject up.
 
 For more details about networked instantiating and spawning, see documentation on Spawning GameObjects.
 
 ## Players and Local Players
 
-Unity’s multiplayer HLAPI system handles player GameObjects differently to non-player GameObjects. When a new player joins the game (when a new client connects to the server), that player’s GameObject becomes a “local player” GameObject on the client of that player, and Unity associates the player’s connection with the player’s GameObject. Unity associates one player GameObject for each person playing the game, and routes networking commands to that individual GameObject. A player cannot invoke a command on another player’s GameObject, only their own.
+Mirror’s multiplayer HLAPI system handles player GameObjects differently to non-player GameObjects. When a new player joins the game (when a new client connects to the server), that player’s GameObject becomes a “local player” GameObject on the client of that player, and Mirror associates the player’s connection with the player’s GameObject. Mirror associates one player GameObject for each person playing the game, and routes networking commands to that individual GameObject. A player cannot invoke a command on another player’s GameObject, only their own.
 
 For more details, see documentation on Player GameObjects.
 
 ## Authority
 
-Servers and clients can both manage a GameObject’s behavior. The concept of “authority” refers to how and where a GameObject is managed. Unity’s HLAPI is based around “server authority” as the default state, where the Server (the host) has authority over all GameObjects which do not represent players. Player GameObjects are a special case and treated as having “local authority”. You may want to build your game using a different system of authority - for more details, see Network Authority.
+Servers and clients can both manage a GameObject’s behavior. The concept of “authority” refers to how and where a GameObject is managed. Mirror’s HLAPI is based around “server authority” as the default state, where the Server (the host) has authority over all GameObjects which do not represent players. Player GameObjects are a special case and treated as having “local authority”. You may want to build your game using a different system of authority - for more details, see Network Authority.

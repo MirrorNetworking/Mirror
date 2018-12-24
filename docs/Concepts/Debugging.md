@@ -1,6 +1,6 @@
 # Debugging Information
 
-Unity provides tools to get information about your game at run time. This information is useful for testing your multiplayer game.
+Mirror provides tools to get information about your game at run time. This information is useful for testing your multiplayer game.
 
 When your game is running in the Editor in Play mode, the Network Manager shows additional information about the state of the network at runtime. This includes:
 

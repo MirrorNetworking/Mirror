@@ -1,6 +1,6 @@
 # Scene GameObjects
 
-There are two types of networked GameObjects in Unity’s multiplayer system:
+There are two types of networked GameObjects in Mirror’s multiplayer system:
 
 -   Those that are created dynamically at runtime
 -   Those that are saved as part of a Scene
@@ -17,7 +17,7 @@ Saving networked GameObjects in your Scene (rather than dynamically spawning the
 -   They can have specific modifications that differ from prefabs
 -   Other GameObject instances in the Scene can reference them, which can avoid you having to use code to finding the GameObjects and make references to them up at runtime.
 
-When the Network Manager spawns the networked Scene GameObjects, those GameObjects behave like dynamically spawned GameObjects. Unity sends them updates and ClientRPC calls.
+When the Network Manager spawns the networked Scene GameObjects, those GameObjects behave like dynamically spawned GameObjects. Mirror sends them updates and ClientRPC calls.
 
 If a Scene GameObject is destroyed on the server before a client joins the game, then it is never enabled on new clients that join.
 

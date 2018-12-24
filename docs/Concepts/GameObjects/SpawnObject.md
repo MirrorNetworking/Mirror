@@ -1,10 +1,10 @@
 # Spawning GameObjects
 
-In Unity, you usually “spawn” (that is, create) new GameObjects with `Instantiate`. However, in the multiplayer High Level API, the word “spawn” means something more specific. In the server-authoritative model of the HLAPI, to “spawn” a GameObject on the server means that the GameObject is created on clients connected to the server, and is managed by the spawning system.
+In Mirror, you usually “spawn” (that is, create) new GameObjects with `Instantiate`. However, in the multiplayer High Level API, the word “spawn” means something more specific. In the server-authoritative model of the HLAPI, to “spawn” a GameObject on the server means that the GameObject is created on clients connected to the server, and is managed by the spawning system.
 
-Once the GameObject is spawned using this system, state updates are sent to clients whenever the GameObject changes on the server. When Unity destroys the GameObject on the server, it also destroys it on the clients. The server manages spawned GameObjects alongside all other networked GameObjects, so that if another client joins the game later, the server can spawn the GameObjects on that client. These spawned GameObjects have a unique network instance ID called “netId” that is the same on the server and clients for each GameObject. The unique network instance ID is used to route messages set across the network to GameObjects, and to identify GameObjects.
+Once the GameObject is spawned using this system, state updates are sent to clients whenever the GameObject changes on the server. When Mirror destroys the GameObject on the server, it also destroys it on the clients. The server manages spawned GameObjects alongside all other networked GameObjects, so that if another client joins the game later, the server can spawn the GameObjects on that client. These spawned GameObjects have a unique network instance ID called “netId” that is the same on the server and clients for each GameObject. The unique network instance ID is used to route messages set across the network to GameObjects, and to identify GameObjects.
 
-When the server spawns a GameObject with a Network Identity component, the GameObject spawned on the client has the same “state”. This means it is identical to the GameObject on the server; it has the same Transform, movement state, and (if NetworkTransform and SyncVars are used) synchronized variables. Therefore, client GameObjects are always up-to-date when Unity creates them. This avoids issues such as GameObjects spawning at the wrong initial location, then reappearing at their correct position when a state update arrives.
+When the server spawns a GameObject with a Network Identity component, the GameObject spawned on the client has the same “state”. This means it is identical to the GameObject on the server; it has the same Transform, movement state, and (if NetworkTransform and SyncVars are used) synchronized variables. Therefore, client GameObjects are always up-to-date when Mirror creates them. This avoids issues such as GameObjects spawning at the wrong initial location, then reappearing at their correct position when a state update arrives.
 
 The Network Manager before trying to register it with the Network Manager.
 
@@ -85,7 +85,7 @@ void OnServerConnect(NetworkMessage msg)
 
 The server does not need to register anything, as it knows what GameObject is being spawned (and the asset ID is sent in the spawn message). The client needs to be able to look up the GameObject, so it must be registered on the client.
 
-When writing your own network manager, it’s important to make the client ready to receive state updates before calling the spawn command on the server, otherwise they won’t be sent. If you’re using Unity’s built-in Network Manager component, this happens automatically.
+When writing your own network manager, it’s important to make the client ready to receive state updates before calling the spawn command on the server, otherwise they won’t be sent. If you’re using Mirror’s built-in Network Manager component, this happens automatically.
 
 For more advanced uses, such as object pools or dynamically created Assets, you can use the ClientScene.RegisterSpawnHandler method, which allows callback functions to be registered for client-side spawning. See documentation on Custom Spawn Functions for an example of this.
 

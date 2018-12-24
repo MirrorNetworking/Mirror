@@ -110,7 +110,7 @@ public class Scores : MonoBehaviour
 }
 ```
 
-Note that there is no serialization code for the `ScoreMessage` class in this source code example. The body of the serialization functions is automatically generated for this class by Unity.
+Note that there is no serialization code for the `ScoreMessage` class in this source code example. The body of the serialization functions is automatically generated for this class by Mirror.
 
 ## ErrorMessage Class
 

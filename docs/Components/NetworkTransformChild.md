@@ -26,4 +26,4 @@ To use the Network Transform Child component, attach it to the same parent GameO
 
 This component does not use physics; it synchronizes the position and rotation of the child GameObject, and interpolates towards updated values. Use Interpolate Movement Factor and Interpolate Rotation Factor to customize the rate of interpolation.
 
-A GameObject with a Network Transform Child component must also have a [Network Identity] component. When you create a Network Transform Child component on a GameObject, Unity also creates a Network Identity component on that GameObject if it does not already have one.
+A GameObject with a Network Transform Child component must also have a Network Identity component. When you create a Network Transform Child component on a GameObject, Mirror also creates a Network Identity component on that GameObject if it does not already have one.

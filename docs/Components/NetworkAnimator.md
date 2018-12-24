@@ -2,7 +2,7 @@
 
 The Network Animator component allows you to synchronize animation states for networked objects. It synchronizes state and parameters from an Animator Controller.
 
-Note that if you create a Network Animator component on an empty GameObject, Unity also creates a Network Identity component and an Animator component on that GameObject.
+Note that if you create a Network Animator component on an empty GameObject, Mirror also creates a Network Identity component and an Animator component on that GameObject.
 
 ![The Network Animator component in the Inspector window](NetworkAnimatorComponent.png)
 

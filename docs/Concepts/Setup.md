@@ -24,13 +24,13 @@ The Network Manager is responsible for managing the networking at a time.
 
 ![The Network Manager Component](NetworkManagerInspector.png)
 
-Unity’s built-in Network Manager component wraps up all of the features for managing your multiplayer game into one single component. If you have custom requirements which aren’t covered by this component, you can write your own network manager in script instead of using this component. If you’re just starting out with multiplayer games, you should use this component.
+Mirror’s built-in Network Manager component wraps up all of the features for managing your multiplayer game into one single component. If you have custom requirements which aren’t covered by this component, you can write your own network manager in script instead of using this component. If you’re just starting out with multiplayer games, you should use this component.
 
 To learn more, see documentation on the Network Manager.
 
-Unity has an extremely basic built-in version of such an interface, called the NetworkManagerHUD. However, it is very basic in both functionality and visual design, so you should replace this with your own UI before you finish your project.
+Mirror has an extremely basic built-in version of such an interface, called the NetworkManagerHUD. However, it is very basic in both functionality and visual design, so you should replace this with your own UI before you finish your project.
 
-![Unity’s built-in Network Manager HUD, shown in MatchMaker mode.](NetworkManagerHUD-MatchMakerMode.png)
+![Mirror’s built-in Network Manager HUD, shown in MatchMaker mode.](NetworkManagerHUD-MatchMakerMode.png)
 
 To learn more, see documentation on the Network Manager HUD.
 
@@ -38,7 +38,7 @@ To learn more, see documentation on the Network Manager HUD.
 
 Most multiplayer games feature some kind of object that a player can control, like a character, a car, or something else. Some multiplayer games don’t feature a single visible player object, and attach all the scripts to it which control what the player can do in your game.
 
-If you are using Unity’s Network Manager component (see *The Network Manager*, above), assign the Prefab to the Player Prefab field.
+If you are using Mirror’s Network Manager component (see *The Network Manager*, above), assign the Prefab to the Player Prefab field.
 
 ![The network manager with a “Player Car” prefab assigned to the Player Prefab field.](NetworkManagerWithPlayerPrefab.png)
 

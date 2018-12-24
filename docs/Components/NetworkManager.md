@@ -18,9 +18,9 @@ The Network Manager is the core controlling component of a multiplayer game. To 
 
 The Inspector for the Network Manager in the Editor allows you to configure and control many things related to networking.
 
-Note: You should only ever have one active Network Manager in each Scene. Do not place the Network Manager component on a networked GameObject (one which has a Network Identity component), because Unity disables these when the Scene loads.
+Note: You should only ever have one active Network Manager in each Scene. Do not place the Network Manager component on a networked GameObject (one which has a Network Identity component), because Mirror disables these when the Scene loads.
 
-If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the High-level API (HLAPI), so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from NetworkManager and customize its behaviour by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
+If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the API, so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from NetworkManager and customize its behaviour by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
 
 ## Game State Management
 
@@ -250,11 +250,11 @@ For more details on implementing the Network Manager in your game, see documenta
 ![The Network Manager component in the Inspector window](NetworkManagerUNetComponent.png)
 
 -   **Dont Destroy On Load**  
-    Use this property to control whether or not Unity should destroy the GameObject with the Network Manager when the Scene changes. Tick this checkbox to ensure Unity does not destroy your Network Manager GameObject when the Scene changes in your game. Untick the checkbox if you want Unity to destroy the GameObject when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager GameObjects in each of your Scenes. This checkbox is ticked by default.
+    Use this property to control whether or not Mirror should destroy the GameObject with the Network Manager when the Scene changes. Tick this checkbox to ensure Mirror does not destroy your Network Manager GameObject when the Scene changes in your game. Untick the checkbox if you want Mirror to destroy the GameObject when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager GameObjects in each of your Scenes. This checkbox is ticked by default.
 -   **Run In Background**  
     Use this property to control whether the networked game runs when the window it is running in is not focused. Tick the checkbox if you want it to run; untick it if you want the game to stop running when the window is not focused. This checkbox is ticked by default. You need to enable this property if you want to run multiple instances of a program on the same machine, such as when testing using localhost. You should disable it when deploying to mobile platforms. When enabled, it sets Application.runInBackground to true when the Network Manager starts up. You can also set this property from the Unity menu: Edit \> Project Settings, then select the Player category, and navigate to the Resolution and Presentation panel.
 -   **Log Level**  
-    Use this property to control the amount of information Unity outputs to the console window. A low level results in more information; a high level results in less information. Each level includes message from all the levels higher than itself (for example, if you select “Warn”, the console also prints outputs all “Error” and “Fatal” log messages). The drop-down lists the levels from low to high. This property is set to Info by default. You can set Log Level to Set in Scripting to prevent the Network Manager from setting the log level at all. This means you can control the level from your own scripts instead.
+    Use this property to control the amount of information Mirror outputs to the console window. A low level results in more information; a high level results in less information. Each level includes message from all the levels higher than itself (for example, if you select “Warn”, the console also prints outputs all “Error” and “Fatal” log messages). The drop-down lists the levels from low to high. This property is set to Info by default. You can set Log Level to Set in Scripting to prevent the Network Manager from setting the log level at all. This means you can control the level from your own scripts instead.
 -   **Offline Scene**  
     If you assign a Scene to this field, the Network Manager automatically switches to the specified Scene when a network session stops - for example, when the client disconnects, or when the server shuts down.
 -   **Online Scene**  
@@ -272,9 +272,9 @@ For more details on implementing the Network Manager in your game, see documenta
     -   **Server Bind Address**  
         This field is only visible when the Server Bind To IP checkbox is ticked. Use this to enter the specific IP address that the server should bind to.
     -   **Script CRC Check**  
-        When this is enabled, Unity checks that the clients and the server are using matching scripts. This is useful to make sure outdated versions of your client are not connecting to the latest (updated) version of your server. This checkbox is ticked by default. It does this by performing a ([CRC check](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)) between the server and client that ensures the NetworkBehaviour scripts match. This may not be appropriate in some cases, such as when you are intentionally using different Unity projects for the client and server. In most other cases however, you should leave it enabled.
+        When this is enabled, Mirror checks that the clients and the server are using matching scripts. This is useful to make sure outdated versions of your client are not connecting to the latest (updated) version of your server. This checkbox is ticked by default. It does this by performing a ([CRC check](https://en.wikipedia.org/wiki/Cyclic_redundancy_check)) between the server and client that ensures the NetworkBehaviour scripts match. This may not be appropriate in some cases, such as when you are intentionally using different Unity projects for the client and server. In most other cases however, you should leave it enabled.
     -   **Max Delay**  
-        The maximum time in seconds to delay buffered messages. The default of 0.01 seconds means packets are delayed at most by 10 milliseconds. Setting this to zero disables HLAPI connection buffering. This is set to 0.01 by default.
+        The maximum time in seconds to delay buffered messages. The default of 0.01 seconds means packets are delayed at most by 10 milliseconds. Setting this to zero disables connection buffering. This is set to 0.01 by default.
     -   **Max Buffered Packets**  
         The maximum number of packets that a NetworkConnection can buffer for each channel. This corresponds to the ChannelOption.MaxPendingBuffers channel option. This is set to 16 by default.
     -   **Packet Fragmentation**  
@@ -282,11 +282,11 @@ For more details on implementing the Network Manager in your game, see documenta
 -   **SpawnInfo**  
     You can expand this section of the inspector to access spawn-related settings, listed below
     -   **Player Prefab**  
-        Define the default prefab Unity should use to create player GameObjects on the server. Unity creates Player GameObjects in the default handler for AddPlayer on the server. Implement OnServerAddPlayer to override this behavior.
+        Define the default prefab Mirror should use to create player GameObjects on the server. Mirror creates Player GameObjects in the default handler for AddPlayer on the server. Implement OnServerAddPlayer to override this behavior.
     -   **Auto Create Player**  
-        Tick this checkbox if you want Unity to automatically create player GameObjects on connect, and when the Scene changes. This checkbox is ticked by default. Note that if you are using the MigrationManager and you do not enable Auto Create Player, you need to call ClientScene.SendReconnectMessage when your client reconnects.
+        Tick this checkbox if you want Mirror to automatically create player GameObjects on connect, and when the Scene changes. This checkbox is ticked by default. Note that if you are using the MigrationManager and you do not enable Auto Create Player, you need to call ClientScene.SendReconnectMessage when your client reconnects.
     -   **Player Spawn Method**  
-        Define how Unity should decide where to spawn new player GameObjects. This is set to Random by default.
+        Define how Mirror should decide where to spawn new player GameObjects. This is set to Random by default.
         -   **Random**  
             Choose Random to spawn players at randomly chosen startPositions.
         -   **Round Robin**  
@@ -303,17 +303,17 @@ For more details on implementing the Network Manager in your game, see documenta
     -   **Min Update Timeout**  
         Set the minimum time (in milliseconds) the network thread waits between sending network messages. The network thread doesn’t send multiplayer network messages immediately. Instead, it check each connection periodically at a fixed rate to see if it has something to send. This is set to 10ms by default. See API reference documentation on MinUpdateTimeout for more information.
     -   **Connect Timeout**  
-        Define the amount of time (in milliseconds) Unity should wait while trying to connect before attempting the connection again. This is set to 2000ms by default. See API reference documentation on ConnectTimeout for more information.
+        Define the amount of time (in milliseconds) Mirror should wait while trying to connect before attempting the connection again. This is set to 2000ms by default. See API reference documentation on ConnectTimeout for more information.
     -   **Disconnect Timeout**  
-        The amount of time (in milliseconds) before Unity considers a connection to be disconnected. This is set to 2000ms by default. See API reference documentation on DisconnectTimeout for more information.
+        The amount of time (in milliseconds) before Mirror considers a connection to be disconnected. This is set to 2000ms by default. See API reference documentation on DisconnectTimeout for more information.
     -   **Ping Timeout**  
-        The amount of time (in milliseconds) between sending pings (also known as “keep-alive” packets). The ping timeout duration should be approximately one-third to one-quarter of the Disconnect Timeout duration, so that Unity doesn’t assume that clients are disconnected until the server has failed to receive at least three pings from the client. This is set to 500ms by default. See API reference documentation on ConnectionConfig.PingTimeout for more information.
+        The amount of time (in milliseconds) between sending pings (also known as “keep-alive” packets). The ping timeout duration should be approximately one-third to one-quarter of the Disconnect Timeout duration, so that Mirror doesn’t assume that clients are disconnected until the server has failed to receive at least three pings from the client. This is set to 500ms by default. See API reference documentation on ConnectionConfig.PingTimeout for more information.
 -   **Global Config**  
     These settings relate to the Reactor. The Reactor is the part of the multiplayer system which receives network packets from the underlying operating system, and passes them into the multiplayer system for processing.
     -   **Thread Awake Timeout**  
         The timeout duration in milliseconds, used by the Reactor. How the Reactor uses this value depends on which Reactor Model you select (see below). This is set to 1ms by default.
     -   **Reactor Model**  
-        Choose which type of reactor to use. The reactor model defines how Unity reads incoming packets. For most games and applications, the default Select reactor is appropriate. If you want to trade a small delay in the processing of network messages for lower CPU usage and improved battery life, use the Fix Rate reactor.
+        Choose which type of reactor to use. The reactor model defines how Mirror reads incoming packets. For most games and applications, the default Select reactor is appropriate. If you want to trade a small delay in the processing of network messages for lower CPU usage and improved battery life, use the Fix Rate reactor.
         -   **Select Reactor**  
             This model uses the `select()` API which means that the network thread “awakens” (becomes active) as soon as a packet is available. Using this method means your game gets the data as fast as possible. This is the default Reactor Model setting.
         -   **Fix Rate Reactor**  

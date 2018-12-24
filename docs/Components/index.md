@@ -7,7 +7,7 @@ General description of Components
 -   [NetworkManagerHUD](NetworkManagerHUD)  
     The Network Manager HUD is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your gameplay programming, and means you can build your own version of these controls later in your development schedule.
 -   [NetworkIdentity](NetworkIdentity)  
-    The Network Identity component is at the heart of the Unity networking high-level API. It controls a GameObject’s unique identity on the network, and it uses that identity to make the networking system aware of the GameObject. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
+    The Network Identity component is at the heart of the Mirror networking high-level API. It controls a GameObject’s unique identity on the network, and it uses that identity to make the networking system aware of the GameObject. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
 -   [NetworkStartPosition](NetworkStartPosition)  
     Network Start Position is used by the Network Manager when creating player objects. The position and rotation of the Network Start Position are used to place the newly created player object.
 -   [NetworkProximityChecker](NetworkProximityChecker)  

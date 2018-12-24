@@ -4,7 +4,7 @@ The built-in Network Proximity Checker component is the built-in default compone
 
 To do this, you can implement your own custom equivalent of the Network Proximity Checker. To do that, you need to understand how the Network Proximity Checker works. See documentation on the in-editor Network Proximity Checker component, and the NetworkProximityChecker API.
 
-The Network Proximity Checker is implemented using the public visibility interface of Unity’s Multiplayer HLAPI. Using this same interface, you can implement any kind of visibility rules you desire. Each NetworkIdentity  
+The Network Proximity Checker is implemented using the public visibility interface of Mirror’s HLAPI. Using this same interface, you can implement any kind of visibility rules you desire. Each NetworkIdentity  
  keeps track of the set of players that it is visible to. The players that a NetworkIdentity GameObject is visible to are called the “observers” of the NetworkIdentity.
 
 The Network Proximity Checker calls the RebuildObservers method on the Network Identity component at a fixed interval (set using the “Vis Update Interval” value in the inspector), so that the set of network-visible GameObjects for each player is updated as they move around.

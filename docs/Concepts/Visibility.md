@@ -11,11 +11,11 @@ This can benefit your game in two ways:
 
 The idea of “visibility” in the context of networking doesn’t necessarily relate to whether GameObjects are directly visible on-screen. Instead, it relates to whether data should or shouldn’t be sent about the GameObject in question to a particular client. Put simply, if a client can’t ‘see’ an GameObject, it does not need to be sent information about that GameObject across the network. Ideally you want to limit the amount of data you are sending across the network to only what is necessary, because sending large amounts of unnecessary data across the network can cause network performance problems.
 
-However, it can be also be resource intensive or complex to determine accurately whether a GameObject truly visible to a given player, so it’s often a good idea to use a more simple calculation for the purposes of determining whether a player should be sent networked data about it - i.e. whether it is ‘Network Visible’. The balance you want to achieve when considering this is between the cost of the complexity of the calculation for determining the visibility, and the cost of sending more information than necessary over the network. A very simple way to calculate this is a distance (proximity) check, and Unity provides a built-in component for this purpose.
+However, it can be also be resource intensive or complex to determine accurately whether a GameObject truly visible to a given player, so it’s often a good idea to use a more simple calculation for the purposes of determining whether a player should be sent networked data about it - i.e. whether it is ‘Network Visible’. The balance you want to achieve when considering this is between the cost of the complexity of the calculation for determining the visibility, and the cost of sending more information than necessary over the network. A very simple way to calculate this is a distance (proximity) check, and Mirror provides a built-in component for this purpose.
 
 ## Network Proximity Checker Component
 
-Unity’s Network Proximity Checker component is simplest way to implement network visibility for players. It works in conjunction with the physics system to determine whether GameObjects are close enough (that is, “visible” for the purposes of sending network messages in your multiplayer game).
+Mirror’s Network Proximity Checker component is simplest way to implement network visibility for players. It works in conjunction with the physics system to determine whether GameObjects are close enough (that is, “visible” for the purposes of sending network messages in your multiplayer game).
 
 ![The Network Proximity Checker component](NetworkProximityCheck.png)
 
@@ -32,7 +32,7 @@ You must attach a Collider component to any GameObjects you want to use with the
 
 When a player on a remote client joins a networked game, only GameObjects that are network-visible to the player will be spawned on that remote client. This means that even if the player enters a large world with many networked GameObjects, the game can start quickly because it does not need to spawn every GameObject that exists in the world. Note that this applies to networked GameObjects in your Scene, but does not affect the loading of Assets. Unity still takes time to load the Assets for registered Prefabs and Scene GameObjects.
 
-When a player moves within the world, the set of network-visible GameObjects changes. The player’s client is told about these changes as they happen. The ObjectHide message is sent to clients when a GameObject becomes no longer network-visible. By default, Unity destroys the GameObject when it receives this message. When a GameObject becomes visible, the client receives an ObjectSpawn message, as if Unity has spawned the GameObject for the first time. By default, the GameObject is instantiated like any other spawned GameObject.
+When a player moves within the world, the set of network-visible GameObjects changes. The player’s client is told about these changes as they happen. The ObjectHide message is sent to clients when a GameObject becomes no longer network-visible. By default, Mirror destroys the GameObject when it receives this message. When a GameObject becomes visible, the client receives an ObjectSpawn message, as if Mirror has spawned the GameObject for the first time. By default, the GameObject is instantiated like any other spawned GameObject.
 
 ## Network Visibility on the Host
 

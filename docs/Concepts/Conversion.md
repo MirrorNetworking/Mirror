@@ -1,6 +1,6 @@
-# Converting a single-player game to Unity Multiplayer
+# Converting a Single-Player Game to Mirror
 
-This document describes steps to converting a single player game to a multiplayer game, using the new Unity Multiplayer networking system. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
+This document describes steps to converting a single player game to a multiplayer game, using Mirror. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
 ## NetworkManager set-up
 

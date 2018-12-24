@@ -1,4 +1,4 @@
-# Migrating a project from UNet  (HLAPI)
+# Migrating a project from UNet (HLAPI)
 
 This guide gives you a step by step instruction for migrating your project from HLAP to Mirror.
 Mirror is a fork of HLAPI.  As such the migration is straight forward for most projects.
@@ -103,7 +103,7 @@ public sealed class SpawnItemMessage : MessageBase
 ```
 
 ## 7. Update your synclist callbacks
-In HLAPI SyncLists have a callback delegate that gets called in the client whenever the list is updated.
+In Mirror SyncLists have a callback delegate that gets called in the client whenever the list is updated.
 We have changed the callback to be an event instead and we also pass the item that was updated/removed
 
 For example, if you have this code:

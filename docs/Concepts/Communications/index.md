@@ -2,7 +2,7 @@
 
 When you are making a multiplayer game, In addition to synchronizing the properties of networked GameObjects, you are likely to need to send, receive, and react to other pieces of information - such as when the match starts, when a player joins or leaves the match, or other information specific to your type of game, for example a notification to all players that a flag has been captured in a “capture-the-flag” style game.
 
-Within the Unity networking High-Level API there are three main ways to communicate this type of information.
+Within the Mirror networking High-Level API there are three main ways to communicate this type of information.
 
 ## Remote Actions
 
@@ -10,7 +10,7 @@ Remote actions allow you to call a method in your script across the network. You
 
 ## Networking Callbacks
 
-Networking callbacks allow you to hook into built-in Unity events which occur during the course of the game, such as when players join or leave, when GameObjects are created or destroyed, or when a new Scene is loaded. There are two types of networking callbacks that you can implement:
+Networking callbacks allow you to hook into built-in Mirror events which occur during the course of the game, such as when players join or leave, when GameObjects are created or destroyed, or when a new Scene is loaded. There are two types of networking callbacks that you can implement:
 
 -   Network manager callbacks, for callbacks relating to the network manager itself (such as when clients connect or disconnect)
 -   Network behaviour callbacks, for callbacks relating to individual networked GameObjects (such as when its Start function is called, or what this particular GameObject should do if a new player joins the game)
