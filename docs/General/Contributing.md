@@ -27,7 +27,7 @@ Before creating bug reports, please check the existing bug reports as you might 
 
 #### How Do I Submit A (Good) Bug Report?
 
-Bugs are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue on the project's repository and provide the following information.
+[Create an issue](https://github.com/vis2k/Mirror/issues/new?template=bug_report.md) on the project's repository and provide the following information.
 
 Explain the problem and include additional details to help maintainers reproduce the problem:
 
@@ -74,8 +74,6 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 ### Creating Pull Requests
 
 #### How Do I Submit A (Good) Pull Request?
-
-Please use this [template](https://github.com/vis2k/Mirror/issues/new?template=bug_report.md).
 
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
