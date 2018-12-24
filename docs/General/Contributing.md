@@ -8,11 +8,18 @@ Following these guidelines helps to communicate that you respect the time of the
 
 This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
+If you haven't already, come find us in [Discord](https://discord.gg/wvesC6). We want you working on things you're excited about, and we can give you instant feedback.
+
 ### I don't want to read this whole thing I just have a question!!!
 
 We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use Stack Overlow instead.
 
 ## How Can I Contribute?
+
+### Testing
+
+We have a handful of unit tests, but most of our testbed consists of running it with existing projects. 
+Try our builds and pull requests in your own projects and let us know how it goes.
 
 ### Reporting Bugs
 
@@ -68,5 +75,34 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
-* **Use the same coding style than the one used in this project**.
+* **Use the same coding style as the one used in this project**.
 * **Welcome suggestions from the maintainers to improve your pull request**.
+
+Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare/improvements) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). 
+When you send a pull request, we will love you forever if you include unit tests. 
+We can always use more test coverage. 
+Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
+
+Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
+
+    $ git commit -m "A brief summary of the commit
+    > 
+    > A paragraph describing what changed and its impact."
+    
+Submit your pull requests to the right branch:
+* fixes for bug fixes 
+* improvements for refactorings and cleanups,  we love to delete code.
+* features for new shiny features you want in HLAPI.
+  
+If your pull request breaks any test,  it has no hope of being merged.
+
+## Coding conventions
+
+Start reading our code and you'll get the hang of it. We optimize for readability:
+
+* We indent using 4 spaces (soft tabs)
+* We value simplicity. The code should be easy to read and avoid magic
+* We use default visual studio code formatting standard
+* This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
+ 
+Thanks.

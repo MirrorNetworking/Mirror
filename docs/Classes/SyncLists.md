@@ -1,4 +1,4 @@
-# Sync Overview
+# SyncLists Overview
 
 There are some very important optimizations when it comes to bandwidth done in Mirror.
 

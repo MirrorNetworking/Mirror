@@ -2,8 +2,7 @@
 
 General description of Other Events
 
--   [OnValidate](OnValidate)  
+-   **OnValidate**  
     Something about this
-
--   [OnDestroy](OnDestroy)  
+-   **OnDestroy**  
     Something about this

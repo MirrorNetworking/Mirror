@@ -25,7 +25,7 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-Check out our [Wiki](https://github.com/vis2k/Mirror/wiki) and read the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html), Mirror is still similar enough.
+Check out our [Documentation](https://github.com/vis2k/Mirror/docs) and read the [Wiki](https://github.com/vis2k/Mirror/wiki).
 
 The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
@@ -42,7 +42,7 @@ Alternatively,  you can install it manually:
 4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
 
 ## Migration Guide
-If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](migration). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](docs/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Example Projects
 Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
@@ -66,7 +66,7 @@ Building Mirror yourself is very easy. Simply download the project, open it in V
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## Contributing
-If you like to contribute, feel free to submit pull requests and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
+If you like to contribute, feel free to [submit pull requests](https://github.com/vis2k/Mirror/docs/General/Contributing) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
 
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
 
