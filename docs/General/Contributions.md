@@ -59,7 +59,7 @@ Before creating enhancement suggestions, please check the list of enhancements s
 
 #### How Do I Submit A (Good) Enhancement Suggestion?
 
-Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com/features/issues/). Create an issue on the project's repository using the [template](https://github.com/vis2k/Mirror/issues/new?template=feature_request.md) and provide the following information:
+[Create an issue](https://github.com/vis2k/Mirror/issues/new?template=feature_request.md) on the project's repository and provide the following information:
 
 * **Use a clear and descriptive title** for the issue to identify the suggestion.
 * **Provide a step-by-step description of the suggested enhancement** in as many details as possible.
@@ -75,23 +75,24 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 
 #### How Do I Submit A (Good) Pull Request?
 
+Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). 
+When you send a pull request, we will love you forever if you include unit tests. 
+We can always use more test coverage. 
+
 * **Use a clear and descriptive title** for the pull request to state the improvement you made to the code or the bug you solved.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
 * **Use the same coding style as the one used in this project**.
 * **Welcome suggestions from the maintainers to improve your pull request**.
 
-Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). 
-When you send a pull request, we will love you forever if you include unit tests. 
-We can always use more test coverage. 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
 
 Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
 
 ```sh
-	$ git commit -m "A brief summary of the commit""
-	> 
-	> A paragraph describing what changed and its impact.
+$ git commit -m "A brief summary of the commit""
+> 
+> A paragraph describing what changed and its impact.
 ```
 
 Submit your pull requests to the right branch:
