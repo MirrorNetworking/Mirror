@@ -89,15 +89,15 @@ namespace Mirror
             m_Connection.SetHandlers(m_MessageHandlers);
             m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
 
-            Transport.layer.ClientConnect(serverIp, serverPort);
+            NetworkManager.transport.ClientConnect(serverIp, serverPort);
         }
 
         private void InitializeTransportHandlers()
         {
-            Transport.layer.OnClientConnect += OnClientConnect;
-            Transport.layer.OnClientData += OnClientData;
-            Transport.layer.OnClientDisconnect += OnClientDisconnect;
-            Transport.layer.OnClientError += OnClientError;
+            NetworkManager.transport.OnClientConnect += OnClientConnect;
+            NetworkManager.transport.OnClientData += OnClientData;
+            NetworkManager.transport.OnClientDisconnect += OnClientDisconnect;
+            NetworkManager.transport.OnClientError += OnClientError;
         }
 
         private void OnClientError(Exception exception)
@@ -182,10 +182,10 @@ namespace Mirror
         private void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            Transport.layer.OnClientConnect -= OnClientConnect;
-            Transport.layer.OnClientData -= OnClientData;
-            Transport.layer.OnClientDisconnect -= OnClientDisconnect;
-            Transport.layer.OnClientError -= OnClientError;
+            NetworkManager.transport.OnClientConnect -= OnClientConnect;
+            NetworkManager.transport.OnClientData -= OnClientData;
+            NetworkManager.transport.OnClientDisconnect -= OnClientDisconnect;
+            NetworkManager.transport.OnClientError -= OnClientError;
         }
 
         public bool Send(short msgType, MessageBase msg)

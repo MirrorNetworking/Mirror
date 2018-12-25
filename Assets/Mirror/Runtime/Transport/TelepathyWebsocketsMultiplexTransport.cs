@@ -2,7 +2,7 @@
 // * Telepathy for standalone (windows/mac/linux/mobile/etc.)
 // * UNET's LLAPI for websockets
 using UnityEngine;
-namespace Mirror
+namespace Mirror.Transport
 {
     /*
     public class TelepathyWebsocketsMultiplexTransport : TransportLayer

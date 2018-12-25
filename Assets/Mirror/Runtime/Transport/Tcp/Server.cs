@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using UnityEngine;
 
-namespace Telepathy
+namespace Mirror.Transport.Tcp
 {
     public class Server : Common
     {
@@ -82,7 +83,7 @@ namespace Telepathy
                 // but increases bandwidth
                 listener.Server.NoDelay = this.NoDelay;
                 listener.Start();
-                Logger.Log("Server: listening port=" + port + " max=" + maxConnections);
+                Debug.Log("Server: listening port=" + port + " max=" + maxConnections);
 
                 // keep accepting new clients
                 while (true)
@@ -103,13 +104,13 @@ namespace Telepathy
                         // note: no extra Sleep because Accept is blocking anyway
 
                         tcpClient.Close();
-                        Logger.Log("Server too full, disconnected a client");
+                        Debug.Log("Server too full, disconnected a client");
                     }
                 }
             }
             catch(ObjectDisposedException)
             {
-                Logger.Log("Server dispossed");
+                Debug.Log("Server dispossed");
             }
             catch (Exception exception)
             {
@@ -161,7 +162,7 @@ namespace Telepathy
             // only if started
             if (!Active) return;
 
-            Logger.Log("Server: stopping...");
+            Debug.Log("Server: stopping...");
 
             // stop listening to connections so that no one can connect while we
             // close the client connections
@@ -244,7 +245,7 @@ namespace Telepathy
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.
                 client.Close();
-                Logger.Log("Server.Disconnect connectionId:" + connectionId);
+                Debug.Log("Server.Disconnect connectionId:" + connectionId);
                 return true;
             }
             return false;

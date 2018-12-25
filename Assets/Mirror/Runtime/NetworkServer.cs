@@ -58,14 +58,14 @@ namespace Mirror
                 }
                 else
                 {
-                    Transport.layer.ServerStop();
+                    NetworkManager.transport.ServerStop();
                     s_ServerHostId = -1;
                 }
 
-                Transport.layer.OnServerData -= HandleData;
-                Transport.layer.OnServerConnect -= HandleConnect;
-                Transport.layer.OnServerDisconnect -= HandleDisconnect;
-                Transport.layer.OnServerError -= HandleError;
+                NetworkManager.transport.OnServerData -= HandleData;
+                NetworkManager.transport.OnServerConnect -= HandleConnect;
+                NetworkManager.transport.OnServerDisconnect -= HandleDisconnect;
+                NetworkManager.transport.OnServerError -= HandleError;
                 s_Initialized = false;
             }
             dontListen = false;
@@ -82,10 +82,10 @@ namespace Mirror
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
-            Transport.layer.OnServerDisconnect += HandleDisconnect;
-            Transport.layer.OnServerConnect += HandleConnect;
-            Transport.layer.OnServerData += HandleData;
-            Transport.layer.OnServerError += HandleError;
+            NetworkManager.transport.OnServerDisconnect += HandleDisconnect;
+            NetworkManager.transport.OnServerConnect += HandleConnect;
+            NetworkManager.transport.OnServerData += HandleData;
+            NetworkManager.transport.OnServerError += HandleError;
         }
 
 
@@ -123,12 +123,12 @@ namespace Mirror
 
                 if (useWebSockets)
                 {
-                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
+                    NetworkManager.transport.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
                 else
                 {
-                    Transport.layer.ServerStart(ipAddress, serverPort, maxConnections);
+                    NetworkManager.transport.ServerStart(ipAddress, serverPort, maxConnections);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
 
@@ -348,7 +348,7 @@ namespace Mirror
 
             // get ip address from connection
             string address;
-            Transport.layer.GetConnectionInfo(connectionId, out address);
+            NetworkManager.transport.GetConnectionInfo(connectionId, out address);
 
             // add player info
             NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);

@@ -1,10 +1,9 @@
 ﻿// common code used by server and client
 using System;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Telepathy
+namespace Mirror.Transport.Tcp
 {
     public abstract class Common
     {

@@ -4,8 +4,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-
+using TcpTransport = Mirror.Transport.Tcp.TcpTransport;
 using Exception = System.Exception;
+using Mirror.Transport;
 
 namespace Mirror
 {
@@ -41,6 +42,11 @@ namespace Mirror
 
         // only really valid on the server
         public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value.playerController != null); } }
+
+        // selected transport layer
+        // the transport is normally initialized in NetworkManager InitializeTransport
+        // initialize it yourself if you are not using NetworkManager
+        public static TransportLayer transport;
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
@@ -107,7 +113,7 @@ namespace Mirror
         // override method if you want to use a different transport
         public virtual void InitializeTransport()
         {
-            Transport.layer = Transport.layer ?? new TelepathyTransport();
+            NetworkManager.transport = NetworkManager.transport ?? new TcpTransport();
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -132,7 +138,7 @@ namespace Mirror
         // virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
         public virtual void OnApplicationQuit()
         {
-            Transport.layer.Shutdown();
+            NetworkManager.transport.Shutdown();
         }
 
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too

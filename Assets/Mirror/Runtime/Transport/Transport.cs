@@ -3,16 +3,9 @@
 // - can be changed by assigning Transport.layer to whatever you want
 using System;
 
-namespace Mirror
+namespace Mirror.Transport
 {
     // Transport class used by HLAPI ///////////////////////////////////////////
-    public static class Transport
-    {
-        // selected transport layer
-        // the transport is normally initialized in NetworkManager InitializeTransport
-        // initialize it yourself if you are not using NetworkManager
-        public static TransportLayer layer;
-    }
 
     // abstract transport layer class //////////////////////////////////////////
     // note: 'address' is ip / websocket url / ...

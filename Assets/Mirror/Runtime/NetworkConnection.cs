@@ -72,14 +72,14 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // client? then stop transport
-            if (Transport.layer.ClientConnected())
+            if (NetworkManager.transport.ClientConnected())
             {
-                Transport.layer.ClientDisconnect();
+                NetworkManager.transport.ClientDisconnect();
             }
             // server? then disconnect that client
-            else if (Transport.layer.ServerActive())
+            else if (NetworkManager.transport.ServerActive())
             {
-                Transport.layer.ServerDisconnect(connectionId);
+                NetworkManager.transport.ServerDisconnect(connectionId);
             }
 
             // remove observers. original HLAPI has hostId check for that too.
@@ -167,9 +167,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > Transport.layer.GetMaxPacketSize(channelId))
+            if (bytes.Length > NetworkManager.transport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.layer.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.transport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -275,14 +275,14 @@ namespace Mirror
 
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
-            if (Transport.layer.ClientConnected())
+            if (NetworkManager.transport.ClientConnected())
             {
-                Transport.layer.ClientSend(channelId, bytes);
+                NetworkManager.transport.ClientSend(channelId, bytes);
                 return true;
             }
-            else if (Transport.layer.ServerActive())
+            else if (NetworkManager.transport.ServerActive())
             {
-                Transport.layer.ServerSend(connectionId, channelId, bytes);
+                NetworkManager.transport.ServerSend(connectionId, channelId, bytes);
                 return true;
             }
 

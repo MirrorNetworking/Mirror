@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Telepathy;
 
-namespace Telepathy
+namespace Mirror.Transport.Tcp
 {
 
     public static class NetworkStreamExtensions

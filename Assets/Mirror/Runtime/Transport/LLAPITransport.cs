@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 
-namespace Mirror
+namespace Mirror.Transport
 {
     /*
     public class LLAPITransport : TransportLayer

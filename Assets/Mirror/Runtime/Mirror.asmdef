@@ -1,8 +1,6 @@
 {
     "name": "Mirror",
-    "references": [
-        "Telepathy"
-    ],
+    "references": [],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],

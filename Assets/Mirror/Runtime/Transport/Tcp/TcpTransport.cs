@@ -1,9 +1,10 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
-namespace Mirror
+
+namespace Mirror.Transport.Tcp
 {
-    public class TelepathyTransport : TransportLayer
+    public class TcpTransport : TransportLayer
     {
         // events for the client
         public event Action OnClientConnect;
@@ -17,10 +18,10 @@ namespace Mirror
         public event Action<int, Exception> OnServerError;
         public event Action<int> OnServerDisconnect;
 
-        protected Telepathy.Client client = new Telepathy.Client();
-        protected Telepathy.Server server = new Telepathy.Server();
+        protected Client client = new Client();
+        protected Server server = new Server();
 
-        public TelepathyTransport()
+        public TcpTransport()
         {
             // dispatch the events from the server
             server.Connected += (id) => OnServerConnect?.Invoke(id);
@@ -34,16 +35,10 @@ namespace Mirror
             client.ReceivedData += (data) => OnClientData?.Invoke(data);
             client.ReceivedError += (exception) => OnClientError?.Invoke(exception);
 
-
-            // tell Telepathy to use Unity's Debug.Log
-            Telepathy.Logger.LogMethod = Debug.Log;
-            Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
-            Telepathy.Logger.LogErrorMethod = Debug.LogError;
-
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
             // by simple eating the first one before the server starts
-            Telepathy.Server.NextConnectionId();
+            Server.NextConnectionId();
 
             Debug.Log("TelepathyTransport initialized!");
         }
