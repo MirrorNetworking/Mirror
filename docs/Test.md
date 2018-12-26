@@ -12,7 +12,7 @@ Lorem ipsum dolor sit amet, consectetur *adipiscing elit, sed do eiusmod tempor*
 
 [^1]: reprehenderit: Footnote
 
-![](Samples/Pong1.jpg)
+![Pong](Samples/Pong1.jpg)
 
 -   Bullet
 -   Bullet
