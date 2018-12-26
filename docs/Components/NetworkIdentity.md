@@ -9,7 +9,7 @@ The Network Identity component is at the heart of the Unity networking high-leve
 
 If none of these options is checked, the server will have authority over the object. Changes made by clients (e.g. moving the object) are not allowed and will not be synchronized.
 
-![](NetworkIdentity.jpg)
+![Inspector](NetworkIdentity.jpg)
 
 ## Instantiated Network GameObjects
 
@@ -27,11 +27,11 @@ When building your game, Unity disables all Scene-based GameObjects with Network
 
 This component contains network tracking information, and displays that information in the preview pane. For example, the scene ID, network ID and asset ID the object has been assigned. This allows you to inspect the information which can be useful for investigation and debugging.
 
-![](NetworkIdentityPreview.png)
+![Preview](NetworkIdentityPreview.png)
 
 At runtime there is more information to display here (a disabled NetworkBehaviour is displayed non-bold):
 
-![](NetworkIdentityPreviewRuntime.png)
+![Runtime Preview](NetworkIdentityPreviewRuntime.png)
 
 -   **assetId**  
     This identifies the prefab associated with this object (for spawning).

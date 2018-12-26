@@ -12,7 +12,7 @@ The HLAPI is focused on ease of use and iterative development and provides usefu
 
 The HLAPI is built from a series of layers that add functionality:
 
-![](NetworkLayers.jpg)
+![Network Layers](NetworkLayers.jpg)
 
 ## Server and Host
 

@@ -4,7 +4,7 @@ The network system has ways to perform actions across the network. These type of
 
 The diagram below shows the directions that remote actions take:
 
-![](UNetDirections.jpg)
+![Data Flow Graph](UNetDirections.jpg)
 
 ## Commands
 

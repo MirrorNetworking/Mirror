@@ -5,7 +5,7 @@ which is included in the AssetStore package of Mirror. It illustrates the usage
 of NetworkManager, NetworkManagerHUD, NetworkBehaviour, NetworkIdentity,
 NetworkTransform, NetworkStartPosition and NetworkingAttributes.
 
-![](Pong1.jpg)
+![Pong](Pong1.jpg)
 
 ## Setting the number of players
 

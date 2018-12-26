@@ -75,7 +75,7 @@ Before creating enhancement suggestions, please check the list of enhancements s
 
 #### How Do I Submit A (Good) Pull Request?
 
-Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). 
+Please send a [GitHub Pull Request](https://github.com/vis2k/Mirror/compare) with a clear list of what you've done (read more about [pull requests](https://help.github.com/articles/about-pull-requests)). 
 When you send a pull request, we will love you forever if you include unit tests. 
 We can always use more test coverage. 
 

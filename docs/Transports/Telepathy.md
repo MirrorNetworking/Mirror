@@ -3,14 +3,14 @@
 Simple, message based, MMO Scale TCP networking in C\#. And no magic.
 
 - Telepathy was designed with the [KISS Principle](https://en.wikipedia.org/wiki/KISS_principle) in mind.  
-- Telepathy is fast and extremely reliable, designed for [MMO](https://www.assetstore.unity3d.com/#!/content/51212) scale Networking.  
+- Telepathy is fast and extremely reliable, designed for [MMO](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) scale Networking.  
 - Telepathy uses framing, so anything sent will be received the same way.  
 - Telepathy is raw C\# and can be used in Unity3D too.
 - Telepathy is available on [GitHub](https://github.com/vis2k/Telepathy)
 
 ## What makes Telepathy special?
 
-Telepathy was originally designed for [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) after 3 years in UDP hell.
+Telepathy was originally designed for [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) after 3 years in UDP hell.
 
 We needed a library that is:
 

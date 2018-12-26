@@ -6,4 +6,4 @@ The NetworkManager will spawn players at (0, 0, 0) by default. Adding this compo
 
 It's possible to have multiple starting positions within one scene. Depending on the NetworkManager setting Spawn Info/Player Spawn Method the spawning is either Random (possible that the same spawn position will be used by two or more players) or Round Robin (use every available position, until there are more clients than spawn points).
 
-![](NetworkStartPosition.jpg)
+![Inspector](NetworkStartPosition.jpg)
