@@ -1,4 +1,4 @@
-﻿// wraps Telepathy for use as HLAPI TransportLayer
+// wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 
@@ -30,7 +30,7 @@ namespace Mirror.Transport.Tcp
             server.ReceivedError += (id, exception) => OnServerError?.Invoke(id, exception);
 
             // dispatch events from the client
-            client.OnConnected += () => OnClientConnect?.Invoke();
+            client.Connected += () => OnClientConnect?.Invoke();
             client.Disconnected += () => OnClientDisconnect?.Invoke();
             client.ReceivedData += (data) => OnClientData?.Invoke(data);
             client.ReceivedError += (exception) => OnClientError?.Invoke(exception);
@@ -44,7 +44,7 @@ namespace Mirror.Transport.Tcp
         }
 
         // client
-        public virtual bool ClientConnected() { return client.Connected; }
+        public virtual bool ClientConnected() { return client.IsConnected; }
         public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
         public virtual void ClientSend(int channelId, byte[] data) { client.Send(data); }
         public virtual void ClientDisconnect() { client.Disconnect(); }
