@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Mirror
 {
@@ -16,16 +17,24 @@ namespace Mirror
 
 
         // Date and time when the application started
-        static readonly DateTime epoch = DateTime.Now;
+        static readonly Stopwatch stopwatch = new Stopwatch();
+
+        static NetworkTime()
+        {
+            stopwatch.Start();
+        }
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
 
+        // the true offset guaranteed to be in this range
+        private static double offsetMin = Double.MinValue;
+        private static double offsetMax = Double.MaxValue;
+
         // returns the clock time _in this system_
         static double LocalTime()
         {
-            TimeSpan span = DateTime.Now.Subtract(epoch);
-            return span.TotalSeconds;
+            return stopwatch.Elapsed.TotalSeconds;
         }
 
         public static void Reset()
@@ -73,16 +82,33 @@ namespace Mirror
         internal static void OnClientPong(NetworkMessage netMsg)
         {
             NetworkPongMessage pongMsg = netMsg.ReadMessage<NetworkPongMessage>();
+            double now = LocalTime();
 
             // how long did this message take to come back
-            double rtt = LocalTime() - pongMsg.clientTime;
+            double rtt = now - pongMsg.clientTime;
+            _rtt.Add(rtt);
+
             // the difference in time between the client and the server
             // but subtract half of the rtt to compensate for latency
             // half of rtt is the best approximation we have
-            double offset = LocalTime() - rtt * 0.5f - pongMsg.serverTime;
+            double offset = now - rtt * 0.5f - pongMsg.serverTime;
 
-            _rtt.Add(rtt);
-            _offset.Add(offset);
+            double newOffsetMin = now - rtt - pongMsg.serverTime;
+            double newOffsetMax = now - pongMsg.serverTime;
+            offsetMin = Math.Max(offsetMin, newOffsetMin);
+            offsetMax = Math.Min(offsetMax, newOffsetMax);
+
+            if (_offset.Value < offsetMin || _offset.Value > offsetMax)
+            {
+                // the old offset was offrange,  throw it away and use new one
+                _offset = new ExponentialMovingAverage(PingWindowSize);
+                _offset.Add(offset);
+            }
+            else if (offset >= offsetMin || offset <= offsetMax)
+            {
+                // new offset looks reasonable,  add to the average
+                _offset.Add(offset);
+            }
         }
 
         // returns the same time in both client and server

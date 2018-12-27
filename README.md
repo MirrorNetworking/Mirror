@@ -31,7 +31,7 @@ This is a work in progress branch.  The differences with mirror branch are:
  * Proper error handling.  Just override OnClientError and OnServerError in your network manager
 
 ## Documentation
-Check out our [Wiki](https://github.com/vis2k/Mirror/wiki) and read the [UNET Manual](https://docs.unity3d.com/Manual/UNet.html), Mirror is still similar enough.
+Check out our [Documentation](https://vis2k.github.io/Mirror/) and read the [Wiki](https://github.com/vis2k/Mirror/wiki).
 
 The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
@@ -47,7 +47,7 @@ This branch is to be imported in source form in Unity 2018.2 or later.  To insta
 3. Restart unity
 
 ## Migration Guide
-If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](migration.md). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](docs/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Example Projects
 Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
@@ -73,7 +73,7 @@ Building Mirror yourself is very easy. Simply download the project, open it in V
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## Contributing
-If you like to contribute, feel free to submit pull requests and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
+If you like to contribute, feel free to [submit pull requests](https://github.com/vis2k/Mirror/docs/General/Contributions) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
 
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
 
