@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Mirror
 {
@@ -16,7 +17,12 @@ namespace Mirror
 
 
         // Date and time when the application started
-        static readonly DateTime epoch = DateTime.Now;
+        static readonly Stopwatch stopwatch = new Stopwatch();
+
+        static NetworkTime()
+        {
+            stopwatch.Start();
+        }
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
@@ -24,8 +30,7 @@ namespace Mirror
         // returns the clock time _in this system_
         static double LocalTime()
         {
-            TimeSpan span = DateTime.Now.Subtract(epoch);
-            return span.TotalSeconds;
+            return stopwatch.Elapsed.TotalSeconds;
         }
 
         public static void Reset()
