@@ -41,6 +41,8 @@ namespace Mirror
         {
             _rtt = new ExponentialMovingAverage(PingWindowSize);
             _offset = new ExponentialMovingAverage(PingWindowSize);
+            offsetMin = Double.MinValue;
+            offsetMax = Double.MaxValue;
         }
 
         internal static NetworkPingMessage GetPing()
