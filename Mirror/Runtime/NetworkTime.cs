@@ -17,11 +17,10 @@ namespace Mirror
 
 
         // Date and time when the application started
-        static readonly Stopwatch stopwatch;
+        static readonly Stopwatch stopwatch = new Stopwatch();
 
         static NetworkTime()
         {
-            stopwatch = new Stopwatch();
             stopwatch.Start();
         }
 
