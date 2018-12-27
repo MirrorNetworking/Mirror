@@ -46,11 +46,11 @@ after_test:
       Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
       bash codecov.sh -f "coverage.xml" 
 
-skip_commits:
-  files:
-    - '/*.md'
-    - '**/*.txt'
-    - '.gitignore'
+#skip_commits:
+#  files:
+#    - '/*.md'
+#    - '**/*.txt'
+#    - '.gitignore'
 
 deploy:
   description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
