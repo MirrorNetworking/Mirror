@@ -8,7 +8,7 @@ namespace Mirror.Transport.Tcp
 {
     public class Client : Common
     {
-        public event Action OnConnected;
+        public event Action Connected;
         public event Action<byte[]> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
@@ -18,7 +18,7 @@ namespace Mirror.Transport.Tcp
         public bool NoDelay = true;
                
         public bool Connecting { get; set; }
-        public bool Connected { get; set; }
+        public bool IsConnected { get; set; }
 
         public async void Connect(string host, int port)
         {
@@ -48,10 +48,10 @@ namespace Mirror.Transport.Tcp
                 await client.ConnectAsync(ipAddress, port);
 
                 // now we are connected:
-                Connected = true;
+                IsConnected = true;
                 Connecting = false;
 
-                OnConnected?.Invoke();
+                Connected?.Invoke();
                 await ReceiveLoop(client);
             }
             catch (ObjectDisposedException)
@@ -106,7 +106,7 @@ namespace Mirror.Transport.Tcp
                 client.Close();
                 client = null;
                 Connecting = false;
-                Connected = false;
+                IsConnected = false;
             }
         }
 
