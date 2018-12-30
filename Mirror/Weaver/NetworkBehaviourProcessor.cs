@@ -1,3 +1,4 @@
+// this class processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
 using System;
 using System.Linq;
 using System.Collections.Generic;
