@@ -732,8 +732,8 @@ namespace Mirror
                     // in the above SetLocalPlayer call
                     if (identity.gameObject != null)
                     {
-                        var vis = identity.OnCheckObserver(conn);
-                        if (vis)
+                        bool visible = identity.OnCheckObserver(conn);
+                        if (visible)
                         {
                             identity.AddObserver(conn);
                         }
