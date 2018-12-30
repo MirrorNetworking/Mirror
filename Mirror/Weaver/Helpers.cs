@@ -112,7 +112,7 @@ namespace Mirror.Weaver
                 assemblyResolver = new DefaultAssemblyResolver();
             var helper = new AddSearchDirectoryHelper(assemblyResolver);
             helper.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
-            helper.AddSearchDirectory(Helpers.UnityEngineDLLDirectoryName());
+            helper.AddSearchDirectory(UnityEngineDLLDirectoryName());
             helper.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
             helper.AddSearchDirectory(Path.GetDirectoryName(unityUNetDLLPath));
             if (extraPaths != null)
