@@ -941,9 +941,9 @@ namespace Mirror
             if (conn.clientOwnedObjects != null)
             {
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
-                foreach (var netId in tmp)
+                foreach (uint netId in tmp)
                 {
-                    var obj = FindLocalObject(netId);
+                    GameObject obj = FindLocalObject(netId);
                     if (obj != null)
                     {
                         DestroyObject(obj);
