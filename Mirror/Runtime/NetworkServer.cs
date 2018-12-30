@@ -684,11 +684,6 @@ namespace Mirror
 
         public static void SetClientReady(NetworkConnection conn)
         {
-            SetClientReadyInternal(conn);
-        }
-
-        internal static void SetClientReadyInternal(NetworkConnection conn)
-        {
             if (LogFilter.Debug) { Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId); }
 
             if (conn.isReady)
