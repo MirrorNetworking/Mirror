@@ -50,7 +50,7 @@ namespace Mirror
         {
             if (s_Initialized)
             {
-                InternalDisconnectAll();
+                DisconnectAll();
 
                 if (dontListen)
                 {
@@ -271,7 +271,17 @@ namespace Mirror
 
         public static void DisconnectAll()
         {
-            InternalDisconnectAll();
+            DisconnectAllConnections();
+
+            if (s_LocalConnection != null)
+            {
+                s_LocalConnection.Disconnect();
+                s_LocalConnection.Dispose();
+                s_LocalConnection = null;
+            }
+
+            s_Active = false;
+            s_LocalClientActive = false;
         }
 
         public static void DisconnectAllConnections()
@@ -284,21 +294,6 @@ namespace Mirror
                 conn.Dispose();
             }
             connections.Clear();
-        }
-
-        internal static void InternalDisconnectAll()
-        {
-            DisconnectAllConnections();
-
-            if (s_LocalConnection != null)
-            {
-                s_LocalConnection.Disconnect();
-                s_LocalConnection.Dispose();
-                s_LocalConnection = null;
-            }
-
-            s_Active = false;
-            s_LocalClientActive = false;
         }
 
         // The user should never need to pump the update loop manually
