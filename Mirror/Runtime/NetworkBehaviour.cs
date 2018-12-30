@@ -255,17 +255,6 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + eventHash + " " + func.GetMethodName()); }
         }
 
-        internal static string GetInvoker(int cmdHash)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return null;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            return inv.DebugString();
-        }
-
         // wrapper fucntions for each type of network operation
         internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
         {
