@@ -700,7 +700,7 @@ namespace Mirror
 
             conn.isReady = true;
 
-            var localConnection = conn as ULocalConnectionToClient;
+            ULocalConnectionToClient localConnection = (ULocalConnectionToClient)conn;
             if (localConnection != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
