@@ -1005,9 +1005,10 @@ namespace Mirror
             }
 
             NetworkIdentity identity;
-            if (!GetNetworkIdentity(obj, out identity)) return;
-
-            DestroyObject(identity, true);
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                DestroyObject(identity, true);
+            }
         }
 
         static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
