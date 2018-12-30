@@ -104,7 +104,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeCommandDelegate(cmdHash, reader);
+            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.Command, reader);
         }
 
         // ----------------------------- Client RPCs --------------------------------
@@ -150,9 +150,9 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeRPC(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
-            return InvokeRpcDelegate(cmdHash, reader);
+            return InvokeHandlerDelegateOfType(rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
         // ----------------------------- Sync Events --------------------------------
@@ -177,9 +177,9 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeSyncEvent(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
-            return InvokeSyncEventDelegate(cmdHash, reader);
+            return InvokeHandlerDelegateOfType(eventHash, UNetInvokeType.SyncEvent, reader);
         }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
@@ -269,21 +269,6 @@ namespace Mirror
                 return true;
             }
             return false;
-        }
-
-        internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
-        {
-            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.Command, reader);
-        }
-
-        internal bool InvokeRpcDelegate(int cmdHash, NetworkReader reader)
-        {
-            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.ClientRpc, reader);
-        }
-
-        internal bool InvokeSyncEventDelegate(int cmdHash, NetworkReader reader)
-        {
-            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.SyncEvent, reader);
         }
 
         internal static string GetCmdHashHandlerName(int cmdHash)
