@@ -296,12 +296,6 @@ namespace Mirror
             connections.Clear();
         }
 
-        // The user should never need to pump the update loop manually
-        internal static void Update()
-        {
-            InternalUpdate();
-        }
-
         static void UpdateServerObjects()
         {
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
@@ -319,7 +313,9 @@ namespace Mirror
             }
         }
 
-        internal static void InternalUpdate()
+
+        // The user should never need to pump the update loop manually
+        internal static void Update()
         {
             if (s_ServerHostId == -1)
                 return;
