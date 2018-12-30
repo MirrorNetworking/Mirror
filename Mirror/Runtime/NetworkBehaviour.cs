@@ -198,11 +198,6 @@ namespace Mirror
             public UNetInvokeType invokeType;
             public Type invokeClass;
             public CmdDelegate invokeFunction;
-
-            public string DebugString()
-            {
-                return invokeType + ":" + invokeClass + ":" + invokeFunction.GetMethodName();
-            }
         }
 
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
