@@ -104,7 +104,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.Command, reader);
+            return InvokeHandlerDelegate(cmdHash, UNetInvokeType.Command, reader);
         }
 
         // ----------------------------- Client RPCs --------------------------------
@@ -152,7 +152,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegateOfType(rpcHash, UNetInvokeType.ClientRpc, reader);
+            return InvokeHandlerDelegate(rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
         // ----------------------------- Sync Events --------------------------------
@@ -179,7 +179,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegateOfType(eventHash, UNetInvokeType.SyncEvent, reader);
+            return InvokeHandlerDelegate(eventHash, UNetInvokeType.SyncEvent, reader);
         }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
@@ -259,7 +259,7 @@ namespace Mirror
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegateOfType(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
+        internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
             Invoker invoker;
             if (GetInvokerForHash(cmdHash, invokeType, out invoker) &&
