@@ -1,4 +1,4 @@
-using System;
+// this class generates OnSerialize/OnDeserialize when inheriting from MessageBase
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
