@@ -148,20 +148,6 @@ namespace Mirror
                 identity.gameObject.SetActive(false);
                 identity.ForceSceneId(nextSceneId++);
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
-
-                // safety check for prefabs with more than one NetworkIdentity
-                GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-                if (prefabGO)
-                {
-                    GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-                    if (prefabRootGO)
-                    {
-                        if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                        {
-                            Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
-                        }
-                    }
-                }
             }
         }
     }
