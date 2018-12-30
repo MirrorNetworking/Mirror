@@ -82,14 +82,14 @@ namespace Mirror.Weaver
                 if (ft.HasGenericParameters)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member cannot have generic parameters.");
+                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot have generic parameters.");
                     return null;
                 }
 
                 if (ft.IsInterface)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member cannot be an interface.");
+                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot be an interface.");
                     return null;
                 }
 
@@ -104,7 +104,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " unknown type [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member variables must be basic types.");
+                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }
@@ -159,7 +159,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateDeserialization for " + m_TypeDef.Name + " unknown type [" + ft + "]. UNet [SyncVar] member variables must be basic types.");
+                    Log.Error("GenerateDeserialization for " + m_TypeDef.Name + " unknown type [" + ft + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }
