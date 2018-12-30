@@ -195,52 +195,39 @@ namespace Mirror
 
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
 
+        // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
         {
             int cmdHash = cmdName.GetStableHashCode();
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 return;
             }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.Command;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            Invoker invoker = new Invoker();
+            invoker.invokeType = invokerType;
+            invoker.invokeClass = invokeClass;
+            invoker.invokeFunction = func;
+            s_CmdHandlerDelegates[cmdHash] = invoker;
+            if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
+        {
+            RegisterDelegate(invokeClass, cmdName, UNetInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            int rpcHash = rpcName.GetStableHashCode();
-            if (s_CmdHandlerDelegates.ContainsKey(rpcHash))
-            {
-                return;
-            }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.ClientRpc;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[rpcHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterRpcDelegate hash:" + rpcHash + " " + func.GetMethodName()); }
+            RegisterDelegate(invokeClass, rpcName, UNetInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
-            int eventHash = eventName.GetStableHashCode();
-            if (s_CmdHandlerDelegates.ContainsKey(eventHash))
-            {
-                return;
-            }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.SyncEvent;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[eventHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + eventHash + " " + func.GetMethodName()); }
+            RegisterDelegate(invokeClass, eventName, UNetInvokeType.SyncEvent, func);
         }
 
         static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Invoker invoker)
