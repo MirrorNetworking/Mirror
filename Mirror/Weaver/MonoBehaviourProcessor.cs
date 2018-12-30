@@ -23,7 +23,7 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in m_td.Fields)
             {
-                foreach (var ca in fd.CustomAttributes)
+                foreach (CustomAttribute ca in fd.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
                     {
@@ -45,7 +45,7 @@ namespace Mirror.Weaver
             // find command and RPC functions
             foreach (MethodDefinition md in m_td.Methods)
             {
-                foreach (var ca in md.CustomAttributes)
+                foreach (CustomAttribute ca in md.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
