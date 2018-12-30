@@ -342,23 +342,6 @@ namespace Mirror
             return inv.invokeType + ":" + inv.invokeFunction.GetMethodName();
         }
 
-        static string GetCmdHashPrefixName(int cmdHash, string prefix)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return cmdHash.ToString();
-            }
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            string name = inv.invokeFunction.GetMethodName();
-
-            int index = name.IndexOf(prefix);
-            if (index > -1)
-            {
-                name = name.Substring(prefix.Length);
-            }
-            return name;
-        }
-
         // ----------------------------- Helpers  --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
