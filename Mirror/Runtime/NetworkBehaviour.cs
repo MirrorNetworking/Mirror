@@ -269,29 +269,20 @@ namespace Mirror
         static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
         {
             Invoker invoker;
-            if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
+            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+                invoker != null &&
+                invoker.invokeType == invokeType)
             {
-                if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
-                invokeFunction = null;
-                return false;
+                invokeFunction = invoker.invokeFunction;
+                return true;
             }
 
-            if (invoker == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
-                invokeFunction = null;
-                return false;
-            }
-
-            if (invoker.invokeType != invokeType)
-            {
-                Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType");
-                invokeFunction = null;
-                return false;
-            }
-
-            invokeFunction = invoker.invokeFunction;
-            return true;
+            // debug message if not found, or null, or mismatched type
+            // (no need to throw an error, an attacker might just be trying to
+            //  call an cmd with an rpc's hash)
+            if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+            invokeFunction = null;
+            return false;
         }
 
         internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
