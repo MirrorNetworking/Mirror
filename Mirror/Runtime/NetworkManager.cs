@@ -224,7 +224,7 @@ namespace Mirror
             }
             for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = spawnPrefabs[i];
+                GameObject prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
