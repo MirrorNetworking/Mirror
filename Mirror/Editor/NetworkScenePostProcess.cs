@@ -130,11 +130,11 @@ namespace Mirror
             //
             // note: this can still fail if DontDestroyOnLoad is called for a
             // NetworkIdentity - but no one should ever do that anyway.
-            List<NetworkIdentity> uvs = FindObjectsOfType<NetworkIdentity>().ToList();
-            uvs.Sort(CompareNetworkIdentitySiblingPaths);
+            List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>().ToList();
+            identities.Sort(CompareNetworkIdentitySiblingPaths);
 
             uint nextSceneId = 1;
-            foreach (NetworkIdentity identity in uvs)
+            foreach (NetworkIdentity identity in identities)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
