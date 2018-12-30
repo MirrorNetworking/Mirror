@@ -44,7 +44,7 @@ namespace Mirror
                 m_netIdentity = m_netIdentity ?? GetComponent<NetworkIdentity>();
                 if (m_netIdentity == null)
                 {
-                    Debug.LogError("There is no NetworkIdentity on this object. Please add one.");
+                    Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
                 return m_netIdentity;
             }
