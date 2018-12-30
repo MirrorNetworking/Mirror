@@ -322,19 +322,14 @@ namespace Mirror
 
         internal bool InvokeSyncEventDelegate(int cmdHash, NetworkReader reader)
         {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            Invoker invoker;
+            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+                invoker.invokeType == UNetInvokeType.SyncEvent)
             {
-                return false;
+                invoker.invokeFunction(this, reader);
+                return true;
             }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.SyncEvent)
-            {
-                return false;
-            }
-
-            inv.invokeFunction(this, reader);
-            return true;
+            return false;
         }
 
         internal static string GetCmdHashHandlerName(int cmdHash)
