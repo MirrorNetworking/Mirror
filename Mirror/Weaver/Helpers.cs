@@ -140,17 +140,5 @@ namespace Mirror.Weaver
             }
             return writeParams;
         }
-
-        public static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
-        {
-            if (self.GenericParameters.Count != arguments.Length)
-                throw new ArgumentException();
-
-            var instance = new GenericInstanceType(self);
-            foreach (var argument in arguments)
-                instance.GenericArguments.Add(argument);
-
-            return instance;
-        }
     }
 }
