@@ -296,21 +296,12 @@ namespace Mirror
 
         internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
         {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            Invoker invoker;
+            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+                invoker.invokeType == UNetInvokeType.Command &&
+                invoker.invokeClass.IsInstanceOfType(this))
             {
-                return false;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.Command)
-            {
-                return false;
-            }
-
-            // 'this' instance of invokeClass?
-            if (inv.invokeClass.IsInstanceOfType(this))
-            {
-                inv.invokeFunction(this, reader);
+                invoker.invokeFunction(this, reader);
                 return true;
             }
             return false;
