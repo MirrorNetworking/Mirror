@@ -70,7 +70,7 @@
     <Compile Include="MonoBehaviourProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="SyncListStructProcessor.cs" />
-    <Compile Include="UNetBehaviourProcessor.cs" />
+    <Compile Include="NetworkBehaviourProcessor.cs" />
     <Compile Include="Weaver.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="CompilationFinishedHook.cs" />
