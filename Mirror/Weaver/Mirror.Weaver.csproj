@@ -70,6 +70,7 @@
     <Compile Include="MonoBehaviourProcessor.cs" />
     <Compile Include="NetworkBehaviourCommandProcessor.cs" />
     <Compile Include="NetworkBehaviourRpcProcessor.cs" />
+    <Compile Include="NetworkBehaviourTargetRpcProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="SyncListStructProcessor.cs" />
     <Compile Include="NetworkBehaviourProcessor.cs" />
