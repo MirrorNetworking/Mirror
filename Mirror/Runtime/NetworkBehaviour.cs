@@ -315,7 +315,8 @@ namespace Mirror
         {
             Invoker invoker;
             if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker.invokeType == UNetInvokeType.SyncEvent)
+                invoker.invokeType == UNetInvokeType.SyncEvent &&
+                invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
                 return true;
