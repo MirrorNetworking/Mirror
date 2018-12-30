@@ -265,7 +265,7 @@ namespace Mirror
             OnStartHost();
             if (StartServer())
             {
-                var localClient = ConnectLocalClient();
+                NetworkClient localClient = ConnectLocalClient();
                 OnStartClient(localClient);
                 return localClient;
             }
