@@ -361,7 +361,7 @@ namespace Mirror
             foreach (uint netId in NetworkIdentity.spawned.Keys)
             {
                 NetworkIdentity identity = NetworkIdentity.spawned[netId];
-                if (identity.gameObject != null)
+                if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                     {
