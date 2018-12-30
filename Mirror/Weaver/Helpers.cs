@@ -80,7 +80,7 @@ namespace Mirror.Weaver
 
         public static string DestinationFileFor(string outputDir, string assemblyPath)
         {
-            var fileName = Path.GetFileName(assemblyPath);
+            string fileName = Path.GetFileName(assemblyPath);
             Debug.Assert(fileName != null, "fileName != null");
 
             return Path.Combine(outputDir, fileName);
