@@ -240,7 +240,7 @@ namespace Mirror.Weaver
             {
                 FieldReference cmdConstant = Weaver.ResolveField(m_td, "kCmd" + md.Name);
 
-                int cmdHash = GetHashCode(m_td.Name + ":Cmd:" + md.Name);
+                int cmdHash = (m_td.Name + ":Cmd:" + md.Name).GetStableHashCode();
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, cmdHash));
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, cmdConstant));
                 //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Cmd:" + md.Name);
@@ -254,7 +254,7 @@ namespace Mirror.Weaver
             {
                 FieldReference rpcConstant = Weaver.ResolveField(m_td, "kRpc" + md.Name);
 
-                int rpcHash = GetHashCode(m_td.Name + ":Rpc:" + md.Name);
+                int rpcHash = (m_td.Name + ":Rpc:" + md.Name).GetStableHashCode();
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, rpcHash));
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, rpcConstant));
                 //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Rpc:" + md.Name);
@@ -268,7 +268,7 @@ namespace Mirror.Weaver
             {
                 FieldReference targetRpcConstant = Weaver.ResolveField(m_td, "kTargetRpc" + md.Name);
 
-                int targetRpcHash = GetHashCode(m_td.Name + ":TargetRpc:" + md.Name);
+                int targetRpcHash = (m_td.Name + ":TargetRpc:" + md.Name).GetStableHashCode();
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, targetRpcHash));
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, targetRpcConstant));
                 //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Rpc:" + md.Name);
@@ -282,7 +282,7 @@ namespace Mirror.Weaver
             {
                 FieldReference eventConstant = Weaver.ResolveField(m_td, "kEvent" + ed.Name);
 
-                int eventHash = GetHashCode(m_td.Name + ":Event:" + ed.Name);
+                int eventHash = (m_td.Name + ":Event:" + ed.Name).GetStableHashCode();
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, eventHash));
                 cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, eventConstant));
                 //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Event:" + ed.Name);
@@ -1906,30 +1906,6 @@ namespace Mirror.Weaver
             }
 
             Weaver.SetNumSyncVars(m_td.FullName, numSyncVars);
-        }
-
-        // Copy of Mono string.GetHashCode(), so that we generate same hashes regardless of runtime (mono/MS .NET)
-        private static int GetHashCode(string s)
-        {
-            unsafe
-            {
-                int length = s.Length;
-                fixed(char* c = s)
-                {
-                    char* cc = c;
-                    char* end = cc + length - 1;
-                    int h = 0;
-                    for (; cc < end; cc += 2)
-                    {
-                        h = (h << 5) - h + *cc;
-                        h = (h << 5) - h + cc[1];
-                    }
-                    ++end;
-                    if (cc < end)
-                        h = (h << 5) - h + *cc;
-                    return h;
-                }
-            }
         }
 
         bool HasMethod(string name)
