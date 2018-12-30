@@ -912,6 +912,7 @@ namespace Mirror
                 msg.netId = identity.netId;
                 msg.sceneId = identity.sceneId;
                 msg.position = identity.transform.position;
+                // note: no msg.rotation here because client&server both start with same scene (=same scene object rotations)
 
                 // include synch data
                 msg.payload = identity.OnSerializeAllSafely(true);
