@@ -18,7 +18,7 @@ namespace Mirror.Weaver
         public void Process()
         {
             // find item type
-            var gt = (GenericInstanceType)m_TypeDef.BaseType;
+            GenericInstanceType gt = (GenericInstanceType)m_TypeDef.BaseType;
             if (gt.GenericArguments.Count == 0)
             {
                 Weaver.fail = true;
@@ -30,13 +30,13 @@ namespace Mirror.Weaver
             Weaver.DLog(m_TypeDef, "SyncListStructProcessor Start item:" + m_ItemType.FullName);
 
             Weaver.ResetRecursionCount();
-            var writeItemFunc = GenerateSerialization();
+            MethodReference writeItemFunc = GenerateSerialization();
             if (Weaver.fail)
             {
                 return;
             }
 
-            var readItemFunc = GenerateDeserialization();
+            MethodReference readItemFunc = GenerateDeserialization();
 
             if (readItemFunc == null || writeItemFunc == null)
                 return;
@@ -71,13 +71,13 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            foreach (var field in m_ItemType.Resolve().Fields)
+            foreach (FieldDefinition field in m_ItemType.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                var importedField = Weaver.scriptDef.MainModule.ImportReference(field);
-                var ft = importedField.FieldType.Resolve();
+                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
 
                 if (ft.HasGenericParameters)
                 {
@@ -140,13 +140,13 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldloca, 0));
             serWorker.Append(serWorker.Create(OpCodes.Initobj, m_ItemType));
 
-            foreach (var field in m_ItemType.Resolve().Fields)
+            foreach (FieldDefinition field in m_ItemType.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                var importedField = Weaver.scriptDef.MainModule.ImportReference(field);
-                var ft = importedField.FieldType.Resolve();
+                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
 
                 MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
                 if (readerFunc != null)
