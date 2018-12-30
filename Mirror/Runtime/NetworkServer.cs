@@ -19,7 +19,7 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConection now!
-        public static NetworkConnection localConnection { get { return (NetworkConnection)s_LocalConnection; } }
+        public static NetworkConnection localConnection { get { return s_LocalConnection; } }
 
         public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
