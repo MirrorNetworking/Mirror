@@ -273,12 +273,12 @@ namespace Mirror
 
         internal static string GetCmdHashHandlerName(int cmdHash)
         {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            Invoker invoker;
+            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
             {
-                return cmdHash.ToString();
+                return invoker.invokeType + ":" + invoker.invokeFunction.GetMethodName();
             }
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            return inv.invokeType + ":" + inv.invokeFunction.GetMethodName();
+            return cmdHash.ToString();
         }
 
         // ----------------------------- Helpers  --------------------------------
