@@ -487,23 +487,6 @@ namespace Mirror
             handlers.Clear();
         }
 
-        // send this message to the player only
-        public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
-        {
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
-            {
-                NetworkConnection conn = kvp.Value;
-                if (conn.playerController != null &&
-                    conn.playerController.gameObject == player)
-                {
-                    conn.Send(msgType, msg);
-                    return;
-                }
-            }
-
-            Debug.LogError("Failed to send message to player object '" + player.name + ", not found in connection list");
-        }
-
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
             NetworkConnection conn;
@@ -513,6 +496,20 @@ namespace Mirror
                 return;
             }
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
+        }
+
+        // send this message to the player only
+        public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
+        {
+            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
+            if (identity != null)
+            {
+                identity.connectionToClient.Send(msgType, msg);
+            }
+            else
+            {
+                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + player.name);
+            }
         }
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
