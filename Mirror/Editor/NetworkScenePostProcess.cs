@@ -136,23 +136,23 @@ namespace Mirror
             uvs.Sort(CompareNetworkIdentitySiblingPaths);
 
             uint nextSceneId = 1;
-            foreach (NetworkIdentity uv in uvs)
+            foreach (NetworkIdentity identity in uvs)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
-                if (uv.GetComponent<NetworkManager>() != null)
+                if (identity.GetComponent<NetworkManager>() != null)
                 {
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
                 }
-                if (uv.isClient || uv.isServer)
+                if (identity.isClient || identity.isServer)
                     continue;
 
-                uv.gameObject.SetActive(false);
-                uv.ForceSceneId(nextSceneId++);
-                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
+                identity.gameObject.SetActive(false);
+                identity.ForceSceneId(nextSceneId++);
+                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
                 // saftey check for prefabs with more than one NetworkIdentity
-                GameObject prefabGO = PrefabUtility.GetPrefabParent(uv.gameObject) as GameObject;
+                GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
                 if (prefabGO)
                 {
                     GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
