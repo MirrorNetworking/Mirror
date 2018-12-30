@@ -84,8 +84,6 @@ namespace Mirror
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
-            var prefabWarnings = new HashSet<string>();
-
             // vis2k: MISMATCHING SCENEID BUG FIX
             // problem:
             //   * FindObjectsOfType order is not guaranteed. restarting the
@@ -158,12 +156,8 @@ namespace Mirror
                     GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
                     if (prefabRootGO)
                     {
-                        NetworkIdentity[] identities = prefabRootGO.GetComponentsInChildren<NetworkIdentity>();
-                        if (identities.Length > 1 && !prefabWarnings.Contains(prefabRootGO.name))
+                        if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
                         {
-                            // make sure we only print one error per prefab
-                            prefabWarnings.Add(prefabRootGO.name);
-
                             Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
                         }
                     }
