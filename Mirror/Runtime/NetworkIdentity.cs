@@ -579,13 +579,15 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            if (componentIndex >= m_NetworkBehaviours.Length)
+            if (0 <= componentIndex && componentIndex < m_NetworkBehaviours.Length)
+            {
+                NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
+                invokeFunction(invokeComponent, reader);
+            }
+            else
             {
                 Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
-                return;
             }
-            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
-            invokeFunction(invokeComponent, reader);
         }
 
         // happens on client
