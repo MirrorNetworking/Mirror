@@ -900,7 +900,7 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId + " netid=" + identity.netId); } // for easier debugging
 
-            // 'uv' is a prefab that should be spawned
+            // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
             {
                 SpawnPrefabMessage msg = new SpawnPrefabMessage();
@@ -923,7 +923,7 @@ namespace Mirror
                     SendToReady(identity.gameObject, (short)MsgType.SpawnPrefab, msg);
                 }
             }
-            // 'uv' is a scene object that should be spawned again
+            // 'identity' is a scene object that should be spawned again
             else
             {
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
