@@ -985,9 +985,10 @@ namespace Mirror
             }
 
             NetworkIdentity identity;
-            if (!GetNetworkIdentity(obj, out identity)) return;
-
-            UnSpawnObject(identity);
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                UnSpawnObject(identity);
+            }
         }
 
         static void UnSpawnObject(NetworkIdentity identity)
