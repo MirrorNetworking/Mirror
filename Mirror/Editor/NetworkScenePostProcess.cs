@@ -132,7 +132,7 @@ namespace Mirror
             //
             // note: this can still fail if DontDestroyOnLoad is called for a
             // NetworkIdentity - but no one should ever do that anyway.
-            var uvs = FindObjectsOfType<NetworkIdentity>().ToList();
+            List<NetworkIdentity> uvs = FindObjectsOfType<NetworkIdentity>().ToList();
             uvs.Sort(CompareNetworkIdentitySiblingPaths);
 
             uint nextSceneId = 1;
@@ -152,13 +152,13 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
 
                 // saftey check for prefabs with more than one NetworkIdentity
-                var prefabGO = PrefabUtility.GetPrefabParent(uv.gameObject) as GameObject;
+                GameObject prefabGO = PrefabUtility.GetPrefabParent(uv.gameObject) as GameObject;
                 if (prefabGO)
                 {
-                    var prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+                    GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
                     if (prefabRootGO)
                     {
-                        var identities = prefabRootGO.GetComponentsInChildren<NetworkIdentity>();
+                        NetworkIdentity[] identities = prefabRootGO.GetComponentsInChildren<NetworkIdentity>();
                         if (identities.Length > 1 && !prefabWarnings.Contains(prefabRootGO.name))
                         {
                             // make sure we only print one error per prefab
