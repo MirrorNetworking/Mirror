@@ -294,11 +294,6 @@ namespace Mirror
             return true;
         }
 
-        internal bool ContainsCommandDelegate(int cmdHash)
-        {
-            return s_CmdHandlerDelegates.ContainsKey(cmdHash);
-        }
-
         internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
         {
             if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
