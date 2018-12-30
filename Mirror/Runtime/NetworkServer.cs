@@ -1199,16 +1199,15 @@ namespace Mirror
                 }
             }
 
-            for (int i = 0; i < identities.Length; i++)
+            foreach (NetworkIdentity identity in identities)
             {
-                NetworkIdentity identity = identities[i];
-                if (!ValidateSceneObject(identity))
-                    continue;
+                if (ValidateSceneObject(identity))
+                {
+                    Spawn(identity.gameObject);
 
-                Spawn(identity.gameObject);
-
-                // these objects are server authority - even if "localPlayerAuthority" is set on them
-                identity.ForceAuthority(true);
+                    // these objects are server authority - even if "localPlayerAuthority" is set on them
+                    identity.ForceAuthority(true);
+                }
             }
             return true;
         }
