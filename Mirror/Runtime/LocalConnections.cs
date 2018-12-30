@@ -11,9 +11,8 @@ namespace Mirror
 
         public LocalClient localClient { get {  return m_LocalClient; } }
 
-        public ULocalConnectionToClient(LocalClient localClient)
+        public ULocalConnectionToClient(LocalClient localClient) : base ("localClient")
         {
-            address = "localClient";
             m_LocalClient = localClient;
         }
 
@@ -28,9 +27,8 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnection
     {
-        public ULocalConnectionToServer()
+        public ULocalConnectionToServer() : base("localServer")
         {
-            address = "localServer";
         }
 
         protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
