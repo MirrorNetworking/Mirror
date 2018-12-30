@@ -259,16 +259,6 @@ namespace Mirror
             return false;
         }
 
-        internal static string GetCmdHashHandlerName(int cmdHash)
-        {
-            Invoker invoker;
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
-            {
-                return invoker.invokeType + ":" + invoker.invokeFunction.GetMethodName();
-            }
-            return cmdHash.ToString();
-        }
-
         // ----------------------------- Helpers  --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]

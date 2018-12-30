@@ -560,8 +560,7 @@ namespace Mirror
         {
             if (gameObject == null)
             {
-                string functionName = NetworkBehaviour.GetCmdHashHandlerName(functionHash);
-                Debug.LogWarning(invokeType + " [" + functionName + "] received for deleted object [netId=" + netId + "]");
+                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
@@ -571,8 +570,7 @@ namespace Mirror
                 NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
-                    string functionName = NetworkBehaviour.GetCmdHashHandlerName(functionHash);
-                    Debug.LogError("Found no receiver for incoming [" + functionName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
                 }
             }
             else
