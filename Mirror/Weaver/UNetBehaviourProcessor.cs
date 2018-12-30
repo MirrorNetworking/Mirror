@@ -238,56 +238,28 @@ namespace Mirror.Weaver
             int cmdIndex = 0;
             foreach (MethodDefinition md in m_Cmds)
             {
-                FieldReference cmdConstant = Weaver.ResolveField(m_td, "kCmd" + md.Name);
-
-                int cmdHash = (m_td.Name + ":Cmd:" + md.Name).GetStableHashCode();
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, cmdHash));
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, cmdConstant));
-                //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Cmd:" + md.Name);
-
-                GenerateCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[cmdIndex], cmdConstant);
+                GenerateCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[cmdIndex], md.Name);
                 cmdIndex += 1;
             }
 
             int rpcIndex = 0;
             foreach (MethodDefinition md in m_Rpcs)
             {
-                FieldReference rpcConstant = Weaver.ResolveField(m_td, "kRpc" + md.Name);
-
-                int rpcHash = (m_td.Name + ":Rpc:" + md.Name).GetStableHashCode();
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, rpcHash));
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, rpcConstant));
-                //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Rpc:" + md.Name);
-
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[rpcIndex], rpcConstant);
+                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[rpcIndex], md.Name);
                 rpcIndex += 1;
             }
 
             int targetRpcIndex = 0;
             foreach (MethodDefinition md in m_TargetRpcs)
             {
-                FieldReference targetRpcConstant = Weaver.ResolveField(m_td, "kTargetRpc" + md.Name);
-
-                int targetRpcHash = (m_td.Name + ":TargetRpc:" + md.Name).GetStableHashCode();
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, targetRpcHash));
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, targetRpcConstant));
-                //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Rpc:" + md.Name);
-
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[targetRpcIndex], targetRpcConstant);
+                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[targetRpcIndex], md.Name);
                 targetRpcIndex += 1;
             }
 
             int eventIndex = 0;
             foreach (EventDefinition ed in m_Events)
             {
-                FieldReference eventConstant = Weaver.ResolveField(m_td, "kEvent" + ed.Name);
-
-                int eventHash = (m_td.Name + ":Event:" + ed.Name).GetStableHashCode();
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Ldc_I4, eventHash));
-                cctorWorker.Append(cctorWorker.Create(OpCodes.Stsfld, eventConstant));
-                //Weaver.DLog(m_td, "    Constant " + m_td.Name + ":Event:" + ed.Name);
-
-                GenerateCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[eventIndex], eventConstant);
+                GenerateCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[eventIndex], ed.Name);
                 eventIndex += 1;
             }
 
@@ -338,13 +310,13 @@ namespace Mirror.Weaver
 
         /*
             // This generates code like:
-            NetworkBehaviour.RegisterCommandDelegate(base.GetType(), ShipControl.kCmdCmdThrust, new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
+            NetworkBehaviour.RegisterCommandDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
-        void GenerateCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, FieldReference field)
+        void GenerateCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, string cmdName)
         {
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, m_td));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldsfld, field));
+            awakeWorker.Append(awakeWorker.Create(OpCodes.Ldstr, cmdName));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldnull));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldftn, func));
 
@@ -910,7 +882,7 @@ namespace Mirror.Weaver
                 NetworkWriter networkWriter = new NetworkWriter();
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
-                base.SendCommandInternal(ShipControl.kCmdCmdThrust, networkWriter, cmdName);
+                base.SendCommandInternal(cmdName, networkWriter, cmdName);
             }
         */
         MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
@@ -957,12 +929,6 @@ namespace Mirror.Weaver
             // NetworkWriter writer = new NetworkWriter();
             WriteCreateWriter(cmdWorker);
 
-            // create the command id constant
-            FieldDefinition cmdConstant = new FieldDefinition("kCmd" + md.Name,
-                    FieldAttributes.Static | FieldAttributes.Private,
-                    Weaver.int32Type);
-            m_td.Fields.Add(cmdConstant);
-
             // write all the arguments that the user passed to the Cmd call
             if (!WriteArguments(cmdWorker, md, "Command", false))
                 return null;
@@ -976,10 +942,9 @@ namespace Mirror.Weaver
 
             // invoke interal send and return
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldsfld, cmdConstant)); // cmdHash
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
@@ -1056,7 +1021,7 @@ namespace Mirror.Weaver
             } else {
                 NetworkWriter writer = new NetworkWriter ();
                 writer.WritePackedUInt32 ((uint)param);
-                base.SendTargetRPCInternal (conn, Player.kTargetRpcTargetTest, val, "TargetTest");
+                base.SendTargetRPCInternal (conn, "TargetTest", val);
             }
         }
         */
@@ -1093,12 +1058,6 @@ namespace Mirror.Weaver
 
             WriteCreateWriter(rpcWorker);
 
-            // create the targetrpc id constant
-            FieldDefinition rpcConstant = new FieldDefinition("kTargetRpc" + md.Name,
-                    FieldAttributes.Static | FieldAttributes.Private,
-                    Weaver.int32Type);
-            m_td.Fields.Add(rpcConstant);
-
             // write all the arguments that the user passed to the TargetRpc call
             if (!WriteArguments(rpcWorker, md, "TargetRPC", true))
                 return null;
@@ -1113,10 +1072,9 @@ namespace Mirror.Weaver
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendTargetRpcInternal));
 
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
@@ -1132,7 +1090,7 @@ namespace Mirror.Weaver
             } else {
                 NetworkWriter writer = new NetworkWriter ();
                 writer.WritePackedUInt32((uint)param);
-                base.SendRPCInternal(Player.kRpcRpcTest, writer, 0, "RpcTest");
+                base.SendRPCInternal("RpcTest", writer, 0);
             }
         }
         */
@@ -1157,12 +1115,6 @@ namespace Mirror.Weaver
 
             WriteCreateWriter(rpcWorker);
 
-            // create the rpc id constant
-            FieldDefinition rpcConstant = new FieldDefinition("kRpc" + md.Name,
-                    FieldAttributes.Static | FieldAttributes.Private,
-                    Weaver.int32Type);
-            m_td.Fields.Add(rpcConstant);
-
             // write all the arguments that the user passed to the Rpc call
             if (!WriteArguments(rpcWorker, md, "RPC", false))
                 return null;
@@ -1176,10 +1128,9 @@ namespace Mirror.Weaver
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldsfld, rpcConstant)); // rpcHash
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
@@ -1574,22 +1525,15 @@ namespace Mirror.Weaver
 
             WriteCreateWriter(evtWorker);
 
-            // create the syncevent id constant
-            FieldDefinition evtConstant = new FieldDefinition("kEvent" + ed.Name,
-                    FieldAttributes.Static | FieldAttributes.Private,
-                    Weaver.int32Type);
-            m_td.Fields.Add(evtConstant);
-
             // write all the arguments that the user passed to the syncevent
             if (!WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
                 return null;
 
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldsfld, evtConstant)); // eventHash
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
             evtWorker.Append(evtWorker.Create(OpCodes.Ret));

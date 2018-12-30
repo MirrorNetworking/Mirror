@@ -76,7 +76,7 @@ namespace Mirror
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
+        protected void SendCommandInternal(string cmdName, NetworkWriter writer, int channelId)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -95,7 +95,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.cmdHash = cmdHash;
+            message.cmdHash = cmdName.GetStableHashCode();
             message.payload = writer.ToArray();
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
@@ -110,7 +110,7 @@ namespace Mirror
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendRPCInternal(string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -123,14 +123,14 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcHash;
+            message.rpcHash = rpcName.GetStableHashCode();
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -143,7 +143,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcHash;
+            message.rpcHash = rpcName.GetStableHashCode();
             message.payload = writer.ToArray();
 
             conn.Send((short)MsgType.Rpc, message, channelId);
@@ -158,7 +158,7 @@ namespace Mirror
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
+        protected void SendEventInternal(string eventName, NetworkWriter writer, int channelId)
         {
             if (!NetworkServer.active)
             {
@@ -170,7 +170,7 @@ namespace Mirror
             SyncEventMessage message = new SyncEventMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.eventHash = eventHash;
+            message.eventHash = eventName.GetStableHashCode();
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
@@ -208,8 +208,9 @@ namespace Mirror
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterCommandDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
+            int cmdHash = cmdName.GetStableHashCode();
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 return;
@@ -223,9 +224,10 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterRpcDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            int rpcHash = rpcName.GetStableHashCode();
+            if (s_CmdHandlerDelegates.ContainsKey(rpcHash))
             {
                 return;
             }
@@ -233,14 +235,15 @@ namespace Mirror
             inv.invokeType = UNetInvokeType.ClientRpc;
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            s_CmdHandlerDelegates[rpcHash] = inv;
+            if (LogFilter.Debug) { Debug.Log("RegisterRpcDelegate hash:" + rpcHash + " " + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterEventDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            int eventHash = eventName.GetStableHashCode();
+            if (s_CmdHandlerDelegates.ContainsKey(eventHash))
             {
                 return;
             }
@@ -248,8 +251,8 @@ namespace Mirror
             inv.invokeType = UNetInvokeType.SyncEvent;
             inv.invokeClass = invokeClass;
             inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            s_CmdHandlerDelegates[eventHash] = inv;
+            if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + eventHash + " " + func.GetMethodName()); }
         }
 
         internal static string GetInvoker(int cmdHash)

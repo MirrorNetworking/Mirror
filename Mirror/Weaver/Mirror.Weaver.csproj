@@ -66,7 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="MessageClassProcessor.cs" />
     <Compile Include="MonoBehaviourProcessor.cs" />
     <Compile Include="Program.cs" />
