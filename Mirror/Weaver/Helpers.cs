@@ -78,45 +78,6 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static IEnumerable<TypeReference> ResolveInheritanceHierarchy(TypeReference type)
-        {
-            // for value types the hierarchy is pre-defined as "<Self> : System.ValueType : System.Object"
-            if (type.IsValueType)
-            {
-                yield return type;
-                yield return Weaver.valueTypeType;
-                yield return Weaver.objectType;
-                yield break;
-            }
-
-            // resolve entire hierarchy from <Self> to System.Object
-            while (type != null && type.FullName != Weaver.objectType.FullName)
-            {
-                yield return type;
-
-                try
-                {
-                    var typeDef = type.Resolve();
-                    if (typeDef == null)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        type = typeDef.BaseType;
-                    }
-                }
-                catch
-                {
-                    // when calling type.Resolve() we can sometimes get an exception if some dependant library
-                    // could not be loaded (for whatever reason) so just swallow it and break out of the loop
-                    break;
-                }
-            }
-
-            yield return Weaver.objectType;
-        }
-
         public static string DestinationFileFor(string outputDir, string assemblyPath)
         {
             var fileName = Path.GetFileName(assemblyPath);
