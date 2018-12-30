@@ -568,21 +568,15 @@ namespace Mirror
                 return;
             }
 
-            // find the matching invoke function and NetworkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            if (!NetworkBehaviour.GetInvokerFunctionForHash(functionHash, invokeType, out invokeFunction))
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string functionName = NetworkBehaviour.GetCmdHashHandlerName(functionHash);
-                Debug.LogError("Found no receiver for incoming [" + functionName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
-                return;
-            }
-
             // find the right component to invoke the function on
             if (0 <= componentIndex && componentIndex < m_NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
-                invokeFunction(invokeComponent, reader);
+                if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
+                {
+                    string functionName = NetworkBehaviour.GetCmdHashHandlerName(functionHash);
+                    Debug.LogError("Found no receiver for incoming [" + functionName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                }
             }
             else
             {

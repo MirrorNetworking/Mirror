@@ -246,18 +246,6 @@ namespace Mirror
             return false;
         }
 
-        internal static bool GetInvokerFunctionForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
-        {
-            Invoker invoker;
-            if (GetInvokerForHash(cmdHash, invokeType, out invoker))
-            {
-                invokeFunction = invoker.invokeFunction;
-                return true;
-            }
-            invokeFunction = null;
-            return false;
-        }
-
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
         internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
