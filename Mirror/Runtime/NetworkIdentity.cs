@@ -62,6 +62,16 @@ namespace Mirror
             }
         }
 
+        // cache NetworkProximityChecker to avoid GetComponent calls (can be null)
+        NetworkProximityChecker _proximityChecker;
+        public NetworkProximityChecker proximityChecker
+        {
+            get
+            {
+                return _proximityChecker ?? (_proximityChecker = GetComponent<NetworkProximityChecker>());
+            }
+        }
+
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
         //   serialize it because Guid's internal bytes are private
@@ -378,11 +388,11 @@ namespace Mirror
 
         internal void OnSetLocalVisibility(bool vis)
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            if (proximityChecker != null)
             {
                 try
                 {
-                    comp.OnSetLocalVisibility(vis);
+                    proximityChecker.OnSetLocalVisibility(vis);
                 }
                 catch (Exception e)
                 {
@@ -393,18 +403,19 @@ namespace Mirror
 
         internal bool OnCheckObserver(NetworkConnection conn)
         {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            if (proximityChecker != null)
             {
                 try
                 {
-                    if (!comp.OnCheckObserver(conn))
-                        return false;
+                    return proximityChecker.OnCheckObserver(conn);
                 }
                 catch (Exception e)
                 {
                     Debug.LogError("Exception in OnCheckObserver:" + e.Message + " " + e.StackTrace);
                 }
             }
+
+            // if we have no proximityChecker then we are observed by everyone
             return true;
         }
 
@@ -716,15 +727,16 @@ namespace Mirror
                 return;
 
             bool changed = false;
-            bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
 
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            // do we have a NetworkProximityChecker attached? then use it to
+            // rebuild observers, otherwise use built-in rebuild method
+            if (proximityChecker != null)
             {
-                result |= comp.OnRebuildObservers(newObservers, initialize);
+                proximityChecker.OnRebuildObservers(newObservers, initialize);
             }
-            if (!result)
+            else
             {
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)

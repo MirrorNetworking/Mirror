@@ -44,7 +44,7 @@ namespace Mirror
         }
 
         // called when a new player enters
-        public override bool OnCheckObserver(NetworkConnection newObserver)
+        public virtual bool OnCheckObserver(NetworkConnection newObserver)
         {
             if (forceHidden)
                 return false;
@@ -56,7 +56,7 @@ namespace Mirror
             return false;
         }
 
-        public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
+        public virtual void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
             // only add self as observer if force hidden
             if (forceHidden)
@@ -110,14 +110,10 @@ namespace Mirror
                     }
                 }
             }
-
-            // always return true when overwriting OnRebuildObservers so that
-            // Mirror knows not to use the built in rebuild method.
-            return true;
         }
 
         // called hiding and showing objects on the host
-        public override void OnSetLocalVisibility(bool visible)
+        public virtual void OnSetLocalVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
             {

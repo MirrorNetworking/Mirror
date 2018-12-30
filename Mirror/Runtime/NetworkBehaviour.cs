@@ -432,22 +432,6 @@ namespace Mirror
         public virtual void OnStartAuthority() {}
         public virtual void OnStopAuthority() {}
 
-        // return true when overwriting so that Mirror knows that we wanted to
-        // rebuild observers ourselves. otherwise it uses built in rebuild.
-        public virtual bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
-        {
-            return false;
-        }
-
-        public virtual void OnSetLocalVisibility(bool vis)
-        {
-        }
-
-        public virtual bool OnCheckObserver(NetworkConnection conn)
-        {
-            return true;
-        }
-
         public virtual float GetNetworkSendInterval()
         {
             return k_DefaultSendInterval;
