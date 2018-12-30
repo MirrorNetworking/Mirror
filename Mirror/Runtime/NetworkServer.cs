@@ -512,21 +512,6 @@ namespace Mirror
             }
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
-        {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(player, out identity))
-            {
-                identity.SetDynamicAssetId(assetId);
-            }
-            return InternalReplacePlayerForConnection(conn, player);
-        }
-
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player)
-        {
-            return InternalReplacePlayerForConnection(conn, player);
-        }
-
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
             NetworkIdentity identity;
@@ -626,49 +611,6 @@ namespace Mirror
             OwnerMessage owner = new OwnerMessage();
             owner.netId = identity.netId;
             conn.Send((short)MsgType.Owner, owner);
-        }
-
-        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
-        {
-            NetworkIdentity playerNetworkIdentity;
-            if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
-            {
-                Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
-                return false;
-            }
-
-            //NOTE: there can be an existing player
-            if (LogFilter.Debug) { Debug.Log("NetworkServer ReplacePlayer"); }
-
-            // is there already an owner that is a different object??
-            if (conn.playerController != null)
-            {
-                conn.playerController.SetNotLocalPlayer();
-                conn.playerController.ClearClientOwner();
-            }
-
-            conn.SetPlayerController(playerNetworkIdentity);
-
-            // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            playerNetworkIdentity.SetConnectionToClient(conn);
-
-            //NOTE: DONT set connection ready.
-
-            if (LogFilter.Debug) { Debug.Log("NetworkServer ReplacePlayer setup local"); }
-
-            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
-            {
-                return true;
-            }
-
-            if (LogFilter.Debug) { Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId); }
-
-            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
-            {
-                playerNetworkIdentity.SetClientOwner(conn);
-            }
-            return true;
         }
 
         static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
