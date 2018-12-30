@@ -558,9 +558,6 @@ namespace Mirror
         // helper function to handle SyncEvent/Command/Rpc
         internal void HandleRemoteCall(int componentIndex, int functionHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            // this doesn't use NetworkBehaviour.InvokeSyncEvent function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
             if (gameObject == null)
             {
                 string functionName = NetworkBehaviour.GetCmdHashHandlerName(functionHash);
