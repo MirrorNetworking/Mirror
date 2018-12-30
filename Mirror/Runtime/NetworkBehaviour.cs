@@ -382,21 +382,6 @@ namespace Mirror
             return name;
         }
 
-        internal static string GetCmdHashCmdName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeCmd");
-        }
-
-        internal static string GetCmdHashRpcName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeRpc");
-        }
-
-        internal static string GetCmdHashEventName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeSyncEvent");
-        }
-
         // ----------------------------- Helpers  --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
