@@ -1128,100 +1128,6 @@ namespace Mirror.Weaver
             }
         }
 
-        MethodDefinition ProcessEventInvoke(EventDefinition ed)
-        {
-            // find the field that matches the event
-            FieldDefinition eventField = null;
-            foreach (FieldDefinition fd in m_td.Fields)
-            {
-                if (fd.FullName == ed.FullName)
-                {
-                    eventField = fd;
-                    break;
-                }
-            }
-            if (eventField == null)
-            {
-                Weaver.DLog(m_td, "ERROR: no event field?!");
-                Weaver.fail = true;
-                return null;
-            }
-
-            MethodDefinition cmd = new MethodDefinition("InvokeSyncEvent" + ed.Name, MethodAttributes.Family |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                    Weaver.voidType);
-
-            ILProcessor cmdWorker = cmd.Body.GetILProcessor();
-            Instruction label1 = cmdWorker.Create(OpCodes.Nop);
-            Instruction label2 = cmdWorker.Create(OpCodes.Nop);
-
-            WriteClientActiveCheck(cmdWorker, ed.Name, label1, "Event");
-
-            // null event check
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, m_td));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldfld, eventField));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Brtrue, label2));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
-            cmdWorker.Append(label2);
-
-            // setup reader
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, m_td));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldfld, eventField));
-
-            // read the event arguments
-            MethodReference invoke = Weaver.ResolveMethod(eventField.FieldType, "Invoke");
-            if (!ProcessNetworkReaderParameters(m_td, invoke.Resolve(), cmdWorker, false))
-                return null;
-
-            // invoke actual event delegate function
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, invoke));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
-
-            AddInvokeParameters(cmd.Parameters);
-
-            return cmd;
-        }
-
-        MethodDefinition ProcessEventCall(EventDefinition ed, CustomAttribute ca)
-        {
-            MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
-            MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
-                    MethodAttributes.HideBySig,
-                    Weaver.voidType);
-            // add paramters
-            foreach (ParameterDefinition pd in invoke.Parameters)
-            {
-                evt.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
-            }
-
-            ILProcessor evtWorker = evt.Body.GetILProcessor();
-            Instruction label = evtWorker.Create(OpCodes.Nop);
-
-            WriteSetupLocals(evtWorker);
-
-            WriteServerActiveCheck(evtWorker, ed.Name, label, "Event");
-
-            WriteCreateWriter(evtWorker);
-
-            // write all the arguments that the user passed to the syncevent
-            if (!WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
-                return null;
-
-            // invoke interal send and return
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
-            evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, GetChannelId(ca)));
-            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
-
-            evtWorker.Append(evtWorker.Create(OpCodes.Ret));
-
-            return evt;
-        }
-
         void ProcessEvents()
         {
             // find events
@@ -1246,7 +1152,7 @@ namespace Mirror.Weaver
                         }
 
                         m_Events.Add(ed);
-                        MethodDefinition eventFunc = ProcessEventInvoke(ed);
+                        MethodDefinition eventFunc = NetworkBehaviourSyncEventProcessor.ProcessEventInvoke(m_td, ed);
                         if (eventFunc == null)
                         {
                             return;
@@ -1257,7 +1163,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(m_td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = ProcessEventCall(ed, ca);
+                        MethodDefinition eventCallFunc = NetworkBehaviourSyncEventProcessor.ProcessEventCall(ed, ca);
                         m_td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);
