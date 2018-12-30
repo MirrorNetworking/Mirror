@@ -1,6 +1,5 @@
 namespace Mirror
 {
-
     public static class Extensions
     {
         // string.GetHashCode is not guaranteed to be the same on all machines, but
