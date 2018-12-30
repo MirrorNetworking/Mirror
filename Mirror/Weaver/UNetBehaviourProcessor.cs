@@ -301,7 +301,17 @@ namespace Mirror.Weaver
 
             // Not initialized by the user in the field definition, e.g:
             // public SyncListInt Foo;
-            var listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
+            MethodReference listCtor;
+            try
+            {
+                listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
+            }
+            catch (Exception)
+            {
+                Weaver.fail = true;
+                Log.Error($"Missing parameter-less constructor for: {fd.FieldType.Name}");
+                return;
+            }
 
             ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
             ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, listCtor));
