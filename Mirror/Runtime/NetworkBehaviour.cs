@@ -250,14 +250,12 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + eventHash + " " + func.GetMethodName()); }
         }
 
-        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
+        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Invoker invoker)
         {
-            Invoker invoker;
             if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
                 invoker != null &&
                 invoker.invokeType == invokeType)
             {
-                invokeFunction = invoker.invokeFunction;
                 return true;
             }
 
@@ -265,6 +263,17 @@ namespace Mirror
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
             if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+            return false;
+        }
+
+        static bool GetInvokerFunctionForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
+        {
+            Invoker invoker;
+            if (GetInvokerForHash(cmdHash, invokeType, out invoker))
+            {
+                invokeFunction = invoker.invokeFunction;
+                return true;
+            }
             invokeFunction = null;
             return false;
         }
@@ -272,25 +281,24 @@ namespace Mirror
         // wrapper fucntions for each type of network operation
         internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
+            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
         }
 
         internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
+            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
         }
 
         internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
+            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
         internal bool InvokeHandlerDelegateOfType(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
             Invoker invoker;
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker.invokeType == invokeType &&
+            if (GetInvokerForHash(cmdHash, invokeType, out invoker) &&
                 invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
