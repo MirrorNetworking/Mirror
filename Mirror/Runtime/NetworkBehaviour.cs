@@ -186,7 +186,7 @@ namespace Mirror
 
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
-        protected enum UNetInvokeType
+        public enum UNetInvokeType
         {
             Command,
             ClientRpc,
@@ -285,43 +285,33 @@ namespace Mirror
             return false;
         }
 
-        internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
+        // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
+        internal bool InvokeHandlerDelegateOfType(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
             Invoker invoker;
             if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker.invokeType == UNetInvokeType.Command &&
+                invoker.invokeType == invokeType &&
                 invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
                 return true;
             }
             return false;
+        }
+
+        internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
+        {
+            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.Command, reader);
         }
 
         internal bool InvokeRpcDelegate(int cmdHash, NetworkReader reader)
         {
-            Invoker invoker;
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker.invokeType == UNetInvokeType.ClientRpc &&
-                invoker.invokeClass.IsInstanceOfType(this))
-            {
-                invoker.invokeFunction(this, reader);
-                return true;
-            }
-            return false;
+            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.ClientRpc, reader);
         }
 
         internal bool InvokeSyncEventDelegate(int cmdHash, NetworkReader reader)
         {
-            Invoker invoker;
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
-                invoker.invokeType == UNetInvokeType.SyncEvent &&
-                invoker.invokeClass.IsInstanceOfType(this))
-            {
-                invoker.invokeFunction(this, reader);
-                return true;
-            }
-            return false;
+            return InvokeHandlerDelegateOfType(cmdHash, UNetInvokeType.SyncEvent, reader);
         }
 
         internal static string GetCmdHashHandlerName(int cmdHash)
