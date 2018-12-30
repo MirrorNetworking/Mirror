@@ -9,6 +9,22 @@ namespace Mirror
 {
     public class NetworkScenePostProcess : MonoBehaviour
     {
+        // helper function to count amount of NetworkIdentities in a prefab and
+        // its children
+        public static int CountNetworkIdentitiesInPrefabParent(GameObject go)
+        {
+            GameObject prefab = PrefabUtility.GetPrefabParent(go) as GameObject;
+            if (prefab)
+            {
+                GameObject prefabRoot = PrefabUtility.FindPrefabRoot(prefab);
+                if (prefabRoot)
+                {
+                    return prefabRoot.GetComponentsInChildren<NetworkIdentity>().Length;
+                }
+            }
+            return 0;
+        }
+
         // persistent sceneId assignment to fix readstring bug that occurs when restarting the editor and
         // connecting to a build again. sceneids were then different because FindObjectsOfType's order
         // is not guranteed to be the same.
@@ -150,17 +166,9 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
                 // safety check for prefabs with more than one NetworkIdentity
-                GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-                if (prefabGO)
+                if (CountNetworkIdentitiesInPrefabParent(identity.gameObject) > 1)
                 {
-                    GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-                    if (prefabRootGO)
-                    {
-                        if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                        {
-                            Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
-                        }
-                    }
+                    Debug.LogWarningFormat(identity.name + "'s Prefab has several NetworkIdentity components attached to itself or its children, this is not supported.");
                 }
             }
         }
