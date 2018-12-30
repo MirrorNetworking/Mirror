@@ -259,7 +259,7 @@ namespace Mirror
             return false;
         }
 
-        static bool GetInvokerFunctionForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
+        internal static bool GetInvokerFunctionForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
         {
             Invoker invoker;
             if (GetInvokerForHash(cmdHash, invokeType, out invoker))
@@ -269,22 +269,6 @@ namespace Mirror
             }
             invokeFunction = null;
             return false;
-        }
-
-        // wrapper fucntions for each type of network operation
-        internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerFunctionForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here

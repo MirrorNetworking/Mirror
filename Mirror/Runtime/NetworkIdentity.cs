@@ -570,7 +570,7 @@ namespace Mirror
 
             // find the matching SyncEvent function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncEvent(cmdHash, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerFunctionForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
@@ -605,7 +605,7 @@ namespace Mirror
 
             // find the matching Command function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashCommand(cmdHash, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerFunctionForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
@@ -640,7 +640,7 @@ namespace Mirror
 
             // find the matching ClientRpc function and networkBehaviour class
             NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashClientRpc(cmdHash, out invokeFunction);
+            bool invokeFound = NetworkBehaviour.GetInvokerFunctionForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
             if (!invokeFound)
             {
                 // We don't get a valid lookup of the command name when it doesn't exist...
