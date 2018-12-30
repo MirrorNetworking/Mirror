@@ -753,28 +753,11 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost()
-        {
-        }
-
-        public virtual void OnStartServer()
-        {
-        }
-
-        public virtual void OnStartClient(NetworkClient client)
-        {
-        }
-
-        public virtual void OnStopServer()
-        {
-        }
-
-        public virtual void OnStopClient()
-        {
-        }
-
-        public virtual void OnStopHost()
-        {
-        }
+        public virtual void OnStartHost() {}
+        public virtual void OnStartServer() {}
+        public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStopServer() {}
+        public virtual void OnStopClient() {}
+        public virtual void OnStopHost() {}
     }
 }
