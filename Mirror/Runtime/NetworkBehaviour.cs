@@ -250,22 +250,6 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + eventHash + " " + func.GetMethodName()); }
         }
 
-        // wrapper fucntions for each type of network operation
-        internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
-        }
-
         static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
         {
             Invoker invoker;
@@ -283,6 +267,22 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
             invokeFunction = null;
             return false;
+        }
+
+        // wrapper fucntions for each type of network operation
+        internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
+        {
+            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
+        }
+
+        internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
+        {
+            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
+        }
+
+        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
+        {
+            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
