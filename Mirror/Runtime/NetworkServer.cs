@@ -768,8 +768,8 @@ namespace Mirror
 
                 if (LogFilter.Debug) { Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId); }
 
-                var vis = identity.OnCheckObserver(conn);
-                if (vis)
+                bool visible = identity.OnCheckObserver(conn);
+                if (visible)
                 {
                     identity.AddObserver(conn);
                 }
