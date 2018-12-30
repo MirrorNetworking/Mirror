@@ -115,7 +115,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("ClientRpc call on un-spawned object");
+                Debug.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -135,7 +135,7 @@ namespace Mirror
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("TargetRpc call on un-spawned object");
+                Debug.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
