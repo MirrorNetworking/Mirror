@@ -12,6 +12,14 @@ namespace Mirror
     // Handles requests to unspawn objects on the client
     public delegate void UnSpawnDelegate(GameObject spawned);
 
+    // invoke type for Cmd/Rpc/SyncEvents
+    public enum UNetInvokeType
+    {
+        Command,
+        ClientRpc,
+        SyncEvent
+    }
+
     // built-in system network messages
     // original HLAPI uses short, so let's keep short to not break packet header etc.
     // => use .ToString() to get the field name from the field value

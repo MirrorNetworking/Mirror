@@ -186,13 +186,6 @@ namespace Mirror
 
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
-        public enum UNetInvokeType
-        {
-            Command,
-            ClientRpc,
-            SyncEvent
-        }
-
         protected class Invoker
         {
             public UNetInvokeType invokeType;
