@@ -313,7 +313,6 @@ namespace Mirror
             }
         }
 
-
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
