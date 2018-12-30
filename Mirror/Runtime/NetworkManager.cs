@@ -426,19 +426,13 @@ namespace Mirror
 
         internal static void UpdateScene()
         {
-            if (singleton == null)
-                return;
-
-            if (s_LoadingSceneAsync == null)
-                return;
-
-            if (!s_LoadingSceneAsync.isDone)
-                return;
-
-            if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
-            singleton.FinishLoadScene();
-            s_LoadingSceneAsync.allowSceneActivation = true;
-            s_LoadingSceneAsync = null;
+            if (singleton != null && s_LoadingSceneAsync != null && s_LoadingSceneAsync.isDone)
+            {
+                if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
+                singleton.FinishLoadScene();
+                s_LoadingSceneAsync.allowSceneActivation = true;
+                s_LoadingSceneAsync = null;
+            }
         }
 
         // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
