@@ -425,33 +425,13 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void PreStartClient()
-        {
-        }
-
-        public virtual void OnNetworkDestroy()
-        {
-        }
-
-        public virtual void OnStartServer()
-        {
-        }
-
-        public virtual void OnStartClient()
-        {
-        }
-
-        public virtual void OnStartLocalPlayer()
-        {
-        }
-
-        public virtual void OnStartAuthority()
-        {
-        }
-
-        public virtual void OnStopAuthority()
-        {
-        }
+        public virtual void PreStartClient() {}
+        public virtual void OnNetworkDestroy() {}
+        public virtual void OnStartServer() {}
+        public virtual void OnStartClient() {}
+        public virtual void OnStartLocalPlayer() {}
+        public virtual void OnStartAuthority() {}
+        public virtual void OnStopAuthority() {}
 
         // return true when overwriting so that Mirror knows that we wanted to
         // rebuild observers ourselves. otherwise it uses built in rebuild.
