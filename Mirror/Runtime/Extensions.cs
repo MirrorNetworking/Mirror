@@ -5,7 +5,6 @@ namespace Mirror
     {
         // string.GetHashCode is not guaranteed to be the same on all machines, but
         // we need one that is the same on all machines. simple and stupid:
-        // IMPORTANT: needs to be same one as in Weaver
         public static int GetStableHashCode(this string text)
         {
             unchecked
