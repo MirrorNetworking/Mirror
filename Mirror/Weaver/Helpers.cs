@@ -152,24 +152,5 @@ namespace Mirror.Weaver
 
             return instance;
         }
-
-        // used to get a specialized method on a generic class, such as SyncList<T>::HandleMsg()
-        public static MethodReference MakeHostInstanceGeneric(MethodReference self, params TypeReference[] arguments)
-        {
-            var reference = new MethodReference(self.Name, self.ReturnType, MakeGenericType(self.DeclaringType, arguments))
-            {
-                HasThis = self.HasThis,
-                ExplicitThis = self.ExplicitThis,
-                CallingConvention = self.CallingConvention
-            };
-
-            foreach (var parameter in self.Parameters)
-                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
-
-            foreach (var genericParameter in self.GenericParameters)
-                reference.GenericParameters.Add(new GenericParameter(genericParameter.Name, reference));
-
-            return reference;
-        }
     }
 }
