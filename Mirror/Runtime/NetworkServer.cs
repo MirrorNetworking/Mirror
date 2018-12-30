@@ -1189,16 +1189,16 @@ namespace Mirror
                 return true;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
-            for (int i = 0; i < identities.Length; i++)
+            foreach (NetworkIdentity identity in identities)
             {
-                NetworkIdentity identity = identities[i];
-                if (!ValidateSceneObject(identity))
-                    continue;
-
-                if (LogFilter.Debug) { Debug.Log("SpawnObjects sceneId:" + identity.sceneId + " name:" + identity.gameObject.name); }
-                identity.Reset();
-                identity.gameObject.SetActive(true);
+                if (ValidateSceneObject(identity))
+                {
+                    if (LogFilter.Debug) { Debug.Log("SpawnObjects sceneId:" + identity.sceneId + " name:" + identity.gameObject.name); }
+                    identity.Reset();
+                    identity.gameObject.SetActive(true);
+                }
             }
+
             for (int i = 0; i < identities.Length; i++)
             {
                 NetworkIdentity identity = identities[i];
