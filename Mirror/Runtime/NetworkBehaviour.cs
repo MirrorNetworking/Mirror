@@ -268,7 +268,7 @@ namespace Mirror
 
         static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
         {
-            Invoker invoker = null;
+            Invoker invoker;
             if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
             {
                 if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
