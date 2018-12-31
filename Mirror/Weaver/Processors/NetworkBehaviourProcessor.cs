@@ -231,32 +231,24 @@ namespace Mirror.Weaver
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
-            int cmdIndex = 0;
-            foreach (MethodDefinition md in m_Cmds)
+            for (int i = 0; i < m_Cmds.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[cmdIndex], md.Name);
-                cmdIndex += 1;
+                GenerateCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[i], m_Cmds[i].Name);
             }
 
-            int rpcIndex = 0;
-            foreach (MethodDefinition md in m_Rpcs)
+            for (int i = 0; i < m_Rpcs.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[rpcIndex], md.Name);
-                rpcIndex += 1;
+                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[i], m_Rpcs[i].Name);
             }
 
-            int targetRpcIndex = 0;
-            foreach (MethodDefinition md in m_TargetRpcs)
+            for (int i = 0; i < m_TargetRpcs.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[targetRpcIndex], md.Name);
-                targetRpcIndex += 1;
+                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[i], m_TargetRpcs[i].Name);
             }
 
-            int eventIndex = 0;
-            foreach (EventDefinition ed in m_Events)
+            for (int i = 0; i < m_Events.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[eventIndex], ed.Name);
-                eventIndex += 1;
+                GenerateCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[i], m_Events[i].Name);
             }
 
             foreach (FieldDefinition fd in m_SyncObjects)
