@@ -17,7 +17,7 @@ namespace Mirror
         bool[] m_ShowSyncLists;
 
         GUIContent m_SyncVarIndicatorContent;
-        protected GUIContent m_NetworkSendIntervalLabel;
+        protected GUIContent m_SendIntervalLabel;
 
         internal virtual bool hideScriptField
         {
@@ -30,7 +30,7 @@ namespace Mirror
             Type scriptClass = script.GetClass();
 
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
-            m_NetworkSendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds. Implement GetNetworkSendInterval to change this.");
+            m_SendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds.");
 
             foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
@@ -162,7 +162,7 @@ namespace Mirror
                 var beh = target as NetworkBehaviour;
                 if (beh != null)
                 {
-                    EditorGUILayout.LabelField(m_NetworkSendIntervalLabel, new GUIContent(beh.GetNetworkSendInterval().ToString()));
+                    EditorGUILayout.LabelField(m_SendIntervalLabel, new GUIContent(beh.sendInterval.ToString()));
                 }
             }
         }

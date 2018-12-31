@@ -145,9 +145,9 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && GetNetworkSendInterval() != 0 && m_SendTimer < Time.time)
+            if (sendMessagesAllowed && sendInterval != 0 && m_SendTimer < Time.time)
             {
-                m_SendTimer = Time.time + GetNetworkSendInterval();
+                m_SendTimer = Time.time + sendInterval;
 
                 var animMsg = new AnimationParametersMessage();
                 animMsg.netId = netId;

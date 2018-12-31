@@ -39,7 +39,6 @@ namespace Mirror
         public delegate bool ClientMoveCallback2D(ref Vector2 position, ref Vector2 velocity, ref float rotation);
 
         [SerializeField] TransformSyncMode  m_TransformSyncMode = TransformSyncMode.SyncNone;
-        [SerializeField] float              m_SendInterval = 0.1f;
         [SerializeField] AxisSyncMode       m_SyncRotationAxis = AxisSyncMode.AxisXYZ;
         [SerializeField] CompressionSyncMode m_RotationSyncCompression = CompressionSyncMode.None;
         [SerializeField] bool               m_SyncSpin;
@@ -86,7 +85,6 @@ namespace Mirror
         // settings
 
         public TransformSyncMode    transformSyncMode { get { return m_TransformSyncMode; } set { m_TransformSyncMode = value; } }
-        public float                sendInterval { get { return m_SendInterval; } set { m_SendInterval = value; } }
         public AxisSyncMode         syncRotationAxis { get { return m_SyncRotationAxis; } set { m_SyncRotationAxis = value; } }
         public CompressionSyncMode  rotationSyncCompression { get { return m_RotationSyncCompression; } set { m_RotationSyncCompression = value; } }
         public bool                 syncSpin { get { return m_SyncSpin; }  set { m_SyncSpin = value; } }
@@ -118,11 +116,6 @@ namespace Mirror
             if (m_TransformSyncMode < TransformSyncMode.SyncNone || m_TransformSyncMode > TransformSyncMode.SyncCharacterController)
             {
                 m_TransformSyncMode = TransformSyncMode.SyncTransform;
-            }
-
-            if (m_SendInterval < 0)
-            {
-                m_SendInterval = 0;
             }
 
             if (m_SyncRotationAxis < AxisSyncMode.None || m_SyncRotationAxis > AxisSyncMode.AxisXYZ)
@@ -554,7 +547,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (GetNetworkSendInterval() == 0)
+            if (sendInterval == 0)
             {
                 m_RigidBody3D.MovePosition(m_TargetSyncPosition);
                 m_RigidBody3D.velocity = m_TargetSyncVelocity;
@@ -683,7 +676,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (GetNetworkSendInterval() == 0)
+            if (sendInterval == 0)
             {
                 // NOTE: cannot use m_RigidBody2D.MovePosition() and set velocity in the same frame, so use transform.position
                 transform.position = m_TargetSyncPosition;
@@ -797,7 +790,7 @@ namespace Mirror
 
             // total distance away the target position is
             var totalDistToTarget = (m_TargetSyncPosition - transform.position); // 5 units
-            var perSecondDist = totalDistToTarget / GetNetworkSendInterval();
+            var perSecondDist = totalDistToTarget / sendInterval;
             m_FixedPosDiff = perSecondDist * Time.fixedDeltaTime;
 
             if (isServer && !isClient)
@@ -809,7 +802,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (GetNetworkSendInterval() == 0)
+            if (sendInterval == 0)
             {
                 transform.position = m_TargetSyncPosition;
                 //m_RigidBody3D.velocity = m_TargetSyncVelocity;
@@ -871,7 +864,7 @@ namespace Mirror
                 return;
 
             // dont' auto-dirty if no send interval
-            if (GetNetworkSendInterval() == 0)
+            if (sendInterval == 0)
                 return;
 
             float distance = (transform.position - m_PrevPosition).magnitude;
@@ -925,7 +918,7 @@ namespace Mirror
                 return;
 
             // dont run if not expecting continuous updates
-            if (GetNetworkSendInterval() == 0)
+            if (sendInterval == 0)
                 return;
 
             // dont run this if this client has authority over this player object
@@ -951,7 +944,7 @@ namespace Mirror
         {
             if (m_InterpolateMovement != 0)
             {
-                Vector3 newVelocity = (m_TargetSyncPosition - m_RigidBody3D.position) * m_InterpolateMovement / GetNetworkSendInterval();
+                Vector3 newVelocity = (m_TargetSyncPosition - m_RigidBody3D.position) * m_InterpolateMovement / sendInterval;
                 m_RigidBody3D.velocity = newVelocity;
             }
 
@@ -989,7 +982,7 @@ namespace Mirror
                         m_TargetSyncRotation3D,
                         Time.fixedDeltaTime * interpolateRotation * 10);
             }
-            if (Time.time - m_LastClientSyncTime > GetNetworkSendInterval())
+            if (Time.time - m_LastClientSyncTime > sendInterval)
             {
                 // turn off interpolation if we go out of the time window for a new packet
                 m_FixedPosDiff = Vector3.zero;
@@ -1004,7 +997,7 @@ namespace Mirror
             if (m_InterpolateMovement != 0)
             {
                 Vector2 oldVelocity = m_RigidBody2D.velocity;
-                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / GetNetworkSendInterval();
+                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / sendInterval;
                 if (!m_Grounded && newVelocity.y < 0)
                 {
                     newVelocity.y = oldVelocity.y;
@@ -1017,7 +1010,7 @@ namespace Mirror
                 Quaternion newRotation = Quaternion.Slerp(
                         transform.rotation,
                         Quaternion.Euler(0, 0, m_TargetSyncRotation2D),
-                        Time.fixedDeltaTime * interpolateRotation / GetNetworkSendInterval());
+                        Time.fixedDeltaTime * interpolateRotation / sendInterval);
 
                 m_RigidBody2D.MoveRotation(newRotation.eulerAngles.z);
 
@@ -1042,7 +1035,7 @@ namespace Mirror
             if (NetworkServer.active)
                 return;
 
-            if (Time.time - m_LastClientSendTime > GetNetworkSendInterval())
+            if (Time.time - m_LastClientSendTime > sendInterval)
             {
                 SendTransform();
                 m_LastClientSendTime = Time.time;
@@ -1452,11 +1445,6 @@ namespace Mirror
         public static float UnserializeSpin2D(NetworkReader reader, CompressionSyncMode compression)
         {
             return ReadAngle(reader, compression);
-        }
-
-        public override float GetNetworkSendInterval()
-        {
-            return m_SendInterval;
         }
 
         public override void OnStartAuthority()

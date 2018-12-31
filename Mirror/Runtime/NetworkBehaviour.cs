@@ -13,6 +13,10 @@ namespace Mirror
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
+        // send interval (in seconds) - serialized and shown in inspector
+        // (5s should be the absolute maximum. that's just way too laggy.)
+        [Range(0, 5)] public float sendInterval = 0.1f;
+
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
@@ -31,8 +35,6 @@ namespace Mirror
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
-
-        const float k_DefaultSendInterval = 0.1f;
 
         // NetworkIdentity component caching for easier access
         NetworkIdentity m_netIdentity;
@@ -325,7 +327,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > GetNetworkSendInterval())
+            if (Time.time - m_LastSendTime > sendInterval)
             {
                 return m_SyncVarDirtyBits != 0L
                         || m_SyncObjects.Any(obj => obj.IsDirty);
@@ -446,11 +448,6 @@ namespace Mirror
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {
             return true;
-        }
-
-        public virtual float GetNetworkSendInterval()
-        {
-            return k_DefaultSendInterval;
         }
     }
 }
