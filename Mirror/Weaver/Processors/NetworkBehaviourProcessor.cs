@@ -68,6 +68,13 @@ namespace Mirror.Weaver
             Weaver.DLog(m_td, "Process Done");
         }
 
+        /*
+        generates code like:
+            if (!NetworkClient.active)
+              Debug.LogError((object) "Command function CmdRespawn called on server.");
+
+            which is used in InvokeCmd, InvokeRpc, etc.
+        */
         public static void WriteClientActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // client active check
