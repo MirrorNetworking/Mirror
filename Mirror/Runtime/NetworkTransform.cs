@@ -886,15 +886,29 @@ namespace Mirror
 
         bool CheckVelocityChanged()
         {
-            switch (transformSyncMode)
+            if (velocityThreshold > 0)
             {
-                case TransformSyncMode.SyncRigidbody2D when m_RigidBody2D && m_VelocityThreshold > 0:
-                    return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
-                case TransformSyncMode.SyncRigidbody3D when m_RigidBody3D && m_VelocityThreshold > 0:
-                    return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
-                default:
-                    return false;
+                switch (transformSyncMode)
+                {
+                    case TransformSyncMode.SyncRigidbody2D:
+                    {
+                        if (m_RigidBody2D)
+                        {
+                            return Mathf.Abs(m_RigidBody2D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
+                        }
+                        break;
+                    }
+                    case TransformSyncMode.SyncRigidbody3D:
+                    {
+                        if (m_RigidBody3D)
+                        {
+                            return Mathf.Abs(m_RigidBody3D.velocity.sqrMagnitude - m_PrevVelocity) >= m_VelocityThreshold;
+                        }
+                        break;
+                    }
+                }
             }
+            return false;
         }
 
         void FixedUpdateClient()
