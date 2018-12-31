@@ -86,7 +86,11 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(label);
         }
-
+        /*
+        generates code like:
+            if (!NetworkServer.active)
+              Debug.LogError((object) "Command CmdMsgWhisper called on client.");
+        */
         public static void WriteServerActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // server active check
