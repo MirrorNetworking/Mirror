@@ -71,6 +71,7 @@
     <Compile Include="NetworkBehaviourCommandProcessor.cs" />
     <Compile Include="NetworkBehaviourRpcProcessor.cs" />
     <Compile Include="NetworkBehaviourSyncEventProcessor.cs" />
+    <Compile Include="NetworkBehaviourSyncVarProcessor.cs" />
     <Compile Include="NetworkBehaviourTargetRpcProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="SyncListStructProcessor.cs" />
