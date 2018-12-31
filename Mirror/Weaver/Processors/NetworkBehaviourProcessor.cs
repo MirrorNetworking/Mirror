@@ -283,6 +283,7 @@ namespace Mirror.Weaver
             m_td.Attributes = m_td.Attributes & ~TypeAttributes.BeforeFieldInit;
         }
 
+        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
         void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
