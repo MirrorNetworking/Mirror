@@ -13,10 +13,9 @@ namespace Mirror
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
-        // sync interval for OnSerialize (in seconds) - serialized and shown in inspector
-        // (2s should be the absolute maximum. that's just way too laggy.)
-        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
-        [Range(0, 2)] public float syncInterval = 0.1f;
+        // sync interval for OnSerialize (in seconds)
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [HideInInspector] public float syncInterval = 0.1f;
 
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;

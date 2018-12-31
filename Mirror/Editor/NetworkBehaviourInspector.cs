@@ -17,7 +17,6 @@ namespace Mirror
         bool[] m_ShowSyncLists;
 
         GUIContent m_SyncVarIndicatorContent;
-        protected GUIContent m_SendIntervalLabel;
 
         internal virtual bool hideScriptField
         {
@@ -30,7 +29,6 @@ namespace Mirror
             Type scriptClass = script.GetClass();
 
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
-            m_SendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds.");
 
             // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
             foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
@@ -158,12 +156,18 @@ namespace Mirror
                 }
             }
 
+            // only show SyncInterval if we have an OnSerialize function.
+            // No need to show it if the class only has Cmds/Rpcs and no sync.
             if (m_HasOnSerialize)
             {
                 var beh = target as NetworkBehaviour;
                 if (beh != null)
                 {
-                    EditorGUILayout.LabelField(m_SendIntervalLabel, new GUIContent(beh.sendInterval.ToString()));
+                    // [0,2] should be enough. anything >2s is too laggy anyway.
+                    beh.syncInterval = EditorGUILayout.Slider(
+                        new GUIContent("Network Sync Interval",
+                                       "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
+                        beh.syncInterval, 0, 2);
                 }
             }
         }
