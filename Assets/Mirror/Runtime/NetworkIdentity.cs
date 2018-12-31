@@ -22,38 +22,44 @@ namespace Mirror
     {
         // configuration
         [SerializeField] uint m_SceneId;
-        [SerializeField] bool           m_ServerOnly;
-        [SerializeField] bool           m_LocalPlayerAuthority;
+        [SerializeField] bool m_ServerOnly;
+        [SerializeField] bool m_LocalPlayerAuthority;
 
         // runtime data
-        bool                        m_IsClient;
-        bool                        m_IsServer;
-        bool                        m_HasAuthority;
+        bool m_IsClient;
+        bool m_IsServer;
+        bool m_HasAuthority;
 
-        uint                        m_NetId;
-        bool                        m_IsLocalPlayer;
-        NetworkConnection           m_ConnectionToServer;
-        NetworkConnection           m_ConnectionToClient;
-        NetworkBehaviour[]          m_NetworkBehaviours;
+        uint m_NetId;
+        bool m_IsLocalPlayer;
+        NetworkConnection m_ConnectionToServer;
+        NetworkConnection m_ConnectionToClient;
+        NetworkBehaviour[] m_NetworkBehaviours;
 
         // <connectionId, NetworkConnection>
         Dictionary<int, NetworkConnection> m_Observers;
 
-        NetworkConnection           m_ClientAuthorityOwner;
+        NetworkConnection m_ClientAuthorityOwner;
 
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
-        bool                        m_Reset;
+        bool m_Reset;
+
         // properties
-        public bool isClient        { get { return m_IsClient; } }
-        public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
-        public bool hasAuthority    { get { return m_HasAuthority; } }
+        public bool isClient { get { return m_IsClient; } }
+        public bool isServer { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
+        public bool hasAuthority { get { return m_HasAuthority; } }
+
+        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         public uint netId { get { return m_NetId; } }
         public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
+        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -138,12 +144,6 @@ namespace Mirror
                 OnStopAuthority();
             }
         }
-
-        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
-        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
-        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
-
-        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
         internal static uint GetNextNetworkId()
@@ -585,109 +585,46 @@ namespace Mirror
             ForceAuthority(authority);
         }
 
-        // happens on client
-        internal void HandleSyncEvent(int componentIndex, int cmdHash, NetworkReader reader)
+        // helper function to handle SyncEvent/Command/Rpc
+        internal void HandleRemoteCall(int componentIndex, int functionHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            // this doesn't use NetworkBehaviour.InvokeSyncEvent function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
             if (gameObject == null)
             {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogWarning("SyncEvent [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
-                return;
-            }
-
-            // find the matching SyncEvent function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashSyncEvent(cmdHash, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
                 return;
             }
 
             // find the right component to invoke the function on
-            if (componentIndex >= m_NetworkBehaviours.Length)
+            if (0 <= componentIndex && componentIndex < m_NetworkBehaviours.Length)
+            {
+                NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
+                if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
+                {
+                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                }
+            }
+            else
             {
                 Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
-                return;
             }
-            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
+        }
 
-            invokeFunction(invokeComponent, reader);
+        // happens on client
+        internal void HandleSyncEvent(int componentIndex, int eventHash, NetworkReader reader)
+        {
+            HandleRemoteCall(componentIndex, eventHash, UNetInvokeType.SyncEvent, reader);
         }
 
         // happens on server
         internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader)
         {
-            // this doesn't use NetworkBehaviour.InvokeCommand function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
-            if (gameObject == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogWarning("Command [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
-                return;
-            }
-
-            // find the matching Command function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashCommand(cmdHash, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
-                return;
-            }
-
-            // find the right component to invoke the function on
-            if (componentIndex >= m_NetworkBehaviours.Length)
-            {
-                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
-                return;
-            }
-            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
-
-            invokeFunction(invokeComponent, reader);
+            HandleRemoteCall(componentIndex, cmdHash, UNetInvokeType.Command, reader);
         }
 
         // happens on client
-        internal void HandleRPC(int componentIndex, int cmdHash, NetworkReader reader)
+        internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {
-            // this doesn't use NetworkBehaviour.InvokeClientRpc function (anymore). this method of calling is faster.
-            // The hash is only looked up once, insted of twice(!) per NetworkBehaviour on the object.
-
-            if (gameObject == null)
-            {
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogWarning("ClientRpc [" + errorCmdName + "] received for deleted object [netId=" + netId + "]");
-                return;
-            }
-
-            // find the matching ClientRpc function and networkBehaviour class
-            NetworkBehaviour.CmdDelegate invokeFunction;
-            bool invokeFound = NetworkBehaviour.GetInvokerForHashClientRpc(cmdHash, out invokeFunction);
-            if (!invokeFound)
-            {
-                // We don't get a valid lookup of the command name when it doesn't exist...
-                string errorCmdName = NetworkBehaviour.GetCmdHashHandlerName(cmdHash);
-                Debug.LogError("Found no receiver for incoming [" + errorCmdName + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
-                return;
-            }
-
-            // find the right component to invoke the function on
-            if (componentIndex >= m_NetworkBehaviours.Length)
-            {
-                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
-                return;
-            }
-            NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
-
-            invokeFunction(invokeComponent, reader);
+            HandleRemoteCall(componentIndex, rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
         // invoked by unity runtime immediately after the regular "Update()" function.

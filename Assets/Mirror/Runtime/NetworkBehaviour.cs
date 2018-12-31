@@ -29,7 +29,6 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
-
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
 
@@ -44,7 +43,7 @@ namespace Mirror
                 m_netIdentity = m_netIdentity ?? GetComponent<NetworkIdentity>();
                 if (m_netIdentity == null)
                 {
-                    Debug.LogError("There is no NetworkIdentity on this object. Please add one.");
+                    Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
                 return m_netIdentity;
             }
@@ -76,7 +75,7 @@ namespace Mirror
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(int cmdHash, NetworkWriter writer, int channelId, string cmdName)
+        protected void SendCommandInternal(string cmdName, NetworkWriter writer, int channelId)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -95,7 +94,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.cmdHash = cmdHash;
+            message.cmdHash = (GetType() + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
@@ -104,18 +103,18 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeCommandDelegate(cmdHash, reader);
+            return InvokeHandlerDelegate(cmdHash, UNetInvokeType.Command, reader);
         }
 
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendRPCInternal(string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("ClientRpc call on un-spawned object");
+                Debug.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -123,19 +122,19 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcHash;
+            message.rpcHash = (GetType() + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, int rpcHash, NetworkWriter writer, int channelId, string rpcName)
+        protected void SendTargetRPCInternal(NetworkConnection conn, string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("TargetRpc call on un-spawned object");
+                Debug.LogWarning("TargetRpc " + rpcName + " called on un-spawned object: " + name);
                 return;
             }
 
@@ -143,22 +142,22 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcHash;
+            message.rpcHash = (GetType() + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             conn.Send((short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeRPC(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
-            return InvokeRpcDelegate(cmdHash, reader);
+            return InvokeHandlerDelegate(rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(int eventHash, NetworkWriter writer, int channelId, string eventName)
+        protected void SendEventInternal(string eventName, NetworkWriter writer, int channelId)
         {
             if (!NetworkServer.active)
             {
@@ -170,249 +169,93 @@ namespace Mirror
             SyncEventMessage message = new SyncEventMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.eventHash = eventHash;
+            message.eventHash = (GetType() + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual bool InvokeSyncEvent(int cmdHash, NetworkReader reader)
+        public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
-            return InvokeSyncEventDelegate(cmdHash, reader);
+            return InvokeHandlerDelegate(eventHash, UNetInvokeType.SyncEvent, reader);
         }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
 
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
-        protected enum UNetInvokeType
-        {
-            Command,
-            ClientRpc,
-            SyncEvent
-        }
-
         protected class Invoker
         {
             public UNetInvokeType invokeType;
             public Type invokeClass;
             public CmdDelegate invokeFunction;
-
-            public string DebugString()
-            {
-                return invokeType + ":" + invokeClass + ":" + invokeFunction.GetMethodName();
-            }
         }
 
         static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
 
+        // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterCommandDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
         {
+            int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 return;
             }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.Command;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterCommandDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            Invoker invoker = new Invoker();
+            invoker.invokeType = invokerType;
+            invoker.invokeClass = invokeClass;
+            invoker.invokeFunction = func;
+            s_CmdHandlerDelegates[cmdHash] = invoker;
+            if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterRpcDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return;
-            }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.ClientRpc;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterRpcDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            RegisterDelegate(invokeClass, cmdName, UNetInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterEventDelegate(Type invokeClass, int cmdHash, CmdDelegate func)
+        protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return;
-            }
-            Invoker inv = new Invoker();
-            inv.invokeType = UNetInvokeType.SyncEvent;
-            inv.invokeClass = invokeClass;
-            inv.invokeFunction = func;
-            s_CmdHandlerDelegates[cmdHash] = inv;
-            if (LogFilter.Debug) { Debug.Log("RegisterEventDelegate hash:" + cmdHash + " " + func.GetMethodName()); }
+            RegisterDelegate(invokeClass, rpcName, UNetInvokeType.ClientRpc, func);
         }
 
-        internal static string GetInvoker(int cmdHash)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return null;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            return inv.DebugString();
+            RegisterDelegate(invokeClass, eventName, UNetInvokeType.SyncEvent, func);
         }
 
-        // wrapper fucntions for each type of network operation
-        internal static bool GetInvokerForHashCommand(int cmdHash, out CmdDelegate invokeFunction)
+        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Invoker invoker)
         {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.Command, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashClientRpc(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.ClientRpc, out invokeFunction);
-        }
-
-        internal static bool GetInvokerForHashSyncEvent(int cmdHash, out CmdDelegate invokeFunction)
-        {
-            return GetInvokerForHash(cmdHash, UNetInvokeType.SyncEvent, out invokeFunction);
-        }
-
-        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out CmdDelegate invokeFunction)
-        {
-            Invoker invoker = null;
-            if (!s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker))
+            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+                invoker != null &&
+                invoker.invokeType == invokeType)
             {
-                if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
-                invokeFunction = null;
-                return false;
-            }
-
-            if (invoker == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " invoker null"); }
-                invokeFunction = null;
-                return false;
-            }
-
-            if (invoker.invokeType != invokeType)
-            {
-                Debug.LogError("GetInvokerForHash hash:" + cmdHash + " mismatched invokeType");
-                invokeFunction = null;
-                return false;
-            }
-
-            invokeFunction = invoker.invokeFunction;
-            return true;
-        }
-
-        internal bool ContainsCommandDelegate(int cmdHash)
-        {
-            return s_CmdHandlerDelegates.ContainsKey(cmdHash);
-        }
-
-        internal bool InvokeCommandDelegate(int cmdHash, NetworkReader reader)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return false;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.Command)
-            {
-                return false;
-            }
-
-            // 'this' instance of invokeClass?
-            if (inv.invokeClass.IsInstanceOfType(this))
-            {
-                inv.invokeFunction(this, reader);
                 return true;
             }
+
+            // debug message if not found, or null, or mismatched type
+            // (no need to throw an error, an attacker might just be trying to
+            //  call an cmd with an rpc's hash)
+            if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
             return false;
         }
 
-        internal bool InvokeRpcDelegate(int cmdHash, NetworkReader reader)
+        // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
+        internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            Invoker invoker;
+            if (GetInvokerForHash(cmdHash, invokeType, out invoker) &&
+                invoker.invokeClass.IsInstanceOfType(this))
             {
-                return false;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.ClientRpc)
-            {
-                return false;
-            }
-
-            // 'this' instance of invokeClass?
-            if (inv.invokeClass.IsInstanceOfType(this))
-            {
-                inv.invokeFunction(this, reader);
+                invoker.invokeFunction(this, reader);
                 return true;
             }
             return false;
-        }
-
-        internal bool InvokeSyncEventDelegate(int cmdHash, NetworkReader reader)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return false;
-            }
-
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            if (inv.invokeType != UNetInvokeType.SyncEvent)
-            {
-                return false;
-            }
-
-            inv.invokeFunction(this, reader);
-            return true;
-        }
-
-        internal static string GetCmdHashHandlerName(int cmdHash)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return cmdHash.ToString();
-            }
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            return inv.invokeType + ":" + inv.invokeFunction.GetMethodName();
-        }
-
-        static string GetCmdHashPrefixName(int cmdHash, string prefix)
-        {
-            if (!s_CmdHandlerDelegates.ContainsKey(cmdHash))
-            {
-                return cmdHash.ToString();
-            }
-            Invoker inv = s_CmdHandlerDelegates[cmdHash];
-            string name = inv.invokeFunction.GetMethodName();
-
-            int index = name.IndexOf(prefix);
-            if (index > -1)
-            {
-                name = name.Substring(prefix.Length);
-            }
-            return name;
-        }
-
-        internal static string GetCmdHashCmdName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeCmd");
-        }
-
-        internal static string GetCmdHashRpcName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeRpc");
-        }
-
-        internal static string GetCmdHashEventName(int cmdHash)
-        {
-            return GetCmdHashPrefixName(cmdHash, "InvokeSyncEvent");
         }
 
         // ----------------------------- Helpers  --------------------------------
@@ -581,33 +424,13 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void PreStartClient()
-        {
-        }
-
-        public virtual void OnNetworkDestroy()
-        {
-        }
-
-        public virtual void OnStartServer()
-        {
-        }
-
-        public virtual void OnStartClient()
-        {
-        }
-
-        public virtual void OnStartLocalPlayer()
-        {
-        }
-
-        public virtual void OnStartAuthority()
-        {
-        }
-
-        public virtual void OnStopAuthority()
-        {
-        }
+        public virtual void PreStartClient() {}
+        public virtual void OnNetworkDestroy() {}
+        public virtual void OnStartServer() {}
+        public virtual void OnStartClient() {}
+        public virtual void OnStartLocalPlayer() {}
+        public virtual void OnStartAuthority() {}
+        public virtual void OnStopAuthority() {}
 
         // return true when overwriting so that Mirror knows that we wanted to
         // rebuild observers ourselves. otherwise it uses built in rebuild.

@@ -232,7 +232,7 @@ namespace Mirror
             }
             for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = spawnPrefabs[i];
+                GameObject prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
@@ -273,7 +273,7 @@ namespace Mirror
             OnStartHost();
             if (StartServer())
             {
-                var localClient = ConnectLocalClient();
+                NetworkClient localClient = ConnectLocalClient();
                 OnStartClient(localClient);
                 return localClient;
             }
@@ -434,19 +434,13 @@ namespace Mirror
 
         internal static void UpdateScene()
         {
-            if (singleton == null)
-                return;
-
-            if (s_LoadingSceneAsync == null)
-                return;
-
-            if (!s_LoadingSceneAsync.isDone)
-                return;
-
-            if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
-            singleton.FinishLoadScene();
-            s_LoadingSceneAsync.allowSceneActivation = true;
-            s_LoadingSceneAsync = null;
+            if (singleton != null && s_LoadingSceneAsync != null && s_LoadingSceneAsync.isDone)
+            {
+                if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
+                singleton.FinishLoadScene();
+                s_LoadingSceneAsync.allowSceneActivation = true;
+                s_LoadingSceneAsync = null;
+            }
         }
 
         // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
@@ -771,28 +765,11 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost()
-        {
-        }
-
-        public virtual void OnStartServer()
-        {
-        }
-
-        public virtual void OnStartClient(NetworkClient client)
-        {
-        }
-
-        public virtual void OnStopServer()
-        {
-        }
-
-        public virtual void OnStopClient()
-        {
-        }
-
-        public virtual void OnStopHost()
-        {
-        }
+        public virtual void OnStartHost() {}
+        public virtual void OnStartServer() {}
+        public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStopServer() {}
+        public virtual void OnStopClient() {}
+        public virtual void OnStopHost() {}
     }
 }

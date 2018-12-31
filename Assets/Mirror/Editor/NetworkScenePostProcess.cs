@@ -84,8 +84,6 @@ namespace Mirror
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
-            var prefabWarnings = new HashSet<string>();
-
             // vis2k: MISMATCHING SCENEID BUG FIX
             // problem:
             //   * FindObjectsOfType order is not guaranteed. restarting the
@@ -132,42 +130,38 @@ namespace Mirror
             //
             // note: this can still fail if DontDestroyOnLoad is called for a
             // NetworkIdentity - but no one should ever do that anyway.
-            var uvs = FindObjectsOfType<NetworkIdentity>().ToList();
-            uvs.Sort(CompareNetworkIdentitySiblingPaths);
+            List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>().ToList();
+            identities.Sort(CompareNetworkIdentitySiblingPaths);
 
             uint nextSceneId = 1;
-            foreach (NetworkIdentity uv in uvs)
+            foreach (NetworkIdentity identity in identities)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
-                if (uv.GetComponent<NetworkManager>() != null)
+                if (identity.GetComponent<NetworkManager>() != null)
                 {
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
                 }
-                if (uv.isClient || uv.isServer)
+                if (identity.isClient || identity.isServer)
                     continue;
 
-                uv.gameObject.SetActive(false);
-                uv.ForceSceneId(nextSceneId++);
-                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + uv.name + " scene=" + uv.gameObject.scene.name + " sceneid=" + uv.sceneId); }
+                identity.gameObject.SetActive(false);
+                identity.ForceSceneId(nextSceneId++);
+                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
-                // saftey check for prefabs with more than one NetworkIdentity
-                var prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(uv.gameObject) as GameObject;
+                // safety check for prefabs with more than one NetworkIdentity
+                GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
                 if (prefabGO)
                 {
 #if UNITY_2018_3_OR_NEWER
-                    var prefabRootGO = prefabGO.transform.root.gameObject;
+                    GameObject prefabRootGO = prefabGO.transform.root.gameObject;
 #else
-                    var prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+                    GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
 #endif
                     if (prefabRootGO)
                     {
-                        var identities = prefabRootGO.GetComponentsInChildren<NetworkIdentity>();
-                        if (identities.Length > 1 && !prefabWarnings.Contains(prefabRootGO.name))
+                        if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
                         {
-                            // make sure we only print one error per prefab
-                            prefabWarnings.Add(prefabRootGO.name);
-
                             Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
                         }
                     }

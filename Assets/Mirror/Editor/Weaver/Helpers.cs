@@ -78,48 +78,9 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static IEnumerable<TypeReference> ResolveInheritanceHierarchy(TypeReference type)
-        {
-            // for value types the hierarchy is pre-defined as "<Self> : System.ValueType : System.Object"
-            if (type.IsValueType)
-            {
-                yield return type;
-                yield return Weaver.valueTypeType;
-                yield return Weaver.objectType;
-                yield break;
-            }
-
-            // resolve entire hierarchy from <Self> to System.Object
-            while (type != null && type.FullName != Weaver.objectType.FullName)
-            {
-                yield return type;
-
-                try
-                {
-                    var typeDef = type.Resolve();
-                    if (typeDef == null)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        type = typeDef.BaseType;
-                    }
-                }
-                catch
-                {
-                    // when calling type.Resolve() we can sometimes get an exception if some dependant library
-                    // could not be loaded (for whatever reason) so just swallow it and break out of the loop
-                    break;
-                }
-            }
-
-            yield return Weaver.objectType;
-        }
-
         public static string DestinationFileFor(string outputDir, string assemblyPath)
         {
-            var fileName = Path.GetFileName(assemblyPath);
+            string fileName = Path.GetFileName(assemblyPath);
             Debug.Assert(fileName != null, "fileName != null");
 
             return Path.Combine(outputDir, fileName);
@@ -151,7 +112,7 @@ namespace Mirror.Weaver
                 assemblyResolver = new DefaultAssemblyResolver();
             var helper = new AddSearchDirectoryHelper(assemblyResolver);
             helper.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
-            helper.AddSearchDirectory(Helpers.UnityEngineDLLDirectoryName());
+            helper.AddSearchDirectory(UnityEngineDLLDirectoryName());
             helper.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
             helper.AddSearchDirectory(Path.GetDirectoryName(unityUNetDLLPath));
             if (extraPaths != null)
@@ -178,37 +139,6 @@ namespace Mirror.Weaver
                 writeParams.SymbolWriterProvider = new MdbWriterProvider();
             }
             return writeParams;
-        }
-
-        public static TypeReference MakeGenericType(TypeReference self, params TypeReference[] arguments)
-        {
-            if (self.GenericParameters.Count != arguments.Length)
-                throw new ArgumentException();
-
-            var instance = new GenericInstanceType(self);
-            foreach (var argument in arguments)
-                instance.GenericArguments.Add(argument);
-
-            return instance;
-        }
-
-        // used to get a specialized method on a generic class, such as SyncList<T>::HandleMsg()
-        public static MethodReference MakeHostInstanceGeneric(MethodReference self, params TypeReference[] arguments)
-        {
-            var reference = new MethodReference(self.Name, self.ReturnType, MakeGenericType(self.DeclaringType, arguments))
-            {
-                HasThis = self.HasThis,
-                ExplicitThis = self.ExplicitThis,
-                CallingConvention = self.CallingConvention
-            };
-
-            foreach (var parameter in self.Parameters)
-                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
-
-            foreach (var genericParameter in self.GenericParameters)
-                reference.GenericParameters.Add(new GenericParameter(genericParameter.Name, reference));
-
-            return reference;
         }
     }
 }

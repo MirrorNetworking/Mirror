@@ -1,4 +1,4 @@
-using System;
+// this class generates OnSerialize/OnDeserialize when inheriting from MessageBase
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         void GenerateSerialization()
         {
             Weaver.DLog(m_td, "  GenerateSerialization");
-            foreach (var m in m_td.Methods)
+            foreach (MethodDefinition m in m_td.Methods)
             {
                 if (m.Name == "Serialize")
                     return;
@@ -45,7 +45,7 @@ namespace Mirror.Weaver
             }
 
             // check for self-referencing types
-            foreach (var field in m_td.Fields)
+            foreach (FieldDefinition field in m_td.Fields)
             {
                 if (field.FieldType.FullName == m_td.FullName)
                 {
@@ -63,7 +63,7 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            foreach (var field in m_td.Fields)
+            foreach (FieldDefinition field in m_td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
@@ -124,7 +124,7 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            foreach (var field in m_td.Fields)
+            foreach (FieldDefinition field in m_td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;

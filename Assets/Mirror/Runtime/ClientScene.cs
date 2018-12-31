@@ -638,11 +638,6 @@ namespace Mirror
             {
                 identity.HandleRPC(msg.componentIndex, msg.rpcHash, new NetworkReader(msg.payload));
             }
-            else
-            {
-                string errorRpcName = NetworkBehaviour.GetCmdHashHandlerName(msg.rpcHash);
-                Debug.LogWarningFormat("Could not find target object with netId:{0} for RPC call {1}", msg.netId, errorRpcName);
-            }
         }
 
         static void OnSyncEventMessage(NetworkMessage netMsg)
