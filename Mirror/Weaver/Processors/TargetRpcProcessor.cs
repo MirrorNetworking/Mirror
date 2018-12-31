@@ -4,13 +4,13 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class NetworkBehaviourTargetRpcProcessor
+    public class TargetRpcProcessor
     {
         const string k_TargetRpcPrefix = "InvokeTargetRpc";
 
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition rpc = new MethodDefinition(NetworkBehaviourRpcProcessor.k_RpcPrefix + md.Name, MethodAttributes.Family |
+            MethodDefinition rpc = new MethodDefinition(RpcProcessor.k_RpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);

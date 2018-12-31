@@ -68,12 +68,12 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Processors\MessageClassProcessor.cs" />
     <Compile Include="Processors\MonoBehaviourProcessor.cs" />
-    <Compile Include="Processors\NetworkBehaviourCommandProcessor.cs" />
+    <Compile Include="Processors\CommandProcessor.cs" />
     <Compile Include="Processors\NetworkBehaviourProcessor.cs" />
-    <Compile Include="Processors\NetworkBehaviourRpcProcessor.cs" />
-    <Compile Include="Processors\NetworkBehaviourSyncEventProcessor.cs" />
-    <Compile Include="Processors\NetworkBehaviourSyncVarProcessor.cs" />
-    <Compile Include="Processors\NetworkBehaviourTargetRpcProcessor.cs" />
+    <Compile Include="Processors\RpcProcessor.cs" />
+    <Compile Include="Processors\SyncEventProcessor.cs" />
+    <Compile Include="Processors\SyncVarProcessor.cs" />
+    <Compile Include="Processors\TargetRpcProcessor.cs" />
     <Compile Include="Processors\SyncListStructProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Weaver.cs" />

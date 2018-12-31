@@ -4,7 +4,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class NetworkBehaviourCommandProcessor
+    public static class CommandProcessor
     {
         const string k_CmdPrefix = "InvokeCmd";
 

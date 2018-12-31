@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class NetworkBehaviourSyncEventProcessor
+    public class SyncEventProcessor
     {
         public static MethodDefinition ProcessEventInvoke(TypeDefinition td, EventDefinition ed)
         {
@@ -125,7 +125,7 @@ namespace Mirror.Weaver
                         }
 
                         events.Add(ed);
-                        MethodDefinition eventFunc = NetworkBehaviourSyncEventProcessor.ProcessEventInvoke(td, ed);
+                        MethodDefinition eventFunc = SyncEventProcessor.ProcessEventInvoke(td, ed);
                         if (eventFunc == null)
                         {
                             return;
@@ -136,7 +136,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = NetworkBehaviourSyncEventProcessor.ProcessEventCall(ed, ca);
+                        MethodDefinition eventCallFunc = SyncEventProcessor.ProcessEventCall(ed, ca);
                         td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);

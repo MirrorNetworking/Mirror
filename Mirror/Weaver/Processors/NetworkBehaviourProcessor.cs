@@ -43,12 +43,12 @@ namespace Mirror.Weaver
             }
             Weaver.DLog(m_td, "Process Start");
             ProcessVersion();
-            NetworkBehaviourSyncVarProcessor.ProcessSyncVars(m_td, m_SyncVars, m_SyncObjects, m_SyncVarNetIds);
+            SyncVarProcessor.ProcessSyncVars(m_td, m_SyncVars, m_SyncObjects, m_SyncVarNetIds);
             Weaver.ResetRecursionCount();
 
             ProcessMethods();
 
-            NetworkBehaviourSyncEventProcessor.ProcessEvents(m_td, m_Events, m_EventInvocationFuncs);
+            SyncEventProcessor.ProcessEvents(m_td, m_Events, m_EventInvocationFuncs);
             if (Weaver.fail)
             {
                 return;
@@ -695,7 +695,7 @@ namespace Mirror.Weaver
 
                 // check for Hook function
                 MethodDefinition foundMethod;
-                if (!NetworkBehaviourSyncVarProcessor.CheckForHookFunction(m_td, syncVar, out foundMethod))
+                if (!SyncVarProcessor.CheckForHookFunction(m_td, syncVar, out foundMethod))
                 {
                     return;
                 }
@@ -863,7 +863,7 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
-                        if (!NetworkBehaviourCommandProcessor.ProcessMethodsValidateCommand(m_td, md, ca))
+                        if (!CommandProcessor.ProcessMethodsValidateCommand(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))
@@ -875,13 +875,13 @@ namespace Mirror.Weaver
                         names.Add(md.Name);
                         m_Cmds.Add(md);
 
-                        MethodDefinition cmdFunc = NetworkBehaviourCommandProcessor.ProcessCommandInvoke(m_td, md);
+                        MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(m_td, md);
                         if (cmdFunc != null)
                         {
                             m_CmdInvocationFuncs.Add(cmdFunc);
                         }
 
-                        MethodDefinition cmdCallFunc = NetworkBehaviourCommandProcessor.ProcessCommandCall(md, ca);
+                        MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(md, ca);
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
@@ -893,7 +893,7 @@ namespace Mirror.Weaver
 
                     if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
                     {
-                        if (!NetworkBehaviourTargetRpcProcessor.ProcessMethodsValidateTargetRpc(m_td, md, ca))
+                        if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))
@@ -905,13 +905,13 @@ namespace Mirror.Weaver
                         names.Add(md.Name);
                         m_TargetRpcs.Add(md);
 
-                        MethodDefinition rpcFunc = NetworkBehaviourTargetRpcProcessor.ProcessTargetRpcInvoke(m_td, md);
+                        MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(m_td, md);
                         if (rpcFunc != null)
                         {
                             m_TargetRpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = NetworkBehaviourTargetRpcProcessor.ProcessTargetRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
@@ -923,7 +923,7 @@ namespace Mirror.Weaver
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
                     {
-                        if (!NetworkBehaviourRpcProcessor.ProcessMethodsValidateRpc(m_td, md, ca))
+                        if (!RpcProcessor.ProcessMethodsValidateRpc(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))
@@ -935,13 +935,13 @@ namespace Mirror.Weaver
                         names.Add(md.Name);
                         m_Rpcs.Add(md);
 
-                        MethodDefinition rpcFunc = NetworkBehaviourRpcProcessor.ProcessRpcInvoke(m_td, md);
+                        MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(m_td, md);
                         if (rpcFunc != null)
                         {
                             m_RpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = NetworkBehaviourRpcProcessor.ProcessRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);

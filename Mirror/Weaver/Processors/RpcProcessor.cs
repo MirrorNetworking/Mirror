@@ -3,7 +3,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 namespace Mirror.Weaver
 {
-    public class NetworkBehaviourRpcProcessor
+    public class RpcProcessor
     {
         public const string k_RpcPrefix = "InvokeRpc";
 
