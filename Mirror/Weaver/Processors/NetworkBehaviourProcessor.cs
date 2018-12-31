@@ -144,6 +144,8 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // adds empty UNetVersion(), which seems to be used to check if we already
+        // processed a class or not
         void ProcessVersion()
         {
             foreach (MethodDefinition md in m_td.Methods)
