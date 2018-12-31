@@ -141,14 +141,8 @@ namespace Mirror
                         // could be the case in the editor after existing play mode.
                         continue;
                     }
-                    if (info.behaviour.enabled)
-                    {
-                        GUI.Label(behaviourRect, info.name, m_Styles.componentName);
-                    }
-                    else
-                    {
-                        GUI.Label(behaviourRect, info.name, m_Styles.disabledName);
-                    }
+
+                    GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? m_Styles.componentName : m_Styles.disabledName);
                     behaviourRect.y += behaviourRect.height;
                     lastY = behaviourRect.y;
                 }

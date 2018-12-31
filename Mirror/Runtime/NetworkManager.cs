@@ -648,16 +648,8 @@ namespace Mirror
                 return;
             }
 
-            GameObject player;
             Transform startPos = GetStartPosition();
-            if (startPos != null)
-            {
-                player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
-            }
-            else
-            {
-                player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-            }
+            GameObject player = startPos != null ? Instantiate(playerPrefab, startPos.position, startPos.rotation) : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }
@@ -666,23 +658,28 @@ namespace Mirror
         {
             // first remove any dead transforms
             startPositions.RemoveAll(t => t == null);
-
-            if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
+            if (startPositions.Count > 0)
             {
-                // try to spawn at a random start location
-                int index = Random.Range(0, startPositions.Count);
-                return startPositions[index];
-            }
-            if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
-            {
-                if (s_StartPositionIndex >= startPositions.Count)
+                switch (playerSpawnMethod)
                 {
-                    s_StartPositionIndex = 0;
-                }
+                    case PlayerSpawnMethod.Random:
+                    {
+                        // try to spawn at a random start location
+                        int index = Random.Range(0, startPositions.Count);
+                        return startPositions[index];
+                    }
+                    case PlayerSpawnMethod.RoundRobin:
+                    {
+                        if (s_StartPositionIndex >= startPositions.Count)
+                        {
+                            s_StartPositionIndex = 0;
+                        }
 
-                Transform startPos = startPositions[s_StartPositionIndex];
-                s_StartPositionIndex += 1;
-                return startPos;
+                        Transform startPos = startPositions[s_StartPositionIndex];
+                        s_StartPositionIndex += 1;
+                        return startPos;
+                    }
+                }
             }
             return null;
         }
