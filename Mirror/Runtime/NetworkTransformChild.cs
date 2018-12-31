@@ -256,7 +256,7 @@ namespace Mirror
                 return;
 
             // dont' auto-dirty if no send interval
-            if (sendInterval == 0)
+            if (syncInterval == 0)
                 return;
 
             float distance = (m_Target.localPosition - m_PrevPosition).sqrMagnitude;
@@ -288,7 +288,7 @@ namespace Mirror
                 return;
 
             // dont run if not expecting continuous updates
-            if (sendInterval == 0)
+            if (syncInterval == 0)
                 return;
 
             // dont run this if this client has authority over this player object
@@ -331,7 +331,7 @@ namespace Mirror
             if (NetworkServer.active)
                 return;
 
-            if (Time.time - m_LastClientSendTime > sendInterval)
+            if (Time.time - m_LastClientSendTime > syncInterval)
             {
                 SendTransform();
                 m_LastClientSendTime = Time.time;

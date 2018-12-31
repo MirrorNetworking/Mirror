@@ -13,9 +13,9 @@ namespace Mirror
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
-        // send interval (in seconds) - serialized and shown in inspector
-        // (5s should be the absolute maximum. that's just way too laggy.)
-        [Range(0, 5)] public float sendInterval = 0.1f;
+        // sync interval for OnSerialize (in seconds) - serialized and shown in inspector
+        // (2s should be the absolute maximum. that's just way too laggy.)
+        [Range(0, 2)] public float syncInterval = 0.1f;
 
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
@@ -327,7 +327,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > sendInterval)
+            if (Time.time - m_LastSendTime > syncInterval)
             {
                 return m_SyncVarDirtyBits != 0L
                         || m_SyncObjects.Any(obj => obj.IsDirty);
