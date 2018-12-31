@@ -343,7 +343,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(m_td, "  GenerateSerialization");
 
-            foreach (var m in m_td.Methods)
+            foreach (MethodDefinition m in m_td.Methods)
             {
                 if (m.Name == "OnSerialize")
                     return;
