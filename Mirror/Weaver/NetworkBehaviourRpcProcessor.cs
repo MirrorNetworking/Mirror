@@ -90,5 +90,33 @@ namespace Mirror.Weaver
 
             return rpc;
         }
+
+        public static bool ProcessMethodsValidateRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        {
+            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
+            {
+                Log.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
+                Weaver.fail = true;
+                return false;
+            }
+
+            if (md.IsStatic)
+            {
+                Log.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.fail = true;
+                return false;
+            }
+
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Rpc"))
+            {
+                return false;
+            }
+
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Rpc"))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -819,55 +819,55 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
-        bool ProcessMethodsValidateFunction(MethodReference md, string actionType)
+        public static bool ProcessMethodsValidateFunction(TypeDefinition td, MethodReference md, string actionType)
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
-                Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] cannot be a coroutine");
+                Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot be a coroutine");
                 Weaver.fail = true;
                 return false;
             }
             if (md.ReturnType.FullName != Weaver.voidType.FullName)
             {
-                Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] must have a void return type.");
+                Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] must have a void return type.");
                 Weaver.fail = true;
                 return false;
             }
             if (md.HasGenericParameters)
             {
-                Log.Error(actionType + " [" + m_td.FullName + ":" + md.Name + "] cannot have generic parameters");
+                Log.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot have generic parameters");
                 Weaver.fail = true;
                 return false;
             }
             return true;
         }
 
-        bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca, string actionType)
+        public static bool ProcessMethodsValidateParameters(TypeDefinition td, MethodReference md, CustomAttribute ca, string actionType)
         {
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
                 var p = md.Parameters[i];
                 if (p.IsOut)
                 {
-                    Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] cannot have out parameters");
+                    Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have out parameters");
                     Weaver.fail = true;
                     return false;
                 }
                 if (p.IsOptional)
                 {
-                    Log.Error(actionType + "function [" + m_td.FullName + ":" + md.Name + "] cannot have optional parameters");
+                    Log.Error(actionType + "function [" + td.FullName + ":" + md.Name + "] cannot have optional parameters");
                     Weaver.fail = true;
                     return false;
                 }
                 if (p.ParameterType.Resolve().IsAbstract)
                 {
-                    Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] cannot have abstract parameters");
+                    Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have abstract parameters");
                     Weaver.fail = true;
                     return false;
                 }
                 if (p.ParameterType.IsByReference)
                 {
-                    Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] cannot have ref parameters");
+                    Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have ref parameters");
                     Weaver.fail = true;
                     return false;
                 }
@@ -875,7 +875,7 @@ namespace Mirror.Weaver
                 if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName &&
                     !(ca.AttributeType.FullName == Weaver.TargetRpcType.FullName && i == 0))
                 {
-                    Log.Error(actionType + " [" + m_td.FullName + ":" + md.Name + "] cannot use a NetworkConnection as a parameter. To access a player object's connection on the server use connectionToClient");
+                    Log.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot use a NetworkConnection as a parameter. To access a player object's connection on the server use connectionToClient");
                     Log.Error("Name: " + ca.AttributeType.FullName + " parameter: " + md.Parameters[0].ParameterType.FullName);
                     Weaver.fail = true;
                     return false;
@@ -884,7 +884,7 @@ namespace Mirror.Weaver
                 {
                     if (p.ParameterType.FullName != Weaver.NetworkIdentityType.FullName)
                     {
-                        Log.Error(actionType + " function [" + m_td.FullName + ":" + md.Name + "] parameter [" + p.Name +
+                        Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] parameter [" + p.Name +
                             "] is of the type [" +
                             p.ParameterType.Name +
                             "] which is a Component. You cannot pass a Component to a remote call. Try passing data from within the component.");
@@ -892,107 +892,6 @@ namespace Mirror.Weaver
                         return false;
                     }
                 }
-            }
-            return true;
-        }
-
-        private bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute ca)
-        {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
-            {
-                Log.Error("Command function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Log.Error("Command function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (!ProcessMethodsValidateFunction(md, "Command"))
-            {
-                return false;
-            }
-
-            if (!ProcessMethodsValidateParameters(md, ca, "Command"))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        bool ProcessMethodsValidateTargetRpc(MethodDefinition md, CustomAttribute ca)
-        {
-            const string targetPrefix = "Target";
-            int prefixLen = targetPrefix.Length;
-
-            if (md.Name.Length > prefixLen && md.Name.Substring(0, prefixLen) != targetPrefix)
-            {
-                Log.Error("Target Rpc function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Log.Error("TargetRpc function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (!ProcessMethodsValidateFunction(md, "Target Rpc"))
-            {
-                return false;
-            }
-
-            if (md.Parameters.Count < 1)
-            {
-                Log.Error("Target Rpc function [" + m_td.FullName + ":" + md.Name + "] must have a NetworkConnection as the first parameter");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (md.Parameters[0].ParameterType.FullName != Weaver.NetworkConnectionType.FullName)
-            {
-                Log.Error("Target Rpc function [" + m_td.FullName + ":" + md.Name + "] first parameter must be a NetworkConnection");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (!ProcessMethodsValidateParameters(md, ca, "Target Rpc"))
-            {
-                return false;
-            }
-            return true;
-        }
-
-        bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
-        {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
-            {
-                Log.Error("Rpc function [" + m_td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Log.Error("ClientRpc function [" + m_td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
-                return false;
-            }
-
-            if (!ProcessMethodsValidateFunction(md, "Rpc"))
-            {
-                return false;
-            }
-
-            if (!ProcessMethodsValidateParameters(md, ca, "Rpc"))
-            {
-                return false;
             }
             return true;
         }
@@ -1009,7 +908,7 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
-                        if (!ProcessMethodsValidateCommand(md, ca))
+                        if (!NetworkBehaviourCommandProcessor.ProcessMethodsValidateCommand(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))
@@ -1039,7 +938,7 @@ namespace Mirror.Weaver
 
                     if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
                     {
-                        if (!ProcessMethodsValidateTargetRpc(md, ca))
+                        if (!NetworkBehaviourTargetRpcProcessor.ProcessMethodsValidateTargetRpc(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))
@@ -1069,7 +968,7 @@ namespace Mirror.Weaver
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
                     {
-                        if (!ProcessMethodsValidateRpc(md, ca))
+                        if (!NetworkBehaviourRpcProcessor.ProcessMethodsValidateRpc(m_td, md, ca))
                             return;
 
                         if (names.Contains(md.Name))

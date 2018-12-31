@@ -137,5 +137,33 @@ namespace Mirror.Weaver
 
             return cmd;
         }
+
+        public static bool ProcessMethodsValidateCommand(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        {
+            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
+            {
+                Log.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
+                Weaver.fail = true;
+                return false;
+            }
+
+            if (md.IsStatic)
+            {
+                Log.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.fail = true;
+                return false;
+            }
+
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Command"))
+            {
+                return false;
+            }
+
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Command"))
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }
