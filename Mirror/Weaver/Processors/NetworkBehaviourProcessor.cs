@@ -68,6 +68,13 @@ namespace Mirror.Weaver
             Weaver.DLog(m_td, "Process Done");
         }
 
+        /*
+        generates code like:
+            if (!NetworkClient.active)
+              Debug.LogError((object) "Command function CmdRespawn called on server.");
+
+            which is used in InvokeCmd, InvokeRpc, etc.
+        */
         public static void WriteClientActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // client active check
@@ -79,7 +86,11 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(label);
         }
-
+        /*
+        generates code like:
+            if (!NetworkServer.active)
+              Debug.LogError((object) "Command CmdMsgWhisper called on client.");
+        */
         public static void WriteServerActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // server active check
@@ -133,6 +144,8 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // adds empty UNetVersion(), which seems to be used to check if we already
+        // processed a class or not
         void ProcessVersion()
         {
             foreach (MethodDefinition md in m_td.Methods)
@@ -231,32 +244,24 @@ namespace Mirror.Weaver
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
-            int cmdIndex = 0;
-            foreach (MethodDefinition md in m_Cmds)
+            for (int i = 0; i < m_Cmds.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[cmdIndex], md.Name);
-                cmdIndex += 1;
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[i], m_Cmds[i].Name);
             }
 
-            int rpcIndex = 0;
-            foreach (MethodDefinition md in m_Rpcs)
+            for (int i = 0; i < m_Rpcs.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[rpcIndex], md.Name);
-                rpcIndex += 1;
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[i], m_Rpcs[i].Name);
             }
 
-            int targetRpcIndex = 0;
-            foreach (MethodDefinition md in m_TargetRpcs)
+            for (int i = 0; i < m_TargetRpcs.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[targetRpcIndex], md.Name);
-                targetRpcIndex += 1;
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[i], m_TargetRpcs[i].Name);
             }
 
-            int eventIndex = 0;
-            foreach (EventDefinition ed in m_Events)
+            for (int i = 0; i < m_Events.Count; ++i)
             {
-                GenerateCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[eventIndex], ed.Name);
-                eventIndex += 1;
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[i], m_Events[i].Name);
             }
 
             foreach (FieldDefinition fd in m_SyncObjects)
@@ -278,6 +283,7 @@ namespace Mirror.Weaver
             m_td.Attributes = m_td.Attributes & ~TypeAttributes.BeforeFieldInit;
         }
 
+        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
         void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
@@ -308,7 +314,7 @@ namespace Mirror.Weaver
             // This generates code like:
             NetworkBehaviour.RegisterCommandDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
-        void GenerateCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, string cmdName)
+        void GenerateRegisterCommandDelegate(ILProcessor awakeWorker, MethodReference registerMethod, MethodDefinition func, string cmdName)
         {
             awakeWorker.Append(awakeWorker.Create(OpCodes.Ldtoken, m_td));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
@@ -337,7 +343,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(m_td, "  GenerateSerialization");
 
-            foreach (var m in m_td.Methods)
+            foreach (MethodDefinition m in m_td.Methods)
             {
                 if (m.Name == "OnSerialize")
                     return;
