@@ -53,7 +53,6 @@ namespace Mirror.Weaver
             {
                 return;
             }
-            GenerateNetworkSettings();
             GenerateConstants();
 
             Weaver.ResetRecursionCount();
@@ -486,52 +485,6 @@ namespace Mirror.Weaver
             }
 
             return 0;
-        }
-
-        void GenerateNetworkIntervalSetting(float interval)
-        {
-            MethodDefinition meth = new MethodDefinition("GetNetworkSendInterval", MethodAttributes.Public |
-                    MethodAttributes.Virtual |
-                    MethodAttributes.HideBySig,
-                    Weaver.singleType);
-
-            ILProcessor worker = meth.Body.GetILProcessor();
-
-            worker.Append(worker.Create(OpCodes.Ldc_R4, interval));
-            worker.Append(worker.Create(OpCodes.Ret));
-            m_td.Methods.Add(meth);
-        }
-
-        void GenerateNetworkSettings()
-        {
-            // look for custom attribute
-            foreach (var ca in m_td.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == Weaver.NetworkSettingsType.FullName)
-                {
-                    // generate virtual functions
-                    foreach (var field in ca.Fields)
-                    {
-                        if (field.Name == "sendInterval")
-                        {
-                            const float stdValue = 0.1f;
-                            const float epsilon = 0.00001f;
-
-                            if ((Math.Abs((float)field.Argument.Value - stdValue) <= epsilon))
-                                continue;
-
-                            if (HasMethod("GetNetworkSendInterval"))
-                            {
-                                Log.Error(
-                                    "GetNetworkSendInterval, is already implemented, please make sure you either use NetworkSettings or GetNetworkSendInterval");
-                                Weaver.fail = true;
-                                return;
-                            }
-                            GenerateNetworkIntervalSetting((float)field.Argument.Value);
-                        }
-                    }
-                }
-            }
         }
 
         void GeneratePreStartClient()

@@ -33,8 +33,7 @@ namespace Mirror
         protected GUIContent m_RotationAxisLabel;
         protected GUIContent m_SyncSpinLabel;
 
-        SerializedProperty m_NetworkSendIntervalProperty;
-        GUIContent m_NetworkSendIntervalLabel;
+        SerializedProperty m_SyncIntervalProperty;
 
         public void Init()
         {
@@ -81,8 +80,7 @@ namespace Mirror
             m_RotationSyncCompression = serializedObject.FindProperty("m_RotationSyncCompression");
             m_SyncSpin = serializedObject.FindProperty("m_SyncSpin");
 
-            m_NetworkSendIntervalProperty = serializedObject.FindProperty("m_SendInterval");
-            m_NetworkSendIntervalLabel = new GUIContent("Network Send Rate", "Number of network updates per second.");
+            m_SyncIntervalProperty = serializedObject.FindProperty("syncInterval");
             EditorGUI.indentLevel += 1;
             m_MovementThesholdLabel = new GUIContent("Movement Threshold", "The distance that this object can move without sending a movement synchronization update.");
             m_VelocityThresholdLabel = new GUIContent("Velocity Threshold", "The minimum velocity difference that will be synchronized over the network.");
@@ -106,23 +104,12 @@ namespace Mirror
 
             serializedObject.Update();
 
-            int sendRate = 0;
-            if (m_NetworkSendIntervalProperty.floatValue != 0)
-            {
-                sendRate = (int)(1 / m_NetworkSendIntervalProperty.floatValue);
-            }
-            int newSendRate = EditorGUILayout.IntSlider(m_NetworkSendIntervalLabel, sendRate, 0, 30);
-            if (newSendRate != sendRate)
-            {
-                if (newSendRate == 0)
-                {
-                    m_NetworkSendIntervalProperty.floatValue = 0;
-                }
-                else
-                {
-                    m_NetworkSendIntervalProperty.floatValue = 1.0f / newSendRate;
-                }
-            }
+            // [0,2] should be enough. anything >2s is too laggy anyway.
+            m_SyncIntervalProperty.floatValue = EditorGUILayout.Slider(
+                new GUIContent("Network Sync Interval",
+                    "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
+                m_SyncIntervalProperty.floatValue, 0, 2);
+
             EditorGUILayout.PropertyField(m_TransformSyncMode);
             if (m_TransformSyncMode.enumValueIndex == (int)NetworkTransform.TransformSyncMode.SyncRigidbody3D)
             {
