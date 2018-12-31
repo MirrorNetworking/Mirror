@@ -547,7 +547,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (sendInterval == 0)
+            if (syncInterval == 0)
             {
                 m_RigidBody3D.MovePosition(m_TargetSyncPosition);
                 m_RigidBody3D.velocity = m_TargetSyncVelocity;
@@ -676,7 +676,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (sendInterval == 0)
+            if (syncInterval == 0)
             {
                 // NOTE: cannot use m_RigidBody2D.MovePosition() and set velocity in the same frame, so use transform.position
                 transform.position = m_TargetSyncPosition;
@@ -790,7 +790,7 @@ namespace Mirror
 
             // total distance away the target position is
             var totalDistToTarget = (m_TargetSyncPosition - transform.position); // 5 units
-            var perSecondDist = totalDistToTarget / sendInterval;
+            var perSecondDist = totalDistToTarget / syncInterval;
             m_FixedPosDiff = perSecondDist * Time.fixedDeltaTime;
 
             if (isServer && !isClient)
@@ -802,7 +802,7 @@ namespace Mirror
             }
 
             // handle zero send rate
-            if (sendInterval == 0)
+            if (syncInterval == 0)
             {
                 transform.position = m_TargetSyncPosition;
                 //m_RigidBody3D.velocity = m_TargetSyncVelocity;
@@ -864,7 +864,7 @@ namespace Mirror
                 return;
 
             // dont' auto-dirty if no send interval
-            if (sendInterval == 0)
+            if (syncInterval == 0)
                 return;
 
             float distance = (transform.position - m_PrevPosition).magnitude;
@@ -918,7 +918,7 @@ namespace Mirror
                 return;
 
             // dont run if not expecting continuous updates
-            if (sendInterval == 0)
+            if (syncInterval == 0)
                 return;
 
             // dont run this if this client has authority over this player object
@@ -944,7 +944,7 @@ namespace Mirror
         {
             if (m_InterpolateMovement != 0)
             {
-                Vector3 newVelocity = (m_TargetSyncPosition - m_RigidBody3D.position) * m_InterpolateMovement / sendInterval;
+                Vector3 newVelocity = (m_TargetSyncPosition - m_RigidBody3D.position) * m_InterpolateMovement / syncInterval;
                 m_RigidBody3D.velocity = newVelocity;
             }
 
@@ -982,7 +982,7 @@ namespace Mirror
                         m_TargetSyncRotation3D,
                         Time.fixedDeltaTime * interpolateRotation * 10);
             }
-            if (Time.time - m_LastClientSyncTime > sendInterval)
+            if (Time.time - m_LastClientSyncTime > syncInterval)
             {
                 // turn off interpolation if we go out of the time window for a new packet
                 m_FixedPosDiff = Vector3.zero;
@@ -997,7 +997,7 @@ namespace Mirror
             if (m_InterpolateMovement != 0)
             {
                 Vector2 oldVelocity = m_RigidBody2D.velocity;
-                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / sendInterval;
+                Vector2 newVelocity = ((Vector2)m_TargetSyncPosition - m_RigidBody2D.position) * m_InterpolateMovement / syncInterval;
                 if (!m_Grounded && newVelocity.y < 0)
                 {
                     newVelocity.y = oldVelocity.y;
@@ -1010,7 +1010,7 @@ namespace Mirror
                 Quaternion newRotation = Quaternion.Slerp(
                         transform.rotation,
                         Quaternion.Euler(0, 0, m_TargetSyncRotation2D),
-                        Time.fixedDeltaTime * interpolateRotation / sendInterval);
+                        Time.fixedDeltaTime * interpolateRotation / syncInterval);
 
                 m_RigidBody2D.MoveRotation(newRotation.eulerAngles.z);
 
@@ -1035,7 +1035,7 @@ namespace Mirror
             if (NetworkServer.active)
                 return;
 
-            if (Time.time - m_LastClientSendTime > sendInterval)
+            if (Time.time - m_LastClientSendTime > syncInterval)
             {
                 SendTransform();
                 m_LastClientSendTime = Time.time;
