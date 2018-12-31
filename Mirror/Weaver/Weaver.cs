@@ -195,24 +195,26 @@ namespace Mirror.Weaver
         {
             while (parent != null)
             {
-                if (parent.Scope.Name == "Windows")
+                switch (parent.Scope.Name)
                 {
-                    return false;
-                }
+                    case "Windows":
+                        return false;
+                    case "mscorlib":
+                    {
+                        var resolved = parent.Resolve();
+                        return resolved != null;
+                    }
+                    default:
+                        try
+                        {
+                            parent = parent.Resolve().BaseType;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
 
-                if (parent.Scope.Name == "mscorlib")
-                {
-                    var resolved = parent.Resolve();
-                    return resolved != null;
-                }
-
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch
-                {
-                    return false;
+                        break;
                 }
             }
             return true;
@@ -691,14 +693,7 @@ namespace Mirror.Weaver
                     continue;
 
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
-                if (variable.IsValueType)
-                {
-                    worker.Append(worker.Create(OpCodes.Ldloca, 0));
-                }
-                else
-                {
-                    worker.Append(worker.Create(OpCodes.Ldloc, 0));
-                }
+                worker.Append(variable.IsValueType ? worker.Create(OpCodes.Ldloca, 0) : worker.Create(OpCodes.Ldloc, 0));
 
                 var readFunc = GetReadFunc(field.FieldType);
                 if (readFunc != null)
@@ -977,21 +972,20 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute attr in md.CustomAttributes)
                 {
-                    if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerAttribute")
+                    switch (attr.Constructor.DeclaringType.ToString())
                     {
-                        InjectServerGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerCallbackAttribute")
-                    {
-                        InjectServerGuard(moduleDef, td, md, false);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientCallbackAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, false);
+                        case "Mirror.ServerAttribute":
+                            InjectServerGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ServerCallbackAttribute":
+                            InjectServerGuard(moduleDef, td, md, false);
+                            break;
+                        case "Mirror.ClientAttribute":
+                            InjectClientGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ClientCallbackAttribute":
+                            InjectClientGuard(moduleDef, td, md, false);
+                            break;
                     }
                 }
 
