@@ -48,7 +48,7 @@ namespace Mirror.Weaver
 
             ProcessMethods();
 
-            ProcessEvents();
+            NetworkBehaviourSyncEventProcessor.ProcessEvents(m_td, m_Events, m_EventInvocationFuncs);
             if (Weaver.fail)
             {
                 return;
@@ -979,54 +979,6 @@ namespace Mirror.Weaver
             foreach (MethodDefinition md in m_TargetRpcCallFuncs)
             {
                 m_td.Methods.Add(md);
-            }
-        }
-
-        void ProcessEvents()
-        {
-            // find events
-            foreach (EventDefinition ed in m_td.Events)
-            {
-                foreach (var ca in ed.CustomAttributes)
-                {
-                    if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
-                    {
-                        if (ed.Name.Length > 4 && ed.Name.Substring(0, 5) != "Event")
-                        {
-                            Log.Error("Event  [" + m_td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
-                            Weaver.fail = true;
-                            return;
-                        }
-
-                        if (ed.EventType.Resolve().HasGenericParameters)
-                        {
-                            Log.Error("Event  [" + m_td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
-                            Weaver.fail = true;
-                            return;
-                        }
-
-                        m_Events.Add(ed);
-                        MethodDefinition eventFunc = NetworkBehaviourSyncEventProcessor.ProcessEventInvoke(m_td, ed);
-                        if (eventFunc == null)
-                        {
-                            return;
-                        }
-
-                        m_td.Methods.Add(eventFunc);
-                        m_EventInvocationFuncs.Add(eventFunc);
-
-                        Weaver.DLog(m_td, "ProcessEvent " + ed);
-
-                        MethodDefinition eventCallFunc = NetworkBehaviourSyncEventProcessor.ProcessEventCall(ed, ca);
-                        m_td.Methods.Add(eventCallFunc);
-
-                        Weaver.lists.replacedEvents.Add(ed);
-                        Weaver.lists.replacementEvents.Add(eventCallFunc);
-
-                        Weaver.DLog(m_td, "  Event: " + ed.Name);
-                        break;
-                    }
-                }
             }
         }
 

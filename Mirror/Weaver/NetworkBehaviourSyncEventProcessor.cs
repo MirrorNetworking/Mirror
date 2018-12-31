@@ -1,4 +1,5 @@
 // all the SyncEvent code from NetworkBehaviourProcessor in one place
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -98,6 +99,54 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ret));
 
             return evt;
+        }
+
+        public static void ProcessEvents(TypeDefinition td, List<EventDefinition> events, List<MethodDefinition> eventInvocationFuncs)
+        {
+            // find events
+            foreach (EventDefinition ed in td.Events)
+            {
+                foreach (var ca in ed.CustomAttributes)
+                {
+                    if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
+                    {
+                        if (ed.Name.Length > 4 && ed.Name.Substring(0, 5) != "Event")
+                        {
+                            Log.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
+                            Weaver.fail = true;
+                            return;
+                        }
+
+                        if (ed.EventType.Resolve().HasGenericParameters)
+                        {
+                            Log.Error("Event  [" + td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
+                            Weaver.fail = true;
+                            return;
+                        }
+
+                        events.Add(ed);
+                        MethodDefinition eventFunc = NetworkBehaviourSyncEventProcessor.ProcessEventInvoke(td, ed);
+                        if (eventFunc == null)
+                        {
+                            return;
+                        }
+
+                        td.Methods.Add(eventFunc);
+                        eventInvocationFuncs.Add(eventFunc);
+
+                        Weaver.DLog(td, "ProcessEvent " + ed);
+
+                        MethodDefinition eventCallFunc = NetworkBehaviourSyncEventProcessor.ProcessEventCall(ed, ca);
+                        td.Methods.Add(eventCallFunc);
+
+                        Weaver.lists.replacedEvents.Add(ed);
+                        Weaver.lists.replacementEvents.Add(eventCallFunc);
+
+                        Weaver.DLog(td, "  Event: " + ed.Name);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
