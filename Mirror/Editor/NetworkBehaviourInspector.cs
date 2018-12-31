@@ -32,6 +32,7 @@ namespace Mirror
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
             m_SendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds.");
 
+            // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
             foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
                 Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
