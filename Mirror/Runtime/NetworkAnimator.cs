@@ -178,23 +178,53 @@ namespace Mirror
         void SetSendTrackingParam(string p, int i)
         {
             p = "Sent Param: " + p;
-            if (i == 0) param0 = p;
-            if (i == 1) param1 = p;
-            if (i == 2) param2 = p;
-            if (i == 3) param3 = p;
-            if (i == 4) param4 = p;
-            if (i == 5) param5 = p;
+            switch (i)
+            {
+                case 0:
+                    param0 = p;
+                    break;
+                case 1:
+                    param1 = p;
+                    break;
+                case 2:
+                    param2 = p;
+                    break;
+                case 3:
+                    param3 = p;
+                    break;
+                case 4:
+                    param4 = p;
+                    break;
+                case 5:
+                    param5 = p;
+                    break;
+            }
         }
 
         void SetRecvTrackingParam(string p, int i)
         {
             p = "Recv Param: " + p;
-            if (i == 0) param0 = p;
-            if (i == 1) param1 = p;
-            if (i == 2) param2 = p;
-            if (i == 3) param3 = p;
-            if (i == 4) param4 = p;
-            if (i == 5) param5 = p;
+            switch (i)
+            {
+                case 0:
+                    param0 = p;
+                    break;
+                case 1:
+                    param1 = p;
+                    break;
+                case 2:
+                    param2 = p;
+                    break;
+                case 3:
+                    param3 = p;
+                    break;
+                case 4:
+                    param4 = p;
+                    break;
+                case 5:
+                    param5 = p;
+                    break;
+            }
         }
 
         internal void HandleAnimMsg(AnimationMessage msg, NetworkReader reader)
@@ -238,25 +268,23 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    case AnimatorControllerParameterType.Int:
+                        writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
 
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
-                }
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
+                        break;
+                    case AnimatorControllerParameterType.Float:
+                        writer.Write(m_Animator.GetFloat(par.nameHash));
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    writer.Write(m_Animator.GetFloat(par.nameHash));
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
+                        break;
+                    case AnimatorControllerParameterType.Bool:
+                        writer.Write(m_Animator.GetBool(par.nameHash));
 
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    writer.Write(m_Animator.GetBool(par.nameHash));
-
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                        break;
                 }
             }
         }
@@ -273,28 +301,32 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    int newValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newValue);
+                    case AnimatorControllerParameterType.Int:
+                    {
+                        int newValue = (int)reader.ReadPackedUInt32();
+                        m_Animator.SetInteger(par.nameHash, newValue);
 
-                    SetRecvTrackingParam(par.name + ":" + newValue, i);
-                }
+                        SetRecvTrackingParam(par.name + ":" + newValue, i);
+                        break;
+                    }
+                    case AnimatorControllerParameterType.Float:
+                    {
+                        float newFloatValue = reader.ReadSingle();
+                        m_Animator.SetFloat(par.nameHash, newFloatValue);
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    float newFloatValue = reader.ReadSingle();
-                    m_Animator.SetFloat(par.nameHash, newFloatValue);
+                        SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
+                        break;
+                    }
+                    case AnimatorControllerParameterType.Bool:
+                    {
+                        bool newBoolValue = reader.ReadBoolean();
+                        m_Animator.SetBool(par.nameHash, newBoolValue);
 
-                    SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    bool newBoolValue = reader.ReadBoolean();
-                    m_Animator.SetBool(par.nameHash, newBoolValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                        SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                        break;
+                    }
                 }
             }
         }
