@@ -30,7 +30,7 @@ namespace Mirror
             Type scriptClass = script.GetClass();
 
             m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
-            m_NetworkSendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds. Use the [NetworkSettings] class attribute to change this, or implement GetNetworkSendInterval");
+            m_NetworkSendIntervalLabel = new GUIContent("Network Send Interval", "Maximum update rate in seconds. Implement GetNetworkSendInterval to change this.");
 
             foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {

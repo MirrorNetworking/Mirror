@@ -117,7 +117,6 @@ namespace Mirror.Weaver
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
-        public static TypeReference NetworkSettingsType;
 
         // system types
         public static TypeReference voidType;
@@ -1250,7 +1249,6 @@ namespace Mirror.Weaver
             TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncObject");
-            NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
         }
 
         static void SetupCorLib()
