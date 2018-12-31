@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class SyncEventProcessor
+    public static class SyncEventProcessor
     {
         public static MethodDefinition ProcessEventInvoke(TypeDefinition td, EventDefinition ed)
         {

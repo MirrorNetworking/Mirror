@@ -4,7 +4,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class TargetRpcProcessor
+    public static class TargetRpcProcessor
     {
         const string k_TargetRpcPrefix = "InvokeTargetRpc";
 
