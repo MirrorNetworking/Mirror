@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [Obsolete("Use NetworkBehaviour.syncInterval field instead. Can be modified in the Inspector too.")]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class NetworkSettingsAttribute : Attribute
+    {
+        public float sendInterval = 0.1f;
+    }
+
     [AttributeUsage(AttributeTargets.Field)]
     public class SyncVarAttribute : Attribute
     {
