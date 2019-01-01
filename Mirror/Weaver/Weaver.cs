@@ -1400,33 +1400,6 @@ namespace Mirror.Weaver
             };
         }
 
-        static bool IsNetworkBehaviour(TypeDefinition td)
-        {
-            if (!td.IsClass)
-                return false;
-
-            // are ANY parent classes NetworkBehaviours
-            TypeReference parent = td.BaseType;
-            while (parent != null)
-            {
-                if (parent.FullName == NetworkBehaviourType.FullName)
-                {
-                    return true;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
-            }
-            return false;
-        }
-
         public static bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
         {
             if (!td.IsClass)
@@ -1461,6 +1434,11 @@ namespace Mirror.Weaver
                 }
             }
             return false;
+        }
+
+        static bool IsNetworkBehaviour(TypeDefinition td)
+        {
+            return IsDerivedFrom(td, NetworkBehaviourType);
         }
 
         public static bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
