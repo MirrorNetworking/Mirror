@@ -797,7 +797,7 @@ namespace Mirror.Weaver
                             m_CmdInvocationFuncs.Add(cmdFunc);
                         }
 
-                        MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(md, ca);
+                        MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(m_td, md, ca);
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
@@ -827,7 +827,7 @@ namespace Mirror.Weaver
                             m_TargetRpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(m_td, md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
@@ -857,7 +857,7 @@ namespace Mirror.Weaver
                             m_RpcInvocationFuncs.Add(rpcFunc);
                         }
 
-                        MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(md, ca);
+                        MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(m_td, md, ca);
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);

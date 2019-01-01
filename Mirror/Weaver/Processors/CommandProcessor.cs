@@ -32,7 +32,7 @@ namespace Mirror.Weaver
                 base.SendCommandInternal(cmdName, networkWriter, cmdName);
             }
         */
-        public static MethodDefinition ProcessCommandCall(MethodDefinition md, CustomAttribute ca)
+        public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -89,6 +89,8 @@ namespace Mirror.Weaver
 
             // invoke interal send and return
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldtoken, td));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, cmdName));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldloc_0)); // writer
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
