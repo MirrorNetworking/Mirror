@@ -58,26 +58,6 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static bool ImplementsSyncObject(TypeReference typeRef)
-        {
-            try
-            {
-                // value types cant inherit from SyncObject
-                if (typeRef.IsValueType)
-                {
-                    return false;
-                }
-
-                return Weaver.ImplementsInterface(typeRef.Resolve(), Weaver.SyncObjectType);
-            }
-            catch
-            {
-                // sometimes this will fail if we reference a weird library that can't be resolved, so we just swallow that exception and return false
-            }
-
-            return false;
-        }
-
         public static string DestinationFileFor(string outputDir, string assemblyPath)
         {
             string fileName = Path.GetFileName(assemblyPath);

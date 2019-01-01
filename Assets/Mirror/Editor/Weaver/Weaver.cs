@@ -1033,6 +1033,24 @@ namespace Mirror.Weaver
             }
             return false;
         }
+        public static MethodReference ResolveMethodInParents(TypeReference t, string name)
+        {
+            if (t == null)
+            {
+                Log.Error("Type missing for " + name);
+                fail = true;
+                return null;
+            }
+            foreach (var methodRef in t.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    return scriptDef.MainModule.ImportReference(methodRef);
+                }
+            }
+            // Could not find the method in this class,  try the parent
+            return ResolveMethodInParents(t.Resolve().BaseType, name);
+        }
 
         public static MethodReference ResolveMethod(TypeReference t, string name)
         {
@@ -1474,14 +1492,14 @@ namespace Mirror.Weaver
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
             // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
 
-            string assembly = Weaver.scriptDef.MainModule.Name;
+            string assembly = scriptDef.MainModule.Name;
             if (variable.Module.Name != assembly)
             {
                 Log.Error("parameter [" + variable.Name +
                     "] is of the type [" +
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
-                Weaver.fail = true;
+                fail = true;
                 return false;
             }
             return true;
@@ -1722,7 +1740,7 @@ namespace Mirror.Weaver
                     catch (Exception ex)
                     {
                         // workaround until Unity fixes C#7 compiler compability with the UNET weaver
-                        UnityEngine.Debug.LogWarning($"Unable to delete file {pdb}: {ex.Message}");
+                        UnityEngine.Debug.LogWarning(string.Format("Unable to delete file {0}: {1}", pdb, ex.Message));
                     }
                 }
 

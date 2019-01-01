@@ -266,8 +266,8 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in m_SyncObjects)
             {
-                GenerateSyncListInstanceInitializer(ctorWorker, fd);
-                GenerateSyncObjectInitializer(ctorWorker, fd);
+                SyncListProcessor.GenerateSyncListInstanceInitializer(ctorWorker, fd);
+                SyncObjectProcessor.GenerateSyncObjectInitializer(ctorWorker, fd);
             }
 
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
@@ -281,33 +281,6 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             m_td.Attributes = m_td.Attributes & ~TypeAttributes.BeforeFieldInit;
-        }
-
-        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
-        void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
-        {
-            // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (var ins in ctorWorker.Body.Instructions)
-            {
-                if (ins.OpCode.Code == Code.Stfld)
-                {
-                    var field = (FieldDefinition)ins.Operand;
-                    if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
-                    {
-                        // Already initialized by the user in the field definition, e.g:
-                        // public SyncListInt Foo = new SyncListInt();
-                        return;
-                    }
-                }
-            }
-
-            // Not initialized by the user in the field definition, e.g:
-            // public SyncListInt Foo;
-            var listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
-
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, listCtor));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Stfld, fd));
         }
 
         /*
@@ -326,19 +299,6 @@ namespace Mirror.Weaver
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
         }
 
-        /*
-            // generates code like:
-            this.InitSyncObject(m_sizes);
-        */
-        void GenerateSyncObjectInitializer(ILProcessor methodWorker, FieldReference fd)
-        {
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldfld, fd));
-
-            methodWorker.Append(methodWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
-        }
-
         void GenerateSerialization()
         {
             Weaver.DLog(m_td, "  GenerateSerialization");
@@ -347,6 +307,12 @@ namespace Mirror.Weaver
             {
                 if (m.Name == "OnSerialize")
                     return;
+            }
+
+            if (m_SyncVars.Count == 0)
+            {
+                // no synvars,  no need for custom OnSerialize
+                return;
             }
 
             MethodDefinition serialize = new MethodDefinition("OnSerialize", MethodAttributes.Public |
@@ -364,7 +330,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "OnSerialize");
+            MethodReference baseSerialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnSerialize");
             if (baseSerialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
@@ -372,15 +338,6 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
-            }
-
-            if (m_SyncVars.Count == 0)
-            {
-                // generate: return dirtyLocal
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
-                m_td.Methods.Add(serialize);
-                return;
             }
 
             // Generates: if (forceAll);
@@ -555,6 +512,12 @@ namespace Mirror.Weaver
                     return;
             }
 
+            if (m_SyncVars.Count == 0)
+            {
+                // no synvars,  no need for custom OnDeserialize
+                return;
+            }
+
             MethodDefinition serialize = new MethodDefinition("OnDeserialize", MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.HideBySig,
@@ -564,20 +527,13 @@ namespace Mirror.Weaver
             serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-            MethodReference baseDeserialize = Weaver.ResolveMethod(m_td.BaseType, "OnDeserialize");
+            MethodReference baseDeserialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnDeserialize");
             if (baseDeserialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // reader
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
-            }
-
-            if (m_SyncVars.Count == 0)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
-                m_td.Methods.Add(serialize);
-                return;
             }
 
             // Generates: if (initialState);
