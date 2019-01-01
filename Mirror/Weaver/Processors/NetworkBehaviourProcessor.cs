@@ -266,7 +266,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in m_SyncObjects)
             {
-                GenerateSyncListInstanceInitializer(ctorWorker, fd);
+                SyncListProcessor.GenerateSyncListInstanceInitializer(ctorWorker, fd);
                 SyncObjectProcessor.GenerateSyncObjectInitializer(ctorWorker, fd);
             }
 
@@ -281,33 +281,6 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             m_td.Attributes = m_td.Attributes & ~TypeAttributes.BeforeFieldInit;
-        }
-
-        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
-        void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
-        {
-            // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (var ins in ctorWorker.Body.Instructions)
-            {
-                if (ins.OpCode.Code == Code.Stfld)
-                {
-                    var field = (FieldDefinition)ins.Operand;
-                    if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
-                    {
-                        // Already initialized by the user in the field definition, e.g:
-                        // public SyncListInt Foo = new SyncListInt();
-                        return;
-                    }
-                }
-            }
-
-            // Not initialized by the user in the field definition, e.g:
-            // public SyncListInt Foo;
-            var listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
-
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, listCtor));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Stfld, fd));
         }
 
         /*

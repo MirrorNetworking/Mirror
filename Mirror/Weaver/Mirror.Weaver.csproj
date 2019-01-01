@@ -72,6 +72,7 @@
     <Compile Include="Processors\NetworkBehaviourProcessor.cs" />
     <Compile Include="Processors\RpcProcessor.cs" />
     <Compile Include="Processors\SyncEventProcessor.cs" />
+    <Compile Include="Processors\SyncListProcessor.cs" />
     <Compile Include="Processors\SyncObjectProcessor.cs" />
     <Compile Include="Processors\SyncVarProcessor.cs" />
     <Compile Include="Processors\TargetRpcProcessor.cs" />
