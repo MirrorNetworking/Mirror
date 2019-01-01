@@ -23,7 +23,11 @@ namespace Mirror
         public bool logNetworkMessages;
         public bool isConnected { get { return hostId != -1; }}
 
-        public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
+        public NetworkConnection(string networkAddress)
+        {
+            address = networkAddress;
+        }
+        public NetworkConnection(string networkAddress, int networkHostId, int networkConnectionId)
         {
             address = networkAddress;
             hostId = networkHostId;

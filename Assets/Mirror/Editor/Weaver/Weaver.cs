@@ -10,13 +10,6 @@ using Mono.Cecil.Mdb;
 
 namespace Mirror.Weaver
 {
-    public enum OutSymbolsFormat
-    {
-        None,
-        Pdb,
-        Mdb
-    }
-
     // This data is flushed each time - if we are run multiple times in the same process/domain
     class WeaverLists
     {
@@ -117,7 +110,6 @@ namespace Mirror.Weaver
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
-        public static TypeReference NetworkSettingsType;
 
         // system types
         public static TypeReference voidType;
@@ -1250,7 +1242,6 @@ namespace Mirror.Weaver
             TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncObject");
-            NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
         }
 
         static void SetupCorLib()
@@ -1781,7 +1772,6 @@ namespace Mirror.Weaver
 
                 string dest = Helpers.DestinationFileFor(outputDir, assName);
                 //Console.WriteLine ("Output:" + dest);
-                //Console.WriteLine ("Output:" + options.OutSymbolsFormat);
 
                 var writeParams = Helpers.GetWriterParameters(readParams);
 

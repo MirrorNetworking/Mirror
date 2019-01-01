@@ -8,8 +8,6 @@ namespace Mirror
 {
     public class NetworkClient
     {
-        Type m_NetworkConnectionClass = typeof(NetworkConnection);
-
         static bool s_IsActive;
 
         public static List<NetworkClient> allClients = new List<NetworkClient>();
@@ -47,13 +45,6 @@ namespace Mirror
 
         public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
-        public Type networkConnectionClass { get { return m_NetworkConnectionClass; } }
-
-        public void SetNetworkConnectionClass<T>() where T : NetworkConnection
-        {
-            m_NetworkConnectionClass = typeof(T);
-        }
-
         public NetworkClient()
         {
             if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
@@ -85,9 +76,8 @@ namespace Mirror
             connectState = ConnectState.Connecting;
 
             // setup all the handlers
-            m_Connection = (NetworkConnection)Activator.CreateInstance(m_NetworkConnectionClass);
+            m_Connection = new NetworkConnection(m_ServerIp, m_ClientId, 0);
             m_Connection.SetHandlers(m_MessageHandlers);
-            m_Connection.Initialize(m_ServerIp, m_ClientId, 0);
 
             NetworkManager.transport.ClientConnect(serverIp, serverPort);
         }
