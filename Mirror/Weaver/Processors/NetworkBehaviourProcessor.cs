@@ -144,17 +144,17 @@ namespace Mirror.Weaver
         }
 
         // mark / check type as processed //////////////////////////////////////
-        // by adding an empty UNetVersion() function
+        // by adding an empty MirrorProcessed() function
         public static bool WasProcessed(TypeDefinition td)
         {
-            return td.Methods.Any(method => method.Name == "UNetVersion");
+            return td.Methods.Any(method => method.Name == "MirrorProcessed");
         }
 
         public static void MarkAsProcessed(TypeDefinition td)
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition("UNetVersion", MethodAttributes.Private, Weaver.voidType);
+                MethodDefinition versionMethod = new MethodDefinition("MirrorProcessed", MethodAttributes.Private, Weaver.voidType);
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
                 td.Methods.Add(versionMethod);
