@@ -335,15 +335,8 @@ namespace Mirror
             }
             else
             {
-                var uv = go.GetComponent<NetworkIdentity>();
-                if (uv != null)
-                {
-                    label = new GUIContent(go.name, "AssetId: [" + uv.assetId + "]");
-                }
-                else
-                {
-                    label = new GUIContent(go.name, "No Network Identity");
-                }
+                var identity = go.GetComponent<NetworkIdentity>();
+                label = new GUIContent(go.name, identity != null ? "AssetId: [" + identity.assetId + "]" : "No Network Identity");
             }
 
             var newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);

@@ -14,7 +14,6 @@ namespace Mirror
 
         NetworkTransform m_Root;
 
-        [SerializeField] float                                  m_SendInterval = 0.1f;
         [SerializeField] NetworkTransform.AxisSyncMode          m_SyncRotationAxis = NetworkTransform.AxisSyncMode.AxisXYZ;
         [SerializeField] NetworkTransform.CompressionSyncMode   m_RotationSyncCompression = NetworkTransform.CompressionSyncMode.None;
         [SerializeField] float                                  m_MovementThreshold = 0.001f;
@@ -39,7 +38,6 @@ namespace Mirror
         // settings
         public Transform                            target { get {return m_Target; } set { m_Target = value; OnValidate(); } }
         public uint                                 childIndex { get { return m_ChildIndex; }}
-        public float                                sendInterval { get { return m_SendInterval; } set { m_SendInterval = value; } }
         public NetworkTransform.AxisSyncMode        syncRotationAxis { get { return m_SyncRotationAxis; } set { m_SyncRotationAxis = value; } }
         public NetworkTransform.CompressionSyncMode rotationSyncCompression { get { return m_RotationSyncCompression; } set { m_RotationSyncCompression = value; } }
         public float                                movementThreshold { get { return m_MovementThreshold; } set { m_MovementThreshold = value; } }
@@ -96,11 +94,6 @@ namespace Mirror
                     Debug.LogError("NetworkTransformChild component must be a child in the same hierarchy");
                     m_Target = null;
                 }
-            }
-
-            if (m_SendInterval < 0)
-            {
-                m_SendInterval = 0;
             }
 
             if (m_SyncRotationAxis < NetworkTransform.AxisSyncMode.None || m_SyncRotationAxis > NetworkTransform.AxisSyncMode.AxisXYZ)
@@ -263,7 +256,7 @@ namespace Mirror
                 return;
 
             // dont' auto-dirty if no send interval
-            if (GetNetworkSendInterval() == 0)
+            if (syncInterval == 0)
                 return;
 
             float distance = (m_Target.localPosition - m_PrevPosition).sqrMagnitude;
@@ -295,7 +288,7 @@ namespace Mirror
                 return;
 
             // dont run if not expecting continuous updates
-            if (GetNetworkSendInterval() == 0)
+            if (syncInterval == 0)
                 return;
 
             // dont run this if this client has authority over this player object
@@ -338,7 +331,7 @@ namespace Mirror
             if (NetworkServer.active)
                 return;
 
-            if (Time.time - m_LastClientSendTime > GetNetworkSendInterval())
+            if (Time.time - m_LastClientSendTime > syncInterval)
             {
                 SendTransform();
                 m_LastClientSendTime = Time.time;
@@ -439,11 +432,6 @@ namespace Mirror
                 foundSync.m_Target.localPosition = foundSync.m_TargetSyncPosition;
                 foundSync.m_Target.localRotation = foundSync.m_TargetSyncRotation3D;
             }
-        }
-
-        public override float GetNetworkSendInterval()
-        {
-            return m_SendInterval;
         }
     }
 }

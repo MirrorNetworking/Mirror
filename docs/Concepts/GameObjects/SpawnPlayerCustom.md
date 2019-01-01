@@ -13,7 +13,7 @@ using UnityEngine;
 using Mirror;
 class Player : NetworkBehaviour
 {
-    SyncVar
+    [SyncVar]
     public Color color;
 }
 ```

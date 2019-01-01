@@ -34,13 +34,6 @@ namespace Mirror
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
 
-        static Type s_NetworkConnectionClass = typeof(NetworkConnection);
-        public static Type networkConnectionClass { get { return s_NetworkConnectionClass; } }
-        public static void SetNetworkConnectionClass<T>() where T : NetworkConnection
-        {
-            s_NetworkConnectionClass = typeof(T);
-        }
-
         public static void Reset()
         {
             s_Active = false;
@@ -341,8 +334,7 @@ namespace Mirror
             NetworkManager.transport.GetConnectionInfo(connectionId, out address);
 
             // add player info
-            NetworkConnection conn = (NetworkConnection)Activator.CreateInstance(s_NetworkConnectionClass);
-            conn.Initialize(address, s_ServerHostId, connectionId);
+            NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
             AddConnection(conn);
             OnConnected(conn);
         }

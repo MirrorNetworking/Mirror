@@ -10,13 +10,6 @@ using Mono.Cecil.Mdb;
 
 namespace Mirror.Weaver
 {
-    public enum OutSymbolsFormat
-    {
-        None,
-        Pdb,
-        Mdb
-    }
-
     // This data is flushed each time - if we are run multiple times in the same process/domain
     class WeaverLists
     {
@@ -75,8 +68,6 @@ namespace Mirror.Weaver
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
-        public static TypeReference MemoryStreamType;
-        public static MethodReference MemoryStreamCtor;
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
@@ -117,7 +108,6 @@ namespace Mirror.Weaver
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
-        public static TypeReference NetworkSettingsType;
 
         // system types
         public static TypeReference voidType;
@@ -237,13 +227,9 @@ namespace Mirror.Weaver
 
         public static int GetSyncVarStart(string className)
         {
-            if (lists.numSyncVars.ContainsKey(className))
-            {
-                int num =  lists.numSyncVars[className];
-                return num;
-            }
-            // start at zero
-            return 0;
+            return lists.numSyncVars.ContainsKey(className)
+                   ? lists.numSyncVars[className]
+                   : 0;
         }
 
         public static void SetNumSyncVars(string className, int num)
@@ -727,25 +713,6 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static Instruction GetEventLoadInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, int iCount, FieldReference foundEventField)
-        {
-            // go backwards until find a ldfld instruction for this event field
-            while (iCount > 0)
-            {
-                iCount -= 1;
-                Instruction inst = md.Body.Instructions[iCount];
-                if (inst.OpCode == OpCodes.Ldfld)
-                {
-                    if (inst.Operand == foundEventField)
-                    {
-                        DLog(td, "    " + inst.Operand);
-                        return inst;
-                    }
-                }
-            }
-            return null;
-        }
-
         static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
             //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
@@ -1021,7 +988,7 @@ namespace Mirror.Weaver
 
         static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
-            var startTime = System.DateTime.Now;
+            var startTime = DateTime.Now;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -1046,7 +1013,7 @@ namespace Mirror.Weaver
                     scriptDef.MainModule.ImportReference(f);
                 }
             }
-            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (System.DateTime.Now - startTime));
+            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
         static void ProcessPropertySites()
@@ -1054,41 +1021,17 @@ namespace Mirror.Weaver
             ProcessSitesModule(scriptDef.MainModule);
         }
 
-        static bool ProcessMessageType(TypeDefinition td)
-        {
-            var proc = new MessageClassProcessor(td);
-            proc.Process();
-            return true;
-        }
-
-        static bool ProcessSyncListStructType(TypeDefinition td)
-        {
-            var proc = new SyncListStructProcessor(td);
-            proc.Process();
-            return true;
-        }
-
-        static void ProcessMonoBehaviourType(TypeDefinition td)
-        {
-            var proc = new MonoBehaviourProcessor(td);
-            proc.Process();
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
-            foreach (var md in td.Resolve().Methods)
+            if (!NetworkBehaviourProcessor.WasProcessed(td))
             {
-                if (md.Name == "UNetVersion")
-                {
-                    DLog(td, " Already processed");
-                    return false; // did no work
-                }
-            }
-            DLog(td, "Found NetworkBehaviour " + td.FullName);
+                DLog(td, "Found NetworkBehaviour " + td.FullName);
 
-            NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
-            proc.Process();
-            return true;
+                NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
+                proc.Process();
+                return true;
+            }
+            return false;
         }
 
         public static MethodReference ResolveMethod(TypeReference t, string name)
@@ -1250,7 +1193,6 @@ namespace Mirror.Weaver
             TargetRpcType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncObject");
-            NetworkSettingsType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkSettingsAttribute");
         }
 
         static void SetupCorLib()
@@ -1292,7 +1234,6 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            MemoryStreamType = ImportCorLibType("System.IO.MemoryStream");
             guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
@@ -1304,8 +1245,6 @@ namespace Mirror.Weaver
             NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
-
-            MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
@@ -1461,39 +1400,12 @@ namespace Mirror.Weaver
             };
         }
 
-        static bool IsNetworkBehaviour(TypeDefinition td)
+        public static bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
         {
             if (!td.IsClass)
                 return false;
 
-            // are ANY parent clasess unetbehaviours
-            TypeReference parent = td.BaseType;
-            while (parent != null)
-            {
-                if (parent.FullName == NetworkBehaviourType.FullName)
-                {
-                    return true;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
-            }
-            return false;
-        }
-
-        static public bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
-        {
-            if (!td.IsClass)
-                return false;
-
-            // are ANY parent clasess unetbehaviours
+            // are ANY parent classes NetworkBehaviours
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
@@ -1516,7 +1428,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
@@ -1524,7 +1436,12 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
+        static bool IsNetworkBehaviour(TypeDefinition td)
+        {
+            return IsDerivedFrom(td, NetworkBehaviourType);
+        }
+
+        public static bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
         {
             TypeDefinition typedef = td;
 
@@ -1552,7 +1469,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool IsValidTypeToGenerate(TypeDefinition variable)
+        public static bool IsValidTypeToGenerate(TypeDefinition variable)
         {
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
             // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
@@ -1574,7 +1491,7 @@ namespace Mirror.Weaver
         {
             if (IsDerivedFrom(td, MonoBehaviourType))
             {
-                ProcessMonoBehaviourType(td);
+                MonoBehaviourProcessor.Process(td);
             }
         }
 
@@ -1634,7 +1551,8 @@ namespace Mirror.Weaver
             {
                 if (parent.FullName == MessageBaseType.FullName)
                 {
-                    didWork |= ProcessMessageType(td);
+                    MessageClassProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
@@ -1665,13 +1583,14 @@ namespace Mirror.Weaver
 
             bool didWork = false;
 
-            // are ANY parent clasess SyncListStruct
+            // are ANY parent classes SyncListStruct
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
                 if (parent.FullName.StartsWith(SyncListStructType.FullName))
                 {
-                    didWork |= ProcessSyncListStructType(td);
+                    SyncListStructProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
@@ -1781,7 +1700,6 @@ namespace Mirror.Weaver
 
                 string dest = Helpers.DestinationFileFor(outputDir, assName);
                 //Console.WriteLine ("Output:" + dest);
-                //Console.WriteLine ("Output:" + options.OutSymbolsFormat);
 
                 var writeParams = Helpers.GetWriterParameters(readParams);
 

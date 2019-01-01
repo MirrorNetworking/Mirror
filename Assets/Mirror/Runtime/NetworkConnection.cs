@@ -24,8 +24,12 @@ namespace Mirror
         public bool isConnected { get { return hostId != -1; }}
 
         public NetworkError lastError; //sometimes used for disconnect message
-
-        public virtual void Initialize(string networkAddress, int networkHostId, int networkConnectionId)
+        
+        public NetworkConnection(string networkAddress)
+        {
+            address = networkAddress;
+        }
+        public NetworkConnection(string networkAddress, int networkHostId, int networkConnectionId)
         {
             address = networkAddress;
             hostId = networkHostId;
