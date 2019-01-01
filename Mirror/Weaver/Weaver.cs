@@ -988,7 +988,7 @@ namespace Mirror.Weaver
 
         static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
-            var startTime = System.DateTime.Now;
+            var startTime = DateTime.Now;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -1013,7 +1013,7 @@ namespace Mirror.Weaver
                     scriptDef.MainModule.ImportReference(f);
                 }
             }
-            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (System.DateTime.Now - startTime));
+            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
         static void ProcessPropertySites()
