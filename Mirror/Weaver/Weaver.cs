@@ -1030,8 +1030,7 @@ namespace Mirror.Weaver
 
         static void ProcessMonoBehaviourType(TypeDefinition td)
         {
-            var proc = new MonoBehaviourProcessor(td);
-            proc.Process();
+            MonoBehaviourProcessor.Process(td);
         }
 
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
