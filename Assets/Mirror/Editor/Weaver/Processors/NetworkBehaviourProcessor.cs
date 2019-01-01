@@ -42,7 +42,7 @@ namespace Mirror.Weaver
                 return;
             }
             Weaver.DLog(m_td, "Process Start");
-            ProcessVersion();
+            MarkAsProcessed(m_td);
             SyncVarProcessor.ProcessSyncVars(m_td, m_SyncVars, m_SyncObjects, m_SyncVarNetIds);
             Weaver.ResetRecursionCount();
 
@@ -143,23 +143,24 @@ namespace Mirror.Weaver
             return true;
         }
 
-        // adds empty UNetVersion(), which seems to be used to check if we already
-        // processed a class or not
-        void ProcessVersion()
+        // mark / check type as processed //////////////////////////////////////
+        // by adding an empty MirrorProcessed() function
+        public static bool WasProcessed(TypeDefinition td)
         {
-            foreach (MethodDefinition md in m_td.Methods)
-            {
-                if (md.Name == "UNetVersion")
-                {
-                    return;
-                }
-            }
-
-            MethodDefinition versionMethod = new MethodDefinition("UNetVersion", MethodAttributes.Private, Weaver.voidType);
-            ILProcessor worker = versionMethod.Body.GetILProcessor();
-            worker.Append(worker.Create(OpCodes.Ret));
-            m_td.Methods.Add(versionMethod);
+            return td.Methods.Any(method => method.Name == "MirrorProcessed");
         }
+
+        public static void MarkAsProcessed(TypeDefinition td)
+        {
+            if (!WasProcessed(td))
+            {
+                MethodDefinition versionMethod = new MethodDefinition("MirrorProcessed", MethodAttributes.Private, Weaver.voidType);
+                ILProcessor worker = versionMethod.Body.GetILProcessor();
+                worker.Append(worker.Create(OpCodes.Ret));
+                td.Methods.Add(versionMethod);
+            }
+        }
+        ////////////////////////////////////////////////////////////////////////
 
         void GenerateConstants()
         {

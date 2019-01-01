@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class SyncVarProcessor
+    public static class SyncVarProcessor
     {
         const int k_SyncVarLimit = 64; // ulong = 64 bytes
 

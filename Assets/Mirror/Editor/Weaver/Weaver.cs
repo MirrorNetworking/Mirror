@@ -1021,41 +1021,17 @@ namespace Mirror.Weaver
             ProcessSitesModule(scriptDef.MainModule);
         }
 
-        static bool ProcessMessageType(TypeDefinition td)
-        {
-            var proc = new MessageClassProcessor(td);
-            proc.Process();
-            return true;
-        }
-
-        static bool ProcessSyncListStructType(TypeDefinition td)
-        {
-            var proc = new SyncListStructProcessor(td);
-            proc.Process();
-            return true;
-        }
-
-        static void ProcessMonoBehaviourType(TypeDefinition td)
-        {
-            var proc = new MonoBehaviourProcessor(td);
-            proc.Process();
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
-            foreach (var md in td.Resolve().Methods)
+            if (!NetworkBehaviourProcessor.WasProcessed(td))
             {
-                if (md.Name == "UNetVersion")
-                {
-                    DLog(td, " Already processed");
-                    return false; // did no work
-                }
-            }
-            DLog(td, "Found NetworkBehaviour " + td.FullName);
+                DLog(td, "Found NetworkBehaviour " + td.FullName);
 
-            NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
-            proc.Process();
-            return true;
+                NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
+                proc.Process();
+                return true;
+            }
+            return false;
         }
 
         public static MethodReference ResolveMethod(TypeReference t, string name)
@@ -1424,39 +1400,12 @@ namespace Mirror.Weaver
             };
         }
 
-        static bool IsNetworkBehaviour(TypeDefinition td)
+        public static bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
         {
             if (!td.IsClass)
                 return false;
 
-            // are ANY parent clasess unetbehaviours
-            TypeReference parent = td.BaseType;
-            while (parent != null)
-            {
-                if (parent.FullName == NetworkBehaviourType.FullName)
-                {
-                    return true;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
-            }
-            return false;
-        }
-
-        static public bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
-        {
-            if (!td.IsClass)
-                return false;
-
-            // are ANY parent clasess unetbehaviours
+            // are ANY parent classes NetworkBehaviours
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
@@ -1479,7 +1428,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
@@ -1487,7 +1436,12 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
+        static bool IsNetworkBehaviour(TypeDefinition td)
+        {
+            return IsDerivedFrom(td, NetworkBehaviourType);
+        }
+
+        public static bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
         {
             TypeDefinition typedef = td;
 
@@ -1515,7 +1469,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool IsValidTypeToGenerate(TypeDefinition variable)
+        public static bool IsValidTypeToGenerate(TypeDefinition variable)
         {
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
             // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
@@ -1537,7 +1491,7 @@ namespace Mirror.Weaver
         {
             if (IsDerivedFrom(td, MonoBehaviourType))
             {
-                ProcessMonoBehaviourType(td);
+                MonoBehaviourProcessor.Process(td);
             }
         }
 
@@ -1597,7 +1551,8 @@ namespace Mirror.Weaver
             {
                 if (parent.FullName == MessageBaseType.FullName)
                 {
-                    didWork |= ProcessMessageType(td);
+                    MessageClassProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
@@ -1628,13 +1583,14 @@ namespace Mirror.Weaver
 
             bool didWork = false;
 
-            // are ANY parent clasess SyncListStruct
+            // are ANY parent classes SyncListStruct
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
                 if (parent.FullName.StartsWith(SyncListStructType.FullName))
                 {
-                    didWork |= ProcessSyncListStructType(td);
+                    SyncListStructProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
