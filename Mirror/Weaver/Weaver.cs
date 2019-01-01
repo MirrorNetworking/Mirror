@@ -1427,7 +1427,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
+        public static bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
         {
             if (!td.IsClass)
                 return false;
