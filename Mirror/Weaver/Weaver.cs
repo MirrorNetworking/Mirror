@@ -1023,19 +1023,15 @@ namespace Mirror.Weaver
 
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
-            foreach (var md in td.Resolve().Methods)
+            if (!NetworkBehaviourProcessor.WasProcessed(td))
             {
-                if (md.Name == "UNetVersion")
-                {
-                    DLog(td, " Already processed");
-                    return false; // did no work
-                }
-            }
-            DLog(td, "Found NetworkBehaviour " + td.FullName);
+                DLog(td, "Found NetworkBehaviour " + td.FullName);
 
-            NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
-            proc.Process();
-            return true;
+                NetworkBehaviourProcessor proc = new NetworkBehaviourProcessor(td);
+                proc.Process();
+                return true;
+            }
+            return false;
         }
 
         public static MethodReference ResolveMethod(TypeReference t, string name)
