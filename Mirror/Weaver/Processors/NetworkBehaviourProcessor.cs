@@ -349,6 +349,12 @@ namespace Mirror.Weaver
                     return;
             }
 
+            if (m_SyncVars.Count == 0)
+            {
+                // no synvars,  no need for custom OnSerialize
+                return;
+            }
+
             MethodDefinition serialize = new MethodDefinition("OnSerialize", MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.HideBySig,
@@ -364,7 +370,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Weaver.ResolveMethod(m_td.BaseType, "OnSerialize");
+            MethodReference baseSerialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnSerialize");
             if (baseSerialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
@@ -372,15 +378,6 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
-            }
-
-            if (m_SyncVars.Count == 0)
-            {
-                // generate: return dirtyLocal
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
-                m_td.Methods.Add(serialize);
-                return;
             }
 
             // Generates: if (forceAll);
@@ -555,6 +552,12 @@ namespace Mirror.Weaver
                     return;
             }
 
+            if (m_SyncVars.Count == 0)
+            {
+                // no synvars,  no need for custom OnDeserialize
+                return;
+            }
+
             MethodDefinition serialize = new MethodDefinition("OnDeserialize", MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.HideBySig,
@@ -564,20 +567,13 @@ namespace Mirror.Weaver
             serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-            MethodReference baseDeserialize = Weaver.ResolveMethod(m_td.BaseType, "OnDeserialize");
+            MethodReference baseDeserialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnDeserialize");
             if (baseDeserialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // reader
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
-            }
-
-            if (m_SyncVars.Count == 0)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
-                m_td.Methods.Add(serialize);
-                return;
             }
 
             // Generates: if (initialState);
