@@ -1405,7 +1405,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            // are ANY parent clasess unetbehaviours
+            // are ANY parent classes NetworkBehaviours
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
@@ -1419,7 +1419,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
@@ -1432,7 +1432,7 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
-            // are ANY parent clasess unetbehaviours
+            // are ANY parent classes NetworkBehaviours
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
@@ -1455,7 +1455,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
