@@ -1609,7 +1609,7 @@ namespace Mirror.Weaver
 
             bool didWork = false;
 
-            // are ANY parent clasess SyncListStruct
+            // are ANY parent classes SyncListStruct
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
