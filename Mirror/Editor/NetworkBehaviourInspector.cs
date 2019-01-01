@@ -13,7 +13,7 @@ namespace Mirror
     {
         bool m_Initialized;
         protected List<string> m_SyncVarNames = new List<string>();
-        bool m_HasOnSerialize;
+        bool m_SyncsAnything;
         bool[] m_ShowSyncLists;
 
         GUIContent m_SyncVarIndicatorContent;
@@ -21,6 +21,36 @@ namespace Mirror
         internal virtual bool hideScriptField
         {
             get { return false; }
+        }
+
+        // does this type sync anything? otherwise we don't need to show syncInterval
+        bool SyncsAnything(Type scriptClass)
+        {
+            // has OnSerialize that is not in NetworkBehaviour?
+            // then it either has a syncvar or custom OnSerialize. either way
+            // this means we have something to sync.
+            MethodInfo method = scriptClass.GetMethod("OnSerialize");
+            if (method != null && method.DeclaringType != typeof(NetworkBehaviour))
+            {
+                return true;
+            }
+
+            // SyncObjects are serialized in NetworkBehaviour.OnSerialize, which
+            // is always there even if we don't use SyncObjects. so we need to
+            // search for SyncObjects manually.
+            // (look for 'Mirror.Sync'. not '.SyncObject' because we'd have to
+            //  check base type for that again)
+            foreach (FieldInfo field in scriptClass.GetFields())
+            {
+                if (field.FieldType.BaseType != null &&
+                    field.FieldType.BaseType.FullName != null &&
+                    field.FieldType.BaseType.FullName.Contains("Mirror.Sync"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         void Init(MonoScript script)
@@ -39,14 +69,6 @@ namespace Mirror
                     m_SyncVarNames.Add(field.Name);
                 }
             }
-            var meth = script.GetClass().GetMethod("OnSerialize");
-            if (meth != null)
-            {
-                if (meth.DeclaringType != typeof(NetworkBehaviour))
-                {
-                    m_HasOnSerialize = true;
-                }
-            }
 
             int numSyncLists = 0;
             foreach (var f in serializedObject.targetObject.GetType().GetFields())
@@ -60,6 +82,8 @@ namespace Mirror
             {
                 m_ShowSyncLists = new bool[numSyncLists];
             }
+
+            m_SyncsAnything = SyncsAnything(scriptClass);
         }
 
         public override void OnInspectorGUI()
@@ -158,7 +182,7 @@ namespace Mirror
 
             // only show SyncInterval if we have an OnSerialize function.
             // No need to show it if the class only has Cmds/Rpcs and no sync.
-            if (m_HasOnSerialize)
+            if (m_SyncsAnything)
             {
                 var beh = target as NetworkBehaviour;
                 if (beh != null)
