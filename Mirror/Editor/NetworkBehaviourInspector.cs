@@ -69,7 +69,7 @@ namespace Mirror
             }
 
             int numSyncLists = 0;
-            foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
+            foreach (FieldInfo field in scriptClass.GetFields())
             {
                 if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
                 {
