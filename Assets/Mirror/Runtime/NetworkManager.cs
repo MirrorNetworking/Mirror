@@ -540,6 +540,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
             NetworkError errorMessage = (NetworkError)netMsg;
+            netMsg.conn.lastError = errorMessage;
             OnServerError(netMsg.conn, errorMessage.exception);
         }
 
@@ -589,6 +590,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
             NetworkError networkError = (NetworkError)netMsg;
+            netMsg.conn.lastError = networkError;
             OnClientError(netMsg.conn, networkError.exception);
         }
 
