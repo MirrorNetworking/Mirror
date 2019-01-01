@@ -27,7 +27,6 @@ build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
   - cd docs
-  - set BUNDLE_BIN_PATH=vendor/bundle
   - bundle exec jekyll build
   - ruby checksite.rb
   - cd ..
