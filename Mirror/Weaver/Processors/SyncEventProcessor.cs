@@ -64,7 +64,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        public static MethodDefinition ProcessEventCall(EventDefinition ed, CustomAttribute ca)
+        public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute ca)
         {
             MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
             MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
@@ -91,6 +91,8 @@ namespace Mirror.Weaver
 
             // invoke interal send and return
             evtWorker.Append(evtWorker.Create(OpCodes.Ldarg_0)); // this
+            evtWorker.Append(evtWorker.Create(OpCodes.Ldtoken, td));
+            evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
             evtWorker.Append(evtWorker.Create(OpCodes.Ldstr, ed.Name));
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
@@ -136,7 +138,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = SyncEventProcessor.ProcessEventCall(ed, ca);
+                        MethodDefinition eventCallFunc = SyncEventProcessor.ProcessEventCall(td, ed, ca);
                         td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);

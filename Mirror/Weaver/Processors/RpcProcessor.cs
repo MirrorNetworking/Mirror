@@ -43,11 +43,11 @@ namespace Mirror.Weaver
             } else {
                 NetworkWriter writer = new NetworkWriter ();
                 writer.WritePackedUInt32((uint)param);
-                base.SendRPCInternal("RpcTest", writer, 0);
+                base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
             }
         }
         */
-        public static MethodDefinition ProcessRpcCall(MethodDefinition md, CustomAttribute ca)
+        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
             MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -81,6 +81,8 @@ namespace Mirror.Weaver
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0)); // writer
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
