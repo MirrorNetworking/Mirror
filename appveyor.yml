@@ -9,7 +9,7 @@ version: '{branch}-{build}'
 install:
   - set PATH=C:\Ruby25-x64\bin;%PATH%
   - cd docs
-  - bundle install
+  - bundle install --deployment
   - cd ..
   - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
   
