@@ -1492,14 +1492,14 @@ namespace Mirror.Weaver
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
             // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
 
-            string assembly = Weaver.scriptDef.MainModule.Name;
+            string assembly = scriptDef.MainModule.Name;
             if (variable.Module.Name != assembly)
             {
                 Log.Error("parameter [" + variable.Name +
                     "] is of the type [" +
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
-                Weaver.fail = true;
+                fail = true;
                 return false;
             }
             return true;
