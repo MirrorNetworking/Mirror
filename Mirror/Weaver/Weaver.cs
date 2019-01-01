@@ -1023,8 +1023,7 @@ namespace Mirror.Weaver
 
         static bool ProcessMessageType(TypeDefinition td)
         {
-            var proc = new MessageClassProcessor(td);
-            proc.Process();
+            MessageClassProcessor.Process(td);
             return true;
         }
 

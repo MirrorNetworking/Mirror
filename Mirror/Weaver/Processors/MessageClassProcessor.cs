@@ -4,53 +4,45 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    class MessageClassProcessor
+    static class MessageClassProcessor
     {
-        TypeDefinition m_td;
-
-        public MessageClassProcessor(TypeDefinition td)
+        public static void Process(TypeDefinition td)
         {
-            Weaver.DLog(td, "MessageClassProcessor for " + td.Name);
-            m_td = td;
-        }
-
-        public void Process()
-        {
-            Weaver.DLog(m_td, "MessageClassProcessor Start");
+            Weaver.DLog(td, "MessageClassProcessor Start");
 
             Weaver.ResetRecursionCount();
 
-            GenerateSerialization();
+            GenerateSerialization(td);
             if (Weaver.fail)
             {
                 return;
             }
 
-            GenerateDeSerialization();
-            Weaver.DLog(m_td, "MessageClassProcessor Done");
+            GenerateDeSerialization(td);
+            Weaver.DLog(td, "MessageClassProcessor Done");
         }
 
-        void GenerateSerialization()
+        static void GenerateSerialization(TypeDefinition td)
         {
-            Weaver.DLog(m_td, "  GenerateSerialization");
-            foreach (MethodDefinition m in m_td.Methods)
+            Weaver.DLog(td, "  GenerateSerialization");
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == "Serialize")
                     return;
             }
 
-            if (m_td.Fields.Count == 0)
+            if (td.Fields.Count == 0)
             {
                 return;
             }
 
             // check for self-referencing types
-            foreach (FieldDefinition field in m_td.Fields)
+            foreach (FieldDefinition field in td.Fields)
             {
-                if (field.FieldType.FullName == m_td.FullName)
+                if (field.FieldType.FullName == td.FullName)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " [" + field.FullName + "]. [MessageBase] member cannot be self referencing.");
+                    Log.Error("GenerateSerialization for " + td.Name + " [" + field.FullName + "]. [MessageBase] member cannot be self referencing.");
                     return;
                 }
             }
@@ -63,7 +55,7 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            foreach (FieldDefinition field in m_td.Fields)
+            foreach (FieldDefinition field in td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
@@ -71,14 +63,14 @@ namespace Mirror.Weaver
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot have generic parameters.");
+                    Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot have generic parameters.");
                     return;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot be an interface.");
+                    Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot be an interface.");
                     return;
                 }
 
@@ -93,25 +85,25 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member variables must be basic types.");
+                    Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member variables must be basic types.");
                     return;
                 }
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            m_td.Methods.Add(serializeFunc);
+            td.Methods.Add(serializeFunc);
         }
 
-        void GenerateDeSerialization()
+        static void GenerateDeSerialization(TypeDefinition td)
         {
-            Weaver.DLog(m_td, "  GenerateDeserialization");
-            foreach (var m in m_td.Methods)
+            Weaver.DLog(td, "  GenerateDeserialization");
+            foreach (var m in td.Methods)
             {
                 if (m.Name == "Deserialize")
                     return;
             }
 
-            if (m_td.Fields.Count == 0)
+            if (td.Fields.Count == 0)
             {
                 return;
             }
@@ -124,7 +116,7 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            foreach (FieldDefinition field in m_td.Fields)
+            foreach (FieldDefinition field in td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
@@ -140,13 +132,13 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + field.FieldType + "]. [SyncVar] member variables must be basic types.");
+                    Log.Error("GenerateDeSerialization for " + td.Name + " unknown type [" + field.FieldType + "]. [SyncVar] member variables must be basic types.");
                     return;
                 }
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            m_td.Methods.Add(serializeFunc);
+            td.Methods.Add(serializeFunc);
         }
     }
 }
