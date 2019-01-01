@@ -16,7 +16,7 @@ namespace Mirror
         bool m_SyncsAnything;
         bool[] m_ShowSyncLists;
 
-        GUIContent m_SyncVarIndicatorContent;
+        GUIContent m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
         internal virtual bool hideScriptField
         {
@@ -57,8 +57,6 @@ namespace Mirror
         {
             m_Initialized = true;
             Type scriptClass = script.GetClass();
-
-            m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
             // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
             foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
