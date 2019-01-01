@@ -1021,12 +1021,6 @@ namespace Mirror.Weaver
             ProcessSitesModule(scriptDef.MainModule);
         }
 
-        static bool ProcessMessageType(TypeDefinition td)
-        {
-            MessageClassProcessor.Process(td);
-            return true;
-        }
-
         static bool ProcessSyncListStructType(TypeDefinition td)
         {
             var proc = new SyncListStructProcessor(td);
@@ -1596,7 +1590,8 @@ namespace Mirror.Weaver
             {
                 if (parent.FullName == MessageBaseType.FullName)
                 {
-                    didWork |= ProcessMessageType(td);
+                    MessageClassProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
