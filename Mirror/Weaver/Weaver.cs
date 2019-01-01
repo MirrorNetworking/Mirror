@@ -1463,7 +1463,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
+        public static bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
         {
             TypeDefinition typedef = td;
 
@@ -1491,7 +1491,7 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static public bool IsValidTypeToGenerate(TypeDefinition variable)
+        public static bool IsValidTypeToGenerate(TypeDefinition variable)
         {
             // a valid type is a simple class or struct. so we generate only code for types we dont know, and if they are not inside
             // this assembly it must mean that we are trying to serialize a variable outside our scope. and this will fail.
