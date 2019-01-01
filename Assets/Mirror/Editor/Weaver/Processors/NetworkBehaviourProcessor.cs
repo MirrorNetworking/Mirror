@@ -348,12 +348,6 @@ namespace Mirror.Weaver
                     return;
             }
 
-            if (m_SyncVars.Count == 0)
-            {
-                // nothing to sync,  use base OnSerialize
-                return;
-            }
-
             MethodDefinition serialize = new MethodDefinition("OnSerialize", MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.HideBySig,
@@ -377,6 +371,15 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
+            }
+
+            if (m_SyncVars.Count == 0)
+            {
+                // generate: return dirtyLocal
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ret));
+                m_td.Methods.Add(serialize);
+                return;
             }
 
             // Generates: if (forceAll);
@@ -551,12 +554,6 @@ namespace Mirror.Weaver
                     return;
             }
 
-            if (m_SyncVars.Count == 0)
-            {
-                // nothing to sync,  base OnDeserialize is fine
-                return;
-            }
-
             MethodDefinition serialize = new MethodDefinition("OnDeserialize", MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.HideBySig,
@@ -573,6 +570,13 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // reader
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+            }
+
+            if (m_SyncVars.Count == 0)
+            {
+                serWorker.Append(serWorker.Create(OpCodes.Ret));
+                m_td.Methods.Add(serialize);
+                return;
             }
 
             // Generates: if (initialState);

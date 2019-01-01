@@ -68,8 +68,6 @@ namespace Mirror.Weaver
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
-        public static TypeReference MemoryStreamType;
-        public static MethodReference MemoryStreamCtor;
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
@@ -229,13 +227,9 @@ namespace Mirror.Weaver
 
         public static int GetSyncVarStart(string className)
         {
-            if (lists.numSyncVars.ContainsKey(className))
-            {
-                int num =  lists.numSyncVars[className];
-                return num;
-            }
-            // start at zero
-            return 0;
+            return lists.numSyncVars.ContainsKey(className)
+                   ? lists.numSyncVars[className]
+                   : 0;
         }
 
         public static void SetNumSyncVars(string className, int num)
@@ -719,25 +713,6 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static Instruction GetEventLoadInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, int iCount, FieldReference foundEventField)
-        {
-            // go backwards until find a ldfld instruction for this event field
-            while (iCount > 0)
-            {
-                iCount -= 1;
-                Instruction inst = md.Body.Instructions[iCount];
-                if (inst.OpCode == OpCodes.Ldfld)
-                {
-                    if (inst.Operand == foundEventField)
-                    {
-                        DLog(td, "    " + inst.Operand);
-                        return inst;
-                    }
-                }
-            }
-            return null;
-        }
-
         static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
             //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
@@ -1013,7 +988,7 @@ namespace Mirror.Weaver
 
         static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
-            var startTime = System.DateTime.Now;
+            var startTime = DateTime.Now;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -1038,7 +1013,7 @@ namespace Mirror.Weaver
                     scriptDef.MainModule.ImportReference(f);
                 }
             }
-            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (System.DateTime.Now - startTime));
+            Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
         static void ProcessPropertySites()
@@ -1283,7 +1258,6 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            MemoryStreamType = ImportCorLibType("System.IO.MemoryStream");
             guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
@@ -1295,8 +1269,6 @@ namespace Mirror.Weaver
             NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
-
-            MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
