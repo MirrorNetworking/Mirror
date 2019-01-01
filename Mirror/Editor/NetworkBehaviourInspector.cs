@@ -59,7 +59,7 @@ namespace Mirror
             Type scriptClass = script.GetClass();
 
             // find public SyncVars to show (user doesn't want protected ones to be shown in inspector)
-            foreach (var field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
+            foreach (FieldInfo field in scriptClass.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
                 Attribute[] fieldMarkers = (Attribute[])field.GetCustomAttributes(typeof(SyncVarAttribute), true);
                 if (fieldMarkers.Length > 0)
@@ -69,9 +69,9 @@ namespace Mirror
             }
 
             int numSyncLists = 0;
-            foreach (var f in serializedObject.targetObject.GetType().GetFields())
+            foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
             {
-                if (f.FieldType.BaseType != null && f.FieldType.BaseType.Name.Contains("SyncList"))
+                if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
                 {
                     numSyncLists += 1;
                 }
