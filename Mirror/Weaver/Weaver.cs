@@ -68,8 +68,6 @@ namespace Mirror.Weaver
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
-        public static TypeReference MemoryStreamType;
-        public static MethodReference MemoryStreamCtor;
         public static MethodReference getComponentReference;
         public static MethodReference getUNetIdReference;
         public static TypeReference NetworkIdentityType;
@@ -1283,7 +1281,6 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            MemoryStreamType = ImportCorLibType("System.IO.MemoryStream");
             guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
@@ -1295,8 +1292,6 @@ namespace Mirror.Weaver
             NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
-
-            MemoryStreamCtor = ResolveMethod(MemoryStreamType, ".ctor");
 
             NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
             NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
