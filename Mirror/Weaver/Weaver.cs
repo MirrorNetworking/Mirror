@@ -10,13 +10,6 @@ using Mono.Cecil.Mdb;
 
 namespace Mirror.Weaver
 {
-    public enum OutSymbolsFormat
-    {
-        None,
-        Pdb,
-        Mdb
-    }
-
     // This data is flushed each time - if we are run multiple times in the same process/domain
     class WeaverLists
     {
@@ -1779,7 +1772,6 @@ namespace Mirror.Weaver
 
                 string dest = Helpers.DestinationFileFor(outputDir, assName);
                 //Console.WriteLine ("Output:" + dest);
-                //Console.WriteLine ("Output:" + options.OutSymbolsFormat);
 
                 var writeParams = Helpers.GetWriterParameters(readParams);
 
