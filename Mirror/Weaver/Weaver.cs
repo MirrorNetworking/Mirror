@@ -227,13 +227,9 @@ namespace Mirror.Weaver
 
         public static int GetSyncVarStart(string className)
         {
-            if (lists.numSyncVars.ContainsKey(className))
-            {
-                int num =  lists.numSyncVars[className];
-                return num;
-            }
-            // start at zero
-            return 0;
+            return lists.numSyncVars.ContainsKey(className)
+                   ? lists.numSyncVars[className]
+                   : 0;
         }
 
         public static void SetNumSyncVars(string className, int num)
