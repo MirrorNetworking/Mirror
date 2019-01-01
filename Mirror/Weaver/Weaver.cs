@@ -713,25 +713,6 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static Instruction GetEventLoadInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, int iCount, FieldReference foundEventField)
-        {
-            // go backwards until find a ldfld instruction for this event field
-            while (iCount > 0)
-            {
-                iCount -= 1;
-                Instruction inst = md.Body.Instructions[iCount];
-                if (inst.OpCode == OpCodes.Ldfld)
-                {
-                    if (inst.Operand == foundEventField)
-                    {
-                        DLog(td, "    " + inst.Operand);
-                        return inst;
-                    }
-                }
-            }
-            return null;
-        }
-
         static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
             //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
