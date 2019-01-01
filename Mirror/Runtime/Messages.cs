@@ -41,6 +41,30 @@ namespace Mirror
         }
     }
 
+    public class BytesMessage : MessageBase
+    {
+        public byte[] value;
+
+        public BytesMessage()
+        {
+        }
+
+        public BytesMessage(byte[] v)
+        {
+            value = v;
+        }
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            value = reader.ReadBytesAndSize();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.WriteBytesAndSize(value);
+        }
+    }
+
     public class IntegerMessage : MessageBase
     {
         public int value;
