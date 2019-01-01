@@ -1021,12 +1021,6 @@ namespace Mirror.Weaver
             ProcessSitesModule(scriptDef.MainModule);
         }
 
-        static bool ProcessSyncListStructType(TypeDefinition td)
-        {
-            SyncListStructProcessor.Process(td);
-            return true;
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
             foreach (var md in td.Resolve().Methods)
@@ -1621,7 +1615,8 @@ namespace Mirror.Weaver
             {
                 if (parent.FullName.StartsWith(SyncListStructType.FullName))
                 {
-                    didWork |= ProcessSyncListStructType(td);
+                    SyncListStructProcessor.Process(td);
+                    didWork = true;
                     break;
                 }
                 try
