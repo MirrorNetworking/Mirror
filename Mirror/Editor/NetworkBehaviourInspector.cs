@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -68,14 +69,9 @@ namespace Mirror
                 }
             }
 
-            int numSyncLists = 0;
-            foreach (FieldInfo field in scriptClass.GetFields())
-            {
-                if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
-                {
-                    numSyncLists += 1;
-                }
-            }
+            int numSyncLists = scriptClass.GetFields().Count(
+                field => field.FieldType.BaseType != null &&
+                         field.FieldType.BaseType.Name.Contains("SyncList"));
             if (numSyncLists > 0)
             {
                 m_ShowSyncLists = new bool[numSyncLists];
