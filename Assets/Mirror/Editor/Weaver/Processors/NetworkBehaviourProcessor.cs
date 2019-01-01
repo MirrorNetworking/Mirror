@@ -751,7 +751,7 @@ namespace Mirror.Weaver
                     Weaver.fail = true;
                     return false;
                 }
-                if (Weaver.IsDerivedFrom(p.ParameterType.Resolve(), Weaver.ComponentType))
+                if (p.ParameterType.Resolve().IsDerivedFrom(Weaver.ComponentType))
                 {
                     if (p.ParameterType.FullName != Weaver.NetworkIdentityType.FullName)
                     {

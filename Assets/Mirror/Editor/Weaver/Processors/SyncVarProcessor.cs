@@ -210,14 +210,14 @@ namespace Mirror.Weaver
                     {
                         var resolvedField = fd.FieldType.Resolve();
 
-                        if (Weaver.IsDerivedFrom(resolvedField, Weaver.NetworkBehaviourType))
+                        if (resolvedField.IsDerivedFrom(Weaver.NetworkBehaviourType))
                         {
                             Log.Error("SyncVar [" + fd.FullName + "] cannot be derived from NetworkBehaviour.");
                             Weaver.fail = true;
                             return;
                         }
 
-                        if (Weaver.IsDerivedFrom(resolvedField, Weaver.ScriptableObjectType))
+                        if (resolvedField.IsDerivedFrom(Weaver.ScriptableObjectType))
                         {
                             Log.Error("SyncVar [" + fd.FullName + "] cannot be derived from ScriptableObject.");
                             Weaver.fail = true;
@@ -295,7 +295,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (Weaver.ImplementsInterface(fd.FieldType.Resolve(), Weaver.SyncObjectType))
+                if (fd.FieldType.Resolve().ImplementsInterface(Weaver.SyncObjectType))
                 {
                     if (fd.IsStatic)
                     {

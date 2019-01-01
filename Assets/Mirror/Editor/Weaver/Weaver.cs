@@ -1418,73 +1418,9 @@ namespace Mirror.Weaver
             };
         }
 
-        public static bool IsDerivedFrom(TypeDefinition td, TypeReference baseClass)
-        {
-            if (!td.IsClass)
-                return false;
-
-            // are ANY parent classes NetworkBehaviours
-            TypeReference parent = td.BaseType;
-            while (parent != null)
-            {
-                var parentName = parent.FullName;
-
-                // strip generic parameters
-                int index = parentName.IndexOf('<');
-                if (index != -1)
-                {
-                    parentName = parentName.Substring(0, index);
-                }
-
-                if (parentName == baseClass.FullName)
-                {
-                    return true;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
-            }
-            return false;
-        }
-
         static bool IsNetworkBehaviour(TypeDefinition td)
         {
-            return IsDerivedFrom(td, NetworkBehaviourType);
-        }
-
-        public static bool ImplementsInterface(TypeDefinition td, TypeReference baseInterface)
-        {
-            TypeDefinition typedef = td;
-
-            while ( typedef != null)
-            {
-                foreach (InterfaceImplementation iface in typedef.Interfaces)
-                {
-                    if (iface.InterfaceType.FullName == baseInterface.FullName)
-                        return true;
-                }
-
-                try
-                {
-                    TypeReference parent = typedef.BaseType;
-                    typedef = parent == null ? null : parent.Resolve();
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
-            }
-
-            return false;
+            return td.IsDerivedFrom(NetworkBehaviourType);
         }
 
         public static bool IsValidTypeToGenerate(TypeDefinition variable)
@@ -1507,7 +1443,7 @@ namespace Mirror.Weaver
 
         static void CheckMonoBehaviour(TypeDefinition td)
         {
-            if (IsDerivedFrom(td, MonoBehaviourType))
+            if (td.IsDerivedFrom(MonoBehaviourType))
             {
                 MonoBehaviourProcessor.Process(td);
             }
