@@ -9,6 +9,7 @@ version: '{branch}-{build}'
 install:
   - set PATH=C:\Ruby25-x64\bin;%PATH%
   - cd docs
+  - bundle update
   - bundle install --quiet
   - cd ..
   - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
@@ -27,7 +28,6 @@ build_script:
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
   - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
   - cd docs
-  - bundle update
   - bundle exec jekyll build
   - ruby checksite.rb
   - cd ..
