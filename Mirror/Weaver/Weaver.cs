@@ -1023,8 +1023,7 @@ namespace Mirror.Weaver
 
         static bool ProcessSyncListStructType(TypeDefinition td)
         {
-            var proc = new SyncListStructProcessor(td);
-            proc.Process();
+            SyncListStructProcessor.Process(td);
             return true;
         }
 
