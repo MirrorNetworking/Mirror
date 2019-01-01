@@ -267,7 +267,7 @@ namespace Mirror.Weaver
             foreach (FieldDefinition fd in m_SyncObjects)
             {
                 GenerateSyncListInstanceInitializer(ctorWorker, fd);
-                GenerateSyncObjectInitializer(ctorWorker, fd);
+                SyncObjectProcessor.GenerateSyncObjectInitializer(ctorWorker, fd);
             }
 
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
@@ -324,19 +324,6 @@ namespace Mirror.Weaver
 
             awakeWorker.Append(awakeWorker.Create(OpCodes.Newobj, Weaver.CmdDelegateConstructor));
             awakeWorker.Append(awakeWorker.Create(OpCodes.Call, registerMethod));
-        }
-
-        /*
-            // generates code like:
-            this.InitSyncObject(m_sizes);
-        */
-        void GenerateSyncObjectInitializer(ILProcessor methodWorker, FieldReference fd)
-        {
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldarg_0));
-            methodWorker.Append(methodWorker.Create(OpCodes.Ldfld, fd));
-
-            methodWorker.Append(methodWorker.Create(OpCodes.Call, Weaver.InitSyncObjectReference));
         }
 
         void GenerateSerialization()

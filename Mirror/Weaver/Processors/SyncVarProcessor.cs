@@ -266,7 +266,7 @@ namespace Mirror.Weaver
                             return;
                         }
 
-                        if (Helpers.ImplementsSyncObject(fd.FieldType))
+                        if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
                         {
                             Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", td.FullName, fd.Name));
                             break;
