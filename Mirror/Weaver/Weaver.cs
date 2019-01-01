@@ -1028,11 +1028,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static void ProcessMonoBehaviourType(TypeDefinition td)
-        {
-            MonoBehaviourProcessor.Process(td);
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
             foreach (var md in td.Resolve().Methods)
@@ -1529,7 +1524,7 @@ namespace Mirror.Weaver
         {
             if (IsDerivedFrom(td, MonoBehaviourType))
             {
-                ProcessMonoBehaviourType(td);
+                MonoBehaviourProcessor.Process(td);
             }
         }
 
