@@ -36,8 +36,8 @@ namespace Mirror
         // -> this is worth it because proximity checking happens for just about
         //    every entity on the server!
         // -> should be big enough to work in just about all cases
-        Collider[] hitsBuffer3D = new Collider[10000];
-        Collider2D[] hitsBuffer2D = new Collider2D[10000];
+        static Collider[] hitsBuffer3D = new Collider[10000];
+        static Collider2D[] hitsBuffer2D = new Collider2D[10000];
 
         void Update()
         {
