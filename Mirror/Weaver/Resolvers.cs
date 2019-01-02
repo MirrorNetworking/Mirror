@@ -38,6 +38,7 @@ namespace Mirror.Weaver
             return null;
         }
 
+        // TODO reuse ResolveMethod in here after Weaver.fail was removed
         public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
             if (tr == null)
