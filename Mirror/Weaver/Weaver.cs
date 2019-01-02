@@ -898,7 +898,7 @@ namespace Mirror.Weaver
 
             if (md.Name == ".cctor" ||
                 md.Name == "OnDeserialize" ||
-                md.Name.StartsWith("UNet") ||
+                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
                 md.Name.StartsWith("InvokeRpc") ||
