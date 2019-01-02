@@ -298,23 +298,13 @@ namespace Mirror
             // interpolate on client
             if (m_LastClientSyncTime != 0)
             {
-                if (m_InterpolateMovement > 0)
-                {
-                    m_Target.localPosition = Vector3.Lerp(m_Target.localPosition, m_TargetSyncPosition, m_InterpolateMovement);
-                }
-                else
-                {
-                    m_Target.localPosition = m_TargetSyncPosition;
-                }
+                m_Target.localPosition = m_InterpolateMovement > 0
+                    ? Vector3.Lerp(m_Target.localPosition, m_TargetSyncPosition, m_InterpolateMovement)
+                    : m_TargetSyncPosition;
 
-                if (m_InterpolateRotation > 0)
-                {
-                    m_Target.localRotation = Quaternion.Slerp(m_Target.localRotation, m_TargetSyncRotation3D, m_InterpolateRotation);
-                }
-                else
-                {
-                    m_Target.localRotation = m_TargetSyncRotation3D;
-                }
+                m_Target.localRotation = m_InterpolateRotation > 0
+                    ? Quaternion.Slerp(m_Target.localRotation, m_TargetSyncRotation3D, m_InterpolateRotation)
+                    : m_TargetSyncRotation3D;
             }
         }
 
