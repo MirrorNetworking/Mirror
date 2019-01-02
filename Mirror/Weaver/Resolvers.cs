@@ -84,5 +84,19 @@ namespace Mirror.Weaver
         {
             return ResolveMethodWithArg(tr, scriptDef, name, argType.FullName);
         }
+
+        public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
+        {
+            foreach (MethodDefinition methodRef in variable.Resolve().Methods)
+            {
+                if (methodRef.Name == ".ctor" &&
+                    methodRef.Resolve().IsPublic &&
+                    methodRef.Parameters.Count == 0)
+                {
+                    return methodRef;
+                }
+            }
+            return null;
+        }
     }
 }

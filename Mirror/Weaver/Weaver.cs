@@ -660,7 +660,7 @@ namespace Mirror.Weaver
             {
                 // classes are created with their constructor
 
-                var ctor = ResolveDefaultPublicCtor(variable);
+                MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
                     Log.Error("The class " + variable.Name + " has no default constructor or it's private, aborting.");
@@ -1032,20 +1032,6 @@ namespace Mirror.Weaver
                 return true;
             }
             return false;
-        }
-
-        static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
-        {
-            foreach (MethodDefinition methodRef in variable.Resolve().Methods)
-            {
-                if (methodRef.Name == ".ctor" &&
-                    methodRef.Resolve().IsPublic &&
-                    methodRef.Parameters.Count == 0)
-                {
-                    return methodRef;
-                }
-            }
-            return null;
         }
 
         static GenericInstanceMethod ResolveMethodGeneric(TypeReference t, string name, TypeReference genericType)
