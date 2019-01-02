@@ -56,5 +56,46 @@ namespace Mirror.Weaver
             // Could not find the method in this class,  try the parent
             return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
+
+        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, TypeReference argType)
+        {
+            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    if (methodRef.Parameters.Count == 1)
+                    {
+                        if (methodRef.Parameters[0].ParameterType.FullName == argType.FullName)
+                        {
+                            return scriptDef.MainModule.ImportReference(methodRef);
+                        }
+                    }
+                }
+            }
+            Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argType);
+            Weaver.fail = true;
+            return null;
+        }
+
+        // System.Byte[] arguments need a version with a string
+        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
+        {
+            foreach (var methodRef in tr.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    if (methodRef.Parameters.Count == 1)
+                    {
+                        if (methodRef.Parameters[0].ParameterType.FullName == argTypeFullName)
+                        {
+                            return scriptDef.MainModule.ImportReference(methodRef);
+                        }
+                    }
+                }
+            }
+            Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
+            Weaver.fail = true;
+            return null;
+        }
     }
 }

@@ -1034,47 +1034,6 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static MethodReference ResolveMethodWithArg(TypeReference t, string name, TypeReference argType)
-        {
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    if (methodRef.Parameters.Count == 1)
-                    {
-                        if (methodRef.Parameters[0].ParameterType.FullName == argType.FullName)
-                        {
-                            return scriptDef.MainModule.ImportReference(methodRef);
-                        }
-                    }
-                }
-            }
-            Log.Error("ResolveMethodWithArg failed " + t.Name + "::" + name + " " + argType);
-            fail = true;
-            return null;
-        }
-
-        // System.Byte[] arguments need a version with a string
-        static MethodReference ResolveMethodWithArg(TypeReference t, string name, string argTypeFullName)
-        {
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    if (methodRef.Parameters.Count == 1)
-                    {
-                        if (methodRef.Parameters[0].ParameterType.FullName == argTypeFullName)
-                        {
-                            return scriptDef.MainModule.ImportReference(methodRef);
-                        }
-                    }
-                }
-            }
-            Log.Error("ResolveMethodWithArg failed " + t.Name + "::" + name + " " + argTypeFullName);
-            fail = true;
-            return null;
-        }
-
         static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
@@ -1224,8 +1183,8 @@ namespace Mirror.Weaver
 
             NetworkReaderReadInt32 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadInt32");
 
-            NetworkWriterWriteInt32 = ResolveMethodWithArg(NetworkWriterType, "Write", int32Type);
-            NetworkWriterWriteInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", int16Type);
+            NetworkWriterWriteInt32 = Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", int32Type);
+            NetworkWriterWriteInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", int16Type);
 
             NetworkReaderReadPacked32 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadPackedUInt32");
             NetworkReaderReadPacked64 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadPackedUInt64");
@@ -1235,7 +1194,7 @@ namespace Mirror.Weaver
             NetworkWriterWritePacked64 = Resolvers.ResolveMethod(NetworkWriterType, scriptDef, "WritePackedUInt64");
 
             NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadUInt16");
-            NetworkWriteUInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", uint16Type);
+            NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", uint16Type);
 
             CmdDelegateReference = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, scriptDef, ".ctor");
@@ -1340,10 +1299,10 @@ namespace Mirror.Weaver
         {
             lists.writeFuncs = new Dictionary<string, MethodReference>
             {
-                { singleType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", singleType) },
-                { doubleType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", doubleType) },
-                { boolType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", boolType) },
-                { stringType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", stringType) },
+                { singleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", singleType) },
+                { doubleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", doubleType) },
+                { boolType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", boolType) },
+                { stringType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", stringType) },
                 { int64Type.FullName, NetworkWriterWritePacked64 },
                 { uint64Type.FullName, NetworkWriterWritePacked64 },
                 { int32Type.FullName, NetworkWriterWritePacked32 },
@@ -1353,22 +1312,22 @@ namespace Mirror.Weaver
                 { byteType.FullName, NetworkWriterWritePacked32 },
                 { sbyteType.FullName, NetworkWriterWritePacked32 },
                 { charType.FullName, NetworkWriterWritePacked32 },
-                { decimalType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", decimalType) },
-                { vector2Type.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", vector2Type) },
-                { vector3Type.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", vector3Type) },
-                { vector4Type.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", vector4Type) },
-                { colorType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", colorType) },
-                { color32Type.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", color32Type) },
-                { quaternionType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", quaternionType) },
-                { rectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", rectType) },
-                { planeType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", planeType) },
-                { rayType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", rayType) },
-                { matrixType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", matrixType) },
-                { guidType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", guidType) },
-                { gameObjectType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", gameObjectType) },
-                { NetworkIdentityType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", NetworkIdentityType) },
-                { transformType.FullName, ResolveMethodWithArg(NetworkWriterType, "Write", transformType) },
-                { "System.Byte[]", ResolveMethodWithArg(NetworkWriterType, "WriteBytesAndSize", "System.Byte[]") }
+                { decimalType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", decimalType) },
+                { vector2Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", vector2Type) },
+                { vector3Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", vector3Type) },
+                { vector4Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", vector4Type) },
+                { colorType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", colorType) },
+                { color32Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", color32Type) },
+                { quaternionType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", quaternionType) },
+                { rectType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", rectType) },
+                { planeType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", planeType) },
+                { rayType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", rayType) },
+                { matrixType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", matrixType) },
+                { guidType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", guidType) },
+                { gameObjectType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", gameObjectType) },
+                { NetworkIdentityType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", NetworkIdentityType) },
+                { transformType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", transformType) },
+                { "System.Byte[]", Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "WriteBytesAndSize", "System.Byte[]") }
             };
         }
 
