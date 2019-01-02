@@ -80,6 +80,7 @@
     <Compile Include="Processors\TargetRpcProcessor.cs" />
     <Compile Include="Processors\SyncListStructProcessor.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Resolvers.cs" />
     <Compile Include="Weaver.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="CompilationFinishedHook.cs" />

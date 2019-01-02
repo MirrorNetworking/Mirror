@@ -778,7 +778,7 @@ namespace Mirror.Weaver
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
                 var method = new MethodDefinition(".ctor", methodAttributes, voidType);
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
-                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, ResolveMethod(objectType, ".ctor")));
+                method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(objectType, scriptDef, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
                 lists.generateContainerClass.Methods.Add(method);
@@ -1052,34 +1052,6 @@ namespace Mirror.Weaver
             return ResolveMethodInParents(t.Resolve().BaseType, name);
         }
 
-        public static MethodReference ResolveMethod(TypeReference t, string name)
-        {
-            //Console.WriteLine("ResolveMethod " + t.ToString () + " " + name);
-            if (t == null)
-            {
-                Log.Error("Type missing for " + name);
-                fail = true;
-                return null;
-            }
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    return scriptDef.MainModule.ImportReference(methodRef);
-                }
-            }
-            Log.Error("ResolveMethod failed " + t.Name + "::" + name + " " + t.Resolve());
-
-            // why did it fail!?
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                Log.Error("Method " + methodRef.Name);
-            }
-
-            fail = true;
-            return null;
-        }
-
         static MethodReference ResolveMethodWithArg(TypeReference t, string name, TypeReference argType)
         {
             foreach (var methodRef in t.Resolve().Methods)
@@ -1257,34 +1229,34 @@ namespace Mirror.Weaver
             NetworkReaderType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkReader");
             NetworkReaderDef = NetworkReaderType.Resolve();
 
-            NetworkReaderCtor = ResolveMethod(NetworkReaderDef, ".ctor");
+            NetworkReaderCtor = Resolvers.ResolveMethod(NetworkReaderDef, scriptDef, ".ctor");
 
             NetworkWriterType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkWriter");
             NetworkWriterDef  = NetworkWriterType.Resolve();
 
-            NetworkWriterCtor = ResolveMethod(NetworkWriterDef, ".ctor");
+            NetworkWriterCtor = Resolvers.ResolveMethod(NetworkWriterDef, scriptDef, ".ctor");
 
-            NetworkServerGetActive = ResolveMethod(NetworkServerType, "get_active");
-            NetworkServerGetLocalClientActive = ResolveMethod(NetworkServerType, "get_localClientActive");
-            NetworkClientGetActive = ResolveMethod(NetworkClientType, "get_active");
+            NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, scriptDef, "get_active");
+            NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, scriptDef, "get_localClientActive");
+            NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, scriptDef, "get_active");
 
-            NetworkReaderReadInt32 = ResolveMethod(NetworkReaderType, "ReadInt32");
+            NetworkReaderReadInt32 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadInt32");
 
             NetworkWriterWriteInt32 = ResolveMethodWithArg(NetworkWriterType, "Write", int32Type);
             NetworkWriterWriteInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", int16Type);
 
-            NetworkReaderReadPacked32 = ResolveMethod(NetworkReaderType, "ReadPackedUInt32");
-            NetworkReaderReadPacked64 = ResolveMethod(NetworkReaderType, "ReadPackedUInt64");
-            NetworkReaderReadByte = ResolveMethod(NetworkReaderType, "ReadByte");
+            NetworkReaderReadPacked32 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadPackedUInt32");
+            NetworkReaderReadPacked64 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadPackedUInt64");
+            NetworkReaderReadByte = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadByte");
 
-            NetworkWriterWritePacked32 = ResolveMethod(NetworkWriterType, "WritePackedUInt32");
-            NetworkWriterWritePacked64 = ResolveMethod(NetworkWriterType, "WritePackedUInt64");
+            NetworkWriterWritePacked32 = Resolvers.ResolveMethod(NetworkWriterType, scriptDef, "WritePackedUInt32");
+            NetworkWriterWritePacked64 = Resolvers.ResolveMethod(NetworkWriterType, scriptDef, "WritePackedUInt64");
 
-            NetworkReadUInt16 = ResolveMethod(NetworkReaderType, "ReadUInt16");
+            NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadUInt16");
             NetworkWriteUInt16 = ResolveMethodWithArg(NetworkWriterType, "Write", uint16Type);
 
             CmdDelegateReference = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
-            CmdDelegateConstructor = ResolveMethod(CmdDelegateReference, ".ctor");
+            CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, scriptDef, ".ctor");
             scriptDef.MainModule.ImportReference(gameObjectType);
             scriptDef.MainModule.ImportReference(transformType);
 
@@ -1314,46 +1286,46 @@ namespace Mirror.Weaver
 
             ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientScene");
-            FindLocalObjectReference = ResolveMethod(ClientSceneType, "FindLocalObject");
-            ReadyConnectionReference = ResolveMethod(ClientSceneType, "get_readyConnection");
+            FindLocalObjectReference = Resolvers.ResolveMethod(ClientSceneType, scriptDef, "FindLocalObject");
+            ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, scriptDef, "get_readyConnection");
 
             // get specialized GetComponent<NetworkIdentity>()
             getComponentReference = ResolveMethodGeneric(ComponentType, "GetComponent", NetworkIdentityType);
 
-            getUNetIdReference = ResolveMethod(unetViewTmp, "get_netId");
+            getUNetIdReference = Resolvers.ResolveMethod(unetViewTmp, scriptDef, "get_netId");
 
-            gameObjectInequality = ResolveMethod(unityObjectType, "op_Inequality");
+            gameObjectInequality = Resolvers.ResolveMethod(unityObjectType, scriptDef, "op_Inequality");
 
-            UBehaviourIsServer  = ResolveMethod(NetworkBehaviourType, "get_isServer");
-            setSyncVarReference = ResolveMethod(NetworkBehaviourType, "SetSyncVar");
-            setSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "set_syncVarHookGuard");
-            getSyncVarHookGuard = ResolveMethod(NetworkBehaviourType, "get_syncVarHookGuard");
+            UBehaviourIsServer  = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "get_isServer");
+            setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SetSyncVar");
+            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "set_syncVarHookGuard");
+            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "get_syncVarHookGuard");
 
-            setSyncVarGameObjectReference = ResolveMethod(NetworkBehaviourType, "SetSyncVarGameObject");
-            registerCommandDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterCommandDelegate");
-            registerRpcDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterRpcDelegate");
-            registerEventDelegateReference = ResolveMethod(NetworkBehaviourType, "RegisterEventDelegate");
-            getTypeReference = ResolveMethod(objectType, "GetType");
-            getTypeFromHandleReference = ResolveMethod(typeType, "GetTypeFromHandle");
-            logErrorReference = ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), "LogError");
-            logWarningReference = ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), "LogWarning");
-            sendCommandInternal = ResolveMethod(NetworkBehaviourType, "SendCommandInternal");
-            sendRpcInternal = ResolveMethod(NetworkBehaviourType, "SendRPCInternal");
-            sendTargetRpcInternal = ResolveMethod(NetworkBehaviourType, "SendTargetRPCInternal");
-            sendEventInternal = ResolveMethod(NetworkBehaviourType, "SendEventInternal");
+            setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SetSyncVarGameObject");
+            registerCommandDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterCommandDelegate");
+            registerRpcDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterRpcDelegate");
+            registerEventDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterEventDelegate");
+            getTypeReference = Resolvers.ResolveMethod(objectType, scriptDef, "GetType");
+            getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, scriptDef, "GetTypeFromHandle");
+            logErrorReference = Resolvers.ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), scriptDef, "LogError");
+            logWarningReference = Resolvers.ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), scriptDef, "LogWarning");
+            sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SendCommandInternal");
+            sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SendRPCInternal");
+            sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SendTargetRPCInternal");
+            sendEventInternal = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SendEventInternal");
 
             SyncObjectType = scriptDef.MainModule.ImportReference(SyncObjectType);
-            InitSyncObjectReference = ResolveMethod(NetworkBehaviourType, "InitSyncObject");
+            InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "InitSyncObject");
         }
 
         static void SetupReadFunctions()
         {
             lists.readFuncs = new Dictionary<string, MethodReference>
             {
-                { singleType.FullName, ResolveMethod(NetworkReaderType, "ReadSingle") },
-                { doubleType.FullName, ResolveMethod(NetworkReaderType, "ReadDouble") },
-                { boolType.FullName, ResolveMethod(NetworkReaderType, "ReadBoolean") },
-                { stringType.FullName, ResolveMethod(NetworkReaderType, "ReadString") },
+                { singleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadSingle") },
+                { doubleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadDouble") },
+                { boolType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadBoolean") },
+                { stringType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadString") },
                 { int64Type.FullName, NetworkReaderReadPacked64 },
                 { uint64Type.FullName, NetworkReaderReadPacked64 },
                 { int32Type.FullName, NetworkReaderReadPacked32 },
@@ -1363,22 +1335,22 @@ namespace Mirror.Weaver
                 { byteType.FullName, NetworkReaderReadPacked32 },
                 { sbyteType.FullName, NetworkReaderReadPacked32 },
                 { charType.FullName, NetworkReaderReadPacked32 },
-                { decimalType.FullName, ResolveMethod(NetworkReaderType, "ReadDecimal") },
-                { vector2Type.FullName, ResolveMethod(NetworkReaderType, "ReadVector2") },
-                { vector3Type.FullName, ResolveMethod(NetworkReaderType, "ReadVector3") },
-                { vector4Type.FullName, ResolveMethod(NetworkReaderType, "ReadVector4") },
-                { colorType.FullName, ResolveMethod(NetworkReaderType, "ReadColor") },
-                { color32Type.FullName, ResolveMethod(NetworkReaderType, "ReadColor32") },
-                { quaternionType.FullName, ResolveMethod(NetworkReaderType, "ReadQuaternion") },
-                { rectType.FullName, ResolveMethod(NetworkReaderType, "ReadRect") },
-                { planeType.FullName, ResolveMethod(NetworkReaderType, "ReadPlane") },
-                { rayType.FullName, ResolveMethod(NetworkReaderType, "ReadRay") },
-                { matrixType.FullName, ResolveMethod(NetworkReaderType, "ReadMatrix4x4") },
-                { guidType.FullName, ResolveMethod(NetworkReaderType, "ReadGuid") },
-                { gameObjectType.FullName, ResolveMethod(NetworkReaderType, "ReadGameObject") },
-                { NetworkIdentityType.FullName, ResolveMethod(NetworkReaderType, "ReadNetworkIdentity") },
-                { transformType.FullName, ResolveMethod(NetworkReaderType, "ReadTransform") },
-                { "System.Byte[]", ResolveMethod(NetworkReaderType, "ReadBytesAndSize") },
+                { decimalType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadDecimal") },
+                { vector2Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadVector2") },
+                { vector3Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadVector3") },
+                { vector4Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadVector4") },
+                { colorType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadColor") },
+                { color32Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadColor32") },
+                { quaternionType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadQuaternion") },
+                { rectType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadRect") },
+                { planeType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadPlane") },
+                { rayType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadRay") },
+                { matrixType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadMatrix4x4") },
+                { guidType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadGuid") },
+                { gameObjectType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadGameObject") },
+                { NetworkIdentityType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadNetworkIdentity") },
+                { transformType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadTransform") },
+                { "System.Byte[]", Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadBytesAndSize") },
             };
         }
 

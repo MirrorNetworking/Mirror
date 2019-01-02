@@ -51,7 +51,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldfld, eventField));
 
             // read the event arguments
-            MethodReference invoke = Weaver.ResolveMethod(eventField.FieldType, "Invoke");
+            MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.scriptDef, "Invoke");
             if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, invoke.Resolve(), cmdWorker, false))
                 return null;
 
@@ -66,7 +66,7 @@ namespace Mirror.Weaver
 
         public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute ca)
         {
-            MethodReference invoke = Weaver.ResolveMethod(ed.EventType, "Invoke");
+            MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.scriptDef, "Invoke");
             MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
