@@ -909,21 +909,20 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute attr in md.CustomAttributes)
                 {
-                    if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerAttribute")
+                    switch (attr.Constructor.DeclaringType.ToString())
                     {
-                        InjectServerGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerCallbackAttribute")
-                    {
-                        InjectServerGuard(moduleDef, td, md, false);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientCallbackAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, false);
+                        case "Mirror.ServerAttribute":
+                            InjectServerGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ServerCallbackAttribute":
+                            InjectServerGuard(moduleDef, td, md, false);
+                            break;
+                        case "Mirror.ClientAttribute":
+                            InjectClientGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ClientCallbackAttribute":
+                            InjectClientGuard(moduleDef, td, md, false);
+                            break;
                     }
                 }
 
