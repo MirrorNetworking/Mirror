@@ -111,34 +111,43 @@ namespace Mirror
                 m_SyncIntervalProperty.floatValue, 0, 2);
 
             EditorGUILayout.PropertyField(m_TransformSyncMode);
-            if (m_TransformSyncMode.enumValueIndex == (int)NetworkTransform.TransformSyncMode.SyncRigidbody3D)
+            switch (m_TransformSyncMode.enumValueIndex)
             {
-                Rigidbody r3D = m_SyncTransform.GetComponent<Rigidbody>();
-                if (r3D == null)
+                case (int)NetworkTransform.TransformSyncMode.SyncRigidbody3D:
                 {
-                    Debug.LogError("Object has no Rigidbody component.");
-                    m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
-                    EditorUtility.SetDirty(m_SyncTransform);
+                    Rigidbody r3D = m_SyncTransform.GetComponent<Rigidbody>();
+                    if (r3D == null)
+                    {
+                        Debug.LogError("Object has no Rigidbody component.");
+                        m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
+                        EditorUtility.SetDirty(m_SyncTransform);
+                    }
+
+                    break;
                 }
-            }
-            if (m_TransformSyncMode.enumValueIndex == (int)NetworkTransform.TransformSyncMode.SyncRigidbody2D)
-            {
-                Rigidbody2D r2D = m_SyncTransform.GetComponent<Rigidbody2D>();
-                if (r2D == null)
+                case (int)NetworkTransform.TransformSyncMode.SyncRigidbody2D:
                 {
-                    Debug.LogError("Object has no Rigidbody2D component.");
-                    m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
-                    EditorUtility.SetDirty(m_SyncTransform);
+                    Rigidbody2D r2D = m_SyncTransform.GetComponent<Rigidbody2D>();
+                    if (r2D == null)
+                    {
+                        Debug.LogError("Object has no Rigidbody2D component.");
+                        m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
+                        EditorUtility.SetDirty(m_SyncTransform);
+                    }
+
+                    break;
                 }
-            }
-            if (m_TransformSyncMode.enumValueIndex == (int)NetworkTransform.TransformSyncMode.SyncCharacterController)
-            {
-                var cc = m_SyncTransform.GetComponent<CharacterController>();
-                if (cc == null)
+                case (int)NetworkTransform.TransformSyncMode.SyncCharacterController:
                 {
-                    Debug.LogError("Object has no CharacterController component.");
-                    m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
-                    EditorUtility.SetDirty(m_SyncTransform);
+                    var cc = m_SyncTransform.GetComponent<CharacterController>();
+                    if (cc == null)
+                    {
+                        Debug.LogError("Object has no CharacterController component.");
+                        m_TransformSyncMode.enumValueIndex = (int)NetworkTransform.TransformSyncMode.SyncTransform;
+                        EditorUtility.SetDirty(m_SyncTransform);
+                    }
+
+                    break;
                 }
             }
 
