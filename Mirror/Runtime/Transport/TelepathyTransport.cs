@@ -31,15 +31,22 @@ namespace Mirror
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
             {
-                // convert Telepathy EventType to TransportEvent
-                if (message.eventType == Telepathy.EventType.Connected)
-                    transportEvent = TransportEvent.Connected;
-                else if (message.eventType == Telepathy.EventType.Data)
-                    transportEvent = TransportEvent.Data;
-                else if (message.eventType == Telepathy.EventType.Disconnected)
-                    transportEvent = TransportEvent.Disconnected;
-                else
-                    transportEvent = TransportEvent.Disconnected;
+                switch (message.eventType)
+                {
+                    // convert Telepathy EventType to TransportEvent
+                    case Telepathy.EventType.Connected:
+                        transportEvent = TransportEvent.Connected;
+                        break;
+                    case Telepathy.EventType.Data:
+                        transportEvent = TransportEvent.Data;
+                        break;
+                    case Telepathy.EventType.Disconnected:
+                        transportEvent = TransportEvent.Disconnected;
+                        break;
+                    default:
+                        transportEvent = TransportEvent.Disconnected;
+                        break;
+                }
 
                 // assign rest of the values and return true
                 data = message.data;
@@ -65,15 +72,22 @@ namespace Mirror
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
             {
-                // convert Telepathy EventType to TransportEvent
-                if (message.eventType == Telepathy.EventType.Connected)
-                    transportEvent = TransportEvent.Connected;
-                else if (message.eventType == Telepathy.EventType.Data)
-                    transportEvent = TransportEvent.Data;
-                else if (message.eventType == Telepathy.EventType.Disconnected)
-                    transportEvent = TransportEvent.Disconnected;
-                else
-                    transportEvent = TransportEvent.Disconnected;
+                switch (message.eventType)
+                {
+                    // convert Telepathy EventType to TransportEvent
+                    case Telepathy.EventType.Connected:
+                        transportEvent = TransportEvent.Connected;
+                        break;
+                    case Telepathy.EventType.Data:
+                        transportEvent = TransportEvent.Data;
+                        break;
+                    case Telepathy.EventType.Disconnected:
+                        transportEvent = TransportEvent.Disconnected;
+                        break;
+                    default:
+                        transportEvent = TransportEvent.Disconnected;
+                        break;
+                }
 
                 // assign rest of the values and return true
                 connectionId = message.connectionId;
