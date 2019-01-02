@@ -98,5 +98,32 @@ namespace Mirror.Weaver
             }
             return null;
         }
+
+        public static GenericInstanceMethod ResolveMethodGeneric(TypeReference t, AssemblyDefinition scriptDef, string name, TypeReference genericType)
+        {
+            foreach (MethodDefinition methodRef in t.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    if (methodRef.Parameters.Count == 0)
+                    {
+                        if (methodRef.GenericParameters.Count == 1)
+                        {
+                            MethodReference tmp = scriptDef.MainModule.ImportReference(methodRef);
+                            GenericInstanceMethod gm = new GenericInstanceMethod(tmp);
+                            gm.GenericArguments.Add(genericType);
+                            if (gm.GenericArguments[0].FullName == genericType.FullName)
+                            {
+                                return gm;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Log.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
+            Weaver.fail = true;
+            return null;
+        }
     }
 }

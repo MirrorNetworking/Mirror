@@ -1034,33 +1034,6 @@ namespace Mirror.Weaver
             return false;
         }
 
-        static GenericInstanceMethod ResolveMethodGeneric(TypeReference t, string name, TypeReference genericType)
-        {
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    if (methodRef.Parameters.Count == 0)
-                    {
-                        if (methodRef.GenericParameters.Count == 1)
-                        {
-                            MethodReference tmp = scriptDef.MainModule.ImportReference(methodRef);
-                            GenericInstanceMethod gm = new GenericInstanceMethod(tmp);
-                            gm.GenericArguments.Add(genericType);
-                            if (gm.GenericArguments[0].FullName == genericType.FullName)
-                            {
-                                return gm;
-                            }
-                        }
-                    }
-                }
-            }
-
-            Log.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
-            fail = true;
-            return null;
-        }
-
         public static FieldReference ResolveField(TypeReference t, string name)
         {
             foreach (FieldDefinition fd in t.Resolve().Fields)
@@ -1217,7 +1190,7 @@ namespace Mirror.Weaver
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, scriptDef, "get_readyConnection");
 
             // get specialized GetComponent<NetworkIdentity>()
-            getComponentReference = ResolveMethodGeneric(ComponentType, "GetComponent", NetworkIdentityType);
+            getComponentReference = Resolvers.ResolveMethodGeneric(ComponentType, scriptDef, "GetComponent", NetworkIdentityType);
 
             getUNetIdReference = Resolvers.ResolveMethod(unetViewTmp, scriptDef, "get_netId");
 
