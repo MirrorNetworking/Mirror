@@ -644,7 +644,7 @@ namespace Mirror.Weaver
 
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
-                worker.Append(worker.Create( opcode, 0));
+                worker.Append(worker.Create(opcode, 0));
 
                 var readFunc = GetReadFunc(field.FieldType);
                 if (readFunc != null)
