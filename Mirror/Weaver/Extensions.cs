@@ -66,5 +66,13 @@ namespace Mirror.Weaver
 
             return false;
         }
+
+        public static bool IsArrayType(this TypeReference tr)
+        {
+            if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) || // jagged array
+                (tr.IsArray && ((ArrayType)tr).Rank > 1)) // multidimensional array
+                return false;
+            return true;
+        }
     }
 }

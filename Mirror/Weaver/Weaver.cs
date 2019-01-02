@@ -209,14 +209,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool IsArrayType(TypeReference variable)
-        {
-            if ((variable.IsArray && ((ArrayType)variable).ElementType.IsArray) || // jagged array
-                (variable.IsArray && ((ArrayType)variable).Rank > 1)) // multidimensional array
-                return false;
-            return true;
-        }
-
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
             if (!m_DebugFlag)
@@ -369,7 +361,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayReadFunc(TypeReference variable, MethodReference elementReadFunc)
         {
-            if (!IsArrayType(variable))
+            if (!variable.IsArrayType())
             {
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
@@ -452,7 +444,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, MethodReference elementWriteFunc)
         {
-            if (!IsArrayType(variable))
+            if (!variable.IsArrayType())
             {
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
