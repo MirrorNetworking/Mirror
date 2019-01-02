@@ -899,17 +899,5 @@ namespace Mirror.Weaver
                 m_td.Methods.Add(md);
             }
         }
-
-        bool HasMethod(string name)
-        {
-            foreach (var method in m_td.Methods)
-            {
-                if (method.Name == name)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }
