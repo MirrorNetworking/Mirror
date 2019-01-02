@@ -897,7 +897,7 @@ namespace Mirror.Weaver
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
             if (md.Name == ".cctor" ||
-                md.Name == "OnUnserializeVars" ||
+                md.Name == "OnDeserialize" ||
                 md.Name.StartsWith("UNet") ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
