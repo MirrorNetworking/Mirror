@@ -1034,18 +1034,6 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static MethodReference ResolveProperty(TypeReference t, string name)
-        {
-            foreach (var fd in t.Resolve().Properties)
-            {
-                if (fd.Name == name)
-                {
-                    return scriptDef.MainModule.ImportReference(fd.GetMethod);
-                }
-            }
-            return null;
-        }
-
         static void SetupUnityTypes()
         {
             vector2Type = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Vector2");
@@ -1170,7 +1158,7 @@ namespace Mirror.Weaver
             MessageBaseType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.MessageBase");
             SyncListStructType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.SyncListSTRUCT`1");
 
-            NetworkBehaviourDirtyBitsReference = ResolveProperty(NetworkBehaviourType, "syncVarDirtyBits");
+            NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, scriptDef, "syncVarDirtyBits");
 
             ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientScene");
