@@ -58,26 +58,6 @@ namespace Mirror.Weaver
             return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
 
-        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, TypeReference argType)
-        {
-            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    if (methodRef.Parameters.Count == 1)
-                    {
-                        if (methodRef.Parameters[0].ParameterType.FullName == argType.FullName)
-                        {
-                            return scriptDef.MainModule.ImportReference(methodRef);
-                        }
-                    }
-                }
-            }
-            Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argType);
-            Weaver.fail = true;
-            return null;
-        }
-
         // System.Byte[] arguments need a version with a string
         public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
         {
@@ -97,6 +77,12 @@ namespace Mirror.Weaver
             Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
             Weaver.fail = true;
             return null;
+        }
+
+        // reuse ResolveMethodWithArg string version
+        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, TypeReference argType)
+        {
+            return ResolveMethodWithArg(tr, scriptDef, name, argType.FullName);
         }
     }
 }
