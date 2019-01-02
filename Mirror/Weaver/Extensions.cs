@@ -79,24 +79,26 @@ namespace Mirror.Weaver
         {
             while (parent != null)
             {
-                if (parent.Scope.Name == "Windows")
+                switch (parent.Scope.Name)
                 {
-                    return false;
-                }
+                    case "Windows":
+                        return false;
+                    case "mscorlib":
+                    {
+                        TypeDefinition resolved = parent.Resolve();
+                        return resolved != null;
+                    }
+                    default:
+                        try
+                        {
+                            parent = parent.Resolve().BaseType;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
 
-                if (parent.Scope.Name == "mscorlib")
-                {
-                    TypeDefinition resolved = parent.Resolve();
-                    return resolved != null;
-                }
-
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch
-                {
-                    return false;
+                        break;
                 }
             }
             return true;
