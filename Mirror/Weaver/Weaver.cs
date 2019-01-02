@@ -896,10 +896,9 @@ namespace Mirror.Weaver
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
-            if (md.Name == ".cctor" || md.Name == "OnUnserializeVars")
-                return;
-
-            if (md.Name.StartsWith("UNet") ||
+            if (md.Name == ".cctor" ||
+                md.Name == "OnUnserializeVars" ||
+                md.Name.StartsWith("UNet") ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
                 md.Name.StartsWith("InvokeRpc") ||
