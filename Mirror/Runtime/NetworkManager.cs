@@ -648,16 +648,10 @@ namespace Mirror
                 return;
             }
 
-            GameObject player;
             Transform startPos = GetStartPosition();
-            if (startPos != null)
-            {
-                player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
-            }
-            else
-            {
-                player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-            }
+            GameObject player = startPos != null
+                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }
