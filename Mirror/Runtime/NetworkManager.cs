@@ -59,8 +59,7 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
 
-            string unityVersion = Application.unityVersion;
-            if (unityVersion.CompareTo("2018.3") >=0)
+            if (Application.unityVersion.CompareTo("2018.3") >=0)
             {
                 Debug.LogError("This version of mirror is not compatible with Unity 2018.3+.  Please unity 2017.4, 2018.1 or 2018.2 or use the 2018 mirror branch");
             }
