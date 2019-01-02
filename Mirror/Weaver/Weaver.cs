@@ -182,33 +182,6 @@ namespace Mirror.Weaver
             s_RecursionCount = 0;
         }
 
-        public static bool CanBeResolved(TypeReference parent)
-        {
-            while (parent != null)
-            {
-                if (parent.Scope.Name == "Windows")
-                {
-                    return false;
-                }
-
-                if (parent.Scope.Name == "mscorlib")
-                {
-                    var resolved = parent.Resolve();
-                    return resolved != null;
-                }
-
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
             if (!m_DebugFlag)
@@ -1429,7 +1402,7 @@ namespace Mirror.Weaver
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 foreach (TypeDefinition td in moduleDefinition.Types)
                 {
-                    if (td.IsClass && CanBeResolved(td.BaseType))
+                    if (td.IsClass && td.BaseType.CanBeResolved())
                     {
                         try
                         {

@@ -74,5 +74,32 @@ namespace Mirror.Weaver
                 return false;
             return true;
         }
+
+        public static bool CanBeResolved(this TypeReference parent)
+        {
+            while (parent != null)
+            {
+                if (parent.Scope.Name == "Windows")
+                {
+                    return false;
+                }
+
+                if (parent.Scope.Name == "mscorlib")
+                {
+                    TypeDefinition resolved = parent.Resolve();
+                    return resolved != null;
+                }
+
+                try
+                {
+                    parent = parent.Resolve().BaseType;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
