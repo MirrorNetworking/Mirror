@@ -37,5 +37,24 @@ namespace Mirror.Weaver
             Weaver.fail = true;
             return null;
         }
+
+        public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        {
+            if (tr == null)
+            {
+                Log.Error("Type missing for " + name);
+                Weaver.fail = true;
+                return null;
+            }
+            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
+            {
+                if (methodRef.Name == name)
+                {
+                    return scriptDef.MainModule.ImportReference(methodRef);
+                }
+            }
+            // Could not find the method in this class,  try the parent
+            return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
+        }
     }
 }

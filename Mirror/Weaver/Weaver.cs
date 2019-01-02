@@ -1033,24 +1033,6 @@ namespace Mirror.Weaver
             }
             return false;
         }
-        public static MethodReference ResolveMethodInParents(TypeReference t, string name)
-        {
-            if (t == null)
-            {
-                Log.Error("Type missing for " + name);
-                fail = true;
-                return null;
-            }
-            foreach (var methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    return scriptDef.MainModule.ImportReference(methodRef);
-                }
-            }
-            // Could not find the method in this class,  try the parent
-            return ResolveMethodInParents(t.Resolve().BaseType, name);
-        }
 
         static MethodReference ResolveMethodWithArg(TypeReference t, string name, TypeReference argType)
         {
