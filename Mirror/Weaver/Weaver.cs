@@ -1034,18 +1034,6 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static FieldReference ResolveField(TypeReference t, string name)
-        {
-            foreach (FieldDefinition fd in t.Resolve().Fields)
-            {
-                if (fd.Name == name)
-                {
-                    return scriptDef.MainModule.ImportReference(fd);
-                }
-            }
-            return null;
-        }
-
         public static MethodReference ResolveProperty(TypeReference t, string name)
         {
             foreach (var fd in t.Resolve().Properties)

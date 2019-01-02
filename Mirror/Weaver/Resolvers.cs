@@ -125,5 +125,17 @@ namespace Mirror.Weaver
             Weaver.fail = true;
             return null;
         }
+
+        public static FieldReference ResolveField(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        {
+            foreach (FieldDefinition fd in tr.Resolve().Fields)
+            {
+                if (fd.Name == name)
+                {
+                    return scriptDef.MainModule.ImportReference(fd);
+                }
+            }
+            return null;
+        }
     }
 }
