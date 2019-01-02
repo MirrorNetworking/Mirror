@@ -330,7 +330,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnSerialize");
+            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.scriptDef, "OnSerialize");
             if (baseSerialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
@@ -527,7 +527,7 @@ namespace Mirror.Weaver
             serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-            MethodReference baseDeserialize = Weaver.ResolveMethodInParents(m_td.BaseType, "OnDeserialize");
+            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.scriptDef, "OnDeserialize");
             if (baseDeserialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
