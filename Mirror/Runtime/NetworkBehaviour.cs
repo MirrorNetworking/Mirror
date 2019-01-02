@@ -327,7 +327,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > syncInterval)
+            if (Time.time - m_LastSendTime >= syncInterval)
             {
                 return m_SyncVarDirtyBits != 0L
                         || m_SyncObjects.Any(obj => obj.IsDirty);
