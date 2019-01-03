@@ -182,41 +182,6 @@ namespace Mirror.Weaver
             s_RecursionCount = 0;
         }
 
-        public static bool CanBeResolved(TypeReference parent)
-        {
-            while (parent != null)
-            {
-                if (parent.Scope.Name == "Windows")
-                {
-                    return false;
-                }
-
-                if (parent.Scope.Name == "mscorlib")
-                {
-                    var resolved = parent.Resolve();
-                    return resolved != null;
-                }
-
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public static bool IsArrayType(TypeReference variable)
-        {
-            if ((variable.IsArray && ((ArrayType)variable).ElementType.IsArray) || // jagged array
-                (variable.IsArray && ((ArrayType)variable).Rank > 1)) // multidimensional array
-                return false;
-            return true;
-        }
-
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
             if (!m_DebugFlag)
@@ -369,7 +334,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayReadFunc(TypeReference variable, MethodReference elementReadFunc)
         {
-            if (!IsArrayType(variable))
+            if (!variable.IsArrayType())
             {
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
@@ -452,7 +417,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, MethodReference elementWriteFunc)
         {
-            if (!IsArrayType(variable))
+            if (!variable.IsArrayType())
             {
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
@@ -678,14 +643,8 @@ namespace Mirror.Weaver
                     continue;
 
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
-                if (variable.IsValueType)
-                {
-                    worker.Append(worker.Create(OpCodes.Ldloca, 0));
-                }
-                else
-                {
-                    worker.Append(worker.Create(OpCodes.Ldloc, 0));
-                }
+                OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
+                worker.Append(worker.Create(opcode, 0));
 
                 var readFunc = GetReadFunc(field.FieldType);
                 if (readFunc != null)
@@ -931,10 +890,9 @@ namespace Mirror.Weaver
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
-            if (md.Name == ".cctor" || md.Name == "OnUnserializeVars")
-                return;
-
-            if (md.Name.StartsWith("UNet") ||
+            if (md.Name == ".cctor" ||
+                md.Name == "OnDeserialize" ||
+                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
                 md.Name.StartsWith("InvokeRpc") ||
@@ -945,21 +903,20 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute attr in md.CustomAttributes)
                 {
-                    if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerAttribute")
+                    switch (attr.Constructor.DeclaringType.ToString())
                     {
-                        InjectServerGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ServerCallbackAttribute")
-                    {
-                        InjectServerGuard(moduleDef, td, md, false);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, true);
-                    }
-                    else if (attr.Constructor.DeclaringType.ToString() == "Mirror.ClientCallbackAttribute")
-                    {
-                        InjectClientGuard(moduleDef, td, md, false);
+                        case "Mirror.ServerAttribute":
+                            InjectServerGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ServerCallbackAttribute":
+                            InjectServerGuard(moduleDef, td, md, false);
+                            break;
+                        case "Mirror.ClientAttribute":
+                            InjectClientGuard(moduleDef, td, md, true);
+                            break;
+                        case "Mirror.ClientCallbackAttribute":
+                            InjectClientGuard(moduleDef, td, md, false);
+                            break;
                     }
                 }
 
@@ -1437,7 +1394,7 @@ namespace Mirror.Weaver
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 foreach (TypeDefinition td in moduleDefinition.Types)
                 {
-                    if (td.IsClass && CanBeResolved(td.BaseType))
+                    if (td.IsClass && td.BaseType.CanBeResolved())
                     {
                         try
                         {

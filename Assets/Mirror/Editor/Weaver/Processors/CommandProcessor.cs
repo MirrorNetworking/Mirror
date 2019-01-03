@@ -156,16 +156,9 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Command"))
-            {
-                return false;
-            }
-
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Command"))
-            {
-                return false;
-            }
-            return true;
+            // validate
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Command") &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Command");
         }
     }
 }

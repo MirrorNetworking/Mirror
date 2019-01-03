@@ -109,16 +109,9 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Rpc"))
-            {
-                return false;
-            }
-
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Rpc"))
-            {
-                return false;
-            }
-            return true;
+            // validate
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Rpc") &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Rpc");
         }
     }
 }

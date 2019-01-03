@@ -144,17 +144,19 @@ namespace Mirror.Weaver
         }
 
         // mark / check type as processed //////////////////////////////////////
+        public const string ProcessedFunctionName = "MirrorProcessed";
+
         // by adding an empty MirrorProcessed() function
         public static bool WasProcessed(TypeDefinition td)
         {
-            return td.Methods.Any(method => method.Name == "MirrorProcessed");
+            return td.Methods.Any(method => method.Name == ProcessedFunctionName);
         }
 
         public static void MarkAsProcessed(TypeDefinition td)
         {
             if (!WasProcessed(td))
             {
-                MethodDefinition versionMethod = new MethodDefinition("MirrorProcessed", MethodAttributes.Private, Weaver.voidType);
+                MethodDefinition versionMethod = new MethodDefinition(ProcessedFunctionName, MethodAttributes.Private, Weaver.voidType);
                 ILProcessor worker = versionMethod.Body.GetILProcessor();
                 worker.Append(worker.Create(OpCodes.Ret));
                 td.Methods.Add(versionMethod);
@@ -896,18 +898,6 @@ namespace Mirror.Weaver
             {
                 m_td.Methods.Add(md);
             }
-        }
-
-        bool HasMethod(string name)
-        {
-            foreach (var method in m_td.Methods)
-            {
-                if (method.Name == name)
-                {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

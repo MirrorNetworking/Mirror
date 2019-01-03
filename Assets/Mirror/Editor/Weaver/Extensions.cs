@@ -66,5 +66,40 @@ namespace Mirror.Weaver
 
             return false;
         }
+
+        public static bool IsArrayType(this TypeReference tr)
+        {
+            if ((tr.IsArray && ((ArrayType)tr).ElementType.IsArray) || // jagged array
+                (tr.IsArray && ((ArrayType)tr).Rank > 1)) // multidimensional array
+                return false;
+            return true;
+        }
+
+        public static bool CanBeResolved(this TypeReference parent)
+        {
+            while (parent != null)
+            {
+                if (parent.Scope.Name == "Windows")
+                {
+                    return false;
+                }
+
+                if (parent.Scope.Name == "mscorlib")
+                {
+                    TypeDefinition resolved = parent.Resolve();
+                    return resolved != null;
+                }
+
+                try
+                {
+                    parent = parent.Resolve().BaseType;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

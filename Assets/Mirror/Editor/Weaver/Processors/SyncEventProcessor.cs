@@ -127,7 +127,7 @@ namespace Mirror.Weaver
                         }
 
                         events.Add(ed);
-                        MethodDefinition eventFunc = SyncEventProcessor.ProcessEventInvoke(td, ed);
+                        MethodDefinition eventFunc = ProcessEventInvoke(td, ed);
                         if (eventFunc == null)
                         {
                             return;
@@ -138,7 +138,7 @@ namespace Mirror.Weaver
 
                         Weaver.DLog(td, "ProcessEvent " + ed);
 
-                        MethodDefinition eventCallFunc = SyncEventProcessor.ProcessEventCall(td, ed, ca);
+                        MethodDefinition eventCallFunc = ProcessEventCall(td, ed, ca);
                         td.Methods.Add(eventCallFunc);
 
                         Weaver.lists.replacedEvents.Add(ed);
