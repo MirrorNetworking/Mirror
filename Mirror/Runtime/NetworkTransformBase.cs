@@ -387,7 +387,7 @@ namespace Mirror
             // no 'else if' since host mode would be both
             if (isClient)
             {
-                // send to server if we have local authority (and arent the server)
+                // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
                 if (!isServer && hasAuthority && connectionToServer != null)
                 {
