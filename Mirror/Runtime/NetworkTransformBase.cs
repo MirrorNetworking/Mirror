@@ -31,7 +31,7 @@ namespace Mirror
         //    but would cause errors immediately and be pretty obvious.
         [Tooltip("Compresses 16 Byte Quaternion into None=12, Some=6, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
-        public enum Compression { None, Some, Much, Lots }; // easily understandable and funny
+        public enum Compression { None, Much, Lots }; // easily understandable and funny
 
         // server
         Vector3 lastPosition;
@@ -84,13 +84,6 @@ namespace Mirror
                 writer.Write(euler.y);
                 writer.Write(euler.z);
             }
-            else if (compressRotation == Compression.Some)
-            {
-                // write 3 shorts = 6 byte. scaling [0,360] to [0,65535]
-                writer.Write(Utils.ScaleFloatToUShort(euler.x, 0, 360, ushort.MinValue, ushort.MaxValue));
-                writer.Write(Utils.ScaleFloatToUShort(euler.y, 0, 360, ushort.MinValue, ushort.MaxValue));
-                writer.Write(Utils.ScaleFloatToUShort(euler.z, 0, 360, ushort.MinValue, ushort.MaxValue));
-            }
             else if (compressRotation == Compression.Much)
             {
                 // write 3 byte. scaling [0,360] to [0,255]
@@ -139,14 +132,6 @@ namespace Mirror
                 float x = reader.ReadSingle();
                 float y = reader.ReadSingle();
                 float z = reader.ReadSingle();
-                temp.rotation = Quaternion.Euler(x, y, z);
-            }
-            else if (compressRotation == Compression.Some)
-            {
-                // read 3 shorts = 6 byte. scaling [-32768,32767] to [0,360]
-                float x = Utils.ScaleUShortToFloat(reader.ReadUInt16(), ushort.MinValue, ushort.MaxValue, 0, 360);
-                float y = Utils.ScaleUShortToFloat(reader.ReadUInt16(), ushort.MinValue, ushort.MaxValue, 0, 360);
-                float z = Utils.ScaleUShortToFloat(reader.ReadUInt16(), ushort.MinValue, ushort.MaxValue, 0, 360);
                 temp.rotation = Quaternion.Euler(x, y, z);
             }
             else if (compressRotation == Compression.Much)

@@ -133,19 +133,6 @@ namespace Mirror
 
     public static class Utils
     {
-        // ScaleFloatToUShort( -1f, -1f, 1f, ushort.MinValue, ushort.MaxValue) => 0
-        // ScaleFloatToUShort(  0f, -1f, 1f, ushort.MinValue, ushort.MaxValue) => 32767
-        // ScaleFloatToUShort(0.5f, -1f, 1f, ushort.MinValue, ushort.MaxValue) => 49151
-        // ScaleFloatToUShort(  1f, -1f, 1f, ushort.MinValue, ushort.MaxValue) => 65535
-        public static ushort ScaleFloatToUShort(float value, float minValue, float maxValue, ushort minTarget, ushort maxTarget)
-        {
-            // note: C# ushort - ushort => int, hence so many casts
-            int targetRange = maxTarget - minTarget; // max ushort - min ushort > max ushort. needs bigger type.
-            float valueRange = maxValue - minValue;
-            float valueRelative = value - minValue;
-            return (ushort)(minTarget + (ushort)(valueRelative/valueRange * (float)targetRange));
-        }
-
         // ScaleFloatToByte( -1f, -1f, 1f, byte.MinValue, byte.MaxValue) => 0
         // ScaleFloatToByte(  0f, -1f, 1f, byte.MinValue, byte.MaxValue) => 127
         // ScaleFloatToByte(0.5f, -1f, 1f, byte.MinValue, byte.MaxValue) => 191
@@ -157,19 +144,6 @@ namespace Mirror
             float valueRange = maxValue - minValue;
             float valueRelative = value - minValue;
             return (byte)(minTarget + (byte)(valueRelative/valueRange * (float)targetRange));
-        }
-
-        // ScaleUShortToFloat(    0, ushort.MinValue, ushort.MaxValue, -1, 1) => -1
-        // ScaleUShortToFloat(32767, ushort.MinValue, ushort.MaxValue, -1, 1) => 0
-        // ScaleUShortToFloat(49151, ushort.MinValue, ushort.MaxValue, -1, 1) => 0.4999924
-        // ScaleUShortToFloat(65535, ushort.MinValue, ushort.MaxValue, -1, 1) => 1
-        public static float ScaleUShortToFloat(ushort value, ushort minValue, ushort maxValue, float minTarget, float maxTarget)
-        {
-            // note: C# ushort - ushort => int, hence so many casts
-            float targetRange = maxTarget - minTarget;
-            ushort valueRange = (ushort)(maxValue - minValue);
-            ushort valueRelative = (ushort)(value - minValue);
-            return minTarget + (float)((float)valueRelative/(float)valueRange * targetRange);
         }
 
         // ScaleByteToFloat(  0, byte.MinValue, byte.MaxValue, -1, 1) => -1
