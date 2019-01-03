@@ -18,6 +18,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -66,11 +67,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="MessageClassProcessor.cs" />
-    <Compile Include="MonoBehaviourProcessor.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Processors\MessageClassProcessor.cs" />
+    <Compile Include="Processors\MonoBehaviourProcessor.cs" />
+    <Compile Include="Processors\CommandProcessor.cs" />
+    <Compile Include="Processors\NetworkBehaviourProcessor.cs" />
+    <Compile Include="Processors\RpcProcessor.cs" />
+    <Compile Include="Processors\SyncEventProcessor.cs" />
+    <Compile Include="Processors\SyncListProcessor.cs" />
+    <Compile Include="Processors\SyncObjectProcessor.cs" />
+    <Compile Include="Processors\SyncVarProcessor.cs" />
+    <Compile Include="Processors\TargetRpcProcessor.cs" />
+    <Compile Include="Processors\SyncListStructProcessor.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="SyncListStructProcessor.cs" />
-    <Compile Include="UNetBehaviourProcessor.cs" />
+    <Compile Include="Resolvers.cs" />
     <Compile Include="Weaver.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="CompilationFinishedHook.cs" />

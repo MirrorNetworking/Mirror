@@ -58,6 +58,15 @@ namespace Mirror
         public virtual void Awake()
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
+
+            if (Application.unityVersion.CompareTo("2018.3") >= 0)
+            {
+                Debug.LogError(
+                    "This version of mirror is not compatible with Unity 2018.3 and up. " +
+                    "Please use unity 2017.4, 2018.1, 2018.2 or use the 2018 mirror branch " +
+                    "https://github.com/vis2k/Mirror/tree/2018");
+            }
+
             InitializeSingleton();
         }
 
@@ -224,7 +233,7 @@ namespace Mirror
             }
             for (int i = 0; i < spawnPrefabs.Count; i++)
             {
-                var prefab = spawnPrefabs[i];
+                GameObject prefab = spawnPrefabs[i];
                 if (prefab != null)
                 {
                     ClientScene.RegisterPrefab(prefab);
@@ -265,7 +274,7 @@ namespace Mirror
             OnStartHost();
             if (StartServer())
             {
-                var localClient = ConnectLocalClient();
+                NetworkClient localClient = ConnectLocalClient();
                 OnStartClient(localClient);
                 return localClient;
             }
@@ -426,19 +435,13 @@ namespace Mirror
 
         internal static void UpdateScene()
         {
-            if (singleton == null)
-                return;
-
-            if (s_LoadingSceneAsync == null)
-                return;
-
-            if (!s_LoadingSceneAsync.isDone)
-                return;
-
-            if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
-            singleton.FinishLoadScene();
-            s_LoadingSceneAsync.allowSceneActivation = true;
-            s_LoadingSceneAsync = null;
+            if (singleton != null && s_LoadingSceneAsync != null && s_LoadingSceneAsync.isDone)
+            {
+                if (LogFilter.Debug) { Debug.Log("ClientChangeScene done readyCon:" + s_ClientReadyConnection); }
+                singleton.FinishLoadScene();
+                s_LoadingSceneAsync.allowSceneActivation = true;
+                s_LoadingSceneAsync = null;
+            }
         }
 
         // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
@@ -654,16 +657,10 @@ namespace Mirror
                 return;
             }
 
-            GameObject player;
             Transform startPos = GetStartPosition();
-            if (startPos != null)
-            {
-                player = Instantiate(playerPrefab, startPos.position, startPos.rotation);
-            }
-            else
-            {
-                player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-            }
+            GameObject player = startPos != null
+                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }
@@ -759,28 +756,11 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost()
-        {
-        }
-
-        public virtual void OnStartServer()
-        {
-        }
-
-        public virtual void OnStartClient(NetworkClient client)
-        {
-        }
-
-        public virtual void OnStopServer()
-        {
-        }
-
-        public virtual void OnStopClient()
-        {
-        }
-
-        public virtual void OnStopHost()
-        {
-        }
+        public virtual void OnStartHost() {}
+        public virtual void OnStartServer() {}
+        public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStopServer() {}
+        public virtual void OnStopClient() {}
+        public virtual void OnStopHost() {}
     }
 }

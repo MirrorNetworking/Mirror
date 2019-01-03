@@ -17,38 +17,44 @@ namespace Mirror
     {
         // configuration
         [SerializeField] uint m_SceneId;
-        [SerializeField] bool           m_ServerOnly;
-        [SerializeField] bool           m_LocalPlayerAuthority;
+        [SerializeField] bool m_ServerOnly;
+        [SerializeField] bool m_LocalPlayerAuthority;
 
         // runtime data
-        bool                        m_IsClient;
-        bool                        m_IsServer;
-        bool                        m_HasAuthority;
+        bool m_IsClient;
+        bool m_IsServer;
+        bool m_HasAuthority;
 
-        uint                        m_NetId;
-        bool                        m_IsLocalPlayer;
-        NetworkConnection           m_ConnectionToServer;
-        NetworkConnection           m_ConnectionToClient;
-        NetworkBehaviour[]          m_NetworkBehaviours;
+        uint m_NetId;
+        bool m_IsLocalPlayer;
+        NetworkConnection m_ConnectionToServer;
+        NetworkConnection m_ConnectionToClient;
+        NetworkBehaviour[] m_NetworkBehaviours;
 
         // <connectionId, NetworkConnection>
         Dictionary<int, NetworkConnection> m_Observers;
 
-        NetworkConnection           m_ClientAuthorityOwner;
+        NetworkConnection m_ClientAuthorityOwner;
 
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
-        bool                        m_Reset;
+        bool m_Reset;
+
         // properties
-        public bool isClient        { get { return m_IsClient; } }
-        public bool isServer        { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
-        public bool hasAuthority    { get { return m_HasAuthority; } }
+        public bool isClient { get { return m_IsClient; } }
+        public bool isServer { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
+        public bool hasAuthority { get { return m_HasAuthority; } }
+
+        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         public uint netId { get { return m_NetId; } }
         public uint sceneId { get { return m_SceneId; } }
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
+        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -133,12 +139,6 @@ namespace Mirror
                 OnStopAuthority();
             }
         }
-
-        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
-        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
-        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
-
-        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
         static uint s_NextNetworkId = 1;
         internal static uint GetNextNetworkId()

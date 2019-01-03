@@ -13,6 +13,10 @@ namespace Mirror
         ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
+        // sync interval for OnSerialize (in seconds)
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [HideInInspector] public float syncInterval = 0.1f;
+
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
@@ -31,8 +35,6 @@ namespace Mirror
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
-
-        const float k_DefaultSendInterval = 0.1f;
 
         // NetworkIdentity component caching for easier access
         NetworkIdentity m_netIdentity;
@@ -75,7 +77,7 @@ namespace Mirror
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(string cmdName, NetworkWriter writer, int channelId)
+        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -94,7 +96,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.cmdHash = cmdName.GetStableHashCode();
+            message.cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
@@ -109,7 +111,7 @@ namespace Mirror
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(string rpcName, NetworkWriter writer, int channelId)
+        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -122,14 +124,14 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcName.GetStableHashCode();
+            message.rpcHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -142,7 +144,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = rpcName.GetStableHashCode();
+            message.rpcHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             conn.Send((short)MsgType.Rpc, message, channelId);
@@ -157,7 +159,7 @@ namespace Mirror
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(string eventName, NetworkWriter writer, int channelId)
+        protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
             if (!NetworkServer.active)
             {
@@ -169,7 +171,7 @@ namespace Mirror
             SyncEventMessage message = new SyncEventMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.eventHash = eventName.GetStableHashCode();
+            message.eventHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
@@ -198,10 +200,24 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = cmdName.GetStableHashCode();
+            int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
-                return;
+                // something already registered this hash
+                Invoker oldInvoker = s_CmdHandlerDelegates[cmdHash];
+                if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
+                {
+                    // it's all right,  it was the same function
+                    return;
+                }
+
+                Debug.LogError(string.Format(
+                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
+                    oldInvoker.invokeClass,
+                    oldInvoker.invokeFunction.GetMethodName(),
+                    invokeClass,
+                    oldInvoker.invokeFunction.GetMethodName()));
             }
             Invoker invoker = new Invoker();
             invoker.invokeType = invokerType;
@@ -325,7 +341,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime > GetNetworkSendInterval())
+            if (Time.time - m_LastSendTime >= syncInterval)
             {
                 return m_SyncVarDirtyBits != 0L
                         || m_SyncObjects.Any(obj => obj.IsDirty);
@@ -446,11 +462,6 @@ namespace Mirror
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {
             return true;
-        }
-
-        public virtual float GetNetworkSendInterval()
-        {
-            return k_DefaultSendInterval;
         }
     }
 }

@@ -1,54 +1,45 @@
-using System;
+// this class generates OnSerialize/OnDeserialize for SyncListStructs
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    class SyncListStructProcessor
+    static class SyncListStructProcessor
     {
-        TypeDefinition m_TypeDef;
-        TypeReference m_ItemType;
-
-        public SyncListStructProcessor(TypeDefinition typeDef)
-        {
-            Weaver.DLog(typeDef, "SyncListStructProcessor for " + typeDef.Name);
-            m_TypeDef = typeDef;
-        }
-
-        public void Process()
+        public static void Process(TypeDefinition td)
         {
             // find item type
-            var gt = (GenericInstanceType)m_TypeDef.BaseType;
+            GenericInstanceType gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count == 0)
             {
                 Weaver.fail = true;
                 Log.Error("SyncListStructProcessor no generic args");
                 return;
             }
-            m_ItemType = Weaver.scriptDef.MainModule.ImportReference(gt.GenericArguments[0]);
+            TypeReference itemType = Weaver.scriptDef.MainModule.ImportReference(gt.GenericArguments[0]);
 
-            Weaver.DLog(m_TypeDef, "SyncListStructProcessor Start item:" + m_ItemType.FullName);
+            Weaver.DLog(td, "SyncListStructProcessor Start item:" + itemType.FullName);
 
             Weaver.ResetRecursionCount();
-            var writeItemFunc = GenerateSerialization();
+            MethodReference writeItemFunc = GenerateSerialization(td, itemType);
             if (Weaver.fail)
             {
                 return;
             }
 
-            var readItemFunc = GenerateDeserialization();
+            MethodReference readItemFunc = GenerateDeserialization(td, itemType);
 
             if (readItemFunc == null || writeItemFunc == null)
                 return;
 
-            Weaver.DLog(m_TypeDef, "SyncListStructProcessor Done");
+            Weaver.DLog(td, "SyncListStructProcessor Done");
         }
 
         // serialization of individual element
-        MethodReference GenerateSerialization()
+        static MethodReference GenerateSerialization(TypeDefinition td, TypeReference itemType)
         {
-            Weaver.DLog(m_TypeDef, "  GenerateSerialization");
-            foreach (var m in m_TypeDef.Methods)
+            Weaver.DLog(td, "  GenerateSerialization");
+            foreach (var m in td.Methods)
             {
                 if (m.Name == "SerializeItem")
                     return m;
@@ -61,35 +52,35 @@ namespace Mirror.Weaver
                     Weaver.voidType);
 
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
-            serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, m_ItemType));
+            serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
-            if (m_ItemType.IsGenericInstance)
+            if (itemType.IsGenericInstance)
             {
                 Weaver.fail = true;
-                Log.Error("GenerateSerialization for " + Helpers.PrettyPrintType(m_ItemType) + " failed. Struct passed into SyncListStruct<T> can't have generic parameters");
+                Log.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Struct passed into SyncListStruct<T> can't have generic parameters");
                 return null;
             }
 
-            foreach (var field in m_ItemType.Resolve().Fields)
+            foreach (FieldDefinition field in itemType.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                var importedField = Weaver.scriptDef.MainModule.ImportReference(field);
-                var ft = importedField.FieldType.Resolve();
+                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
 
                 if (ft.HasGenericParameters)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member cannot have generic parameters.");
+                    Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot have generic parameters.");
                     return null;
                 }
 
                 if (ft.IsInterface)
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member cannot be an interface.");
+                    Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot be an interface.");
                     return null;
                 }
 
@@ -104,20 +95,20 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_TypeDef.Name + " unknown type [" + ft + "/" + ft.FullName + "]. UNet [MessageBase] member variables must be basic types.");
+                    Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            m_TypeDef.Methods.Add(serializeFunc);
+            td.Methods.Add(serializeFunc);
             return serializeFunc;
         }
 
-        MethodReference GenerateDeserialization()
+        static MethodReference GenerateDeserialization(TypeDefinition td, TypeReference itemType)
         {
-            Weaver.DLog(m_TypeDef, "  GenerateDeserialization");
-            foreach (var m in m_TypeDef.Methods)
+            Weaver.DLog(td, "  GenerateDeserialization");
+            foreach (var m in td.Methods)
             {
                 if (m.Name == "DeserializeItem")
                     return m;
@@ -127,26 +118,26 @@ namespace Mirror.Weaver
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
                     MethodAttributes.HideBySig,
-                    m_ItemType);
+                    itemType);
 
             serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
 
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
             serWorker.Body.InitLocals = true;
-            serWorker.Body.Variables.Add(new VariableDefinition(m_ItemType));
+            serWorker.Body.Variables.Add(new VariableDefinition(itemType));
 
             // init item instance
             serWorker.Append(serWorker.Create(OpCodes.Ldloca, 0));
-            serWorker.Append(serWorker.Create(OpCodes.Initobj, m_ItemType));
+            serWorker.Append(serWorker.Create(OpCodes.Initobj, itemType));
 
-            foreach (var field in m_ItemType.Resolve().Fields)
+            foreach (FieldDefinition field in itemType.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                var importedField = Weaver.scriptDef.MainModule.ImportReference(field);
-                var ft = importedField.FieldType.Resolve();
+                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
 
                 MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
                 if (readerFunc != null)
@@ -159,14 +150,14 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.fail = true;
-                    Log.Error("GenerateDeserialization for " + m_TypeDef.Name + " unknown type [" + ft + "]. UNet [SyncVar] member variables must be basic types.");
+                    Log.Error("GenerateDeserialization for " + td.Name + " unknown type [" + ft + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }
             serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            m_TypeDef.Methods.Add(serializeFunc);
+            td.Methods.Add(serializeFunc);
             return serializeFunc;
         }
     }
