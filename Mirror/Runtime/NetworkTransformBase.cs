@@ -267,6 +267,7 @@ namespace Mirror
                 Debug.LogError("HandleTransform no localPlayerAuthority");
                 return;
             }
+
             if (netMsg.conn.clientOwnedObjects == null)
             {
                 Debug.LogError("HandleTransform object not owned by connection");
