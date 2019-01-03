@@ -75,7 +75,6 @@
     <Compile Include="NetworkStartPosition.cs" />
     <Compile Include="NetworkTransformChild.cs" />
     <Compile Include="NetworkTransform.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="NetworkClient.cs" />
     <Compile Include="NetworkConnection.cs" />
     <Compile Include="LocalClient.cs" />
