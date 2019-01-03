@@ -73,8 +73,6 @@
     <Compile Include="NetworkAnimator.cs" />
     <Compile Include="NetworkProximityChecker.cs" />
     <Compile Include="NetworkStartPosition.cs" />
-    <Compile Include="NetworkTransformChild.cs" />
-    <Compile Include="NetworkTransform.cs" />
     <Compile Include="NetworkClient.cs" />
     <Compile Include="NetworkConnection.cs" />
     <Compile Include="LocalClient.cs" />
@@ -82,6 +80,9 @@
     <Compile Include="NetworkManagerHUD.cs" />
     <Compile Include="NetworkBehaviour.cs" />
     <Compile Include="NetworkIdentity.cs" />
+    <Compile Include="NetworkTransform.cs" />
+    <Compile Include="NetworkTransformBase.cs" />
+    <Compile Include="NetworkTransformChild.cs" />
     <Compile Include="Transport\LLAPITransport.cs" />
     <Compile Include="Transport\TelepathyTransport.cs" />
     <Compile Include="Transport\TelepathyWebsocketsMultiplexTransport.cs" />
