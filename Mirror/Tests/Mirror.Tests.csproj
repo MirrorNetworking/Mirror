@@ -56,6 +56,7 @@
     <Compile Include="NetworkWriterTest.cs" />
     <Compile Include="ExponentialMovingAverageTest.cs" />
     <Compile Include="SyncListTest.cs" />
+    <Compile Include="UtilsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
