@@ -201,9 +201,23 @@ namespace Mirror
         protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
         {
             int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+
             if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
             {
-                return;
+                // something already registered this hash
+                Invoker oldInvoker = s_CmdHandlerDelegates[cmdHash];
+                if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
+                {
+                    // it's all right,  it was the same function
+                    return;
+                }
+
+                Debug.LogError(string.Format(
+                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
+                    oldInvoker.invokeClass,
+                    oldInvoker.invokeFunction.GetMethodName(),
+                    invokeClass,
+                    oldInvoker.invokeFunction.GetMethodName()));
             }
             Invoker invoker = new Invoker();
             invoker.invokeType = invokerType;
