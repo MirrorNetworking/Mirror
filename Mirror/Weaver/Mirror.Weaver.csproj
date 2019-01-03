@@ -66,7 +66,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Processors\MessageClassProcessor.cs" />
     <Compile Include="Processors\MonoBehaviourProcessor.cs" />
