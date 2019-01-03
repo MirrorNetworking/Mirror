@@ -23,8 +23,6 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
-        [Range(0, 1)] public float sendInterval = 0.1f; // every ... seconds
-
         // rotation compression. not public so that other scripts can't modify
         // it at runtime. alternatively we could send 1 extra byte for the mode
         // each time so clients know how to decompress, but the whole point was
@@ -60,11 +58,6 @@ namespace Mirror
         // one GameObject might have multiple NetworkTransform/Child components. We need to know the index to properly
         // assign the MsgType.LocalPlayerTransform message.
         int componentIndex;
-
-        public override float GetNetworkSendInterval()
-        {
-            return sendInterval;
-        }
 
         void Awake()
         {
