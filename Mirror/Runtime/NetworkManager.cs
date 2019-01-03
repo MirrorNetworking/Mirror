@@ -59,6 +59,11 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
 
+            Debug.LogWarning("OLD Cmdaa=" + "Cmdaa".GetStableHashCodeOLD());
+            Debug.LogWarning("OLD CmdbB=" + "CmdbB".GetStableHashCodeOLD());
+            Debug.LogWarning("NEW Cmdaa=" + "Cmdaa".GetStableHashCode());
+            Debug.LogWarning("NEW CmdbB=" + "CmdbB".GetStableHashCode());
+
             if (Application.unityVersion.CompareTo("2018.3") >= 0)
             {
                 Debug.LogError(
