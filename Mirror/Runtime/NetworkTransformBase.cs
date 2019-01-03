@@ -246,14 +246,15 @@ namespace Mirror
             // read message
             TransformMessage message = netMsg.ReadMessage<TransformMessage>();
 
-            // find that gameobject
-            GameObject foundObj = NetworkServer.FindLocalObject(message.netId);
-            if (foundObj == null)
+            // find that NetworkIdentity
+            NetworkIdentity identity;
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
             {
                 Debug.LogError("Received NetworkTransform data for GameObject that doesn't exist");
                 return;
             }
-            NetworkTransformBase[] foundSyncs = foundObj.GetComponents<NetworkTransformBase>();
+
+            NetworkTransformBase[] foundSyncs = identity.GetComponents<NetworkTransformBase>();
             if (foundSyncs == null || foundSyncs.Length == 0 || message.componentIndex > foundSyncs.Length - 1)
             {
                 Debug.LogError("HandleTransform null target");
