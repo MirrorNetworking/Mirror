@@ -391,7 +391,7 @@ namespace Mirror
                 // -> only if connectionToServer has been initialized yet too
                 if (!isServer && hasAuthority && connectionToServer != null)
                 {
-                    // check only each 'sendinterval'
+                    // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)
                     {
                         if (HasMovedOrRotated())
