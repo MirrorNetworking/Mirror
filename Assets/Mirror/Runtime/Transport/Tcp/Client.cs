@@ -72,8 +72,15 @@ namespace Mirror.Transport.Tcp
         // resolve the host to an ip address
         private async Task<IPAddress> ResolveAsync(string host)
         {
+            IPAddress ipAddress;
+
+            //if the host is already a valid IP Address then just return that
+            if (IPAddress.TryParse(host, out ipAddress) && (ipAddress.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6))
+                return ipAddress;
+
+            //else resolve it
             IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(host);
-            IPAddress ipAddress = ipHostInfo.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
+            ipAddress = ipHostInfo.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork || ipAddress.AddressFamily == AddressFamily.InterNetworkV6);
             if (ipAddress == null)
                 throw new SocketException((int)SocketError.AddressFamilyNotSupported);
 
