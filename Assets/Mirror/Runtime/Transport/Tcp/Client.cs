@@ -33,19 +33,21 @@ namespace Mirror.Transport.Tcp
             // We are connecting from now until Connect succeeds or fails
             Connecting = true;
 
-            // TcpClient can only be used once. need to create a new one each
-            // time.
-            client = new TcpClient();
 
-            // NoDelay disables nagle algorithm. lowers CPU% and latency
-            // but increases bandwidth
-            client.NoDelay = this.NoDelay;
 
             try
             {
-                IPAddress ipAddress = await ResolveAsync(host);
+                // TcpClient can only be used once. need to create a new one each
+                // time.
+                client = new TcpClient(AddressFamily.InterNetworkV6);
+                // works with IPv6 and IPv4
+                client.Client.DualMode = true;
 
-                await client.ConnectAsync(ipAddress, port);
+                // NoDelay disables nagle algorithm. lowers CPU% and latency
+                // but increases bandwidth
+                client.NoDelay = this.NoDelay;
+
+                await client.ConnectAsync(host, port);
 
                 // now we are connected:
                 IsConnected = true;
@@ -67,17 +69,6 @@ namespace Mirror.Transport.Tcp
                 Disconnect();
                 Disconnected?.Invoke();
             }
-        }
-
-        // resolve the host to an ip address
-        private async Task<IPAddress> ResolveAsync(string host)
-        {
-            IPHostEntry ipHostInfo = await Dns.GetHostEntryAsync(host);
-            IPAddress ipAddress = ipHostInfo.AddressList.FirstOrDefault(address => address.AddressFamily == AddressFamily.InterNetwork);
-            if (ipAddress == null)
-                throw new SocketException((int)SocketError.AddressFamilyNotSupported);
-
-            return ipAddress;
         }
 
         private async Task ReceiveLoop(TcpClient client)

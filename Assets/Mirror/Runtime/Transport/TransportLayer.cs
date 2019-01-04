@@ -34,8 +34,7 @@ namespace Mirror.Transport
 
         // server
         bool ServerActive();
-        void ServerStart(string address, int port, int maxConnections);
-        void ServerStartWebsockets(string address, int port, int maxConnections);
+        void ServerStart();
         void ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerDisconnect(int connectionId);
         bool GetConnectionInfo(int connectionId, out string address);

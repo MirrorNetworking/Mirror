@@ -13,7 +13,6 @@ namespace Mirror
         static ULocalConnectionToClient s_LocalConnection;
 
         static int s_ServerHostId = -1;
-        static int s_ServerPort = -1;
         static bool s_Initialized;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
@@ -21,7 +20,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection { get { return s_LocalConnection; } }
 
-        public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
         // <connectionId, NetworkConnection>
@@ -29,7 +27,6 @@ namespace Mirror
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static bool dontListen;
-        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -94,42 +91,26 @@ namespace Mirror
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(int serverPort, int maxConnections)
-        {
-            return InternalListen(null, serverPort, maxConnections);
-        }
 
-        public static bool Listen(string ipAddress, int serverPort, int maxConnections)
-        {
-            return InternalListen(ipAddress, serverPort, maxConnections);
-        }
-
-        internal static bool InternalListen(string ipAddress, int serverPort, int maxConnections)
+        public static bool Listen()
         {
             Initialize();
 
             // only start server if we want to listen
             if (!dontListen)
             {
-                s_ServerPort = serverPort;
-
-                if (useWebSockets)
-                {
-                    NetworkManager.transport.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
-                else
-                {
-                    NetworkManager.transport.ServerStart(ipAddress, serverPort, maxConnections);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
+                // paul: transport knows what port to listen to
+                // note that some transports might not even use a port (USB, Serial, Bluetooth)
+                // set the port or other proeprties wherever you initialize the transport
+                NetworkManager.transport.ServerStart();
+                s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
                 {
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "") + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server listen"); }
             }
 
             s_Active = true;

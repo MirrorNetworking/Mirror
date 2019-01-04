@@ -24,6 +24,9 @@ public class ShowPlayerId : NetworkBehaviour {
 
     public void Update()
     {
-        text.text = "P " + netId + ":" + data ;
+        if (isLocalPlayer)
+            text.color = Color.red;
+
+        text.text = $"Player {netId}\ndata={data}";
     }
 }

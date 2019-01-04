@@ -21,6 +21,9 @@ namespace Mirror.Transport.Tcp
         protected Client client = new Client();
         protected Server server = new Server();
 
+        public int port = 7777;
+        public int MaxConnections = int.MaxValue;
+
         public TcpTransport()
         {
             // dispatch the events from the server
@@ -40,7 +43,7 @@ namespace Mirror.Transport.Tcp
             // by simple eating the first one before the server starts
             Server.NextConnectionId();
 
-            Debug.Log("TelepathyTransport initialized!");
+            Debug.Log("Tcp transport initialized!");
         }
 
         // client
@@ -51,14 +54,9 @@ namespace Mirror.Transport.Tcp
 
         // server
         public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart(string address, int port, int maxConnections)
+        public virtual void ServerStart()
         {
-            server.Listen(port, maxConnections);
-        }
-
-        public virtual void ServerStartWebsockets(string address, int port, int maxConnections)
-        {
-            Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
+            server.Listen(port, MaxConnections);
         }
 
         public virtual void ServerSend(int connectionId, int channelId, byte[] data) { server.Send(connectionId, data); }

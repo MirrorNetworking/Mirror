@@ -16,7 +16,8 @@ namespace Mirror
         protected SerializedProperty runInBackgroundProperty;
         SerializedProperty networkAddressProperty;
 
-        SerializedProperty networkPortProperty;
+        SerializedProperty tcpPortProperty;
+        SerializedProperty websocketPortProperty;
         SerializedProperty serverBindToIPProperty;
         SerializedProperty serverBindAddressProperty;
 
@@ -28,6 +29,7 @@ namespace Mirror
         SerializedProperty spawnListProperty;
 
         SerializedProperty useWebSocketsProperty;
+        SerializedProperty useTcpProperty;
 
         GUIContent showNetworkLabel;
         GUIContent showSpawnLabel;
@@ -41,11 +43,11 @@ namespace Mirror
         GUIContent maxConnectionsLabel;
 
         GUIContent useWebSocketsLabel;
+        GUIContent useTcpLabel;
 
         GUIContent networkAddressLabel;
-        GUIContent networkPortLabel;
-        GUIContent serverBindToIPLabel;
-        GUIContent serverBindAddressLabel;
+        GUIContent tcpPortLabel;
+        GUIContent websocketPortLabel;
 
         GUIContent playerPrefabLabel;
         GUIContent autoCreatePlayerLabel;
@@ -75,11 +77,11 @@ namespace Mirror
             showDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
-            useWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
+            useWebSocketsLabel = new GUIContent("WebSocket", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
+            useTcpLabel = new GUIContent("TCP", "This makes the server listen for connections using TCP.");
             networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
-            networkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
-            serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
-            serverBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
+            tcpPortLabel = new GUIContent("Port", "The network port currently in use.");
+            websocketPortLabel = new GUIContent("Port", "The network port currently in use for websockets.");
             playerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
             autoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
             playerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
@@ -91,9 +93,10 @@ namespace Mirror
 
             // network foldout properties
             networkAddressProperty = serializedObject.FindProperty("networkAddress");
-            networkPortProperty = serializedObject.FindProperty("networkPort");
-            serverBindToIPProperty = serializedObject.FindProperty("serverBindToIP");
-            serverBindAddressProperty = serializedObject.FindProperty("serverBindAddress");
+            useTcpProperty = serializedObject.FindProperty("useTcp");
+            tcpPortProperty = serializedObject.FindProperty("tcpPort");
+            useWebSocketsProperty = serializedObject.FindProperty("useWebSockets");
+            websocketPortProperty = serializedObject.FindProperty("websocketPort");
 
             // spawn foldout properties
             playerPrefabProperty = serializedObject.FindProperty("playerPrefab");
@@ -112,7 +115,6 @@ namespace Mirror
             spawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
 
             // web sockets
-            useWebSocketsProperty = serializedObject.FindProperty("useWebSockets");
         }
 
         static void ShowPropertySuffix(GUIContent content, SerializedProperty prop, string suffix)
@@ -175,20 +177,22 @@ namespace Mirror
             }
             EditorGUI.indentLevel += 1;
 
-            if (EditorGUILayout.PropertyField(useWebSocketsProperty, useWebSocketsLabel))
-            {
-                NetworkServer.useWebSockets = networkManager.useWebSockets;
-            }
+
+            float oldLabelWith = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 90f;
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(useTcpProperty, useTcpLabel);
+            EditorGUILayout.PropertyField(tcpPortProperty, tcpPortLabel);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(useWebSocketsProperty, useWebSocketsLabel);
+            EditorGUILayout.PropertyField(websocketPortProperty, websocketPortLabel);
+            EditorGUILayout.EndHorizontal();
+            EditorGUIUtility.labelWidth = oldLabelWith;
 
             EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
-            EditorGUILayout.PropertyField(networkPortProperty, networkPortLabel);
-            EditorGUILayout.PropertyField(serverBindToIPProperty, serverBindToIPLabel);
-            if (networkManager.serverBindToIP)
-            {
-                EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(serverBindAddressProperty, serverBindAddressLabel);
-                EditorGUI.indentLevel -= 1;
-            }
 
             var maxConn = serializedObject.FindProperty("maxConnections");
             ShowPropertySuffix(maxConnectionsLabel, maxConn, "connections");

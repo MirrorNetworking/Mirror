@@ -76,14 +76,13 @@ namespace Mirror.Transport.Tcp
                 }
 
                 // start listener
-                listener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
-
+                listener = TcpListener.Create(port);
 
                 // NoDelay disables nagle algorithm. lowers CPU% and latency
                 // but increases bandwidth
                 listener.Server.NoDelay = this.NoDelay;
                 listener.Start();
-                Debug.Log("Server: listening port=" + port + " max=" + maxConnections);
+                Debug.Log($"Tcp server started listening on port {port}");
 
                 // keep accepting new clients
                 while (true)
