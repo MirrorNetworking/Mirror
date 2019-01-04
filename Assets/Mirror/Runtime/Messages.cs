@@ -421,7 +421,7 @@ namespace Mirror
         }
     }
 
-    // A client sends this message to the server 
+    // A client sends this message to the server
     // to calculate RTT and synchronize time
     class NetworkPingMessage : DoubleMessage
     {
@@ -454,41 +454,23 @@ namespace Mirror
         }
     }
 
-    class LocalChildTransformMessage : MessageBase
+    class TransformMessage : MessageBase
     {
         public uint netId;
-        public uint childIndex;
+        public int componentIndex;
         public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            childIndex = reader.ReadPackedUInt32();
+            componentIndex = (int)reader.ReadPackedUInt32();
             payload = reader.ReadBytesAndSize();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32(childIndex);
-            writer.WriteBytesAndSize(payload);
-        }
-    }
-
-    class LocalPlayerTransformMessage : MessageBase
-    {
-        public uint netId;
-        public byte[] payload;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            payload = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
+            writer.WritePackedUInt32((uint)componentIndex);
             writer.WriteBytesAndSize(payload);
         }
     }
