@@ -225,7 +225,9 @@ namespace Mirror
 
         // local authority client sends sync message to server for broadcasting
         // note: message is registered in NetworkServer.RegisterMessageHandlers
-        //       because internal messages can't be registered from the outside.
+        //       because internal messages can't be registered from the outside
+        // TODO make this a [Command] later (Weaver can't weave this as long as
+        //      it's still in the same DLL)
         public static void OnClientToServerSync(NetworkMessage netMsg)
         {
             // read message
