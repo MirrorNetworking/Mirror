@@ -3,5 +3,3 @@
 
 # to native line endings on checkout.
 *.cs diff=csharp text
-
-
