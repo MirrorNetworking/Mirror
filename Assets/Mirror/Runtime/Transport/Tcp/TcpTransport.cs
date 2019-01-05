@@ -50,7 +50,10 @@ namespace Mirror.Transport.Tcp
         public virtual bool ClientConnected() { return client.IsConnected; }
         public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
         public virtual void ClientSend(int channelId, byte[] data) { client.Send(data); }
-        public virtual void ClientDisconnect() { client.Disconnect(); }
+        public virtual void ClientDisconnect() 
+        {
+            client.Disconnect(); 
+        }
 
         // server
         public virtual bool ServerActive() { return server.Active; }

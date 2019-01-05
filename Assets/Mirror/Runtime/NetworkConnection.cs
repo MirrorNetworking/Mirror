@@ -76,12 +76,11 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // client? then stop transport
-            if (NetworkManager.transport.ClientConnected())
-            {
-                NetworkManager.transport.ClientDisconnect();
-            }
+
+            NetworkManager.transport.ClientDisconnect();
+
             // server? then disconnect that client
-            else if (NetworkManager.transport.ServerActive())
+            if (NetworkManager.transport.ServerActive())
             {
                 NetworkManager.transport.ServerDisconnect(connectionId);
             }
