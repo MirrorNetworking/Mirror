@@ -273,28 +273,32 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    int newValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newValue);
+                    case AnimatorControllerParameterType.Int:
+                    {
+                        int newValue = (int)reader.ReadPackedUInt32();
+                        m_Animator.SetInteger(par.nameHash, newValue);
 
-                    SetRecvTrackingParam(par.name + ":" + newValue, i);
-                }
+                        SetRecvTrackingParam(par.name + ":" + newValue, i);
+                        break;
+                    }
+                    case AnimatorControllerParameterType.Float:
+                    {
+                        float newFloatValue = reader.ReadSingle();
+                        m_Animator.SetFloat(par.nameHash, newFloatValue);
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    float newFloatValue = reader.ReadSingle();
-                    m_Animator.SetFloat(par.nameHash, newFloatValue);
+                        SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
+                        break;
+                    }
+                    case AnimatorControllerParameterType.Bool:
+                    {
+                        bool newBoolValue = reader.ReadBoolean();
+                        m_Animator.SetBool(par.nameHash, newBoolValue);
 
-                    SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    bool newBoolValue = reader.ReadBoolean();
-                    m_Animator.SetBool(par.nameHash, newBoolValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                        SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
+                        break;
+                    }
                 }
             }
         }
