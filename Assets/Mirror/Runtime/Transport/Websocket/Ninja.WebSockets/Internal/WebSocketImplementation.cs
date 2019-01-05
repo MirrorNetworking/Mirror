@@ -437,30 +437,33 @@ namespace Ninja.WebSockets.Internal
             _closeStatus = frame.CloseStatus;
             _closeStatusDescription = frame.CloseStatusDescription;
 
-            if (_state == WebSocketState.CloseSent)
+            switch (_state)
             {
-                // this is a response to close handshake initiated by this instance
-                _state = WebSocketState.Closed;
-                Events.Log.CloseHandshakeComplete(_guid);
-            }
-            else if (_state == WebSocketState.Open)
-            {
-                // do not echo the close payload back to the client, there is no requirement for it in the spec. 
-                // However, the same CloseStatus as recieved should be sent back.
-                ArraySegment<byte> closePayload = new ArraySegment<byte>(new byte[0], 0, 0);
-                _state = WebSocketState.CloseReceived;
-                Events.Log.CloseHandshakeRespond(_guid, frame.CloseStatus, frame.CloseStatusDescription);
-
-                using (MemoryStream stream = _recycledStreamFactory())
+                case WebSocketState.CloseSent:
+                    // this is a response to close handshake initiated by this instance
+                    _state = WebSocketState.Closed;
+                    Events.Log.CloseHandshakeComplete(_guid);
+                    break;
+                case WebSocketState.Open:
                 {
-                    WebSocketFrameWriter.Write(WebSocketOpCode.ConnectionClose, closePayload, stream, true, _isClient);
-                    Events.Log.SendingFrame(_guid, WebSocketOpCode.ConnectionClose, true, closePayload.Count, false);
-                    await WriteStreamToNetwork(stream, token);
+                    // do not echo the close payload back to the client, there is no requirement for it in the spec. 
+                    // However, the same CloseStatus as recieved should be sent back.
+                    ArraySegment<byte> closePayload = new ArraySegment<byte>(new byte[0], 0, 0);
+                    _state = WebSocketState.CloseReceived;
+                    Events.Log.CloseHandshakeRespond(_guid, frame.CloseStatus, frame.CloseStatusDescription);
+
+                    using (MemoryStream stream = _recycledStreamFactory())
+                    {
+                        WebSocketFrameWriter.Write(WebSocketOpCode.ConnectionClose, closePayload, stream, true, _isClient);
+                        Events.Log.SendingFrame(_guid, WebSocketOpCode.ConnectionClose, true, closePayload.Count, false);
+                        await WriteStreamToNetwork(stream, token);
+                    }
+
+                    break;
                 }
-            }
-            else
-            {
-                Events.Log.CloseFrameReceivedInUnexpectedState(_guid, _state, frame.CloseStatus, frame.CloseStatusDescription);
+                default:
+                    Events.Log.CloseFrameReceivedInUnexpectedState(_guid, _state, frame.CloseStatus, frame.CloseStatusDescription);
+                    break;
             }
 
             return new WebSocketReceiveResult(frame.Count, WebSocketMessageType.Close, frame.IsFinBitSet, frame.CloseStatus, frame.CloseStatusDescription);
