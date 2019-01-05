@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -131,7 +132,7 @@ namespace Mirror.Transport.Tcp
                 // someone connected,  raise event
                 Connected?.Invoke(connectionId);
 
-                using (NetworkStream networkStream = tcpClient.GetStream())
+                using (Stream networkStream = tcpClient.GetStream())
                 {
                     while (true)
                     {

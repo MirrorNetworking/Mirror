@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -73,7 +74,7 @@ namespace Mirror.Transport.Tcp
 
         private async Task ReceiveLoop(TcpClient client)
         {
-            using (NetworkStream networkStream = client.GetStream())
+            using (Stream networkStream = client.GetStream())
             {
                 while (true)
                 {
