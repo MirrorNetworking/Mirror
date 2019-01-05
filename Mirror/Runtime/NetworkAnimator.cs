@@ -238,25 +238,23 @@ namespace Mirror
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
-                if (par.type == AnimatorControllerParameterType.Int)
+                switch (par.type)
                 {
-                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    case AnimatorControllerParameterType.Int:
+                        writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
 
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
-                }
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
+                        break;
+                    case AnimatorControllerParameterType.Float:
+                        writer.Write(m_Animator.GetFloat(par.nameHash));
 
-                if (par.type == AnimatorControllerParameterType.Float)
-                {
-                    writer.Write(m_Animator.GetFloat(par.nameHash));
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
+                        break;
+                    case AnimatorControllerParameterType.Bool:
+                        writer.Write(m_Animator.GetBool(par.nameHash));
 
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
-                }
-
-                if (par.type == AnimatorControllerParameterType.Bool)
-                {
-                    writer.Write(m_Animator.GetBool(par.nameHash));
-
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                        SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
+                        break;
                 }
             }
         }
