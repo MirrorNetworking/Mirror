@@ -83,11 +83,13 @@ namespace Mirror
             if (Application.isPlaying)
             {
                 EditorGUILayout.Separator();
-                if (m_AnimSync.param0 != "") EditorGUILayout.LabelField("Param 0", m_AnimSync.param0);
-                if (m_AnimSync.param1 != "") EditorGUILayout.LabelField("Param 1", m_AnimSync.param1);
-                if (m_AnimSync.param2 != "") EditorGUILayout.LabelField("Param 2", m_AnimSync.param2);
-                if (m_AnimSync.param3 != "") EditorGUILayout.LabelField("Param 3", m_AnimSync.param3);
-                if (m_AnimSync.param4 != "") EditorGUILayout.LabelField("Param 4", m_AnimSync.param4);
+                for (int index = 0; index < 5; index++)
+                {
+                    if (!string.IsNullOrEmpty(m_AnimSync.param[index]))
+                    {
+                        EditorGUILayout.LabelField("Param " + index, m_AnimSync.param[index]);
+                    }
+                }
             }
         }
     }

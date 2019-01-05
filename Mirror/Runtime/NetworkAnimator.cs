@@ -46,12 +46,7 @@ namespace Mirror
         float                   m_SendTimer;
 
         // tracking - these should probably move to a Preview component.
-        public string   param0;
-        public string   param1;
-        public string   param2;
-        public string   param3;
-        public string   param4;
-        public string   param5;
+        public string[] param = new string[6];
 
         bool sendMessagesAllowed
         {
@@ -177,24 +172,12 @@ namespace Mirror
 
         void SetSendTrackingParam(string p, int i)
         {
-            p = "Sent Param: " + p;
-            if (i == 0) param0 = p;
-            if (i == 1) param1 = p;
-            if (i == 2) param2 = p;
-            if (i == 3) param3 = p;
-            if (i == 4) param4 = p;
-            if (i == 5) param5 = p;
+            param[i] = "Sent Param: " + p;
         }
 
         void SetRecvTrackingParam(string p, int i)
         {
-            p = "Recv Param: " + p;
-            if (i == 0) param0 = p;
-            if (i == 1) param1 = p;
-            if (i == 2) param2 = p;
-            if (i == 3) param3 = p;
-            if (i == 4) param4 = p;
-            if (i == 5) param5 = p;
+            param[i] = "Recv Param: " + p;
         }
 
         internal void HandleAnimMsg(AnimationMessage msg, NetworkReader reader)
