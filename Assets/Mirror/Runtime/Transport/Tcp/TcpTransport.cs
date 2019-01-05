@@ -22,7 +22,6 @@ namespace Mirror.Transport.Tcp
         protected Server server = new Server();
 
         public int port = 7777;
-        public int MaxConnections = int.MaxValue;
 
         public TcpTransport()
         {
@@ -59,7 +58,7 @@ namespace Mirror.Transport.Tcp
         public virtual bool ServerActive() { return server.Active; }
         public virtual void ServerStart()
         {
-            server.Listen(port, MaxConnections);
+            server.Listen(port);
         }
 
         public virtual void ServerSend(int connectionId, int channelId, byte[] data) { server.Send(connectionId, data); }

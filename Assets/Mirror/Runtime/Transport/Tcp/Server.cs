@@ -91,21 +91,8 @@ namespace Mirror.Transport.Tcp
                     // wait for a tcp client;
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
 
-                    // are more connections allowed?
-                    if (clients.Count < maxConnections)
-                    {
-                        // non blocking receive loop
-                        ReceiveLoop(tcpClient);
-                    }
-                    else
-                    {
-                        // connection limit reached. disconnect the client and show
-                        // a small log message so we know why it happened.
-                        // note: no extra Sleep because Accept is blocking anyway
-
-                        tcpClient.Close();
-                        Debug.Log("Server too full, disconnected a client");
-                    }
+                    // non blocking receive loop
+                    ReceiveLoop(tcpClient);
                 }
             }
             catch(ObjectDisposedException)

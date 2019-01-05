@@ -153,8 +153,7 @@ namespace Mirror
             {
                 tcpTransport = new TcpTransport
                 {
-                    port = this.tcpPort,
-                    MaxConnections = maxConnections
+                    port = this.tcpPort
                 };
             }
 
@@ -543,6 +542,13 @@ namespace Mirror
         internal void OnServerConnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
+
+            if (NetworkServer.connections.Count > maxConnections)
+            {
+                // we have too many connections,  kick him out
+                netMsg.conn.Disconnect();
+                return;
+            }
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
