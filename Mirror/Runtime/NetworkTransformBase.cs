@@ -125,28 +125,34 @@ namespace Mirror
             // deserialize position
             temp.position = reader.ReadVector3();
 
-            // deserialize rotation
-            if (compressRotation == Compression.None)
+            switch (compressRotation)
             {
-                // read 3 floats = 16 byte
-                float x = reader.ReadSingle();
-                float y = reader.ReadSingle();
-                float z = reader.ReadSingle();
-                temp.rotation = Quaternion.Euler(x, y, z);
-            }
-            else if (compressRotation == Compression.Much)
-            {
-                // read 3 byte. scaling [0,255] to [0,360]
-                float x = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float y = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float z = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                temp.rotation = Quaternion.Euler(x, y, z);
-            }
-            else if (compressRotation == Compression.Lots)
-            {
-                // read 2 byte, 5 bits per float
-                float[] xyz = Utils.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
-                temp.rotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
+                // deserialize rotation
+                case Compression.None:
+                {
+                    // read 3 floats = 16 byte
+                    float x = reader.ReadSingle();
+                    float y = reader.ReadSingle();
+                    float z = reader.ReadSingle();
+                    temp.rotation = Quaternion.Euler(x, y, z);
+                    break;
+                }
+                case Compression.Much:
+                {
+                    // read 3 byte. scaling [0,255] to [0,360]
+                    float x = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                    float y = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                    float z = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                    temp.rotation = Quaternion.Euler(x, y, z);
+                    break;
+                }
+                case Compression.Lots:
+                {
+                    // read 2 byte, 5 bits per float
+                    float[] xyz = Utils.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
+                    temp.rotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
+                    break;
+                }
             }
 
             // timestamp
