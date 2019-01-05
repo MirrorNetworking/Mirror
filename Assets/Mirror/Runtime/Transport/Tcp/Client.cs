@@ -121,5 +121,20 @@ namespace Mirror.Transport.Tcp
                 ReceivedError?.Invoke(ex);
             }
         }
+
+
+        public override string ToString()
+        {
+            if (IsConnected )
+            {
+                return $"TCP connected to {client.Client.RemoteEndPoint}";
+            }
+            if (Connecting)
+            {
+                return $"TCP connecting to {client.Client.RemoteEndPoint}";
+            }
+            return "";
+        }
     }
+    
 }

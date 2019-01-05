@@ -297,5 +297,14 @@ namespace Mirror.Transport.Websocket
             }
             return false;
         }
+
+        public override string ToString()
+        {
+            if (Active)
+            {
+                return $"Websocket server {listener.LocalEndpoint}";
+            }
+            return "";
+        }
     }
 }

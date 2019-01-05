@@ -237,5 +237,14 @@ namespace Mirror.Transport.Tcp
             }
             return false;
         }
+
+        public override string ToString()
+        {
+            if (Active)
+            {
+                return $"TCP server {listener.LocalEndpoint}";
+            }
+            return "";
+        }
     }
 }

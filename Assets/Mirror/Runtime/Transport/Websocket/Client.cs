@@ -29,6 +29,8 @@ namespace Mirror.Transport.Websocket
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
+        private Uri uri;
+
         public async void Connect(Uri uri)
         {
             // not if already started
@@ -38,7 +40,7 @@ namespace Mirror.Transport.Websocket
                 ReceivedError?.Invoke(new Exception("Client already connected"));
                 return;
             }
-
+            this.uri = uri;
             // We are connecting from now until Connect succeeds or fails
             Connecting = true;
 
@@ -160,6 +162,20 @@ namespace Mirror.Transport.Websocket
                 Disconnect();
                 ReceivedError?.Invoke(ex);
             }
+        }
+
+
+        public override string ToString()
+        {
+            if (IsConnected )
+            {
+                return $"Websocket connected to {uri}";
+            }
+            if (Connecting)
+            {
+                return $"Websocket connecting to {uri}";
+            }
+            return "";
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror.Transport
@@ -175,6 +176,16 @@ namespace Mirror.Transport
             {
                 transport.Shutdown();
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (TransportLayer transport in transports)
+            {
+                builder.AppendLine(transport.ToString());
+            }
+            return builder.ToString().Trim();
         }
     }
 }
