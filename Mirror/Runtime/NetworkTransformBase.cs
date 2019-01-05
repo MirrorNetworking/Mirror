@@ -77,24 +77,24 @@ namespace Mirror
             // -> quaternion->euler->quaternion always works.
             // -> gimbal lock only occurs when adding.
             Vector3 euler = rotation.eulerAngles;
-            if (compressRotation == Compression.None)
+            switch (compressRotation)
             {
-                // write 3 floats = 12 byte
-                writer.Write(euler.x);
-                writer.Write(euler.y);
-                writer.Write(euler.z);
-            }
-            else if (compressRotation == Compression.Much)
-            {
-                // write 3 byte. scaling [0,360] to [0,255]
-                writer.Write(Utils.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.Write(Utils.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.Write(Utils.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
-            }
-            else if (compressRotation == Compression.Lots)
-            {
-                // write 2 byte, 5 bits for each float
-                writer.Write(Utils.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
+                case Compression.None:
+                    // write 3 floats = 12 byte
+                    writer.Write(euler.x);
+                    writer.Write(euler.y);
+                    writer.Write(euler.z);
+                    break;
+                case Compression.Much:
+                    // write 3 byte. scaling [0,360] to [0,255]
+                    writer.Write(Utils.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
+                    writer.Write(Utils.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
+                    writer.Write(Utils.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
+                    break;
+                case Compression.Lots:
+                    // write 2 byte, 5 bits for each float
+                    writer.Write(Utils.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
+                    break;
             }
         }
 
