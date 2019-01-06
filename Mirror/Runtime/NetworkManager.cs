@@ -29,7 +29,7 @@ namespace Mirror
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
         [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
         [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
-        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
+        [FormerlySerializedAs("m_MaxConnections")] public ushort maxConnections = 4;
         [FormerlySerializedAs("m_UseWebSockets")] public bool useWebSockets;
         [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
 
@@ -145,7 +145,7 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
-            maxConnections = Mathf.Clamp(maxConnections, 1, 32000); // [1, 32000]
+            maxConnections = (ushort)Mathf.Clamp(maxConnections, 1, 32000); // [1, 32000]
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {

@@ -162,14 +162,14 @@ namespace Mirror
             return serverHostId != -1;
         }
 
-        public void ServerStart(string address, int port, int maxConnections)
+        public void ServerStart(string address, int port, ushort maxConnections)
         {
             HostTopology topology = new HostTopology(connectionConfig, maxConnections);
             serverHostId = NetworkTransport.AddHost(topology, port);
             //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public void ServerStartWebsockets(string address, int port, int maxConnections)
+        public void ServerStartWebsockets(string address, int port, ushort maxConnections)
         {
             HostTopology topology = new HostTopology(connectionConfig, maxConnections);
             serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
