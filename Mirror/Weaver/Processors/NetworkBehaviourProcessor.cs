@@ -434,13 +434,13 @@ namespace Mirror.Weaver
             m_td.Methods.Add(serialize);
         }
 
-        public static int GetChannelId(CustomAttribute ca)
+        public static byte GetChannelId(CustomAttribute ca)
         {
             foreach (CustomAttributeNamedArgument customField in ca.Fields)
             {
                 if (customField.Name == "channel")
                 {
-                    return (int)customField.Argument.Value;
+                    return (byte)customField.Argument.Value;
                 }
             }
 

@@ -25,7 +25,7 @@ namespace Mirror
         // client
         public virtual bool ClientConnected() { return client.Connected; }
         public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
-        public virtual bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+        public virtual bool ClientSend(byte channelId, byte[] data) { return client.Send(data); }
         public virtual bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
@@ -66,7 +66,7 @@ namespace Mirror
         {
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
-        public virtual bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public virtual bool ServerSend(int connectionId, byte channelId, byte[] data) { return server.Send(connectionId, data); }
         public virtual bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
@@ -115,7 +115,7 @@ namespace Mirror
             server.Stop();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public int GetMaxPacketSize(byte channelId)
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;

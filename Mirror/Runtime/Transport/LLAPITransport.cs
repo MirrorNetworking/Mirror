@@ -10,7 +10,7 @@ namespace Mirror
     {
         readonly ConnectionConfig connectionConfig;
         readonly GlobalConfig globalConfig;
-        readonly int channelId; // always use first channel
+        readonly byte channelId; // always use first channel
         byte error;
 
         int clientId = -1;
@@ -101,7 +101,7 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(int channelId, byte[] data)
+        public bool ClientSend(byte channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
@@ -176,7 +176,7 @@ namespace Mirror
             //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public bool ServerSend(int connectionId, byte channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
@@ -260,7 +260,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public int GetMaxPacketSize(byte channelId)
         {
             return globalConfig.MaxPacketSize;
         }

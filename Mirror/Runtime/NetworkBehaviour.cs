@@ -77,7 +77,7 @@ namespace Mirror
         // ----------------------------- Commands --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
+        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, byte channelId)
         {
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
@@ -111,7 +111,7 @@ namespace Mirror
         // ----------------------------- Client RPCs --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, byte channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -131,7 +131,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, byte channelId)
         {
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
@@ -159,7 +159,7 @@ namespace Mirror
         // ----------------------------- Sync Events --------------------------------
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
+        protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, byte channelId)
         {
             if (!NetworkServer.active)
             {

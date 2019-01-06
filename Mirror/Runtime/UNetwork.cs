@@ -84,8 +84,8 @@ namespace Mirror
 
     public class Channels
     {
-        public const int DefaultReliable = 0;
-        public const int DefaultUnreliable = 1;
+        public const byte DefaultReliable = 0;
+        public const byte DefaultUnreliable = 1;
     }
 
     // network protocol all in one place, instead of constructing headers in all kinds of different places

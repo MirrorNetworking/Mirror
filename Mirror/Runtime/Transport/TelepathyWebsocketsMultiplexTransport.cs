@@ -36,7 +36,7 @@ namespace Mirror
         {
             client.ClientConnect(address, port);
         }
-        public bool ClientSend(int channelId, byte[] data)
+        public bool ClientSend(byte channelId, byte[] data)
         {
             return client.ClientSend(channelId, data);
         }
@@ -81,7 +81,7 @@ namespace Mirror
             else Debug.LogWarning("ServerStartWebsockets can't be called in WebGL.");
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public bool ServerSend(int connectionId, byte channelId, byte[] data)
         {
             return server != null && server.ServerSend(connectionId, channelId, data);
         }
@@ -117,7 +117,7 @@ namespace Mirror
             if (server != null) server.Shutdown();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public int GetMaxPacketSize(byte channelId)
         {
             if (server != null) return server.GetMaxPacketSize(channelId);
             if (client != null) return client.GetMaxPacketSize(channelId);

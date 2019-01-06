@@ -16,7 +16,7 @@ namespace Mirror
             m_LocalClient = localClient;
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected override bool SendBytes(byte[] bytes, byte channelId = Channels.DefaultReliable)
         {
             m_LocalClient.InvokeBytesOnClient(bytes);
             return true;
@@ -31,7 +31,7 @@ namespace Mirror
         {
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected override bool SendBytes(byte[] bytes, byte channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {

@@ -214,7 +214,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool SendToAll(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public static bool SendToAll(short msgType, MessageBase msg, byte channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
@@ -227,7 +227,7 @@ namespace Mirror
             return result;
         }
 
-        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg, byte channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 

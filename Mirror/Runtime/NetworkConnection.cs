@@ -155,7 +155,7 @@ namespace Mirror
             m_PlayerController = null;
         }
 
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public virtual bool Send(short msgType, MessageBase msg, byte channelId = Channels.DefaultReliable)
         {
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
@@ -167,7 +167,7 @@ namespace Mirror
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
         // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected virtual bool SendBytes( byte[] bytes, byte channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
@@ -278,7 +278,7 @@ namespace Mirror
             HandleBytes(bytes);
         }
 
-        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
+        public virtual bool TransportSend(byte channelId, byte[] bytes, out byte error)
         {
             error = 0;
             if (Transport.layer.ClientConnected())

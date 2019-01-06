@@ -20,7 +20,7 @@ namespace Mirror
         // client
         bool ClientConnected();
         void ClientConnect(string address, int port);
-        bool ClientSend(int channelId, byte[] data);
+        bool ClientSend(byte channelId, byte[] data);
         bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
         void ClientDisconnect();
 
@@ -28,7 +28,7 @@ namespace Mirror
         bool ServerActive();
         void ServerStart(string address, int port, int maxConnections);
         void ServerStartWebsockets(string address, int port, int maxConnections);
-        bool ServerSend(int connectionId, int channelId, byte[] data);
+        bool ServerSend(int connectionId, byte channelId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool ServerDisconnect(int connectionId);
         bool GetConnectionInfo(int connectionId, out string address);
@@ -36,6 +36,6 @@ namespace Mirror
 
         // common
         void Shutdown();
-        int GetMaxPacketSize(int channelId=Channels.DefaultReliable);
+        int GetMaxPacketSize(byte channelId=Channels.DefaultReliable);
     }
 }
