@@ -24,7 +24,7 @@ namespace Mirror
 
         // client
         public virtual bool ClientConnected() { return client.Connected; }
-        public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
+        public virtual void ClientConnect(string address, ushort port) { client.Connect(address, port); }
         public virtual bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
         public virtual bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
@@ -61,8 +61,8 @@ namespace Mirror
 
         // server
         public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart(string address, int port, int maxConnections) { server.Start(port, maxConnections); }
-        public virtual void ServerStartWebsockets(string address, int port, int maxConnections)
+        public virtual void ServerStart(string address, ushort port, int maxConnections) { server.Start(port, maxConnections); }
+        public virtual void ServerStartWebsockets(string address, ushort port, int maxConnections)
         {
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
