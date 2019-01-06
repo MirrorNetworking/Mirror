@@ -18,8 +18,8 @@ NetworkServer is a High-Level-API class that manages connections from multiple c
     The port that the server is listening on.
 -   **localClientActive**  
     True if a local client is currently active on the server.
--   **localConnections**  
-    A list of local connections on the server.
+-   **localConnection**  
+    The connection to the local client. This is only used when in host mode
 -   **maxDelay**  
     The maximum delay before sending packets on connections.
 -   **networkConnectionClass**  
