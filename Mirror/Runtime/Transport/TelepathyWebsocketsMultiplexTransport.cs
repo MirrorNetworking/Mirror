@@ -32,7 +32,7 @@ namespace Mirror
         {
             return client.ClientConnected();
         }
-        public void ClientConnect(string address, int port)
+        public void ClientConnect(string address, ushort port)
         {
             client.ClientConnect(address, port);
         }
@@ -55,7 +55,7 @@ namespace Mirror
             return server != null && server.ServerActive();
         }
 
-        public void ServerStart(string address, int port, int maxConnections)
+        public void ServerStart(string address, ushort port, int maxConnections)
         {
             // WebGL host mode should work without errors, even though we can't
             // start a server in WebGL
@@ -68,7 +68,7 @@ namespace Mirror
             else Debug.LogWarning("ServerStart can't be called in WebGL.");
         }
 
-        public void ServerStartWebsockets(string address, int port, int maxConnections)
+        public void ServerStartWebsockets(string address, ushort port, int maxConnections)
         {
             // WebGL host mode should work without errors, even though we can't
             // start a server in WebGL
