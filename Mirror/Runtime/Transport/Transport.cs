@@ -19,15 +19,15 @@ namespace Mirror
     {
         // client
         bool ClientConnected();
-        void ClientConnect(string address, int port);
+        void ClientConnect(string address, ushort port);
         bool ClientSend(int channelId, byte[] data);
         bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
         void ClientDisconnect();
 
         // server
         bool ServerActive();
-        void ServerStart(string address, int port, ushort maxConnections);
-        void ServerStartWebsockets(string address, int port, ushort maxConnections);
+        void ServerStart(string address, ushort port, ushort maxConnections);
+        void ServerStartWebsockets(string address, ushort port, ushort maxConnections);
         bool ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool ServerDisconnect(int connectionId);

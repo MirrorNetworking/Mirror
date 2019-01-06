@@ -85,17 +85,17 @@ namespace Mirror
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(int serverPort, ushort maxConnections)
+        public static bool Listen(ushort serverPort, ushort maxConnections)
         {
             return InternalListen(null, serverPort, maxConnections);
         }
 
-        public static bool Listen(string ipAddress, int serverPort, ushort maxConnections)
+        public static bool Listen(string ipAddress, ushort serverPort, ushort maxConnections)
         {
             return InternalListen(ipAddress, serverPort, maxConnections);
         }
 
-        internal static bool InternalListen(string ipAddress, int serverPort, ushort maxConnections)
+        internal static bool InternalListen(string ipAddress, ushort serverPort, ushort maxConnections)
         {
             Initialize();
 
