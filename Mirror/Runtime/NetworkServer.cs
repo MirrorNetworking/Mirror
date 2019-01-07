@@ -15,6 +15,7 @@ namespace Mirror
         static int s_ServerHostId = -1;
         static int s_ServerPort = -1;
         static bool s_Initialized;
+        static int s_MaxConnections;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
@@ -98,6 +99,7 @@ namespace Mirror
         internal static bool InternalListen(string ipAddress, ushort serverPort, int maxConnections)
         {
             Initialize();
+            s_MaxConnections = maxConnections;
 
             // only start server if we want to listen
             if (!dontListen)
@@ -106,12 +108,12 @@ namespace Mirror
 
                 if (useWebSockets)
                 {
-                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort, maxConnections);
+                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
                 else
                 {
-                    Transport.layer.ServerStart(ipAddress, serverPort, maxConnections);
+                    Transport.layer.ServerStart(ipAddress, serverPort);
                     s_ServerHostId = 0; // so it doesn't return false
                 }
 
@@ -346,14 +348,28 @@ namespace Mirror
                 return;
             }
 
-            // get ip address from connection
-            string address;
-            Transport.layer.GetConnectionInfo(connectionId, out address);
+            // are more connections allowed? if not, kick
+            // (it's easier to handle this in Mirror, so Transports can have
+            //  less code and third party transport might not do that anyway)
+            // (this way we could also send a custom 'tooFull' message later,
+            //  Transport can't do that)
+            if (connections.Count <= s_MaxConnections)
+            {
+                // get ip address from connection
+                string address;
+                Transport.layer.GetConnectionInfo(connectionId, out address);
 
-            // add player info
-            NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
-            AddConnection(conn);
-            OnConnected(conn);
+                // add player info
+                NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
+                AddConnection(conn);
+                OnConnected(conn);
+            }
+            else
+            {
+                // kick
+                Transport.layer.ServerDisconnect(connectionId);
+                if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
+            }
         }
 
         static void OnConnected(NetworkConnection conn)
