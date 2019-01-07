@@ -55,7 +55,7 @@ namespace Mirror
             return server != null && server.ServerActive();
         }
 
-        public void ServerStart(string address, ushort port, ushort maxConnections)
+        public void ServerStart(string address, ushort port)
         {
             // WebGL host mode should work without errors, even though we can't
             // start a server in WebGL
@@ -63,12 +63,12 @@ namespace Mirror
             if (Application.platform != RuntimePlatform.WebGLPlayer)
             {
                 server = new TelepathyTransport();
-                server.ServerStart(address, port, maxConnections);
+                server.ServerStart(address, port);
             }
             else Debug.LogWarning("ServerStart can't be called in WebGL.");
         }
 
-        public void ServerStartWebsockets(string address, ushort port, ushort maxConnections)
+        public void ServerStartWebsockets(string address, ushort port)
         {
             // WebGL host mode should work without errors, even though we can't
             // start a server in WebGL
@@ -76,7 +76,7 @@ namespace Mirror
             if (Application.platform != RuntimePlatform.WebGLPlayer)
             {
                 server = new LLAPITransport();
-                server.ServerStartWebsockets(address,port, maxConnections);
+                server.ServerStartWebsockets(address,port);
             }
             else Debug.LogWarning("ServerStartWebsockets can't be called in WebGL.");
         }

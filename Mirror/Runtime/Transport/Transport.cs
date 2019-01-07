@@ -25,9 +25,8 @@ namespace Mirror
         void ClientDisconnect();
 
         // server
-        bool ServerActive();
-        void ServerStart(string address, ushort port, ushort maxConnections);
-        void ServerStartWebsockets(string address, ushort port, ushort maxConnections);
+        void ServerStart(string address, ushort port);
+        void ServerStartWebsockets(string address, ushort port);
         bool ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool ServerDisconnect(int connectionId);
