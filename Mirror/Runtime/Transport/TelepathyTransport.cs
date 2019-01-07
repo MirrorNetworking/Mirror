@@ -61,8 +61,8 @@ namespace Mirror
 
         // server
         public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart(string address, ushort port, int maxConnections) { server.Start(port, maxConnections); }
-        public virtual void ServerStartWebsockets(string address, ushort port, int maxConnections)
+        public virtual void ServerStart(string address, ushort port) { server.Start(port); }
+        public virtual void ServerStartWebsockets(string address, ushort port)
         {
             Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
         }
