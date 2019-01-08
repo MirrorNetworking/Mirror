@@ -821,8 +821,8 @@ namespace Mirror
         {
             if (netMsg.conn.playerController != null)
             {
-                netMsg.conn.RemovePlayerController();
                 Destroy(netMsg.conn.playerController.gameObject);
+                netMsg.conn.RemovePlayerController();
             }
             else
             {

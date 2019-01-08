@@ -121,10 +121,11 @@ namespace Mirror
                 RemovePlayerMessage msg = new RemovePlayerMessage();
                 s_ReadyConnection.Send((short)MsgType.RemovePlayer, msg);
 
+                Object.Destroy(s_ReadyConnection.playerController.gameObject);
+
                 s_ReadyConnection.RemovePlayerController();
                 s_LocalPlayer = null;
 
-                Object.Destroy(s_ReadyConnection.playerController.gameObject);
                 return true;
             }
             return false;
