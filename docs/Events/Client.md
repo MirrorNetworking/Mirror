@@ -3,8 +3,8 @@
 General description of Client Events
 
 -   **OnClientConnect**  
-    Called on the server when a new client connects.
-    Mirror calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.
+    Called on the client when it connects.
+    Mirror calls this on the client when it connects to the Server. Use an override to tell the NetworkManager what to do when the client connects to a server.
 -   **OnClientDisconnect**  
     Called on clients when disconnected from a server.
     This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.

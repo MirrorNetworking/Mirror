@@ -138,6 +138,8 @@
       url: "/Transports/Groove"
     - title: "Steam - Fizzy"
       url: "/Transports/Fizzy"
+    - title: "Socket - Insight"
+      url: "/Transports/Insight"
 - title: "Sample Projects"
   children:
     - title: "Overview"
