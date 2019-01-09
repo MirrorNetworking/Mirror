@@ -769,7 +769,7 @@ namespace Mirror
 
             foreach (NetworkConnection conn in oldObservers)
             {
-                if (!newObservers.Contains(conn))
+                if (!newObservers.Contains(conn) && NetworkServer.localConnection!=null)
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
