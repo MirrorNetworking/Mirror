@@ -558,24 +558,31 @@ namespace Mirror
         // helper function to handle SyncEvent/Command/Rpc
         internal void HandleRemoteCall(int componentIndex, int functionHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            if (gameObject == null)
+            try
             {
-                Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
-                return;
-            }
-
-            // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < m_NetworkBehaviours.Length)
-            {
-                NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
-                if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
+                if (gameObject == null)
                 {
-                    Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                    Debug.LogWarning(invokeType + " [" + functionHash + "] received for deleted object [netId=" + netId + "]");
+                    return;
                 }
-            }
-            else
+
+                // find the right component to invoke the function on
+                if (0 <= componentIndex && componentIndex < m_NetworkBehaviours.Length)
+                {
+                    NetworkBehaviour invokeComponent = m_NetworkBehaviours[componentIndex];
+                    if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
+                    {
+                        Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
+                }
+             }
+            catch (Exception ex)
             {
-                Debug.LogWarning("Component [" + componentIndex + "] not found for [netId=" + netId + "]");
+                Debug.LogError(ex);                
             }
         }
 
