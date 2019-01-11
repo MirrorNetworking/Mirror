@@ -1,4 +1,4 @@
-﻿// transport layer backend
+// transport layer backend
 // - set to telepathy by default
 // - can be changed by assigning Transport.layer to whatever you want
 using System;

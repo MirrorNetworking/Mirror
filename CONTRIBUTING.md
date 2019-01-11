@@ -6,7 +6,7 @@ First off, thank you for considering contributing to this project. It's people l
 
 Following these guidelines helps to communicate that you respect the time of the developers managing and developing this open source project. In return, they should reciprocate that respect in addressing your issue, assessing changes, and helping you finalize your pull requests.
 
-This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
+This is an open source project and we love to receive contributions from our community â€” you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
 If you haven't already, come find us in [Discord](https://discord.gg/wvesC6). We want you working on things you're excited about, and we can give you instant feedback.
 
@@ -114,7 +114,14 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 * **Curly Braces { }**  
     Always use braces even for one line if's. Unity did this everywhere, and there is value in not accidentally missing a line in an if statement because there were no braces.
 * **Variable naming**  
-    \`NetworkIdentity identity\`, not \`NetworkIdentity uv\` or similar. If the variable needs a comment the name needs to be changed. For example, `msg = ... // the message` use `message = ...` without a comment instead Please Avoid **var** where possible. My text editor doesn't show me the type, so it needs to be obvious, and having two different ways to do the same thing only creates unnecessary complexity and confusion.
+    \`NetworkIdentity identity\`, not \`NetworkIdentity uv\` or similar. If the variable needs a comment the name needs to be changed. For example, `msg = ... // the message` use `message = ...` without a comment instead
+* **type vs. var**:
+    Please use 'int x' instead of 'var x', etc. in all cases. Here is why: whenever
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
+
+**One Python Way**
+Unlike Python, C# has different ways to do the same thing, which causes endless discussions and pull requests to change from one way to the other. Let's always use the most simple, most obvious way:
+  * **type** vs. **var**: always use 'int x' instead of 'var x'. Less guess work. Less magic. If we **always** use the proper type then we have to waste no brain cycles on unnecessary decision making.
+  * **if** vs. **switch**: any if statement could be converted to switch and back. Again, let's not have endless discussions and use if unless _switch_ makes overwhelmingly much sense. Python doesn't have switch either, they don't have those discussions and pull requests over there.
  
 Thanks.

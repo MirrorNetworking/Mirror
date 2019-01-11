@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -14,6 +14,7 @@ namespace Mirror
 
         static int s_ServerHostId = -1;
         static bool s_Initialized;
+        static int s_MaxConnections;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
@@ -92,9 +93,10 @@ namespace Mirror
         }
 
 
-        public static bool Listen()
+        public static bool Listen(int maxConnections)
         {
             Initialize();
+            s_MaxConnections = maxConnections;
 
             // only start server if we want to listen
             if (!dontListen)
@@ -309,14 +311,23 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + connectionId); }
 
-            // get ip address from connection
-            string address;
-            NetworkManager.transport.GetConnectionInfo(connectionId, out address);
+            if (connections.Count <= s_MaxConnections)
+            {
+                // get ip address from connection
+                string address;
+                NetworkManager.transport.GetConnectionInfo(connectionId, out address);
 
-            // add player info
-            NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
-            AddConnection(conn);
-            OnConnected(conn);
+                // add player info
+                NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
+                AddConnection(conn);
+                OnConnected(conn);
+            }
+            else
+            {
+                // kick
+                NetworkManager.transport.ServerDisconnect(connectionId);
+                if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
+            }
         }
 
         static void OnConnected(NetworkConnection conn)
@@ -755,8 +766,8 @@ namespace Mirror
         {
             if (netMsg.conn.playerController != null)
             {
-                netMsg.conn.RemovePlayerController();
                 Destroy(netMsg.conn.playerController.gameObject);
+                netMsg.conn.RemovePlayerController();
             }
             else
             {

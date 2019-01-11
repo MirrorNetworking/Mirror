@@ -7,7 +7,8 @@ This document describes steps to converting a single player game to a multiplaye
 -   Add a new GameObject to the Scene and rename it “NetworkManager”.
 -   Add the NetworkManager component to the “NetworkManager” GameObject.
 -   Add the NetworkManagerHUD component to the GameObject. This provides the default UI for managing the network game state.
-See [Using the NetworkManager].
+
+See [Using the NetworkManager](/Mirror/Components/NetworkManager).
 
 ## Player Prefab
 
@@ -17,7 +18,7 @@ See [Using the NetworkManager].
 -   Set the `playerPrefab` in the NetworkManager’s Spawn Info section to the player Prefab
 -   Remove the player GameObject instance from the Scene if it exists in the Scene
 
-See [Player Objects] for more information.
+See [Player Objects](/Mirror/Concepts/GameObjects/SpawnPlayer) for more information.
 
 ## Player movement
 
@@ -51,14 +52,14 @@ public class Controls : NetworkBehaviour
 -   Make scripts that contain important data into NetworkBehaviours instead of MonoBehaviours
 -   Make important member variables into SyncVars
 
-See [State Synchronization].
+See [State Synchronization](/Mirror/Concepts/StateSync).
 
 ## Networked actions
 
 -   Make scripts that perform important actions into NetworkBehaviours instead of MonoBehaviours
 -   Update functions that perform important player actions to be commands
 
-See [Networked Actions](#networked-actions).
+See [Networked Actions](/Mirror/Concepts/Communications/).
 
 ## Non-player GameObjects
 

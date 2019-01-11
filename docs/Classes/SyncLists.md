@@ -27,7 +27,7 @@ A SyncList can only be of the following type
 
 Don't modify them in Awake, use OnStartServer or Start. SyncListStructs use Structs. C\# structs are value types, just like int, float, Vector3 etc. You can't do synclist.value = newvalue; You have to copy the element, assign the new value, assign the new element to the synclist. You can use hooks like this:
 
-```
+```cs
 // for the official things
 [SyncListString(hook="MyHook")] SyncListString mylist;
 void MyHook(SyncListString.Operation op, int index) {

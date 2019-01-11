@@ -205,7 +205,7 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
-            maxConnections = Mathf.Clamp(maxConnections, 1, 32000); // [1, 32000]
+            maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
@@ -232,7 +232,7 @@ namespace Mirror
                 Application.runInBackground = true;
 
             // start the transport listening
-            if (!NetworkServer.Listen())
+            if (!NetworkServer.Listen(maxConnections))
             {
                 Debug.LogError("StartServer listen on failed.");
                 return false;
@@ -534,14 +534,6 @@ namespace Mirror
         internal void OnServerConnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
-
-            if (NetworkServer.connections.Count > maxConnections)
-            {
-                // we have too many connections,  kick him out
-                netMsg.conn.Disconnect();
-                return;
-            }
-
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
