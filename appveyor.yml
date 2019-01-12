@@ -28,7 +28,7 @@ build_script:
   - cd ..
 
 artifacts:
-  - path: Assets/Mirror
+  - path: Assets
     name: Mirror
 
 image: Visual Studio 2017
