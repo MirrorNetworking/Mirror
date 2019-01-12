@@ -38,9 +38,7 @@ Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/conte
 Alternatively,  you can install it manually:
 
 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
-2. Drop the DLLs into your Project's Plugins folder
-3. Select Runtime/Mirror.Runtime.dll and tell Unity to **Exclude** the Editor platform
-4. Select Runtime-Editor/Mirror.Runtime.dll and tell Unity to **only Include** the Editor platform
+2. Decompress the zip file in Assets
 
 ## Migration Guide
 If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
@@ -57,9 +55,6 @@ If you don't want to use Telepathy or UNET's LLAPI as low level transport, then 
 
 ## Donations
 Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
-
-## Build
-Building Mirror yourself is very easy. Simply download the project, open it in Visual Studio or Rider, build it once for Release and once for Release-Editor. You will then find all the necessary DLLs in the Output directory.
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
