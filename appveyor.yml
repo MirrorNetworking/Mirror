@@ -14,9 +14,6 @@ install:
   - cd ..
   - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
   
-before_build:
-  - nuget restore Mirror/Networking.sln
-
 #build:
 #  project: Mirror/Networking.sln
 #  verbosity: minimal
@@ -25,41 +22,11 @@ before_build:
 skip_tags: true
 
 build_script:
-  - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug-Editor" /ConsoleLoggerParameters:Verbosity=quiet
-  - msbuild Mirror/Networking.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration="Debug" /ConsoleLoggerParameters:Verbosity=quiet
   - cd docs
   - bundle exec jekyll build
   - ruby checksite.rb
   - cd ..
 
-artifacts:
-  - path: Mirror/Output
-    name: Mirror
-
 image: Visual Studio 2017
 
-test_script:
-  - Mirror\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -returntargetcode -register:user -target:"nunit3-console.exe" -targetargs:"Mirror\Tests\bin\Debug\Mirror.Tests.dll" -output:"coverage.xml" -filter:"+[Mirror*]* -[Mirror.Tests*]* "
 
-after_test:
-  - ps: |
-      $env:PATH = 'C:\msys64\usr\bin;' + $env:PATH
-      Invoke-WebRequest -Uri 'https://codecov.io/bash' -OutFile codecov.sh
-      bash codecov.sh -f "coverage.xml" 
-
-#skip_commits:
-#  files:
-#    - '/*.md'
-#    - '**/*.txt'
-#    - '.gitignore'
-
-deploy:
-  description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
-  provider: GitHub
-  auth_token:
-    secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
-  artifact: Mirror\Mirror.zip            # upload all NuGet packages to release assets
-  draft: false
-  prerelease: false
-  on:
-    branch: master
