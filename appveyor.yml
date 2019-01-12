@@ -27,6 +27,10 @@ build_script:
   - ruby checksite.rb
   - cd ..
 
+artifacts:
+  - path: Assets/Mirror
+    name: Mirror
+
 image: Visual Studio 2017
 
 
