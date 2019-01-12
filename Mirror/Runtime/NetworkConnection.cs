@@ -204,7 +204,7 @@ namespace Mirror
             {
                 if (logNetworkMessages)
                 {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
+                    if (Enum.IsDefined(typeof(MsgType), (short)msgType))
                     {
                         // one of Mirror mesage types,  display the message name
                         Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
