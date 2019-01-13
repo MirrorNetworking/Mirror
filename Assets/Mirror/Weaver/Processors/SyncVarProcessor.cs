@@ -159,7 +159,6 @@ namespace Mirror.Weaver
         {
             string originalName = fd.Name;
 
-            Weaver.lists.replacedFields.Add(fd);
             Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
 
             // GameObject SyncVars have a new field for netId
@@ -188,7 +187,7 @@ namespace Mirror.Weaver
             td.Methods.Add(get);
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
-            Weaver.lists.replacementProperties.Add(set);
+            Weaver.lists.replacementSetterProperties[fd] = set;
         }
 
         public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, List<FieldDefinition> syncVarNetIds)

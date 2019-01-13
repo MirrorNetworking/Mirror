@@ -27,6 +27,20 @@ build_script:
   - ruby checksite.rb
   - cd ..
 
+artifacts:
+  - path: Assets
+    name: Mirror
+
 image: Visual Studio 2017
 
 
+deploy:
+  description: 'This is a bleeding edge release. BACKUP BEFORE USING THIS AUTOMATED BUILD\n$(APPVEYOR_REPO_COMMIT_MESSAGE)'
+  provider: GitHub
+  auth_token:
+    secure: G42snf8s5fEos7UfoRSW6eW+8rqGGMH3iw1ZCjRUjcUSKupHUfrKJMXQ11wbjRuW # your encrypted token from GitHub
+  artifact: Mirror.zip            # upload all NuGet packages to release assets
+  draft: false
+  prerelease: false
+  on:
+    branch: master

@@ -13,10 +13,8 @@ namespace Mirror.Weaver
     // This data is flushed each time - if we are run multiple times in the same process/domain
     class WeaverLists
     {
-        // [SyncVar] member variables that should be replaced
-        public List<FieldDefinition> replacedFields = new List<FieldDefinition>();
-        // setter functions that replace [SyncVar] member variable references
-        public List<MethodDefinition> replacementProperties = new List<MethodDefinition>();
+        // setter functions that replace [SyncVar] member variable references. dict<field, replacement>
+        public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
         // GameObject SyncVar generated netId fields
         public List<FieldDefinition> netIdFields = new List<FieldDefinition>();
 
@@ -744,25 +742,21 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessInstructionField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors or deserialize
             if (md.Name == ".ctor" || md.Name == "OnDeserialize")
                 return;
 
             // does it set a field that we replaced?
-            for (int n = 0; n < lists.replacedFields.Count; n++)
+            MethodDefinition replacement;
+            if (lists.replacementSetterProperties.TryGetValue(opField, out replacement))
             {
-                FieldDefinition fd = lists.replacedFields[n];
-                if (opField == fd)
-                {
-                    //replace with property
-                    //DLog(td, "    replacing "  + md.Name + ":" + i);
-                    i.OpCode = OpCodes.Call;
-                    i.Operand = lists.replacementProperties[n];
-                    //DLog(td, "    replaced  "  + md.Name + ":" + i);
-                    break;
-                }
+                //replace with property
+                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                i.OpCode = OpCodes.Call;
+                i.Operand = replacement;
+                //DLog(td, "    replaced  "  + md.Name + ":" + i);
             }
         }
 
@@ -783,7 +777,7 @@ namespace Mirror.Weaver
                 FieldDefinition opField = i.Operand as FieldDefinition;
                 if (opField != null)
                 {
-                    ProcessInstructionField(td, md, i, opField);
+                    ProcessInstructionSetterField(td, md, i, opField);
                 }
             }
         }
