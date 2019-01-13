@@ -276,6 +276,7 @@ namespace Mirror
 
         // ----------------------------- Helpers  --------------------------------
 
+        // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
@@ -296,19 +297,24 @@ namespace Mirror
                 }
             }
 
-            uint oldGameObjectNetId = 0;
-            if (gameObjectField != null)
+            // netId changed?
+            if (newGameObjectNetId != netIdField)
             {
-                oldGameObjectNetId = gameObjectField.GetComponent<NetworkIdentity>().netId;
-            }
-
-            if (newGameObjectNetId != oldGameObjectNetId)
-            {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + oldGameObjectNetId + "->" + newGameObjectNetId); }
+                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newGameObjectNetId); }
                 SetDirtyBit(dirtyBit);
-                gameObjectField = newGameObject;
+                gameObjectField = newGameObject; // this is not really needed because we only access it via netId get/set anyway
                 netIdField = newGameObjectNetId;
             }
+        }
+
+        // helper function for [SyncVar] GameObjects.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static GameObject GetSyncVarGameObject(uint netId)
+        {
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
+                return identity.gameObject;
+            return null;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -440,7 +446,6 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void PreStartClient() {}
         public virtual void OnNetworkDestroy() {}
         public virtual void OnStartServer() {}
         public virtual void OnStartClient() {}

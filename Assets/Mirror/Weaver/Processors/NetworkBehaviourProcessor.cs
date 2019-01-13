@@ -63,7 +63,6 @@ namespace Mirror.Weaver
             }
 
             GenerateDeSerialization();
-            GeneratePreStartClient();
             Weaver.DLog(m_td, "Process Done");
         }
 
@@ -347,22 +346,37 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
+            int netIdFieldCounter = 0;
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
-                // Generates a writer call for each sync variable
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                 {
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                    // GameObject SyncVar - write generated netId var
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
+
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
                 }
                 else
                 {
-                    Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    return;
+                    // Generates a writer call for each sync variable
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+                    MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                    if (writeFunc != null)
+                    {
+                        serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                    }
+                    else
+                    {
+                        Weaver.fail = true;
+                        Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                        return;
+                    }
                 }
             }
 
@@ -386,6 +400,7 @@ namespace Mirror.Weaver
 
             // start at number of syncvars in parent
             int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName);
+            netIdFieldCounter = 0; // reset
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
@@ -397,21 +412,35 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                // Generates a call to the writer for that field
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                 {
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                    // GameObject SyncVar - write generated netId var
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
+
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
+                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
                 }
                 else
                 {
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    Weaver.fail = true;
-                    return;
+                    // Generates a call to the writer for that field
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+
+                    MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                    if (writeFunc != null)
+                    {
+                        serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                    }
+                    else
+                    {
+                        Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                        Weaver.fail = true;
+                        return;
+                    }
                 }
 
                 // something was dirty
@@ -447,66 +476,9 @@ namespace Mirror.Weaver
             return 0;
         }
 
-        void GeneratePreStartClient()
-        {
-            int netIdFieldCounter  = 0;
-            MethodDefinition preStartMethod = null;
-            ILProcessor serWorker = null;
-
-            foreach (var m in m_td.Methods)
-            {
-                if (m.Name == "PreStartClient")
-                    return;
-            }
-
-            foreach (FieldDefinition syncVar in m_SyncVars)
-            {
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
-                {
-                    if (preStartMethod == null)
-                    {
-                        preStartMethod = new MethodDefinition("PreStartClient", MethodAttributes.Public |
-                                MethodAttributes.Virtual |
-                                MethodAttributes.HideBySig,
-                                Weaver.voidType);
-
-                        serWorker = preStartMethod.Body.GetILProcessor();
-                    }
-
-                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
-                    netIdFieldCounter += 1;
-
-                    // Generates: if (!_crateNetId.IsEmpty()) { crate = ClientScene.FindLocalObject(_crateNetId); }
-                    Instruction nullLabel = serWorker.Create(OpCodes.Nop);
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ceq));
-                    serWorker.Append(serWorker.Create(OpCodes.Brtrue, nullLabel));
-
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.FindLocalObjectReference));
-
-                    // return value of FindLocalObjectReference is on stack, assign it to the syncvar
-                    serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
-
-                    // Generates: end crateNetId != 0
-                    serWorker.Append(nullLabel);
-                }
-            }
-            if (preStartMethod != null)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ret));
-                m_td.Methods.Add(preStartMethod);
-            }
-        }
-
         void GenerateDeSerialization()
         {
             Weaver.DLog(m_td, "  GenerateDeSerialization");
-            int netIdFieldCounter  = 0;
 
             foreach (var m in m_td.Methods)
             {
@@ -544,6 +516,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
+            int netIdFieldCounter  = 0;
             foreach (var syncVar in m_SyncVars)
             {
                 // assign value
@@ -592,6 +565,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
+            netIdFieldCounter = 0; // reset
             int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); // start at number of syncvars in parent
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
@@ -603,14 +577,6 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
-                if (readFunc == null)
-                {
-                    Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    Weaver.fail = true;
-                    return;
-                }
-
                 // check for Hook function
                 MethodDefinition foundMethod;
                 if (!SyncVarProcessor.CheckForHookFunction(m_td, syncVar, out foundMethod))
@@ -618,21 +584,50 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (foundMethod == null)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                 {
-                    // just assign value
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                    serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
+                    // GameObject SyncVar - assign to generated netId var
+                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
+                    netIdFieldCounter += 1;
+
+                    if (foundMethod == null)
+                    {
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
+                        serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
+                    }
+                    else
+                    {
+                        Log.Warning("GenerateDeSerialization for " + m_td.Name + ": [SyncVar] GameObject hooks not implemented yet.");
+                    }
                 }
                 else
                 {
-                    // call hook instead
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                    serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
+                    MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
+                    if (readFunc == null)
+                    {
+                        Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                        Weaver.fail = true;
+                        return;
+                    }
+
+                    if (foundMethod == null)
+                    {
+                        // just assign value
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                        serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
+                        serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
+                    }
+                    else
+                    {
+                        // call hook instead
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                        serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
+                        serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
+                    }
                 }
                 serWorker.Append(varLabel);
                 dirtyBit += 1;

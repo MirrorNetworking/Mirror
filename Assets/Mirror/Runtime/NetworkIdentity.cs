@@ -330,7 +330,6 @@ namespace Mirror
             {
                 try
                 {
-                    comp.PreStartClient(); // generated startup to resolve object references
                     comp.OnStartClient(); // user implemented startup
                 }
                 catch (Exception e)
