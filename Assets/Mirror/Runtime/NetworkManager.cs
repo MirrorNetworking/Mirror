@@ -45,7 +45,7 @@ namespace Mirror
         // only really valid on the server
         public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value.playerController != null); } }
 
-        public ushort port {
+        public virtual ushort port {
             get
             {
                 if (Application.platform != RuntimePlatform.WebGLPlayer && useTcp)
