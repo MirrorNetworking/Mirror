@@ -744,7 +744,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessInstructionField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors or deserialize
             if (md.Name == ".ctor" || md.Name == "OnDeserialize")
@@ -783,7 +783,7 @@ namespace Mirror.Weaver
                 FieldDefinition opField = i.Operand as FieldDefinition;
                 if (opField != null)
                 {
-                    ProcessInstructionField(td, md, i, opField);
+                    ProcessInstructionSetterField(td, md, i, opField);
                 }
             }
         }
