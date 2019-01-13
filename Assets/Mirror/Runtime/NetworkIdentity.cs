@@ -217,11 +217,6 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
-            AssignAssetID(path);
-        }
-
-        void AssignAssetID(string path)
-        {
             m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
 
