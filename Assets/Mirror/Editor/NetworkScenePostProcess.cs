@@ -150,7 +150,11 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
                 // safety check for prefabs with more than one NetworkIdentity
+#if UNITY_2018_3_OR_NEWER
+                GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject);
+#else
                 GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
+#endif
                 if (prefabGO)
                 {
 #if UNITY_2018_3_OR_NEWER
