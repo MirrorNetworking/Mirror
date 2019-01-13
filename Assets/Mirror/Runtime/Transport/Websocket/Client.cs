@@ -102,7 +102,14 @@ namespace Mirror.Transport.Websocket
                 if (data == null)
                     break;
 
-                ReceivedData?.Invoke(data);
+                try
+                {
+                    ReceivedData?.Invoke(data);
+                }
+                catch (Exception exception)
+                {
+                    ReceivedError?.Invoke(exception);
+                }
             }
         }
 

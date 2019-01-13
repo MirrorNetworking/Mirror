@@ -173,8 +173,16 @@ namespace Mirror.Transport.Websocket
 
                     if (data == null)
                         break;
-                    // we received some data,  raise event
-                    ReceivedData?.Invoke(connectionId, data);
+
+                    try
+                    {
+                        // we received some data,  raise event
+                        ReceivedData?.Invoke(connectionId, data);
+                    }
+                    catch (Exception exception)
+                    {
+                        ReceivedError?.Invoke(connectionId, exception);
+                    }
                 }
 
             }

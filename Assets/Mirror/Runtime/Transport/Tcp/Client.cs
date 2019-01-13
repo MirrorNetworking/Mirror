@@ -83,8 +83,15 @@ namespace Mirror.Transport.Tcp
                     if (data == null)
                         break;
 
-                    // we received some data,  raise event
-                    ReceivedData?.Invoke(data);
+                    try
+                    {
+                        // we received some data,  raise event
+                        ReceivedData?.Invoke(data);
+                    }
+                    catch (Exception exception)
+                    {
+                        ReceivedError?.Invoke(exception);
+                    }
                 }
             }
         }
