@@ -6,6 +6,7 @@ using UnityEngine.Networking.Types;
 
 namespace Mirror
 {
+    [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : TransportLayer
     {
         readonly ConnectionConfig connectionConfig;
