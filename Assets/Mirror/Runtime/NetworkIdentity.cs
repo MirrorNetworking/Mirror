@@ -274,16 +274,15 @@ namespace Mirror
             {
                 AssignAssetID(prefab);
             }
-            else
 #if UNITY_2018_3_OR_NEWER
-            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
-            else
 #endif
+            else
             {
                 m_AssetId = "";
             }
