@@ -8,7 +8,7 @@ public class Test : NetworkBehaviour
     [SyncVar] NetworkIdentity test2;
 
     // a function that uses it
-    void Update()
+    /*void Update()
     {
         // read and write once
         Debug.Log(test.name);
@@ -19,5 +19,5 @@ public class Test : NetworkBehaviour
         Debug.Log(test2.name);
         NetworkIdentity read2 = test2;
         test2 = netIdentity;
-    }
+    }*/
 }
