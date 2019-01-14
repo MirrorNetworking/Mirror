@@ -317,6 +317,42 @@ namespace Mirror
             return null;
         }
 
+        // helper function for [SyncVar] NetworkIdentities.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
+        {
+            if (m_SyncVarGuard)
+                return;
+
+            uint newNetId = 0;
+            if (newIdentity != null)
+            {
+                newNetId = newIdentity.netId;
+                if (newNetId == 0)
+                {
+                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                }
+            }
+
+            // netId changed?
+            if (newNetId != netIdField)
+            {
+                if (LogFilter.Debug) { Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId); }
+                SetDirtyBit(dirtyBit);
+                netIdField = newNetId;
+                identityField = newIdentity; // this is not really needed because we only access it via netId get/set anyway
+            }
+        }
+
+        // helper function for [SyncVar] NetworkIdentities.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId)
+        {
+            NetworkIdentity identity;
+            NetworkIdentity.spawned.TryGetValue(netId, out identity);
+            return identity;
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
