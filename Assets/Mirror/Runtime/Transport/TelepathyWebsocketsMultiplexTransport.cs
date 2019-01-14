@@ -16,7 +16,9 @@ namespace Mirror
             // set client to llapi in webgl, telepathy otherwise
             if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 client = new LLAPITransport();
+#pragma warning restore CS0618 // Type or member is obsolete
             }
             else
             {
@@ -75,7 +77,9 @@ namespace Mirror
             // (can't call LLAPI's AddWebsocketHost in webgl anyway)
             if (Application.platform != RuntimePlatform.WebGLPlayer)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 server = new LLAPITransport();
+#pragma warning restore CS0618 // Type or member is obsolete
                 server.ServerStartWebsockets(address,port);
             }
             else Debug.LogWarning("ServerStartWebsockets can't be called in WebGL.");

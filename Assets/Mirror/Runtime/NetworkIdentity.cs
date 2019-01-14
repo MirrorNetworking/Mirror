@@ -6,6 +6,11 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+#if UNITY_2018_3_OR_NEWER
+
+using UnityEditor.Experimental.SceneManagement;
+
+#endif
 #endif
 
 namespace Mirror
@@ -212,24 +217,43 @@ namespace Mirror
         void AssignAssetID(GameObject prefab)
         {
             string path = AssetDatabase.GetAssetPath(prefab);
+            AssignAssetID(path);
+        }
+
+        void AssignAssetID(string path)
+        {
             m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
 
         bool ThisIsAPrefab()
         {
+#if UNITY_2018_3_OR_NEWER
+            return PrefabUtility.IsPartOfPrefabAsset(gameObject);
+#else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             if (prefabType == PrefabType.Prefab)
                 return true;
             return false;
+#endif
         }
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
             prefab = null;
+
+#if UNITY_2018_3_OR_NEWER
+            if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            {
+                return false;
+            }
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             if (prefabType == PrefabType.None)
                 return false;
             prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
+#endif
+
             if (prefab == null)
             {
                 Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
@@ -250,6 +274,14 @@ namespace Mirror
             {
                 AssignAssetID(prefab);
             }
+#if UNITY_2018_3_OR_NEWER
+            else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            {
+                ForceSceneId(0);
+                string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
+                AssignAssetID(path);
+            }
+#endif
             else
             {
                 m_AssetId = "";
