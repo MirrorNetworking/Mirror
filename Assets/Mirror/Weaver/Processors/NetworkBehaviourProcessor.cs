@@ -603,7 +603,16 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Log.Warning("GenerateDeSerialization for " + m_td.Name + ": [SyncVar] GameObject/NetworkIdentity hooks not implemented yet.");
+                        // call Hook(NetworkBehaviour.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
+                        // because we send/receive the netID, not the GameObject/NetworkIdentity
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
+                        if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
+                            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.getSyncVarGameObjectReference));
+                        else if (syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+                            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.getSyncVarNetworkIdentityReference));
+                        serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
                     }
                 }
                 else
