@@ -20,7 +20,7 @@ namespace Mirror
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
-        /// <summary>True if the obejct is controlled by the client that owns it.</summary>
+        /// <summary>True if the object is controlled by the client that owns it.</summary>
         public bool localPlayerAuthority { get { return netIdentity.localPlayerAuthority; } }
         /// <summary>True if this object is running on the server, and has been spawned.</summary>
         public bool isServer { get { return netIdentity.isServer; } }
@@ -28,17 +28,17 @@ namespace Mirror
         public bool isClient { get { return netIdentity.isClient; } }
         /// <summary>True if the object is the one that represents the player on the local machine.</summary>
         public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
-        /// <summary>True if the obejct is only running on the server, and has been spawned.</summary>
+        /// <summary>True if the object is only running on the server, and has been spawned.</summary>
         public bool isServerOnly { get { return isServer && !isClient; } }
-        /// <summary>True if the obejct is only runnign on the client.</summary>
+        /// <summary>True if the object is only running on the client.</summary>
         public bool isClientOnly { get { return isClient && !isServer; } }
-        /// <summary>True if this object is the authoritative version of the object..</summary>
+        /// <summary>True if this object is the authoritative version of the object. For more info: https://vis2k.github.io/Mirror/Concepts/Authority</summary>
         public bool hasAuthority { get { return netIdentity.hasAuthority; } }
-        /// <summary>A unique identifier for this network session, assigned when spawned.</summary>
+        /// <summary>A unique identifier for this network object, assigned when spawned.</summary>
         public uint netId { get { return netIdentity.netId; } }
         /// <summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
         public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
-        /// <summary>he NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
+        /// <summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
         public NetworkConnection connectionToClient { get { return netIdentity.connectionToClient; } }
         protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
