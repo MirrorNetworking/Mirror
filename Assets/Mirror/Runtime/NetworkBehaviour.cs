@@ -312,16 +312,17 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
-            // cached version not around anymore? possibly walked out of
-            // observer range before, but might be in range again. let's see if
-            // we can find it.
+            // cached version not around anymore? (possibly walked out of
+            // observer range) or OnDeserialized received a new netId?
+            // then reassign.
+            //
             // -> we cache for two reasons:
             //    1. to avoid lookups (not that important though)
             //    2. if a 'public GameObject' is assigned to a scene object then
             //       we want to return that one here. if we only looked at the
             //       netId then whatever we assign in the Inspector would be
             //       ignored.
-            if (gameObjectField == null)
+            if (gameObjectField == null || gameObjectField.GetComponent<NetworkIdentity>().netId != netId)
             {
                 NetworkIdentity identity;
                 if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
@@ -364,16 +365,17 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
-            // cached version not around anymore? possibly walked out of
-            // observer range before, but might be in range again. let's see if
-            // we can find it.
+            // cached version not around anymore? (possibly walked out of
+            // observer range) or OnDeserialized received a new netId?
+            // then reassign.
+            //
             // -> we cache for two reasons:
             //    1. to avoid lookups (not that important though)
             //    2. if a 'public GameObject' is assigned to a scene object then
             //       we want to return that one here. if we only looked at the
             //       netId then whatever we assign in the Inspector would be
             //       ignored.
-            if (identityField == null)
+            if (identityField == null || identityField.netId != netId)
             {
                 NetworkIdentity.spawned.TryGetValue(netId, out identityField);
             }
