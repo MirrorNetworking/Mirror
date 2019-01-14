@@ -16,12 +16,12 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Field)]
     public class SyncVarAttribute : Attribute
     {
-        ///<summary>A function that should be called when the value changes on the client.</summary>
+        ///<summary>A function that should be called on the client when the value changes.</summary>
         public string hook;
     }
 
     /// <summary>
-    /// Command functions must start with 'Cmd' and they allow clients to send a command to the server to invoke a method.
+    /// Command functions must start with 'Cmd'. Command functions can be called on clients to invoke code on the server.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute
@@ -30,7 +30,7 @@ namespace Mirror
     }
 
     /// <summary>
-    /// ClientRpc functions must start with 'Rpc' and they allow methods to be invoked on clients from the server.
+    /// ClientRpc functions must start with 'Rpc'. ClientRpc functions can be called on the server to invoke code on clients.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
@@ -39,7 +39,8 @@ namespace Mirror
     }
 
     /// <summary>
-    /// TargetRpc functions must start with 'Target' and they allow methods to be invoked on a specific client from the server.
+    /// <para>TargetRpc functions must start with 'Target' and needs a NetworkConnection object as the first argument.</para>
+    /// TargetRpc functions can be called on the server to invoke code on a specific client.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class TargetRpcAttribute : Attribute
@@ -48,7 +49,7 @@ namespace Mirror
     }
 
     /// <summary>
-    /// SyncEvent events must start with 'Event' and they allow events to be invoked on a client from the server.
+    /// SyncEvent events must start with 'Event'. SyncEvent events can be invoked on the server and they will automatically be invoked on all clients.
     /// </summary>
     [AttributeUsage(AttributeTargets.Event)]
     public class SyncEventAttribute : Attribute
