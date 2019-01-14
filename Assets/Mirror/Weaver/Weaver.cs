@@ -750,8 +750,8 @@ namespace Mirror.Weaver
         // replaces syncvar write access with the NetworkXYZ.get property calls
         static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors or deserialize
-            if (md.Name == ".ctor" || md.Name == "OnDeserialize")
+            // dont replace property call sites in constructors
+            if (md.Name == ".ctor")
                 return;
 
             // does it set a field that we replaced?
@@ -769,8 +769,8 @@ namespace Mirror.Weaver
         // replaces syncvar read access with the NetworkXYZ.get property calls
         static void ProcessInstructionGetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors or deserialize
-            if (md.Name == ".ctor" || md.Name == "OnDeserialize")
+            // dont replace property call sites in constructors
+            if (md.Name == ".ctor")
                 return;
 
             // does it set a field that we replaced?
