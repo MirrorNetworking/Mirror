@@ -73,6 +73,15 @@ namespace Mirror.Weaver
                 getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarGameObjectReference));
                 getWorker.Append(getWorker.Create(OpCodes.Ret));
             }
+            // [SyncVar] NetworkIdentity?
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // return NetworkBehaviour.GetSyncVarNetworkIdentity(uint netId);
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
+                getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarNetworkIdentityReference));
+                getWorker.Append(getWorker.Create(OpCodes.Ret));
+            }
             // [SyncVar] int, string, etc.
             else
             {
@@ -149,6 +158,14 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldflda, netFieldId));
 
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarGameObjectReference));
+            }
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldflda, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarNetworkIdentityReference));
             }
             else
             {
