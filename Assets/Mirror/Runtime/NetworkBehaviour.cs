@@ -302,7 +302,7 @@ namespace Mirror
             {
                 if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId); }
                 SetDirtyBit(dirtyBit);
-                gameObjectField = newGameObject; // this is not really needed because we only access it via netId get/set anyway
+                gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
                 netIdField = newNetId;
             }
         }
@@ -310,8 +310,16 @@ namespace Mirror
         // helper function for [SyncVar] GameObjects.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
+        protected GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
+            // server always uses the field
+            if (isServer)
+            {
+                return gameObjectField;
+            }
+
+            // client always looks up based on netId because objects might get in and out of range
+            // over and over again, which shouldn't null them forever
             NetworkIdentity identity;
             if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
                 return identity.gameObject;
@@ -341,15 +349,23 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId); }
                 SetDirtyBit(dirtyBit);
                 netIdField = newNetId;
-                identityField = newIdentity; // this is not really needed because we only access it via netId get/set anyway
+                identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
             }
         }
 
         // helper function for [SyncVar] NetworkIdentities.
         // -> ref GameObject as second argument makes OnDeserialize processing easier
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
+        protected NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
+            // server always uses the field
+            if (isServer)
+            {
+                return identityField;
+            }
+
+            // client always looks up based on netId because objects might get in and out of range
+            // over and over again, which shouldn't null them forever
             NetworkIdentity identity;
             NetworkIdentity.spawned.TryGetValue(netId, out identity);
             return identity;

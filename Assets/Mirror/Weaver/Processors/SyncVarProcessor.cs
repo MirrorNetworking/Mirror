@@ -67,7 +67,8 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject?
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
-                // return NetworkBehaviour.GetSyncVarGameObject(ref field, uint netId);
+                // return this.GetSyncVarGameObject(ref field, uint netId);
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
@@ -78,7 +79,8 @@ namespace Mirror.Weaver
             // [SyncVar] NetworkIdentity?
             else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
-                // return NetworkBehaviour.GetSyncVarNetworkIdentity(ref field, uint netId);
+                // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
