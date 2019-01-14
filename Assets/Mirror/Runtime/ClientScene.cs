@@ -517,6 +517,7 @@ namespace Mirror
 
             if (msg.state == 0)
             {
+                PrepareToSpawnSceneObjects();
                 s_IsSpawnFinished = false;
                 return;
             }

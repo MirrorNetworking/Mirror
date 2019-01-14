@@ -93,19 +93,6 @@ namespace Mirror
             }
         }
 
-        void OnDisable()
-        {
-            // ClientScene.OnObjectDestroy message only deactivates the object
-            // if it has a sceneId (instead of destroying it).
-            // it would also ADD it to spawnableObjects then, so it can be
-            // spawned again.
-            if (sceneId != 0)
-            {
-                spawnableObjects[sceneId] = this;
-                Debug.LogWarning("spawnableObjects add OnDisable [" + sceneId + "]=" + name);
-            }
-        }
-
         internal void SetDynamicAssetId(Guid newAssetId)
         {
             string newAssetIdString = newAssetId.ToString("N");

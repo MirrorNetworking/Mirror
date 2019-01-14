@@ -142,7 +142,7 @@ namespace Mirror
             uint offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
 
             // make sure that there aren't more sceneIds than offsetPerScene
-            if (uvs.Count >= offsetPerScene)
+            if (identities.Count >= offsetPerScene)
             {
                 Debug.LogWarning(">" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
             }
@@ -159,7 +159,7 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                uint offset = (uint)uv.gameObject.scene.buildIndex * offsetPerScene;
+                uint offset = (uint)identity.gameObject.scene.buildIndex * offsetPerScene;
                 identity.ForceSceneId(offset + nextSceneId++);
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
