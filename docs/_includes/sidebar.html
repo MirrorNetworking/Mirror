@@ -1,0 +1,11 @@
+<div  class="col-12 col-md-3 col-xl-2 bd-sidebar">
+    
+    <nav class="collapse bd-links" id = "sidebar">
+        {% for child in site.data.navigation %}
+            <div class="bd-toc-item">            
+                {% assign childid = ("submenu_" | append: forloop.index) %}
+                {% include f_sidebar_nav.html item=child id=childid %}
+            </div>
+        {% endfor %}
+    </nav>
+</div>

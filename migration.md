@@ -1,7 +1,10 @@
-# Migrating a project from UNet  (HLAPI)
+# Migrating a project from UNet (HLAPI)
 
 This guide gives you a step by step instruction for migrating your project from HLAP to Mirror.
 Mirror is a fork of HLAPI.  As such the migration is straight forward for most projects.
+
+There's also a Migration Tool you can try:
+    https://gist.github.com/Lymdun/dae130c5a69d69ab202bd621af2de1ad
 
 ## 1. BACKUP
 You have been warned.
@@ -12,22 +15,27 @@ Get Mirror from the asset store and import it in your project (link to be provid
 ## 3. Replace namespace
 
 Replace `UnityEngine.Networking` for `Mirror`  everywhere in your project. For example, if you have this:
-```C#
+
+```cs
 using UnityEngine.Networking;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour
+{
     ...
 }
 ```
 
 replace it with:
-```C#
+
+```cs
 using Mirror;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour
+{
     ...
 }
 ```
+
 At this point,  you might get some compilation errors.  Don't panic,  these are easy to fix. Keep going
 
 ## 4. Remove channels from NetworkSettings
@@ -35,7 +43,7 @@ NetworkSettings in HLAPI have channels,  but this is flat out broken. Rather tha
 
 For example, if you have this code:
 
-```C#
+```cs
 [NetworkSettings(channel=1,sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
@@ -44,7 +52,7 @@ public class NetStreamer : NetworkBehaviour
 ```
 
 replace it with:
-```C#
+```cs
 [NetworkSettings(sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
@@ -60,46 +68,117 @@ Until Unity officially removes UNET in 2019.1, we will have to use the name `Syn
 
 For example, if you have definitions like:
 
-```C#
+```cs
 public class SyncListQuest : SyncListStruct<Quest> {}
 ```
 
 replace them with:
-```C#
+```cs
 public class SyncListQuest : SyncListSTRUCT<Quest> {}
 ```
 
-## 6. Replace NetworkHas128 and NetworkInstanceId
+## 6. Replace NetworkHash128 and NetworkInstanceId
 These have been changed to System.Guid and uint, respectively.
 
 For example, if you have something like this:
-```C#
-    public sealed class SpawnItemMessage : MessageBase
-    {
-        public NetworkHash128 assetID;
-        public NetworkInstanceId networkInstanceID;
-        public Vector3 position;
-        public Quaternion rotation;
-    }
+```cs
+public sealed class SpawnItemMessage : MessageBase
+{
+    public NetworkHash128 assetID;
+    public NetworkInstanceId networkInstanceID;
+    public Vector3 position;
+    public Quaternion rotation;
+}
 ```
 
 replace with:
-```C#
-    public sealed class SpawnItemMessage : MessageBase
-    {
-        public System.Guid assetID;
-        public uint networkInstanceID;
-        public Vector3 position;
-        public Quaternion rotation;
-    }
+```cs
+public sealed class SpawnItemMessage : MessageBase
+{
+    public System.Guid assetID;
+    public uint networkInstanceID;
+    public Vector3 position;
+    public Quaternion rotation;
+}
 ```
 
-## 7. Replace Components
+## 7. Update your synclist callbacks
+In Mirror SyncLists have a callback delegate that gets called in the client whenever the list is updated.
+We have changed the callback to be an event instead and we also pass the item that was updated/removed
+
+For example, if you have this code:
+
+```cs
+using UnityEngine;
+using UnityEngine.Networking;
+
+public  class MyBehaviour : NetworkBehaviour
+{
+    public SyncListInt m_ints = new SyncListInt();
+
+    private void OnIntChanged(SyncListInt.Operation op, int index)
+    {
+        Debug.Log("list changed " + op);
+    }
+
+    public override void OnStartClient()
+    {
+        m_ints.Callback = OnIntChanged;
+    }
+}
+```
+
+replace it with:
+
+```cs
+using UnityEngine;
+using Mirror;
+
+public  class MyBehaviour : NetworkBehaviour
+{
+    public SyncListInt m_ints = new SyncListInt();
+
+    private void OnIntChanged(SyncListInt.Operation op, int index, int item)
+    {
+        Debug.Log("list changed " + op + " item " + item);
+    }
+
+    public override void OnStartClient()
+    {
+        m_ints.Callback += OnIntChanged;
+    }
+}
+```
+
+Notice the callback will also work in the server in Mirror.
+
+## 8. Replace Components
 Every networked prefab and scene object needs to be adjusted.  They will be using `NetworkIdentity` from Unet,  and you need to replace that componenent with `NetworkIdentity` from Mirror.  You may be using other network components,  such as `NetworkAnimator` or `NetworkTransform`.   All components from Unet should be replaced with their corresponding component from Mirror.
 
 Note that if you remove and add a NetworkIdentity,  you will need to reassign it in any component that was referencing it.
 
-## 8. Update your firewall and router
+## 9. Update Extended Components
+Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
+
+```cs
+public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId, NetworkReader extraMessageReader)
+{
+    base.OnServerAddPlayer(conn, playerControllerId, extraMessageReader);
+    // your code
+}
+```
+In your newly Mirror-capable NetworkManager, if you are using the OnServerAddPlayer override, remove the "playerControllerId" parameter from your override and the base call:
+
+```cs
+public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader extraMessageReader){
+    base.OnServerAddPlayer(conn, extraMessageReader);
+    // your code
+}
+```
+
+Note that in both HLAPI and Mirror the parameter "extraMessageReader" is optional.
+
+## 10. Update your firewall and router
 LLAPI uses UDP.   Mirror uses TCP by default.  This means you may need to change your router
 port forwarding and firewall rules in your machine to expose the TCP port instead of UDP.
 This highly depends on your router and operating system.
@@ -108,17 +187,20 @@ This highly depends on your router and operating system.
 
 See for yourself how uMMORPG was migrated to Mirror
 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/LF9rTSS3rlI/0.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
+[![uMMORPG migration to Mirror video](http://img.youtube.com/vi/LF9rTSS3rlI/0.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
 
 ## Possible Error Messages ##
+
 * TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
 
 * NullPointerException: The most likely cause is that you replaced NetworkIdentities or other components but you had them assigned somewhere. Reassign those references.
 
 * `error CS0246: The type or namespace name 'UnityWebRequest' could not be found. Are you missing 'UnityEngine.Networking' using directive?`
 
-    Add this to the top of your script:
-    ```C#
-    using UnityWebRequest = UnityEngine.Networking.UnityWebRequest ;
-    ```
-    `UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest.  The same applies for `WWW` and all `UnityWebRequest` related classes.
+Add this to the top of your script:
+
+```cs
+using UnityWebRequest = UnityEngine.Networking.UnityWebRequest ;
+```
+
+`UnityWebRequest` is not part of UNet or Mirror,  but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest.  The same applies for `WWW` and all `UnityWebRequest` related classes.

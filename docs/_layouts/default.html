@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+
+  {%- include head.html -%}
+
+  <body>
+    {%- include header.html -%}
+
+    <div class="container-fluid">
+        <div class = "row flex-xl-nowrap">
+
+        {%- include sidebar.html -%}
+
+        <div class="d-none d-xl-block col-xl-2 bd-toc">
+          {%- include toc.html html=content class="section-nav" item_class="toc-entry" -%}
+        </div>
+
+        <div class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+
+          {{ content }}
+
+          {%- include disqus.html -%}
+
+          {%- include footer.html -%}  
+        </div>
+
+      </div>
+    </div>
+
+
+  </body>
+
+</html>

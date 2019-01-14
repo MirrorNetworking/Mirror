@@ -1,0 +1,36 @@
+
+{% if include.item.children %}
+
+    <a href="#submenu_{{include.id}}" aria-controls="submenu_{{include.id}}" data-toggle="collapse" aria-expanded="false" class="bd-toc-link dropdown-toggle">{{include.item.title}}</a>
+
+    {% assign pageurl = page.url | remove: '.html' %}
+
+    {% capture capturechild %}
+        {% for child in include.item.children %}
+
+        {% assign active = "" %}
+        {% assign childurlfolder = child.url | append: '/' %}
+        {% if child.url and (pageurl == child.url or pageurl == childurlfolder) %}
+            {% assign active = "active bd-sidenav-active" %}
+        {% endif %}
+
+        <li class="{{active}}">
+            {% assign childid = include.id | append: '_' | append: forloop.index %}
+            {% include f_sidebar_nav.html item=child id=childid %}
+        </li>
+
+        {% endfor %}
+    {% endcapture %}
+
+    {% assign show = "" %}
+    {% if capturechild contains 'bd-sidenav-active' %}
+        {% assign show = "show" %}
+    {% endif %}
+
+    <ul class="collapse nav bd-sidenav {{show}}" id="submenu_{{include.id}}">
+        {{ capturechild }}
+    </ul>
+{% else %}
+
+    <a href="{{include.item.url | relative_url}}">{{include.item.title}}</a>
+{% endif %}
