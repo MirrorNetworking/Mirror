@@ -349,9 +349,10 @@ namespace Mirror.Weaver
             int netIdFieldCounter = 0;
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject SyncVar - write generated netId var
+                    // GameObject/NetworkIdentity SyncVar - write generated netId var
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
@@ -412,9 +413,10 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject SyncVar - write generated netId var
+                    // GameObject/NetworkIdentity SyncVar - write generated netId var
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
@@ -523,9 +525,10 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
 
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject SyncVar - assign to generated netId var
+                    // GameObject/NetworkIdentity SyncVar - assign to generated netId var
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
@@ -584,9 +587,10 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
+                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject SyncVar - assign to generated netId var
+                    // GameObject/NetworkIdentity SyncVar - assign to generated netId var
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
@@ -599,7 +603,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Log.Warning("GenerateDeSerialization for " + m_td.Name + ": [SyncVar] GameObject hooks not implemented yet.");
+                        Log.Warning("GenerateDeSerialization for " + m_td.Name + ": [SyncVar] GameObject/NetworkIdentity hooks not implemented yet.");
                     }
                 }
                 else
