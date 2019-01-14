@@ -46,19 +46,31 @@ namespace Mirror
         bool m_Reset;
 
         // properties
+        /// <summary>True if the object is running on a client.</summary>
         public bool isClient { get { return m_IsClient; } }
+        /// <summary>True if this object is running on the server, and has been spawned.</summary>
         public bool isServer { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        /// <summary>True if the object is the one that represents the player on the local machine.</summary>
         public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
+        /// <summary>True if this object is the authoritative version of the object.</summary>
         public bool hasAuthority { get { return m_HasAuthority; } }
-
+        
+        /// <summary>The list of client NetworkConnections that are able to see this object.</summary>
         public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
 
+        /// <summary>A unique identifier for this network session, assigned when spawned.</summary>
         public uint netId { get { return m_NetId; } }
+        /// <summary>A unique identifier for networked objects in a scene.</summary>
         public uint sceneId { get { return m_SceneId; } }
+        /// <summary>A flag to make this object not be spawned on clients.</summary>
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
+        /// <summary>True if the object is controlled by the client that owns it.</summary>
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
+        /// <summary>The client that has authority for this object. This will be null if no client has authority.</summary>
         public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+        /// <summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
         public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
+        /// <summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
         public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
@@ -83,6 +95,7 @@ namespace Mirror
         // -> the solution is to serialize the string internally here and then
         //    use the real 'Guid' type for everything else via .assetId
         [SerializeField] string m_AssetId;
+        /// <summary>This identifies the prefab associated with this object (for spawning).</summary>
         public Guid assetId
         {
             get
