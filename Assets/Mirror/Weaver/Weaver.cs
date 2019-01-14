@@ -920,7 +920,6 @@ namespace Mirror.Weaver
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
             if (md.Name == ".cctor" ||
-                md.Name == "OnDeserialize" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
