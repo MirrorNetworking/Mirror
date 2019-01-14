@@ -302,7 +302,7 @@ namespace Mirror
             {
                 if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId); }
                 SetDirtyBit(dirtyBit);
-                gameObjectField = newGameObject; // this is not really needed because we only access it via netId get/set anyway
+                gameObjectField = newGameObject; // cache it
                 netIdField = newNetId;
             }
         }
@@ -312,10 +312,24 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
-            NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
-                return identity.gameObject;
-            return null;
+            // cached version not around anymore? possibly walked out of
+            // observer range before, but might be in range again. let's see if
+            // we can find it.
+            // -> we cache for two reasons:
+            //    1. to avoid lookups (not that important though)
+            //    2. if a 'public GameObject' is assigned to a scene object then
+            //       we want to return that one here. if we only looked at the
+            //       netId then whatever we assign in the Inspector would be
+            //       ignored.
+            if (gameObjectField == null)
+            {
+                NetworkIdentity identity;
+                if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
+                    gameObjectField = identity.gameObject;
+            }
+
+            // return whatever we found (or null)
+            return gameObjectField;
         }
 
         // helper function for [SyncVar] NetworkIdentities.
@@ -341,7 +355,7 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId); }
                 SetDirtyBit(dirtyBit);
                 netIdField = newNetId;
-                identityField = newIdentity; // this is not really needed because we only access it via netId get/set anyway
+                identityField = newIdentity; // cache it
             }
         }
 
@@ -350,9 +364,22 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
-            NetworkIdentity identity;
-            NetworkIdentity.spawned.TryGetValue(netId, out identity);
-            return identity;
+            // cached version not around anymore? possibly walked out of
+            // observer range before, but might be in range again. let's see if
+            // we can find it.
+            // -> we cache for two reasons:
+            //    1. to avoid lookups (not that important though)
+            //    2. if a 'public GameObject' is assigned to a scene object then
+            //       we want to return that one here. if we only looked at the
+            //       netId then whatever we assign in the Inspector would be
+            //       ignored.
+            if (identityField == null)
+            {
+                NetworkIdentity.spawned.TryGetValue(netId, out identityField);
+            }
+
+            // return whatever we found (or null)
+            return identityField;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
