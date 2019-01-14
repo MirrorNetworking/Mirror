@@ -579,8 +579,9 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        // call Hook(NetworkBehaviour.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
+                        // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
                         // because we send/receive the netID, not the GameObject/NetworkIdentity
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
                         serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                         serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
                         serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
