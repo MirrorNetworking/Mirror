@@ -97,6 +97,7 @@ namespace Mirror
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
+
         internal void SetDynamicAssetId(Guid newAssetId)
         {
             string newAssetIdString = newAssetId.ToString("N");

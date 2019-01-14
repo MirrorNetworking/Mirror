@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -133,6 +134,19 @@ namespace Mirror
             List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>().ToList();
             identities.Sort(CompareNetworkIdentitySiblingPaths);
 
+            // sceneId assignments need to work with additive scene loading, so
+            // it can't always start at 1,2,3,4,..., otherwise there will be
+            // sceneId duplicates.
+            // -> we need an offset to start at 1000+1,+2,+3, etc.
+            // -> the most robust way is to split uint value range by sceneCount
+            uint offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
+
+            // make sure that there aren't more sceneIds than offsetPerScene
+            if (identities.Count >= offsetPerScene)
+            {
+                Debug.LogWarning(">" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
+            }
+
             uint nextSceneId = 1;
             foreach (NetworkIdentity identity in identities)
             {
@@ -145,9 +159,14 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                identity.gameObject.SetActive(false);
-                identity.ForceSceneId(nextSceneId++);
+                uint offset = (uint)identity.gameObject.scene.buildIndex * offsetPerScene;
+                identity.ForceSceneId(offset + nextSceneId++);
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
+
+                // disable it AFTER assigning the sceneId.
+                // -> this way NetworkIdentity.OnDisable adds itself to the
+                //    spawnableObjects dictionary (only if sceneId != 0)
+                identity.gameObject.SetActive(false);
 
                 // safety check for prefabs with more than one NetworkIdentity
 #if UNITY_2018_3_OR_NEWER
