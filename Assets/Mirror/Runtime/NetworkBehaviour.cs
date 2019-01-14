@@ -308,8 +308,9 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
+        // -> ref GameObject as second argument makes OnDeserialize processing easier
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static GameObject GetSyncVarGameObject(uint netId)
+        protected static GameObject GetSyncVarGameObject(uint netId, ref GameObject gameObjectField)
         {
             NetworkIdentity identity;
             if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
@@ -345,8 +346,9 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // -> ref GameObject as second argument makes OnDeserialize processing easier
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId)
+        protected static NetworkIdentity GetSyncVarNetworkIdentity(uint netId, ref NetworkIdentity identityField)
         {
             NetworkIdentity identity;
             NetworkIdentity.spawned.TryGetValue(netId, out identity);

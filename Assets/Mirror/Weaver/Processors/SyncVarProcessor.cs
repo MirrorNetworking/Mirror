@@ -67,18 +67,22 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject?
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {
-                // return NetworkBehaviour.GetSyncVarGameObject(uint netId);
+                // return NetworkBehaviour.GetSyncVarGameObject(ref field, uint netId);
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldflda, fd));
                 getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarGameObjectReference));
                 getWorker.Append(getWorker.Create(OpCodes.Ret));
             }
             // [SyncVar] NetworkIdentity?
             else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
-                // return NetworkBehaviour.GetSyncVarNetworkIdentity(uint netId);
+                // return NetworkBehaviour.GetSyncVarNetworkIdentity(ref field, uint netId);
                 getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
                 getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldflda, fd));
                 getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarNetworkIdentityReference));
                 getWorker.Append(getWorker.Create(OpCodes.Ret));
             }

@@ -608,6 +608,8 @@ namespace Mirror.Weaver
                         serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                         serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
                         serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                        serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
                         if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
                             serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.getSyncVarGameObjectReference));
                         else if (syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
