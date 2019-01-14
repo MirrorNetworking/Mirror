@@ -346,38 +346,22 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
-            int netIdFieldCounter = 0;
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
-                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+                // Generates a writer call for each sync variable
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                if (writeFunc != null)
                 {
-                    // GameObject/NetworkIdentity SyncVar - write generated netId var
-                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
-                    netIdFieldCounter += 1;
-
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
+                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
                 }
                 else
                 {
-                    // Generates a writer call for each sync variable
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                    MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                    if (writeFunc != null)
-                    {
-                        serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                    }
-                    else
-                    {
-                        Weaver.fail = true;
-                        Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                        return;
-                    }
+                    Weaver.fail = true;
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                    return;
                 }
             }
 
@@ -401,7 +385,6 @@ namespace Mirror.Weaver
 
             // start at number of syncvars in parent
             int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName);
-            netIdFieldCounter = 0; // reset
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
@@ -413,36 +396,21 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
 
-                if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
-                    syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
-                {
-                    // GameObject/NetworkIdentity SyncVar - write generated netId var
-                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
-                    netIdFieldCounter += 1;
+                // Generates a call to the writer for that field
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
 
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
-                    serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked32));
+                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                if (writeFunc != null)
+                {
+                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
                 }
                 else
                 {
-                    // Generates a call to the writer for that field
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-
-                    MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
-                    if (writeFunc != null)
-                    {
-                        serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                    }
-                    else
-                    {
-                        Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                        Weaver.fail = true;
-                        return;
-                    }
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                    Weaver.fail = true;
+                    return;
                 }
 
                 // something was dirty
@@ -528,7 +496,11 @@ namespace Mirror.Weaver
                 if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                     syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject/NetworkIdentity SyncVar - assign to generated netId var
+                    // GameObject/NetworkIdentity SyncVar:
+                    //   OnSerialize sends writer.Write(go);
+                    //   OnDeserialize reads to __netId manually so we can use
+                    //     lookups in the getter (so it still works if objects
+                    //     move in and out of range repeatedly)
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
@@ -590,7 +562,11 @@ namespace Mirror.Weaver
                 if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                     syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
                 {
-                    // GameObject/NetworkIdentity SyncVar - assign to generated netId var
+                    // GameObject/NetworkIdentity SyncVar:
+                    //   OnSerialize sends writer.Write(go);
+                    //   OnDeserialize reads to __netId manually so we can use
+                    //     lookups in the getter (so it still works if objects
+                    //     move in and out of range repeatedly)
                     FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
                     netIdFieldCounter += 1;
 
