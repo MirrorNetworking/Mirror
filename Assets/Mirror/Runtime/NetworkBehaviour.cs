@@ -283,14 +283,14 @@ namespace Mirror
             if (m_SyncVarGuard)
                 return;
 
-            uint newGameObjectNetId = 0;
+            uint newNetId = 0;
             if (newGameObject != null)
             {
                 NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
                 if (identity != null)
                 {
-                    newGameObjectNetId = identity.netId;
-                    if (newGameObjectNetId == 0)
+                    newNetId = identity.netId;
+                    if (newNetId == 0)
                     {
                         Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
                     }
@@ -298,12 +298,12 @@ namespace Mirror
             }
 
             // netId changed?
-            if (newGameObjectNetId != netIdField)
+            if (newNetId != netIdField)
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newGameObjectNetId); }
+                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId); }
                 SetDirtyBit(dirtyBit);
                 gameObjectField = newGameObject; // this is not really needed because we only access it via netId get/set anyway
-                netIdField = newGameObjectNetId;
+                netIdField = newNetId;
             }
         }
 
