@@ -67,6 +67,10 @@ namespace Mirror
                     "https://github.com/vis2k/Mirror/tree/2018");
             }
 
+            // Set the networkSceneName to prevent a scene reload
+            // if client connection to server fails.
+            networkSceneName = offlineScene;
+
             InitializeSingleton();
         }
 
