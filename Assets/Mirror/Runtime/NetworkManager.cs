@@ -58,6 +58,11 @@ namespace Mirror
         public virtual void Awake()
         {
             Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
+
+            // Set the networkSceneName to prevent a scene reload
+            // if client connection to server fails.
+            networkSceneName = offlineScene;
+
             InitializeSingleton();
         }
 
