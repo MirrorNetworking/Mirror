@@ -53,7 +53,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName)
+        public static MethodDefinition ProcessSyncVarGet(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
         {
             //Create the get method
             MethodDefinition get = new MethodDefinition(
@@ -64,9 +64,37 @@ namespace Mirror.Weaver
 
             ILProcessor getWorker = get.Body.GetILProcessor();
 
-            getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
-            getWorker.Append(getWorker.Create(OpCodes.Ldfld, fd));
-            getWorker.Append(getWorker.Create(OpCodes.Ret));
+            // [SyncVar] GameObject?
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
+            {
+                // return this.GetSyncVarGameObject(ref field, uint netId);
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldflda, fd));
+                getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarGameObjectReference));
+                getWorker.Append(getWorker.Create(OpCodes.Ret));
+            }
+            // [SyncVar] NetworkIdentity?
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0)); // this.
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldfld, netFieldId));
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldflda, fd));
+                getWorker.Append(getWorker.Create(OpCodes.Call, Weaver.getSyncVarNetworkIdentityReference));
+                getWorker.Append(getWorker.Create(OpCodes.Ret));
+            }
+            // [SyncVar] int, string, etc.
+            else
+            {
+                getWorker.Append(getWorker.Create(OpCodes.Ldarg_0));
+                getWorker.Append(getWorker.Create(OpCodes.Ldfld, fd));
+                getWorker.Append(getWorker.Create(OpCodes.Ret));
+            }
 
             get.Body.Variables.Add(new VariableDefinition(fd.FieldType));
             get.Body.InitLocals = true;
@@ -137,6 +165,14 @@ namespace Mirror.Weaver
 
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarGameObjectReference));
             }
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldflda, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarNetworkIdentityReference));
+            }
             else
             {
                 // make generic version of SetSyncVar with field type
@@ -158,12 +194,12 @@ namespace Mirror.Weaver
         public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, List<FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
-
             Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
 
-            // GameObject SyncVars have a new field for netId
+            // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netFieldId = null;
-            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
                 netFieldId = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
@@ -173,7 +209,7 @@ namespace Mirror.Weaver
                 Weaver.lists.netIdFields.Add(netFieldId);
             }
 
-            var get = ProcessSyncVarGet(fd, originalName);
+            var get = ProcessSyncVarGet(fd, originalName, netFieldId);
             var set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netFieldId);
 
             //NOTE: is property even needed? Could just use a setter function?
@@ -188,6 +224,16 @@ namespace Mirror.Weaver
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
             Weaver.lists.replacementSetterProperties[fd] = set;
+
+            // replace getter field if GameObject/NetworkIdentity so it uses
+            // netId instead
+            // -> only for GameObjects, otherwise an int syncvar's getter would
+            //    end up in recursion.
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
+                fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                Weaver.lists.replacementGetterProperties[fd] = get;
+            }
         }
 
         public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, List<FieldDefinition> syncVarNetIds)

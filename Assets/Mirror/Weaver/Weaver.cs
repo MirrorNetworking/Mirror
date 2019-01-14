@@ -15,6 +15,8 @@ namespace Mirror.Weaver
     {
         // setter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
+        // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
+        public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
         // GameObject SyncVar generated netId fields
         public List<FieldDefinition> netIdFields = new List<FieldDefinition>();
 
@@ -146,6 +148,9 @@ namespace Mirror.Weaver
         public static MethodReference setSyncVarHookGuard;
         public static MethodReference getSyncVarHookGuard;
         public static MethodReference setSyncVarGameObjectReference;
+        public static MethodReference getSyncVarGameObjectReference;
+        public static MethodReference setSyncVarNetworkIdentityReference;
+        public static MethodReference getSyncVarNetworkIdentityReference;
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference registerEventDelegateReference;
@@ -742,15 +747,35 @@ namespace Mirror.Weaver
             }
         }
 
+        // replaces syncvar write access with the NetworkXYZ.get property calls
         static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors or deserialize
-            if (md.Name == ".ctor" || md.Name == "OnDeserialize")
+            // dont replace property call sites in constructors
+            if (md.Name == ".ctor")
                 return;
 
             // does it set a field that we replaced?
             MethodDefinition replacement;
             if (lists.replacementSetterProperties.TryGetValue(opField, out replacement))
+            {
+                //replace with property
+                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                i.OpCode = OpCodes.Call;
+                i.Operand = replacement;
+                //DLog(td, "    replaced  "  + md.Name + ":" + i);
+            }
+        }
+
+        // replaces syncvar read access with the NetworkXYZ.get property calls
+        static void ProcessInstructionGetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
+        {
+            // dont replace property call sites in constructors
+            if (md.Name == ".ctor")
+                return;
+
+            // does it set a field that we replaced?
+            MethodDefinition replacement;
+            if (lists.replacementGetterProperties.TryGetValue(opField, out replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -778,6 +803,16 @@ namespace Mirror.Weaver
                 if (opField != null)
                 {
                     ProcessInstructionSetterField(td, md, i, opField);
+                }
+            }
+
+            if (i.OpCode == OpCodes.Ldfld)
+            {
+                // this instruction gets the value of a field. cache the field reference.
+                FieldDefinition opField = i.Operand as FieldDefinition;
+                if (opField != null)
+                {
+                    ProcessInstructionGetterField(td, md, i, opField);
                 }
             }
         }
@@ -885,7 +920,6 @@ namespace Mirror.Weaver
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
             if (md.Name == ".cctor" ||
-                md.Name == "OnDeserialize" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
                 md.Name.StartsWith("CallCmd") ||
                 md.Name.StartsWith("InvokeCmd") ||
@@ -1129,6 +1163,9 @@ namespace Mirror.Weaver
             getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "get_syncVarHookGuard");
 
             setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SetSyncVarGameObject");
+            getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "GetSyncVarGameObject");
+            setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "SetSyncVarNetworkIdentity");
+            getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "GetSyncVarNetworkIdentity");
             registerCommandDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterRpcDelegate");
             registerEventDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, scriptDef, "RegisterEventDelegate");
