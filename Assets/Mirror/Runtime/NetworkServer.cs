@@ -946,10 +946,10 @@ namespace Mirror
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (uint netId in tmp)
                 {
-                    GameObject obj = FindLocalObject(netId);
-                    if (obj != null)
+                    NetworkIdentity identity;
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        DestroyObject(obj);
+                        DestroyObject(identity.gameObject);
                     }
                 }
             }
