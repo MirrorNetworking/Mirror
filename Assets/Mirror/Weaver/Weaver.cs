@@ -31,6 +31,8 @@ namespace Mirror.Weaver
         public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
 
         public TypeDefinition generateContainerClass;
+
+        // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
     }
 
