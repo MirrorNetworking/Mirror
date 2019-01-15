@@ -1868,8 +1868,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0.1
   controller: {fileID: 143481651761152176}
-  speed: 6
-  rotationSpeed: 6
+  speed: 300
+  rotationSpeed: 400
 --- !u!137 &137843045221985638
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

@@ -4,8 +4,8 @@ using Mirror;
 public class Move : NetworkBehaviour
 {
     public CharacterController controller;
-    public float speed = 5;
-    public float rotationSpeed = 6;
+    public float speed = 300;
+    public float rotationSpeed = 400;
 
     void Update()
     {
@@ -13,10 +13,10 @@ public class Move : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         // rotate
-        transform.Rotate(0, Input.GetAxis("Horizontal") * rotationSpeed, 0);
+        transform.Rotate(0, Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime, 0);
 
         // move
         Vector3 forward = transform.TransformDirection(Vector3.forward);
-        controller.SimpleMove(forward * Input.GetAxis("Vertical") * speed);
+        controller.SimpleMove(forward * Input.GetAxis("Vertical") * speed * Time.deltaTime);
     }
 }
