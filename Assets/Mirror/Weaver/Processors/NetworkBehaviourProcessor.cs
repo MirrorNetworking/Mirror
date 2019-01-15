@@ -450,7 +450,7 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(m_td, "  GenerateDeSerialization");
 
-            foreach (var m in m_td.Methods)
+            foreach (MethodDefinition m in m_td.Methods)
             {
                 if (m.Name == "OnDeserialize")
                     return;
@@ -487,7 +487,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
             int netIdFieldCounter  = 0;
-            foreach (var syncVar in m_SyncVars)
+            foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 // assign value
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
