@@ -228,6 +228,10 @@ namespace Mirror
             NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
         }
 
+        /// <summary>
+        /// This starts a new server.
+        /// </summary>
+        /// <returns>True if the server was started.</returns>
         public bool StartServer()
         {
             InitializeSingleton();
@@ -293,6 +297,12 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// This starts a new network client. 
+        /// It uses the networkAddress and networkPort properties as the address to connect to.
+        /// </summary>
+        /// <param name="hostPort"></param>
+        /// <returns>The client object created.</returns>
         public NetworkClient StartClient(ushort hostPort=0)
         {
             InitializeSingleton();
@@ -321,6 +331,10 @@ namespace Mirror
             return client;
         }
 
+        /// <summary>
+        /// This starts a network "host" - a server and client in the same application.
+        /// </summary>
+        /// <returns>The client object created - this is a "local client".</returns>
         public virtual NetworkClient StartHost()
         {
             OnStartHost();
@@ -342,6 +356,9 @@ namespace Mirror
             return client;
         }
 
+        /// <summary>
+        /// This stops both the client and the server that the manager is using.
+        /// </summary>
         public void StopHost()
         {
             OnStopHost();
@@ -350,6 +367,9 @@ namespace Mirror
             StopClient();
         }
 
+        /// <summary>
+        /// Stops the server that the manager is using.
+        /// </summary>
         public void StopServer()
         {
             if (!NetworkServer.active)
@@ -367,6 +387,9 @@ namespace Mirror
             CleanupNetworkIdentities();
         }
 
+        /// <summary>
+        /// Stops the client that the manager is using.
+        /// </summary>
         public void StopClient()
         {
             OnStopClient();
@@ -389,6 +412,10 @@ namespace Mirror
             CleanupNetworkIdentities();
         }
 
+        /// <summary>
+        /// This causes the server to switch scenes and automatically sync the scenes.
+        /// </summary>
+        /// <param name="newSceneName">The name of the scene to change to.</param>
         public virtual void ServerChangeScene(string newSceneName)
         {
             if (string.IsNullOrEmpty(newSceneName))
@@ -502,23 +529,38 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager destroyed"); }
         }
 
+        /// <summary>
+        /// Register the transform of a game object as a player spawn location.
+        /// </summary>
+        /// <param name="start">Transform to register.</param>
         public static void RegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
             startPositions.Add(start);
         }
 
+        /// <summary>
+        /// Unregisters the transform of a game object as a player spawn location.
+        /// </summary>
+        /// <param name="start">Transform to unregister.</param>
         public static void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) { Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position); }
             startPositions.Remove(start);
         }
 
+        /// <summary>
+        /// This checks if the NetworkManager has a client and that it is connected to the server.
+        /// </summary>
+        /// <returns>True if the NetworkManagers client is connected to a server.</returns>
         public bool IsClientConnected()
         {
             return client != null && client.isConnected;
         }
 
+        /// <summary>
+        /// Shuts down the NetworkManager completely and destroys the singleton.
+        /// </summary>
         // this is the only way to clear the singleton, so another instance can be created.
         public static void Shutdown()
         {
@@ -658,16 +700,28 @@ namespace Mirror
 
         // ----------------------------- Server System Callbacks --------------------------------
 
+        /// <summary>
+        /// Called on the server when a new client connects.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public virtual void OnServerConnect(NetworkConnection conn)
         {
         }
 
+        /// <summary>
+        /// Called on the server when a client disconnects.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayerForConnection(conn);
             if (LogFilter.Debug) { Debug.Log("OnServerDisconnect: Client disconnected."); }
         }
 
+        /// <summary>
+        /// Called on the server when a client is ready.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public virtual void OnServerReady(NetworkConnection conn)
         {
             if (conn.playerController == null)
@@ -678,11 +732,20 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
+        /// <summary>
+        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
+        /// <param name="extraMessageReader">An extra message object passed for the new player.</param>
         public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkReader extraMessageReader)
         {
             OnServerAddPlayerInternal(conn);
         }
 
+        /// <summary>
+        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             OnServerAddPlayerInternal(conn);
@@ -716,6 +779,10 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
+        /// <summary>
+        /// This finds a spawn position based on NetworkStartPosition objects in the Scene.
+        /// </summary>
+        /// <returns>Returns the transform to spawn a player at, or null.</returns>
         public Transform GetStartPosition()
         {
             // first remove any dead transforms
@@ -741,6 +808,11 @@ namespace Mirror
             return null;
         }
 
+        /// <summary>
+        /// Called on the server when a client removes a player.
+        /// </summary>
+        /// <param name="conn">The connection to remove the player from.</param>
+        /// <param name="player">The player controller to remove.</param>
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
@@ -749,18 +821,31 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called on the server when a network error occurs for a client connection.
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
+        /// <param name="exception">The error.</param>
         public virtual void OnServerError(NetworkConnection conn, Exception exception)
         {
             // default implementation just logs the exception
             Debug.LogException(exception, this);
         }
 
+        /// <summary>
+        /// Called on the server when a scene is completely loaded, when the scene load was initiated by the server with ServerChangeScene().
+        /// </summary>
+        /// <param name="sceneName">The name of the new scene.</param>
         public virtual void OnServerSceneChanged(string sceneName)
         {
         }
 
         // ----------------------------- Client System Callbacks --------------------------------
 
+        /// <summary>
+        /// Called on the client when connected to a server.
+        /// </summary>
+        /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientConnect(NetworkConnection conn)
         {
             if (!clientLoadedScene)
@@ -774,21 +859,39 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Called on clients when disconnected from a server.
+        /// </summary>
+        /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
         }
 
+        /// <summary>
+        /// Called on clients when a network error occurs.
+        /// </summary>
+        /// <param name="conn">Connection to a server.</param>
+        /// <param name="exception">The error.</param>
         public virtual void OnClientError(NetworkConnection conn, Exception exception)
         {
             // default implementation just logs the exception
             Debug.LogException(exception, this);
         }
 
+        /// <summary>
+        /// Called on clients when a servers tells the client it is no longer ready.
+        /// This is commonly used when switching Scenes.
+        /// </summary>
+        /// <param name="conn">	Connection to a server.</param>
         public virtual void OnClientNotReady(NetworkConnection conn)
         {
         }
 
+        /// <summary>
+        /// Called on clients when a scene has completley loaded, when the scene load was initiated by the server.
+        /// </summary>
+        /// <param name="conn">	The network connection that the scene change message arrived on.</param>
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
@@ -811,11 +914,17 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
+        /// <summary>Called when the host is started.</summary>
         public virtual void OnStartHost() {}
+        /// <summary>Called when the server is started - including when a host is started.</summary>
         public virtual void OnStartServer() {}
+        /// <summary>Called when the client is started.</summary>
         public virtual void OnStartClient(NetworkClient client) {}
+        /// <summary>Called when the server is stopped - including when a host is stopped.</summary>
         public virtual void OnStopServer() {}
+        /// <summary>Called when the client is stopped.</summary>
         public virtual void OnStopClient() {}
+        /// <summary>Called when the host is stopped.</summary>
         public virtual void OnStopHost() {}
     }
 }
