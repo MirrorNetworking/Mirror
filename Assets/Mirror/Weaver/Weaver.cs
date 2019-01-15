@@ -18,10 +18,8 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        // [Command]/[ClientRpc] functions that should be replaced
-        public List<MethodDefinition> replacedMethods = new List<MethodDefinition>();
-        // remote call functions that replace [Command]/[ClientRpc] references
-        public List<MethodDefinition> replacementMethods = new List<MethodDefinition>();
+        // [Command]/[ClientRpc] functions that should be replaced. dict<originalMethodFullName, replacement>
+        public Dictionary<string, MethodDefinition> replaceMethods = new Dictionary<string, MethodDefinition>();
 
         // [SyncEvent] invoke functions that should be replaced
         public List<EventDefinition> replacedEvents = new List<EventDefinition>();
@@ -708,16 +706,16 @@ namespace Mirror.Weaver
             }
             else
             {
-                for (int n = 0; n < lists.replacedMethods.Count; n++)
+                // should it be replaced?
+                // NOTE: original weaver compared .FullName, not just the MethodDefinition,
+                //       that's why we use dict<string,method>.
+                // TODO maybe replaceMethods[md] would work too?
+                MethodDefinition replacement;
+                if (lists.replaceMethods.TryGetValue(opMethodRef.FullName, out replacement))
                 {
-                    MethodDefinition foundMethod = lists.replacedMethods[n];
-                    if (opMethodRef.FullName == foundMethod.FullName)
-                    {
-                        //DLog(td, "    replacing "  + md.Name + ":" + i);
-                        instr.Operand = lists.replacementMethods[n];
-                        //DLog(td, "    replaced  "  + md.Name + ":" + i);
-                        break;
-                    }
+                    //DLog(td, "    replacing "  + md.Name + ":" + i);
+                    instr.Operand = replacement;
+                    //DLog(td, "    replaced  "  + md.Name + ":" + i);
                 }
             }
         }
