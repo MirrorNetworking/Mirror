@@ -139,7 +139,15 @@ namespace Mirror
             // sceneId duplicates.
             // -> we need an offset to start at 1000+1,+2,+3, etc.
             // -> the most robust way is to split uint value range by sceneCount
-            uint offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
+            // -> only if more than one scene. otherwise use offset 0 to avoid
+            //    DivisionByZero if no scene in build settings, and to avoid
+            //    different offsets in editor/build if scene wasn't added to
+            //    build settings.
+            uint offsetPerScene = 0;
+            if (SceneManager.sceneCountInBuildSettings > 1)
+            {
+                offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
+            }
 
             // make sure that there aren't more sceneIds than offsetPerScene
             if (identities.Count >= offsetPerScene)
