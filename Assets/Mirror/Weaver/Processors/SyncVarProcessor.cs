@@ -191,7 +191,7 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, List<FieldDefinition> syncVarNetIds, long dirtyBit)
+        public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
             Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
@@ -205,7 +205,7 @@ namespace Mirror.Weaver
                     FieldAttributes.Private,
                     Weaver.uint32Type);
 
-                syncVarNetIds.Add(netFieldId);
+                syncVarNetIds[fd] = netFieldId;
                 Weaver.lists.netIdFields.Add(netFieldId);
             }
 
@@ -236,7 +236,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, List<FieldDefinition> syncVarNetIds)
+        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
         {
             int numSyncVars = 0;
 
@@ -353,7 +353,8 @@ namespace Mirror.Weaver
                 }
             }
 
-            foreach (FieldDefinition fd in syncVarNetIds)
+            // add all the new SyncVar __netId fields
+            foreach (FieldDefinition fd in syncVarNetIds.Values)
             {
                 td.Fields.Add(fd);
             }

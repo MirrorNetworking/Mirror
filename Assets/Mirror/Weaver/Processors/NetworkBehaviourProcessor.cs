@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     {
         readonly List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
         readonly List<FieldDefinition> m_SyncObjects = new List<FieldDefinition>();
-        readonly List<FieldDefinition> m_SyncVarNetIds = new List<FieldDefinition>();
+        readonly Dictionary<FieldDefinition, FieldDefinition> m_SyncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>(); // <SyncVarField,NetIdField>
         readonly List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
         readonly List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
         readonly List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
@@ -486,7 +486,6 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
-            int netIdFieldCounter  = 0;
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
                 // assign value
@@ -501,8 +500,7 @@ namespace Mirror.Weaver
                     //   OnDeserialize reads to __netId manually so we can use
                     //     lookups in the getter (so it still works if objects
                     //     move in and out of range repeatedly)
-                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
-                    netIdFieldCounter += 1;
+                    FieldDefinition netIdField = m_SyncVarNetIds[syncVar];
 
                     serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked32));
                     serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
@@ -540,7 +538,6 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
-            netIdFieldCounter = 0; // reset
             int dirtyBit = Weaver.GetSyncVarStart(m_td.BaseType.FullName); // start at number of syncvars in parent
             foreach (FieldDefinition syncVar in m_SyncVars)
             {
@@ -567,8 +564,7 @@ namespace Mirror.Weaver
                     //   OnDeserialize reads to __netId manually so we can use
                     //     lookups in the getter (so it still works if objects
                     //     move in and out of range repeatedly)
-                    FieldDefinition netIdField = m_SyncVarNetIds[netIdFieldCounter];
-                    netIdFieldCounter += 1;
+                    FieldDefinition netIdField = m_SyncVarNetIds[syncVar];
 
                     if (foundMethod == null)
                     {
