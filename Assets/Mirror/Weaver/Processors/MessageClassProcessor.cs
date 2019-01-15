@@ -107,9 +107,8 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serializeFunc = new MethodDefinition("Deserialize", MethodAttributes.Public |
-                    MethodAttributes.Virtual |
-                    MethodAttributes.HideBySig,
+            MethodDefinition serializeFunc = new MethodDefinition("Deserialize",
+                    MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
             serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
