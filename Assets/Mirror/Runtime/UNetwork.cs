@@ -31,7 +31,6 @@ namespace Mirror
         Rpc = 2,
         Owner = 4,
         Command = 5,
-        LocalPlayerTransform = 6,
         SyncEvent = 7,
         UpdateVars = 8,
         SpawnPrefab = 3,
@@ -49,9 +48,6 @@ namespace Mirror
         AddPlayer = 37,
         RemovePlayer = 38,
         Scene = 39,
-        Animation = 40,
-        AnimationParameters = 41,
-        AnimationTrigger = 42,
 
         // time synchronization
         Ping = 43,

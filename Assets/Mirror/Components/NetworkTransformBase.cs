@@ -55,16 +55,6 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        // one GameObject might have multiple NetworkTransform/Child components. We need to know the index to properly
-        // assign the MsgType.LocalPlayerTransform message.
-        int componentIndex;
-
-        void Awake()
-        {
-            // TODO use componentId instead?
-            componentIndex = Array.IndexOf(GetComponents<NetworkTransformBase>(), this);
-        }
-
         // serialization is needed by OnSerialize and by manual sending from authority
         static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation)
         {
@@ -224,61 +214,20 @@ namespace Mirror
         }
 
         // local authority client sends sync message to server for broadcasting
-        // note: message is registered in NetworkServer.RegisterMessageHandlers
-        //       because internal messages can't be registered from the outside
-        // TODO make this a [Command] later (Weaver can't weave this as long as
-        //      it's still in the same DLL)
-        public static void OnClientToServerSync(NetworkMessage netMsg)
+        [Command]
+        void CmdClientToServerSync(byte[] payload)
         {
-            // read message
-            TransformMessage message = netMsg.ReadMessage<TransformMessage>();
+            // deserialize payload
+            NetworkReader reader = new NetworkReader(payload);
+            DeserializeFromReader(reader);
 
-            // find that NetworkIdentity
-            NetworkIdentity identity;
-            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
-            {
-                Debug.LogError("Received NetworkTransform data for GameObject that doesn't exist");
-                return;
-            }
+            // server-only mode does no interpolation to save computations,
+            // but let's set the position directly
+            if (isServer && !isClient)
+                ApplyPositionAndRotation(goal.position, goal.rotation);
 
-            NetworkTransformBase[] foundSyncs = identity.GetComponents<NetworkTransformBase>();
-            if (foundSyncs == null || foundSyncs.Length == 0 || message.componentIndex > foundSyncs.Length - 1)
-            {
-                Debug.LogError("HandleTransform null target");
-                return;
-            }
-
-            NetworkTransformBase foundSync = foundSyncs[message.componentIndex];
-            if (!foundSync.localPlayerAuthority)
-            {
-                Debug.LogError("HandleTransform no localPlayerAuthority");
-                return;
-            }
-
-            if (netMsg.conn.clientOwnedObjects == null)
-            {
-                Debug.LogError("HandleTransform object not owned by connection");
-                return;
-            }
-
-            if (netMsg.conn.clientOwnedObjects.Contains(message.netId))
-            {
-                // deserialize payload
-                NetworkReader reader = new NetworkReader(message.payload);
-                foundSync.DeserializeFromReader(reader);
-
-                // server-only mode does no interpolation to save computations,
-                // but let's set the position directly
-                if (foundSync.isServer && !foundSync.isClient)
-                    foundSync.ApplyPositionAndRotation(foundSync.goal.position, foundSync.goal.rotation);
-
-                // set dirty so that OnSerialize broadcasts it
-                foundSync.SetDirtyBit(1UL);
-            }
-            else
-            {
-                Debug.LogWarning("HandleTransform netId:" + message.netId + " is not for a valid player");
-            }
+            // set dirty so that OnSerialize broadcasts it
+            SetDirtyBit(1UL);
         }
 
         // where are we in the timeline between start and goal? [0,1]
@@ -387,12 +336,8 @@ namespace Mirror
                             NetworkWriter writer = new NetworkWriter();
                             SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
 
-                            // send message to server
-                            TransformMessage message = new TransformMessage();
-                            message.netId = netId;
-                            message.componentIndex = componentIndex;
-                            message.payload = writer.ToArray();
-                            connectionToServer.Send((short)MsgType.LocalPlayerTransform, message);
+                            // send to server
+                            CmdClientToServerSync(writer.ToArray());
                         }
                         lastClientSendTime = Time.time;
                     }
