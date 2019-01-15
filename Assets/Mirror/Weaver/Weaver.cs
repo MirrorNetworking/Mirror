@@ -1323,7 +1323,7 @@ namespace Mirror.Weaver
 
             bool didWork = false;
 
-            // are ANY parent clasess MessageBase
+            // are ANY parent classes MessageBase
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
@@ -1339,7 +1339,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
