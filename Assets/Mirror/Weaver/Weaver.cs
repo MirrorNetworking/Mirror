@@ -23,8 +23,6 @@ namespace Mirror.Weaver
         // remote call functions that replace [Command]/[ClientRpc] references
         public List<MethodDefinition> replacementMethods = new List<MethodDefinition>();
 
-        public HashSet<string> replacementMethodNames = new HashSet<string>();
-
         // [SyncEvent] invoke functions that should be replaced
         public List<EventDefinition> replacedEvents = new List<EventDefinition>();
         // remote call functions that replace [SyncEvent] references
@@ -710,18 +708,15 @@ namespace Mirror.Weaver
             }
             else
             {
-                if (lists.replacementMethodNames.Contains(opMethodRef.FullName))
+                for (int n = 0; n < lists.replacedMethods.Count; n++)
                 {
-                    for (int n = 0; n < lists.replacedMethods.Count; n++)
+                    MethodDefinition foundMethod = lists.replacedMethods[n];
+                    if (opMethodRef.FullName == foundMethod.FullName)
                     {
-                        MethodDefinition foundMethod = lists.replacedMethods[n];
-                        if (opMethodRef.FullName == foundMethod.FullName)
-                        {
-                            //DLog(td, "    replacing "  + md.Name + ":" + i);
-                            instr.Operand = lists.replacementMethods[n];
-                            //DLog(td, "    replaced  "  + md.Name + ":" + i);
-                            break;
-                        }
+                        //DLog(td, "    replacing "  + md.Name + ":" + i);
+                        instr.Operand = lists.replacementMethods[n];
+                        //DLog(td, "    replaced  "  + md.Name + ":" + i);
+                        break;
                     }
                 }
             }
@@ -1459,12 +1454,6 @@ namespace Mirror.Weaver
 
             if (didWork)
             {
-                // build replacementMethods hash to speed up code site scan
-                foreach (MethodDefinition m in lists.replacedMethods)
-                {
-                    lists.replacementMethodNames.Add(m.FullName);
-                }
-
                 // this must be done for ALL code, not just NetworkBehaviours
                 try
                 {
