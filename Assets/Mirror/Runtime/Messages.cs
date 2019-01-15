@@ -150,20 +150,7 @@ namespace Mirror
 
     // ---------- Public System Messages -------------------
 
-    public class ErrorMessage : MessageBase
-    {
-        public byte errorCode; // byte instead of int because NetworkServer uses byte anyway. saves bandwidth.
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            errorCode = reader.ReadByte();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.Write(errorCode);
-        }
-    }
+    public class ErrorMessage : ByteMessage {}
 
     public class ReadyMessage : EmptyMessage {}
 

@@ -537,7 +537,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
 
             ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnServerError(netMsg.conn, msg.errorCode);
+            OnServerError(netMsg.conn, msg.value);
         }
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
@@ -586,7 +586,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
 
             ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnClientError(netMsg.conn, msg.errorCode);
+            OnClientError(netMsg.conn, msg.value);
         }
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)

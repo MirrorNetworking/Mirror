@@ -244,7 +244,7 @@ namespace Mirror
             if (m_MessageHandlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
-                msg.errorCode = error;
+                msg.value = error;
 
                 // write the message to a local buffer
                 NetworkWriter writer = new NetworkWriter();
