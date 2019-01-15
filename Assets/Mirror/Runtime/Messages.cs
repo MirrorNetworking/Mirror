@@ -246,6 +246,7 @@ namespace Mirror
         }
     }
 
+    // TODO use ByteMessage or use a SpawnStarted/Finished message.
     class ObjectSpawnFinishedMessage : MessageBase
     {
         public byte state; // byte because it's always 0 or 1
