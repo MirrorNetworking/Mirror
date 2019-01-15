@@ -87,7 +87,7 @@ namespace Mirror
             }
 
             if (ClientScene.readyConnection == null)
-            {
+{
                 Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
             }
@@ -399,23 +399,23 @@ namespace Mirror
             m_SyncObjects.ForEach(obj => obj.Flush());
         }
 
-        internal bool IsDirty()
-        {
-            if (Time.time - m_LastSendTime >= syncInterval)
-            {
-                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
-            }
-            return false;
-        }
-
         internal bool AnySyncObjectDirty() 
         {
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
             {
                 if (m_SyncObjects[i].IsDirty)
                 {
                     return true;
                 }
+            }
+            return false;
+        }
+
+        internal bool IsDirty()
+        {
+            if (Time.time - m_LastSendTime >= syncInterval)
+            {
+                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }
