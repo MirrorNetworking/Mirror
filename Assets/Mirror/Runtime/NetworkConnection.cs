@@ -52,7 +52,7 @@ namespace Mirror
         {
             if (clientOwnedObjects != null)
             {
-                foreach (var netId in clientOwnedObjects)
+                foreach (uint netId in clientOwnedObjects)
                 {
                     var obj = NetworkServer.FindLocalObject(netId);
                     if (obj != null)
