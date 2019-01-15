@@ -21,10 +21,8 @@ namespace Mirror.Weaver
         // [Command]/[ClientRpc] functions that should be replaced. dict<originalMethodFullName, replacement>
         public Dictionary<string, MethodDefinition> replaceMethods = new Dictionary<string, MethodDefinition>();
 
-        // [SyncEvent] invoke functions that should be replaced
-        public List<EventDefinition> replacedEvents = new List<EventDefinition>();
-        // remote call functions that replace [SyncEvent] references
-        public List<MethodDefinition> replacementEvents = new List<MethodDefinition>();
+        // [SyncEvent] invoke functions that should be replaced. dict<originalEventName, replacement>
+        public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
 
         public Dictionary<string, MethodReference> readFuncs;
         public Dictionary<string, MethodReference> writeFuncs;
@@ -690,16 +688,15 @@ namespace Mirror.Weaver
                         var opField = inst.Operand as FieldReference;
 
                         // find replaceEvent with matching name
-                        for (int n = 0; n < lists.replacedEvents.Count; n++)
+                        // NOTE: original weaver compared .Name, not just the MethodDefinition,
+                        //       that's why we use dict<string,method>.
+                        // TODO maybe replaceEvents[md] would work too?
+                        MethodDefinition replacement;
+                        if (lists.replaceEvents.TryGetValue(opField.Name, out replacement))
                         {
-                            EventDefinition foundEvent = lists.replacedEvents[n];
-                            if (foundEvent.Name == opField.Name)
-                            {
-                                instr.Operand = lists.replacementEvents[n];
-                                inst.OpCode = OpCodes.Nop;
-                                found = true;
-                                break;
-                            }
+                            instr.Operand = replacement;
+                            inst.OpCode = OpCodes.Nop;
+                            found = true;
                         }
                     }
                 }
