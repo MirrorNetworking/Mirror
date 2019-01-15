@@ -209,7 +209,7 @@ namespace Mirror.Weaver
 
             if (lists.writeFuncs.ContainsKey(variable.FullName))
             {
-                var foundFunc = lists.writeFuncs[variable.FullName];
+                MethodReference foundFunc = lists.writeFuncs[variable.FullName];
                 if (foundFunc.Parameters[0].ParameterType.IsArray == variable.IsArray)
                 {
                     return foundFunc;
@@ -227,8 +227,8 @@ namespace Mirror.Weaver
 
             if (variable.IsArray)
             {
-                var elementType = variable.GetElementType();
-                var elemenWriteFunc = GetWriteFunc(elementType);
+                TypeReference elementType = variable.GetElementType();
+                MethodReference elemenWriteFunc = GetWriteFunc(elementType);
                 if (elemenWriteFunc == null)
                 {
                     return null;
