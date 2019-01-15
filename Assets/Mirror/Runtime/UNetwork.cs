@@ -49,9 +49,6 @@ namespace Mirror
         AddPlayer = 37,
         RemovePlayer = 38,
         Scene = 39,
-        Animation = 40,
-        AnimationParameters = 41,
-        AnimationTrigger = 42,
 
         // time synchronization
         Ping = 43,

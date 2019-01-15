@@ -225,15 +225,12 @@ namespace Mirror
                 client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.Animation, NetworkAnimator.OnAnimationClientMessage);
-                client.RegisterHandler(MsgType.AnimationParameters, NetworkAnimator.OnAnimationParametersClientMessage);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
                 client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
             }
 
             client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
             client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
-            client.RegisterHandler(MsgType.AnimationTrigger, NetworkAnimator.OnAnimationTriggerClientMessage);
         }
 
         // spawn handlers and prefabs //////////////////////////////////////////
