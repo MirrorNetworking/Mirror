@@ -87,7 +87,7 @@ namespace Mirror.Weaver
                 cmdName = cmdName.Substring(k_CmdPrefix.Length);
             }
 
-            // invoke interal send and return
+            // invoke internal send and return
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldtoken, td));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
