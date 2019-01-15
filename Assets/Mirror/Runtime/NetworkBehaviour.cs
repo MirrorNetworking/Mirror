@@ -403,8 +403,19 @@ namespace Mirror
         {
             if (Time.time - m_LastSendTime >= syncInterval)
             {
-                return m_SyncVarDirtyBits != 0L
-                        || m_SyncObjects.Any(obj => obj.IsDirty);
+                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
+            }
+            return false;
+        }
+
+        internal bool AnySyncObjectDirty() 
+        {
+            for (int i = 0; i < m_SyncObjects.Count; i++)
+            {
+                if (m_SyncObjects[i].IsDirty)
+                {
+                    return true;
+                }
             }
             return false;
         }
