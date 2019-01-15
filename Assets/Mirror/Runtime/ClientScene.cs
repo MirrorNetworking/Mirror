@@ -631,12 +631,12 @@ namespace Mirror
         {
             RpcMessage msg = netMsg.ReadMessage<RpcMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.rpcHash + " netId:" + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
             NetworkIdentity identity;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
-                identity.HandleRPC(msg.componentIndex, msg.rpcHash, new NetworkReader(msg.payload));
+                identity.HandleRPC(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
             }
         }
 
@@ -649,7 +649,7 @@ namespace Mirror
             NetworkIdentity identity;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
-                identity.HandleSyncEvent(msg.componentIndex, msg.eventHash, new NetworkReader(msg.payload));
+                identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
             }
             else
             {

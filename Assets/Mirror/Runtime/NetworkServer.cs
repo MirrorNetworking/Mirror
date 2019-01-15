@@ -851,7 +851,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
-            identity.HandleCommand(message.componentIndex, message.cmdHash, new NetworkReader(message.payload));
+            identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(message.payload));
         }
 
         internal static void SpawnObject(GameObject obj)
