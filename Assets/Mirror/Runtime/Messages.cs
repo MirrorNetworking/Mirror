@@ -376,66 +376,6 @@ namespace Mirror
         }
     }
 
-    class AnimationMessage : MessageBase
-    {
-        public uint netId;
-        public int      stateHash;      // if non-zero, then Play() this animation, skipping transitions
-        public float    normalizedTime;
-        public byte[]   parameters;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            stateHash = (int)reader.ReadPackedUInt32();
-            normalizedTime = reader.ReadSingle();
-            parameters = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)stateHash);
-            writer.Write(normalizedTime);
-            writer.WriteBytesAndSize(parameters);
-        }
-    }
-
-    class AnimationParametersMessage : MessageBase
-    {
-        public uint netId;
-        public byte[] parameters;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            parameters = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBytesAndSize(parameters);
-        }
-    }
-
-    class AnimationTriggerMessage : MessageBase
-    {
-        public uint netId;
-        public int hash;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            hash = (int)reader.ReadPackedUInt32();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)hash);
-        }
-    }
-
     // A client sends this message to the server
     // to calculate RTT and synchronize time
     class NetworkPingMessage : DoubleMessage

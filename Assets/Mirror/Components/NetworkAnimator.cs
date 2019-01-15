@@ -96,16 +96,10 @@ namespace Mirror
                 return;
             }
 
-            var animMsg = new AnimationMessage();
-            animMsg.netId = netId;
-            animMsg.stateHash = stateHash;
-            animMsg.normalizedTime = normalizedTime;
-
             NetworkWriter writer = new NetworkWriter();
             WriteParameters(writer, false);
-            animMsg.parameters = writer.ToArray();
 
-            SendMessage((short)MsgType.Animation, animMsg);
+            SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
@@ -149,29 +143,34 @@ namespace Mirror
             {
                 m_SendTimer = Time.time + syncInterval;
 
-                var animMsg = new AnimationParametersMessage();
-                animMsg.netId = netId;
-
                 NetworkWriter writer = new NetworkWriter();
                 WriteParameters(writer, true);
-                animMsg.parameters = writer.ToArray();
 
-                SendMessage((short)MsgType.AnimationParameters, animMsg);
+                SendAnimationParametersMessage(writer.ToArray());
             }
         }
 
-        void SendMessage(short type, MessageBase msg)
+        void SendAnimationMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
             if (isServer)
             {
-                NetworkServer.SendToReady(gameObject, type, msg);
+                RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
             }
-            else
+            else if (ClientScene.readyConnection != null)
             {
-                if (ClientScene.readyConnection != null)
-                {
-                    ClientScene.readyConnection.Send(type, msg);
-                }
+                CmdOnAnimationServerMessage(stateHash, normalizedTime, parameters);
+            }
+        }
+
+        void SendAnimationParametersMessage(byte[] parameters)
+        {
+            if (isServer)
+            {
+                RpcOnAnimationParametersClientMessage(parameters);
+            }
+            else if (ClientScene.readyConnection != null)
+            {
+                CmdOnAnimationParametersServerMessage(parameters);
             }
         }
 
@@ -197,7 +196,7 @@ namespace Mirror
             if (i == 5) param5 = p;
         }
 
-        internal void HandleAnimMsg(AnimationMessage msg, NetworkReader reader)
+        internal void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -205,15 +204,15 @@ namespace Mirror
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
             // NOTE: there is no API to play a transition(?)
-            if (msg.stateHash != 0)
+            if (stateHash != 0)
             {
-                m_Animator.Play(msg.stateHash, 0, msg.normalizedTime);
+                m_Animator.Play(stateHash, 0, normalizedTime);
             }
 
             ReadParameters(reader, false);
         }
 
-        internal void HandleAnimParamsMsg(AnimationParametersMessage msg, NetworkReader reader)
+        internal void HandleAnimParamsMsg(NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -332,140 +331,67 @@ namespace Mirror
 
         public void SetTrigger(int hash)
         {
-            var animMsg = new AnimationTriggerMessage();
-            animMsg.netId = netId;
-            animMsg.hash = hash;
-
             if (hasAuthority && localPlayerAuthority)
             {
-                if (NetworkClient.allClients.Count  > 0)
+                if (NetworkClient.allClients.Count > 0 && ClientScene.readyConnection != null)
                 {
-                    var client = ClientScene.readyConnection;
-                    if (client != null)
-                    {
-                        client.Send((short)MsgType.AnimationTrigger, animMsg);
-                    }
+                    CmdOnAnimationTriggerServerMessage(hash);
                 }
                 return;
             }
 
             if (isServer && !localPlayerAuthority)
             {
-                NetworkServer.SendToReady(gameObject, (short)MsgType.AnimationTrigger, animMsg);
+                RpcOnAnimationTriggerClientMessage(hash);
             }
         }
 
         // ------------------ server message handlers -------------------
 
-        internal static void OnAnimationServerMessage(NetworkMessage netMsg)
+        [Command]
+        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
-            AnimationMessage msg = netMsg.ReadMessage<AnimationMessage>();
-            if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + netId); }
 
-            GameObject go = NetworkServer.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                NetworkReader reader = new NetworkReader(msg.parameters);
-                animSync.HandleAnimMsg(msg, reader);
-
-                NetworkServer.SendToReady(go, (short)MsgType.Animation, msg);
-            }
+            // handle and broadcast
+            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
+            RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
         }
 
-        internal static void OnAnimationParametersServerMessage(NetworkMessage netMsg)
+        [Command]
+        void CmdOnAnimationParametersServerMessage(byte[] parameters)
         {
-            AnimationParametersMessage msg = netMsg.ReadMessage<AnimationParametersMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("OnAnimationParametersMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
-
-            GameObject go = NetworkServer.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                NetworkReader reader = new NetworkReader(msg.parameters);
-                animSync.HandleAnimParamsMsg(msg, reader);
-                NetworkServer.SendToReady(go, (short)MsgType.AnimationParameters, msg);
-            }
+            // handle and broadcast
+            HandleAnimParamsMsg(new NetworkReader(parameters));
+            RpcOnAnimationParametersClientMessage(parameters);
         }
 
-        internal static void OnAnimationTriggerServerMessage(NetworkMessage netMsg)
+        [Command]
+        void CmdOnAnimationTriggerServerMessage(int hash)
         {
-            AnimationTriggerMessage msg = netMsg.ReadMessage<AnimationTriggerMessage>();
-            if (LogFilter.Debug) { Debug.Log("OnAnimationTriggerMessage for netId=" + msg.netId + " conn=" + netMsg.conn); }
-
-            GameObject go = NetworkServer.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            NetworkAnimator animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                animSync.HandleAnimTriggerMsg(msg.hash);
-
-                NetworkServer.SendToReady(go, (short)MsgType.AnimationTrigger, msg);
-            }
+            // handle and broadcast
+            HandleAnimTriggerMsg(hash);
+            RpcOnAnimationTriggerClientMessage(hash);
         }
 
         // ------------------ client message handlers -------------------
-
-        internal static void OnAnimationClientMessage(NetworkMessage netMsg)
+        [ClientRpc]
+        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
-            AnimationMessage msg = netMsg.ReadMessage<AnimationMessage>();
-
-            GameObject go = ClientScene.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            var animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                var reader = new NetworkReader(msg.parameters);
-                animSync.HandleAnimMsg(msg, reader);
-            }
+            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
         }
 
-        internal static void OnAnimationParametersClientMessage(NetworkMessage netMsg)
+        [ClientRpc]
+        void RpcOnAnimationParametersClientMessage(byte[] parameters)
         {
-            AnimationParametersMessage msg = netMsg.ReadMessage<AnimationParametersMessage>();
-
-            GameObject go = ClientScene.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            var animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                var reader = new NetworkReader(msg.parameters);
-                animSync.HandleAnimParamsMsg(msg, reader);
-            }
+            HandleAnimParamsMsg(new NetworkReader(parameters));
         }
 
-        internal static void OnAnimationTriggerClientMessage(NetworkMessage netMsg)
+        // server sends this to one client
+        [ClientRpc]
+        void RpcOnAnimationTriggerClientMessage(int hash)
         {
-            AnimationTriggerMessage msg = netMsg.ReadMessage<AnimationTriggerMessage>();
-
-            GameObject go = ClientScene.FindLocalObject(msg.netId);
-            if (go == null)
-            {
-                return;
-            }
-            var animSync = go.GetComponent<NetworkAnimator>();
-            if (animSync != null)
-            {
-                animSync.HandleAnimTriggerMsg(msg.hash);
-            }
+            HandleAnimTriggerMsg(hash);
         }
     }
 }
