@@ -147,12 +147,14 @@ namespace Mirror
             if (SceneManager.sceneCountInBuildSettings > 1)
             {
                 offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
-            }
 
-            // make sure that there aren't more sceneIds than offsetPerScene
-            if (identities.Count >= offsetPerScene)
-            {
-                Debug.LogWarning(">" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
+                // make sure that there aren't more sceneIds than offsetPerScene
+                // -> only if we have multiple scenes. otherwise offset is 0, in
+                //    which case it doesn't matter.
+                if (identities.Count >= offsetPerScene)
+                {
+                    Debug.LogWarning(">=" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
+                }
             }
 
             uint nextSceneId = 1;
