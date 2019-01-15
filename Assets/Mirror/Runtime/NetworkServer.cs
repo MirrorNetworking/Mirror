@@ -470,7 +470,7 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
-        static public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((short)msgType, handler);
         }
