@@ -1149,6 +1149,7 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;

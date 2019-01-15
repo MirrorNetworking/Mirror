@@ -380,6 +380,7 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
+        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;
