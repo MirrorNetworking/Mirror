@@ -34,8 +34,8 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
-                    MethodAttributes.HideBySig,
+            MethodDefinition cmd = new MethodDefinition("Call" + md.Name,
+                    MethodAttributes.Public | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
             // add parameters
