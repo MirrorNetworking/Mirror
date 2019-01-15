@@ -1286,7 +1286,7 @@ namespace Mirror.Weaver
 
             // process this and base classes from parent to child order
 
-            List<TypeDefinition> behClasses = new List<TypeDefinition>();
+            List<TypeDefinition> behaviourClasses = new List<TypeDefinition>();
 
             TypeDefinition parent = td;
             while (parent != null)
@@ -1297,7 +1297,7 @@ namespace Mirror.Weaver
                 }
                 try
                 {
-                    behClasses.Insert(0, parent);
+                    behaviourClasses.Insert(0, parent);
                     parent = parent.BaseType.Resolve();
                 }
                 catch (AssemblyResolutionException)
@@ -1309,9 +1309,9 @@ namespace Mirror.Weaver
             }
 
             bool didWork = false;
-            foreach (TypeDefinition beh in behClasses)
+            foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                didWork |= ProcessNetworkBehaviourType(beh);
+                didWork |= ProcessNetworkBehaviourType(behaviour);
             }
             return didWork;
         }
