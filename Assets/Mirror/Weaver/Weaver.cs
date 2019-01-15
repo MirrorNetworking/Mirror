@@ -335,7 +335,7 @@ namespace Mirror.Weaver
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
-            var functionName = "_ReadArray" + variable.GetElementType().Name + "_";
+            string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
