@@ -176,7 +176,6 @@ namespace Mirror
         }
     }
 
-
     class CommandMessage : RemoteCallMessage {}
 
     class RpcMessage : RemoteCallMessage {}
