@@ -1460,7 +1460,7 @@ namespace Mirror.Weaver
             if (didWork)
             {
                 // build replacementMethods hash to speed up code site scan
-                foreach (var m in lists.replacedMethods)
+                foreach (MethodDefinition m in lists.replacedMethods)
                 {
                     lists.replacementMethodNames.Add(m.FullName);
                 }
