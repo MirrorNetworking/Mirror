@@ -141,13 +141,9 @@ namespace Mirror
         }
     }
 
-    public class ReadyMessage : EmptyMessage
-    {
-    }
+    public class ReadyMessage : EmptyMessage {}
 
-    public class NotReadyMessage : EmptyMessage
-    {
-    }
+    public class NotReadyMessage : EmptyMessage {}
 
     public class AddPlayerMessage : MessageBase
     {
