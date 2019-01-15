@@ -812,10 +812,10 @@ namespace Mirror.Weaver
             int offset = md.Resolve().IsStatic ? 0 : 1;
             for (int index = 0; index < md.Parameters.Count; index++)
             {
-                var param = md.Parameters[index];
+                ParameterDefinition param = md.Parameters[index];
                 if (param.IsOut)
                 {
-                    var elementType = param.ParameterType.GetElementType();
+                    TypeReference elementType = param.ParameterType.GetElementType();
                     if (elementType.IsPrimitive)
                     {
                         worker.InsertBefore(top, worker.Create(OpCodes.Ldarg, index + offset));
