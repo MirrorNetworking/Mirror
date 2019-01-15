@@ -147,9 +147,7 @@ namespace Mirror
 
     public class AddPlayerMessage : BytesMessage {}
 
-    public class RemovePlayerMessage : EmptyMessage
-    {
-    }
+    public class RemovePlayerMessage : EmptyMessage {}
 
     // ---------- System Messages requried for code gen path -------------------
 
