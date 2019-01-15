@@ -206,7 +206,6 @@ namespace Mirror.Weaver
                     Weaver.uint32Type);
 
                 syncVarNetIds[fd] = netFieldId;
-                Weaver.lists.netIdFields.Add(netFieldId);
             }
 
             var get = ProcessSyncVarGet(fd, originalName, netFieldId);

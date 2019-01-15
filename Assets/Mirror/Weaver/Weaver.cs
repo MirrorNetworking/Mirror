@@ -17,8 +17,6 @@ namespace Mirror.Weaver
         public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
-        // GameObject SyncVar generated netId fields
-        public List<FieldDefinition> netIdFields = new List<FieldDefinition>();
 
         // [Command]/[ClientRpc] functions that should be replaced
         public List<MethodDefinition> replacedMethods = new List<MethodDefinition>();
