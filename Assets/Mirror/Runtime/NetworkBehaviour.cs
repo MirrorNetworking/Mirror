@@ -399,8 +399,11 @@ namespace Mirror
             m_SyncObjects.ForEach(obj => obj.Flush());
         }
 
-        internal bool AnySyncObjectDirty() 
+        internal bool AnySyncObjectDirty()
         {
+            // note: don't use Linq here. 1200 networked objects:
+            //   Linq: 187KB GC/frame;, 2.66ms time
+            //   for: 8KB GC/frame; 1.28ms time
             for (int i = 0; i < m_SyncObjects.Count; ++i)
             {
                 if (m_SyncObjects[i].IsDirty)
