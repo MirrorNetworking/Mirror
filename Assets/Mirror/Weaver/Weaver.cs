@@ -254,7 +254,7 @@ namespace Mirror.Weaver
             return newWriterFunc;
         }
 
-        static public void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        public static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
         {
             lists.writeFuncs[name] = newWriterFunc;
             lists.generatedWriteFunctions.Add(newWriterFunc);
