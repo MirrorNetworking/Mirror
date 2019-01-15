@@ -468,25 +468,4 @@ namespace Mirror
             writer.Write(serverTime);
         }
     }
-
-    class TransformMessage : MessageBase
-    {
-        public uint netId;
-        public int componentIndex;
-        public byte[] payload;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            payload = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.WriteBytesAndSize(payload);
-        }
-    }
 }
