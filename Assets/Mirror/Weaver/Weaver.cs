@@ -954,7 +954,7 @@ namespace Mirror.Weaver
                 ProcessSiteMethod(moduleDef, td, md);
             }
 
-            foreach (var nested in td.NestedTypes)
+            foreach (TypeDefinition nested in td.NestedTypes)
             {
                 ProcessSiteClass(moduleDef, nested);
             }
@@ -962,7 +962,7 @@ namespace Mirror.Weaver
 
         static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
-            var startTime = DateTime.Now;
+            DateTime startTime = DateTime.Now;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -977,12 +977,12 @@ namespace Mirror.Weaver
                 moduleDef.Types.Add(lists.generateContainerClass);
                 scriptDef.MainModule.ImportReference(lists.generateContainerClass);
 
-                foreach (var f in lists.generatedReadFunctions)
+                foreach (MethodDefinition f in lists.generatedReadFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
 
-                foreach (var f in lists.generatedWriteFunctions)
+                foreach (MethodDefinition f in lists.generatedWriteFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
