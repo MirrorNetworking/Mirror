@@ -197,19 +197,19 @@ namespace Mirror.Weaver
             Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
-            FieldDefinition netFieldId = null;
+            FieldDefinition netIdField = null;
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
-                netFieldId = new FieldDefinition("___" + fd.Name + "NetId",
+                netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
                     Weaver.uint32Type);
 
-                syncVarNetIds[fd] = netFieldId;
+                syncVarNetIds[fd] = netIdField;
             }
 
-            var get = ProcessSyncVarGet(fd, originalName, netFieldId);
-            var set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netFieldId);
+            var get = ProcessSyncVarGet(fd, originalName, netIdField);
+            var set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netIdField);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
