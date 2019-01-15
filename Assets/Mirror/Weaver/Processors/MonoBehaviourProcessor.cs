@@ -58,7 +58,7 @@ namespace Mirror.Weaver
                         Weaver.fail = true;
                     }
 
-                    var attrName = ca.Constructor.DeclaringType.ToString();
+                    string attrName = ca.Constructor.DeclaringType.ToString();
 
                     switch (attrName)
                     {
