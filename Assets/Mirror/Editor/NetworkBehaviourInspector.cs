@@ -178,14 +178,15 @@ namespace Mirror
             // No need to show it if the class only has Cmds/Rpcs and no sync.
             if (m_SyncsAnything)
             {
-                var beh = target as NetworkBehaviour;
-                if (beh != null)
+                NetworkBehaviour networkBehaviour = target as NetworkBehaviour;
+                if (networkBehaviour != null)
                 {
                     // [0,2] should be enough. anything >2s is too laggy anyway.
-                    beh.syncInterval = EditorGUILayout.Slider(
+                    serializedObject.FindProperty("syncInterval").floatValue = EditorGUILayout.Slider(
                         new GUIContent("Network Sync Interval",
                                        "Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)"),
-                        beh.syncInterval, 0, 2);
+                        networkBehaviour.syncInterval, 0, 2);
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
         }
