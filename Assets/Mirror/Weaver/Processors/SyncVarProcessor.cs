@@ -191,26 +191,25 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, List<FieldDefinition> syncVarNetIds, long dirtyBit)
+        public static void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
         {
             string originalName = fd.Name;
             Weaver.DLog(td, "Sync Var " + fd.Name + " " + fd.FieldType + " " + Weaver.gameObjectType);
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
-            FieldDefinition netFieldId = null;
+            FieldDefinition netIdField = null;
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
-                netFieldId = new FieldDefinition("___" + fd.Name + "NetId",
+                netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
                     Weaver.uint32Type);
 
-                syncVarNetIds.Add(netFieldId);
-                Weaver.lists.netIdFields.Add(netFieldId);
+                syncVarNetIds[fd] = netIdField;
             }
 
-            var get = ProcessSyncVarGet(fd, originalName, netFieldId);
-            var set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netFieldId);
+            var get = ProcessSyncVarGet(fd, originalName, netIdField);
+            var set = ProcessSyncVarSet(td, fd, originalName, dirtyBit, netIdField);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
@@ -236,7 +235,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, List<FieldDefinition> syncVarNetIds)
+        public static void ProcessSyncVars(TypeDefinition td, List<FieldDefinition> syncVars, List<FieldDefinition> syncObjects, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds)
         {
             int numSyncVars = 0;
 
@@ -353,7 +352,8 @@ namespace Mirror.Weaver
                 }
             }
 
-            foreach (FieldDefinition fd in syncVarNetIds)
+            // add all the new SyncVar __netId fields
+            foreach (FieldDefinition fd in syncVarNetIds.Values)
             {
                 td.Fields.Add(fd);
             }

@@ -415,7 +415,7 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
-        static public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((short)msgType, handler);
         }
@@ -796,7 +796,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
-            identity.HandleCommand(message.componentIndex, message.cmdHash, new NetworkReader(message.payload));
+            identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(message.payload));
         }
 
         internal static void SpawnObject(GameObject obj)
@@ -860,7 +860,7 @@ namespace Mirror
                 msg.netId = identity.netId;
                 msg.sceneId = identity.sceneId;
                 msg.position = identity.transform.position;
-                // note: no msg.rotation here because client&server both start with same scene (=same scene object rotations)
+                msg.rotation = identity.transform.rotation;
 
                 // include synch data
                 msg.payload = identity.OnSerializeAllSafely(true);
@@ -891,10 +891,10 @@ namespace Mirror
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (uint netId in tmp)
                 {
-                    GameObject obj = FindLocalObject(netId);
-                    if (obj != null)
+                    NetworkIdentity identity;
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        DestroyObject(obj);
+                        DestroyObject(identity.gameObject);
                     }
                 }
             }
@@ -1094,6 +1094,7 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
             NetworkIdentity identity;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +33,30 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             value = reader.ReadString();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(value);
+        }
+    }
+
+    public class ByteMessage : MessageBase
+    {
+        public byte value;
+
+        public ByteMessage()
+        {
+        }
+
+        public ByteMessage(byte v)
+        {
+            value = v;
+        }
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            value = reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -126,47 +150,29 @@ namespace Mirror
 
     // ---------- Public System Messages -------------------
 
-    public class ReadyMessage : EmptyMessage
-    {
-    }
+    public class ReadyMessage : EmptyMessage {}
 
-    public class NotReadyMessage : EmptyMessage
-    {
-    }
+    public class NotReadyMessage : EmptyMessage {}
 
-    public class AddPlayerMessage : MessageBase
-    {
-        public byte[] msgData;
+    public class AddPlayerMessage : BytesMessage {}
 
-        public override void Deserialize(NetworkReader reader)
-        {
-            msgData = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteBytesAndSize(msgData);
-        }
-    }
-
-    public class RemovePlayerMessage : EmptyMessage
-    {
-    }
+    public class RemovePlayerMessage : EmptyMessage {}
 
     // ---------- System Messages requried for code gen path -------------------
 
-    class CommandMessage : MessageBase
+    // remote calls like Rpc/Cmd/SyncEvent all use the same message type
+    class RemoteCallMessage : MessageBase
     {
         public uint netId;
         public int componentIndex;
-        public int cmdHash;
+        public int functionHash;
         public byte[] payload; // the parameters for the Cmd function
 
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
-            cmdHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
             payload = reader.ReadBytesAndSize();
         }
 
@@ -174,58 +180,16 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32((uint)componentIndex);
-            writer.Write(cmdHash);
+            writer.Write(functionHash);
             writer.WriteBytesAndSize(payload);
         }
     }
 
-    class RpcMessage : MessageBase
-    {
-        public uint netId;
-        public int componentIndex;
-        public int rpcHash;
-        public byte[] payload; // the parameters for the Rpc function
+    class CommandMessage : RemoteCallMessage {}
 
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            rpcHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            payload = reader.ReadBytesAndSize();
-        }
+    class RpcMessage : RemoteCallMessage {}
 
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.Write(rpcHash);
-            writer.WriteBytesAndSize(payload);
-        }
-    }
-
-    class SyncEventMessage : MessageBase
-    {
-        public uint netId;
-        public int componentIndex;
-        public int eventHash;
-        public byte[] payload; // the parameters for the Rpc function
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            componentIndex = (int)reader.ReadPackedUInt32();
-            eventHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            payload = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32((uint)componentIndex);
-            writer.Write(eventHash);
-            writer.WriteBytesAndSize(payload);
-        }
-    }
+    class SyncEventMessage : RemoteCallMessage {}
 
     // ---------- Internal System Messages -------------------
 
@@ -261,6 +225,7 @@ namespace Mirror
         public uint netId;
         public uint sceneId;
         public Vector3 position;
+        public Quaternion rotation;
         public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
@@ -268,6 +233,7 @@ namespace Mirror
             netId = reader.ReadPackedUInt32();
             sceneId = reader.ReadPackedUInt32();
             position = reader.ReadVector3();
+            rotation = reader.ReadQuaternion();
             payload = reader.ReadBytesAndSize();
         }
 
@@ -276,10 +242,12 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32(sceneId);
             writer.Write(position);
+            writer.Write(rotation);
             writer.WriteBytesAndSize(payload);
         }
     }
 
+    // TODO use ByteMessage or use a SpawnStarted/Finished message.
     class ObjectSpawnFinishedMessage : MessageBase
     {
         public byte state; // byte because it's always 0 or 1

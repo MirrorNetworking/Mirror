@@ -607,9 +607,9 @@ namespace Mirror
 
             AddPlayerMessage msg = netMsg.ReadMessage<AddPlayerMessage>();
 
-            if (msg.msgData != null && msg.msgData.Length > 0)
+            if (msg.value != null && msg.value.Length > 0)
             {
-                NetworkReader reader = new NetworkReader(msg.msgData);
+                NetworkReader reader = new NetworkReader(msg.value);
                 OnServerAddPlayer(netMsg.conn, reader);
             }
             else

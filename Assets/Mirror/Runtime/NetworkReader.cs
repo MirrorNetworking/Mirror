@@ -205,14 +205,15 @@ namespace Mirror
             {
                 return null;
             }
-            GameObject go = ClientScene.FindLocalObject(netId);
-            if (go == null)
+
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
-                if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId); }
-                return null;
+                return identity.transform;
             }
 
-            return go.transform;
+            if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId + " not found in spawned"); }
+            return null;
         }
 
         public GameObject ReadGameObject()

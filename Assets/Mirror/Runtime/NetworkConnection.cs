@@ -52,12 +52,12 @@ namespace Mirror
         {
             if (clientOwnedObjects != null)
             {
-                foreach (var netId in clientOwnedObjects)
+                foreach (uint netId in clientOwnedObjects)
                 {
-                    var obj = NetworkServer.FindLocalObject(netId);
-                    if (obj != null)
+                    NetworkIdentity identity;
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        obj.GetComponent<NetworkIdentity>().ClearClientOwner();
+                        identity.ClearClientOwner();
                     }
                 }
             }

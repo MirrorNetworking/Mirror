@@ -107,7 +107,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            message.functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
@@ -135,7 +135,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
@@ -155,7 +155,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.rpcHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             conn.Send((short)MsgType.Rpc, message, channelId);
@@ -182,7 +182,7 @@ namespace Mirror
             SyncEventMessage message = new SyncEventMessage();
             message.netId = netId;
             message.componentIndex = ComponentIndex;
-            message.eventHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            message.functionHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
             NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
@@ -410,19 +410,26 @@ namespace Mirror
             m_SyncObjects.ForEach(obj => obj.Flush());
         }
 
+        internal bool AnySyncObjectDirty()
+        {
+            // note: don't use Linq here. 1200 networked objects:
+            //   Linq: 187KB GC/frame;, 2.66ms time
+            //   for: 8KB GC/frame; 1.28ms time
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            {
+                if (m_SyncObjects[i].IsDirty)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         internal bool IsDirty()
         {
             if (Time.time - m_LastSendTime >= syncInterval)
             {
-                if (m_SyncVarDirtyBits != 0L) {
-                    return true;
-                }
-
-                for (var i = 0; i < m_SyncObjects.Count; i++) {
-                    if (m_SyncObjects[i].IsDirty) {
-                        return true;
-                    }
-                }
+                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }
