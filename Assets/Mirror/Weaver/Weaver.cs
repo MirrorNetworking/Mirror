@@ -335,7 +335,7 @@ namespace Mirror.Weaver
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
-            var functionName = "_ReadArray" + variable.GetElementType().Name + "_";
+            string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
@@ -418,7 +418,7 @@ namespace Mirror.Weaver
                 Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
-            var functionName = "_WriteArray" + variable.GetElementType().Name + "_";
+            string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
@@ -507,7 +507,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            var functionName = "_Write" + variable.Name + "_";
+            string functionName = "_Write" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
@@ -529,7 +529,7 @@ namespace Mirror.Weaver
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
             uint fields = 0;
-            foreach (var field in variable.Resolve().Fields)
+            foreach (FieldDefinition field in variable.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate)
                     continue;
@@ -548,7 +548,7 @@ namespace Mirror.Weaver
                     return null;
                 }
 
-                var writeFunc = GetWriteFunc(field.FieldType);
+                MethodReference writeFunc = GetWriteFunc(field.FieldType);
                 if (writeFunc != null)
                 {
                     fields++;
@@ -586,7 +586,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            var functionName = "_Read" + variable.Name + "_";
+            string functionName = "_Read" + variable.Name + "_";
             if (variable.DeclaringType != null)
             {
                 functionName += variable.DeclaringType.Name;
@@ -633,7 +633,7 @@ namespace Mirror.Weaver
             }
 
             uint fields = 0;
-            foreach (var field in variable.Resolve().Fields)
+            foreach (FieldDefinition field in variable.Resolve().Fields)
             {
                 if (field.IsStatic || field.IsPrivate)
                     continue;
@@ -642,7 +642,7 @@ namespace Mirror.Weaver
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
 
-                var readFunc = GetReadFunc(field.FieldType);
+                MethodReference readFunc = GetReadFunc(field.FieldType);
                 if (readFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -686,7 +686,7 @@ namespace Mirror.Weaver
                     Instruction inst = md.Body.Instructions[iCount];
                     if (inst.OpCode == OpCodes.Ldfld)
                     {
-                        var opField = inst.Operand as FieldReference;
+                        FieldReference opField = inst.Operand as FieldReference;
 
                         // find replaceEvent with matching name
                         // NOTE: original weaver compared .Name, not just the MethodDefinition,
@@ -727,7 +727,7 @@ namespace Mirror.Weaver
                         objectType);
 
                 const MethodAttributes methodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
-                var method = new MethodDefinition(".ctor", methodAttributes, voidType);
+                MethodDefinition method = new MethodDefinition(".ctor", methodAttributes, voidType);
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(objectType, scriptDef, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
@@ -812,10 +812,10 @@ namespace Mirror.Weaver
             int offset = md.Resolve().IsStatic ? 0 : 1;
             for (int index = 0; index < md.Parameters.Count; index++)
             {
-                var param = md.Parameters[index];
+                ParameterDefinition param = md.Parameters[index];
                 if (param.IsOut)
                 {
-                    var elementType = param.ParameterType.GetElementType();
+                    TypeReference elementType = param.ParameterType.GetElementType();
                     if (elementType.IsPrimitive)
                     {
                         worker.InsertBefore(top, worker.Create(OpCodes.Ldarg, index + offset));
@@ -954,7 +954,7 @@ namespace Mirror.Weaver
                 ProcessSiteMethod(moduleDef, td, md);
             }
 
-            foreach (var nested in td.NestedTypes)
+            foreach (TypeDefinition nested in td.NestedTypes)
             {
                 ProcessSiteClass(moduleDef, nested);
             }
@@ -962,7 +962,7 @@ namespace Mirror.Weaver
 
         static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
-            var startTime = DateTime.Now;
+            DateTime startTime = DateTime.Now;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -977,12 +977,12 @@ namespace Mirror.Weaver
                 moduleDef.Types.Add(lists.generateContainerClass);
                 scriptDef.MainModule.ImportReference(lists.generateContainerClass);
 
-                foreach (var f in lists.generatedReadFunctions)
+                foreach (MethodDefinition f in lists.generatedReadFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
 
-                foreach (var f in lists.generatedWriteFunctions)
+                foreach (MethodDefinition f in lists.generatedWriteFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
@@ -1037,8 +1037,8 @@ namespace Mirror.Weaver
 
         static void SetupCorLib()
         {
-            var name = AssemblyNameReference.Parse("mscorlib");
-            var parameters = new ReaderParameters
+            AssemblyNameReference name = AssemblyNameReference.Parse("mscorlib");
+            ReaderParameters parameters = new ReaderParameters
             {
                 AssemblyResolver = scriptDef.MainModule.AssemblyResolver,
             };
@@ -1047,7 +1047,7 @@ namespace Mirror.Weaver
 
         static TypeReference ImportCorLibType(string fullName)
         {
-            var type = corLib.GetType(fullName) ?? corLib.ExportedTypes.First(t => t.FullName == fullName).Resolve();
+            TypeDefinition type = corLib.GetType(fullName) ?? corLib.ExportedTypes.First(t => t.FullName == fullName).Resolve();
             return scriptDef.MainModule.ImportReference(type);
         }
 
@@ -1309,7 +1309,7 @@ namespace Mirror.Weaver
             }
 
             bool didWork = false;
-            foreach (var beh in behClasses)
+            foreach (TypeDefinition beh in behClasses)
             {
                 didWork |= ProcessNetworkBehaviourType(beh);
             }
@@ -1346,7 +1346,7 @@ namespace Mirror.Weaver
             }
 
             // check for embedded types
-            foreach (var embedded in td.NestedTypes)
+            foreach (TypeDefinition embedded in td.NestedTypes)
             {
                 didWork |= CheckMessageBase(embedded);
             }
@@ -1384,7 +1384,7 @@ namespace Mirror.Weaver
             }
 
             // check for embedded types
-            foreach (var embedded in td.NestedTypes)
+            foreach (TypeDefinition embedded in td.NestedTypes)
             {
                 didWork |= CheckSyncListStruct(embedded);
             }
@@ -1394,7 +1394,7 @@ namespace Mirror.Weaver
 
         static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string unityUNetDLLPath, string outputDir)
         {
-            var readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, unityUNetDLLPath);
+            ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, unityUNetDLLPath);
             scriptDef = AssemblyDefinition.ReadAssembly(assName, readParams);
 
             SetupTargetTypes();
@@ -1410,7 +1410,7 @@ namespace Mirror.Weaver
             // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
             for (int pass = 0; pass < 2; pass++)
             {
-                var watch = System.Diagnostics.Stopwatch.StartNew();
+                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
                 foreach (TypeDefinition td in moduleDefinition.Types)
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
@@ -1473,7 +1473,7 @@ namespace Mirror.Weaver
                 string dest = Helpers.DestinationFileFor(outputDir, assName);
                 //Console.WriteLine ("Output:" + dest);
 
-                var writeParams = Helpers.GetWriterParameters(readParams);
+                WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
 
                 // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
                 // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
@@ -1485,7 +1485,7 @@ namespace Mirror.Weaver
                 {
                     writeParams.SymbolWriterProvider = new MdbWriterProvider();
                     // old pdb file is out of date so delete it. symbols will be stored in mdb
-                    var pdb = Path.ChangeExtension(assName, ".pdb");
+                    string pdb = Path.ChangeExtension(assName, ".pdb");
 
                     try
                     {
