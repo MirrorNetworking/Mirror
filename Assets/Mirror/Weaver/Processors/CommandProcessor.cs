@@ -34,11 +34,11 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition cmd = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
-                    MethodAttributes.HideBySig,
+            MethodDefinition cmd = new MethodDefinition("Call" + md.Name,
+                    MethodAttributes.Public | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            // add paramters
+            // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {
                 cmd.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
@@ -80,14 +80,14 @@ namespace Mirror.Weaver
             if (!NetworkBehaviourProcessor.WriteArguments(cmdWorker, md, "Command", false))
                 return null;
 
-            var cmdName = md.Name;
+            string cmdName = md.Name;
             int index = cmdName.IndexOf(k_CmdPrefix);
             if (index > -1)
             {
                 cmdName = cmdName.Substring(k_CmdPrefix.Length);
             }
 
-            // invoke interal send and return
+            // invoke internal send and return
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0)); // load 'base.' to call the SendCommand function with
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldtoken, td));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
@@ -114,9 +114,8 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition cmd = new MethodDefinition(k_CmdPrefix + md.Name, MethodAttributes.Family |
-                                                                               MethodAttributes.Static |
-                                                                               MethodAttributes.HideBySig,
+            MethodDefinition cmd = new MethodDefinition(k_CmdPrefix + md.Name,
+                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
             ILProcessor cmdWorker = cmd.Body.GetILProcessor();

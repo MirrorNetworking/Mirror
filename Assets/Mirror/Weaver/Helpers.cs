@@ -23,7 +23,7 @@ namespace Mirror.Weaver
             public AddSearchDirectoryHelper(IAssemblyResolver assemblyResolver)
             {
                 // reflection is used because IAssemblyResolver doesn't implement AddSearchDirectory but both DefaultAssemblyResolver and NuGetAssemblyResolver do
-                var addSearchDirectory = assemblyResolver.GetType().GetMethod("AddSearchDirectory", BindingFlags.Instance | BindingFlags.Public, null, new Type[] { typeof(string) }, null);
+                MethodInfo addSearchDirectory = assemblyResolver.GetType().GetMethod("AddSearchDirectory", BindingFlags.Instance | BindingFlags.Public, null, new Type[] { typeof(string) }, null);
                 if (addSearchDirectory == null)
                     throw new Exception("Assembly resolver doesn't implement AddSearchDirectory method.");
                 _addSearchDirectory = (AddSearchDirectoryDelegate)Delegate.CreateDelegate(typeof(AddSearchDirectoryDelegate), assemblyResolver, addSearchDirectory);
@@ -37,7 +37,7 @@ namespace Mirror.Weaver
 
         public static string UnityEngineDLLDirectoryName()
         {
-            var directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
+            string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
             return directoryName != null ? directoryName.Replace(@"file:\", "") : null;
         }
 
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             // generic instances, such as List<Int32>
             if (type.IsGenericInstance)
             {
-                var giType = (GenericInstanceType)type;
+                GenericInstanceType giType = (GenericInstanceType)type;
                 return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + String.Join(", ", giType.GenericArguments.Select<TypeReference, String>(PrettyPrintType).ToArray()) + ">";
             }
 
@@ -87,10 +87,10 @@ namespace Mirror.Weaver
 
         public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string unityUNetDLLPath)
         {
-            var parameters = new ReaderParameters();
+            ReaderParameters parameters = new ReaderParameters();
             if (assemblyResolver == null)
                 assemblyResolver = new DefaultAssemblyResolver();
-            var helper = new AddSearchDirectoryHelper(assemblyResolver);
+            AddSearchDirectoryHelper helper = new AddSearchDirectoryHelper(assemblyResolver);
             helper.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
             helper.AddSearchDirectory(UnityEngineDLLDirectoryName());
             helper.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
@@ -107,7 +107,7 @@ namespace Mirror.Weaver
 
         public static WriterParameters GetWriterParameters(ReaderParameters readParams)
         {
-            var writeParams = new WriterParameters();
+            WriterParameters writeParams = new WriterParameters();
             if (readParams.SymbolReaderProvider is PdbReaderProvider)
             {
                 //Log("Will export symbols of pdb format");

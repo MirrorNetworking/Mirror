@@ -58,9 +58,9 @@ namespace Mirror.Weaver
                         Weaver.fail = true;
                     }
 
-                    var attrName = ca.Constructor.DeclaringType.ToString();
+                    string attributeName = ca.Constructor.DeclaringType.ToString();
 
-                    switch (attrName)
+                    switch (attributeName)
                     {
                         case "Mirror.ServerAttribute":
                             Log.Error("Script " + td.FullName + " uses the attribute [Server] on the method " + md.Name + " but is not a NetworkBehaviour.");
