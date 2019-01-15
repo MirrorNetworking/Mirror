@@ -145,20 +145,7 @@ namespace Mirror
 
     public class NotReadyMessage : EmptyMessage {}
 
-    public class AddPlayerMessage : MessageBase
-    {
-        public byte[] msgData;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            msgData = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteBytesAndSize(msgData);
-        }
-    }
+    public class AddPlayerMessage : BytesMessage {}
 
     public class RemovePlayerMessage : EmptyMessage
     {

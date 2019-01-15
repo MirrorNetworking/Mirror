@@ -106,7 +106,7 @@ namespace Mirror
             {
                 NetworkWriter writer = new NetworkWriter();
                 extraMessage.Serialize(writer);
-                msg.msgData = writer.ToArray();
+                msg.value = writer.ToArray();
             }
             s_ReadyConnection.Send((short)MsgType.AddPlayer, msg);
             return true;
