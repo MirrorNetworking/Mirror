@@ -760,7 +760,7 @@ namespace Mirror.Weaver
             foreach (MethodDefinition md in m_td.Methods)
             {
                 Weaver.ResetRecursionCount();
-                foreach (var ca in md.CustomAttributes)
+                foreach (CustomAttribute ca in md.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
