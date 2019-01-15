@@ -227,6 +227,7 @@ namespace Mirror
         public uint netId;
         public uint sceneId;
         public Vector3 position;
+        public Quaternion rotation;
         public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
@@ -234,6 +235,7 @@ namespace Mirror
             netId = reader.ReadPackedUInt32();
             sceneId = reader.ReadPackedUInt32();
             position = reader.ReadVector3();
+            rotation = reader.ReadQuaternion();
             payload = reader.ReadBytesAndSize();
         }
 
@@ -242,6 +244,7 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32(sceneId);
             writer.Write(position);
+            writer.Write(rotation);
             writer.WriteBytesAndSize(payload);
         }
     }
