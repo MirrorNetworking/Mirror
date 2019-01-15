@@ -80,7 +80,7 @@ namespace Mirror.Weaver
             if (!NetworkBehaviourProcessor.WriteArguments(cmdWorker, md, "Command", false))
                 return null;
 
-            var cmdName = md.Name;
+            string cmdName = md.Name;
             int index = cmdName.IndexOf(k_CmdPrefix);
             if (index > -1)
             {
