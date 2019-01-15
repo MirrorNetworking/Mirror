@@ -68,7 +68,6 @@ namespace Mirror.Weaver
         public static TypeReference IEnumeratorType;
 
         public static TypeReference ClientSceneType;
-        public static MethodReference FindLocalObjectReference;
         public static MethodReference ReadyConnectionReference;
 
         public static TypeReference ComponentType;
@@ -1137,7 +1136,6 @@ namespace Mirror.Weaver
 
             ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientScene");
-            FindLocalObjectReference = Resolvers.ResolveMethod(ClientSceneType, scriptDef, "FindLocalObject");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, scriptDef, "get_readyConnection");
 
             // get specialized GetComponent<NetworkIdentity>()
