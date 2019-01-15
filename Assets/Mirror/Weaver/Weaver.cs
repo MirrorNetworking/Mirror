@@ -267,14 +267,14 @@ namespace Mirror.Weaver
         {
             if (lists.readFuncs.ContainsKey(variable.FullName))
             {
-                var foundFunc = lists.readFuncs[variable.FullName];
+                MethodReference foundFunc = lists.readFuncs[variable.FullName];
                 if (foundFunc.ReturnType.IsArray == variable.IsArray)
                 {
                     return foundFunc;
                 }
             }
 
-            var td = variable.Resolve();
+            TypeDefinition td = variable.Resolve();
             if (td == null)
             {
                 Log.Error("GetReadFunc unsupported type " + variable.FullName);
@@ -292,8 +292,8 @@ namespace Mirror.Weaver
 
             if (variable.IsArray)
             {
-                var elementType = variable.GetElementType();
-                var elementReadFunc = GetReadFunc(elementType);
+                TypeReference elementType = variable.GetElementType();
+                MethodReference elementReadFunc = GetReadFunc(elementType);
                 if (elementReadFunc == null)
                 {
                     return null;
