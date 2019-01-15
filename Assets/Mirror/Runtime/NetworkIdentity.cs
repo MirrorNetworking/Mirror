@@ -97,6 +97,7 @@ namespace Mirror
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
         }
+
         internal void SetDynamicAssetId(Guid newAssetId)
         {
             string newAssetIdString = newAssetId.ToString("N");
@@ -243,13 +244,16 @@ namespace Mirror
 
 #if UNITY_2018_3_OR_NEWER
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            {
                 return false;
+            }
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             if (prefabType == PrefabType.None)
                 return false;
+            prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
 #endif
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 
             if (prefab == null)
             {
@@ -271,16 +275,15 @@ namespace Mirror
             {
                 AssignAssetID(prefab);
             }
-            else
 #if UNITY_2018_3_OR_NEWER
-            if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
-            else
 #endif
+            else
             {
                 m_AssetId = "";
             }
@@ -360,7 +363,6 @@ namespace Mirror
             {
                 try
                 {
-                    comp.PreStartClient(); // generated startup to resolve object references
                     comp.OnStartClient(); // user implemented startup
                 }
                 catch (Exception e)

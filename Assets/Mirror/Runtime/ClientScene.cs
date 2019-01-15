@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -180,7 +180,9 @@ namespace Mirror
                    identity.sceneId != 0;
         }
 
-        internal static void PrepareToSpawnSceneObjects()
+        // this needs to be public. If users load/unload a scene in the client after connection
+        // they should call this to register the spawnable objects
+        public static void PrepareToSpawnSceneObjects()
         {
             // add all unspawned NetworkIdentities to spawnable objects
             spawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
