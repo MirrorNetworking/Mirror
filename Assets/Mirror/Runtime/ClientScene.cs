@@ -143,7 +143,7 @@ namespace Mirror
 
             if (conn != null)
             {
-                var msg = new ReadyMessage();
+                ReadyMessage msg = new ReadyMessage();
                 conn.Send((short)MsgType.Ready, msg);
                 s_IsReady = true;
                 s_ReadyConnection = conn;
@@ -156,7 +156,7 @@ namespace Mirror
 
         public static NetworkClient ConnectLocalServer()
         {
-            var newClient = new LocalClient();
+            LocalClient newClient = new LocalClient();
             NetworkServer.ActivateLocalClientScene();
             newClient.InternalConnectLocalServer(true);
             return newClient;
