@@ -944,34 +944,6 @@ namespace Mirror
             conn.RemovePlayerController();
         }
 
-        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
-        {
-            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
-            NetworkIdentity.spawned.Remove(identity.netId);
-
-            if (identity.clientAuthorityOwner != null)
-            {
-                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
-            }
-
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = identity.netId;
-            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
-
-            identity.ClearObservers();
-            if (NetworkClient.active && s_LocalClientActive)
-            {
-                identity.OnNetworkDestroy();
-            }
-
-            // when unspawning, dont destroy the server's object
-            if (destroyServerObject)
-            {
-                UnityEngine.Object.Destroy(identity.gameObject);
-            }
-            identity.MarkForReset();
-        }
-
         public static void Spawn(GameObject obj)
         {
             if (VerifyCanSpawn(obj))
@@ -1067,6 +1039,34 @@ namespace Mirror
                 }
                 SpawnObject(obj);
             }
+        }
+
+        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
+        {
+            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
+            NetworkIdentity.spawned.Remove(identity.netId);
+
+            if (identity.clientAuthorityOwner != null)
+            {
+                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
+            }
+
+            ObjectDestroyMessage msg = new ObjectDestroyMessage();
+            msg.netId = identity.netId;
+            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
+
+            identity.ClearObservers();
+            if (NetworkClient.active && s_LocalClientActive)
+            {
+                identity.OnNetworkDestroy();
+            }
+
+            // when unspawning, dont destroy the server's object
+            if (destroyServerObject)
+            {
+                UnityEngine.Object.Destroy(identity.gameObject);
+            }
+            identity.MarkForReset();
         }
 
         public static void Destroy(GameObject obj)
