@@ -844,8 +844,8 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (!GetNetworkIdentity(obj, out identity))
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
