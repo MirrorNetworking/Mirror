@@ -501,7 +501,7 @@ namespace Mirror
             {
                 Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + spawnableObjects.Count);
                 // dump the whole spawnable objects dict for easier debugging
-                foreach (var kvp in spawnableObjects)
+                foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawnableObjects)
                     Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 return;
             }
