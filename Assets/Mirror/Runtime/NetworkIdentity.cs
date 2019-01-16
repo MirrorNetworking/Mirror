@@ -470,6 +470,10 @@ namespace Mirror
             return result;
         }
 
+        // cache the writer so that we are not creating a new network writer
+        // for every gameobject
+        NetworkWriter writer ;
+
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
         internal byte[] OnSerializeAllSafely(bool initialState)
@@ -484,7 +488,8 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return null;
 
-            NetworkWriter writer = new NetworkWriter();
+            writer = writer ?? new NetworkWriter();
+            writer.Reset();
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
             foreach (NetworkBehaviour comp in m_NetworkBehaviours)
