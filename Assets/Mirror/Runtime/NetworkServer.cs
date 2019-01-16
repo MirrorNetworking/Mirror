@@ -976,7 +976,7 @@ namespace Mirror
             return true;
         }
 
-        public static Boolean SpawnWithClientAuthority(GameObject obj, GameObject player)
+        public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
