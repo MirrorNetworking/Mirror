@@ -225,11 +225,11 @@ namespace Mirror
             return result;
         }
 
-        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
-            if (contextObj == null)
+            if (identity == null)
             {
                 // no context.. send to all ready connections
                 foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
@@ -243,7 +243,6 @@ namespace Mirror
                 return true;
             }
 
-            NetworkIdentity identity = contextObj.GetComponent<NetworkIdentity>();
             if (identity != null && identity.observers != null)
             {
                 bool result = true;
@@ -905,7 +904,7 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity.gameObject, (short)MsgType.SpawnPrefab, msg);
+                    SendToReady(identity, (short)MsgType.SpawnPrefab, msg);
                 }
             }
             // 'identity' is a scene object that should be spawned again
@@ -928,7 +927,7 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity.gameObject, (short)MsgType.SpawnSceneObject, msg);
+                    SendToReady(identity, (short)MsgType.SpawnSceneObject, msg);
                 }
             }
         }

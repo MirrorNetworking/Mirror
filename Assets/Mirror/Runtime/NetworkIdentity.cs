@@ -943,7 +943,7 @@ namespace Mirror
                 message.netId = netId;
                 message.payload = payload;
 
-                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
+                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
             }
         }
 
