@@ -539,15 +539,12 @@ namespace Mirror
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-        
-            // call OnDeserialize with a temporary reader, so that the
-            // original one can't be messed with. we also wrap it in a
-            // try-catch block so there's no way to mess up another
-            // component's deserialization
             try
             {
                 comp.OnDeserialize(reader, initialState);
 
+                // check the barrier.  If we read too much or too little we will be reading the wrong byte
+                // so barrier won't match (probably)
                 byte barrierData = reader.ReadByte();
                 if (barrierData != Barrier)
                 {
