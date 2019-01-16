@@ -19,7 +19,7 @@ namespace Mirror
         ushort m_ServerPort;
         int m_ClientId = -1;
 
-        readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
+        public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         protected enum ConnectState
@@ -33,15 +33,13 @@ namespace Mirror
 
         internal void SetHandlers(NetworkConnection conn)
         {
-            conn.SetHandlers(m_MessageHandlers);
+            conn.SetHandlers(handlers);
         }
 
         public string serverIp { get { return m_ServerIp; } }
         public ushort serverPort { get { return m_ServerPort; } }
         public ushort hostPort;
         public NetworkConnection connection { get { return m_Connection; } }
-
-        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
 
         public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
@@ -59,7 +57,7 @@ namespace Mirror
             SetActive(true);
             m_Connection = conn;
             connectState = ConnectState.Connected;
-            conn.SetHandlers(m_MessageHandlers);
+            conn.SetHandlers(handlers);
             RegisterSystemHandlers(false);
         }
 
@@ -78,7 +76,7 @@ namespace Mirror
 
             // setup all the handlers
             m_Connection = new NetworkConnection(m_ServerIp, m_ClientId, 0);
-            m_Connection.SetHandlers(m_MessageHandlers);
+            m_Connection.SetHandlers(handlers);
         }
 
         void PrepareForConnect()
@@ -241,7 +239,7 @@ namespace Mirror
         void GenerateError(byte error)
         {
             NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue((short)MsgType.Error, out msgDelegate))
+            if (handlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.value = error;
@@ -271,11 +269,11 @@ namespace Mirror
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            if (m_MessageHandlers.ContainsKey(msgType))
+            if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
             }
-            m_MessageHandlers[msgType] = handler;
+            handlers[msgType] = handler;
         }
 
         public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -285,7 +283,7 @@ namespace Mirror
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.Remove(msgType);
+            handlers.Remove(msgType);
         }
 
         public void UnregisterHandler(MsgType msgType)
