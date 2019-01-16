@@ -944,11 +944,6 @@ namespace Mirror
             conn.RemovePlayerController();
         }
 
-        static void UnSpawnObject(NetworkIdentity identity)
-        {
-            DestroyObject(identity, false);
-        }
-
         static void DestroyObject(GameObject obj)
         {
             if (obj == null)
@@ -1105,7 +1100,7 @@ namespace Mirror
             NetworkIdentity identity;
             if (GetNetworkIdentity(obj, out identity))
             {
-                UnSpawnObject(identity);
+                DestroyObject(identity, false);
             }
         }
 
