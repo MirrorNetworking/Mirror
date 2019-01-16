@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -454,40 +455,37 @@ namespace Mirror
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // random number that is unlikely to appear in a regular data stream
+        const byte Barrier = 171;
 
-        // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
-        // -> OnSerialize writes length,componentData,length,componentData,...
-        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
-        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
+        // paul: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
+        // -> OnSerialize writes componentData, barrier, componentData, barrier,componentData,...
+        // -> OnDeserialize carefully extracts each data, then deserializes the barrier and check it
+        //    -> If we read too many or too few bytes,  the barrier is very unlikely to match
         //    -> we can properly track down errors
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // serialize into a temporary writer
-            NetworkWriter temp = new NetworkWriter();
             bool result = false;
             try
             {
-                result = comp.OnSerialize(temp, initialState);
+                result = comp.OnSerialize(writer, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
             }
-            byte[] bytes = temp.ToArray();
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId); }
 
-            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
-            // be useful for debugging.
-            if (bytes.Length > NetworkManager.transport.GetMaxPacketSize())
-            {
-                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
-            }
-
-            // serialize length,data into the real writer, untouched by user code
-            writer.WriteBytesAndSize(bytes);
+            // serialize a barrier to be checked by the deserializer
+            writer.Write(Barrier);
             return result;
         }
+
+        // cache the writer so that we are not creating a new network writer
+        // for every gameobject
+        NetworkWriter writer ;
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
@@ -503,7 +501,8 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return null;
 
-            NetworkWriter writer = new NetworkWriter();
+            writer = writer ?? new NetworkWriter();
+            writer.Reset();
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
             foreach (NetworkBehaviour comp in m_NetworkBehaviours)
@@ -526,7 +525,16 @@ namespace Mirror
                 }
             }
 
-            return writer.ToArray();
+            // did we write anything? then write dirty, payload and return true
+            byte[] bytes = writer.ToArray();
+
+            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
+            // be useful for debugging.
+            if (bytes.Length > NetworkManager.transport.GetMaxPacketSize())
+            {
+                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId);
+            }
+            return bytes;
         }
 
         private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
@@ -549,23 +557,25 @@ namespace Mirror
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-            // extract data length and data safely, untouched by user code
-            // -> returns empty array if length is 0, so .Length is always the proper length
-            byte[] bytes = reader.ReadBytesAndSize();
-            if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
-
+        
             // call OnDeserialize with a temporary reader, so that the
             // original one can't be messed with. we also wrap it in a
             // try-catch block so there's no way to mess up another
             // component's deserialization
             try
             {
-                comp.OnDeserialize(new NetworkReader(bytes), initialState);
+                comp.OnDeserialize(reader, initialState);
+
+                byte barrierData = reader.ReadByte();
+                if (barrierData != Barrier)
+                {
+                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId  + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" );
+                }
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + bytes.Length +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
+                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
             }
         }
 
