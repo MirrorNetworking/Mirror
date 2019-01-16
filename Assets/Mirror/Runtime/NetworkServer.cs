@@ -229,20 +229,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
-            if (identity == null)
-            {
-                // no context.. send to all ready connections
-                foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
-                {
-                    NetworkConnection conn = kvp.Value;
-                    if (conn.isReady)
-                    {
-                        conn.Send(msgType, msg, channelId);
-                    }
-                }
-                return true;
-            }
-
             if (identity != null && identity.observers != null)
             {
                 bool result = true;
