@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public sealed class NetworkServer
+    public static class NetworkServer
     {
         static bool s_Active;
         static bool s_LocalClientActive;
