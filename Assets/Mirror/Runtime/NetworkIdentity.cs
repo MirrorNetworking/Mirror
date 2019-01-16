@@ -930,6 +930,8 @@ namespace Mirror
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
+            // SendToReady sends to all observers. no need to serialize if we
+            // don't have any.
             if (observers == null || observers.Count == 0)
                 return;
 
