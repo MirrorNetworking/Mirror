@@ -930,7 +930,7 @@ namespace Mirror
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
-            if (observers.Count == 0)
+            if (observers == null || observers.Count == 0)
                 return;
 
             // serialize all the dirty components and send (if any were dirty)
