@@ -401,7 +401,7 @@ namespace Mirror
             identity.transform.rotation = rotation;
             if (payload != null && payload.Length > 0)
             {
-                var payloadReader = new NetworkReader(payload);
+                NetworkReader payloadReader = new NetworkReader(payload);
                 identity.OnUpdateVars(payloadReader, true);
             }
 
