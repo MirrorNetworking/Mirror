@@ -1086,17 +1086,7 @@ namespace Mirror
 
         public static void UnSpawn(GameObject obj)
         {
-            if (obj == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
-                return;
-            }
-
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
-            {
-                DestroyObject(identity, false);
-            }
+            NetworkServer.Destroy(obj);
         }
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
