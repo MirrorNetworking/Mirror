@@ -615,8 +615,8 @@ namespace Mirror
 
         internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
-            NetworkIdentity playerNetworkIdentity;
-            if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
+            NetworkIdentity playerNetworkIdentity = playerGameObject.GetComponent<NetworkIdentity>();
+            if (playerNetworkIdentity == null)
             {
                 Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
