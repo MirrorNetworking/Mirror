@@ -151,7 +151,7 @@ namespace Mirror
             return s_NextNetworkId++;
         }
 
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
+        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
         // only used during spawning on clients to set the identity.

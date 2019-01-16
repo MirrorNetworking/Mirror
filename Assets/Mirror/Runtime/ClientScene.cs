@@ -187,7 +187,7 @@ namespace Mirror
             // add all unspawned NetworkIdentities to spawnable objects
             spawnableObjects = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
                                .Where(ConsiderForSpawning)
-                               .ToDictionary(uv => uv.sceneId, uv => uv);
+                               .ToDictionary(identity => identity.sceneId, identity => identity);
         }
 
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
