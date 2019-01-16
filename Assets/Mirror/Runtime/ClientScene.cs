@@ -220,6 +220,7 @@ namespace Mirror
                 // LocalClient shares the sim/scene with the server, no need for these events
                 client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
+                client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
                 client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
                 client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
@@ -511,17 +512,17 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
+        static void OnObjectSpawnStarted(NetworkMessage netMsg)
+        {
+            if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
+
+            PrepareToSpawnSceneObjects();
+            s_IsSpawnFinished = false;
+        }
+
         static void OnObjectSpawnFinished(NetworkMessage netMsg)
         {
-            ObjectSpawnFinishedMessage msg = netMsg.ReadMessage<ObjectSpawnFinishedMessage>();
-            if (LogFilter.Debug) { Debug.Log("SpawnFinished:" + msg.state); }
-
-            if (msg.state == 0)
-            {
-                PrepareToSpawnSceneObjects();
-                s_IsSpawnFinished = false;
-                return;
-            }
+            if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects

@@ -717,9 +717,7 @@ namespace Mirror
             // Spawn/update all current server objects
             if (LogFilter.Debug) { Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId); }
 
-            ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
-            msg.state = 0;
-            conn.Send((short)MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnStarted, new ObjectSpawnStartedMessage());
 
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
@@ -742,8 +740,7 @@ namespace Mirror
                 }
             }
 
-            msg.state = 1;
-            conn.Send((short)MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, new ObjectSpawnFinishedMessage());
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
