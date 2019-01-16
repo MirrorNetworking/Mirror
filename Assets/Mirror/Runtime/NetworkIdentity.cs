@@ -485,7 +485,7 @@ namespace Mirror
 
         // cache the writer so that we are not creating a new network writer
         // for every gameobject
-        NetworkWriter writer ;
+        private static NetworkWriter writer ;
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
