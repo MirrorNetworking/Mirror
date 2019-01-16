@@ -218,8 +218,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                NetworkConnection conn = kvp.Value;
-                result &= conn.Send(msgType, msg, channelId);
+                result &= kvp.Value.Send(msgType, msg, channelId);
             }
             return result;
         }
