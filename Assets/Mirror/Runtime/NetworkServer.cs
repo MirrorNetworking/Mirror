@@ -944,21 +944,6 @@ namespace Mirror
             conn.RemovePlayerController();
         }
 
-        static void UnSpawnObject(GameObject obj)
-        {
-            if (obj == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
-                return;
-            }
-
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
-            {
-                UnSpawnObject(identity);
-            }
-        }
-
         static void UnSpawnObject(NetworkIdentity identity)
         {
             DestroyObject(identity, false);
@@ -1111,7 +1096,17 @@ namespace Mirror
 
         public static void UnSpawn(GameObject obj)
         {
-            UnSpawnObject(obj);
+            if (obj == null)
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
+                return;
+            }
+
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                UnSpawnObject(identity);
+            }
         }
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
