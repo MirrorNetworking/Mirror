@@ -448,30 +448,41 @@ namespace Mirror
         //    -> we can properly track down errors
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            // serialize into a temporary writer
-            NetworkWriter temp = new NetworkWriter();
+            // write placeholder length bytes
+            // (jumping back later is WAY faster than allocating a temporary
+            //  writer for the payload, then writing payload.size, payload)
+            int sizePosition = writer.Position;
+            writer.Write((int)0);
+            int payloadPosition = writer.Position;
+
+            // write payload
             bool result = false;
             try
             {
-                result = comp.OnSerialize(temp, initialState);
+                result = comp.OnSerialize(writer, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
             }
-            byte[] bytes = temp.ToArray();
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            int endPosition = writer.Position;
+            int payloadSize = endPosition - payloadPosition;
+
+            // fill in length now
+            writer.Position = sizePosition;
+            writer.Write(payloadSize);
+            writer.Position = endPosition;
+
+            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + payloadSize); }
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > Transport.layer.GetMaxPacketSize())
+            if (payloadSize > Transport.layer.GetMaxPacketSize())
             {
-                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
+                Debug.LogWarning("Large state update of " + payloadSize + " bytes for netId:" + netId + " from script:" + comp);
             }
 
-            // serialize length,data into the real writer, untouched by user code
-            writer.WriteBytesAndSize(bytes);
             return result;
         }
 
