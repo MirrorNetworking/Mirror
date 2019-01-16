@@ -305,9 +305,9 @@ namespace Mirror
             allClients.RemoveAll(cl => cl == null);
 
             // now update valid clients
-            for (int i = 0; i < allClients.Count; ++i)
+            foreach (NetworkClient client in allClients)
             {
-                allClients[i].Update();
+                client.Update();
             }
         }
 
