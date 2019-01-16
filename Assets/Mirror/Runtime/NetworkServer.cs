@@ -485,16 +485,15 @@ namespace Mirror
         }
 
         // send this message to the player only
-        public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
+        public static void SendToClientOfPlayer(NetworkIdentity identity, short msgType, MessageBase msg)
         {
-            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
                 identity.connectionToClient.Send(msgType, msg);
             }
             else
             {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + player.name);
+                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
             }
         }
 
