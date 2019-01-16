@@ -37,8 +37,6 @@ namespace Mirror
         NetworkConnection m_ConnectionToClient;
         NetworkBehaviour[] m_NetworkBehaviours;
 
-        // <connectionId, NetworkConnection>
-        Dictionary<int, NetworkConnection> m_Observers;
 
         NetworkConnection m_ClientAuthorityOwner;
 
@@ -52,7 +50,8 @@ namespace Mirror
         public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
         public bool hasAuthority { get { return m_HasAuthority; } }
 
-        public Dictionary<int, NetworkConnection> observers { get { return m_Observers; } }
+        // <connectionId, NetworkConnection>
+        public Dictionary<int, NetworkConnection> observers;
 
         public uint netId { get { return m_NetId; } }
         public uint sceneId { get { return m_SceneId; } }
@@ -153,7 +152,7 @@ namespace Mirror
             return s_NextNetworkId++;
         }
 
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity uv, bool authorityState);
+        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
 
         // only used during spawning on clients to set the identity.
@@ -198,9 +197,9 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            if (m_Observers != null)
+            if (observers != null)
             {
-                m_Observers.Remove(conn.connectionId);
+                observers.Remove(conn.connectionId);
             }
         }
 
@@ -308,7 +307,7 @@ namespace Mirror
             m_IsServer = true;
             m_HasAuthority = !m_LocalPlayerAuthority;
 
-            m_Observers = new Dictionary<int, NetworkConnection>();
+            observers = new Dictionary<int, NetworkConnection>();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             if (netId == 0)
@@ -630,22 +629,6 @@ namespace Mirror
             HandleRemoteCall(componentIndex, rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
-        // invoked by unity runtime immediately after the regular "Update()" function.
-        internal void UNetUpdate()
-        {
-            // serialize all the dirty components and send (if any were dirty)
-            byte[] payload = OnSerializeAllSafely(false);
-            if (payload != null)
-            {
-                // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = payload;
-
-                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
-            }
-        }
-
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
         {
             if (initialState && m_NetworkBehaviours == null)
@@ -703,25 +686,25 @@ namespace Mirror
 
         internal void ClearObservers()
         {
-            if (m_Observers != null)
+            if (observers != null)
             {
-                foreach (KeyValuePair<int, NetworkConnection> kvp in m_Observers)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
                 {
                     kvp.Value.RemoveFromVisList(this, true);
                 }
-                m_Observers.Clear();
+                observers.Clear();
             }
         }
 
         internal void AddObserver(NetworkConnection conn)
         {
-            if (m_Observers == null)
+            if (observers == null)
             {
                 Debug.LogError("AddObserver for " + gameObject + " observer list is null");
                 return;
             }
 
-            if (m_Observers.ContainsKey(conn.connectionId))
+            if (observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
                 // we may have generated one that was already in use.
@@ -730,28 +713,28 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
 
-            m_Observers[conn.connectionId] = conn;
+            observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
         }
 
         internal void RemoveObserver(NetworkConnection conn)
         {
-            if (m_Observers == null)
+            if (observers == null)
                 return;
 
-            m_Observers.Remove(conn.connectionId);
+            observers.Remove(conn.connectionId);
             conn.RemoveFromVisList(this, false);
         }
 
         public void RebuildObservers(bool initialize)
         {
-            if (m_Observers == null)
+            if (observers == null)
                 return;
 
             bool changed = false;
             bool result = false;
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(m_Observers.Values);
+            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -822,7 +805,7 @@ namespace Mirror
 
             if (changed)
             {
-                m_Observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
+                observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 
@@ -942,6 +925,27 @@ namespace Mirror
 
             ClearObservers();
             m_ClientAuthorityOwner = null;
+        }
+
+        // invoked by unity runtime immediately after the regular "Update()" function.
+        internal void UNetUpdate()
+        {
+            // SendToReady sends to all observers. no need to serialize if we
+            // don't have any.
+            if (observers == null || observers.Count == 0)
+                return;
+
+            // serialize all the dirty components and send (if any were dirty)
+            byte[] payload = OnSerializeAllSafely(false);
+            if (payload != null)
+            {
+                // construct message and send
+                UpdateVarsMessage message = new UpdateVarsMessage();
+                message.netId = netId;
+                message.payload = payload;
+
+                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
+            }
         }
 
         // this is invoked by the UnityEngine

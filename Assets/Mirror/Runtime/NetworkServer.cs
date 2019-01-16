@@ -195,11 +195,10 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        static bool SendToObservers(GameObject contextObj, short msgType, MessageBase msg)
+        static bool SendToObservers(NetworkIdentity identity, short msgType, MessageBase msg)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + msgType); }
 
-            NetworkIdentity identity = contextObj.GetComponent<NetworkIdentity>();
             if (identity != null && identity.observers != null)
             {
                 bool result = true;
@@ -225,25 +224,10 @@ namespace Mirror
             return result;
         }
 
-        public static bool SendToReady(GameObject contextObj, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
 
-            if (contextObj == null)
-            {
-                // no context.. send to all ready connections
-                foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
-                {
-                    NetworkConnection conn = kvp.Value;
-                    if (conn.isReady)
-                    {
-                        conn.Send(msgType, msg, channelId);
-                    }
-                }
-                return true;
-            }
-
-            NetworkIdentity identity = contextObj.GetComponent<NetworkIdentity>();
             if (identity != null && identity.observers != null)
             {
                 bool result = true;
@@ -905,7 +889,7 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity.gameObject, (short)MsgType.SpawnPrefab, msg);
+                    SendToReady(identity, (short)MsgType.SpawnPrefab, msg);
                 }
             }
             // 'identity' is a scene object that should be spawned again
@@ -928,7 +912,7 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity.gameObject, (short)MsgType.SpawnSceneObject, msg);
+                    SendToReady(identity, (short)MsgType.SpawnSceneObject, msg);
                 }
             }
         }
@@ -1009,7 +993,7 @@ namespace Mirror
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage();
             msg.netId = identity.netId;
-            SendToObservers(identity.gameObject, (short)MsgType.ObjectDestroy, msg);
+            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
 
             identity.ClearObservers();
             if (NetworkClient.active && s_LocalClientActive)
