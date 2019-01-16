@@ -629,25 +629,6 @@ namespace Mirror
             HandleRemoteCall(componentIndex, rpcHash, UNetInvokeType.ClientRpc, reader);
         }
 
-        // invoked by unity runtime immediately after the regular "Update()" function.
-        internal void UNetUpdate()
-        {
-            if (observers.Count == 0)
-                return;
-
-            // serialize all the dirty components and send (if any were dirty)
-            byte[] payload = OnSerializeAllSafely(false);
-            if (payload != null)
-            {
-                // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = payload;
-
-                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
-            }
-        }
-
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
         {
             if (initialState && m_NetworkBehaviours == null)
@@ -944,6 +925,25 @@ namespace Mirror
 
             ClearObservers();
             m_ClientAuthorityOwner = null;
+        }
+
+        // invoked by unity runtime immediately after the regular "Update()" function.
+        internal void UNetUpdate()
+        {
+            if (observers.Count == 0)
+                return;
+
+            // serialize all the dirty components and send (if any were dirty)
+            byte[] payload = OnSerializeAllSafely(false);
+            if (payload != null)
+            {
+                // construct message and send
+                UpdateVarsMessage message = new UpdateVarsMessage();
+                message.netId = netId;
+                message.payload = payload;
+
+                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
+            }
         }
 
         // this is invoked by the UnityEngine
