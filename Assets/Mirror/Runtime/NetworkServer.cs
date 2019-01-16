@@ -931,7 +931,7 @@ namespace Mirror
                     NetworkIdentity identity;
                     if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        DestroyObject(identity.gameObject);
+                        Destroy(identity.gameObject);
                     }
                 }
             }
@@ -942,21 +942,6 @@ namespace Mirror
             }
 
             conn.RemovePlayerController();
-        }
-
-        static void DestroyObject(GameObject obj)
-        {
-            if (obj == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer DestroyObject is null"); }
-                return;
-            }
-
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
-            {
-                DestroyObject(identity, true);
-            }
         }
 
         static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
@@ -1086,7 +1071,17 @@ namespace Mirror
 
         public static void Destroy(GameObject obj)
         {
-            DestroyObject(obj);
+            if (obj == null)
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkServer DestroyObject is null"); }
+                return;
+            }
+
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                DestroyObject(identity, true);
+            }
         }
 
         public static void UnSpawn(GameObject obj)
