@@ -799,7 +799,7 @@ namespace Mirror
         {
             if (netMsg.conn.playerController != null)
             {
-                Destroy(netMsg.conn.playerController.gameObject);
+                NetworkServer.Destroy(netMsg.conn.playerController.gameObject);
                 netMsg.conn.RemovePlayerController();
             }
             else
@@ -931,7 +931,7 @@ namespace Mirror
                     NetworkIdentity identity;
                     if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        Destroy(identity.gameObject);
+                        NetworkServer.Destroy(identity.gameObject);
                     }
                 }
             }
