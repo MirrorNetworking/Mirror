@@ -507,7 +507,6 @@ namespace Mirror
                 }
             }
 
-            // did we write anything? then write dirty, payload and return true
             byte[] bytes = writer.ToArray();
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
