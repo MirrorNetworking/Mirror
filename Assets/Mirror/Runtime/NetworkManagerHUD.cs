@@ -17,11 +17,14 @@ namespace Mirror
         public int offsetX;
         public int offsetY;
 
+        [Tooltip("Start the server automatically when running in headless mode")]
+        public bool startOnHeadless = true;
+
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
 
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
                 // headless mode. Just start the server
                 manager.StartServer();
