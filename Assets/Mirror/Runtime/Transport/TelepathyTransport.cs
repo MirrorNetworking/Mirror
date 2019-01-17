@@ -122,7 +122,7 @@ namespace Mirror
         {
             if (server.Active)
             {
-                return "Telepathy Server port: " + port;
+                return "Telepathy Server port: " + server.listener.LocalEndpoint;
             }
             else if (client.Connecting || client.Connected)
             {
