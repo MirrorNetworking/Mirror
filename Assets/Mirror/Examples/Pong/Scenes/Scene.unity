@@ -836,6 +836,7 @@ GameObject:
   - component: {fileID: 1886246550}
   - component: {fileID: 1886246552}
   - component: {fileID: 1886246551}
+  - component: {fileID: 1886246553}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -895,7 +896,17 @@ MonoBehaviour:
   offlineScene: 
   onlineScene: 
   maxConnections: 4
-  useWebSockets: 0
   spawnPrefabs: []
   clientLoadedScene: 0
   isNetworkActive: 0
+--- !u!114 &1886246553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1886246549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
