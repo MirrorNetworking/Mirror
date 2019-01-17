@@ -305,9 +305,11 @@ namespace Mirror
             allClients.RemoveAll(cl => cl == null);
 
             // now update valid clients
-            foreach (NetworkClient client in allClients)
+            // IMPORTANT: no foreach, otherwise we get an InvalidOperationException
+            // when stopping the client.
+            for (int i = 0; i < allClients.Count; ++i)
             {
-                client.Update();
+                allClients[i].Update();
             }
         }
 
