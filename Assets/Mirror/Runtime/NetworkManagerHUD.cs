@@ -85,7 +85,7 @@ namespace Mirror
                 // server / client status message
                 if (NetworkServer.active)
                 {
-                    GUILayout.Label("Server: active");
+                    GUILayout.Label("Server: active. Transport: " + manager.transport);
                 }
                 if (manager.IsClientConnected())
                 {
