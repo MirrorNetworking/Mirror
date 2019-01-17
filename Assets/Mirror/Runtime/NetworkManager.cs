@@ -136,9 +136,12 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
-            // make sure that there is a transport
+            // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
-                Debug.LogWarning("NetworkManager needs a Transport component!");
+            {
+                gameObject.AddComponent<TelepathyTransport>();
+                Debug.Log("NetworkManager: added default Transport because there was none yet.");
+            }
 
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
 
