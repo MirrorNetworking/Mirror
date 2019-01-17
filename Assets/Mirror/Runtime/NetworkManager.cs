@@ -27,7 +27,7 @@ namespace Mirror
             {
                 _transport = _transport ?? GetComponent<Transport>();
                 if (_transport == null)
-                    Debug.LogError("NetworkManager has no Transport component. Please select the NetworkManager and click on Add Component->TelepathyTransport or similar.");
+                    Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
                 return _transport;
             }
         }
