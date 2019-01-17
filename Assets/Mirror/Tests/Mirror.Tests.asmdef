@@ -1,0 +1,14 @@
+{
+    "name": "Mirror.Tests",
+    "references": [
+        "Mirror"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
