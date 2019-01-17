@@ -33,7 +33,6 @@ namespace Mirror
         protected GUIContent showDebugMessagesLabel;
 
         GUIContent maxConnectionsLabel;
-
         GUIContent networkAddressLabel;
 
         GUIContent playerPrefabLabel;
