@@ -14,18 +14,18 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [RequireComponent(typeof(Transport))]
+    [RequireComponent(typeof(ITransport))]
     public class NetworkManager : MonoBehaviour
     {
         // transport layer
         // -> automatically uses the first transport component. there might be
         //    multiple in case of multiplexing, so the order matters.
-        Transport _transport;
-        public Transport transport
+        ITransport _transport;
+        public ITransport transport
         {
             get
             {
-                _transport = _transport ?? GetComponent<Transport>();
+                _transport = _transport ?? GetComponent<ITransport>();
                 if (_transport == null)
                     Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
                 return _transport;
@@ -130,6 +130,18 @@ namespace Mirror
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkIdentity.UNetStaticUpdate();
+        }
+
+        // When pressing Stop in the Editor, Unity keeps threads alive until we
+        // press Start again (which might be a Unity bug).
+        // Either way, we should disconnect client & server in OnApplicationQuit
+        // so they don't keep running until we press Play again.
+        // (this is not a problem in builds)
+        //
+        // virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
+        public virtual void OnApplicationQuit()
+        {
+            transport.Shutdown();
         }
 
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too

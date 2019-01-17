@@ -7,7 +7,7 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : Transport
+    public class LLAPITransport : MonoBehaviour, ITransport
     {
         public ushort port = 7777;
 
@@ -79,12 +79,12 @@ namespace Mirror
         }
 
         // client //////////////////////////////////////////////////////////////
-        public override bool ClientConnected()
+        public bool ClientConnected()
         {
             return clientConnectionId != -1;
         }
 
-        public override void ClientConnect(string address)
+        public void ClientConnect(string address)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -102,12 +102,12 @@ namespace Mirror
             }
         }
 
-        public override bool ClientSend(int channelId, byte[] data)
+        public bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             transportEvent = TransportEvent.Disconnected;
             data = null;
@@ -148,7 +148,7 @@ namespace Mirror
             return true;
         }
 
-        public override void ClientDisconnect()
+        public void ClientDisconnect()
         {
             if (clientId != -1)
             {
@@ -158,12 +158,12 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
-        public override bool ServerActive()
+        public bool ServerActive()
         {
             return serverHostId != -1;
         }
 
-        public override void ServerStart(string address)
+        public void ServerStart(string address)
         {
             HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
             serverHostId = NetworkTransport.AddHost(topology, port);
@@ -177,12 +177,12 @@ namespace Mirror
             //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
 
-        public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
@@ -231,12 +231,12 @@ namespace Mirror
             return true;
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public bool ServerDisconnect(int connectionId)
         {
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address)
+        public bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;
             NetworkID networkId;
@@ -245,7 +245,7 @@ namespace Mirror
             return true;
         }
 
-        public override void ServerStop()
+        public void ServerStop()
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
@@ -253,7 +253,7 @@ namespace Mirror
         }
 
         // common //////////////////////////////////////////////////////////////
-        public override void Shutdown()
+        public void Shutdown()
         {
             NetworkTransport.Shutdown();
             serverHostId = -1;
@@ -261,7 +261,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public override int GetMaxPacketSize(int channelId)
+        public int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }
