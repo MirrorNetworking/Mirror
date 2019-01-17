@@ -491,7 +491,7 @@ namespace Mirror
             return dirty;
         }
 
-        private void DeSerializeObjectsAll(NetworkReader reader)
+        void DeSerializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < m_SyncObjects.Count; i++)
             {
@@ -500,7 +500,7 @@ namespace Mirror
             }
         }
 
-        private void DeSerializeObjectsDelta(NetworkReader reader)
+        void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < m_SyncObjects.Count; i++)

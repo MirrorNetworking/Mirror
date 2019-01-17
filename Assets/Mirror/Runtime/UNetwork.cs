@@ -35,6 +35,7 @@ namespace Mirror
         UpdateVars = 8,
         SpawnPrefab = 3,
         SpawnSceneObject = 10,
+        SpawnStarted = 11,
         SpawnFinished = 12,
         ObjectHide = 13,
         LocalClientAuthority = 15,

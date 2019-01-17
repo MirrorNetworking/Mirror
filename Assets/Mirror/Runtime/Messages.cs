@@ -249,21 +249,9 @@ namespace Mirror
         }
     }
 
-    // TODO use ByteMessage or use a SpawnStarted/Finished message.
-    class ObjectSpawnFinishedMessage : MessageBase
-    {
-        public byte state; // byte because it's always 0 or 1
+    class ObjectSpawnStartedMessage : EmptyMessage {}
 
-        public override void Deserialize(NetworkReader reader)
-        {
-            state = reader.ReadByte();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.Write(state);
-        }
-    }
+    class ObjectSpawnFinishedMessage : EmptyMessage {}
 
     class ObjectDestroyMessage : MessageBase
     {

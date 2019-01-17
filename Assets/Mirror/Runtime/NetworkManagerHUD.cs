@@ -17,11 +17,14 @@ namespace Mirror
         public int offsetX;
         public int offsetY;
 
+        [Tooltip("Start the server automatically when running in headless mode")]
+        public bool startOnHeadless = true;
+
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
 
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
                 // headless mode. Just start the server
                 manager.StartServer();
@@ -73,7 +76,7 @@ namespace Mirror
                 else
                 {
                     // Connecting
-                    GUILayout.Label("Connecting to " + manager.networkAddress + ":" + manager.networkPort + "..");
+                    GUILayout.Label("Connecting to " + manager.networkAddress + "..");
                     if (GUILayout.Button("Cancel Connection Attempt"))
                     {
                         manager.StopClient();
@@ -85,17 +88,11 @@ namespace Mirror
                 // server / client status message
                 if (NetworkServer.active)
                 {
-                    string serverMsg = "Server: port=" + manager.networkPort;
-                    if (manager.useWebSockets)
-                    {
-                        serverMsg += " (Using WebSockets)";
-                    }
-
-                    GUILayout.Label(serverMsg);
+                    GUILayout.Label("Server: active. Transport: " + manager.transport);
                 }
                 if (manager.IsClientConnected())
                 {
-                    GUILayout.Label("Client: address=" + manager.networkAddress + " port=" + manager.networkPort);
+                    GUILayout.Label("Client: address=" + manager.networkAddress);
                 }
             }
 
