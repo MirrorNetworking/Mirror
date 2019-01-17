@@ -182,10 +182,6 @@ namespace Mirror
             }
         }
 
-        public void ServerStartWebsockets(string address)
-        {
-        }
-
         public bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
