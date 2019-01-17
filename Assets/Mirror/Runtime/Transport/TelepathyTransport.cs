@@ -126,7 +126,7 @@ namespace Mirror
             }
             else if (client.Connecting || client.Connected)
             {
-                return "Telepathy Client ip: " + client.client.Client.RemoteEndPoint + " port: " + port;
+                return "Telepathy Client ip: " + client.client.Client.RemoteEndPoint;
             }
             return "Telepathy (inactive/disconnected)";
         }
