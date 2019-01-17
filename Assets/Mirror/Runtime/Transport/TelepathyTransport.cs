@@ -117,5 +117,18 @@ namespace Mirror
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;
         }
+
+        public override string ToString()
+        {
+            if (server.Active)
+            {
+                return "Telepathy Server port: " + port;
+            }
+            else if (client.Connecting || client.Connected)
+            {
+                return "Telepathy Client ip: " + client.client.Client.RemoteEndPoint + " port: " + port;
+            }
+            return "Telepathy (inactive/disconnected)";
+        }
     }
 }
