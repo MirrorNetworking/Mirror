@@ -11,6 +11,9 @@ namespace Mirror
     {
         public ushort port = 7777;
 
+        [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
+        public bool useWebsockets;
+
         ConnectionConfig connectionConfig;
         GlobalConfig globalConfig;
         readonly int channelId; // always use first channel
@@ -165,16 +168,22 @@ namespace Mirror
 
         public void ServerStart(string address)
         {
-            HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
-            serverHostId = NetworkTransport.AddHost(topology, port);
-            //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            if (useWebsockets)
+            {
+                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
+                //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            }
+            else
+            {
+                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                serverHostId = NetworkTransport.AddHost(topology, port);
+                //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            }
         }
 
         public void ServerStartWebsockets(string address)
         {
-            HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
-            serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
-            //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
         public bool ServerSend(int connectionId, int channelId, byte[] data)
