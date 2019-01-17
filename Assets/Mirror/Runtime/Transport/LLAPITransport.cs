@@ -270,5 +270,20 @@ namespace Mirror
         {
             return globalConfig.MaxPacketSize;
         }
+
+        public override string ToString()
+        {
+            if (ServerActive())
+            {
+                return "LLAPI Server port: " + port;
+            }
+            else if (ClientConnected())
+            {
+                string ip;
+                GetConnectionInfo(clientId, out ip);
+                return "LLAPI Client ip: " + ip + " port: " + port;
+            }
+            return "LLAPI (inactive/disconnected)";
+        }
     }
 }
