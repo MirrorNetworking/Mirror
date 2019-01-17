@@ -14,6 +14,7 @@ namespace Mirror
     {
         protected SerializedProperty dontDestroyOnLoadProperty;
         protected SerializedProperty runInBackgroundProperty;
+        protected SerializedProperty startOnHeadlessProperty;
         SerializedProperty networkAddressProperty;
 
         protected SerializedProperty showDebugMessagesProperty;
@@ -30,6 +31,7 @@ namespace Mirror
         GUIContent onlineSceneLabel;
         protected GUIContent dontDestroyOnLoadLabel;
         protected GUIContent runInBackgroundLabel;
+        protected GUIContent startOnHeadlessLabel;
         protected GUIContent showDebugMessagesLabel;
 
         GUIContent maxConnectionsLabel;
@@ -60,6 +62,7 @@ namespace Mirror
             onlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
             dontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             runInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
+            startOnHeadlessLabel = new GUIContent("Start On Headless", "Start the server automatically when running in headless mode.");
             showDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
@@ -71,6 +74,7 @@ namespace Mirror
             // top-level properties
             dontDestroyOnLoadProperty = serializedObject.FindProperty("dontDestroyOnLoad");
             runInBackgroundProperty = serializedObject.FindProperty("runInBackground");
+            startOnHeadlessProperty = serializedObject.FindProperty("startOnHeadless");
             showDebugMessagesProperty = serializedObject.FindProperty("showDebugMessages");
 
             // network foldout properties
@@ -269,6 +273,7 @@ namespace Mirror
             serializedObject.Update();
             EditorGUILayout.PropertyField(dontDestroyOnLoadProperty, dontDestroyOnLoadLabel);
             EditorGUILayout.PropertyField(runInBackgroundProperty, runInBackgroundLabel);
+            EditorGUILayout.PropertyField(startOnHeadlessProperty, startOnHeadlessLabel);
 
             if (EditorGUILayout.PropertyField(showDebugMessagesProperty, showDebugMessagesLabel))
             {
