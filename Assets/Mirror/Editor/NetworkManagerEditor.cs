@@ -35,8 +35,6 @@ namespace Mirror
         GUIContent maxConnectionsLabel;
 
         GUIContent networkAddressLabel;
-        GUIContent serverBindToIPLabel;
-        GUIContent serverBindAddressLabel;
 
         GUIContent playerPrefabLabel;
         GUIContent autoCreatePlayerLabel;
@@ -67,8 +65,6 @@ namespace Mirror
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
             networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
-            serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
-            serverBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
             playerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
             autoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
             playerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
