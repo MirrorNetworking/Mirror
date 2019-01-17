@@ -256,6 +256,13 @@ namespace Mirror
                 Debug.LogError("Must set the Network Address field in the manager");
                 return null;
             }
+
+            if (!Resolve(networkAddress, out networkAddress))
+            {
+                Debug.LogError("Unable to resolve the value of the Network Address field in the manager");
+                return null;
+            }
+
             if (LogFilter.Debug) { Debug.Log("NetworkManager StartClient address:" + networkAddress + " port:" + networkPort); }
 
             client.Connect(networkAddress, networkPort);
@@ -263,6 +270,84 @@ namespace Mirror
             OnStartClient(client);
             s_Address = networkAddress;
             return client;
+        }
+
+        private bool Resolve(string HostOrIp, out string ResolvedIP)
+        {
+            ResolvedIP = string.Empty;
+
+            if (HostOrIp.ToLower() == "localhost")
+            {
+                ResolvedIP = HostOrIp;
+                return true;
+            }
+
+            IPAddress _iPAddress;
+            if (IPAddress.TryParse(HostOrIp, out _iPAddress))
+            {
+                ResolvedIP = _iPAddress.ToString();
+                return true;
+            }
+
+            IPHostEntry iPHostEntry = DnsResolve(HostOrIp);
+            if (iPHostEntry == null)
+            {
+                Debug.LogWarningFormat("No DNS entry for {0}", HostOrIp);
+                return false;
+            }
+
+            // DnsResolve() may return an IPHostEntry.AddressList with multiple IP's via GetHostEntry -- return first good one
+            foreach (IPAddress iPAddress in iPHostEntry.AddressList)
+            {
+                if (!iPAddress.IsIPv6LinkLocal)
+                {
+                    ResolvedIP = iPAddress.ToString();
+                    return true;
+                }
+            }
+
+            // We didn't get a usable IP address from the hostname provided
+            Debug.LogWarningFormat("No valid IP Address found for {0}", HostOrIp);
+            return false;
+        }
+
+        private IPHostEntry DnsResolve(string HostOrIp)
+        {
+            try
+            {
+                return Dns.GetHostEntry(HostOrIp);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarningFormat("Resolve GetHostEntry failed ({0}): {1}", HostOrIp, e.Message.ToString());
+            }
+
+            // Dns.GetHostEntry has known issues where it will not always return a proper result
+            // In such cases, we try the deprecated methods below...
+
+            IPAddress Temp = null;
+            if (IPAddress.TryParse(HostOrIp, out Temp))
+            {
+                try
+                {
+                    return Dns.GetHostByAddress(HostOrIp);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarningFormat("Resolve GetHostByAddress failed ({0}): {1}", HostOrIp, e.Message.ToString());
+                }
+            }
+            else
+                try
+                {
+                    return Dns.GetHostByName(HostOrIp);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarningFormat("Resolve GetHostByName failed ({0}): {1}", HostOrIp, e.Message.ToString());
+                }
+
+            return null;
         }
 
         public virtual NetworkClient StartHost()
