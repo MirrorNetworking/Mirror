@@ -81,23 +81,13 @@ namespace Mirror
 
         public static bool Listen(int maxConnections)
         {
-            return InternalListen(null, maxConnections);
-        }
-
-        public static bool Listen(string ipAddress, int maxConnections)
-        {
-            return InternalListen(ipAddress,  maxConnections);
-        }
-
-        internal static bool InternalListen(string ipAddress, int maxConnections)
-        {
             Initialize();
             s_MaxConnections = maxConnections;
 
             // only start server if we want to listen
             if (!dontListen)
             {
-                NetworkManager.singleton.transport.ServerStart(ipAddress);
+                NetworkManager.singleton.transport.ServerStart();
                 s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
@@ -105,7 +95,7 @@ namespace Mirror
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "")); }
+                if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
             s_Active = true;

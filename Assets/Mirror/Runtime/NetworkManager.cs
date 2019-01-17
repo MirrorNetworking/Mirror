@@ -33,8 +33,6 @@ namespace Mirror
         }
 
         // configuration
-        [FormerlySerializedAs("m_ServerBindToIP")] public bool serverBindToIP;
-        [FormerlySerializedAs("m_ServerBindAddress")] public string serverBindAddress = "";
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
@@ -180,21 +178,10 @@ namespace Mirror
             if (runInBackground)
                 Application.runInBackground = true;
 
-            if (serverBindToIP && !string.IsNullOrEmpty(serverBindAddress))
+            if (!NetworkServer.Listen(maxConnections))
             {
-                if (!NetworkServer.Listen(serverBindAddress, maxConnections))
-                {
-                    Debug.LogError("StartServer listen on " + serverBindAddress + " failed.");
-                    return false;
-                }
-            }
-            else
-            {
-                if (!NetworkServer.Listen(maxConnections))
-                {
-                    Debug.LogError("StartServer listen failed.");
-                    return false;
-                }
+                Debug.LogError("StartServer listen failed.");
+                return false;
             }
 
             // call OnStartServer AFTER Listen, so that NetworkServer.active is

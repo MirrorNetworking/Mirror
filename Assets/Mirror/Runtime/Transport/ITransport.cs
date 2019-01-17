@@ -18,7 +18,7 @@ namespace Mirror
 
         // server
         bool ServerActive();
-        void ServerStart(string address);
+        void ServerStart();
         bool ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool ServerDisconnect(int connectionId);

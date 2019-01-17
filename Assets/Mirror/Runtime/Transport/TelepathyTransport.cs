@@ -62,7 +62,7 @@ namespace Mirror
 
         // server
         public bool ServerActive() { return server.Active; }
-        public void ServerStart(string address) { server.Start(port); }
+        public void ServerStart() { server.Start(port); }
         public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {

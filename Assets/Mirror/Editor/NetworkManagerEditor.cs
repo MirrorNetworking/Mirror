@@ -16,9 +16,6 @@ namespace Mirror
         protected SerializedProperty runInBackgroundProperty;
         SerializedProperty networkAddressProperty;
 
-        SerializedProperty serverBindToIPProperty;
-        SerializedProperty serverBindAddressProperty;
-
         protected SerializedProperty showDebugMessagesProperty;
 
         SerializedProperty playerPrefabProperty;
@@ -83,8 +80,6 @@ namespace Mirror
 
             // network foldout properties
             networkAddressProperty = serializedObject.FindProperty("networkAddress");
-            serverBindToIPProperty = serializedObject.FindProperty("serverBindToIP");
-            serverBindAddressProperty = serializedObject.FindProperty("serverBindAddress");
 
             // spawn foldout properties
             playerPrefabProperty = serializedObject.FindProperty("playerPrefab");
@@ -164,13 +159,6 @@ namespace Mirror
             EditorGUI.indentLevel += 1;
 
             EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
-            EditorGUILayout.PropertyField(serverBindToIPProperty, serverBindToIPLabel);
-            if (networkManager.serverBindToIP)
-            {
-                EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(serverBindAddressProperty, serverBindAddressLabel);
-                EditorGUI.indentLevel -= 1;
-            }
 
             var maxConn = serializedObject.FindProperty("maxConnections");
             ShowPropertySuffix(maxConnectionsLabel, maxConn, "connections");

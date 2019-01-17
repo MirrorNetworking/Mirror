@@ -166,7 +166,7 @@ namespace Mirror
             return serverHostId != -1;
         }
 
-        public void ServerStart(string address)
+        public void ServerStart()
         {
             if (useWebsockets)
             {
