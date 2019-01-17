@@ -2,12 +2,13 @@
 using UnityEngine;
 namespace Mirror
 {
-    public class TelepathyTransport : TransportLayer
+    public class TelepathyTransport : MonoBehaviour, ITransport
     {
+        public ushort port = 7777;
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
-        public TelepathyTransport()
+        void Awake()
         {
             // tell Telepathy to use Unity's Debug.Log
             Telepathy.Logger.LogMethod = Debug.Log;
@@ -23,10 +24,10 @@ namespace Mirror
         }
 
         // client
-        public virtual bool ClientConnected() { return client.Connected; }
-        public virtual void ClientConnect(string address, ushort port) { client.Connect(address, port); }
-        public virtual bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public virtual bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public bool ClientConnected() { return client.Connected; }
+        public void ClientConnect(string address) { client.Connect(address, port); }
+        public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -57,17 +58,13 @@ namespace Mirror
             data = null;
             return false;
         }
-        public virtual void ClientDisconnect() { client.Disconnect(); }
+        public void ClientDisconnect() { client.Disconnect(); }
 
         // server
-        public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart(string address, ushort port) { server.Start(port); }
-        public virtual void ServerStartWebsockets(string address, ushort port)
-        {
-            Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
-        }
-        public virtual bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public virtual bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ServerActive() { return server.Active; }
+        public void ServerStart() { server.Start(port); }
+        public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -100,15 +97,15 @@ namespace Mirror
             data = null;
             return false;
         }
-        public virtual bool ServerDisconnect(int connectionId)
+        public bool ServerDisconnect(int connectionId)
         {
             return server.Disconnect(connectionId);
         }
-        public virtual bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public virtual void ServerStop() { server.Stop(); }
+        public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public void ServerStop() { server.Stop(); }
 
         // common
-        public virtual void Shutdown()
+        public void Shutdown()
         {
             Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();
@@ -119,6 +116,19 @@ namespace Mirror
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;
+        }
+
+        public override string ToString()
+        {
+            if (server.Active)
+            {
+                return "Telepathy Server port: " + server.listener.LocalEndpoint;
+            }
+            else if (client.Connecting || client.Connected)
+            {
+                return "Telepathy Client ip: " + client.client.Client.RemoteEndPoint;
+            }
+            return "Telepathy (inactive/disconnected)";
         }
     }
 }
