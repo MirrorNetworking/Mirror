@@ -21,7 +21,7 @@ namespace Mirror
         // -> automatically uses the first transport component. there might be
         //    multiple in case of multiplexing, so the order matters.
         ITransport _transport;
-        public ITransport transport
+        public virtual ITransport transport
         {
             get
             {
