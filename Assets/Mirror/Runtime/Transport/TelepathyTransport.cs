@@ -2,12 +2,12 @@
 using UnityEngine;
 namespace Mirror
 {
-    public class TelepathyTransport : TransportLayer
+    public class TelepathyTransport : Transport
     {
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
-        public TelepathyTransport()
+        void Awake()
         {
             // tell Telepathy to use Unity's Debug.Log
             Telepathy.Logger.LogMethod = Debug.Log;
@@ -23,10 +23,10 @@ namespace Mirror
         }
 
         // client
-        public virtual bool ClientConnected() { return client.Connected; }
-        public virtual void ClientConnect(string address, ushort port) { client.Connect(address, port); }
-        public virtual bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public virtual bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public override bool ClientConnected() { return client.Connected; }
+        public override void ClientConnect(string address, ushort port) { client.Connect(address, port); }
+        public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+        public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -57,17 +57,13 @@ namespace Mirror
             data = null;
             return false;
         }
-        public virtual void ClientDisconnect() { client.Disconnect(); }
+        public override void ClientDisconnect() { client.Disconnect(); }
 
         // server
-        public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart(string address, ushort port) { server.Start(port); }
-        public virtual void ServerStartWebsockets(string address, ushort port)
-        {
-            Debug.LogWarning("TelepathyTransport.ServerStartWebsockets not implemented yet!");
-        }
-        public virtual bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public virtual bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public override bool ServerActive() { return server.Active; }
+        public override void ServerStart(string address, ushort port) { server.Start(port); }
+        public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -100,22 +96,22 @@ namespace Mirror
             data = null;
             return false;
         }
-        public virtual bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return server.Disconnect(connectionId);
         }
-        public virtual bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public virtual void ServerStop() { server.Stop(); }
+        public override bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public override void ServerStop() { server.Stop(); }
 
         // common
-        public virtual void Shutdown()
+        public override void Shutdown()
         {
             Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();
             server.Stop();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;

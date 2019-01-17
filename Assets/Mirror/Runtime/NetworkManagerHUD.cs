@@ -85,13 +85,7 @@ namespace Mirror
                 // server / client status message
                 if (NetworkServer.active)
                 {
-                    string serverMsg = "Server: port=" + manager.networkPort;
-                    if (manager.useWebSockets)
-                    {
-                        serverMsg += " (Using WebSockets)";
-                    }
-
-                    GUILayout.Label(serverMsg);
+                    GUILayout.Label("Server: port=" + manager.networkPort);
                 }
                 if (manager.IsClientConnected())
                 {

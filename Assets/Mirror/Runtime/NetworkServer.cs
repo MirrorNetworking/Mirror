@@ -30,7 +30,6 @@ namespace Mirror
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static bool dontListen;
-        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -52,7 +51,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Transport.layer.ServerStop();
+                    NetworkManager.singleton.transport.ServerStop();
                     s_ServerHostId = -1;
                 }
 
@@ -102,16 +101,8 @@ namespace Mirror
             {
                 s_ServerPort = serverPort;
 
-                if (useWebSockets)
-                {
-                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
-                else
-                {
-                    Transport.layer.ServerStart(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
+                NetworkManager.singleton.transport.ServerStart(ipAddress, serverPort);
+                s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
                 {
@@ -295,7 +286,7 @@ namespace Mirror
             int connectionId;
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ServerGetNextMessage(out connectionId, out transportEvent, out data))
             {
                 switch (transportEvent)
                 {
@@ -336,7 +327,7 @@ namespace Mirror
             {
                 // get ip address from connection
                 string address;
-                Transport.layer.GetConnectionInfo(connectionId, out address);
+                NetworkManager.singleton.transport.GetConnectionInfo(connectionId, out address);
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
@@ -346,7 +337,7 @@ namespace Mirror
             else
             {
                 // kick
-                Transport.layer.ServerDisconnect(connectionId);
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
             }
         }

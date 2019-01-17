@@ -70,7 +70,7 @@ namespace Mirror
             m_ServerIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            Transport.layer.ClientConnect(serverIp, serverPort);
+            NetworkManager.singleton.transport.ClientConnect(serverIp, serverPort);
 
             // setup all the handlers
             m_Connection = new NetworkConnection(m_ServerIp, m_ClientId, 0);
@@ -167,7 +167,7 @@ namespace Mirror
             //    process all messages and make it empty..
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ClientGetNextMessage(out transportEvent, out data))
             {
                 switch (transportEvent)
                 {

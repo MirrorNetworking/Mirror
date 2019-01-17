@@ -14,8 +14,24 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
+    [RequireComponent(typeof(Transport))]
     public class NetworkManager : MonoBehaviour
     {
+        // transport layer
+        // -> automatically uses the first transport component. there might be
+        //    multiple in case of multiplexing, so the order matters.
+        Transport _transport;
+        public Transport transport
+        {
+            get
+            {
+                _transport = _transport ?? GetComponent<Transport>();
+                if (_transport == null)
+                    Debug.LogError("NetworkManager has no Transport component. Please select the NetworkManager and click on Add Component->TelepathyTransport or similar.");
+                return _transport;
+            }
+        }
+
         // configuration
         [FormerlySerializedAs("m_NetworkPort")] public ushort networkPort = 7777;
         [FormerlySerializedAs("m_ServerBindToIP")] public bool serverBindToIP;
@@ -30,7 +46,6 @@ namespace Mirror
         [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
         [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
-        [FormerlySerializedAs("m_UseWebSockets")] public bool useWebSockets;
         [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
@@ -73,7 +88,6 @@ namespace Mirror
                 return;
             }
 
-            InitializeTransport();
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -106,13 +120,6 @@ namespace Mirror
             }
         }
 
-        // Initializes the transport,  by default it is Telepathy
-        // override method if you want to use a different transport
-        public virtual void InitializeTransport()
-        {
-            Transport.layer = Transport.layer ?? new TelepathyWebsocketsMultiplexTransport();
-        }
-
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
         // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
         // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
@@ -126,21 +133,13 @@ namespace Mirror
             NetworkIdentity.UNetStaticUpdate();
         }
 
-        // When pressing Stop in the Editor, Unity keeps threads alive until we
-        // press Start again (which might be a Unity bug).
-        // Either way, we should disconnect client & server in OnApplicationQuit
-        // so they don't keep running until we press Play again.
-        // (this is not a problem in builds)
-        //
-        // virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
-        public virtual void OnApplicationQuit()
-        {
-            Transport.layer.Shutdown();
-        }
-
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+            // make sure that there is a transport
+            if (transport == null)
+                Debug.LogWarning("NetworkManager needs a Transport component!");
+
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
@@ -166,8 +165,6 @@ namespace Mirror
 
             if (runInBackground)
                 Application.runInBackground = true;
-
-            NetworkServer.useWebSockets = useWebSockets;
 
             if (serverBindToIP && !string.IsNullOrEmpty(serverBindAddress))
             {

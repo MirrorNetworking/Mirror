@@ -27,8 +27,6 @@ namespace Mirror
         SerializedProperty playerSpawnMethodProperty;
         SerializedProperty spawnListProperty;
 
-        SerializedProperty useWebSocketsProperty;
-
         GUIContent showNetworkLabel;
         GUIContent showSpawnLabel;
 
@@ -39,8 +37,6 @@ namespace Mirror
         protected GUIContent showDebugMessagesLabel;
 
         GUIContent maxConnectionsLabel;
-
-        GUIContent useWebSocketsLabel;
 
         GUIContent networkAddressLabel;
         GUIContent networkPortLabel;
@@ -75,7 +71,6 @@ namespace Mirror
             showDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
-            useWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
             networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
             networkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
             serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
@@ -110,9 +105,6 @@ namespace Mirror
             spawnList.onReorderCallback = Changed;
             spawnList.onAddCallback = AddButton;
             spawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
-
-            // web sockets
-            useWebSocketsProperty = serializedObject.FindProperty("useWebSockets");
         }
 
         static void ShowPropertySuffix(GUIContent content, SerializedProperty prop, string suffix)
@@ -174,11 +166,6 @@ namespace Mirror
                 return;
             }
             EditorGUI.indentLevel += 1;
-
-            if (EditorGUILayout.PropertyField(useWebSocketsProperty, useWebSocketsLabel))
-            {
-                NetworkServer.useWebSockets = networkManager.useWebSockets;
-            }
 
             EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
             EditorGUILayout.PropertyField(networkPortProperty, networkPortLabel);

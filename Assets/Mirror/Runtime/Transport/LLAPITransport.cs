@@ -7,10 +7,10 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : TransportLayer
+    public class LLAPITransport : Transport
     {
-        readonly ConnectionConfig connectionConfig;
-        readonly GlobalConfig globalConfig;
+        ConnectionConfig connectionConfig;
+        GlobalConfig globalConfig;
         readonly int channelId; // always use first channel
         byte error;
 
@@ -21,7 +21,7 @@ namespace Mirror
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
 
-        public LLAPITransport(GlobalConfig globalConfig = null, ConnectionConfig connectionConfig = null)
+        void Awake()
         {
             // create global config if none passed
             // -> settings copied from uMMORPG configuration for best results
@@ -38,7 +38,6 @@ namespace Mirror
                 globalConfig.MinTimerTimeout = 1;
                 globalConfig.MaxTimerTimeout = 12000;
             }
-            this.globalConfig = globalConfig;
             NetworkTransport.Init(globalConfig);
 
             // create connection config if none passed
@@ -73,18 +72,17 @@ namespace Mirror
                 // channel 1 is unreliable
                 connectionConfig.AddChannel(QosType.Unreliable);
             }
-            this.connectionConfig = connectionConfig;
 
             Debug.Log("LLAPITransport initialized!");
         }
 
         // client //////////////////////////////////////////////////////////////
-        public bool ClientConnected()
+        public override bool ClientConnected()
         {
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address, ushort port)
+        public override void ClientConnect(string address, ushort port)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -102,12 +100,12 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             transportEvent = TransportEvent.Disconnected;
             data = null;
@@ -148,7 +146,7 @@ namespace Mirror
             return true;
         }
 
-        public void ClientDisconnect()
+        public override void ClientDisconnect()
         {
             if (clientId != -1)
             {
@@ -158,12 +156,12 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
-        public bool ServerActive()
+        public override bool ServerActive()
         {
             return serverHostId != -1;
         }
 
-        public void ServerStart(string address, ushort port)
+        public override void ServerStart(string address, ushort port)
         {
             HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
             serverHostId = NetworkTransport.AddHost(topology, port);
@@ -177,12 +175,12 @@ namespace Mirror
             //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
@@ -231,12 +229,12 @@ namespace Mirror
             return true;
         }
 
-        public bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public override bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;
             NetworkID networkId;
@@ -245,7 +243,7 @@ namespace Mirror
             return true;
         }
 
-        public void ServerStop()
+        public override void ServerStop()
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
@@ -253,7 +251,7 @@ namespace Mirror
         }
 
         // common //////////////////////////////////////////////////////////////
-        public void Shutdown()
+        public override void Shutdown()
         {
             NetworkTransport.Shutdown();
             serverHostId = -1;
@@ -261,7 +259,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }

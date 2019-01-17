@@ -465,7 +465,7 @@ namespace Mirror
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > Transport.layer.GetMaxPacketSize())
+            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize())
             {
                 Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
             }
