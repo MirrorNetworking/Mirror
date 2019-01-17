@@ -16,7 +16,6 @@ namespace Mirror
         protected SerializedProperty runInBackgroundProperty;
         SerializedProperty networkAddressProperty;
 
-        SerializedProperty networkPortProperty;
         SerializedProperty serverBindToIPProperty;
         SerializedProperty serverBindAddressProperty;
 
@@ -39,7 +38,6 @@ namespace Mirror
         GUIContent maxConnectionsLabel;
 
         GUIContent networkAddressLabel;
-        GUIContent networkPortLabel;
         GUIContent serverBindToIPLabel;
         GUIContent serverBindAddressLabel;
 
@@ -72,7 +70,6 @@ namespace Mirror
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
             networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
-            networkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
             serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
             serverBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
             playerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
@@ -86,7 +83,6 @@ namespace Mirror
 
             // network foldout properties
             networkAddressProperty = serializedObject.FindProperty("networkAddress");
-            networkPortProperty = serializedObject.FindProperty("networkPort");
             serverBindToIPProperty = serializedObject.FindProperty("serverBindToIP");
             serverBindAddressProperty = serializedObject.FindProperty("serverBindAddress");
 
@@ -168,7 +164,6 @@ namespace Mirror
             EditorGUI.indentLevel += 1;
 
             EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
-            EditorGUILayout.PropertyField(networkPortProperty, networkPortLabel);
             EditorGUILayout.PropertyField(serverBindToIPProperty, serverBindToIPLabel);
             if (networkManager.serverBindToIP)
             {

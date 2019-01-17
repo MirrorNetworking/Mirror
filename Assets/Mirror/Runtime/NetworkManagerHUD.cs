@@ -73,7 +73,7 @@ namespace Mirror
                 else
                 {
                     // Connecting
-                    GUILayout.Label("Connecting to " + manager.networkAddress + ":" + manager.networkPort + "..");
+                    GUILayout.Label("Connecting to " + manager.networkAddress + "..");
                     if (GUILayout.Button("Cancel Connection Attempt"))
                     {
                         manager.StopClient();
@@ -85,11 +85,11 @@ namespace Mirror
                 // server / client status message
                 if (NetworkServer.active)
                 {
-                    GUILayout.Label("Server: port=" + manager.networkPort);
+                    GUILayout.Label("Server: active");
                 }
                 if (manager.IsClientConnected())
                 {
-                    GUILayout.Label("Client: address=" + manager.networkAddress + " port=" + manager.networkPort);
+                    GUILayout.Label("Client: address=" + manager.networkAddress);
                 }
             }
 

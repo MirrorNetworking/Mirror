@@ -4,6 +4,7 @@ namespace Mirror
 {
     public class TelepathyTransport : Transport
     {
+        public ushort port = 7777;
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
@@ -24,7 +25,7 @@ namespace Mirror
 
         // client
         public override bool ClientConnected() { return client.Connected; }
-        public override void ClientConnect(string address, ushort port) { client.Connect(address, port); }
+        public override void ClientConnect(string address) { client.Connect(address, port); }
         public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
         public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
@@ -61,7 +62,7 @@ namespace Mirror
 
         // server
         public override bool ServerActive() { return server.Active; }
-        public override void ServerStart(string address, ushort port) { server.Start(port); }
+        public override void ServerStart(string address) { server.Start(port); }
         public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {

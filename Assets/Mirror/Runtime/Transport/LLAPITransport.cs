@@ -9,6 +9,8 @@ namespace Mirror
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
+        public ushort port = 7777;
+
         ConnectionConfig connectionConfig;
         GlobalConfig globalConfig;
         readonly int channelId; // always use first channel
@@ -82,7 +84,7 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        public override void ClientConnect(string address, ushort port)
+        public override void ClientConnect(string address)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -161,14 +163,14 @@ namespace Mirror
             return serverHostId != -1;
         }
 
-        public override void ServerStart(string address, ushort port)
+        public override void ServerStart(string address)
         {
             HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
             serverHostId = NetworkTransport.AddHost(topology, port);
             //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
         }
 
-        public void ServerStartWebsockets(string address, ushort port)
+        public void ServerStartWebsockets(string address)
         {
             HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
             serverHostId = NetworkTransport.AddWebsocketHost(topology, port);

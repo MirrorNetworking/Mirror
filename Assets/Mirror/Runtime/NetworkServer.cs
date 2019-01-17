@@ -13,7 +13,6 @@ namespace Mirror
         static ULocalConnectionToClient s_LocalConnection;
 
         static int s_ServerHostId = -1;
-        static int s_ServerPort = -1;
         static bool s_Initialized;
         static int s_MaxConnections;
 
@@ -22,7 +21,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection { get { return s_LocalConnection; } }
 
-        public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
         // <connectionId, NetworkConnection>
@@ -81,17 +79,17 @@ namespace Mirror
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(ushort serverPort, int maxConnections)
+        public static bool Listen(int maxConnections)
         {
-            return InternalListen(null, serverPort, maxConnections);
+            return InternalListen(null, maxConnections);
         }
 
-        public static bool Listen(string ipAddress, ushort serverPort, int maxConnections)
+        public static bool Listen(string ipAddress, int maxConnections)
         {
-            return InternalListen(ipAddress, serverPort, maxConnections);
+            return InternalListen(ipAddress,  maxConnections);
         }
 
-        internal static bool InternalListen(string ipAddress, ushort serverPort, int maxConnections)
+        internal static bool InternalListen(string ipAddress, int maxConnections)
         {
             Initialize();
             s_MaxConnections = maxConnections;
@@ -99,9 +97,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                s_ServerPort = serverPort;
-
-                NetworkManager.singleton.transport.ServerStart(ipAddress, serverPort);
+                NetworkManager.singleton.transport.ServerStart(ipAddress);
                 s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
@@ -109,7 +105,7 @@ namespace Mirror
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "") + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "")); }
             }
 
             s_Active = true;

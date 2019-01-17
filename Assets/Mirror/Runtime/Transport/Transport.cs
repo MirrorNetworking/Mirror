@@ -1,4 +1,5 @@
 ﻿// abstract transport layer component
+// note: not all transports need a port, so add it to yours if needed.
 using UnityEngine;
 
 namespace Mirror
@@ -10,14 +11,14 @@ namespace Mirror
     {
         // client
         public abstract bool ClientConnected();
-        public abstract void ClientConnect(string address, ushort port);
+        public abstract void ClientConnect(string address);
         public abstract bool ClientSend(int channelId, byte[] data);
         public abstract bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
         public abstract void ClientDisconnect();
 
         // server
         public abstract bool ServerActive();
-        public abstract void ServerStart(string address, ushort port);
+        public abstract void ServerStart(string address);
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         public abstract bool ServerDisconnect(int connectionId);

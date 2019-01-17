@@ -33,7 +33,6 @@ namespace Mirror
         }
 
         // configuration
-        [FormerlySerializedAs("m_NetworkPort")] public ushort networkPort = 7777;
         [FormerlySerializedAs("m_ServerBindToIP")] public bool serverBindToIP;
         [FormerlySerializedAs("m_ServerBindAddress")] public string serverBindAddress = "";
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
@@ -171,7 +170,7 @@ namespace Mirror
 
             if (serverBindToIP && !string.IsNullOrEmpty(serverBindAddress))
             {
-                if (!NetworkServer.Listen(serverBindAddress, networkPort, maxConnections))
+                if (!NetworkServer.Listen(serverBindAddress, maxConnections))
                 {
                     Debug.LogError("StartServer listen on " + serverBindAddress + " failed.");
                     return false;
@@ -179,7 +178,7 @@ namespace Mirror
             }
             else
             {
-                if (!NetworkServer.Listen(networkPort, maxConnections))
+                if (!NetworkServer.Listen(maxConnections))
                 {
                     Debug.LogError("StartServer listen failed.");
                     return false;
@@ -199,7 +198,7 @@ namespace Mirror
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
 
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartServer port:" + networkPort); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartServer"); }
             isNetworkActive = true;
 
             // Only change scene if the requested online scene is not blank, and is not already loaded
@@ -256,9 +255,9 @@ namespace Mirror
                 Debug.LogError("Must set the Network Address field in the manager");
                 return null;
             }
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartClient address:" + networkAddress + " port:" + networkPort); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartClient address:" + networkAddress); }
 
-            client.Connect(networkAddress, networkPort);
+            client.Connect(networkAddress);
 
             OnStartClient(client);
             s_Address = networkAddress;
@@ -279,7 +278,7 @@ namespace Mirror
 
         NetworkClient ConnectLocalClient()
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager StartHost port:" + networkPort); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager StartHost"); }
             networkAddress = "localhost";
             client = ClientScene.ConnectLocalServer();
             RegisterClientMessages(client);
