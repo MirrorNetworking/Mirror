@@ -16,7 +16,7 @@ namespace Mirror.Examples.Pong
             GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
         }
 
-        float HitFacgtor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
+        float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
         {
             // ascii art:
             // ||  1 <- at the top of the racket
@@ -40,7 +40,7 @@ namespace Mirror.Examples.Pong
             if (col.transform.GetComponent<Player>())
             {
                 // Calculate y direction via hit Factor
-                float y = HitFacgtor(transform.position,
+                float y = HitFactor(transform.position,
                                     col.transform.position,
                                     col.collider.bounds.size.y);
 
