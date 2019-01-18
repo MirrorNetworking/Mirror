@@ -7,8 +7,7 @@ namespace Mirror.Examples.Pong
     {
         public float speed = 30;
 
-        [ServerCallback] // only call this on server
-        void Start()
+        public override void OnStartServer()
         {
             // Initial Velocity
             GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
