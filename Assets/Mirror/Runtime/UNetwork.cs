@@ -65,7 +65,9 @@ namespace Mirror
 
         public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
         {
-            return reader.ReadMessage<TMsg>();
+            TMsg msg = new TMsg();
+            msg.Deserialize(reader);
+            return msg;
         }
 
         public void ReadMessage<TMsg>(TMsg msg) where TMsg : MessageBase
