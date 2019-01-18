@@ -9,6 +9,9 @@ namespace Mirror.Examples.Pong
 
         public override void OnStartServer()
         {
+            // only simulate ball physics on server
+            GetComponent<Rigidbody2D>().simulated = true;
+
             // Initial Velocity
             GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
         }

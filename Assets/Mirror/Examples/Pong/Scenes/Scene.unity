@@ -364,6 +364,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 50354248948880112, guid: 5f7a7f34494ed40268eff49dbf9168bf,
+        type: 2}
+      propertyPath: m_Simulated
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 2}
   m_IsPrefabParent: 0
@@ -882,8 +887,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverBindToIP: 0
-  serverBindAddress: 
   networkAddress: localhost
   dontDestroyOnLoad: 1
   runInBackground: 1
@@ -896,6 +899,7 @@ MonoBehaviour:
   onlineScene: 
   maxConnections: 4
   spawnPrefabs: []
+  startOnHeadless: 1
   clientLoadedScene: 0
   isNetworkActive: 0
 --- !u!114 &1886246553
