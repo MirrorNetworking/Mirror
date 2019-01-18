@@ -3,8 +3,6 @@ using Mirror;
 
 namespace Mirror.Examples.Pong
 {
-
-
     public class Ball : NetworkBehaviour
     {
         public float speed = 30;
