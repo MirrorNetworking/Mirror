@@ -26,7 +26,8 @@ namespace Mirror
         {
             get
             {
-                _transport = _transport ?? GetComponent<ITransport>();
+                if (_transport == null)
+                    _transport = GetComponent<ITransport>();
                 if (_transport == null)
                     Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
                 return _transport;
