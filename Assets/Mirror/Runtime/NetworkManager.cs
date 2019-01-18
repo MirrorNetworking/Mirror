@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -44,6 +45,7 @@ namespace Mirror
         [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
         [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
+        public bool startOnHeadless = true;
 
         public static List<Transform> startPositions = new List<Transform>();
 
@@ -76,6 +78,12 @@ namespace Mirror
             networkSceneName = offlineScene;
 
             InitializeSingleton();
+
+            // headless mode? then start the server
+            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
+            {
+                StartServer();
+            }
         }
 
         void InitializeSingleton()
