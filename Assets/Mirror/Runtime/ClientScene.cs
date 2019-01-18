@@ -78,6 +78,7 @@ namespace Mirror
         }
 
         // use this to implicitly become ready
+        // -> extraMessage can contain character selection, etc.
         public static bool AddPlayer(NetworkConnection readyConn, MessageBase extraMessage)
         {
             // ensure valid ready connection
