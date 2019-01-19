@@ -15,63 +15,77 @@ namespace Mirror.Weaver
     {
         static CompilationFinishedHook()
         {
-            // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
-            // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
-            CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
+            // weave assemblies every time after they are compiled
+            CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
+
+            // weave all existing assemblies
+            WeaveAssemblies();
+        }
+
+        private static void WeaveAssemblies()
+        {
+            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
+
+            foreach (Assembly assembly in assemblies)
             {
-                // if user scripts can't be compiled because of errors,
-                // assemblyCompilationFinished is still called but assemblyPath
-                // file won't exist. in that case, do nothing.
-                if (!File.Exists(assemblyPath))
+                AssemblyCompilationFinishedHandler(assembly.outputPath, new CompilerMessage[] { } );               
+            }
+        }
+
+        static void AssemblyCompilationFinishedHandler(string assemblyPath, CompilerMessage[] messages)
+        {
+            // if user scripts can't be compiled because of errors,
+            // assemblyCompilationFinished is still called but assemblyPath
+            // file won't exist. in that case, do nothing.
+            if (!File.Exists(assemblyPath))
+            {
+                Console.WriteLine("Weaving skipped because assembly doesnt exist: " + assemblyPath);
+                return;
+            }
+
+            string assemblyName = Path.GetFileName(assemblyPath);
+
+            if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+            {
+                // don't weave mirror files
+                return;
+            }
+
+            // UnityEngineCoreModule.DLL path:
+            string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
+
+            // outputDirectory is the directory of assemblyPath
+            string outputDirectory = Path.GetDirectoryName(assemblyPath);
+
+            string mirrorRuntimeDll = FindMirrorRuntime();
+            if (!File.Exists(mirrorRuntimeDll))
+            {
+                // this is normal, it happens with any assembly that is built before mirror
+                // such as unity packages or your own assemblies
+                // those don't need to be weaved
+                // if any assembly depends on mirror, then it will be built after
+                return;
+            }
+
+            // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
+            bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
+            if (!buildingForEditor)
+            {
+                Console.WriteLine("Weaving: " + assemblyPath);
+                // assemblyResolver: unity uses this by default:
+                //   ICompilationExtension compilationExtension = GetCompilationExtension();
+                //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
+                // but Weaver creates it's own if null, which is this one:
+                IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
+                if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
                 {
-                    Console.WriteLine("Weaving skipped because assembly doesnt exist: " + assemblyPath);
-                    return;
+                    Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                 }
-
-                string assemblyName = Path.GetFileName(assemblyPath);
-
-                if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+                else
                 {
-                    // don't weave mirror files
-                    return;
+                    Debug.LogError("Weaving failed for: " + assemblyPath);
                 }
-
-                // UnityEngineCoreModule.DLL path:
-                string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-
-                // outputDirectory is the directory of assemblyPath
-                string outputDirectory = Path.GetDirectoryName(assemblyPath);
-
-                string mirrorRuntimeDll = FindMirrorRuntime();
-                if (!File.Exists(mirrorRuntimeDll))
-                {
-                    // this is normal, it happens with any assembly that is built before mirror
-                    // such as unity packages or your own assemblies
-                    // those don't need to be weaved
-                    // if any assembly depends on mirror, then it will be built after
-                    return;
-                }
-
-                // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
-                bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
-                if (!buildingForEditor)
-                {
-                    Console.WriteLine("Weaving: " + assemblyPath);
-                    // assemblyResolver: unity uses this by default:
-                    //   ICompilationExtension compilationExtension = GetCompilationExtension();
-                    //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
-                    // but Weaver creates it's own if null, which is this one:
-                    IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
-                    {
-                        Console.WriteLine("Weaving succeeded for: " + assemblyPath);
-                    }
-                    else
-                    {
-                        Debug.LogError("Weaving failed for: " + assemblyPath);
-                    }
-                }
-            };
+            }
         }
 
         // Weaver needs the path for all the extra DLLs like UnityEngine.UI.
