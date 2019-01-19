@@ -74,18 +74,18 @@ namespace Mirror
 
         private void InitializeTransportHandlers()
         {
-            NetworkManager.singleton.transport.ClientConnected += OnConnected;
-            NetworkManager.singleton.transport.ClientDataReceived += OnDataReceived;
-            NetworkManager.singleton.transport.ClientDisconnected += OnDisconnected;
-            NetworkManager.singleton.transport.ClientError += OnError;
+            NetworkManager.singleton.transport.ClientConnected += ConnectedHandler;
+            NetworkManager.singleton.transport.ClientDataReceived += DataReceivedHandler;
+            NetworkManager.singleton.transport.ClientDisconnected += DisconnectedHandler;
+            NetworkManager.singleton.transport.ClientError += ErrorHandler;
         }
 
-        private void OnError(Exception exception)
+        private void ErrorHandler(Exception exception)
         {
             Debug.LogException(exception);
         }
 
-        private void OnDisconnected()
+        private void DisconnectedHandler()
         {
             connectState = ConnectState.Disconnected;
 
@@ -96,7 +96,7 @@ namespace Mirror
             }
         }
 
-        private void OnDataReceived(byte[] data)
+        private void DataReceivedHandler(byte[] data)
         {
             if (m_Connection != null)
             {
@@ -105,7 +105,7 @@ namespace Mirror
             else Debug.LogError("Skipped Data message handling because m_Connection is null.");
         }
 
-        private void OnConnected()
+        private void ConnectedHandler()
         {
             if (m_Connection != null)
             {
@@ -146,10 +146,10 @@ namespace Mirror
         private void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            NetworkManager.singleton.transport.ClientConnected -= OnConnected;
-            NetworkManager.singleton.transport.ClientDataReceived -= OnDataReceived;
-            NetworkManager.singleton.transport.ClientDisconnected -= OnDisconnected;
-            NetworkManager.singleton.transport.ClientError -= OnError;
+            NetworkManager.singleton.transport.ClientConnected -= ConnectedHandler;
+            NetworkManager.singleton.transport.ClientDataReceived -= DataReceivedHandler;
+            NetworkManager.singleton.transport.ClientDisconnected -= DisconnectedHandler;
+            NetworkManager.singleton.transport.ClientError -= ErrorHandler;
         }
 
         public bool Send(short msgType, MessageBase msg)
