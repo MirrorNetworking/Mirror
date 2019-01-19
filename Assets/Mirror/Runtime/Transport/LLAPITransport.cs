@@ -89,7 +89,7 @@ namespace Mirror
         public event Action<Exception> ClientError;
         public event Action ClientDisconnected;
 
-        private bool paused = false;
+        bool paused;
 
         public bool IsClientConnected()
         {
@@ -119,7 +119,7 @@ namespace Mirror
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        private bool ProcessClientMessage()
+        bool ProcessClientMessage()
         {
             int connectionId;
             int channel;
@@ -170,11 +170,11 @@ namespace Mirror
 
         public void Pause()
         {
-            this.paused = true;
+            paused = true;
         }
         public void Resume()
         {
-            this.paused = false;
+            paused = false;
         }
 
         public void Update()

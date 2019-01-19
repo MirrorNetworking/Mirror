@@ -29,12 +29,13 @@ namespace Mirror
         public event Action<byte[]> ClientDataReceived;
         public event Action<Exception> ClientError;
         public event Action ClientDisconnected;
-        private bool paused = false;
+        bool paused = false;
 
         public bool IsClientConnected() { return client.Connected; }
         public void ClientConnect(string address) { client.Connect(address, port); }
         public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public bool ProcessClientMessage()
+
+        bool ProcessClientMessage()
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -70,11 +71,11 @@ namespace Mirror
 
         public void Pause()
         {
-            this.paused = true;
+            paused = true;
         }
         public void Resume()
         {
-            this.paused = false;
+            paused = false;
         }
 
         public void Update()
