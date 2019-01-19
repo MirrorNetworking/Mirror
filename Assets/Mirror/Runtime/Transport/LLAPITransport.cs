@@ -1,5 +1,6 @@
 ﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
@@ -82,6 +83,14 @@ namespace Mirror
         }
 
         // client //////////////////////////////////////////////////////////////
+
+        public event Action ClientConnected;
+        public event Action<byte[]> ClientDataReceived;
+        public event Action<Exception> ClientError;
+        public event Action ClientDisconnected;
+
+        private bool paused = false;
+
         public bool IsClientConnected()
         {
             return clientConnectionId != -1;
@@ -110,10 +119,8 @@ namespace Mirror
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        private bool ProcessClientMessage()
         {
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             int connectionId;
             int channel;
             int receivedSize;
@@ -128,27 +135,55 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.Log("NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                string message = "NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
+                if (ClientError != null)
+                {
+                    // TODO:  have a better exception
+                    // such as TransportException
+                    ClientError(new Exception(message));
+                }
             }
 
+            // raise events
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    transportEvent = TransportEvent.Connected;
+                    if (ClientConnected != null)
+                        ClientConnected();
                     break;
                 case NetworkEventType.DataEvent:
-                    transportEvent = TransportEvent.Data;
-                    data = new byte[receivedSize];
+                    byte [] data = new byte[receivedSize];
                     Array.Copy(clientReceiveBuffer, data, receivedSize);
+                    if (ClientDataReceived != null)
+                        ClientDataReceived(data);
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    transportEvent = TransportEvent.Disconnected;
+                    if (ClientDisconnected != null)
+                        ClientDisconnected();
                     break;
                 default:
                     return false;
             }
 
             return true;
+        }
+
+        public void Pause()
+        {
+            this.paused = true;
+        }
+        public void Resume()
+        {
+            this.paused = false;
+        }
+
+        public void Update()
+        {
+            // process all messages
+            if (paused)
+                return;
+
+            while (ProcessClientMessage()) { }
         }
 
         public void ClientDisconnect()

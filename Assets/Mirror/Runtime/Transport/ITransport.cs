@@ -1,5 +1,6 @@
 ﻿// abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -10,11 +11,29 @@ namespace Mirror
     public interface ITransport
     {
         // client
+        event Action ClientConnected;
+        event Action<byte[]> ClientDataReceived;
+        event Action<Exception> ClientError;
+        event Action ClientDisconnected;
+
         bool IsClientConnected();
         void ClientConnect(string address);
         bool ClientSend(int channelId, byte[] data);
-        bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
         void ClientDisconnect();
+        // pause message handling while a scene load is in progress
+        //
+        // problem:
+        //   if we handle packets (calling the msgDelegates) while a
+        //   scene load is in progress, then all the handled data and state
+        //   will be lost as soon as the scene load is finished, causing
+        //   state bugs.
+        //
+        // solution:
+        //   don't handle messages until scene load is finished. the
+        //   transport layer will queue it automatically.
+        void Pause();
+        void Resume();
+
 
         // server
         bool IsServerActive();

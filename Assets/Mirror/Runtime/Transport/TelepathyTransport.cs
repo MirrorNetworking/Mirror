@@ -1,4 +1,5 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
+using System;
 using UnityEngine;
 namespace Mirror
 {
@@ -24,10 +25,16 @@ namespace Mirror
         }
 
         // client
+        public event Action ClientConnected;
+        public event Action<byte[]> ClientDataReceived;
+        public event Action<Exception> ClientError;
+        public event Action ClientDisconnected;
+        private bool paused = false;
+
         public bool IsClientConnected() { return client.Connected; }
         public void ClientConnect(string address) { client.Connect(address, port); }
         public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessClientMessage()
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -36,29 +43,48 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        if (ClientConnected != null)
+                            ClientConnected();
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        if (ClientDataReceived != null)
+                            ClientDataReceived(message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        if (ClientDisconnected != null)
+                            ClientDisconnected();
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO:  Telepathy does not report errors at all
+                        // it just disconnects,  should be fixed
+                        if (ClientDisconnected != null)
+                            ClientDisconnected();
                         break;
                 }
-
-                // assign rest of the values and return true
-                data = message.data;
                 return true;
             }
-
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
+
         public void ClientDisconnect() { client.Disconnect(); }
+
+        public void Pause()
+        {
+            this.paused = true;
+        }
+        public void Resume()
+        {
+            this.paused = false;
+        }
+
+        public void Update()
+        {
+            // process all messages
+            if (paused)
+                return;
+
+            while (ProcessClientMessage()) { }
+        }
 
         // server
         public bool IsServerActive() { return server.Active; }
