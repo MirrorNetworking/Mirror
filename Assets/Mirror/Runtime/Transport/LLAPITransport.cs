@@ -82,7 +82,7 @@ namespace Mirror
         }
 
         // client //////////////////////////////////////////////////////////////
-        public bool ClientConnected()
+        public bool IsClientConnected()
         {
             return clientConnectionId != -1;
         }
@@ -161,7 +161,7 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
-        public bool ServerActive()
+        public bool IsServerActive()
         {
             return serverHostId != -1;
         }
@@ -273,11 +273,11 @@ namespace Mirror
 
         public override string ToString()
         {
-            if (ServerActive())
+            if (IsServerActive())
             {
                 return "LLAPI Server port: " + port;
             }
-            else if (ClientConnected())
+            else if (IsClientConnected())
             {
                 string ip;
                 GetConnectionInfo(clientId, out ip);

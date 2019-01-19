@@ -24,7 +24,7 @@ namespace Mirror
         }
 
         // client
-        public bool ClientConnected() { return client.Connected; }
+        public bool IsClientConnected() { return client.Connected; }
         public void ClientConnect(string address) { client.Connect(address, port); }
         public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
         public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
@@ -61,7 +61,7 @@ namespace Mirror
         public void ClientDisconnect() { client.Disconnect(); }
 
         // server
-        public bool ServerActive() { return server.Active; }
+        public bool IsServerActive() { return server.Active; }
         public void ServerStart() { server.Start(port); }
         public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)

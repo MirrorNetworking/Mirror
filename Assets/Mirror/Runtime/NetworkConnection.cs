@@ -74,12 +74,12 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // client? then stop transport
-            if (NetworkManager.singleton.transport.ClientConnected())
+            if (NetworkManager.singleton.transport.IsClientConnected())
             {
                 NetworkManager.singleton.transport.ClientDisconnect();
             }
             // server? then disconnect that client
-            else if (NetworkManager.singleton.transport.ServerActive())
+            else if (NetworkManager.singleton.transport.IsServerActive())
             {
                 NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
@@ -279,11 +279,11 @@ namespace Mirror
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
             error = 0;
-            if (NetworkManager.singleton.transport.ClientConnected())
+            if (NetworkManager.singleton.transport.IsClientConnected())
             {
                 return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
             }
-            else if (NetworkManager.singleton.transport.ServerActive())
+            else if (NetworkManager.singleton.transport.IsServerActive())
             {
                 return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
             }

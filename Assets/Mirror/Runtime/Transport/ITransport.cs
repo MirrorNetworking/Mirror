@@ -10,14 +10,14 @@ namespace Mirror
     public interface ITransport
     {
         // client
-        bool ClientConnected();
+        bool IsClientConnected();
         void ClientConnect(string address);
         bool ClientSend(int channelId, byte[] data);
         bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data);
         void ClientDisconnect();
 
         // server
-        bool ServerActive();
+        bool IsServerActive();
         void ServerStart();
         bool ServerSend(int connectionId, int channelId, byte[] data);
         bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
