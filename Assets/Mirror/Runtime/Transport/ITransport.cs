@@ -13,7 +13,7 @@ namespace Mirror
         // client
         event Action ClientConnected;
         event Action<byte[]> ClientDataReceived;
-        event Action<Exception> ClientError;
+        event Action<Exception> ClientErrored;
         event Action ClientDisconnected;
 
         bool IsClientConnected();

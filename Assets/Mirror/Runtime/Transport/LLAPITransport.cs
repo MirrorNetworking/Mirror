@@ -86,7 +86,7 @@ namespace Mirror
 
         public event Action ClientConnected;
         public event Action<byte[]> ClientDataReceived;
-        public event Action<Exception> ClientError;
+        public event Action<Exception> ClientErrored;
         public event Action ClientDisconnected;
 
         bool paused;
@@ -136,11 +136,11 @@ namespace Mirror
             if (networkError != NetworkError.Ok)
             {
                 string message = "NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
-                if (ClientError != null)
+                if (ClientErrored != null)
                 {
                     // TODO:  have a better exception
                     // such as TransportException
-                    ClientError(new Exception(message));
+                    ClientErrored(new Exception(message));
                 }
             }
 

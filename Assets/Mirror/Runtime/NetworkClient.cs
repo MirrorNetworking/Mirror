@@ -77,10 +77,10 @@ namespace Mirror
             NetworkManager.singleton.transport.ClientConnected += ConnectedHandler;
             NetworkManager.singleton.transport.ClientDataReceived += DataReceivedHandler;
             NetworkManager.singleton.transport.ClientDisconnected += DisconnectedHandler;
-            NetworkManager.singleton.transport.ClientError += ErrorHandler;
+            NetworkManager.singleton.transport.ClientErrored += ErroredHandler;
         }
 
-        private void ErrorHandler(Exception exception)
+        private void ErroredHandler(Exception exception)
         {
             Debug.LogException(exception);
         }
@@ -149,7 +149,7 @@ namespace Mirror
             NetworkManager.singleton.transport.ClientConnected -= ConnectedHandler;
             NetworkManager.singleton.transport.ClientDataReceived -= DataReceivedHandler;
             NetworkManager.singleton.transport.ClientDisconnected -= DisconnectedHandler;
-            NetworkManager.singleton.transport.ClientError -= ErrorHandler;
+            NetworkManager.singleton.transport.ClientErrored -= ErroredHandler;
         }
 
         public bool Send(short msgType, MessageBase msg)

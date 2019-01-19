@@ -27,7 +27,7 @@ namespace Mirror
         // client
         public event Action ClientConnected;
         public event Action<byte[]> ClientDataReceived;
-        public event Action<Exception> ClientError;
+        public event Action<Exception> ClientErrored;
         public event Action ClientDisconnected;
         bool paused = false;
 
