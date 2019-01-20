@@ -179,8 +179,8 @@ namespace Mirror
                 identity.gameObject.SetActive(false);
 
                 // safety check for prefabs with more than one NetworkIdentity
-#if UNITY_2018_3_OR_NEWER
-                GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject);
+#if UNITY_2018_2_OR_NEWER
+                GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
 #else
                 GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
 #endif
