@@ -15,11 +15,19 @@ namespace Mirror.Weaver
     {
         static CompilationFinishedHook()
         {
-            // weave assemblies every time after they are compiled
-            CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
+            try
+            {
+                EditorApplication.LockReloadAssemblies();
+                // weave assemblies every time after they are compiled
+                CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
 
-            // weave all existing assemblies
-            WeaveAssemblies();
+                // weave all existing assemblies
+                WeaveAssemblies();
+            }
+            finally
+            {
+                EditorApplication.UnlockReloadAssemblies();
+            }
         }
 
         static void WeaveAssemblies()
@@ -28,6 +36,7 @@ namespace Mirror.Weaver
 
             foreach (Assembly assembly in assemblies)
             {
+                Debug.Log("Weaving " + assembly.outputPath);
                 AssemblyCompilationFinishedHandler(assembly.outputPath, new CompilerMessage[] { } );               
             }
         }
