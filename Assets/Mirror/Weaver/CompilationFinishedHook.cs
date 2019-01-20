@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             WeaveAssemblies();
         }
 
-        private static void WeaveAssemblies()
+        static void WeaveAssemblies()
         {
             Assembly[] assemblies = CompilationPipeline.GetAssemblies();
 
