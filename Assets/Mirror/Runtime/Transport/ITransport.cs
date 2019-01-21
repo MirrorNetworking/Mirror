@@ -36,10 +36,14 @@ namespace Mirror
 
 
         // server
+        event Action<int> ServerConnected;
+        event Action<int, byte[]> ServerDataReceived;
+        event Action<int, Exception> ServerErrored;
+        event Action<int> ServerDisconnected;
+
         bool IsServerActive();
         void ServerStart();
         bool ServerSend(int connectionId, int channelId, byte[] data);
-        bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data);
         bool ServerDisconnect(int connectionId);
         bool GetConnectionInfo(int connectionId, out string address);
         void ServerStop();

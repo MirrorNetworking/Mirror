@@ -196,6 +196,11 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
+        public event Action<int> ServerConnected;
+        public event Action<int, byte[]> ServerDataReceived;
+        public event Action<int, Exception> ServerErrored;
+        public event Action<int> ServerDisconnected;
+
         public bool IsServerActive()
         {
             return serverHostId != -1;
@@ -222,11 +227,9 @@ namespace Mirror
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessServerMessage()
         {
-            connectionId = -1;
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
+            int connectionId = -1;
             int channel;
             int receivedSize;
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
@@ -240,7 +243,11 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.Log("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                string message = "NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
+
+                // TODO write a TransportException or better
+                if (ServerErrored != null)
+                    ServerErrored(connectionId, new Exception(message));
             }
 
             // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
@@ -253,15 +260,20 @@ namespace Mirror
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    transportEvent = TransportEvent.Connected;
+                    if (ServerConnected != null)
+                        ServerConnected(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    transportEvent = TransportEvent.Data;
-                    data = new byte[receivedSize];
-                    Array.Copy(serverReceiveBuffer, data, receivedSize);
+                    if (ServerDataReceived != null)
+                    {
+                        byte[] data = new byte[receivedSize];
+                        Array.Copy(serverReceiveBuffer, data, receivedSize);
+                        ServerDataReceived(connectionId, data);
+                    }
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    transportEvent = TransportEvent.Disconnected;
+                    if (ServerDisconnected != null)
+                        ServerDisconnected(connectionId);
                     break;
                 default:
                     // nothing or a message we don't recognize

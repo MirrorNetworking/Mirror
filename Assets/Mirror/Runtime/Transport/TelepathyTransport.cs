@@ -85,13 +85,19 @@ namespace Mirror
                 return;
 
             while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
         }
 
         // server
+        public event Action<int> ServerConnected;
+        public event Action<int, byte[]> ServerDataReceived;
+        public event Action<int, Exception> ServerErrored;
+        public event Action<int> ServerDisconnected;
+
         public bool IsServerActive() { return server.Active; }
         public void ServerStart() { server.Start(port); }
         public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessServerMessage()
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -100,30 +106,28 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        if (ServerConnected != null)
+                            ServerConnected(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        if (ServerDataReceived != null)
+                            ServerDataReceived(message.connectionId, message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        if (ServerDisconnected != null)
+                            ServerDisconnected(message.connectionId);
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO handle errors from Telepathy when telepathy can report errors
+                        if (ServerDisconnected != null)
+                            ServerDisconnected(message.connectionId);
                         break;
                 }
-
-                // assign rest of the values and return true
-                connectionId = message.connectionId;
-                data = message.data;
                 return true;
             }
-
-            connectionId = -1;
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
+
         public bool ServerDisconnect(int connectionId)
         {
             return server.Disconnect(connectionId);

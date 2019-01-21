@@ -53,6 +53,11 @@ namespace Mirror
                     s_ServerHostId = -1;
                 }
 
+                NetworkManager.singleton.transport.ServerDisconnected -= DisconnectedHandler;
+                NetworkManager.singleton.transport.ServerConnected -= ConnectedHandler;
+                NetworkManager.singleton.transport.ServerDataReceived -= DataReceivedHandler;
+                NetworkManager.singleton.transport.ServerErrored -= ErroredHandler;
+
                 s_Initialized = false;
             }
             dontListen = false;
@@ -69,6 +74,11 @@ namespace Mirror
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
+            NetworkManager.singleton.transport.ServerDisconnected += DisconnectedHandler;
+            NetworkManager.singleton.transport.ServerConnected += ConnectedHandler;
+            NetworkManager.singleton.transport.ServerDataReceived += DataReceivedHandler;
+            NetworkManager.singleton.transport.ServerErrored += ErroredHandler;
+
         }
 
         internal static void RegisterMessageHandlers()
@@ -268,41 +278,13 @@ namespace Mirror
         {
             if (s_ServerHostId == -1)
                 return;
-
-            int connectionId;
-            TransportEvent transportEvent;
-            byte[] data;
-            while (NetworkManager.singleton.transport.ServerGetNextMessage(out connectionId, out transportEvent, out data))
-            {
-                switch (transportEvent)
-                {
-                    case TransportEvent.Connected:
-                        //Debug.Log("NetworkServer loop: Connected");
-                        HandleConnect(connectionId, 0);
-                        break;
-                    case TransportEvent.Data:
-                        //Debug.Log("NetworkServer loop: clientId: " + message.connectionId + " Data: " + BitConverter.ToString(message.data));
-                        HandleData(connectionId, data, 0);
-                        break;
-                    case TransportEvent.Disconnected:
-                        //Debug.Log("NetworkServer loop: Disconnected");
-                        HandleDisconnect(connectionId, 0);
-                        break;
-                }
-            }
-
+                
             UpdateServerObjects();
         }
 
-        static void HandleConnect(int connectionId, byte error)
+        static void ConnectedHandler(int connectionId)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + connectionId); }
-
-            if (error != 0)
-            {
-                GenerateConnectError(error);
-                return;
-            }
 
             // are more connections allowed? if not, kick
             // (it's easier to handle this in Mirror, so Transports can have
@@ -334,7 +316,7 @@ namespace Mirror
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
-        static void HandleDisconnect(int connectionId, byte error)
+        static void DisconnectedHandler(int connectionId)
         {
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
@@ -364,7 +346,7 @@ namespace Mirror
             conn.Dispose();
         }
 
-        static void HandleData(int connectionId, byte[] data, byte error)
+        static void DataReceivedHandler(int connectionId, byte[] data)
         {
             NetworkConnection conn;
             if (connections.TryGetValue(connectionId, out conn))
@@ -375,6 +357,12 @@ namespace Mirror
             {
                 Debug.LogError("HandleData Unknown connectionId:" + connectionId);
             }
+        }
+
+        private static void ErroredHandler(int connectionId, Exception exception)
+        {
+            // TODO Let's discuss how we will handle errors
+            Debug.LogException(exception);  
         }
 
         static void OnData(NetworkConnection conn, byte[] data)
