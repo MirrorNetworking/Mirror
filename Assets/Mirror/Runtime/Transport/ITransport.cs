@@ -6,8 +6,6 @@ using UnityEngine;
 namespace Mirror
 {
     // note: 'address' is ip / websocket url / ...
-    public enum TransportEvent { Connected, Data, Disconnected }
-
     public interface ITransport
     {
         // client
