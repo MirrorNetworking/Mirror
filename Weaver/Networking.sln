@@ -18,10 +18,6 @@ Global
 		{709222FD-15C2-497D-8B31-366ADCC074CD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{709222FD-15C2-497D-8B31-366ADCC074CD}.Testing|Any CPU.ActiveCfg = Release|Any CPU
 		{709222FD-15C2-497D-8B31-366ADCC074CD}.Testing|Any CPU.Build.0 = Release|Any CPU
-		{709222FD-15C2-497D-8B31-366ADCC074CD}.Debug-Editor|Any CPU.ActiveCfg = Debug|Any CPU
-		{709222FD-15C2-497D-8B31-366ADCC074CD}.Debug-Editor|Any CPU.Build.0 = Debug|Any CPU
-		{709222FD-15C2-497D-8B31-366ADCC074CD}.Release-Editor|Any CPU.ActiveCfg = Release|Any CPU
-		{709222FD-15C2-497D-8B31-366ADCC074CD}.Release-Editor|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
