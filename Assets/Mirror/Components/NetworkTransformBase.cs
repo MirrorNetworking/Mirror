@@ -323,7 +323,9 @@ namespace Mirror
             // no 'else if' since host mode would be both
             if (isClient)
             {
-                // send to server if we have local authority (and aren't the server)
+                // send to server if we have local authority
+                // do not check !isServer for host mode
+                // do not check connectionToServer as it is not included in non player objects
                 if (hasAuthority)
                 {
                     // check only each 'syncInterval'
