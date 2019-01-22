@@ -7,4 +7,4 @@
 ## GitHub
 
 -   You can create an issue in [GitHub](https://github.com/vis2k/Mirror/issues)
--   You can also contribute with Pull Requests...see [Contributions](Contributions)
+-   You can also contribute with Pull Requests...see [Contributing](https://github.com/vis2k/Mirror/blob/master/CONTRIBUTING.md)
