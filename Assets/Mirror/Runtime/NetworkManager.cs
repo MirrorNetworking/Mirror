@@ -37,6 +37,7 @@ namespace Mirror
         // configuration
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
+        public bool startOnHeadless = true;
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
 
         [Scene]
@@ -56,8 +57,6 @@ namespace Mirror
 
         [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector] 
         public List<GameObject> spawnPrefabs = new List<GameObject>();
-
-        public bool startOnHeadless = true;
 
         public static List<Transform> startPositions = new List<Transform>();
 
