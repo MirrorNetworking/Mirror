@@ -15,23 +15,10 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [RequireComponent(typeof(ITransport))]
     public class NetworkManager : MonoBehaviour
     {
         // transport layer
-        // -> automatically uses the first transport component. there might be
-        //    multiple in case of multiplexing, so the order matters.
-        ITransport _transport;
-        public virtual ITransport transport
-        {
-            get
-            {
-                _transport = _transport ?? GetComponent<ITransport>();
-                if (_transport == null)
-                    Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
-                return _transport;
-            }
-        }
+        public ITransport transport;
 
         // configuration
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
@@ -156,7 +143,10 @@ namespace Mirror
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
-                gameObject.AddComponent<TelepathyTransport>();
+                transport = gameObject.AddComponent<TelepathyTransport>();
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(gameObject);
+#endif
                 Debug.Log("NetworkManager: added default Transport because there was none yet.");
             }
 
