@@ -143,7 +143,14 @@ namespace Mirror
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
-                transport = gameObject.AddComponent<TelepathyTransport>();
+                // was a transport added yet? if not, add one
+                ITransport comp = GetComponent<ITransport>();
+                if (comp == null)
+                {
+                    comp = gameObject.AddComponent<TelepathyTransport>();
+                    Debug.Log("NetworkManager: added default Transport because there was none yet.");
+                }
+                transport = comp;
 #if UNITY_EDITOR
                 UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
