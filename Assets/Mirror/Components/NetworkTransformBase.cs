@@ -325,7 +325,7 @@ namespace Mirror
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (!isServer && hasAuthority && connectionToServer != null)
+                if (!isServer && hasAuthority)
                 {
                     // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)
@@ -344,8 +344,9 @@ namespace Mirror
                 }
 
                 // apply interpolation on client for all players
-                // except for local player if he has authority and handles it himself
-                if (!(isLocalPlayer && hasAuthority))
+                // unless this client has authority over the object. could be
+                // himself or another object that he was assigned authority over
+                if (!hasAuthority)
                 {
                     // received one yet? (initialized?)
                     if (goal != null)
