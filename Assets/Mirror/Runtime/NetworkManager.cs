@@ -53,7 +53,10 @@ namespace Mirror
         [FormerlySerializedAs("m_PlayerPrefab")] public GameObject playerPrefab;
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
-        [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
+
+        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector] 
+        public List<GameObject> spawnPrefabs = new List<GameObject>();
+
         public bool startOnHeadless = true;
 
         public static List<Transform> startPositions = new List<Transform>();
