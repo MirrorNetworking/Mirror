@@ -35,6 +35,7 @@ namespace Mirror
         UpdateVars = 8,
         SpawnPrefab = 3,
         SpawnSceneObject = 10,
+        SpawnStarted = 11,
         SpawnFinished = 12,
         ObjectHide = 13,
         LocalClientAuthority = 15,
@@ -64,7 +65,9 @@ namespace Mirror
 
         public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
         {
-            return reader.ReadMessage<TMsg>();
+            TMsg msg = new TMsg();
+            msg.Deserialize(reader);
+            return msg;
         }
 
         public void ReadMessage<TMsg>(TMsg msg) where TMsg : MessageBase

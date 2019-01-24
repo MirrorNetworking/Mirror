@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
 using UnityEngine;
 
 namespace Mirror
@@ -16,10 +14,9 @@ namespace Mirror
         public static bool pauseMessageHandling;
 
         string m_ServerIp = "";
-        ushort m_ServerPort;
         int m_ClientId = -1;
 
-        readonly Dictionary<short, NetworkMessageDelegate> m_MessageHandlers = new Dictionary<short, NetworkMessageDelegate>();
+        public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
         protected NetworkConnection m_Connection;
 
         protected enum ConnectState
@@ -33,15 +30,12 @@ namespace Mirror
 
         internal void SetHandlers(NetworkConnection conn)
         {
-            conn.SetHandlers(m_MessageHandlers);
+            conn.SetHandlers(handlers);
         }
 
         public string serverIp { get { return m_ServerIp; } }
-        public ushort serverPort { get { return m_ServerPort; } }
         public ushort hostPort;
         public NetworkConnection connection { get { return m_Connection; } }
-
-        public Dictionary<short, NetworkMessageDelegate> handlers { get { return m_MessageHandlers; } }
 
         public bool isConnected { get { return connectState == ConnectState.Connected; } }
 
@@ -59,26 +53,25 @@ namespace Mirror
             SetActive(true);
             m_Connection = conn;
             connectState = ConnectState.Connected;
-            conn.SetHandlers(m_MessageHandlers);
+            conn.SetHandlers(handlers);
             RegisterSystemHandlers(false);
         }
 
-        public void Connect(string serverIp, ushort serverPort)
+        public void Connect(string serverIp)
         {
             PrepareForConnect();
 
-            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
+            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp); }
 
             string hostnameOrIp = serverIp;
-            m_ServerPort = serverPort;
             m_ServerIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            Transport.layer.ClientConnect(serverIp, serverPort);
+            NetworkManager.singleton.transport.ClientConnect(serverIp);
 
             // setup all the handlers
             m_Connection = new NetworkConnection(m_ServerIp, m_ClientId, 0);
-            m_Connection.SetHandlers(m_MessageHandlers);
+            m_Connection.SetHandlers(handlers);
         }
 
         void PrepareForConnect()
@@ -171,7 +164,7 @@ namespace Mirror
             //    process all messages and make it empty..
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ClientGetNextMessage(out transportEvent, out data))
             {
                 switch (transportEvent)
                 {
@@ -241,7 +234,7 @@ namespace Mirror
         void GenerateError(byte error)
         {
             NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue((short)MsgType.Error, out msgDelegate))
+            if (handlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage();
                 msg.value = error;
@@ -271,11 +264,11 @@ namespace Mirror
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            if (m_MessageHandlers.ContainsKey(msgType))
+            if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
             }
-            m_MessageHandlers[msgType] = handler;
+            handlers[msgType] = handler;
         }
 
         public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -285,7 +278,7 @@ namespace Mirror
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.Remove(msgType);
+            handlers.Remove(msgType);
         }
 
         public void UnregisterHandler(MsgType msgType)
@@ -309,6 +302,8 @@ namespace Mirror
             allClients.RemoveAll(cl => cl == null);
 
             // now update valid clients
+            // IMPORTANT: no foreach, otherwise we get an InvalidOperationException
+            // when stopping the client.
             for (int i = 0; i < allClients.Count; ++i)
             {
                 allClients[i].Update();

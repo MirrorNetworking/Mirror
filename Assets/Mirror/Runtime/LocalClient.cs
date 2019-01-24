@@ -59,7 +59,7 @@ namespace Mirror
             ClientScene.InternalAddPlayer(localPlayer);
         }
 
-        private void PostInternalMessage(short msgType, byte[] content)
+        void PostInternalMessage(short msgType, byte[] content)
         {
             NetworkMessage msg = new NetworkMessage();
             msg.msgType = msgType;
@@ -68,14 +68,14 @@ namespace Mirror
             m_InternalMsgs.Enqueue(msg);
         }
 
-        private void PostInternalMessage(short msgType)
+        void PostInternalMessage(short msgType)
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> original NetworkTransport used empty [] and not null array for those messages too
             PostInternalMessage(msgType, new byte[0]);
         }
 
-        private void ProcessInternalMessages()
+        void ProcessInternalMessages()
         {
             while (m_InternalMsgs.Count > 0)
             {

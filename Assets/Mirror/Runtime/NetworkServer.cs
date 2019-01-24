@@ -6,14 +6,13 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public sealed class NetworkServer
+    public static class NetworkServer
     {
         static bool s_Active;
         static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
 
         static int s_ServerHostId = -1;
-        static int s_ServerPort = -1;
         static bool s_Initialized;
         static int s_MaxConnections;
 
@@ -22,7 +21,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection { get { return s_LocalConnection; } }
 
-        public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
         // <connectionId, NetworkConnection>
@@ -30,7 +28,6 @@ namespace Mirror
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static bool dontListen;
-        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -52,7 +49,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Transport.layer.ServerStop();
+                    NetworkManager.singleton.transport.ServerStop();
                     s_ServerHostId = -1;
                 }
 
@@ -82,17 +79,7 @@ namespace Mirror
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(ushort serverPort, int maxConnections)
-        {
-            return InternalListen(null, serverPort, maxConnections);
-        }
-
-        public static bool Listen(string ipAddress, ushort serverPort, int maxConnections)
-        {
-            return InternalListen(ipAddress, serverPort, maxConnections);
-        }
-
-        internal static bool InternalListen(string ipAddress, ushort serverPort, int maxConnections)
+        public static bool Listen(int maxConnections)
         {
             Initialize();
             s_MaxConnections = maxConnections;
@@ -100,25 +87,15 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                s_ServerPort = serverPort;
-
-                if (useWebSockets)
-                {
-                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
-                else
-                {
-                    Transport.layer.ServerStart(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
+                NetworkManager.singleton.transport.ServerStart();
+                s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
                 {
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "") + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
             s_Active = true;
@@ -218,8 +195,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                NetworkConnection conn = kvp.Value;
-                result &= conn.Send(msgType, msg, channelId);
+                result &= kvp.Value.Send(msgType, msg, channelId);
             }
             return result;
         }
@@ -296,7 +272,7 @@ namespace Mirror
             int connectionId;
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ServerGetNextMessage(out connectionId, out transportEvent, out data))
             {
                 switch (transportEvent)
                 {
@@ -337,7 +313,7 @@ namespace Mirror
             {
                 // get ip address from connection
                 string address;
-                Transport.layer.GetConnectionInfo(connectionId, out address);
+                NetworkManager.singleton.transport.GetConnectionInfo(connectionId, out address);
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
@@ -347,7 +323,7 @@ namespace Mirror
             else
             {
                 // kick
-                Transport.layer.ServerDisconnect(connectionId);
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
             }
         }
@@ -486,16 +462,15 @@ namespace Mirror
         }
 
         // send this message to the player only
-        public static void SendToClientOfPlayer(GameObject player, short msgType, MessageBase msg)
+        public static void SendToClientOfPlayer(NetworkIdentity identity, short msgType, MessageBase msg)
         {
-            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
                 identity.connectionToClient.Send(msgType, msg);
             }
             else
             {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + player.name);
+                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
             }
         }
 
@@ -531,8 +506,8 @@ namespace Mirror
 
         internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
-            NetworkIdentity identity;
-            if (!GetNetworkIdentity(playerGameObject, out identity))
+            NetworkIdentity identity = playerGameObject.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.Log("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
@@ -617,8 +592,8 @@ namespace Mirror
 
         internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
-            NetworkIdentity playerNetworkIdentity;
-            if (!GetNetworkIdentity(playerGameObject, out playerNetworkIdentity))
+            NetworkIdentity playerNetworkIdentity = playerGameObject.GetComponent<NetworkIdentity>();
+            if (playerNetworkIdentity == null)
             {
                 Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
@@ -663,7 +638,7 @@ namespace Mirror
             identity = go.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("UNET failure. GameObject doesn't have NetworkIdentity.");
+                Debug.LogError("GameObject " + go.name + " doesn't have NetworkIdentity.");
                 return false;
             }
             return true;
@@ -719,9 +694,7 @@ namespace Mirror
             // Spawn/update all current server objects
             if (LogFilter.Debug) { Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId); }
 
-            ObjectSpawnFinishedMessage msg = new ObjectSpawnFinishedMessage();
-            msg.state = 0;
-            conn.Send((short)MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnStarted, new ObjectSpawnStartedMessage());
 
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
@@ -744,8 +717,7 @@ namespace Mirror
                 }
             }
 
-            msg.state = 1;
-            conn.Send((short)MsgType.SpawnFinished, msg);
+            conn.Send((short)MsgType.SpawnFinished, new ObjectSpawnFinishedMessage());
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
@@ -846,8 +818,8 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (!GetNetworkIdentity(obj, out identity))
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
                 return;
@@ -933,7 +905,7 @@ namespace Mirror
                     NetworkIdentity identity;
                     if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
-                        DestroyObject(identity.gameObject);
+                        Destroy(identity.gameObject);
                     }
                 }
             }
@@ -944,69 +916,6 @@ namespace Mirror
             }
 
             conn.RemovePlayerController();
-        }
-
-        static void UnSpawnObject(GameObject obj)
-        {
-            if (obj == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
-                return;
-            }
-
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
-            {
-                UnSpawnObject(identity);
-            }
-        }
-
-        static void UnSpawnObject(NetworkIdentity identity)
-        {
-            DestroyObject(identity, false);
-        }
-
-        static void DestroyObject(GameObject obj)
-        {
-            if (obj == null)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer DestroyObject is null"); }
-                return;
-            }
-
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
-            {
-                DestroyObject(identity, true);
-            }
-        }
-
-        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
-        {
-            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
-            NetworkIdentity.spawned.Remove(identity.netId);
-
-            if (identity.clientAuthorityOwner != null)
-            {
-                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
-            }
-
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = identity.netId;
-            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
-
-            identity.ClearObservers();
-            if (NetworkClient.active && s_LocalClientActive)
-            {
-                identity.OnNetworkDestroy();
-            }
-
-            // when unspawning, dont destroy the server's object
-            if (destroyServerObject)
-            {
-                UnityEngine.Object.Destroy(identity.gameObject);
-            }
-            identity.MarkForReset();
         }
 
         public static void Spawn(GameObject obj)
@@ -1022,6 +931,8 @@ namespace Mirror
 #if UNITY_EDITOR
 #if UNITY_2018_3_OR_NEWER
             return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
+#elif UNITY_2018_2_OR_NEWER
+            return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
 #else
             return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
 #endif
@@ -1041,7 +952,7 @@ namespace Mirror
             return true;
         }
 
-        public static Boolean SpawnWithClientAuthority(GameObject obj, GameObject player)
+        public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -1106,14 +1017,62 @@ namespace Mirror
             }
         }
 
+        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
+        {
+            if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
+            NetworkIdentity.spawned.Remove(identity.netId);
+
+            if (identity.clientAuthorityOwner != null)
+            {
+                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
+            }
+
+            ObjectDestroyMessage msg = new ObjectDestroyMessage();
+            msg.netId = identity.netId;
+            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
+
+            identity.ClearObservers();
+            if (NetworkClient.active && s_LocalClientActive)
+            {
+                identity.OnNetworkDestroy();
+            }
+
+            // when unspawning, dont destroy the server's object
+            if (destroyServerObject)
+            {
+                UnityEngine.Object.Destroy(identity.gameObject);
+            }
+            identity.MarkForReset();
+        }
+
         public static void Destroy(GameObject obj)
         {
-            DestroyObject(obj);
+            if (obj == null)
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkServer DestroyObject is null"); }
+                return;
+            }
+
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                DestroyObject(identity, true);
+            }
         }
 
         public static void UnSpawn(GameObject obj)
         {
-            UnSpawnObject(obj);
+            if (obj == null)
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkServer UnspawnObject is null"); }
+                return;
+            }
+
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
+            {
+                DestroyObject(identity, false);
+            }
         }
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)

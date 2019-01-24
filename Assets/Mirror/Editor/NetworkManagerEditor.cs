@@ -14,11 +14,8 @@ namespace Mirror
     {
         protected SerializedProperty dontDestroyOnLoadProperty;
         protected SerializedProperty runInBackgroundProperty;
+        protected SerializedProperty startOnHeadlessProperty;
         SerializedProperty networkAddressProperty;
-
-        SerializedProperty networkPortProperty;
-        SerializedProperty serverBindToIPProperty;
-        SerializedProperty serverBindAddressProperty;
 
         protected SerializedProperty showDebugMessagesProperty;
 
@@ -27,8 +24,6 @@ namespace Mirror
         SerializedProperty playerSpawnMethodProperty;
         SerializedProperty spawnListProperty;
 
-        SerializedProperty useWebSocketsProperty;
-
         GUIContent showNetworkLabel;
         GUIContent showSpawnLabel;
 
@@ -36,16 +31,11 @@ namespace Mirror
         GUIContent onlineSceneLabel;
         protected GUIContent dontDestroyOnLoadLabel;
         protected GUIContent runInBackgroundLabel;
+        protected GUIContent startOnHeadlessLabel;
         protected GUIContent showDebugMessagesLabel;
 
         GUIContent maxConnectionsLabel;
-
-        GUIContent useWebSocketsLabel;
-
         GUIContent networkAddressLabel;
-        GUIContent networkPortLabel;
-        GUIContent serverBindToIPLabel;
-        GUIContent serverBindAddressLabel;
 
         GUIContent playerPrefabLabel;
         GUIContent autoCreatePlayerLabel;
@@ -72,14 +62,11 @@ namespace Mirror
             onlineSceneLabel = new GUIContent("Online Scene", "The scene loaded when the network comes online (connected to server)");
             dontDestroyOnLoadLabel = new GUIContent("Don't Destroy on Load", "Enable to persist the NetworkManager across scene changes.");
             runInBackgroundLabel = new GUIContent("Run in Background", "Enable to ensure that the application runs when it does not have focus.\n\nThis is required when testing multiple instances on a single machine, but not recommended for shipping on mobile platforms.");
+            startOnHeadlessLabel = new GUIContent("Start On Headless", "Start the server automatically when running in headless mode.");
             showDebugMessagesLabel = new GUIContent("Show Debug Messages", "Enable to show Debug log messages.");
 
             maxConnectionsLabel  = new GUIContent("Max Connections", "Maximum number of network connections");
-            useWebSocketsLabel = new GUIContent("Use WebSockets", "This makes the server listen for connections using WebSockets. This allows WebGL clients to connect to the server.");
             networkAddressLabel = new GUIContent("Network Address", "The network address currently in use.");
-            networkPortLabel = new GUIContent("Network Port", "The network port currently in use.");
-            serverBindToIPLabel = new GUIContent("Server Bind to IP", "Enable to bind the server to a specific IP address.");
-            serverBindAddressLabel = new GUIContent("Server Bind Address Label", "IP to bind the server to, when Server Bind to IP is enabled.");
             playerPrefabLabel = new GUIContent("Player Prefab", "The default prefab to be used to create player objects on the server.");
             autoCreatePlayerLabel = new GUIContent("Auto Create Player", "Enable to automatically create player objects on connect and on Scene change.");
             playerSpawnMethodLabel = new GUIContent("Player Spawn Method", "How to determine which NetworkStartPosition to spawn players at, from all NetworkStartPositions in the Scene.\n\nRandom chooses a random NetworkStartPosition.\n\nRound Robin chooses the next NetworkStartPosition on a round-robin basis.");
@@ -87,13 +74,11 @@ namespace Mirror
             // top-level properties
             dontDestroyOnLoadProperty = serializedObject.FindProperty("dontDestroyOnLoad");
             runInBackgroundProperty = serializedObject.FindProperty("runInBackground");
+            startOnHeadlessProperty = serializedObject.FindProperty("startOnHeadless");
             showDebugMessagesProperty = serializedObject.FindProperty("showDebugMessages");
 
             // network foldout properties
             networkAddressProperty = serializedObject.FindProperty("networkAddress");
-            networkPortProperty = serializedObject.FindProperty("networkPort");
-            serverBindToIPProperty = serializedObject.FindProperty("serverBindToIP");
-            serverBindAddressProperty = serializedObject.FindProperty("serverBindAddress");
 
             // spawn foldout properties
             playerPrefabProperty = serializedObject.FindProperty("playerPrefab");
@@ -110,9 +95,6 @@ namespace Mirror
             spawnList.onReorderCallback = Changed;
             spawnList.onAddCallback = AddButton;
             spawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
-
-            // web sockets
-            useWebSocketsProperty = serializedObject.FindProperty("useWebSockets");
         }
 
         static void ShowPropertySuffix(GUIContent content, SerializedProperty prop, string suffix)
@@ -175,20 +157,7 @@ namespace Mirror
             }
             EditorGUI.indentLevel += 1;
 
-            if (EditorGUILayout.PropertyField(useWebSocketsProperty, useWebSocketsLabel))
-            {
-                NetworkServer.useWebSockets = networkManager.useWebSockets;
-            }
-
             EditorGUILayout.PropertyField(networkAddressProperty, networkAddressLabel);
-            EditorGUILayout.PropertyField(networkPortProperty, networkPortLabel);
-            EditorGUILayout.PropertyField(serverBindToIPProperty, serverBindToIPLabel);
-            if (networkManager.serverBindToIP)
-            {
-                EditorGUI.indentLevel += 1;
-                EditorGUILayout.PropertyField(serverBindAddressProperty, serverBindAddressLabel);
-                EditorGUI.indentLevel -= 1;
-            }
 
             var maxConn = serializedObject.FindProperty("maxConnections");
             ShowPropertySuffix(maxConnectionsLabel, maxConn, "connections");
@@ -304,6 +273,7 @@ namespace Mirror
             serializedObject.Update();
             EditorGUILayout.PropertyField(dontDestroyOnLoadProperty, dontDestroyOnLoadLabel);
             EditorGUILayout.PropertyField(runInBackgroundProperty, runInBackgroundLabel);
+            EditorGUILayout.PropertyField(startOnHeadlessProperty, startOnHeadlessLabel);
 
             if (EditorGUILayout.PropertyField(showDebugMessagesProperty, showDebugMessagesLabel))
             {

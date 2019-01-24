@@ -7,10 +7,15 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : TransportLayer
+    public class LLAPITransport : MonoBehaviour, ITransport
     {
-        readonly ConnectionConfig connectionConfig;
-        readonly GlobalConfig globalConfig;
+        public ushort port = 7777;
+
+        [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
+        public bool useWebsockets;
+
+        ConnectionConfig connectionConfig;
+        GlobalConfig globalConfig;
         readonly int channelId; // always use first channel
         byte error;
 
@@ -21,7 +26,7 @@ namespace Mirror
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
 
-        public LLAPITransport(GlobalConfig globalConfig = null, ConnectionConfig connectionConfig = null)
+        void Awake()
         {
             // create global config if none passed
             // -> settings copied from uMMORPG configuration for best results
@@ -38,7 +43,6 @@ namespace Mirror
                 globalConfig.MinTimerTimeout = 1;
                 globalConfig.MaxTimerTimeout = 12000;
             }
-            this.globalConfig = globalConfig;
             NetworkTransport.Init(globalConfig);
 
             // create connection config if none passed
@@ -73,7 +77,6 @@ namespace Mirror
                 // channel 1 is unreliable
                 connectionConfig.AddChannel(QosType.Unreliable);
             }
-            this.connectionConfig = connectionConfig;
 
             Debug.Log("LLAPITransport initialized!");
         }
@@ -84,7 +87,7 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address, ushort port)
+        public void ClientConnect(string address)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -163,18 +166,20 @@ namespace Mirror
             return serverHostId != -1;
         }
 
-        public void ServerStart(string address, ushort port)
+        public void ServerStart()
         {
-            HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
-            serverHostId = NetworkTransport.AddHost(topology, port);
-            //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
-        }
-
-        public void ServerStartWebsockets(string address, ushort port)
-        {
-            HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
-            serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
-            //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            if (useWebsockets)
+            {
+                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
+                //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            }
+            else
+            {
+                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                serverHostId = NetworkTransport.AddHost(topology, port);
+                //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
+            }
         }
 
         public bool ServerSend(int connectionId, int channelId, byte[] data)
@@ -264,6 +269,21 @@ namespace Mirror
         public int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
+        }
+
+        public override string ToString()
+        {
+            if (ServerActive())
+            {
+                return "LLAPI Server port: " + port;
+            }
+            else if (ClientConnected())
+            {
+                string ip;
+                GetConnectionInfo(clientId, out ip);
+                return "LLAPI Client ip: " + ip + " port: " + port;
+            }
+            return "LLAPI (inactive/disconnected)";
         }
     }
 }
