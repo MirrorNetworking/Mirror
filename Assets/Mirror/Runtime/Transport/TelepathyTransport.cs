@@ -5,6 +5,10 @@ namespace Mirror
     public class TelepathyTransport : MonoBehaviour, ITransport
     {
         public ushort port = 7777;
+
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        public bool NoDelay = true;
+
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
@@ -14,6 +18,10 @@ namespace Mirror
             Telepathy.Logger.LogMethod = Debug.Log;
             Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
             Telepathy.Logger.LogErrorMethod = Debug.LogError;
+
+            // configure
+            client.NoDelay = NoDelay;
+            server.NoDelay = NoDelay;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
