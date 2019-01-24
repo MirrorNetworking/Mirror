@@ -105,10 +105,7 @@ namespace Mirror
             data = null;
             return false;
         }
-        public bool ServerDisconnect(int connectionId)
-        {
-            return server.Disconnect(connectionId);
-        }
+        public bool ServerDisconnect(int connectionId) { return server.Disconnect(connectionId); }
         public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
         public void ServerStop() { server.Stop(); }
 
