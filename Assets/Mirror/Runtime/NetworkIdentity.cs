@@ -538,9 +538,11 @@ namespace Mirror
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-            // extract data length and data safely, untouched by user code
-            // -> returns empty array if length is 0, so .Length is always the proper length
-            byte[] bytes = reader.ReadBytesAndSize();
+            // read header as 4 bytes
+            int contentSize = reader.ReadInt32();
+
+            // read content
+            byte[] bytes = reader.ReadBytes(contentSize);
             if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // call OnDeserialize with a temporary reader, so that the
@@ -549,7 +551,12 @@ namespace Mirror
             // component's deserialization
             try
             {
-                comp.OnDeserialize(new NetworkReader(bytes), initialState);
+                NetworkReader componentReader = new NetworkReader(bytes);
+                comp.OnDeserialize(componentReader, initialState);
+                if (componentReader.Position != componentReader.Length)
+                {
+                    Debug.LogWarning("OnDeserialize didn't read the full " + bytes.Length + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
+                }
             }
             catch (Exception e)
             {
