@@ -312,6 +312,14 @@ namespace Mirror
                 return;
             }
 
+            // connectionId not in use yet?
+            if (connections.ContainsKey(connectionId))
+            {
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                if (LogFilter.Debug) { Debug.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId); }
+                return;
+            }
+
             // are more connections allowed? if not, kick
             // (it's easier to handle this in Mirror, so Transports can have
             //  less code and third party transport might not do that anyway)
