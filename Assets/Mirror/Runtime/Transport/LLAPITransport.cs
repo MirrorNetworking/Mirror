@@ -1,6 +1,5 @@
 // wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
-using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
