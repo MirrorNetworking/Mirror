@@ -144,8 +144,7 @@ namespace Mirror
             if (transport == null)
             {
                 // was a transport added yet? if not, add one
-                Transport comp = GetComponent<
-                Transport>();
+                Transport comp = GetComponent<Transport>();
                 if (comp == null)
                 {
                     comp = gameObject.AddComponent<TelepathyTransport>();
@@ -155,7 +154,6 @@ namespace Mirror
 #if UNITY_EDITOR
                 UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
-                Debug.Log("NetworkManager: added default Transport because there was none yet.");
             }
 
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
