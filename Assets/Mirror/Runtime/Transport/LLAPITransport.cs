@@ -168,6 +168,7 @@ namespace Mirror
         {
             // process all messages
             while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
         }
 
         public override void ClientDisconnect()
