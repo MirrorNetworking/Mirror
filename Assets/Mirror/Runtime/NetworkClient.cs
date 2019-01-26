@@ -14,7 +14,6 @@ namespace Mirror
         public static bool pauseMessageHandling;
 
         string m_ServerIp = "";
-        ushort m_ServerPort;
         int m_ClientId = -1;
 
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
@@ -35,7 +34,6 @@ namespace Mirror
         }
 
         public string serverIp { get { return m_ServerIp; } }
-        public ushort serverPort { get { return m_ServerPort; } }
         public ushort hostPort;
         public NetworkConnection connection { get { return m_Connection; } }
 
@@ -59,18 +57,17 @@ namespace Mirror
             RegisterSystemHandlers(false);
         }
 
-        public void Connect(string serverIp, ushort serverPort)
+        public void Connect(string serverIp)
         {
             PrepareForConnect();
 
-            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp + ":" + serverPort); }
+            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp); }
 
             string hostnameOrIp = serverIp;
-            m_ServerPort = serverPort;
             m_ServerIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            Transport.layer.ClientConnect(serverIp, serverPort);
+            NetworkManager.singleton.transport.ClientConnect(serverIp);
 
             // setup all the handlers
             m_Connection = new NetworkConnection(m_ServerIp, m_ClientId, 0);
@@ -167,7 +164,7 @@ namespace Mirror
             //    process all messages and make it empty..
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ClientGetNextMessage(out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ClientGetNextMessage(out transportEvent, out data))
             {
                 switch (transportEvent)
                 {

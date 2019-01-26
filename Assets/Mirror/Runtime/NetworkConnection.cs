@@ -74,14 +74,14 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // client? then stop transport
-            if (Transport.layer.ClientConnected())
+            if (NetworkManager.singleton.transport.ClientConnected())
             {
-                Transport.layer.ClientDisconnect();
+                NetworkManager.singleton.transport.ClientDisconnect();
             }
             // server? then disconnect that client
-            else if (Transport.layer.ServerActive())
+            else if (NetworkManager.singleton.transport.ServerActive())
             {
-                Transport.layer.ServerDisconnect(connectionId);
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
 
             // remove observers. original HLAPI has hostId check for that too.
@@ -169,9 +169,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > Transport.layer.GetMaxPacketSize(channelId))
+            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.layer.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -279,13 +279,13 @@ namespace Mirror
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
             error = 0;
-            if (Transport.layer.ClientConnected())
+            if (NetworkManager.singleton.transport.ClientConnected())
             {
-                return Transport.layer.ClientSend(channelId, bytes);
+                return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
             }
-            else if (Transport.layer.ServerActive())
+            else if (NetworkManager.singleton.transport.ServerActive())
             {
-                return Transport.layer.ServerSend(connectionId, channelId, bytes);
+                return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
             }
             return false;
         }

@@ -13,7 +13,6 @@ namespace Mirror
         static ULocalConnectionToClient s_LocalConnection;
 
         static int s_ServerHostId = -1;
-        static int s_ServerPort = -1;
         static bool s_Initialized;
         static int s_MaxConnections;
 
@@ -22,7 +21,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection { get { return s_LocalConnection; } }
 
-        public static int listenPort { get { return s_ServerPort; } }
         public static int serverHostId { get { return s_ServerHostId; } }
 
         // <connectionId, NetworkConnection>
@@ -30,7 +28,6 @@ namespace Mirror
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public static bool dontListen;
-        public static bool useWebSockets;
 
         public static bool active { get { return s_Active; } }
         public static bool localClientActive { get { return s_LocalClientActive; } }
@@ -52,7 +49,7 @@ namespace Mirror
                 }
                 else
                 {
-                    Transport.layer.ServerStop();
+                    NetworkManager.singleton.transport.ServerStop();
                     s_ServerHostId = -1;
                 }
 
@@ -82,17 +79,7 @@ namespace Mirror
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(ushort serverPort, int maxConnections)
-        {
-            return InternalListen(null, serverPort, maxConnections);
-        }
-
-        public static bool Listen(string ipAddress, ushort serverPort, int maxConnections)
-        {
-            return InternalListen(ipAddress, serverPort, maxConnections);
-        }
-
-        internal static bool InternalListen(string ipAddress, ushort serverPort, int maxConnections)
+        public static bool Listen(int maxConnections)
         {
             Initialize();
             s_MaxConnections = maxConnections;
@@ -100,25 +87,15 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                s_ServerPort = serverPort;
-
-                if (useWebSockets)
-                {
-                    Transport.layer.ServerStartWebsockets(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
-                else
-                {
-                    Transport.layer.ServerStart(ipAddress, serverPort);
-                    s_ServerHostId = 0; // so it doesn't return false
-                }
+                NetworkManager.singleton.transport.ServerStart();
+                s_ServerHostId = 0; // so it doesn't return false
 
                 if (s_ServerHostId == -1)
                 {
                     return false;
                 }
 
-                if (LogFilter.Debug) { Debug.Log("Server listen: " + (ipAddress != null ? ipAddress : "") + ":" + s_ServerPort); }
+                if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
             s_Active = true;
@@ -295,7 +272,7 @@ namespace Mirror
             int connectionId;
             TransportEvent transportEvent;
             byte[] data;
-            while (Transport.layer.ServerGetNextMessage(out connectionId, out transportEvent, out data))
+            while (NetworkManager.singleton.transport.ServerGetNextMessage(out connectionId, out transportEvent, out data))
             {
                 switch (transportEvent)
                 {
@@ -327,6 +304,22 @@ namespace Mirror
                 return;
             }
 
+            // connectionId needs to be > 0 because 0 is reserved for local player
+            if (connectionId <= 0)
+            {
+                Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                return;
+            }
+
+            // connectionId not in use yet?
+            if (connections.ContainsKey(connectionId))
+            {
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                if (LogFilter.Debug) { Debug.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId); }
+                return;
+            }
+
             // are more connections allowed? if not, kick
             // (it's easier to handle this in Mirror, so Transports can have
             //  less code and third party transport might not do that anyway)
@@ -336,7 +329,7 @@ namespace Mirror
             {
                 // get ip address from connection
                 string address;
-                Transport.layer.GetConnectionInfo(connectionId, out address);
+                NetworkManager.singleton.transport.GetConnectionInfo(connectionId, out address);
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
@@ -346,7 +339,7 @@ namespace Mirror
             else
             {
                 // kick
-                Transport.layer.ServerDisconnect(connectionId);
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
             }
         }
@@ -954,6 +947,8 @@ namespace Mirror
 #if UNITY_EDITOR
 #if UNITY_2018_3_OR_NEWER
             return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
+#elif UNITY_2018_2_OR_NEWER
+            return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
 #else
             return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
 #endif

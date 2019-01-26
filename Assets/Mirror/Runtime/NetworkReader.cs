@@ -256,12 +256,5 @@ namespace Mirror
         {
             return reader.ToString();
         }
-
-        public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
-        {
-            var msg = new TMsg();
-            msg.Deserialize(this);
-            return msg;
-        }
     }
 }
