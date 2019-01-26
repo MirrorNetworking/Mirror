@@ -126,7 +126,7 @@ namespace Mirror
             SetActive(true);
             RegisterSystemHandlers(false);
             m_ClientId = 0;
-            NetworkManager.singleton.transport.Resume();
+            NetworkManager.singleton.transport.enabled = true;
             InitializeTransportHandlers();
         }
 

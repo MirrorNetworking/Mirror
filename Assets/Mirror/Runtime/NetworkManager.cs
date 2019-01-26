@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System;
 
 namespace Mirror
 {
@@ -15,18 +16,18 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [RequireComponent(typeof(ITransport))]
+    [RequireComponent(typeof(Transport))]
     public class NetworkManager : MonoBehaviour
     {
         // transport layer
         // -> automatically uses the first transport component. there might be
         //    multiple in case of multiplexing, so the order matters.
-        ITransport _transport;
-        public virtual ITransport transport
+        Transport _transport;
+        public virtual Transport transport
         {
             get
             {
-                _transport = _transport ?? GetComponent<ITransport>();
+                _transport = _transport ?? GetComponent<Transport>();
                 if (_transport == null)
                     Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
                 return _transport;
@@ -34,21 +35,32 @@ namespace Mirror
         }
 
         // configuration
-        [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
+        public bool startOnHeadless = true;
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
+
+        [Scene]
+        [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
+
+        [Scene]
+        [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
+
+        [Header("Network Info")]
+        [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
+        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
+
+        [Header("Spawn Info")]
         [FormerlySerializedAs("m_PlayerPrefab")] public GameObject playerPrefab;
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
-        [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
-        [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
-        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
-        [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
-        public bool startOnHeadless = true;
+
+        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
 
+        [NonSerialized]
         public bool clientLoadedScene;
 
         // only really valid on the server
@@ -56,6 +68,7 @@ namespace Mirror
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
         static int s_StartPositionIndex;
@@ -393,7 +406,7 @@ namespace Mirror
             if (client != null)
             {
                 if (LogFilter.Debug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
-                NetworkManager.singleton.transport.Pause();
+                NetworkManager.singleton.transport.enabled = false;
             }
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
@@ -408,7 +421,7 @@ namespace Mirror
             {
                 // process queued messages that we received while loading the scene
                 if (LogFilter.Debug) { Debug.Log("FinishLoadScene: resuming handlers after scene was loading."); }
-                NetworkManager.singleton.transport.Resume();
+                NetworkManager.singleton.transport.enabled = true;
 
                 if (s_ClientReadyConnection != null)
                 {
@@ -679,7 +692,7 @@ namespace Mirror
             if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
             {
                 // try to spawn at a random start location
-                int index = Random.Range(0, startPositions.Count);
+                int index = UnityEngine.Random.Range(0, startPositions.Count);
                 return startPositions[index];
             }
             if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)

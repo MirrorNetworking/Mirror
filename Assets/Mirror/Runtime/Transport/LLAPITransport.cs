@@ -1,4 +1,4 @@
-﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
 using System.Net.Sockets;
 using UnityEngine;
@@ -8,7 +8,7 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : MonoBehaviour, ITransport
+    public class LLAPITransport : Transport
     {
         public ushort port = 7777;
 
@@ -83,20 +83,17 @@ namespace Mirror
         }
 
         // client //////////////////////////////////////////////////////////////
+        public override event Action ClientConnected;
+        public override event Action<byte[]> ClientDataReceived;
+        public override event Action<Exception> ClientErrored;
+        public override event Action ClientDisconnected;
 
-        public event Action ClientConnected;
-        public event Action<byte[]> ClientDataReceived;
-        public event Action<Exception> ClientErrored;
-        public event Action ClientDisconnected;
-
-        bool paused;
-
-        public bool IsClientConnected()
+        public override bool IsClientConnected()
         {
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address)
+        public override void ClientConnect(string address)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -114,12 +111,12 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        bool ProcessClientMessage()
+        public bool ProcessClientMessage()
         {
             int connectionId;
             int channel;
@@ -168,25 +165,13 @@ namespace Mirror
             return true;
         }
 
-        public void Pause()
-        {
-            paused = true;
-        }
-        public void Resume()
-        {
-            paused = false;
-        }
-
         public void Update()
         {
             // process all messages
-            if (paused)
-                return;
-
             while (ProcessClientMessage()) { }
         }
 
-        public void ClientDisconnect()
+        public override void ClientDisconnect()
         {
             if (clientId != -1)
             {
@@ -196,17 +181,17 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
-        public event Action<int> ServerConnected;
-        public event Action<int, byte[]> ServerDataReceived;
-        public event Action<int, Exception> ServerErrored;
-        public event Action<int> ServerDisconnected;
+        public override event Action<int> ServerConnected;
+        public override event Action<int, byte[]> ServerDataReceived;
+        public override event Action<int, Exception> ServerErrored;
+        public override event Action<int> ServerDisconnected;
 
-        public bool IsServerActive()
+        public override bool IsServerActive()
         {
             return serverHostId != -1;
         }
 
-        public void ServerStart()
+        public override void ServerStart()
         {
             if (useWebsockets)
             {
@@ -222,7 +207,7 @@ namespace Mirror
             }
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
@@ -283,12 +268,12 @@ namespace Mirror
             return true;
         }
 
-        public bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public override bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;
             NetworkID networkId;
@@ -297,7 +282,7 @@ namespace Mirror
             return true;
         }
 
-        public void ServerStop()
+        public override void ServerStop()
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
@@ -305,7 +290,7 @@ namespace Mirror
         }
 
         // common //////////////////////////////////////////////////////////////
-        public void Shutdown()
+        public override void Shutdown()
         {
             NetworkTransport.Shutdown();
             serverHostId = -1;
@@ -313,7 +298,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }

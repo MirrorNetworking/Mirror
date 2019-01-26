@@ -1,11 +1,15 @@
-﻿// wraps Telepathy for use as HLAPI TransportLayer
+// wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 namespace Mirror
 {
-    public class TelepathyTransport : MonoBehaviour, ITransport
+    public class TelepathyTransport : Transport
     {
         public ushort port = 7777;
+
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        public bool NoDelay = true;
+
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
@@ -16,6 +20,10 @@ namespace Mirror
             Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
             Telepathy.Logger.LogErrorMethod = Debug.LogError;
 
+            // configure
+            client.NoDelay = NoDelay;
+            server.NoDelay = NoDelay;
+
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
             // by simple eating the first one before the server starts
@@ -25,15 +33,14 @@ namespace Mirror
         }
 
         // client
-        public event Action ClientConnected;
-        public event Action<byte[]> ClientDataReceived;
-        public event Action<Exception> ClientErrored;
-        public event Action ClientDisconnected;
-        bool paused = false;
+        public override event Action ClientConnected;
+        public override event Action<byte[]> ClientDataReceived;
+        public override event Action<Exception> ClientErrored;
+        public override event Action ClientDisconnected;
 
-        public bool IsClientConnected() { return client.Connected; }
-        public void ClientConnect(string address) { client.Connect(address, port); }
-        public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+        public override bool IsClientConnected() { return client.Connected; }
+        public override void ClientConnect(string address) { client.Connect(address, port); }
+        public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
 
         bool ProcessClientMessage()
         {
@@ -66,37 +73,23 @@ namespace Mirror
             }
             return false;
         }
-
-        public void ClientDisconnect() { client.Disconnect(); }
-
-        public void Pause()
-        {
-            paused = true;
-        }
-        public void Resume()
-        {
-            paused = false;
-        }
+        public override void ClientDisconnect() { client.Disconnect(); }
 
         public void Update()
         {
-            // process all messages
-            if (paused)
-                return;
-
             while (ProcessClientMessage()) { }
             while (ProcessServerMessage()) { }
         }
 
         // server
-        public event Action<int> ServerConnected;
-        public event Action<int, byte[]> ServerDataReceived;
-        public event Action<int, Exception> ServerErrored;
-        public event Action<int> ServerDisconnected;
+        public override event Action<int> ServerConnected;
+        public override event Action<int, byte[]> ServerDataReceived;
+        public override event Action<int, Exception> ServerErrored;
+        public override event Action<int> ServerDisconnected;
 
-        public bool IsServerActive() { return server.Active; }
-        public void ServerStart() { server.Start(port); }
-        public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public override bool IsServerActive() { return server.Active; }
+        public override void ServerStart() { server.Start(port); }
+        public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public bool ProcessServerMessage()
         {
             Telepathy.Message message;
@@ -127,23 +120,19 @@ namespace Mirror
             }
             return false;
         }
-
-        public bool ServerDisconnect(int connectionId)
-        {
-            return server.Disconnect(connectionId);
-        }
-        public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public void ServerStop() { server.Stop(); }
+        public override bool ServerDisconnect(int connectionId) { return server.Disconnect(connectionId); }
+        public override bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public override void ServerStop() { server.Stop(); }
 
         // common
-        public void Shutdown()
+        public override void Shutdown()
         {
             Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();
             server.Stop();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;
