@@ -325,7 +325,7 @@ namespace Mirror
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (!isServer && hasAuthority && connectionToServer != null)
+                if (!isServer && hasAuthority)
                 {
                     // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)

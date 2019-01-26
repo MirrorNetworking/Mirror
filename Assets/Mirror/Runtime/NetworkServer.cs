@@ -304,6 +304,22 @@ namespace Mirror
                 return;
             }
 
+            // connectionId needs to be > 0 because 0 is reserved for local player
+            if (connectionId <= 0)
+            {
+                Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                return;
+            }
+
+            // connectionId not in use yet?
+            if (connections.ContainsKey(connectionId))
+            {
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                if (LogFilter.Debug) { Debug.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId); }
+                return;
+            }
+
             // are more connections allowed? if not, kick
             // (it's easier to handle this in Mirror, so Transports can have
             //  less code and third party transport might not do that anyway)

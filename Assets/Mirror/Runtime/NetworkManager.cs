@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using System;
 
 namespace Mirror
 {
@@ -21,21 +22,32 @@ namespace Mirror
         public Transport transport;
 
         // configuration
-        [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
+        public bool startOnHeadless = true;
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
+
+        [Scene]
+        [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
+
+        [Scene]
+        [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
+
+        [Header("Network Info")]
+        [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
+        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
+
+        [Header("Spawn Info")]
         [FormerlySerializedAs("m_PlayerPrefab")] public GameObject playerPrefab;
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
-        [FormerlySerializedAs("m_OfflineScene")] public string offlineScene = "";
-        [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
-        [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
-        [FormerlySerializedAs("m_SpawnPrefabs")] public List<GameObject> spawnPrefabs = new List<GameObject>();
-        public bool startOnHeadless = true;
+
+        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
 
+        [NonSerialized]
         public bool clientLoadedScene;
 
         // only really valid on the server
@@ -43,6 +55,7 @@ namespace Mirror
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
         static int s_StartPositionIndex;
@@ -675,7 +688,7 @@ namespace Mirror
             if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
             {
                 // try to spawn at a random start location
-                int index = Random.Range(0, startPositions.Count);
+                int index = UnityEngine.Random.Range(0, startPositions.Count);
                 return startPositions[index];
             }
             if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
