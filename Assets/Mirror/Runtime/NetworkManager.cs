@@ -16,18 +16,18 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [RequireComponent(typeof(ITransport))]
+    [RequireComponent(typeof(Transport))]
     public class NetworkManager : MonoBehaviour
     {
         // transport layer
         // -> automatically uses the first transport component. there might be
         //    multiple in case of multiplexing, so the order matters.
-        ITransport _transport;
-        public virtual ITransport transport
+        Transport _transport;
+        public virtual Transport transport
         {
             get
             {
-                _transport = _transport ?? GetComponent<ITransport>();
+                _transport = _transport ?? GetComponent<Transport>();
                 if (_transport == null)
                     Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
                 return _transport;
@@ -55,7 +55,7 @@ namespace Mirror
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
 
-        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector] 
+        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();

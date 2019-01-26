@@ -7,7 +7,7 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : MonoBehaviour, ITransport
+    public class LLAPITransport : Transport
     {
         public ushort port = 7777;
 
@@ -82,12 +82,12 @@ namespace Mirror
         }
 
         // client //////////////////////////////////////////////////////////////
-        public bool ClientConnected()
+        public override bool ClientConnected()
         {
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address)
+        public override void ClientConnect(string address)
         {
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
@@ -105,12 +105,12 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
         {
             transportEvent = TransportEvent.Disconnected;
             data = null;
@@ -151,7 +151,7 @@ namespace Mirror
             return true;
         }
 
-        public void ClientDisconnect()
+        public override void ClientDisconnect()
         {
             if (clientId != -1)
             {
@@ -161,12 +161,12 @@ namespace Mirror
         }
 
         // server //////////////////////////////////////////////////////////////
-        public bool ServerActive()
+        public override bool ServerActive()
         {
             return serverHostId != -1;
         }
 
-        public void ServerStart()
+        public override void ServerStart()
         {
             if (useWebsockets)
             {
@@ -182,12 +182,12 @@ namespace Mirror
             }
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
         {
             connectionId = -1;
             transportEvent = TransportEvent.Disconnected;
@@ -236,12 +236,12 @@ namespace Mirror
             return true;
         }
 
-        public bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public override bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;
             NetworkID networkId;
@@ -250,7 +250,7 @@ namespace Mirror
             return true;
         }
 
-        public void ServerStop()
+        public override void ServerStop()
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
@@ -258,7 +258,7 @@ namespace Mirror
         }
 
         // common //////////////////////////////////////////////////////////////
-        public void Shutdown()
+        public override void Shutdown()
         {
             NetworkTransport.Shutdown();
             serverHostId = -1;
@@ -266,7 +266,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }
