@@ -18,7 +18,7 @@ namespace Mirror
     public class NetworkManager : MonoBehaviour
     {
         // transport layer
-        public ITransport transport;
+        public Transport transport;
 
         // configuration
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
