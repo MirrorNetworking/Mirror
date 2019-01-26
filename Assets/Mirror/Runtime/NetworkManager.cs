@@ -16,23 +16,8 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [RequireComponent(typeof(Transport))]
     public class NetworkManager : MonoBehaviour
     {
-        // transport layer
-        // -> automatically uses the first transport component. there might be
-        //    multiple in case of multiplexing, so the order matters.
-        Transport _transport;
-        public virtual Transport transport
-        {
-            get
-            {
-                _transport = _transport ?? GetComponent<Transport>();
-                if (_transport == null)
-                    Debug.LogWarning("NetworkManager has no Transport component. Networking won't work without a Transport");
-                return _transport;
-            }
-        }
 
         // configuration
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
@@ -47,6 +32,8 @@ namespace Mirror
         [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
 
         [Header("Network Info")]
+        // transport layer
+        public Transport transport;
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
 
@@ -169,8 +156,16 @@ namespace Mirror
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
-                gameObject.AddComponent<TelepathyTransport>();
-                Debug.Log("NetworkManager: added default Transport because there was none yet.");
+                // was a transport added yet? if not, add one
+                transport = GetComponent<Transport>();
+                if (transport == null)
+                {
+                    transport = gameObject.AddComponent<TelepathyTransport>();
+                    Debug.Log("NetworkManager: added default Transport because there was none yet.");
+                }
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(gameObject);
+#endif
             }
 
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
