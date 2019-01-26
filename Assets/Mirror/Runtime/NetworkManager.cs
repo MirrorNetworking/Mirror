@@ -144,7 +144,8 @@ namespace Mirror
             if (transport == null)
             {
                 // was a transport added yet? if not, add one
-                ITransport comp = GetComponent<ITransport>();
+                Transport comp = GetComponent<
+                Transport>();
                 if (comp == null)
                 {
                     comp = gameObject.AddComponent<TelepathyTransport>();
