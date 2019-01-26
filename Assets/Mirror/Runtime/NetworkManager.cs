@@ -18,8 +18,6 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkManager")]
     public class NetworkManager : MonoBehaviour
     {
-        // transport layer
-        public Transport transport;
 
         // configuration
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
@@ -34,6 +32,8 @@ namespace Mirror
         [FormerlySerializedAs("m_OnlineScene")] public string onlineScene = "";
 
         [Header("Network Info")]
+        // transport layer
+        public Transport transport;
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
 
@@ -157,13 +157,12 @@ namespace Mirror
             if (transport == null)
             {
                 // was a transport added yet? if not, add one
-                Transport comp = GetComponent<Transport>();
-                if (comp == null)
+                transport = GetComponent<Transport>();
+                if (transport == null)
                 {
-                    comp = gameObject.AddComponent<TelepathyTransport>();
+                    transport = gameObject.AddComponent<TelepathyTransport>();
                     Debug.Log("NetworkManager: added default Transport because there was none yet.");
                 }
-                transport = comp;
 #if UNITY_EDITOR
                 UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
