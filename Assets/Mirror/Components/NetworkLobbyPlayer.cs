@@ -1,22 +1,25 @@
-#if ENABLE_UNET
-
 using System;
 using UnityEngine;
-using UnityEngine.Networking.NetworkSystem;
 using UnityEngine.SceneManagement;
 
-namespace UnityEngine.Networking
+namespace Mirror
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
+        public enum MsgType : short
+        {
+            LobbyReadyToBegin = Mirror.MsgType.Highest + 1,
+            LobbySceneLoaded = Mirror.MsgType.Highest + 2
+        }
+
         [SerializeField] public bool ShowLobbyGUI = true;
 
         byte m_Slot;
         bool m_ReadyToBegin;
 
-        public byte slot { get { return m_Slot; } set { m_Slot = value; }}
+        public byte slot { get { return m_Slot; } set { m_Slot = value; } }
         public bool readyToBegin { get { return m_ReadyToBegin; } set { m_ReadyToBegin = value; } }
 
         void Start()
@@ -41,41 +44,41 @@ namespace UnityEngine.Networking
 
         public void SendReadyToBeginMessage()
         {
-            if (LogFilter.logDebug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
 
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
                 var msg = new LobbyReadyToBeginMessage();
-                msg.slotId = (byte)playerControllerId;
+                msg.slotId = 0; // (byte)playerControllerId;
                 msg.readyState = true;
-                lobby.client.Send(MsgType.LobbyReadyToBegin, msg);
+                lobby.client.Send((short)MsgType.LobbyReadyToBegin, msg);
             }
         }
 
         public void SendNotReadyToBeginMessage()
         {
-            if (LogFilter.logDebug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
 
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
                 var msg = new LobbyReadyToBeginMessage();
-                msg.slotId = (byte)playerControllerId;
+                msg.slotId = 0; // (byte)playerControllerId;
                 msg.readyState = false;
-                lobby.client.Send(MsgType.LobbyReadyToBegin, msg);
+                lobby.client.Send((short)MsgType.LobbyReadyToBegin, msg);
             }
         }
 
         public void SendSceneLoadedMessage()
         {
-            if (LogFilter.logDebug) { Debug.Log("NetworkLobbyPlayer SendSceneLoadedMessage"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendSceneLoadedMessage"); }
 
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
-                var msg = new IntegerMessage(playerControllerId);
-                lobby.client.Send(MsgType.LobbySceneLoaded, msg);
+                var msg = new IntegerMessage((int)netId);
+                lobby.client.Send((short)MsgType.LobbySceneLoaded, msg);
             }
         }
 
@@ -102,9 +105,9 @@ namespace UnityEngine.Networking
         {
             if (isLocalPlayer && !m_ReadyToBegin)
             {
-                if (LogFilter.logDebug) { Debug.Log("NetworkLobbyPlayer RemovePlayer"); }
+                if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer RemovePlayer"); }
 
-                ClientScene.RemovePlayer(GetComponent<NetworkIdentity>().playerControllerId);
+                ClientScene.RemovePlayer();
             }
         }
 
@@ -196,7 +199,7 @@ namespace UnityEngine.Networking
                     rec.y += 25;
                     if (GUI.Button(rec, "Remove"))
                     {
-                        ClientScene.RemovePlayer(GetComponent<NetworkIdentity>().playerControllerId);
+                        ClientScene.RemovePlayer();
                     }
                 }
             }
@@ -209,5 +212,3 @@ namespace UnityEngine.Networking
         }
     }
 }
-
-#endif // ENABLE_UNET
