@@ -141,6 +141,7 @@ namespace Mirror
                 m_Connection.Dispose();
                 m_Connection = null;
                 m_ClientId = -1;
+                RemoveTransportHandlers();
             }
         }
 
