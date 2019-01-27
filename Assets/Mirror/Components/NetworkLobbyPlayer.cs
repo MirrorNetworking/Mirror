@@ -2,38 +2,55 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Mirror
+namespace Mirror.Components.NetworkLobby
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
-        public enum MsgType : short
-        {
-            LobbyReadyToBegin = Mirror.MsgType.Highest + 1,
-            LobbySceneLoaded = Mirror.MsgType.Highest + 2
-        }
 
         [SerializeField] public bool ShowLobbyGUI = true;
 
-        byte m_Slot;
-        bool m_ReadyToBegin;
+		[SyncVar]
+        public bool ReadyToBegin = false;
 
-        public byte slot { get { return m_Slot; } set { m_Slot = value; } }
-        public bool readyToBegin { get { return m_ReadyToBegin; } set { m_ReadyToBegin = value; } }
+		[SyncVar]
+		public int Index;
 
         void Start()
         {
             DontDestroyOnLoad(gameObject);
+			if (isClient)
+			{
+				SceneManager.sceneLoaded += ClientLoadedScene;
+			}
         }
 
-        public override void OnStartClient()
+		private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+		{
+			var lobby = NetworkManager.singleton as NetworkLobbyManager;
+			if (lobby)
+			{
+				// dont even try this in the startup scene
+				string loadedSceneName = SceneManager.GetSceneAt(0).name;
+				if (loadedSceneName == lobby.LobbyScene)
+				{
+					return;
+				}
+			}
+
+			if (isLocalPlayer)
+			{
+				CmdSendLevelLoaded();
+			}
+		}
+
+		public override void OnStartClient()
         {
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
-                lobby.lobbySlots[m_Slot] = this;
-                m_ReadyToBegin = false;
+                ReadyToBegin = false;
                 OnClientEnterLobby();
             }
             else
@@ -42,68 +59,30 @@ namespace Mirror
             }
         }
 
-        public void SendReadyToBeginMessage()
-        {
-            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
+		[Command]
+		public void CmdChangeReadyState(bool ReadyState)
+		{
+			ReadyToBegin = ReadyState;
+			var lobby = NetworkManager.singleton as NetworkLobbyManager;
+			if (lobby)
+			{
+				lobby.ReadyStatusChanged();
+			}
+		}
 
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                var msg = new LobbyReadyToBeginMessage();
-                msg.slotId = 0; // (byte)playerControllerId;
-                msg.readyState = true;
-                lobby.client.Send((short)MsgType.LobbyReadyToBegin, msg);
-            }
-        }
-
-        public void SendNotReadyToBeginMessage()
-        {
-            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendReadyToBeginMessage"); }
-
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                var msg = new LobbyReadyToBeginMessage();
-                msg.slotId = 0; // (byte)playerControllerId;
-                msg.readyState = false;
-                lobby.client.Send((short)MsgType.LobbyReadyToBegin, msg);
-            }
-        }
-
-        public void SendSceneLoadedMessage()
-        {
-            if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer SendSceneLoadedMessage"); }
-
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                var msg = new IntegerMessage((int)netId);
-                lobby.client.Send((short)MsgType.LobbySceneLoaded, msg);
-            }
-        }
-
-        void OnLevelWasLoaded()
-        {
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                // dont even try this in the startup scene
-                string loadedSceneName = SceneManager.GetSceneAt(0).name;
-                if (loadedSceneName == lobby.lobbyScene)
-                {
-                    return;
-                }
-            }
-
-            if (isLocalPlayer)
-            {
-                SendSceneLoadedMessage();
-            }
-        }
+		[Command]
+		public void CmdSendLevelLoaded()
+		{
+			var lobby = NetworkManager.singleton as NetworkLobbyManager;
+			if (lobby)
+			{
+				lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
+			}
+		}
 
         public void RemovePlayer()
         {
-            if (isLocalPlayer && !m_ReadyToBegin)
+            if (isLocalPlayer && !ReadyToBegin)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer RemovePlayer"); }
 
@@ -125,28 +104,6 @@ namespace Mirror
         {
         }
 
-        // ------------------------ Custom Serialization ------------------------
-
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // dirty flag
-            writer.WritePackedUInt32(1);
-
-            writer.Write(m_Slot);
-            writer.Write(m_ReadyToBegin);
-            return true;
-        }
-
-        public override void OnDeserialize(NetworkReader reader, bool initialState)
-        {
-            var dirty = reader.ReadPackedUInt32();
-            if (dirty == 0)
-                return;
-
-            m_Slot = reader.ReadByte();
-            m_ReadyToBegin = reader.ReadBoolean();
-        }
-
         // ------------------------ optional UI ------------------------
 
         void OnGUI()
@@ -157,20 +114,20 @@ namespace Mirror
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
-                if (!lobby.showLobbyGUI)
+                if (!lobby.m_ShowLobbyGUI)
                     return;
 
                 string loadedSceneName = SceneManager.GetSceneAt(0).name;
-                if (loadedSceneName != lobby.lobbyScene)
+                if (loadedSceneName != lobby.LobbyScene)
                     return;
             }
 
-            Rect rec = new Rect(100 + m_Slot * 100, 200, 90, 20);
+            Rect rec = new Rect(100 + Index * 100, 200, 90, 20);
 
             if (isLocalPlayer)
             {
                 string youStr;
-                if (m_ReadyToBegin)
+                if (ReadyToBegin)
                 {
                     youStr = "(Ready)";
                 }
@@ -180,20 +137,20 @@ namespace Mirror
                 }
                 GUI.Label(rec, youStr);
 
-                if (m_ReadyToBegin)
+                if (ReadyToBegin)
                 {
                     rec.y += 25;
                     if (GUI.Button(rec, "STOP"))
                     {
-                        SendNotReadyToBeginMessage();
+						CmdChangeReadyState(false);
                     }
                 }
                 else
                 {
                     rec.y += 25;
-                    if (GUI.Button(rec, "START"))
+                    if (GUI.Button(rec, "Ready"))
                     {
-                        SendReadyToBeginMessage();
+						CmdChangeReadyState(true);
                     }
 
                     rec.y += 25;
@@ -207,7 +164,7 @@ namespace Mirror
             {
                 GUI.Label(rec, "Player [" + netId + "]");
                 rec.y += 25;
-                GUI.Label(rec, "Ready [" + m_ReadyToBegin + "]");
+                GUI.Label(rec, "Ready [" + ReadyToBegin + "]");
             }
         }
     }
