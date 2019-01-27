@@ -6,21 +6,21 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Components.NetworkLobby
 {
-    [AddComponentMenu("Network/NetworkLobbyManager")]
-    public class NetworkLobbyManager : NetworkManager
-    {
+	[AddComponentMenu("Network/NetworkLobbyManager")]
+	public class NetworkLobbyManager : NetworkManager
+	{
 
-        struct PendingPlayer
-        {
-            public NetworkConnection conn;
-            public GameObject lobbyPlayer;
-        }
+		struct PendingPlayer
+		{
+			public NetworkConnection conn;
+			public GameObject lobbyPlayer;
+		}
 
-        // configuration
-        [SerializeField] internal bool m_ShowLobbyGUI = true;
-        [SerializeField] int m_MaxPlayers = 4;
-        [SerializeField] int m_MinPlayers;
-        [SerializeField] NetworkLobbyPlayer m_LobbyPlayerPrefab;
+		// configuration
+		[SerializeField] internal bool m_ShowLobbyGUI = true;
+		[SerializeField] int m_MaxPlayers = 4;
+		[SerializeField] int m_MinPlayers;
+		[SerializeField] NetworkLobbyPlayer m_LobbyPlayerPrefab;
 
 		[SerializeField, Scene]
 		internal string LobbyScene;
@@ -30,47 +30,47 @@ namespace Mirror.Components.NetworkLobby
 
 		// runtime data
 		List<PendingPlayer> m_PendingPlayers = new List<PendingPlayer>();
-        public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
+		public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
-        public override void OnValidate()
-        {
-            if (m_MaxPlayers <= 0)
-            {
-                m_MaxPlayers = 1;
-            }
+		public override void OnValidate()
+		{
+			if (m_MaxPlayers <= 0)
+			{
+				m_MaxPlayers = 1;
+			}
 
-            if (m_MinPlayers < 0)
-            {
-                m_MinPlayers = 0;
-            }
+			if (m_MinPlayers < 0)
+			{
+				m_MinPlayers = 0;
+			}
 
-            if (m_MinPlayers > m_MaxPlayers)
-            {
-                m_MinPlayers = m_MaxPlayers;
-            }
+			if (m_MinPlayers > m_MaxPlayers)
+			{
+				m_MinPlayers = m_MaxPlayers;
+			}
 
-            if (m_LobbyPlayerPrefab != null)
-            {
-                var uv = m_LobbyPlayerPrefab.GetComponent<NetworkIdentity>();
-                if (uv == null)
-                {
-                    m_LobbyPlayerPrefab = null;
-                    Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
-                }
-            }
+			if (m_LobbyPlayerPrefab != null)
+			{
+				var uv = m_LobbyPlayerPrefab.GetComponent<NetworkIdentity>();
+				if (uv == null)
+				{
+					m_LobbyPlayerPrefab = null;
+					Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
+				}
+			}
 
-            if (playerPrefab != null)
-            {
-                var uv = playerPrefab.GetComponent<NetworkIdentity>();
-                if (uv == null)
-                {
-                    playerPrefab = null;
-                    Debug.LogWarning("GamePlayer prefab must have a NetworkIdentity component.");
-                }
-            }
+			if (playerPrefab != null)
+			{
+				var uv = playerPrefab.GetComponent<NetworkIdentity>();
+				if (uv == null)
+				{
+					playerPrefab = null;
+					Debug.LogWarning("GamePlayer prefab must have a NetworkIdentity component.");
+				}
+			}
 
-            base.OnValidate();
-        }
+			base.OnValidate();
+		}
 
 		internal void PlayerLoadedScene(NetworkConnection conn)
 		{
@@ -103,179 +103,167 @@ namespace Mirror.Components.NetworkLobby
 		}
 
 
-        void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
-        {
-            var lobbyPlayer = lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>();
-            if (lobbyPlayer == null)
-            {
-                // not a lobby player.. dont replace it
-                return;
-            }
+		void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
+		{
+			var lobbyPlayer = lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>();
+			if (lobbyPlayer == null)
+			{
+				// not a lobby player.. dont replace it
+				return;
+			}
 
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
-            if (LogFilter.Debug) { Debug.Log("NetworkLobby SceneLoadedForPlayer scene:" + loadedSceneName + " " + conn); }
+			string loadedSceneName = SceneManager.GetSceneAt(0).name;
+			if (LogFilter.Debug) { Debug.Log("NetworkLobby SceneLoadedForPlayer scene:" + loadedSceneName + " " + conn); }
 
-            if (loadedSceneName == LobbyScene)
-            {
-                // cant be ready in lobby, add to ready list
-                PendingPlayer pending;
-                pending.conn = conn;
-                pending.lobbyPlayer = lobbyPlayerGameObject;
-                m_PendingPlayers.Add(pending);
-                return;
-            }
+			if (loadedSceneName == LobbyScene)
+			{
+				// cant be ready in lobby, add to ready list
+				PendingPlayer pending;
+				pending.conn = conn;
+				pending.lobbyPlayer = lobbyPlayerGameObject;
+				m_PendingPlayers.Add(pending);
+				return;
+			}
 
-            var gamePlayer = OnLobbyServerCreateGamePlayer(conn);
-            if (gamePlayer == null)
-            {
-                // get start position from base class
-                Transform startPos = GetStartPosition();
-                if (startPos != null)
-                {
-                    gamePlayer = (GameObject)Instantiate(playerPrefab, startPos.position, startPos.rotation);
-                }
-                else
-                {
-                    gamePlayer = (GameObject)Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-                }
-            }
+			var gamePlayer = OnLobbyServerCreateGamePlayer(conn);
+			if (gamePlayer == null)
+			{
+				// get start position from base class
+				Transform startPos = GetStartPosition();
+				if (startPos != null)
+				{
+					gamePlayer = (GameObject)Instantiate(playerPrefab, startPos.position, startPos.rotation);
+				}
+				else
+				{
+					gamePlayer = (GameObject)Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+				}
+			}
 
-            if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayerGameObject, gamePlayer))
-            {
-                return;
-            }
+			if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayerGameObject, gamePlayer))
+			{
+				return;
+			}
 
-            // replace lobby player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
-        }
+			// replace lobby player with game player
+			NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
+		}
 
-        static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
-        {
-            int countPlayers = 0;
-            var player = conn.playerController;
-            var lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
-            if (lobbyPlayer.ReadyToBegin)
-            {
-                countPlayers += 1;
-            }
-            return countPlayers;
-        }
+		static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
+		{
+			int countPlayers = 0;
+			var player = conn.playerController;
+			var lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
+			if (lobbyPlayer.ReadyToBegin)
+			{
+				countPlayers += 1;
+			}
+			return countPlayers;
+		}
 
-        public void CheckReadyToBegin()
-        {
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
-            if (loadedSceneName != LobbyScene)
-            {
-                return;
-            }
+		public void CheckReadyToBegin()
+		{
+			string loadedSceneName = SceneManager.GetSceneAt(0).name;
+			if (loadedSceneName != LobbyScene)
+			{
+				return;
+			}
 
-            int readyCount = 0;
+			int readyCount = 0;
 
-            foreach (var conn in NetworkServer.connections)
-            {
-                if (conn.Value == null)
-                    continue;
+			foreach (var conn in NetworkServer.connections)
+			{
+				if (conn.Value == null)
+					continue;
 
-                readyCount += CheckConnectionIsReadyToBegin(conn.Value);
-            }
-            if (m_MinPlayers > 0 && readyCount < m_MinPlayers)
-            {
-                // not enough players ready yet.
-                return;
-            }
+				readyCount += CheckConnectionIsReadyToBegin(conn.Value);
+			}
+			if (m_MinPlayers > 0 && readyCount < m_MinPlayers)
+			{
+				// not enough players ready yet.
+				return;
+			}
 
-            m_PendingPlayers.Clear();
-            OnLobbyServerPlayersReady();
-        }
+			m_PendingPlayers.Clear();
+			OnLobbyServerPlayersReady();
+		}
 
-        public void ServerReturnToLobby()
-        {
-            if (!NetworkServer.active)
-            {
-                Debug.Log("ServerReturnToLobby called on client");
-                return;
-            }
-            ServerChangeScene(LobbyScene);
-        }
+		public void ServerReturnToLobby()
+		{
+			if (!NetworkServer.active)
+			{
+				Debug.Log("ServerReturnToLobby called on client");
+				return;
+			}
+			ServerChangeScene(LobbyScene);
+		}
 
-        void CallOnClientEnterLobby()
-        {
-            OnLobbyClientEnter();
-            foreach (var player in lobbySlots)
-            {
-                if (player == null)
-                    continue;
+		void CallOnClientEnterLobby()
+		{
+			OnLobbyClientEnter();
+			foreach (var player in lobbySlots)
+			{
+				if (player == null)
+					continue;
 
-                player.OnClientEnterLobby();
-            }
-        }
+				player.OnClientEnterLobby();
+			}
+		}
 
-        void CallOnClientExitLobby()
-        {
-            OnLobbyClientExit();
-            foreach (var player in lobbySlots)
-            {
-                if (player == null)
-                    continue;
+		void CallOnClientExitLobby()
+		{
+			OnLobbyClientExit();
+			foreach (var player in lobbySlots)
+			{
+				if (player == null)
+					continue;
 
-                player.OnClientExitLobby();
-            }
-        }
+				player.OnClientExitLobby();
+			}
+		}
 
-        public bool SendReturnToLobby()
-        {
-            if (client == null || !client.isConnected)
-            {
-                return false;
-            }
+		// ------------------------ server handlers ------------------------
 
-            var msg = new EmptyMessage();
-            client.Send((short)MsgType.LobbyReturnToLobby, msg);
-            return true;
-        }
+		public override void OnServerConnect(NetworkConnection conn)
+		{
+			if (numPlayers >= m_MaxPlayers)
+			{
+				conn.Disconnect();
+				return;
+			}
 
-        // ------------------------ server handlers ------------------------
+			// cannot join game in progress
+			string loadedSceneName = SceneManager.GetSceneAt(0).name;
+			if (loadedSceneName != LobbyScene)
+			{
+				conn.Disconnect();
+				return;
+			}
 
-        public override void OnServerConnect(NetworkConnection conn)
-        {
-            if (numPlayers >= m_MaxPlayers)
-            {
-                conn.Disconnect();
-                return;
-            }
+			base.OnServerConnect(conn);
+			OnLobbyServerConnect(conn);
+		}
 
-            // cannot join game in progress
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
-            if (loadedSceneName != LobbyScene)
-            {
-                conn.Disconnect();
-                return;
-            }
+		public override void OnServerDisconnect(NetworkConnection conn)
+		{
+			base.OnServerDisconnect(conn);
 
-            base.OnServerConnect(conn);
-            OnLobbyServerConnect(conn);
-        }
+			// if lobbyplayer for this connection has not been destroyed by now, then destroy it here
+			for (int i = 0; i < lobbySlots.Count; i++)
+			{
+				var player = lobbySlots[i];
+				if (player == null)
+					continue;
 
-        public override void OnServerDisconnect(NetworkConnection conn)
-        {
-            base.OnServerDisconnect(conn);
+				if (player.connectionToClient == conn)
+				{
+					lobbySlots[i] = null;
+					NetworkServer.Destroy(player.gameObject);
+				}
+			}
 
-            // if lobbyplayer for this connection has not been destroyed by now, then destroy it here
-            for (int i = 0; i < lobbySlots.Count; i++)
-            {
-                var player = lobbySlots[i];
-                if (player == null)
-                    continue;
-
-                if (player.connectionToClient == conn)
-                {
-                    lobbySlots[i] = null;
-                    NetworkServer.Destroy(player.gameObject);
-                }
-            }
-
-            OnLobbyServerDisconnect(conn);
-        }
+			OnLobbyServerDisconnect(conn);
+		}
 
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
@@ -284,6 +272,11 @@ namespace Mirror.Components.NetworkLobby
             {
                 return;
             }
+
+			if(lobbySlots.Count == m_MaxPlayers)
+			{
+				return;
+			}
 
             var newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)
@@ -392,8 +385,6 @@ namespace Mirror.Components.NetworkLobby
                 return;
             }
 
-            NetworkServer.RegisterHandler((short)MsgType.LobbyReturnToLobby, OnServerReturnToLobbyMessage);
-
             OnLobbyStartServer();
         }
 
@@ -429,8 +420,6 @@ namespace Mirror.Components.NetworkLobby
             {
                 ClientScene.RegisterPrefab(playerPrefab);
             }
-
-            lobbyClient.RegisterHandler((short)MsgType.LobbyAddPlayerFailed, OnClientAddPlayerFailedMessage);
 
             OnLobbyStartClient(lobbyClient);
         }
@@ -471,12 +460,6 @@ namespace Mirror.Components.NetworkLobby
 
             base.OnClientSceneChanged(conn);
             OnLobbyClientSceneChanged(conn);
-        }
-
-        void OnClientAddPlayerFailedMessage(NetworkMessage netMsg)
-        {
-            if (LogFilter.Debug) { Debug.Log("NetworkLobbyManager Add Player failed."); }
-            OnLobbyClientAddPlayerFailed();
         }
 
         // ------------------------ lobby server virtuals ------------------------
