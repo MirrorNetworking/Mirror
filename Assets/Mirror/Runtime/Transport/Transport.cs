@@ -16,11 +16,10 @@ namespace Mirror
     public abstract class Transport : MonoBehaviour
     {
         // client
-        [Header("Client Events")]
-        public UnityEvent OnClientConnected;
-        public UnityEventByteArray OnClientDataReceived;
-        public UnityEventException OnClientError;
-        public UnityEvent OnClientDisconnected;
+        [HideInInspector] public UnityEvent OnClientConnected;
+        [HideInInspector] public UnityEventByteArray OnClientDataReceived;
+        [HideInInspector] public UnityEventException OnClientError;
+        [HideInInspector] public UnityEvent OnClientDisconnected;
 
         public abstract bool ClientConnected();
         public abstract void ClientConnect(string address);
@@ -28,11 +27,10 @@ namespace Mirror
         public abstract void ClientDisconnect();
 
         // server
-        [Header("Server Events")]
-        public UnityEventInt OnServerConnected;
-        public UnityEventIntByteArray OnServerDataReceived;
-        public UnityEventIntException OnServerError;
-        public UnityEventInt OnServerDisconnected;
+        [HideInInspector] public UnityEventInt OnServerConnected;
+        [HideInInspector] public UnityEventIntByteArray OnServerDataReceived;
+        [HideInInspector] public UnityEventIntException OnServerError;
+        [HideInInspector] public UnityEventInt OnServerDisconnected;
 
         public abstract bool ServerActive();
         public abstract void ServerStart();
