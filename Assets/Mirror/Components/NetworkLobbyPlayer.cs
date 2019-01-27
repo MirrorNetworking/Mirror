@@ -20,14 +20,36 @@ namespace Mirror.Components.NetworkLobby
         void Start()
         {
             DontDestroyOnLoad(gameObject);
+			if (isClient)
+			{
+				SceneManager.sceneLoaded += ClientLoadedScene;
+			}
         }
 
-        public override void OnStartClient()
+		private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+		{
+			var lobby = NetworkManager.singleton as NetworkLobbyManager;
+			if (lobby)
+			{
+				// dont even try this in the startup scene
+				string loadedSceneName = SceneManager.GetSceneAt(0).name;
+				if (loadedSceneName == lobby.LobbyScene)
+				{
+					return;
+				}
+			}
+
+			if (isLocalPlayer)
+			{
+				CmdSendLevelLoaded();
+			}
+		}
+
+		public override void OnStartClient()
         {
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
-                //lobby.lobbySlots[Slot] = this;
                 ReadyToBegin = false;
                 OnClientEnterLobby();
             }
@@ -48,24 +70,15 @@ namespace Mirror.Components.NetworkLobby
 			}
 		}
 
-        void OnLevelWasLoaded()
-        {
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                // dont even try this in the startup scene
-                string loadedSceneName = SceneManager.GetSceneAt(0).name;
-                if (loadedSceneName == lobby.LobbyScene)
-                {
-                    return;
-                }
-            }
-
-            if (isLocalPlayer)
-            {
-                //SendSceneLoadedMessage();
-            }
-        }
+		[Command]
+		public void CmdSendLevelLoaded()
+		{
+			var lobby = NetworkManager.singleton as NetworkLobbyManager;
+			if (lobby)
+			{
+				lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
+			}
+		}
 
         public void RemovePlayer()
         {

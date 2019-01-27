@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -30,9 +31,6 @@ namespace Mirror.Components.NetworkLobby
 		// runtime data
 		List<PendingPlayer> m_PendingPlayers = new List<PendingPlayer>();
         public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
-
-        // static message objects to avoid runtime-allocations
-        static IntegerMessage s_SceneLoadedMessage = new IntegerMessage();
 
         public override void OnValidate()
         {
@@ -73,6 +71,15 @@ namespace Mirror.Components.NetworkLobby
 
             base.OnValidate();
         }
+
+		internal void PlayerLoadedScene(NetworkConnection conn)
+		{
+			if (LogFilter.Debug) { Debug.Log("NetworkLobbyManager OnSceneLoadedMessage"); }
+
+			NetworkIdentity lobbyController = conn.playerController;
+
+			SceneLoadedForPlayer(conn, lobbyController.gameObject);
+		}
 
 		internal void ReadyStatusChanged()
 		{
@@ -359,16 +366,10 @@ namespace Mirror.Components.NetworkLobby
             OnLobbyServerSceneChanged(sceneName);
         }
 
-        void OnServerSceneLoadedMessage(NetworkMessage netMsg)
-        {
-            if (LogFilter.Debug) { Debug.Log("NetworkLobbyManager OnSceneLoadedMessage"); }
-
-            netMsg.ReadMessage(s_SceneLoadedMessage);
-
-            NetworkIdentity lobbyController = netMsg.conn.playerController;
-
-            SceneLoadedForPlayer(netMsg.conn, lobbyController.gameObject);
-        }
+        //void OnServerSceneLoadedMessage(NetworkMessage netMsg)
+        //{
+            
+        //}
 
         void OnServerReturnToLobbyMessage(NetworkMessage netMsg)
         {
@@ -391,7 +392,6 @@ namespace Mirror.Components.NetworkLobby
                 return;
             }
 
-            NetworkServer.RegisterHandler((short)MsgType.LobbySceneLoaded, OnServerSceneLoadedMessage);
             NetworkServer.RegisterHandler((short)MsgType.LobbyReturnToLobby, OnServerReturnToLobbyMessage);
 
             OnLobbyStartServer();
