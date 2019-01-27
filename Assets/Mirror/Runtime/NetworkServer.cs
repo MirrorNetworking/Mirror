@@ -325,7 +325,7 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count <= s_MaxConnections)
+            if (connections.Count < s_MaxConnections)
             {
                 // get ip address from connection
                 string address;
