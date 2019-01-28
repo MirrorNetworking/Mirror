@@ -26,11 +26,11 @@ using Mirror;
 
 public class MyNetworkManager : NetworkManager
 {
-    public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+    public override void OnServerAddPlayer(NetworkConnection conn)
     {
         GameObject player = (GameObject)Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
         player.GetComponent<Player>().color = Color.red;
-        NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+        NetworkServer.AddPlayerForConnection(conn, player, conn.playerControllerId);
     }
 }
 ```
