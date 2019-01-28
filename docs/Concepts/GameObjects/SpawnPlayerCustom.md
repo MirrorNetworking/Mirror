@@ -37,8 +37,6 @@ public class MyNetworkManager : NetworkManager
 
 The function `NetworkServer.AddPlayerForConnection` does not have to be called from within `OnServerAddPlayer`. As long as the correct connection object and `playerControllerId` are passed in, it can be called after `OnServerAddPlayer` has returned. This allows asynchronous steps to happen in between, such as loading player data from a remote data source.
 
-Although in most multiplayer games, you typically want one player for each client, the HLAPI, you might need multiple player GameObjects for a single connection. When there are multiple players on one connection, you should use the `playerControllerId` property to tell them apart. This identifier is scoped to the connection, so that it maps to the ID of the controller associated with the player on that client.
-
 The system automatically spawns the player GameObject passed to `NetworkServer.AddPlayerForConnection` on the server, so you don’t need to call NetworkServer.Spawn for the player. Once a player is ready, the active networked GameObjects (that is, GameObjects with an associated NetworkIdentity) in the Scene spawn on the player’s client. All networked GameObjects in the game are created on that client with their latest state, so they are in sync with the other participants of the game.
 
 You don’t need to use playerPrefab on the `NetworkManager` to create player GameObjects. You could use different methods of creating different players.
