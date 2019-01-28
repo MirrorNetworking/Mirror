@@ -1,5 +1,7 @@
 # NetworkLobbyManager
 
+The NetworkLobbyManager is an extension of [NetworkManager](NetworkManager).
+
 Create a Lobby Scene, and a Game Scene if you don't already have one.
 
 In the Lobby Scene, add an empty game object called Lobby Manager and give it a NetworkLobbyManager component.  A Telepathy Transport component will be added automatically.
@@ -25,3 +27,5 @@ If you already have a Network Manager in your Game Scene you'll need to remove i
 Don't assign anything in the Lobby Slots list...that's for visualization in the inspector during testing only.
 
 This will do for the moment until I get a nicer doc added to the formal docs.
+
+![The Network Lobby Manager component, as viewed in the inspector](NetworkLobbyManager.png)
