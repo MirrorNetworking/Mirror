@@ -11,41 +11,35 @@ namespace Mirror.Components.NetworkLobby
 
         [SerializeField] public bool ShowLobbyGUI = true;
 
-		[SyncVar]
+        [SyncVar]
         public bool ReadyToBegin = false;
 
-		[SyncVar]
-		public int Index;
+        [SyncVar]
+        public int Index;
 
         void Start()
         {
             DontDestroyOnLoad(gameObject);
-			if (isClient)
-			{
-				SceneManager.sceneLoaded += ClientLoadedScene;
-			}
+            if (isClient)
+                SceneManager.sceneLoaded += ClientLoadedScene;
         }
 
-		private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
-		{
-			var lobby = NetworkManager.singleton as NetworkLobbyManager;
-			if (lobby)
-			{
-				// dont even try this in the startup scene
-				string loadedSceneName = SceneManager.GetSceneAt(0).name;
-				if (loadedSceneName == lobby.LobbyScene)
-				{
-					return;
-				}
-			}
+        private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+        {
+            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            if (lobby)
+            {
+                // dont even try this in the startup scene
+                string loadedSceneName = SceneManager.GetSceneAt(0).name;
+                if (loadedSceneName == lobby.LobbyScene)
+                    return;
+            }
 
-			if (isLocalPlayer)
-			{
-				CmdSendLevelLoaded();
-			}
-		}
+            if (isLocalPlayer)
+                CmdSendLevelLoaded();
+        }
 
-		public override void OnStartClient()
+        public override void OnStartClient()
         {
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
@@ -54,31 +48,25 @@ namespace Mirror.Components.NetworkLobby
                 OnClientEnterLobby();
             }
             else
-            {
                 Debug.LogError("LobbyPlayer could not find a NetworkLobbyManager. The LobbyPlayer requires a NetworkLobbyManager object to function. Make sure that there is one in the scene.");
-            }
         }
 
-		[Command]
-		public void CmdChangeReadyState(bool ReadyState)
-		{
-			ReadyToBegin = ReadyState;
-			var lobby = NetworkManager.singleton as NetworkLobbyManager;
-			if (lobby)
-			{
-				lobby.ReadyStatusChanged();
-			}
-		}
+        [Command]
+        public void CmdChangeReadyState(bool ReadyState)
+        {
+            ReadyToBegin = ReadyState;
+            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            if (lobby)
+                lobby.ReadyStatusChanged();
+        }
 
-		[Command]
-		public void CmdSendLevelLoaded()
-		{
-			var lobby = NetworkManager.singleton as NetworkLobbyManager;
-			if (lobby)
-			{
-				lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
-			}
-		}
+        [Command]
+        public void CmdSendLevelLoaded()
+        {
+            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            if (lobby)
+                lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
+        }
 
         public void RemovePlayer()
         {
@@ -92,17 +80,11 @@ namespace Mirror.Components.NetworkLobby
 
         // ------------------------ callbacks ------------------------
 
-        public virtual void OnClientEnterLobby()
-        {
-        }
+        public virtual void OnClientEnterLobby() { }
 
-        public virtual void OnClientExitLobby()
-        {
-        }
+        public virtual void OnClientExitLobby() { }
 
-        public virtual void OnClientReady(bool readyState)
-        {
-        }
+        public virtual void OnClientReady(bool readyState) { }
 
         // ------------------------ optional UI ------------------------
 
@@ -122,49 +104,36 @@ namespace Mirror.Components.NetworkLobby
                     return;
             }
 
-            Rect rec = new Rect(100 + Index * 100, 200, 90, 20);
+            Rect rec = new Rect(20 + Index * 100, 200, 90, 20);
 
-            if (isLocalPlayer)
-            {
-                string youStr;
-                if (ReadyToBegin)
-                {
-                    youStr = "(Ready)";
-                }
-                else
-                {
-                    youStr = "(Not Ready)";
-                }
-                GUI.Label(rec, youStr);
+            GUI.Label(rec, String.Format("Player [{0}]", netId));
 
-                if (ReadyToBegin)
-                {
-                    rec.y += 25;
-                    if (GUI.Button(rec, "STOP"))
-                    {
-						CmdChangeReadyState(false);
-                    }
-                }
-                else
-                {
-                    rec.y += 25;
-                    if (GUI.Button(rec, "Ready"))
-                    {
-						CmdChangeReadyState(true);
-                    }
-
-                    rec.y += 25;
-                    if (GUI.Button(rec, "Remove"))
-                    {
-                        ClientScene.RemovePlayer();
-                    }
-                }
-            }
+            rec.y += 25;
+            if (ReadyToBegin)
+                GUI.Label(rec, "  Ready");
             else
+                GUI.Label(rec, "Not Ready");
+
+            rec.y += 25;
+            if (isServer && GUI.Button(rec, "REMOVE"))
             {
-                GUI.Label(rec, "Player [" + netId + "]");
-                rec.y += 25;
-                GUI.Label(rec, "Ready [" + ReadyToBegin + "]");
+                Debug.Log("Need code for Host to kick player correctly");
+            }
+
+            if (NetworkClient.active && isLocalPlayer)
+            {
+                Rect readyCancelRect = new Rect(20, 300, 120, 20);
+
+                if (ReadyToBegin)
+                {
+                    if (GUI.Button(readyCancelRect, "Cancel"))
+                        CmdChangeReadyState(false);
+                }
+                else
+                {
+                    if (GUI.Button(readyCancelRect, "Ready"))
+                        CmdChangeReadyState(true);
+                }
             }
         }
     }
