@@ -24,6 +24,11 @@ namespace Mirror.Components.NetworkLobby
                 SceneManager.sceneLoaded += ClientLoadedScene;
         }
 
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= ClientLoadedScene;
+        }
+
         private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
@@ -35,7 +40,7 @@ namespace Mirror.Components.NetworkLobby
                     return;
             }
 
-            if (isLocalPlayer)
+            if (this != null && isLocalPlayer)
                 CmdSendLevelLoaded();
         }
 
@@ -106,7 +111,7 @@ namespace Mirror.Components.NetworkLobby
 
             Rect rec = new Rect(20 + Index * 100, 200, 90, 20);
 
-            GUI.Label(rec, String.Format("Player [{0}]", netId));
+            GUI.Label(rec, String.Format("Player [{0}]", Index + 1));
 
             rec.y += 25;
             if (ReadyToBegin)
@@ -115,9 +120,12 @@ namespace Mirror.Components.NetworkLobby
                 GUI.Label(rec, "Not Ready");
 
             rec.y += 25;
-            if (isServer && GUI.Button(rec, "REMOVE"))
+            if (isServer && Index > 0 && GUI.Button(rec, "REMOVE"))
             {
-                Debug.Log("Need code for Host to kick player correctly");
+                // This button only shows on the Host for all players other than the Host
+                // Host and Players can't remove themselves (stop the client instead)
+                // Host can kick a Player this way.
+                GetComponent<NetworkIdentity>().clientAuthorityOwner.Disconnect();
             }
 
             if (NetworkClient.active && isLocalPlayer)

@@ -225,20 +225,21 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
+            var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
+
+            lobbySlots.Remove(player);
+
+            foreach (var p in lobbySlots)
+            {
+                if (p != null)
+                    p.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
+            }
+
             base.OnServerDisconnect(conn);
 
-            // if lobbyplayer for this connection has not been destroyed by now, then destroy it here
-            for (int i = 0; i < lobbySlots.Count; i++)
+            if (conn.playerController != null)
             {
-                var player = lobbySlots[i];
-                if (player == null)
-                    continue;
-
-                if (player.connectionToClient == conn)
-                {
-                    lobbySlots[i] = null;
-                    NetworkServer.Destroy(player.gameObject);
-                }
+                NetworkServer.Destroy(conn.playerController.gameObject);
             }
 
             OnLobbyServerDisconnect(conn);
@@ -268,25 +269,13 @@ namespace Mirror.Components.NetworkLobby
 
         private void RecalculateLobbyPlayerIndices()
         {
-            for (int i = 0; i < lobbySlots.Count; i++)
+            if (lobbySlots.Count > 0)
             {
-                lobbySlots[i].Index = i;
+                for (int i = 0; i < lobbySlots.Count; i++)
+                {
+                    lobbySlots[i].Index = i;
+                }
             }
-        }
-
-        public override void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
-        {
-            var netLobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
-            lobbySlots.Remove(netLobbyPlayer);
-            base.OnServerRemovePlayer(conn, player);
-
-            foreach (var p in lobbySlots)
-            {
-                if (p != null)
-                    p.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
-            }
-
-            OnLobbyServerPlayerRemoved(conn);
         }
 
         public override void ServerChangeScene(string sceneName)
@@ -331,11 +320,6 @@ namespace Mirror.Components.NetworkLobby
             OnLobbyServerSceneChanged(sceneName);
         }
 
-        //void OnServerSceneLoadedMessage(NetworkMessage netMsg)
-        //{
-
-        //}
-
         void OnServerReturnToLobbyMessage(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkLobbyManager OnServerReturnToLobbyMessage"); }
@@ -363,6 +347,12 @@ namespace Mirror.Components.NetworkLobby
         public override void OnStartHost()
         {
             OnLobbyStartHost();
+        }
+
+        public override void OnStopServer()
+        {
+            lobbySlots.Clear();
+            base.OnStopServer();
         }
 
         public override void OnStopHost()
@@ -453,8 +443,6 @@ namespace Mirror.Components.NetworkLobby
         {
             return null;
         }
-
-        public virtual void OnLobbyServerPlayerRemoved(NetworkConnection conn) { }
 
         // for users to apply settings from their lobby player object to their in-game player object
         public virtual bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
