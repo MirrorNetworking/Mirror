@@ -396,12 +396,12 @@ namespace Mirror
             }
 
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
-            // the sate as soon as the load is finishing, causing all kinds of bugs because of missing state.
+            // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
             if (client != null)
             {
                 if (LogFilter.Debug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
-                NetworkClient.pauseMessageHandling = true;
+                NetworkManager.singleton.transport.enabled = false;
             }
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
@@ -416,7 +416,7 @@ namespace Mirror
             {
                 // process queued messages that we received while loading the scene
                 if (LogFilter.Debug) { Debug.Log("FinishLoadScene: resuming handlers after scene was loading."); }
-                NetworkClient.pauseMessageHandling = false;
+                NetworkManager.singleton.transport.enabled = true;
 
                 if (s_ClientReadyConnection != null)
                 {
