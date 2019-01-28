@@ -28,4 +28,4 @@ Don't assign anything in the Lobby Slots list...that's for visualization in the 
 
 This will do for the moment until I get a nicer doc added to the formal docs.
 
-![The Network Lobby Manager component, as viewed in the inspector](NetworkLobbyManager.png)
+![The Network Lobby Manager component, as viewed in the inspector](NetworkLobbyManager.PNG)
