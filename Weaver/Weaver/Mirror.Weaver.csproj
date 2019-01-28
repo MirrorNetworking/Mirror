@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{709222FD-15C2-497D-8B31-366ADCC074CD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Mirror.Weaver</RootNamespace>
+    <AssemblyName>Mirror.Weaver</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>4</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Unity.Cecil">
+      <HintPath>..\External\Unity.Cecil\lib\net35\Unity.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Cecil.Mdb">
+      <HintPath>..\External\Unity.Cecil\lib\net35\Unity.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Cecil.Pdb">
+      <HintPath>..\External\Unity.Cecil\lib\net35\Unity.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>..\lib\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\lib\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Processors\MessageClassProcessor.cs" />
+    <Compile Include="Processors\MonoBehaviourProcessor.cs" />
+    <Compile Include="Processors\CommandProcessor.cs" />
+    <Compile Include="Processors\NetworkBehaviourProcessor.cs" />
+    <Compile Include="Processors\RpcProcessor.cs" />
+    <Compile Include="Processors\SyncEventProcessor.cs" />
+    <Compile Include="Processors\SyncListProcessor.cs" />
+    <Compile Include="Processors\SyncObjectProcessor.cs" />
+    <Compile Include="Processors\SyncVarProcessor.cs" />
+    <Compile Include="Processors\TargetRpcProcessor.cs" />
+    <Compile Include="Processors\SyncListStructProcessor.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Resolvers.cs" />
+    <Compile Include="Weaver.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="CompilationFinishedHook.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <CecilFiles Include="$(TargetDir)Unity.Cecil.*" />
+  </ItemGroup>
+  <Target Name="AfterBuild">
+    <MakeDir Directories="$(ProjectDir)..\..\Assets\Mirror\Plugins" />
+    <MakeDir Directories="$(ProjectDir)..\..\Assets\Mirror\Plugins\Unity.Cecil" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFiles="$(ProjectDir)..\..\Assets\Mirror\Plugins\$(TargetName).dll" />
+    <Copy SourceFiles="@(CecilFiles)" DestinationFolder="$(ProjectDir)..\..\Assets\Mirror\Plugins\Unity.Cecil" />
+    <Copy Condition="Exists('$(TargetDir)$(TargetName).dll.mdb')" SourceFiles="$(TargetDir)$(TargetName).dll.mdb" DestinationFiles="$(ProjectDir)..\..\Assets\Mirror\Plugins\$(TargetName).dll.mdb" />
+    <Copy Condition="Exists('$(TargetDir)$(TargetName).pdb')" SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFiles="$(ProjectDir)..\..\Assets\Mirror\Plugins\$(TargetName).pdb" />
+  </Target>
+</Project>
