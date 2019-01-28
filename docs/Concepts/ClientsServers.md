@@ -60,7 +60,7 @@ public void SetupClient()
 {
     myClient = new NetworkClient();
     myClient.RegisterHandler(MsgType.Connect, OnConnected);     
-    myClient.Connect("127.0.0.1", 4444);
+    myClient.Connect("127.0.0.1");
     isAtStartup = false;
 }
 
