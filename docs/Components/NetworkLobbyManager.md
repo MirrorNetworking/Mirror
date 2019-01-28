@@ -8,11 +8,11 @@ In the Lobby Scene, add an empty game object called Lobby Manager and give it a 
 
 Also add a NetworkManagerHUD component to Lobby Manager.
 
-Save the Lobby Scene, and then drag it to the Lobby Scene field in Lobby Manager.
+Save the Lobby Scene, and then drag it to **both** the Offline Scene field and the Lobby Scene field in Lobby Manager.
 
 Drag your Game Scene to the Gameplay Scene field in Lobby Manager.
 
-NOTE: Offline and Online Scene are separate from Lobby and Gameplay Scene...do not assign anything to Offline or Online Scene!
+NOTE: Offline and Online Scene are separate from Lobby and Gameplay Scene... **do not** assign anything to Online Scene or the Lobby will be bypassed!
 
 Create an empty game object in the scene called LobbyPlayer and give it a NetworkLobbyPlayer component.  A Network Identity component will be added automatically.  In the Network Identity component, check the box for Local Player Authority.
 
