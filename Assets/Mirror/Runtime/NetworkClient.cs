@@ -11,8 +11,6 @@ namespace Mirror
         public static List<NetworkClient> allClients = new List<NetworkClient>();
         public static bool active { get { return s_IsActive; } }
 
-        public static bool pauseMessageHandling;
-
         string m_ServerIp = "";
         int m_ClientId = -1;
 
@@ -74,12 +72,63 @@ namespace Mirror
             m_Connection.SetHandlers(handlers);
         }
 
+        private void InitializeTransportHandlers()
+        {
+            // TODO do this in inspector?
+            NetworkManager.singleton.transport.OnClientConnected.AddListener(OnConnected);
+            NetworkManager.singleton.transport.OnClientDataReceived.AddListener(OnDataReceived);
+            NetworkManager.singleton.transport.OnClientDisconnected.AddListener(OnDisconnected);
+            NetworkManager.singleton.transport.OnClientError.AddListener(OnError);
+        }
+
+        void OnError(Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+
+        void OnDisconnected()
+        {
+            connectState = ConnectState.Disconnected;
+
+            ClientScene.HandleClientDisconnect(m_Connection);
+            if (m_Connection != null)
+            {
+                m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
+            }
+        }
+
+        void OnDataReceived(byte[] data)
+        {
+            if (m_Connection != null)
+            {
+                m_Connection.TransportReceive(data);
+            }
+            else Debug.LogError("Skipped Data message handling because m_Connection is null.");
+        }
+
+        void OnConnected()
+        {
+            if (m_Connection != null)
+            {
+                // reset network time stats
+                NetworkTime.Reset();
+
+                // the handler may want to send messages to the client
+                // thus we should set the connected state before calling the handler
+                connectState = ConnectState.Connected;
+                NetworkTime.UpdateClient(this);
+                m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
+            }
+            else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
+        }
+
         void PrepareForConnect()
         {
             SetActive(true);
             RegisterSystemHandlers(false);
             m_ClientId = 0;
-            pauseMessageHandling = false;
+            NetworkManager.singleton.transport.enabled = true;
+            InitializeTransportHandlers();
         }
 
         public virtual void Disconnect()
@@ -92,7 +141,17 @@ namespace Mirror
                 m_Connection.Dispose();
                 m_Connection = null;
                 m_ClientId = -1;
+                RemoveTransportHandlers();
             }
+        }
+
+        void RemoveTransportHandlers()
+        {
+            // so that we don't register them more than once
+            NetworkManager.singleton.transport.OnClientConnected.RemoveListener(OnConnected);
+            NetworkManager.singleton.transport.OnClientDataReceived.RemoveListener(OnDataReceived);
+            NetworkManager.singleton.transport.OnClientDisconnected.RemoveListener(OnDisconnected);
+            NetworkManager.singleton.transport.OnClientError.RemoveListener(OnError);
         }
 
         public bool Send(short msgType, MessageBase msg)
@@ -137,75 +196,9 @@ namespace Mirror
                 return;
             }
 
-            // pause message handling while a scene load is in progress
-            //
-            // problem:
-            //   if we handle packets (calling the msgDelegates) while a
-            //   scene load is in progress, then all the handled data and state
-            //   will be lost as soon as the scene load is finished, causing
-            //   state bugs.
-            //
-            // solution:
-            //   don't handle messages until scene load is finished. the
-            //   transport layer will queue it automatically.
-            if (pauseMessageHandling)
-            {
-                Debug.Log("NetworkClient.Update paused during scene load...");
-                return;
-            }
-
             if (connectState == ConnectState.Connected)
             {
                 NetworkTime.UpdateClient(this);
-            }
-
-            // any new message?
-            // -> calling it once per frame is okay, but really why not just
-            //    process all messages and make it empty..
-            TransportEvent transportEvent;
-            byte[] data;
-            while (NetworkManager.singleton.transport.ClientGetNextMessage(out transportEvent, out data))
-            {
-                switch (transportEvent)
-                {
-                    case TransportEvent.Connected:
-                        //Debug.Log("NetworkClient loop: Connected");
-
-                        if (m_Connection != null)
-                        {
-                            // reset network time stats
-                            NetworkTime.Reset();
-
-                            // the handler may want to send messages to the client
-                            // thus we should set the connected state before calling the handler
-                            connectState = ConnectState.Connected;
-                            m_Connection.InvokeHandlerNoData((short) MsgType.Connect);
-                        }
-                        else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
-
-                        break;
-                    case TransportEvent.Data:
-                        //Debug.Log("NetworkClient loop: Data: " + BitConverter.ToString(data));
-
-                        if (m_Connection != null)
-                        {
-                            m_Connection.TransportReceive(data);
-                        }
-                        else Debug.LogError("Skipped Data message handling because m_Connection is null.");
-
-                        break;
-                    case TransportEvent.Disconnected:
-                        //Debug.Log("NetworkClient loop: Disconnected");
-                        connectState = ConnectState.Disconnected;
-
-                        //GenerateDisconnectError(error); TODO which one?
-                        ClientScene.HandleClientDisconnect(m_Connection);
-                        if (m_Connection != null)
-                        {
-                            m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
-                        }
-                        break;
-                }
             }
         }
 

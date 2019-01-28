@@ -1,4 +1,5 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
+using System;
 using UnityEngine;
 namespace Mirror
 {
@@ -35,7 +36,8 @@ namespace Mirror
         public override bool ClientConnected() { return client.Connected; }
         public override void ClientConnect(string address) { client.Connect(address, port); }
         public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public override bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+
+        bool ProcessClientMessage()
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -44,35 +46,37 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        OnClientConnected.Invoke();
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        OnClientDataReceived.Invoke(message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        OnClientDisconnected.Invoke();
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO:  Telepathy does not report errors at all
+                        // it just disconnects,  should be fixed
+                        OnClientDisconnected.Invoke();
                         break;
                 }
-
-                // assign rest of the values and return true
-                data = message.data;
                 return true;
             }
-
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
         public override void ClientDisconnect() { client.Disconnect(); }
+
+        public void Update()
+        {
+            while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
+        }
 
         // server
         public override bool ServerActive() { return server.Active; }
         public override void ServerStart() { server.Start(port); }
         public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public override bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessServerMessage()
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -81,28 +85,21 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        OnServerConnected.Invoke(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        OnServerDataReceived.Invoke(message.connectionId, message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        OnServerDisconnected.Invoke(message.connectionId);
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO handle errors from Telepathy when telepathy can report errors
+                        OnServerDisconnected.Invoke(message.connectionId);
                         break;
                 }
-
-                // assign rest of the values and return true
-                connectionId = message.connectionId;
-                data = message.data;
                 return true;
             }
-
-            connectionId = -1;
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
         public override bool ServerDisconnect(int connectionId) { return server.Disconnect(connectionId); }
