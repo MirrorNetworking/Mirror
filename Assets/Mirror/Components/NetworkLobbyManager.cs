@@ -224,7 +224,7 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
-            if (conn == null || conn.playerController == null || conn.playerController.gameObject)
+            if (conn == null || conn.playerController == null || conn.playerController.gameObject == null)
                 return;
 
             var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
