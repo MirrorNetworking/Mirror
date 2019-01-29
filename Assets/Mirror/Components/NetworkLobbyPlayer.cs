@@ -8,7 +8,6 @@ namespace Mirror.Components.NetworkLobby
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
-
         [SerializeField] public bool ShowLobbyGUI = true;
 
         [SyncVar]
@@ -73,16 +72,6 @@ namespace Mirror.Components.NetworkLobby
                 lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
         }
 
-        public void RemovePlayer()
-        {
-            if (isLocalPlayer && !ReadyToBegin)
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkLobbyPlayer RemovePlayer"); }
-
-                ClientScene.RemovePlayer();
-            }
-        }
-
         // ------------------------ callbacks ------------------------
 
         public virtual void OnClientEnterLobby() { }
@@ -101,7 +90,7 @@ namespace Mirror.Components.NetworkLobby
             var lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
-                if (!lobby.m_ShowLobbyGUI)
+                if (!lobby.showLobbyGUI)
                     return;
 
                 string loadedSceneName = SceneManager.GetSceneAt(0).name;
@@ -115,7 +104,7 @@ namespace Mirror.Components.NetworkLobby
 
             rec.y += 25;
             if (ReadyToBegin)
-                GUI.Label(rec, "  Ready");
+                GUI.Label(rec, "Ready");
             else
                 GUI.Label(rec, "Not Ready");
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Mirror.Components.NetworkLobby
 {
@@ -17,10 +18,9 @@ namespace Mirror.Components.NetworkLobby
         }
 
         // configuration
-        [SerializeField] internal bool m_ShowLobbyGUI = true;
-        [SerializeField] int m_MaxPlayers = 4;
-        [SerializeField] int m_MinPlayers;
-        [SerializeField] NetworkLobbyPlayer m_LobbyPlayerPrefab;
+        [FormerlySerializedAs("m_ShowLobbyGUI")] [SerializeField] internal bool showLobbyGUI = true;
+        [FormerlySerializedAs("m_MinPlayers")] [SerializeField] int minPlayers = 1;
+        [FormerlySerializedAs("m_LobbyPlayerPrefab")] [SerializeField] NetworkLobbyPlayer lobbyPlayerPrefab;
 
         [SerializeField, Scene]
         internal string LobbyScene;
@@ -29,26 +29,25 @@ namespace Mirror.Components.NetworkLobby
         internal string GameplayScene;
 
         // runtime data
-        List<PendingPlayer> m_PendingPlayers = new List<PendingPlayer>();
+        [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
         public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
         public override void OnValidate()
         {
-            if (m_MaxPlayers <= 0)
-                m_MaxPlayers = 1;
+            //if (maxConnections <= 0)
+            //    maxConnections = 1;
 
-            if (m_MinPlayers < 0)
-                m_MinPlayers = 0;
+            minPlayers = Mathf.Max(minPlayers, 0); // always >= 0
 
-            if (m_MinPlayers > m_MaxPlayers)
-                m_MinPlayers = m_MaxPlayers;
+            if (minPlayers > maxConnections)
+                minPlayers = maxConnections;
 
-            if (m_LobbyPlayerPrefab != null)
+            if (lobbyPlayerPrefab != null)
             {
-                var uv = m_LobbyPlayerPrefab.GetComponent<NetworkIdentity>();
+                var uv = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
                 if (uv == null)
                 {
-                    m_LobbyPlayerPrefab = null;
+                    lobbyPlayerPrefab = null;
                     Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
                 }
             }
@@ -111,7 +110,7 @@ namespace Mirror.Components.NetworkLobby
                 PendingPlayer pending;
                 pending.conn = conn;
                 pending.lobbyPlayer = lobbyPlayerGameObject;
-                m_PendingPlayers.Add(pending);
+                pendingPlayers.Add(pending);
                 return;
             }
 
@@ -160,10 +159,10 @@ namespace Mirror.Components.NetworkLobby
                 readyCount += CheckConnectionIsReadyToBegin(conn.Value);
             }
 
-            if (m_MinPlayers > 0 && readyCount < m_MinPlayers)
+            if (minPlayers > 0 && readyCount < minPlayers)
                 return;
 
-            m_PendingPlayers.Clear();
+            pendingPlayers.Clear();
             OnLobbyServerPlayersReady();
         }
 
@@ -205,7 +204,7 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerConnect(NetworkConnection conn)
         {
-            if (numPlayers >= m_MaxPlayers)
+            if (numPlayers >= maxConnections)
             {
                 conn.Disconnect();
                 return;
@@ -225,7 +224,13 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
+            if (conn == null || conn.playerController == null || conn.playerController.gameObject)
+                return;
+
             var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
+
+            if (player == null)
+                return;
 
             lobbySlots.Remove(player);
 
@@ -236,12 +241,6 @@ namespace Mirror.Components.NetworkLobby
             }
 
             base.OnServerDisconnect(conn);
-
-            if (conn.playerController != null)
-            {
-                NetworkServer.Destroy(conn.playerController.gameObject);
-            }
-
             OnLobbyServerDisconnect(conn);
         }
 
@@ -251,12 +250,12 @@ namespace Mirror.Components.NetworkLobby
             if (loadedSceneName != LobbyScene)
                 return;
 
-            if (lobbySlots.Count == m_MaxPlayers)
+            if (lobbySlots.Count == maxConnections)
                 return;
 
             var newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)
-                newLobbyGameObject = (GameObject)Instantiate(m_LobbyPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
+                newLobbyGameObject = (GameObject)Instantiate(lobbyPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
             var newLobbyPlayer = newLobbyGameObject.GetComponent<NetworkLobbyPlayer>();
 
@@ -309,12 +308,12 @@ namespace Mirror.Components.NetworkLobby
             if (sceneName != LobbyScene)
             {
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
-                foreach (var pending in m_PendingPlayers)
+                foreach (var pending in pendingPlayers)
                 {
                     SceneLoadedForPlayer(pending.conn, pending.lobbyPlayer);
                 }
 
-                m_PendingPlayers.Clear();
+                pendingPlayers.Clear();
             }
 
             OnLobbyServerSceneChanged(sceneName);
@@ -365,13 +364,13 @@ namespace Mirror.Components.NetworkLobby
         public override void OnStartClient(NetworkClient lobbyClient)
         {
 
-            if (m_LobbyPlayerPrefab == null || m_LobbyPlayerPrefab.gameObject == null)
+            if (lobbyPlayerPrefab == null || lobbyPlayerPrefab.gameObject == null)
             {
                 if (LogFilter.Debug) { Debug.LogError("NetworkLobbyManager no LobbyPlayer prefab is registered. Please add a LobbyPlayer prefab."); }
             }
             else
             {
-                ClientScene.RegisterPrefab(m_LobbyPlayerPrefab.gameObject);
+                ClientScene.RegisterPrefab(lobbyPlayerPrefab.gameObject);
             }
 
             if (playerPrefab == null)
@@ -479,14 +478,14 @@ namespace Mirror.Components.NetworkLobby
 
         void OnGUI()
         {
-            if (!m_ShowLobbyGUI)
+            if (!showLobbyGUI)
                 return;
 
             string loadedSceneName = SceneManager.GetSceneAt(0).name;
             if (loadedSceneName != LobbyScene)
                 return;
 
-            Rect backgroundRec = new Rect(10, 180, 500, 150);
+            Rect backgroundRec = new Rect(10, 180, 520, 150);
             GUI.Box(backgroundRec, "PLAYERS");
         }
     }
