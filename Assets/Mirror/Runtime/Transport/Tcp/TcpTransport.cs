@@ -11,7 +11,10 @@ namespace Mirror.Tcp
 
         public int port = 7777;
 
-        public TcpTransport()
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        public bool NoDelay = true;
+
+        public void Awake()
         {
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
@@ -24,6 +27,10 @@ namespace Mirror.Tcp
             client.Disconnected += () => OnClientDisconnected.Invoke();
             client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
+
+            // configure
+            client.NoDelay = NoDelay;
+            server.NoDelay = NoDelay;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
