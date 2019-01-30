@@ -22,9 +22,9 @@ namespace Mirror
 
         static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
-        public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
-        public static bool ready { get { return s_IsReady; } }
-        public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
+        public static NetworkIdentity localPlayer => s_LocalPlayer;
+        public static bool ready => s_IsReady;
+        public static NetworkConnection readyConnection => s_ReadyConnection;
 
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
         // scene id to NetworkIdentity
@@ -363,7 +363,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
-                if (identity.gameObject != null)
+                if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                     {

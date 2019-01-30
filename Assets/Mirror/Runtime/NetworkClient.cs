@@ -9,7 +9,7 @@ namespace Mirror
         static bool s_IsActive;
 
         public static List<NetworkClient> allClients = new List<NetworkClient>();
-        public static bool active { get { return s_IsActive; } }
+        public static bool active => s_IsActive;
 
         string m_ServerIp = "";
         int m_ClientId = -1;
@@ -31,11 +31,11 @@ namespace Mirror
             conn.SetHandlers(handlers);
         }
 
-        public string serverIp { get { return m_ServerIp; } }
+        public string serverIp => m_ServerIp; 
         public ushort hostPort;
-        public NetworkConnection connection { get { return m_Connection; } }
+        public NetworkConnection connection => m_Connection;
 
-        public bool isConnected { get { return connectState == ConnectState.Connected; } }
+        public bool isConnected => connectState == ConnectState.Connected;
 
         public NetworkClient()
         {
@@ -229,17 +229,21 @@ namespace Mirror
             NetworkMessageDelegate msgDelegate;
             if (handlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
-                ErrorMessage msg = new ErrorMessage();
-                msg.value = error;
+                ErrorMessage msg = new ErrorMessage
+                {
+                    value = error
+                };
 
                 // write the message to a local buffer
                 NetworkWriter writer = new NetworkWriter();
                 msg.Serialize(writer);
 
-                NetworkMessage netMsg = new NetworkMessage();
-                netMsg.msgType = (short)MsgType.Error;
-                netMsg.reader = new NetworkReader(writer.ToArray());
-                netMsg.conn = m_Connection;
+                NetworkMessage netMsg = new NetworkMessage
+                {
+                    msgType = (short)MsgType.Error,
+                    reader = new NetworkReader(writer.ToArray()),
+                    conn = m_Connection
+                };
                 msgDelegate(netMsg);
             }
         }
