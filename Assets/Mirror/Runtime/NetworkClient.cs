@@ -32,7 +32,6 @@ namespace Mirror
         }
 
         public string serverIp => m_ServerIp; 
-        public ushort hostPort;
         public NetworkConnection connection => m_Connection;
 
         public bool isConnected => connectState == ConnectState.Connected;
