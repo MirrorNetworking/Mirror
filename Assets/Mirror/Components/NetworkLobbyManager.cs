@@ -8,6 +8,7 @@ using UnityEngine.Serialization;
 namespace Mirror.Components.NetworkLobby
 {
     [AddComponentMenu("Network/NetworkLobbyManager")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyManager")]
     public class NetworkLobbyManager : NetworkManager
     {
 

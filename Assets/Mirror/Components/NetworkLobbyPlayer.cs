@@ -6,6 +6,7 @@ namespace Mirror.Components.NetworkLobby
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
         [SerializeField] public bool ShowLobbyGUI = true;
