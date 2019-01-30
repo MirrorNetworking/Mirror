@@ -82,6 +82,7 @@ namespace Mirror
             // headless mode? then start the server
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
+                Application.targetFrameRate = 60;
                 StartServer();
             }
         }
