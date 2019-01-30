@@ -252,7 +252,7 @@ namespace Mirror
             }
         }
 
-        public NetworkClient StartClient(ushort hostPort=0)
+        public NetworkClient StartClient()
         {
             InitializeSingleton();
 
@@ -261,10 +261,7 @@ namespace Mirror
 
             isNetworkActive = true;
 
-            client = new NetworkClient
-            {
-                hostPort = hostPort
-            };
+            client = new NetworkClient();
 
             RegisterClientMessages(client);
 
