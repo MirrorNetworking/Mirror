@@ -70,7 +70,7 @@ Mirror is developed by volunteers. If you like what we are doing, consider leavi
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## Contributing
-If you like to contribute, feel free to [submit pull requests](https://vis2k.github.io/Mirror/General/Contributions) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
+If you would like to contribute, feel free to [submit pull requests](https://vis2k.github.io/Mirror/General/Contributions) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
 
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
 
