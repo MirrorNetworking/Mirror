@@ -101,7 +101,7 @@ namespace Mirror.Components.NetworkLobby
                 return;
             }
 
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (LogFilter.Debug) { Debug.Log("NetworkLobby SceneLoadedForPlayer scene:" + loadedSceneName + " " + conn); }
 
             if (loadedSceneName == LobbyScene)
@@ -145,7 +145,7 @@ namespace Mirror.Components.NetworkLobby
 
         public void CheckReadyToBegin()
         {
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (loadedSceneName != LobbyScene)
                 return;
 
@@ -211,7 +211,7 @@ namespace Mirror.Components.NetworkLobby
             }
 
             // cannot join game in progress
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (loadedSceneName != LobbyScene)
             {
                 conn.Disconnect();
@@ -246,7 +246,7 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (loadedSceneName != LobbyScene)
                 return;
 
@@ -406,7 +406,7 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (loadedSceneName == LobbyScene)
             {
                 if (client.isConnected)
@@ -481,7 +481,7 @@ namespace Mirror.Components.NetworkLobby
             if (!showLobbyGUI)
                 return;
 
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (loadedSceneName != LobbyScene)
                 return;
 

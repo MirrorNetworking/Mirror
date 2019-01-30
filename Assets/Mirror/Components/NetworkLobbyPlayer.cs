@@ -34,7 +34,7 @@ namespace Mirror.Components.NetworkLobby
             if (lobby)
             {
                 // dont even try this in the startup scene
-                string loadedSceneName = SceneManager.GetSceneAt(0).name;
+                string loadedSceneName = SceneManager.GetActiveScene().name;
                 if (loadedSceneName == lobby.LobbyScene)
                     return;
             }
@@ -93,7 +93,7 @@ namespace Mirror.Components.NetworkLobby
                 if (!lobby.showLobbyGUI)
                     return;
 
-                string loadedSceneName = SceneManager.GetSceneAt(0).name;
+                string loadedSceneName = SceneManager.GetActiveScene().name;
                 if (loadedSceneName != lobby.LobbyScene)
                     return;
             }
