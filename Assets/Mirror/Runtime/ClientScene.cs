@@ -363,7 +363,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
-                if (identity.gameObject != null)
+                if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                     {
