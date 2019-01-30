@@ -12,8 +12,6 @@
       url: "/General/Deprecations"
     - title: "Support"
       url: "/General/Support"
-    - title: "Contributions"
-      url: "/General/Contributions"
 - title: "Concepts"
   children:
     - title: "Overview"

@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using UnityEngine;
 
 namespace Mirror
@@ -76,13 +74,12 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // client? then stop transport
-
-            NetworkManager.transport.ClientDisconnect();
+            NetworkManager.singleton.transport.ClientDisconnect();
 
             // server? then disconnect that client
-            if (NetworkManager.transport.ServerActive())
+            if (NetworkManager.singleton.transport.ServerActive())
             {
-                NetworkManager.transport.ServerDisconnect(connectionId);
+                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
 
             // remove observers. original HLAPI has hostId check for that too.
@@ -170,9 +167,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > NetworkManager.transport.GetMaxPacketSize(channelId))
+            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.transport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -278,17 +275,14 @@ namespace Mirror
 
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
-            if (NetworkManager.transport.ClientConnected())
+            if (NetworkManager.singleton.transport.ClientConnected())
             {
-                NetworkManager.transport.ClientSend(channelId, bytes);
-                return true;
+                return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
             }
-            else if (NetworkManager.transport.ServerActive())
+            else if (NetworkManager.singleton.transport.ServerActive())
             {
-                NetworkManager.transport.ServerSend(connectionId, channelId, bytes);
-                return true;
+                return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
             }
-
             return false;
         }
 

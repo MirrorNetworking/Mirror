@@ -13,7 +13,7 @@ using AOT;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror.Transport.Websocket
+namespace Mirror.Websocket
 {
     // this is the client implementation used by browsers
     public class Client 

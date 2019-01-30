@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
 
-namespace Mirror.Transport.Tcp
+namespace Mirror.Tcp
 {
     public class Server : Common
     {

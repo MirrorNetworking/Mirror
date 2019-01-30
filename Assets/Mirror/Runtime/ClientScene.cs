@@ -44,7 +44,7 @@ namespace Mirror
             s_IsReady = false;
             s_IsSpawnFinished = false;
 
-            NetworkManager.transport.ClientDisconnect();
+            NetworkManager.singleton.transport.ClientDisconnect();
         }
 
         // this is called from message handler for Owner message
@@ -78,6 +78,7 @@ namespace Mirror
         }
 
         // use this to implicitly become ready
+        // -> extraMessage can contain character selection, etc.
         public static bool AddPlayer(NetworkConnection readyConn, MessageBase extraMessage)
         {
             // ensure valid ready connection
@@ -143,7 +144,7 @@ namespace Mirror
 
             if (conn != null)
             {
-                var msg = new ReadyMessage();
+                ReadyMessage msg = new ReadyMessage();
                 conn.Send((short)MsgType.Ready, msg);
                 s_IsReady = true;
                 s_ReadyConnection = conn;
@@ -156,7 +157,7 @@ namespace Mirror
 
         public static NetworkClient ConnectLocalServer()
         {
-            var newClient = new LocalClient();
+            LocalClient newClient = new LocalClient();
             NetworkServer.ActivateLocalClientScene();
             newClient.InternalConnectLocalServer(true);
             return newClient;
@@ -220,6 +221,7 @@ namespace Mirror
                 // LocalClient shares the sim/scene with the server, no need for these events
                 client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
+                client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
                 client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
                 client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
@@ -358,9 +360,9 @@ namespace Mirror
 
         public static void DestroyAllClientObjects()
         {
-            foreach (uint netId in NetworkIdentity.spawned.Keys)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
-                NetworkIdentity identity = NetworkIdentity.spawned[netId];
+                NetworkIdentity identity = kvp.Value;
                 if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
@@ -401,7 +403,7 @@ namespace Mirror
             identity.transform.rotation = rotation;
             if (payload != null && payload.Length > 0)
             {
-                var payloadReader = new NetworkReader(payload);
+                NetworkReader payloadReader = new NetworkReader(payload);
                 identity.OnUpdateVars(payloadReader, true);
             }
 
@@ -501,7 +503,7 @@ namespace Mirror
             {
                 Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + spawnableObjects.Count);
                 // dump the whole spawnable objects dict for easier debugging
-                foreach (var kvp in spawnableObjects)
+                foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawnableObjects)
                     Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 return;
             }
@@ -511,17 +513,17 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
+        static void OnObjectSpawnStarted(NetworkMessage netMsg)
+        {
+            if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
+
+            PrepareToSpawnSceneObjects();
+            s_IsSpawnFinished = false;
+        }
+
         static void OnObjectSpawnFinished(NetworkMessage netMsg)
         {
-            ObjectSpawnFinishedMessage msg = netMsg.ReadMessage<ObjectSpawnFinishedMessage>();
-            if (LogFilter.Debug) { Debug.Log("SpawnFinished:" + msg.state); }
-
-            if (msg.state == 0)
-            {
-                PrepareToSpawnSceneObjects();
-                s_IsSpawnFinished = false;
-                return;
-            }
+            if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects

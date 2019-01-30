@@ -42,7 +42,7 @@ While SyncVars contain values, SyncLists contain lists of values. SyncList conte
 -   SyncListUInt
 -   SyncListBool
 
-There is also SyncListStruct, which you can use to synchronize lists of your own struct types. When using SyncListStruct, the struct type that you choose to use can contain members of basic types, arrays, and common Unity types. They cannot contain complex classes or generic containers, and only public variables in these structs are serialized.
+There is also SyncListSTRUCT, which you can use to synchronize lists of your own struct types. When using SyncListSTRUCT, the struct type that you choose to use can contain members of basic types, arrays, and common Unity types. They cannot contain complex classes or generic containers, and only public variables in these structs are serialized.
 
 SyncLists have a SyncListChanged delegate named Callback that allows clients to be notified when the contents of the list change. This delegate is called with the type of operation that occurred, and the index of the item that the operation was for.
 
@@ -56,7 +56,7 @@ public class MyScript : NetworkBehaviour
         public float timer;
     };
             
-    public class TestBufs : SyncListStruct<Buf> {}
+    public class TestBufs : SyncListSTRUCT<Buf> {}
 
     TestBufs m_bufs = new TestBufs();
     

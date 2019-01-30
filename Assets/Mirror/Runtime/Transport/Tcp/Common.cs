@@ -4,7 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Mirror.Transport.Tcp
+namespace Mirror.Tcp
 {
     public abstract class Common
     {

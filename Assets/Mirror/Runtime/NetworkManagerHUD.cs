@@ -3,7 +3,6 @@
 using System;
 using System.ComponentModel;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Mirror
 {
@@ -20,12 +19,6 @@ namespace Mirror
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
-
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
-            {
-                // headless mode. Just start the server
-                manager.StartServer();
-            }
         }
 
         void OnGUI()
@@ -73,7 +66,7 @@ namespace Mirror
                 else
                 {
                     // Connecting
-                    GUILayout.Label(NetworkManager.transport.ToString());
+                    GUILayout.Label("Connecting to " + manager.networkAddress + "..");
                     if (GUILayout.Button("Cancel Connection Attempt"))
                     {
                         manager.StopClient();
@@ -83,9 +76,13 @@ namespace Mirror
             else
             {
                 // server / client status message
-                if (NetworkServer.active || manager.IsClientConnected())
+                if (NetworkServer.active)
                 {
-                    GUILayout.Label(NetworkManager.transport.ToString());
+                    GUILayout.Label("Server: active. Transport: " + manager.transport);
+                }
+                if (manager.IsClientConnected())
+                {
+                    GUILayout.Label("Client: address=" + manager.networkAddress);
                 }
             }
 

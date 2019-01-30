@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Mirror.Transport.Tcp
+namespace Mirror.Tcp
 {
     public class Client : Common
     {

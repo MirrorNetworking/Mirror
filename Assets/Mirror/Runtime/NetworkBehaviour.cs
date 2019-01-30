@@ -138,7 +138,7 @@ namespace Mirror
             message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
-            NetworkServer.SendToReady(gameObject, (short)MsgType.Rpc, message, channelId);
+            NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -185,7 +185,7 @@ namespace Mirror
             message.functionHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
             message.payload = writer.ToArray();
 
-            NetworkServer.SendToReady(gameObject, (short)MsgType.SyncEvent, message, channelId);
+            NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -502,7 +502,7 @@ namespace Mirror
             return dirty;
         }
 
-        private void DeSerializeObjectsAll(NetworkReader reader)
+        void DeSerializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < m_SyncObjects.Count; i++)
             {
@@ -511,7 +511,7 @@ namespace Mirror
             }
         }
 
-        private void DeSerializeObjectsDelta(NetworkReader reader)
+        void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < m_SyncObjects.Count; i++)

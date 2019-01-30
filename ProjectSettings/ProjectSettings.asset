@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 15
-  productGUID: bb0f7d422b91e4aab8e0fe9838a26db0
+  productGUID: 01b9b62a7e3fd40e883e0828a30e7c92
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Repository
+  productName: Mirror2
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -63,12 +63,10 @@ PlayerSettings:
   use32BitDisplayBuffer: 1
   preserveFramebufferAlpha: 0
   disableDepthAndStencilBuffers: 0
-  androidStartInFullscreen: 1
-  androidRenderOutsideSafeArea: 0
   androidBlitType: 0
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
-  runInBackground: 1
+  runInBackground: 0
   captureSingleScreen: 0
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
@@ -98,6 +96,9 @@ PlayerSettings:
   xboxEnableGuest: 0
   xboxEnablePIXSampling: 0
   metalFramebufferOnly: 0
+  n3dsDisableStereoscopicView: 0
+  n3dsEnableSharedListOpt: 1
+  n3dsEnableVSync: 0
   xboxOneResolution: 0
   xboxOneSResolution: 0
   xboxOneXResolution: 3
@@ -106,7 +107,11 @@ PlayerSettings:
   xboxOneDisableEsram: 0
   xboxOnePresentImmediateThreshold: 0
   switchQueueCommandMemory: 0
+  videoMemoryForVertexBuffers: 0
+  psp2PowerMode: 0
+  psp2AcquireBGM: 1
   vulkanEnableSetSRGBWrite: 0
+  vulkanUseSWCommandBuffers: 0
   m_SupportedAspectRatios:
     4:3: 1
     5:4: 1
@@ -119,7 +124,7 @@ PlayerSettings:
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
   xboxOneDisableKinectGpuReservation: 0
-  xboxOneEnable7thCore: 0
+  xboxOneEnable7thCore: 1
   isWsaHolographicRemotingEnabled: 0
   vrSettings:
     cardboard:
@@ -136,11 +141,10 @@ PlayerSettings:
       depthFormat: 1
       depthBufferSharingEnabled: 0
     oculus:
-      sharedDepthBuffer: 0
-      dashSupport: 0
+      sharedDepthBuffer: 1
+      dashSupport: 1
     enable360StereoCapture: 0
   protectGraphicsMemory: 0
-  enableFrameTimingStats: 0
   useHDRDisplay: 0
   m_ColorGamuts: 00000000
   targetPixelDensity: 30
@@ -220,7 +224,7 @@ PlayerSettings:
   iOSURLSchemes: []
   iOSBackgroundModes: 0
   iOSMetalForceHardShadows: 0
-  metalEditorSupport: 0
+  metalEditorSupport: 1
   metalAPIValidation: 1
   iOSRenderExtraFrameOnPause: 0
   appleDeveloperTeamID: 
@@ -231,16 +235,17 @@ PlayerSettings:
   appleEnableAutomaticSigning: 0
   iOSRequireARKit: 0
   appleEnableProMotion: 0
+  vulkanEditorSupport: 0
   clonedFromGUID: 00000000000000000000000000000000
   templatePackageId: 
   templateDefaultScene: 
-  AndroidTargetArchitectures: 5
+  AndroidTargetArchitectures: 1
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: 
   AndroidKeyaliasName: 
   AndroidBuildApkPerCpuArchitecture: 0
-  AndroidTVCompatibility: 1
+  AndroidTVCompatibility: 0
   AndroidIsGame: 1
   AndroidEnableTango: 0
   androidEnableBanner: 1
@@ -388,7 +393,7 @@ PlayerSettings:
   switchAllowsRuntimeAddOnContentInstall: 0
   switchDataLossConfirmation: 0
   switchUserAccountLockEnabled: 0
-  switchSupportedNpadStyles: 3
+  switchSupportedNpadStyles: 6
   switchNativeFsCacheSize: 32
   switchIsHoldTypeHorizontal: 0
   switchSupportedNpadCount: 8
@@ -433,7 +438,7 @@ PlayerSettings:
   ps4RemotePlayKeyAssignment: -1
   ps4RemotePlayKeyMappingDir: 
   ps4PlayTogetherPlayerCount: 0
-  ps4EnterButtonAssignment: 1
+  ps4EnterButtonAssignment: 2
   ps4ApplicationParam1: 0
   ps4ApplicationParam2: 0
   ps4ApplicationParam3: 0
@@ -448,13 +453,12 @@ PlayerSettings:
   ps4pnGameCustomData: 1
   playerPrefsSupport: 0
   enableApplicationExit: 0
-  resetTempFolder: 1
   restrictedAudioUsageRights: 0
   ps4UseResolutionFallback: 0
   ps4ReprojectionSupport: 0
   ps4UseAudio3dBackend: 0
   ps4SocialScreenEnabled: 0
-  ps4ScriptOptimizationLevel: 0
+  ps4ScriptOptimizationLevel: 2
   ps4Audio3dVirtualSpeakerCount: 14
   ps4attribCpuUsage: 0
   ps4PatchPkgPath: 
@@ -472,13 +476,60 @@ PlayerSettings:
   ps4attribEyeToEyeDistanceSettingVR: 0
   ps4IncludedModules: []
   monoEnv: 
+  psp2Splashimage: {fileID: 0}
+  psp2NPTrophyPackPath: 
+  psp2NPSupportGBMorGJP: 0
+  psp2NPAgeRating: 12
+  psp2NPTitleDatPath: 
+  psp2NPCommsID: 
+  psp2NPCommunicationsID: 
+  psp2NPCommsPassphrase: 
+  psp2NPCommsSig: 
+  psp2ParamSfxPath: 
+  psp2ManualPath: 
+  psp2LiveAreaGatePath: 
+  psp2LiveAreaBackroundPath: 
+  psp2LiveAreaPath: 
+  psp2LiveAreaTrialPath: 
+  psp2PatchChangeInfoPath: 
+  psp2PatchOriginalPackage: 
+  psp2PackagePassword: 5PN2qmWqBlQ9wQj99nsQzldVI5ZuGXbE
+  psp2KeystoneFile: 
+  psp2MemoryExpansionMode: 0
+  psp2DRMType: 0
+  psp2StorageType: 0
+  psp2MediaCapacity: 0
+  psp2DLCConfigPath: 
+  psp2ThumbnailPath: 
+  psp2BackgroundPath: 
+  psp2SoundPath: 
+  psp2TrophyCommId: 
+  psp2TrophyPackagePath: 
+  psp2PackagedResourcesPath: 
+  psp2SaveDataQuota: 10240
+  psp2ParentalLevel: 1
+  psp2ShortTitle: Not Set
+  psp2ContentID: IV0000-ABCD12345_00-0123456789ABCDEF
+  psp2Category: 0
+  psp2MasterVersion: 01.00
+  psp2AppVersion: 01.00
+  psp2TVBootMode: 0
+  psp2EnterButtonAssignment: 2
+  psp2TVDisableEmu: 0
+  psp2AllowTwitterDialog: 1
+  psp2Upgradable: 0
+  psp2HealthWarning: 0
+  psp2UseLibLocation: 0
+  psp2InfoBarOnStartup: 0
+  psp2InfoBarColor: 0
+  psp2ScriptOptimizationLevel: 2
   splashScreenBackgroundSourceLandscape: {fileID: 0}
   splashScreenBackgroundSourcePortrait: {fileID: 0}
   spritePackerPolicy: 
   webGLMemorySize: 256
   webGLExceptionSupport: 1
   webGLNameFilesAsHashes: 0
-  webGLDataCaching: 0
+  webGLDataCaching: 1
   webGLDebugSymbols: 0
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
@@ -487,35 +538,32 @@ PlayerSettings:
   webGLUseEmbeddedResources: 0
   webGLCompressionFormat: 1
   webGLLinkerTarget: 1
-  webGLThreadsSupport: 0
   scriptingDefineSymbols: {}
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
-  managedStrippingLevel: {}
   incrementalIl2cppBuild: {}
   allowUnsafeCode: 0
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
-  apiCompatibilityLevelPerPlatform: {}
+  apiCompatibilityLevelPerPlatform:
+    Standalone: 3
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Repository
+  metroPackageName: Mirror2
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Repository
+  metroApplicationDescription: Mirror2
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
   metroWideTileShowName: 0
-  metroSupportStreamingInstall: 0
-  metroLastRequiredScene: 0
   metroDefaultTileSize: 1
   metroTileForegroundText: 2
   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}
@@ -523,11 +571,21 @@ PlayerSettings:
     a: 1}
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities: {}
-  metroTargetDeviceFamilies: {}
   metroFTAName: 
   metroFTAFileTypes: []
   metroProtocolName: 
   metroCompilationOverrides: 1
+  n3dsUseExtSaveData: 0
+  n3dsCompressStaticMem: 1
+  n3dsExtSaveDataNumber: 0x12345
+  n3dsStackSize: 131072
+  n3dsTargetPlatform: 2
+  n3dsRegion: 7
+  n3dsMediaSize: 0
+  n3dsLogoStyle: 3
+  n3dsTitle: GameName
+  n3dsProductCode: 
+  n3dsApplicationId: 0xFF3FF
   XboxOneProductId: 
   XboxOneUpdateKey: 
   XboxOneSandboxId: 
@@ -546,43 +604,23 @@ PlayerSettings:
   XboxOneCapability: []
   XboxOneGameRating: {}
   XboxOneIsContentPackage: 0
-  XboxOneEnableGPUVariability: 0
+  XboxOneEnableGPUVariability: 1
   XboxOneSockets: {}
   XboxOneSplashScreen: {fileID: 0}
   XboxOneAllowedProductIds: []
   XboxOnePersistentLocalStorageSize: 0
   XboxOneXTitleMemory: 8
   xboxOneScriptCompiler: 0
-  XboxOneOverrideIdentityName: 
   vrEditorSettings:
     daydream:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
   cloudServicesEnabled: {}
-  luminIcon:
-    m_Name: 
-    m_ModelFolderPath: 
-    m_PortalFolderPath: 
-  luminCert:
-    m_CertPath: 
-    m_PrivateKeyPath: 
-  luminIsChannelApp: 0
-  luminVersion:
-    m_VersionCode: 1
-    m_VersionName: 
   facebookSdkVersion: 7.9.4
-  facebookAppId: 
-  facebookCookies: 1
-  facebookLogging: 1
-  facebookStatus: 1
-  facebookXfbml: 0
-  facebookFrictionlessRequests: 1
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 3
   cloudProjectId: 
-  framebufferDepthMemorylessMode: 0
   projectName: 
   organizationId: 
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0
-  legacyClampBlendShapeWeights: 1

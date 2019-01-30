@@ -2,22 +2,10 @@
 using System;
 using UnityEngine;
 
-namespace Mirror.Transport.Tcp
+namespace Mirror.Tcp
 {
-    public class TcpTransport : TransportLayer
+    public class TcpTransport : Transport
     {
-        // events for the client
-        public event Action OnClientConnect;
-        public event Action<byte[]> OnClientData;
-        public event Action<Exception> OnClientError;
-        public event Action OnClientDisconnect;
-
-        // events for the server
-        public event Action<int> OnServerConnect;
-        public event Action<int, byte[]> OnServerData;
-        public event Action<int, Exception> OnServerError;
-        public event Action<int> OnServerDisconnect;
-
         protected Client client = new Client();
         protected Server server = new Server();
 
@@ -26,16 +14,16 @@ namespace Mirror.Transport.Tcp
         public TcpTransport()
         {
             // dispatch the events from the server
-            server.Connected += (id) => OnServerConnect?.Invoke(id);
-            server.Disconnected += (id) => OnServerDisconnect?.Invoke(id);
-            server.ReceivedData += (id, data) => OnServerData?.Invoke(id, data);
-            server.ReceivedError += (id, exception) => OnServerError?.Invoke(id, exception);
+            server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
+            server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
+            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, data);
+            server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
-            client.Connected += () => OnClientConnect?.Invoke();
-            client.Disconnected += () => OnClientDisconnect?.Invoke();
-            client.ReceivedData += (data) => OnClientData?.Invoke(data);
-            client.ReceivedError += (exception) => OnClientError?.Invoke(exception);
+            client.Connected += () => OnClientConnected.Invoke();
+            client.Disconnected += () => OnClientDisconnected.Invoke();
+            client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
+            client.ReceivedError += (error) => OnClientError.Invoke(error);
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
@@ -46,39 +34,47 @@ namespace Mirror.Transport.Tcp
         }
 
         // client
-        public virtual bool ClientConnected() { return client.IsConnected; }
-        public virtual void ClientConnect(string address, int port) { client.Connect(address, port); }
-        public virtual void ClientSend(int channelId, byte[] data) { client.Send(data); }
-        public virtual void ClientDisconnect() 
+        public override bool ClientConnected() { return client.IsConnected; }
+        public override void ClientConnect(string address) { client.Connect(address, port); }
+        public override bool ClientSend(int channelId, byte[] data)
+        {
+            client.Send(data);
+            return true;
+        }
+        public override void ClientDisconnect() 
         {
             client.Disconnect(); 
         }
 
         // server
-        public virtual bool ServerActive() { return server.Active; }
-        public virtual void ServerStart()
+        public override bool ServerActive() { return server.Active; }
+        public override void ServerStart()
         {
             server.Listen(port);
         }
 
-        public virtual void ServerSend(int connectionId, int channelId, byte[] data) { server.Send(connectionId, data); }
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        {
+            server.Send(connectionId, data);
+            return true;
+        }
 
-        public virtual bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return server.Disconnect(connectionId);
         }
 
-        public virtual bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public virtual void ServerStop() { server.Stop(); }
+        public override bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public override void ServerStop() { server.Stop(); }
 
         // common
-        public virtual void Shutdown()
+        public override void Shutdown()
         {
             client.Disconnect();
             server.Stop();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Mirror.Transport.Tcp
+namespace Mirror.Tcp
 {
 
     public static class NetworkStreamExtensions

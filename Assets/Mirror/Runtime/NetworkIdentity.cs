@@ -261,6 +261,11 @@ namespace Mirror
                 return false;
             }
             prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#elif UNITY_2018_2_OR_NEWER
+            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+            if (prefabType == PrefabType.None)
+                return false;
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
             if (prefabType == PrefabType.None)
@@ -529,7 +534,7 @@ namespace Mirror
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > NetworkManager.transport.GetMaxPacketSize())
+            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(Channels.DefaultReliable))
             {
                 Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId);
             }
@@ -966,7 +971,7 @@ namespace Mirror
                 message.netId = netId;
                 message.payload = payload;
 
-                NetworkServer.SendToReady(gameObject, (short)MsgType.UpdateVars, message);
+                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
             }
         }
 
