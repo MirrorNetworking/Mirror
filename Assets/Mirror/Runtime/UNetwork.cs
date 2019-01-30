@@ -81,7 +81,7 @@ namespace Mirror
         Current = 1
     }
 
-    public class Channels
+    public static class Channels
     {
         public const int DefaultReliable = 0;
         public const int DefaultUnreliable = 1;
