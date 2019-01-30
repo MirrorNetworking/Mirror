@@ -72,14 +72,13 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
+            
+            // paul:  we may be connecting or connected,  either way, we need to disconnect
+            // transport should not do anything if it is not connecting/connected
+            NetworkManager.singleton.transport.ClientDisconnect();
 
-            // client? then stop transport
-            if (NetworkManager.singleton.transport.ClientConnected())
-            {
-                NetworkManager.singleton.transport.ClientDisconnect();
-            }
             // server? then disconnect that client
-            else if (NetworkManager.singleton.transport.ServerActive())
+            if (NetworkManager.singleton.transport.ServerActive())
             {
                 NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
