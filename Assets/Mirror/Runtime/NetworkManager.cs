@@ -51,7 +51,7 @@ namespace Mirror
         public bool clientLoadedScene;
 
         // only really valid on the server
-        public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value.playerController != null); } }
+        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
@@ -82,6 +82,7 @@ namespace Mirror
             // headless mode? then start the server
             if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
+                Application.targetFrameRate = 60;
                 StartServer();
             }
         }
@@ -260,8 +261,10 @@ namespace Mirror
 
             isNetworkActive = true;
 
-            client = new NetworkClient();
-            client.hostPort = hostPort;
+            client = new NetworkClient
+            {
+                hostPort = hostPort
+            };
 
             RegisterClientMessages(client);
 
@@ -528,9 +531,11 @@ namespace Mirror
             {
                 // convert payload to extra message and call OnServerAddPlayer
                 // (usually for character selection information)
-                NetworkMessage extraMessage = new NetworkMessage();
-                extraMessage.reader = new NetworkReader(msg.value);
-                extraMessage.conn = netMsg.conn;
+                NetworkMessage extraMessage = new NetworkMessage
+                {
+                    reader = new NetworkReader(msg.value),
+                    conn = netMsg.conn
+                };
                 OnServerAddPlayer(netMsg.conn, extraMessage);
             }
             else
