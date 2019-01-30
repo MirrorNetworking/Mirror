@@ -20,17 +20,17 @@ namespace Mirror
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
-        public bool localPlayerAuthority { get { return netIdentity.localPlayerAuthority; } }
-        public bool isServer { get { return netIdentity.isServer; } }
-        public bool isClient { get { return netIdentity.isClient; } }
-        public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
-        public bool isServerOnly { get { return isServer && !isClient; } }
-        public bool isClientOnly { get { return isClient && !isServer; } }
-        public bool hasAuthority { get { return netIdentity.hasAuthority; } }
-        public uint netId { get { return netIdentity.netId; } }
-        public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
-        public NetworkConnection connectionToClient { get { return netIdentity.connectionToClient; } }
-        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
+        public bool isServer => netIdentity.isServer; 
+        public bool isClient => netIdentity.isClient; 
+        public bool isLocalPlayer => netIdentity.isLocalPlayer; 
+        public bool isServerOnly => isServer && !isClient;
+        public bool isClientOnly => isClient && !isServer;
+        public bool hasAuthority => netIdentity.hasAuthority;
+        public uint netId => netIdentity.netId; 
+        public NetworkConnection connectionToServer => netIdentity.connectionToServer;
+        public NetworkConnection connectionToClient => netIdentity.connectionToClient; 
+        protected ulong syncVarDirtyBits => m_SyncVarDirtyBits;
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
         // objects that can synchronize themselves,  such as synclists
