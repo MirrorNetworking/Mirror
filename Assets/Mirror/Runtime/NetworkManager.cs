@@ -16,6 +16,7 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManager")]
     public class NetworkManager : MonoBehaviour
     {
 

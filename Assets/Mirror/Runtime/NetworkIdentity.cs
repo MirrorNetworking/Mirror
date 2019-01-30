@@ -18,6 +18,7 @@ namespace Mirror
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkIdentity")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
