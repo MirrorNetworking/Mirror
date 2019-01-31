@@ -196,10 +196,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            if (observers != null)
-            {
-                observers.Remove(conn.connectionId);
-            }
+            observers?.Remove(conn.connectionId);
         }
 
 #if UNITY_EDITOR
