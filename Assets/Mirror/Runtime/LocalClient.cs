@@ -59,12 +59,12 @@ namespace Mirror
             ClientScene.InternalAddPlayer(localPlayer);
         }
 
-        void PostInternalMessage(short msgType, byte[] content)
+        void PostInternalMessage(short msgType, NetworkReader content)
         {
             NetworkMessage msg = new NetworkMessage
             {
                 msgType = msgType,
-                reader = new NetworkReader(content),
+                reader = content,
                 conn = connection
             };
             m_InternalMsgs.Enqueue(msg);
@@ -74,7 +74,7 @@ namespace Mirror
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> original NetworkTransport used empty [] and not null array for those messages too
-            PostInternalMessage(msgType, new byte[0]);
+            PostInternalMessage(msgType, new NetworkReader(new byte[0]));
         }
 
         void ProcessInternalMessages()
@@ -90,14 +90,11 @@ namespace Mirror
         // called by the server, to bypass network
         internal void InvokeBytesOnClient(byte[] buffer)
         {
+            NetworkReader reader = new NetworkReader(buffer);
+
             // unpack message and post to internal list for processing
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
-            {
-                PostInternalMessage((short)msgType, content);
-            }
-            else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
+            short msgType = (short)reader.ReadPackedUInt32();
+            PostInternalMessage(msgType, reader);
         }
     }
 }

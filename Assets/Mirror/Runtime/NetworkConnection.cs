@@ -154,14 +154,18 @@ namespace Mirror
             m_PlayerController = null;
         }
 
+        static NetworkWriter writer;
+
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
-            NetworkWriter writer = new NetworkWriter();
+            writer = writer ?? new NetworkWriter();
+            writer.Reset();
+
+            writer.WritePackedUInt32((uint)msgType);
+
             msg.Serialize(writer);
 
-            // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
-            return SendBytes(message, channelId);
+            return SendBytes(writer.ToArray(), channelId);
         }
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
@@ -195,48 +199,31 @@ namespace Mirror
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         protected void HandleBytes(byte[] buffer)
         {
+            NetworkReader reader = new NetworkReader(buffer);
+
             // unpack message
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            short msgType = (short)reader.ReadPackedUInt32();
+
+            if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer)); }
+
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
-                if (logNetworkMessages)
+                // create message here instead of caching it. so we can add it to queue more easily.
+                NetworkMessage msg = new NetworkMessage
                 {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
-                    {
-                        // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
-                    }
-                    else
-                    {
-                        // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
-                    }
-                }
+                    msgType = (short)msgType,
+                    reader = reader,
+                    conn = this
+                };
 
-                NetworkMessageDelegate msgDelegate;
-                if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
-                {
-                    // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage
-                    {
-                        msgType = (short)msgType,
-                        reader = new NetworkReader(content),
-                        conn = this
-                    };
-
-                    msgDelegate(msg);
-                    lastMessageTime = Time.time;
-                }
-                else
-                {
-                    //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
-                }
+                msgDelegate(msg);
+                lastMessageTime = Time.time;
             }
             else
             {
-                Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
+                //NOTE: this throws away the rest of the buffer. Need moar error codes
+                Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
             }
         }
 

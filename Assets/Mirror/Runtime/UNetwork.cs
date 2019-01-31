@@ -92,49 +92,6 @@ namespace Mirror
         public const int DefaultUnreliable = 1;
     }
 
-    // network protocol all in one place, instead of constructing headers in all kinds of different places
-    //
-    //   MsgType     (1-n bytes)
-    //   Content     (ContentSize bytes)
-    //
-    // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
-    //    using 2 bytes for shorts.
-    // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
-    public static class Protocol
-    {
-        // pack message before sending
-        public static byte[] PackMessage(ushort msgType, byte[] content)
-        {
-            // original HLAPI's 'content' part is never null, so we don't have to handle that case.
-            // just create an empty array if null.
-            if (content == null) content = new byte[0];
-
-            NetworkWriter writer = new NetworkWriter();
-
-            // message type (varint)
-            writer.WritePackedUInt32(msgType);
-
-            // message content (if any)
-            writer.Write(content, 0, content.Length);
-
-            return writer.ToArray();
-        }
-
-        // unpack message after receiving
-        public static bool UnpackMessage(byte[] message, out ushort msgType, out byte[] content)
-        {
-            NetworkReader reader = new NetworkReader(message);
-
-            // read message type (varint)
-            msgType = (UInt16)reader.ReadPackedUInt32();
-
-            // read content (remaining data in message)
-            content = reader.ReadBytes(reader.Length - reader.Position);
-
-            return true;
-        }
-    }
-
     public static class Utils
     {
         // ScaleFloatToByte( -1f, -1f, 1f, byte.MinValue, byte.MaxValue) => 0

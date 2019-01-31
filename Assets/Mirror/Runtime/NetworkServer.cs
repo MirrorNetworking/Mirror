@@ -1072,18 +1072,15 @@ namespace Mirror
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            NetworkReader reader = new NetworkReader(buffer);
+            short msgType = (short)reader.ReadPackedUInt32();
+
+            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
             {
-                if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
-                {
-                    // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content));
-                    return true;
-                }
+                // this must be invoked with the connection to the client, not the client's connection to the server
+                s_LocalConnection.InvokeHandler((short)msgType, reader);
+                return true;
             }
-            Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer));
             return false;
         }
 
