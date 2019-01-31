@@ -674,12 +674,15 @@ namespace Mirror
                 return;
             }
 
-            Transform startPos = GetStartPosition();
-            GameObject player = startPos != null
-                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+            if (this.autoCreatePlayer) 
+            {
+                Transform startPos = GetStartPosition();
+                GameObject player = startPos != null
+                    ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                    : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
+                NetworkServer.AddPlayerForConnection(conn, player);    
+            }
         }
 
         public Transform GetStartPosition()
