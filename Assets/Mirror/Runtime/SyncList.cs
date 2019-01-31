@@ -105,8 +105,8 @@ namespace Mirror
 
         private bool _isReadOnly = false;
 
-        public int Count { get { return m_Objects.Count; } }
-        public bool IsReadOnly { get { return _isReadOnly; } }
+        public int Count => m_Objects.Count;
+        public bool IsReadOnly => _isReadOnly;
         public event SyncListChanged Callback;
 
         public enum Operation : byte
@@ -427,9 +427,6 @@ namespace Mirror
             return m_Objects.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
