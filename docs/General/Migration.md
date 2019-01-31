@@ -15,7 +15,9 @@ You have been warned.
 
 ### 2. Install Mirror
 
-Get Mirror from the asset store and import it in your project (link to be provided)
+Get Mirror from the [asset store](https://assetstore.unity.com/packages/tools/network/mirror-129321) and import it in your project.  
+Alternatively you can grab the latest [release](https://github.com/vis2k/Mirror/releases) from GitHub if you're feeling adventurous.  
+**NOTE:** You must restart Unity after adding Mirror to the project for the components menu to update correctly.
 
 ### 3. Replace namespace
 
