@@ -1,13 +1,11 @@
-﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 
-
 namespace Mirror
 {
-
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
@@ -34,16 +32,18 @@ namespace Mirror
             // -> settings copied from uMMORPG configuration for best results
             if (globalConfig == null)
             {
-                globalConfig = new GlobalConfig();
-                globalConfig.ReactorModel = ReactorModel.SelectReactor;
-                globalConfig.ThreadAwakeTimeout = 1;
-                globalConfig.ReactorMaximumSentMessages = 4096;
-                globalConfig.ReactorMaximumReceivedMessages = 4096;
-                globalConfig.MaxPacketSize = 2000;
-                globalConfig.MaxHosts = 16;
-                globalConfig.ThreadPoolSize = 3;
-                globalConfig.MinTimerTimeout = 1;
-                globalConfig.MaxTimerTimeout = 12000;
+                globalConfig = new GlobalConfig
+                {
+                    ReactorModel = ReactorModel.SelectReactor,
+                    ThreadAwakeTimeout = 1,
+                    ReactorMaximumSentMessages = 4096,
+                    ReactorMaximumReceivedMessages = 4096,
+                    MaxPacketSize = 2000,
+                    MaxHosts = 16,
+                    ThreadPoolSize = 3,
+                    MinTimerTimeout = 1,
+                    MaxTimerTimeout = 12000
+                };
             }
             NetworkTransport.Init(globalConfig);
 
@@ -51,29 +51,31 @@ namespace Mirror
             // -> settings copied from uMMORPG configuration for best results
             if (connectionConfig == null)
             {
-                connectionConfig = new ConnectionConfig();
-                connectionConfig.PacketSize = 1500;
-                connectionConfig.FragmentSize = 500;
-                connectionConfig.ResendTimeout = 1200;
-                connectionConfig.DisconnectTimeout = 6000;
-                connectionConfig.ConnectTimeout = 6000;
-                connectionConfig.MinUpdateTimeout = 1;
-                connectionConfig.PingTimeout = 2000;
-                connectionConfig.ReducedPingTimeout = 100;
-                connectionConfig.AllCostTimeout = 20;
-                connectionConfig.NetworkDropThreshold = 80;
-                connectionConfig.OverflowDropThreshold = 80;
-                connectionConfig.MaxConnectionAttempt = 10;
-                connectionConfig.AckDelay = 33;
-                connectionConfig.SendDelay = 10;
-                connectionConfig.MaxCombinedReliableMessageSize = 100;
-                connectionConfig.MaxCombinedReliableMessageCount = 10;
-                connectionConfig.MaxSentMessageQueueSize = 512;
-                connectionConfig.AcksType = ConnectionAcksType.Acks128;
-                connectionConfig.InitialBandwidth = 0;
-                connectionConfig.BandwidthPeakFactor = 2;
-                connectionConfig.WebSocketReceiveBufferMaxSize = 0;
-                connectionConfig.UdpSocketReceiveBufferMaxSize = 0;
+                connectionConfig = new ConnectionConfig
+                {
+                    PacketSize = 1500,
+                    FragmentSize = 500,
+                    ResendTimeout = 1200,
+                    DisconnectTimeout = 6000,
+                    ConnectTimeout = 6000,
+                    MinUpdateTimeout = 1,
+                    PingTimeout = 2000,
+                    ReducedPingTimeout = 100,
+                    AllCostTimeout = 20,
+                    NetworkDropThreshold = 80,
+                    OverflowDropThreshold = 80,
+                    MaxConnectionAttempt = 10,
+                    AckDelay = 33,
+                    SendDelay = 10,
+                    MaxCombinedReliableMessageSize = 100,
+                    MaxCombinedReliableMessageCount = 10,
+                    MaxSentMessageQueueSize = 512,
+                    AcksType = ConnectionAcksType.Acks128,
+                    InitialBandwidth = 0,
+                    BandwidthPeakFactor = 2,
+                    WebSocketReceiveBufferMaxSize = 0,
+                    UdpSocketReceiveBufferMaxSize = 0
+                };
                 // channel 0 is reliable fragmented sequenced
                 connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
                 // channel 1 is unreliable
@@ -139,7 +141,7 @@ namespace Mirror
                     OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    byte [] data = new byte[receivedSize];
+                    byte[] data = new byte[receivedSize];
                     Array.Copy(clientReceiveBuffer, data, receivedSize);
                     OnClientDataReceived.Invoke(data);
                     break;

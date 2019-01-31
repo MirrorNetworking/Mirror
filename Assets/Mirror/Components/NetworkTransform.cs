@@ -6,6 +6,6 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkTransform")]
     public class NetworkTransform : NetworkTransformBase
     {
-        protected override Transform targetComponent { get { return transform; } }
+        protected override Transform targetComponent => transform;
     }
 }

@@ -16,10 +16,10 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController { get { return m_PlayerController; } }
+        public NetworkIdentity playerController => m_PlayerController; 
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected { get { return hostId != -1; }}
+        public bool isConnected => hostId != -1; 
 
         public NetworkConnection(string networkAddress)
         {
@@ -105,10 +105,12 @@ namespace Mirror
             NetworkMessageDelegate msgDelegate;
             if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
-                NetworkMessage message = new NetworkMessage();
-                message.msgType = msgType;
-                message.conn = this;
-                message.reader = reader;
+                NetworkMessage message = new NetworkMessage
+                {
+                    msgType = msgType,
+                    conn = this,
+                    reader = reader
+                };
 
                 msgDelegate(message);
                 return true;
@@ -216,10 +218,12 @@ namespace Mirror
                 if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
                 {
                     // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage();
-                    msg.msgType = (short)msgType;
-                    msg.reader = new NetworkReader(content);
-                    msg.conn = this;
+                    NetworkMessage msg = new NetworkMessage
+                    {
+                        msgType = (short)msgType,
+                        reader = new NetworkReader(content),
+                        conn = this
+                    };
 
                     msgDelegate(msg);
                     lastMessageTime = Time.time;

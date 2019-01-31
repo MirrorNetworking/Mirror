@@ -236,9 +236,11 @@ namespace Mirror
                     m_Behaviours = new List<NetworkBehaviourInfo>();
                     foreach (var behaviour in behaviours)
                     {
-                        NetworkBehaviourInfo info = new NetworkBehaviourInfo();
-                        info.name = new GUIContent(behaviour.GetType().FullName);
-                        info.behaviour = behaviour;
+                        NetworkBehaviourInfo info = new NetworkBehaviourInfo
+                        {
+                            name = new GUIContent(behaviour.GetType().FullName),
+                            behaviour = behaviour
+                        };
                         m_Behaviours.Add(info);
                     }
                 }
@@ -257,17 +259,21 @@ namespace Mirror
 
         static NetworkIdentityInfo GetString(string name, string value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo();
-            info.name = new GUIContent(name);
-            info.value = new GUIContent(value);
+            NetworkIdentityInfo info = new NetworkIdentityInfo
+            {
+                name = new GUIContent(name),
+                value = new GUIContent(value)
+            };
             return info;
         }
 
         static NetworkIdentityInfo GetBoolean(string name, bool value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo();
-            info.name = new GUIContent(name);
-            info.value = new GUIContent((value ? "Yes" : "No"));
+            NetworkIdentityInfo info = new NetworkIdentityInfo
+            {
+                name = new GUIContent(name),
+                value = new GUIContent((value ? "Yes" : "No"))
+            };
             return info;
         }
     }

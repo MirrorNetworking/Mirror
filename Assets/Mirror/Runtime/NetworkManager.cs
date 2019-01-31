@@ -51,7 +51,7 @@ namespace Mirror
         public bool clientLoadedScene;
 
         // only really valid on the server
-        public int numPlayers { get { return NetworkServer.connections.Count(kv => kv.Value.playerController != null); } }
+        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
         public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
@@ -255,14 +255,13 @@ namespace Mirror
                 }
             }
         }
-
+        
         /// <summary>
-        /// This starts a new network client. 
+        /// This starts a new network client.
         /// It uses the networkAddress and networkPort properties as the address to connect to.
         /// </summary>
-        /// <param name="hostPort"></param>
         /// <returns>The client object created.</returns>
-        public NetworkClient StartClient(ushort hostPort=0)
+        public NetworkClient StartClient()
         {
             InitializeSingleton();
 
@@ -272,7 +271,6 @@ namespace Mirror
             isNetworkActive = true;
 
             client = new NetworkClient();
-            client.hostPort = hostPort;
 
             RegisterClientMessages(client);
 
@@ -570,9 +568,11 @@ namespace Mirror
             {
                 // convert payload to extra message and call OnServerAddPlayer
                 // (usually for character selection information)
-                NetworkMessage extraMessage = new NetworkMessage();
-                extraMessage.reader = new NetworkReader(msg.value);
-                extraMessage.conn = netMsg.conn;
+                NetworkMessage extraMessage = new NetworkMessage
+                {
+                    reader = new NetworkReader(msg.value),
+                    conn = netMsg.conn
+                };
                 OnServerAddPlayer(netMsg.conn, extraMessage);
             }
             else

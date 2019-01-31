@@ -19,9 +19,9 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConection now!
-        public static NetworkConnection localConnection { get { return s_LocalConnection; } }
+        public static NetworkConnection localConnection => s_LocalConnection;
 
-        public static int serverHostId { get { return s_ServerHostId; } }
+        public static int serverHostId => s_ServerHostId;
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
@@ -29,8 +29,8 @@ namespace Mirror
 
         public static bool dontListen;
 
-        public static bool active { get { return s_Active; } }
-        public static bool localClientActive { get { return s_LocalClientActive; } }
+        public static bool active => s_Active;
+        public static bool localClientActive => s_LocalClientActive;
 
         public static void Reset()
         {
@@ -142,8 +142,10 @@ namespace Mirror
                 return -1;
             }
 
-            s_LocalConnection = new ULocalConnectionToClient(localClient);
-            s_LocalConnection.connectionId = 0;
+            s_LocalConnection = new ULocalConnectionToClient(localClient)
+            {
+                connectionId = 0
+            };
             AddConnection(s_LocalConnection);
 
             s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
@@ -571,8 +573,10 @@ namespace Mirror
                 Spawn(playerGameObject);
             }
 
-            OwnerMessage owner = new OwnerMessage();
-            owner.netId = identity.netId;
+            OwnerMessage owner = new OwnerMessage
+            {
+                netId = identity.netId
+            };
             conn.Send((short)MsgType.Owner, owner);
         }
 
@@ -714,8 +718,10 @@ namespace Mirror
 
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = identity.netId;
+            ObjectDestroyMessage msg = new ObjectDestroyMessage
+            {
+                netId = identity.netId
+            };
             conn.Send((short)MsgType.ObjectHide, msg);
         }
 
@@ -830,14 +836,16 @@ namespace Mirror
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
             {
-                SpawnPrefabMessage msg = new SpawnPrefabMessage();
-                msg.netId = identity.netId;
-                msg.assetId = identity.assetId;
-                msg.position = identity.transform.position;
-                msg.rotation = identity.transform.rotation;
+                SpawnPrefabMessage msg = new SpawnPrefabMessage
+                {
+                    netId = identity.netId,
+                    assetId = identity.assetId,
+                    position = identity.transform.position,
+                    rotation = identity.transform.rotation,
 
-                // serialize all components with initialState = true
-                msg.payload = identity.OnSerializeAllSafely(true);
+                    // serialize all components with initialState = true
+                    payload = identity.OnSerializeAllSafely(true)
+                };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -853,14 +861,16 @@ namespace Mirror
             // 'identity' is a scene object that should be spawned again
             else
             {
-                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage();
-                msg.netId = identity.netId;
-                msg.sceneId = identity.sceneId;
-                msg.position = identity.transform.position;
-                msg.rotation = identity.transform.rotation;
+                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
+                {
+                    netId = identity.netId,
+                    sceneId = identity.sceneId,
+                    position = identity.transform.position,
+                    rotation = identity.transform.rotation,
 
-                // include synch data
-                msg.payload = identity.OnSerializeAllSafely(true);
+                    // include synch data
+                    payload = identity.OnSerializeAllSafely(true)
+                };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
@@ -1008,13 +1018,12 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
             NetworkIdentity.spawned.Remove(identity.netId);
 
-            if (identity.clientAuthorityOwner != null)
-            {
-                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
-            }
+            identity.clientAuthorityOwner?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage msg = new ObjectDestroyMessage();
-            msg.netId = identity.netId;
+            ObjectDestroyMessage msg = new ObjectDestroyMessage
+            {
+                netId = identity.netId
+            };
             SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
 
             identity.ClearObservers();

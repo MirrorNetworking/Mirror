@@ -21,26 +21,26 @@ namespace Mirror
         bool m_SyncVarGuard;
 
         ///<summary>True if the object is controlled by the client that owns it.</summary>
-        public bool localPlayerAuthority { get { return netIdentity.localPlayerAuthority; } }
+        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
         ///<summary>True if this object is running on the server, and has been spawned.</summary>
-        public bool isServer { get { return netIdentity.isServer; } }
+        public bool isServer => netIdentity.isServer;
         ///<summary>True if the object is running on a client.</summary>
-        public bool isClient { get { return netIdentity.isClient; } }
+        public bool isClient => netIdentity.isClient;
         ///<summary>True if the object is the one that represents the player on the local machine.</summary>
-        public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
+        public bool isLocalPlayer => netIdentity.isLocalPlayer;
         ///<summary>True if the object is only running on the server, and has been spawned.</summary>
-        public bool isServerOnly { get { return isServer && !isClient; } }
+        public bool isServerOnly => isServer && !isClient;
         ///<summary>True if the object is only running on the client.</summary>
-        public bool isClientOnly { get { return isClient && !isServer; } }
+        public bool isClientOnly => isClient && !isServer;
         ///<summary>True if this object is the authoritative version of the object. For more info: https://vis2k.github.io/Mirror/Concepts/Authority</summary>
-        public bool hasAuthority { get { return netIdentity.hasAuthority; } }
+        public bool hasAuthority => netIdentity.hasAuthority;
         ///<summary>A unique identifier for this network object, assigned when spawned.</summary>
-        public uint netId { get { return netIdentity.netId; } }
+        public uint netId => netIdentity.netId;
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
-        public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
+        public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient { get { return netIdentity.connectionToClient; } }
-        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        public NetworkConnection connectionToClient => netIdentity.connectionToClient; 
+        protected ulong syncVarDirtyBits => m_SyncVarDirtyBits;
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
         // objects that can synchronize themselves,  such as synclists
@@ -104,11 +104,13 @@ namespace Mirror
             }
 
             // construct the message
-            CommandMessage message = new CommandMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            CommandMessage message = new CommandMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
         }
@@ -132,11 +134,13 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            RpcMessage message = new RpcMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
         }
@@ -152,11 +156,13 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            RpcMessage message = new RpcMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             conn.Send((short)MsgType.Rpc, message, channelId);
         }
@@ -179,11 +185,13 @@ namespace Mirror
             }
 
             // construct the message
-            SyncEventMessage message = new SyncEventMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            SyncEventMessage message = new SyncEventMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + eventName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
         }
@@ -230,10 +238,12 @@ namespace Mirror
                     invokeClass,
                     oldInvoker.invokeFunction.GetMethodName()));
             }
-            Invoker invoker = new Invoker();
-            invoker.invokeType = invokerType;
-            invoker.invokeClass = invokeClass;
-            invoker.invokeFunction = func;
+            Invoker invoker = new Invoker
+            {
+                invokeType = invokerType,
+                invokeClass = invokeClass,
+                invokeFunction = func
+            };
             s_CmdHandlerDelegates[cmdHash] = invoker;
             if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
         }

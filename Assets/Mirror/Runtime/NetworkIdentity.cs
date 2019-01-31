@@ -46,32 +46,32 @@ namespace Mirror
 
         // properties
         ///<summary>True if the object is running on a client.</summary>
-        public bool isClient { get { return m_IsClient; } }
+        public bool isClient => m_IsClient;
         ///<summary>True if this object is running on the server, and has been spawned.</summary>
-        public bool isServer { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
+        public bool isServer => m_IsServer && NetworkServer.active; // dont return true if server stopped.
         ///<summary>True if the object is the one that represents the player on the local machine.</summary>
-        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
+        public bool isLocalPlayer => m_IsLocalPlayer;
         ///<summary>True if this object is the authoritative version of the object. For more info: https://vis2k.github.io/Mirror/Concepts/Authority</summary>
-        public bool hasAuthority { get { return m_HasAuthority; } }
+        public bool hasAuthority => m_HasAuthority;
 
         ///<summary>The list of client NetworkConnections that are able to see this object.
         ///  connectionId -> NetworkConnection </summary>
         public Dictionary<int, NetworkConnection> observers;
 
         ///<summary>A unique identifier for this network object, assigned when spawned.</summary>
-        public uint netId { get { return m_NetId; } }
+        public uint netId => m_NetId;
         ///<summary>A unique identifier for networked objects in a scene.</summary>
-        public uint sceneId { get { return m_SceneId; } }
+        public uint sceneId => m_SceneId;
         ///<summary>A flag to make this object not be spawned on clients.</summary>
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         ///<summary>True if the object is controlled by the client that owns it.</summary>
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         ///<summary>The client that has authority for this object. This will be null if no client has authority.</summary>
-        public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
+        public NetworkConnection clientAuthorityOwner => m_ClientAuthorityOwner;
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
-        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
+        public NetworkConnection connectionToServer => m_ConnectionToServer;
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
+        public NetworkConnection connectionToClient => m_ConnectionToClient;
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -210,10 +210,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            if (observers != null)
-            {
-                observers.Remove(conn.connectionId);
-            }
+            observers?.Remove(conn.connectionId);
         }
 
 #if UNITY_EDITOR
@@ -869,15 +866,14 @@ namespace Mirror
             ForceAuthority(true);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage();
-            msg.netId = netId;
-            msg.authority = false;
+            var msg = new ClientAuthorityMessage
+            {
+                netId = netId,
+                authority = false
+            };
             conn.Send((short)MsgType.LocalClientAuthority, msg);
 
-            if (clientAuthorityCallback != null)
-            {
-                clientAuthorityCallback(conn, this, false);
-            }
+            clientAuthorityCallback?.Invoke(conn, this, false);
             return true;
         }
 
@@ -913,15 +909,14 @@ namespace Mirror
             ForceAuthority(false);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage();
-            msg.netId = netId;
-            msg.authority = true;
+            var msg = new ClientAuthorityMessage
+            {
+                netId = netId,
+                authority = true
+            };
             conn.Send((short)MsgType.LocalClientAuthority, msg);
 
-            if (clientAuthorityCallback != null)
-            {
-                clientAuthorityCallback(conn, this, true);
-            }
+            clientAuthorityCallback?.Invoke(conn, this, true);
             return true;
         }
 
@@ -967,9 +962,11 @@ namespace Mirror
             if (payload != null)
             {
                 // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = payload;
+                UpdateVarsMessage message = new UpdateVarsMessage
+                {
+                    netId = netId,
+                    payload = payload
+                };
 
                 NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
             }

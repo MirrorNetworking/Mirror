@@ -9,7 +9,7 @@ namespace Mirror
         static bool s_IsActive;
 
         public static List<NetworkClient> allClients = new List<NetworkClient>();
-        public static bool active { get { return s_IsActive; } }
+        public static bool active => s_IsActive;
 
         string m_ServerIp = "";
         int m_ClientId = -1;
@@ -31,11 +31,10 @@ namespace Mirror
             conn.SetHandlers(handlers);
         }
 
-        public string serverIp { get { return m_ServerIp; } }
-        public ushort hostPort;
-        public NetworkConnection connection { get { return m_Connection; } }
+        public string serverIp => m_ServerIp; 
+        public NetworkConnection connection => m_Connection;
 
-        public bool isConnected { get { return connectState == ConnectState.Connected; } }
+        public bool isConnected => connectState == ConnectState.Connected;
 
         public NetworkClient()
         {
@@ -91,10 +90,8 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
 
             ClientScene.HandleClientDisconnect(m_Connection);
-            if (m_Connection != null)
-            {
-                m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
-            }
+           
+            m_Connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
         }
 
         void OnDataReceived(byte[] data)

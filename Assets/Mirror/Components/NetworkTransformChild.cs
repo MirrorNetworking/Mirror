@@ -6,6 +6,6 @@ namespace Mirror
     public class NetworkTransformChild : NetworkTransformBase
     {
         public Transform target;
-        protected override Transform targetComponent { get { return target; } }
+        protected override Transform targetComponent => target;
     }
 }

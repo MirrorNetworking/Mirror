@@ -35,20 +35,8 @@ namespace Mirror
             }
         }
 
-        public double Value 
-        {
-            get 
-            {
-                return _value;
-            }
-        }
+        public double Value => _value;
 
-        public double Var 
-        {
-            get 
-            {
-                return _var;
-            }
-        }
+        public double Var => _var;
     }
 }

@@ -105,8 +105,8 @@ namespace Mirror
 
         private bool _isReadOnly = false;
 
-        public int Count { get { return m_Objects.Count; } }
-        public bool IsReadOnly { get { return _isReadOnly; } }
+        public int Count => m_Objects.Count;
+        public bool IsReadOnly => _isReadOnly;
         public event SyncListChanged Callback;
 
         public enum Operation : byte
@@ -168,11 +168,7 @@ namespace Mirror
 
             Changes.Add(change);
 
-            SyncListChanged listChanged = Callback;
-            if (listChanged != null)
-            {
-                listChanged(op, itemIndex, item);
-            }
+            Callback?.Invoke(op, itemIndex, item);
         }
 
         void AddOperation(Operation op, int itemIndex)
@@ -334,14 +330,12 @@ namespace Mirror
                         break;
                 }
 
-                SyncListChanged listChanged = Callback;
-                if (apply && listChanged != null)
+                if (apply)
                 {
-                    listChanged(operation, index, item);
+                    Callback?.Invoke(operation, index, item);
                 }
-
                 // we just skipped this change
-                if (!apply)
+                else
                 {
                     changesAhead--;
                 }
@@ -433,9 +427,6 @@ namespace Mirror
             return m_Objects.GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
