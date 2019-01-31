@@ -90,10 +90,8 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
 
             ClientScene.HandleClientDisconnect(m_Connection);
-            if (m_Connection != null)
-            {
-                m_Connection.InvokeHandlerNoData((short)MsgType.Disconnect);
-            }
+           
+            m_Connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
         }
 
         void OnDataReceived(byte[] data)
