@@ -168,11 +168,7 @@ namespace Mirror
 
             Changes.Add(change);
 
-            SyncListChanged listChanged = Callback;
-            if (listChanged != null)
-            {
-                listChanged(op, itemIndex, item);
-            }
+            Callback?.Invoke(op, itemIndex, item);
         }
 
         void AddOperation(Operation op, int itemIndex)
@@ -334,12 +330,14 @@ namespace Mirror
                         break;
                 }
 
-                SyncListChanged listChanged = Callback;
-                if (apply && listChanged != null)
+                if (apply)
                 {
-                    listChanged(operation, index, item);
+                    SyncListChanged listChanged = Callback;
+                    if (listChanged != null)
+                    {
+                        listChanged(operation, index, item);
+                    }
                 }
-
                 // we just skipped this change
                 if (!apply)
                 {
