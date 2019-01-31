@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
@@ -26,6 +26,8 @@ namespace Mirror
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
+        private static double _time;
+        private static int lastFrame;
 
         // the true offset guaranteed to be in this range
         private static double offsetMin = Double.MinValue;
@@ -124,8 +126,24 @@ namespace Mirror
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
-        // Notice _offset is 0 at the server
-        public static double time => LocalTime() - _offset.Value;
+        public static double time
+        {
+            get
+            {
+                // paul: LocalTime is very expensive
+                // so cache the time for the duration of the frame
+                // if someone asks for .time serveral times in a frame this has significant impact
+                // this also makes it more consistent with Time.time
+                if (lastFrame != Time.frameCount)
+                {
+                    // Notice _offset is 0 at the server
+                    _time = LocalTime() - _offset.Value;
+                    lastFrame = Time.frameCount;
+                }
+                return _time;
+
+            }
+        }
 
         // measure volatility of time.
         // the higher the number,  the less accurate the time is
