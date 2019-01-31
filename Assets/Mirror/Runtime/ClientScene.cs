@@ -682,10 +682,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
             // is there already an owner that is a different object??
-            if (netMsg.conn.playerController != null)
-            {
-                netMsg.conn.playerController.SetNotLocalPlayer();
-            }
+            netMsg.conn.playerController?.SetNotLocalPlayer();
 
             NetworkIdentity localObject;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
