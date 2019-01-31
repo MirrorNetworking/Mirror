@@ -584,11 +584,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientDisconnectInternal"); }
 
-            if (!string.IsNullOrEmpty(offlineScene))
-            {
-                ClientChangeScene(offlineScene, false);
-            }
-
             OnClientDisconnect(netMsg.conn);
         }
 
