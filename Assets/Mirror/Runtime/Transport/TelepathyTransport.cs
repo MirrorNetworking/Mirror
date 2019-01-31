@@ -66,7 +66,7 @@ namespace Mirror
         }
         public override void ClientDisconnect() { client.Disconnect(); }
 
-        public void Update()
+        public void LateUpdate()
         {
             while (ProcessClientMessage()) { }
             while (ProcessServerMessage()) { }

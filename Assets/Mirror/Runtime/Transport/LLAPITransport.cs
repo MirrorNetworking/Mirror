@@ -155,7 +155,7 @@ namespace Mirror
             return true;
         }
 
-        public void Update()
+        public void LateUpdate()
         {
             // process all messages
             while (ProcessClientMessage()) { }

@@ -42,5 +42,15 @@ namespace Mirror
         // common
         public abstract void Shutdown();
         public abstract int GetMaxPacketSize(int channelId=Channels.DefaultReliable);
+
+        // block Update() to force Transports to use LateUpdate to avoid race
+        // conditions. messages should be processed after all the game state
+        // was processed in Update.
+        // -> in other words: use LateUpdate!
+        // -> uMMORPG 480 CCU stress test: when bot machine stops, it causes
+        //    'Observer not ready for ...' log messages when using Update
+        // -> occupying a public Update() function will cause Warnings if a
+        //    transport uses Update.
+        public void Update() {}
     }
 }
