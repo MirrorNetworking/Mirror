@@ -79,6 +79,35 @@ class Player : NetworkBehaviour
 
 When running a game as a host with a LocalClient, ClientRpc calls will be invoked on the LocalClient - even though it is in the same process as the server. So the behaviour of LocalClients and RemoteClients is the same for ClientRpc calls.
 
+## TargetRpc Calls
+
+TargetRpc functions are called by user code on the server, and then invoked on the corresponding client object on the client of the specified NetworkConnection. The arguments to the RPC call are serialized across the network, so that the client function is invoked with the same values as the function on the server. These functions must begin with the prefix "Target" and cannot be static.
+
+The first argument to an TargetRpc function must be a NetworkConnection object.
+
+This example shows how a client can use a Command to make a request from the server (CmdTest) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
+
+```cs
+using UnityEngine;
+using UnityEngine.Networking;
+
+public class Example : NetworkBehaviour
+{
+    [Command]
+    void CmdTest()
+    {
+        TargetDoMagic(connectionToClient, 55);
+    }
+
+    [TargetRpc]
+    public void TargetDoMagic(NetworkConnection target, int extra)
+    {
+        // This output will appear on the client that called the [Command] above
+        Debug.Log("Magic = " + (123 + extra));
+    }
+}
+```
+
 ## Arguments to Remote Actions
 
 The arguments passed to commands and ClientRpc calls are serialized and sent over the network. These arguments can be:
