@@ -14,7 +14,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 30000 / 4; ++i)
                 writer.Write(i);
-            Assert.That(writer.Position, Is.EqualTo(30000));
+            Assert.That(writer.ToArray().Length, Is.EqualTo(30000));
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 40000 / 4; ++i)
                 writer.Write(i);
-            Assert.That(writer.Position, Is.EqualTo(40000));
+            Assert.That(writer.ToArray().Length, Is.EqualTo(40000));
         }
 
         [Test]
@@ -51,12 +51,9 @@ namespace Mirror.Tests
             // .ToArray() length is 2?
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
 
-            // set position back by one
-            writer.Position = 1;
-
             // .ToArray() length is 1, even though the internal array contains 2 bytes?
             // (see .ToArray() function comments)
-            Assert.That(writer.ToArray().Length, Is.EqualTo(1));
+            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
         }
 
         [Test]
