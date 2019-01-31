@@ -96,8 +96,7 @@ namespace Mirror
             list.index = spawnListProperty.arraySize - 1;
 
             var obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
-            if (obj.objectReferenceValue != null)
-                obj.objectReferenceValue = null;
+            obj.objectReferenceValue = null;
 
             spawnList.index = spawnList.count - 1;
 
