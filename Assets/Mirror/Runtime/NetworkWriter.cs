@@ -10,17 +10,6 @@ namespace Mirror
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
-        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
-        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
-
-        // MemoryStream.ToArray() ignores .Position, but HLAPI's .ToArray() expects only the valid data until .Position.
-        // .ToArray() is often used for payloads or sends, we don't unnecessary old data in there (bandwidth etc.)
-        //   Example:
-        //     HLAPI writes 10 bytes, sends them
-        //     HLAPI sets .Position = 0
-        //     HLAPI writes 5 bytes, sends them
-        //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
         public byte[] ToArray()
         {
             writer.Flush();
@@ -327,6 +316,7 @@ namespace Mirror
 
         public void Reset()
         {
+            writer.Flush();
             ((MemoryStream)writer.BaseStream).SetLength(0);
         }
     }
