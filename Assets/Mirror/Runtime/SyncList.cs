@@ -332,14 +332,10 @@ namespace Mirror
 
                 if (apply)
                 {
-                    SyncListChanged listChanged = Callback;
-                    if (listChanged != null)
-                    {
-                        listChanged(operation, index, item);
-                    }
+                    Callback?.Invoke(operation, index, item);
                 }
                 // we just skipped this change
-                if (!apply)
+                else
                 {
                     changesAhead--;
                 }
