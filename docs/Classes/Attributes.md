@@ -5,19 +5,19 @@ Networking attributes are added to member functions of NetworkBehaviour scripts,
 These attributes can be used for Unity game loop methods like Start or Update, as well as other implemented methods.
 
 -   **NetworkSettings**  
-    Something about this
+    This attribute has been deprecated because `channels` were moved to transports (where applicable) and `interval` was moved to an inspector property
 -   **Server**  
     means don't allow a client to call that method (throws a warning or an error when called on a client).
 -   **ServerCallback**  
-    Something about this
+    A Custom Attribute that can be added to member functions of NetworkBehaviour scripts, to make them only run on servers.
 -   **Client**  
     means don't allow a server to call that method (throws a warning or an error when called on the server).
 -   **ClientRpc**  
     The server uses an Rpc to run that function on clients.
 -   **ClientCallback**  
-    Something about this
+    A Custom Attribute that can be added to member functions of NetworkBehaviour scripts, to make them only run on clients, but not generate warnings.
 -   **TargetRpc**  
-    Something about this
+    This is an attribute that can be put on methods of NetworkBehaviour classes to allow them to be invoked on clients from a server. Unlike the ClientRpc attribute, these functions are invoked on one individual target client, not all of the ready clients.
 -   **Command**  
 	Call this from a client to run this function on the server. Make sure to validate input etc. It's not possible to call this from a server. Use this as a wrapper around another function, if you want to call it from the server too.
 	The allowed argument types are;
