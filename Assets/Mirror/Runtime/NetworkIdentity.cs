@@ -454,7 +454,6 @@ namespace Mirror
         //    -> we can properly track down errors
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            // serialize into a temporary writer
             bool result = false;
             try
             {
