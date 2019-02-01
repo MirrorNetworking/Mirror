@@ -97,40 +97,40 @@ namespace Mirror.Components.NetworkLobby
                 string loadedSceneName = SceneManager.GetActiveScene().name;
                 if (loadedSceneName != lobby.LobbyScene)
                     return;
-            }
 
-            Rect rec = new Rect(20 + Index * 100, 200, 90, 20);
+                Rect rec = new Rect(20 + Index * 100, 200, 90, 20);
 
-            GUI.Label(rec, String.Format("Player [{0}]", Index + 1));
+                GUI.Label(rec, String.Format("Player [{0}]", Index + 1));
 
-            rec.y += 25;
-            if (ReadyToBegin)
-                GUI.Label(rec, "Ready");
-            else
-                GUI.Label(rec, "Not Ready");
-
-            rec.y += 25;
-            if (isServer && Index > 0 && GUI.Button(rec, "REMOVE"))
-            {
-                // This button only shows on the Host for all players other than the Host
-                // Host and Players can't remove themselves (stop the client instead)
-                // Host can kick a Player this way.
-                GetComponent<NetworkIdentity>().clientAuthorityOwner.Disconnect();
-            }
-
-            if (NetworkClient.active && isLocalPlayer)
-            {
-                Rect readyCancelRect = new Rect(20, 300, 120, 20);
-
+                rec.y += 25;
                 if (ReadyToBegin)
-                {
-                    if (GUI.Button(readyCancelRect, "Cancel"))
-                        CmdChangeReadyState(false);
-                }
+                    GUI.Label(rec, "Ready");
                 else
+                    GUI.Label(rec, "Not Ready");
+
+                rec.y += 25;
+                if (isServer && Index > 0 && GUI.Button(rec, "REMOVE"))
                 {
-                    if (GUI.Button(readyCancelRect, "Ready"))
-                        CmdChangeReadyState(true);
+                    // This button only shows on the Host for all players other than the Host
+                    // Host and Players can't remove themselves (stop the client instead)
+                    // Host can kick a Player this way.
+                    GetComponent<NetworkIdentity>().clientAuthorityOwner.Disconnect();
+                }
+
+                if (NetworkClient.active && isLocalPlayer)
+                {
+                    Rect readyCancelRect = new Rect(20, 300, 120, 20);
+
+                    if (ReadyToBegin)
+                    {
+                        if (GUI.Button(readyCancelRect, "Cancel"))
+                            CmdChangeReadyState(false);
+                    }
+                    else
+                    {
+                        if (GUI.Button(readyCancelRect, "Ready"))
+                            CmdChangeReadyState(true);
+                    }
                 }
             }
         }
