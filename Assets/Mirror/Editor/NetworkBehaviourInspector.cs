@@ -19,10 +19,7 @@ namespace Mirror
 
         GUIContent m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
-        internal virtual bool hideScriptField
-        {
-            get { return false; }
-        }
+        internal virtual bool hideScriptField => false;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)

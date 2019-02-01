@@ -253,7 +253,7 @@ namespace Mirror
             }
         }
 
-        public NetworkClient StartClient(ushort hostPort=0)
+        public NetworkClient StartClient()
         {
             InitializeSingleton();
 
@@ -262,10 +262,7 @@ namespace Mirror
 
             isNetworkActive = true;
 
-            client = new NetworkClient
-            {
-                hostPort = hostPort
-            };
+            client = new NetworkClient();
 
             RegisterClientMessages(client);
 
@@ -586,11 +583,6 @@ namespace Mirror
         internal void OnClientDisconnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientDisconnectInternal"); }
-
-            if (!string.IsNullOrEmpty(offlineScene))
-            {
-                ClientChangeScene(offlineScene, false);
-            }
 
             OnClientDisconnect(netMsg.conn);
         }
