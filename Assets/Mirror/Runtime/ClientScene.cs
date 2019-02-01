@@ -22,9 +22,9 @@ namespace Mirror
 
         static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
-        public static NetworkIdentity localPlayer { get { return s_LocalPlayer; } }
-        public static bool ready { get { return s_IsReady; } }
-        public static NetworkConnection readyConnection { get { return s_ReadyConnection; }}
+        public static NetworkIdentity localPlayer => s_LocalPlayer;
+        public static bool ready => s_IsReady;
+        public static NetworkConnection readyConnection => s_ReadyConnection;
 
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
         // scene id to NetworkIdentity
@@ -78,6 +78,7 @@ namespace Mirror
         }
 
         // use this to implicitly become ready
+        // -> extraMessage can contain character selection, etc.
         public static bool AddPlayer(NetworkConnection readyConn, MessageBase extraMessage)
         {
             // ensure valid ready connection
@@ -362,7 +363,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
             {
                 NetworkIdentity identity = kvp.Value;
-                if (identity.gameObject != null)
+                if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                     {
@@ -681,10 +682,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
             // is there already an owner that is a different object??
-            if (netMsg.conn.playerController != null)
-            {
-                netMsg.conn.playerController.SetNotLocalPlayer();
-            }
+            netMsg.conn.playerController?.SetNotLocalPlayer();
 
             NetworkIdentity localObject;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)

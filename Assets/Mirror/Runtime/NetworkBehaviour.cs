@@ -20,17 +20,17 @@ namespace Mirror
         // this prevents recursion when SyncVar hook functions are called.
         bool m_SyncVarGuard;
 
-        public bool localPlayerAuthority { get { return netIdentity.localPlayerAuthority; } }
-        public bool isServer { get { return netIdentity.isServer; } }
-        public bool isClient { get { return netIdentity.isClient; } }
-        public bool isLocalPlayer { get { return netIdentity.isLocalPlayer; } }
-        public bool isServerOnly { get { return isServer && !isClient; } }
-        public bool isClientOnly { get { return isClient && !isServer; } }
-        public bool hasAuthority { get { return netIdentity.hasAuthority; } }
-        public uint netId { get { return netIdentity.netId; } }
-        public NetworkConnection connectionToServer { get { return netIdentity.connectionToServer; } }
-        public NetworkConnection connectionToClient { get { return netIdentity.connectionToClient; } }
-        protected ulong syncVarDirtyBits { get { return m_SyncVarDirtyBits; } }
+        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
+        public bool isServer => netIdentity.isServer; 
+        public bool isClient => netIdentity.isClient; 
+        public bool isLocalPlayer => netIdentity.isLocalPlayer; 
+        public bool isServerOnly => isServer && !isClient;
+        public bool isClientOnly => isClient && !isServer;
+        public bool hasAuthority => netIdentity.hasAuthority;
+        public uint netId => netIdentity.netId; 
+        public NetworkConnection connectionToServer => netIdentity.connectionToServer;
+        public NetworkConnection connectionToClient => netIdentity.connectionToClient; 
+        protected ulong syncVarDirtyBits => m_SyncVarDirtyBits;
         protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
 
         // objects that can synchronize themselves,  such as synclists
@@ -93,11 +93,13 @@ namespace Mirror
             }
 
             // construct the message
-            CommandMessage message = new CommandMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            CommandMessage message = new CommandMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
         }
@@ -121,11 +123,13 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            RpcMessage message = new RpcMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
         }
@@ -141,11 +145,13 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            RpcMessage message = new RpcMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             conn.Send((short)MsgType.Rpc, message, channelId);
         }
@@ -168,11 +174,13 @@ namespace Mirror
             }
 
             // construct the message
-            SyncEventMessage message = new SyncEventMessage();
-            message.netId = netId;
-            message.componentIndex = ComponentIndex;
-            message.functionHash = (invokeClass + ":" + eventName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
-            message.payload = writer.ToArray();
+            SyncEventMessage message = new SyncEventMessage
+            {
+                netId = netId,
+                componentIndex = ComponentIndex,
+                functionHash = (invokeClass + ":" + eventName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = writer.ToArray()
+            };
 
             NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
         }
@@ -219,10 +227,12 @@ namespace Mirror
                     invokeClass,
                     oldInvoker.invokeFunction.GetMethodName()));
             }
-            Invoker invoker = new Invoker();
-            invoker.invokeType = invokerType;
-            invoker.invokeClass = invokeClass;
-            invoker.invokeFunction = func;
+            Invoker invoker = new Invoker
+            {
+                invokeType = invokerType,
+                invokeClass = invokeClass,
+                invokeFunction = func
+            };
             s_CmdHandlerDelegates[cmdHash] = invoker;
             if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
         }

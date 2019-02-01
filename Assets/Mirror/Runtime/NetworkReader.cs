@@ -16,31 +16,28 @@ namespace Mirror
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
-        public int Length { get { return (int)reader.BaseStream.Length; } }
+        public int Length => (int)reader.BaseStream.Length; 
 
-        public byte ReadByte() { return reader.ReadByte(); }
-        public sbyte ReadSByte() { return reader.ReadSByte(); }
-        public char ReadChar() { return reader.ReadChar(); }
-        public bool ReadBoolean() { return reader.ReadBoolean(); }
-        public short ReadInt16() { return reader.ReadInt16(); }
-        public ushort ReadUInt16() { return reader.ReadUInt16(); }
-        public int ReadInt32() { return reader.ReadInt32(); }
-        public uint ReadUInt32() { return reader.ReadUInt32(); }
-        public long ReadInt64() { return reader.ReadInt64(); }
-        public ulong ReadUInt64() { return reader.ReadUInt64(); }
-        public decimal ReadDecimal() { return reader.ReadDecimal(); }
-        public float ReadSingle() { return reader.ReadSingle(); }
-        public double ReadDouble() { return reader.ReadDouble(); }
+        public byte ReadByte() => reader.ReadByte();
+        public sbyte ReadSByte() => reader.ReadSByte();
+        public char ReadChar() => reader.ReadChar();
+        public bool ReadBoolean() => reader.ReadBoolean();
+        public short ReadInt16() => reader.ReadInt16();
+        public ushort ReadUInt16() => reader.ReadUInt16();
+        public int ReadInt32() => reader.ReadInt32();
+        public uint ReadUInt32() => reader.ReadUInt32();
+        public long ReadInt64() => reader.ReadInt64();
+        public ulong ReadUInt64() => reader.ReadUInt64();
+        public decimal ReadDecimal() => reader.ReadDecimal();
+        public float ReadSingle() => reader.ReadSingle();
+        public double ReadDouble() => reader.ReadDouble();
 
         public string ReadString()
         {
             return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
         }
 
-        public byte[] ReadBytes(int count)
-        {
-            return reader.ReadBytes(count);
-        }
+        public byte[] ReadBytes(int count) => reader.ReadBytes(count);
 
         public byte[] ReadBytesAndSize()
         {
@@ -172,23 +169,25 @@ namespace Mirror
 
         public Matrix4x4 ReadMatrix4x4()
         {
-            Matrix4x4 m = new Matrix4x4();
-            m.m00 = ReadSingle();
-            m.m01 = ReadSingle();
-            m.m02 = ReadSingle();
-            m.m03 = ReadSingle();
-            m.m10 = ReadSingle();
-            m.m11 = ReadSingle();
-            m.m12 = ReadSingle();
-            m.m13 = ReadSingle();
-            m.m20 = ReadSingle();
-            m.m21 = ReadSingle();
-            m.m22 = ReadSingle();
-            m.m23 = ReadSingle();
-            m.m30 = ReadSingle();
-            m.m31 = ReadSingle();
-            m.m32 = ReadSingle();
-            m.m33 = ReadSingle();
+            Matrix4x4 m = new Matrix4x4
+            {
+                m00 = ReadSingle(),
+                m01 = ReadSingle(),
+                m02 = ReadSingle(),
+                m03 = ReadSingle(),
+                m10 = ReadSingle(),
+                m11 = ReadSingle(),
+                m12 = ReadSingle(),
+                m13 = ReadSingle(),
+                m20 = ReadSingle(),
+                m21 = ReadSingle(),
+                m22 = ReadSingle(),
+                m23 = ReadSingle(),
+                m30 = ReadSingle(),
+                m31 = ReadSingle(),
+                m32 = ReadSingle(),
+                m33 = ReadSingle()
+            };
             return m;
         }
 
@@ -252,16 +251,6 @@ namespace Mirror
             return null;
         }
 
-        public override string ToString()
-        {
-            return reader.ToString();
-        }
-
-        public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
-        {
-            var msg = new TMsg();
-            msg.Deserialize(this);
-            return msg;
-        }
+        public override string ToString() => reader.ToString();
     }
 }

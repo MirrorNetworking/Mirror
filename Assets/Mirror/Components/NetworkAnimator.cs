@@ -7,6 +7,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
     [RequireComponent(typeof(Animator))]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkAnimator")]
     public class NetworkAnimator : NetworkBehaviour
     {
         // configuration

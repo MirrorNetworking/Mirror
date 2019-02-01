@@ -61,10 +61,12 @@ namespace Mirror
 
         void PostInternalMessage(short msgType, byte[] content)
         {
-            NetworkMessage msg = new NetworkMessage();
-            msg.msgType = msgType;
-            msg.reader = new NetworkReader(content);
-            msg.conn = connection;
+            NetworkMessage msg = new NetworkMessage
+            {
+                msgType = msgType,
+                reader = new NetworkReader(content),
+                conn = connection
+            };
             m_InternalMsgs.Enqueue(msg);
         }
 

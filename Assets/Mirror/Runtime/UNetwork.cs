@@ -65,7 +65,9 @@ namespace Mirror
 
         public TMsg ReadMessage<TMsg>() where TMsg : MessageBase, new()
         {
-            return reader.ReadMessage<TMsg>();
+            TMsg msg = new TMsg();
+            msg.Deserialize(reader);
+            return msg;
         }
 
         public void ReadMessage<TMsg>(TMsg msg) where TMsg : MessageBase
@@ -79,7 +81,7 @@ namespace Mirror
         Current = 1
     }
 
-    public class Channels
+    public static class Channels
     {
         public const int DefaultReliable = 0;
         public const int DefaultUnreliable = 1;
