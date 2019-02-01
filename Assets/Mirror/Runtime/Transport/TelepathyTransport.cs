@@ -122,7 +122,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            if (server.Active)
+            if (server.Active && server.listener != null)
             {
                 return "Telepathy Server port: " + server.listener.LocalEndpoint;
             }
