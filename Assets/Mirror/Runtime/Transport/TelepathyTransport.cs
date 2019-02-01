@@ -16,9 +16,9 @@ namespace Mirror
         void Awake()
         {
             // tell Telepathy to use Unity's Debug.Log
-            Telepathy.Logger.LogMethod = Debug.Log;
-            Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
-            Telepathy.Logger.LogErrorMethod = Debug.LogError;
+            Telepathy.Logger.Log = Debug.Log;
+            Telepathy.Logger.LogWarning = Debug.LogWarning;
+            Telepathy.Logger.LogError = Debug.LogError;
 
             // configure
             client.NoDelay = NoDelay;
@@ -66,7 +66,7 @@ namespace Mirror
         }
         public override void ClientDisconnect() { client.Disconnect(); }
 
-        public void Update()
+        public void LateUpdate()
         {
             while (ProcessClientMessage()) { }
             while (ProcessServerMessage()) { }
@@ -122,7 +122,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            if (server.Active)
+            if (server.Active && server.listener != null)
             {
                 return "Telepathy Server port: " + server.listener.LocalEndpoint;
             }

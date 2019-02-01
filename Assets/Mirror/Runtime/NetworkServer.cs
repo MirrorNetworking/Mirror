@@ -1038,10 +1038,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("DestroyObject instance:" + identity.netId); }
             NetworkIdentity.spawned.Remove(identity.netId);
 
-            if (identity.clientAuthorityOwner != null)
-            {
-                identity.clientAuthorityOwner.RemoveOwnedObject(identity);
-            }
+            identity.clientAuthorityOwner?.RemoveOwnedObject(identity);
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage
             {

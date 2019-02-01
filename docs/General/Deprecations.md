@@ -7,6 +7,14 @@ This page will identify all removed features, the reason for removal, and possib
 
 As part of the Unity Services, this entire namespace was removed.  It didn't work well to begin with, and was incredibly complex to be part of the core networking package.  We expect this, along with other back-end services, will be provided through standalone apps that have integration to Mirror.
 
+## Network Discovery
+
+NetworkDiscovery was a UNet component intended for UDP projects.  Since Mirror was built on TCP, it was removed.  Now that all transports are separate components, it would be up to the UDP transport devs to re-implement Discovery at that level.
+
+## networkPort in Network Manager
+
+Network Manager's `networkPort` property was removed now that all transports are separate components.  Not all transports use ports, but those that do have a field for it.  See [Transports](https://vis2k.github.io/Mirror/Transports) for more info.
+
 ## Couch Co-Op
 
 The core networking was greatly simplified by removing this low-hanging fruit.  It was buggy, and too convoluted to be worth fixing.

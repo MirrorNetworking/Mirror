@@ -9,7 +9,7 @@ namespace Mirror
     {
         LocalClient m_LocalClient;
 
-        public LocalClient localClient { get {  return m_LocalClient; } }
+        public LocalClient localClient => m_LocalClient;
 
         public ULocalConnectionToClient(LocalClient localClient) : base ("localClient")
         {
