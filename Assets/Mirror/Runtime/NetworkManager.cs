@@ -16,6 +16,7 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManager")]
     public class NetworkManager : MonoBehaviour
     {
 
@@ -622,11 +623,6 @@ namespace Mirror
         internal void OnClientDisconnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientDisconnectInternal"); }
-
-            if (!string.IsNullOrEmpty(offlineScene))
-            {
-                ClientChangeScene(offlineScene, false);
-            }
 
             OnClientDisconnect(netMsg.conn);
         }

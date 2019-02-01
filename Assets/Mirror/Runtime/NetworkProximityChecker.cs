@@ -6,6 +6,7 @@ namespace Mirror
 {
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkProximityChecker")]
     public class NetworkProximityChecker : NetworkBehaviour
     {
         public enum CheckMethod
