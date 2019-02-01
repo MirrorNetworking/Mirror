@@ -451,30 +451,33 @@ namespace Mirror
         //    -> we can properly track down errors
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            // serialize into a temporary writer
-            NetworkWriter temp = new NetworkWriter();
+            // write placeholder length bytes
+            // (jumping back later is WAY faster than allocating a temporary
+            //  writer for the payload, then writing payload.size, payload)
+            int headerPosition = writer.Position;
+            writer.Write((int)0);
+            int contentPosition = writer.Position;
+
+            // write payload
             bool result = false;
             try
             {
-                result = comp.OnSerialize(temp, initialState);
+                result = comp.OnSerialize(writer, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
             }
-            byte[] bytes = temp.ToArray();
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            int endPosition = writer.Position;
 
-            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
-            // be useful for debugging.
-            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize())
-            {
-                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
-            }
+            // fill in length now
+            writer.Position = headerPosition;
+            writer.Write(endPosition - contentPosition);
+            writer.Position = endPosition;
 
-            // serialize length,data into the real writer, untouched by user code
-            writer.WriteBytesAndSize(bytes);
+            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition)); }
+
             return result;
         }
 
@@ -538,9 +541,11 @@ namespace Mirror
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-            // extract data length and data safely, untouched by user code
-            // -> returns empty array if length is 0, so .Length is always the proper length
-            byte[] bytes = reader.ReadBytesAndSize();
+            // read header as 4 bytes
+            int contentSize = reader.ReadInt32();
+
+            // read content
+            byte[] bytes = reader.ReadBytes(contentSize);
             if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // call OnDeserialize with a temporary reader, so that the
