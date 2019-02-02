@@ -93,6 +93,9 @@ namespace Mirror
 
         public override void ClientConnect(string address)
         {
+            // LLAPI can't handle 'localhost'
+            if (address.ToLower() == "localhost") address = "127.0.0.1";
+
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
             // important:
