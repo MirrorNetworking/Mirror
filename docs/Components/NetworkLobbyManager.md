@@ -1,31 +1,46 @@
-# NetworkLobbyManager
+# Network Lobby Manager
 
-The NetworkLobbyManager is an extension of [NetworkManager](NetworkManager).
+**Please see the Lobby example in the Examples folder in your Mirror folder
 
-Create a Lobby Scene, and a Game Scene if you don't already have one.
+The NetworkLobbyManager is a specialized type of [NetworkManager](NetworkManager) that provides a multiplayer lobby before entering the main play scene of the game. It allows you to set up a network with:
 
-In the Lobby Scene, add an empty game object called Lobby Manager and give it a NetworkLobbyManager component.  A Telepathy Transport component will be added automatically.
+-   A maximum player limit
+-   Automatic start when all players are ready
+-   Option to prevent players from joining a game in progress
+-   Customizable ways for players to choose options while in lobby
+ 
 
-Also add a NetworkManagerHUD component to Lobby Manager.
+There are two types of player objects with the NetworkLobbyManager:
 
-Save the Lobby Scene, and then drag it to **both** the Offline Scene field and the Lobby Scene field in Lobby Manager.
+**Lobby Player Prefab**
 
-Drag your Game Scene to the Gameplay Scene field in Lobby Manager.
+-   One for each player
+-   Created when client connects, or player is added
+-   Persists until client disconnects
+-   Holds ready flag and configuration data
+-   Handles commands in the lobby
+-   Must use the [NetworkLobbyPlayer](NetworkLobbyPlayer) component
 
-NOTE: Offline and Online Scene are separate from Lobby and Gameplay Scene... **do not** assign anything to Online Scene or the Lobby will be bypassed!
+**Player Prefab**
 
-Create an empty game object in the scene called LobbyPlayer and give it a NetworkLobbyPlayer component.  A Network Identity component will be added automatically.  In the Network Identity component, check the box for Local Player Authority.
+-   One for each player
+-   Created when game scene is started
+-   Destroyed when leaving game scene
+-   Handles commands in the game
+ 
 
-Drag the Lobby Player to a folder in your Project to make it a prefab, then remove it from the scene.
+![Network Lobby Manager](NetworkLobbyManager.PNG)
+ 
 
-Select Lobby Manager and drag the Lobby Player prefab you just made to the Lobby Player Prefab field.
+## Properties
 
-Drag your normal Player prefab to the Player Prefab field...this can be any game object with a Network Identity on it.
-
-If you already have a Network Manager in your Game Scene you'll need to remove it and apply it's settings to the NetworkLobbyManager, except for Offline and Online Scene as noted above.
-
-Don't assign anything in the Lobby Slots list...that's for visualization in the inspector during testing only.
-
-This will do for the moment until I get a nicer doc added to the formal docs.
-
-![The Network Lobby Manager component, as viewed in the inspector](NetworkLobbyManager.PNG)
+-   **Show Lobby GUI**  
+    Show the default OnGUI controls for the lobby.
+-   **Min Players**  
+    Minimum number of players needed to start a game.
+-   **Lobby Player Prefab**  
+    The prefab to create for players when they enter the lobby (requires NetworkLobbyPlayer component).
+-   **Lobby Scene**  
+    The scene to use for the lobby.
+-   **Gameplay Scene**  
+    The scene to use for main game play.
