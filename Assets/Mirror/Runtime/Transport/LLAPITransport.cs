@@ -183,13 +183,13 @@ namespace Mirror
         {
             if (useWebsockets)
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
             else
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
