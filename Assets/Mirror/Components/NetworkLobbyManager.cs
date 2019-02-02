@@ -11,7 +11,6 @@ namespace Mirror.Components.NetworkLobby
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyManager")]
     public class NetworkLobbyManager : NetworkManager
     {
-
         struct PendingPlayer
         {
             public NetworkConnection conn;
@@ -225,15 +224,13 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnServerDisconnect(NetworkConnection conn)
         {
-            if (conn == null || conn.playerController == null || conn.playerController.gameObject == null)
-                return;
+            if (conn.playerController != null)
+            {
+                var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
 
-            var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
-
-            if (player == null)
-                return;
-
-            lobbySlots.Remove(player);
+                if (player != null)
+                    lobbySlots.Remove(player);
+            }
 
             foreach (var p in lobbySlots)
             {
