@@ -116,6 +116,8 @@ namespace Mirror
 
         public bool ProcessClientMessage()
         {
+            if (clientId == -1) return false;
+
             int connectionId;
             int channel;
             int receivedSize;
@@ -200,6 +202,8 @@ namespace Mirror
 
         public bool ProcessServerMessage()
         {
+            if (serverHostId == -1) return false;
+
             int connectionId = -1;
             int channel;
             int receivedSize;
