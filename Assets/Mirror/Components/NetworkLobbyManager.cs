@@ -31,7 +31,8 @@ namespace Mirror.Components.NetworkLobby
 
         // runtime data
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
-        public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
+        List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
+        internal int playerIndex = 0;
 
         public override void OnValidate()
         {
@@ -164,6 +165,7 @@ namespace Mirror.Components.NetworkLobby
                 return;
 
             pendingPlayers.Clear();
+            playerIndex = 0;
             OnLobbyServerPlayersReady();
         }
 
@@ -491,8 +493,7 @@ namespace Mirror.Components.NetworkLobby
             if (loadedSceneName != LobbyScene)
                 return;
 
-            Rect backgroundRec = new Rect(10, 180, 520, 150);
-            GUI.Box(backgroundRec, "PLAYERS");
+            GUI.Box(new Rect(10, 180, 520, 150), "PLAYERS");
         }
     }
 }
