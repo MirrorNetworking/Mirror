@@ -35,10 +35,10 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnValidate()
         {
-            minPlayers = Mathf.Max(minPlayers, 0); // always >= 0
+            maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
 
-            if (minPlayers > maxConnections)
-                minPlayers = maxConnections;
+            minPlayers = Mathf.Min(minPlayers, maxConnections); // always <= maxConnections
+            minPlayers = Mathf.Max(minPlayers, 0); // always >= 0
 
             if (lobbyPlayerPrefab != null)
             {
@@ -47,16 +47,6 @@ namespace Mirror.Components.NetworkLobby
                 {
                     lobbyPlayerPrefab = null;
                     Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
-                }
-            }
-
-            if (playerPrefab != null)
-            {
-                NetworkIdentity uv = playerPrefab.GetComponent<NetworkIdentity>();
-                if (uv == null)
-                {
-                    playerPrefab = null;
-                    Debug.LogWarning("GamePlayer prefab must have a NetworkIdentity component.");
                 }
             }
 
@@ -117,10 +107,9 @@ namespace Mirror.Components.NetworkLobby
             {
                 // get start position from base class
                 Transform startPos = GetStartPosition();
-                if (startPos != null)
-                    gamePlayer = (GameObject)Instantiate(playerPrefab, startPos.position, startPos.rotation);
-                else
-                    gamePlayer = (GameObject)Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+                gamePlayer = startPos != null
+                    ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
+                    : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
             }
 
             if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayerGameObject, gamePlayer))
