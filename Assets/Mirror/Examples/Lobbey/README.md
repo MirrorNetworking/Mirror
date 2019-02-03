@@ -20,4 +20,6 @@ Click Ready in each instance, and then in the Editor (Host).
 
 You should now be in the Online scene with your players of random color.
 
-WASD / Arrow keys to move around the play area.
+WASDQE keys to move & turn
+Touch the spheres for points
+Lighter colors score higher.

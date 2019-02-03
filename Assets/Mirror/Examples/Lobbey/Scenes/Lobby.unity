@@ -267,13 +267,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2008127829}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 615e6c6589cf9e54cad646b5a11e0529, type: 3}
+  m_Script: {fileID: 11500000, guid: e7d8650c751710349bb9546d1697b9cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
   startOnHeadless: 1
-  showDebugMessages: 1
+  showDebugMessages: 0
   offlineScene: Offline
   onlineScene: 
   transport: {fileID: 2008127830}

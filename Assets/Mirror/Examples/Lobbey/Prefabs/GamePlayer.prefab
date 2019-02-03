@@ -200,7 +200,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24fd13686a451ad498101a604d134e39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncInterval: 0.1
+  syncInterval: 0
+  Index: 0
   playerColor: {r: 0, g: 0, b: 0, a: 1}
   score: 0
   moveSpeed: 300

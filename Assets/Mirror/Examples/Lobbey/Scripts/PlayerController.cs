@@ -19,7 +19,6 @@ namespace Mirror.Examples.NetworkLobby
         CharacterController characterController;
 
         public float moveSpeed = 300f;
-        //public float turnSpeed = 1;
 
         public float horiz = 0f;
         public float vert = 0f;
@@ -61,15 +60,6 @@ namespace Mirror.Examples.NetworkLobby
             characterController.SimpleMove(forward * Time.fixedDeltaTime);
         }
 
-        public override void OnStartServer()
-        {
-            base.OnStartServer();
-            playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
-            Index = lobby.playerIndex;
-            lobby.playerIndex++;
-        }
-
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
@@ -84,12 +74,6 @@ namespace Mirror.Examples.NetworkLobby
         void SetColor(Color color)
         {
             GetComponent<Renderer>().material.color = color;
-        }
-
-        [TargetRpc]
-        public void TargetAddPoints(NetworkConnection networkConnection, uint points)
-        {
-            score += points;
         }
 
         private void OnGUI()

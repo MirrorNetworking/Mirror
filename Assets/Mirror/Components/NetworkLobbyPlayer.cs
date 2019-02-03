@@ -31,7 +31,7 @@ namespace Mirror.Components.NetworkLobby
 
         private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
                 // dont even try this in the startup scene
@@ -51,7 +51,7 @@ namespace Mirror.Components.NetworkLobby
 
         public override void OnStartClient()
         {
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
                 ReadyToBegin = false;
@@ -65,7 +65,7 @@ namespace Mirror.Components.NetworkLobby
         public void CmdChangeReadyState(bool ReadyState)
         {
             ReadyToBegin = ReadyState;
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
                 lobby.ReadyStatusChanged();
         }
@@ -73,7 +73,7 @@ namespace Mirror.Components.NetworkLobby
         [Command]
         public void CmdSendLevelLoaded()
         {
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
                 lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
         }
@@ -93,7 +93,7 @@ namespace Mirror.Components.NetworkLobby
             if (!ShowLobbyGUI)
                 return;
 
-            var lobby = NetworkManager.singleton as NetworkLobbyManager;
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
             {
                 if (!lobby.showLobbyGUI)

@@ -32,13 +32,9 @@ namespace Mirror.Components.NetworkLobby
         // runtime data
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
         List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
-        internal int playerIndex = 0;
 
         public override void OnValidate()
         {
-            //if (maxConnections <= 0)
-            //    maxConnections = 1;
-
             minPlayers = Mathf.Max(minPlayers, 0); // always >= 0
 
             if (minPlayers > maxConnections)
@@ -46,7 +42,7 @@ namespace Mirror.Components.NetworkLobby
 
             if (lobbyPlayerPrefab != null)
             {
-                var uv = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
+                NetworkIdentity uv = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
                 if (uv == null)
                 {
                     lobbyPlayerPrefab = null;
@@ -56,7 +52,7 @@ namespace Mirror.Components.NetworkLobby
 
             if (playerPrefab != null)
             {
-                var uv = playerPrefab.GetComponent<NetworkIdentity>();
+                NetworkIdentity uv = playerPrefab.GetComponent<NetworkIdentity>();
                 if (uv == null)
                 {
                     playerPrefab = null;
@@ -80,7 +76,7 @@ namespace Mirror.Components.NetworkLobby
         {
             int CurrentPlayers = 0;
             int ReadyPlayers = 0;
-            foreach (var item in lobbySlots)
+            foreach (NetworkLobbyPlayer item in lobbySlots)
             {
                 if (item != null)
                 {
@@ -96,7 +92,7 @@ namespace Mirror.Components.NetworkLobby
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
         {
-            var lobbyPlayer = lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>();
+            NetworkLobbyPlayer lobbyPlayer = lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>();
             if (lobbyPlayer == null)
             {
                 // not a lobby player.. dont replace it
@@ -116,7 +112,7 @@ namespace Mirror.Components.NetworkLobby
                 return;
             }
 
-            var gamePlayer = OnLobbyServerCreateGamePlayer(conn);
+            GameObject gamePlayer = OnLobbyServerCreateGamePlayer(conn);
             if (gamePlayer == null)
             {
                 // get start position from base class
@@ -137,8 +133,8 @@ namespace Mirror.Components.NetworkLobby
         static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
         {
             int countPlayers = 0;
-            var player = conn.playerController;
-            var lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
+            NetworkIdentity player = conn.playerController;
+            NetworkLobbyPlayer lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
             if (lobbyPlayer.ReadyToBegin)
                 countPlayers += 1;
 
@@ -153,7 +149,7 @@ namespace Mirror.Components.NetworkLobby
 
             int readyCount = 0;
 
-            foreach (var conn in NetworkServer.connections)
+            foreach (KeyValuePair<int, NetworkConnection> conn in NetworkServer.connections)
             {
                 if (conn.Value == null)
                     continue;
@@ -165,7 +161,6 @@ namespace Mirror.Components.NetworkLobby
                 return;
 
             pendingPlayers.Clear();
-            playerIndex = 0;
             OnLobbyServerPlayersReady();
         }
 
@@ -179,10 +174,10 @@ namespace Mirror.Components.NetworkLobby
             ServerChangeScene(LobbyScene);
         }
 
-        void CallOnClientEnterLobby()
+        public void CallOnClientEnterLobby()
         {
             OnLobbyClientEnter();
-            foreach (var player in lobbySlots)
+            foreach (NetworkLobbyPlayer player in lobbySlots)
             {
                 if (player == null)
                     continue;
@@ -194,7 +189,7 @@ namespace Mirror.Components.NetworkLobby
         void CallOnClientExitLobby()
         {
             OnLobbyClientExit();
-            foreach (var player in lobbySlots)
+            foreach (NetworkLobbyPlayer player in lobbySlots)
             {
                 if (player == null)
                     continue;
@@ -229,19 +224,23 @@ namespace Mirror.Components.NetworkLobby
         {
             if (conn.playerController != null)
             {
-                var player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
+                NetworkLobbyPlayer player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
 
                 if (player != null)
                     lobbySlots.Remove(player);
             }
 
-            foreach (var p in lobbySlots)
+            foreach (NetworkLobbyPlayer p in lobbySlots)
             {
                 if (p != null)
                     p.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
             }
 
             base.OnServerDisconnect(conn);
+
+            if (SceneManager.GetActiveScene().name != LobbyScene)
+                RecalculateLobbyPlayerIndices();
+
             OnLobbyServerDisconnect(conn);
         }
 
@@ -254,11 +253,11 @@ namespace Mirror.Components.NetworkLobby
             if (lobbySlots.Count == maxConnections)
                 return;
 
-            var newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
+            GameObject newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)
                 newLobbyGameObject = (GameObject)Instantiate(lobbyPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
-            var newLobbyPlayer = newLobbyGameObject.GetComponent<NetworkLobbyPlayer>();
+            NetworkLobbyPlayer newLobbyPlayer = newLobbyGameObject.GetComponent<NetworkLobbyPlayer>();
 
             lobbySlots.Add(newLobbyPlayer);
 
@@ -284,13 +283,13 @@ namespace Mirror.Components.NetworkLobby
             {
                 Application.targetFrameRate = 10;
 
-                foreach (var lobbyPlayer in lobbySlots)
+                foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
                 {
                     if (lobbyPlayer == null)
                         continue;
 
                     // find the game-player object for this connection, and destroy it
-                    var uv = lobbyPlayer.GetComponent<NetworkIdentity>();
+                    NetworkIdentity uv = lobbyPlayer.GetComponent<NetworkIdentity>();
 
                     NetworkIdentity playerController = uv.connectionToClient.playerController;
                     NetworkServer.Destroy(playerController.gameObject);
@@ -314,7 +313,7 @@ namespace Mirror.Components.NetworkLobby
             if (sceneName != LobbyScene)
             {
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
-                foreach (var pending in pendingPlayers)
+                foreach (PendingPlayer pending in pendingPlayers)
                 {
                     SceneLoadedForPlayer(pending.conn, pending.lobbyPlayer);
                 }
