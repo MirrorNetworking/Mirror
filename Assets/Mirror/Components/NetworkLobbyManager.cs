@@ -227,7 +227,7 @@ namespace Mirror.Components.NetworkLobby
 
             base.OnServerDisconnect(conn);
 
-            if (SceneManager.GetActiveScene().name != LobbyScene)
+            if (SceneManager.GetActiveScene().name == LobbyScene)
                 RecalculateLobbyPlayerIndices();
 
             OnLobbyServerDisconnect(conn);
