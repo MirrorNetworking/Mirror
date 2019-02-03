@@ -282,6 +282,8 @@ namespace Mirror.Components.NetworkLobby
         {
             if (sceneName == LobbyScene)
             {
+                Application.targetFrameRate = 10;
+
                 foreach (var lobbyPlayer in lobbySlots)
                 {
                     if (lobbyPlayer == null)
@@ -301,6 +303,9 @@ namespace Mirror.Components.NetworkLobby
                     }
                 }
             }
+            else
+                Application.targetFrameRate = 60;
+
             base.ServerChangeScene(sceneName);
         }
 

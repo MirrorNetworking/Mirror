@@ -5,6 +5,11 @@ namespace Mirror.Examples.NetworkLobby
 {
     public class OfflineGUI : MonoBehaviour
     {
+        private void Start()
+        {
+            Application.targetFrameRate = 10;
+        }
+
         void OnGUI()
         {
             GUI.Box(new Rect(10, 10, 200, 130), "OFFLINE  SCENE");

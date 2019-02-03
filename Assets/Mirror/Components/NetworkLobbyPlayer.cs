@@ -37,7 +37,12 @@ namespace Mirror.Components.NetworkLobby
                 // dont even try this in the startup scene
                 string loadedSceneName = SceneManager.GetActiveScene().name;
                 if (loadedSceneName == lobby.LobbyScene)
+                {
+                    Application.targetFrameRate = 10;
                     return;
+                }
+                else
+                    Application.targetFrameRate = 60;
             }
 
             if (this != null && isLocalPlayer)
