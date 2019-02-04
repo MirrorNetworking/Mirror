@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Mirror;
-using Mirror.Components.NetworkLobby;
 
 namespace Mirror.Examples.NetworkLobby
 {
@@ -10,11 +9,11 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar]
         public int Index;
 
-        [SyncVar(hook = "SetColor")]
-        public Color playerColor = Color.black;
-
         [SyncVar]
         public uint score = 0;
+
+        [SyncVar(hook = "SetColor")]
+        public Color playerColor = Color.black;
 
         CharacterController characterController;
 
@@ -27,6 +26,29 @@ namespace Mirror.Examples.NetworkLobby
         public float turnSpeedAccel = 30;
         public float turnSpeedDecel = 30;
         public float maxTurnSpeed = 100;
+
+        private void Start()
+        {
+            // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
+            SetColor(playerColor);
+        }
+
+        public override void OnStartLocalPlayer()
+        {
+            base.OnStartLocalPlayer();
+
+            characterController = GetComponent<CharacterController>();
+
+            Camera.main.transform.parent = gameObject.transform;
+            Camera.main.transform.localPosition = new Vector3(0, 3, -8);
+            Camera.main.transform.localRotation = Quaternion.identity;
+        }
+
+        void SetColor(Color color)
+        {
+            //Debug.LogWarningFormat("PlayerController SetColor netId:{0} to {1}", netId, color);
+            GetComponent<Renderer>().material.color = color;
+        }
 
         void Update()
         {
@@ -58,22 +80,6 @@ namespace Mirror.Examples.NetworkLobby
 
             Vector3 forward = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0, vert), 1) * moveSpeed));
             characterController.SimpleMove(forward * Time.fixedDeltaTime);
-        }
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-
-            characterController = GetComponent<CharacterController>();
-
-            Camera.main.transform.parent = gameObject.transform;
-            Camera.main.transform.localPosition = new Vector3(0, 3, -8);
-            Camera.main.transform.localRotation = Quaternion.identity;
-        }
-
-        void SetColor(Color color)
-        {
-            GetComponent<Renderer>().material.color = color;
         }
 
         private void OnGUI()

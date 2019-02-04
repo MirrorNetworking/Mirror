@@ -7,10 +7,8 @@ namespace Mirror.Examples.NetworkLobby
     {
         public NetworkIdentity prizePrefab;
 
-        public override void OnStartServer()
+        private void Start()
         {
-            base.OnStartServer();
-
             for (int i = 0; i < 10; i++)
             {
                 SpawnPrize();
@@ -27,9 +25,10 @@ namespace Mirror.Examples.NetworkLobby
             Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
 
-            NetworkServer.Spawn(newPrize);
-
             reward.prizeColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+            Debug.LogFormat("Prize Spawned R:{0} G:{1} B:{2}", reward.prizeColor.r, reward.prizeColor.g, reward.prizeColor.b);
+
+            NetworkServer.Spawn(newPrize);
         }
     }
 }
