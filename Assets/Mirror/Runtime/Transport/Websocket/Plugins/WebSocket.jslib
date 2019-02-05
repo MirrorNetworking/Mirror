@@ -18,14 +18,12 @@ var LibraryWebSockets = {
 		}
 
 		socket.onmessage = function (e) {
-			console.log("received data data= " +e.data);
 			// Todo: handle other data types?
 			if (e.data instanceof Blob)
 			{
 				var reader = new FileReader();
 				reader.addEventListener("loadend", function() {
 					var array = new Uint8Array(reader.result);
-					console.log("received blob");
 				});
 				reader.readAsArrayBuffer(e.data);
 			}
@@ -42,7 +40,6 @@ var LibraryWebSockets = {
 				var reader = new FileReader();
 				reader.addEventListener("loadend", function() {
 					var array = new Uint8Array(reader.result);
-					console.log("Received string");
 				});
 				var blob = new Blob([e.data]);
 				reader.readAsArrayBuffer(blob);

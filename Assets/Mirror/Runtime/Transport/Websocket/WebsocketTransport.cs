@@ -11,6 +11,10 @@ namespace Mirror.Websocket
 
         public int port;
 
+        public bool Secure = false;
+        public string CertificatePath = "";
+        public string CertificatePassword = "";
+
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
@@ -40,22 +44,38 @@ namespace Mirror.Websocket
             Debug.Log("Websocket transport initialized!");
         }
 
-        // client
-        public override bool ClientConnected() { return client.IsConnected; }
+		// client
+		public override bool ClientConnected() { return client.IsConnected; }
         public override void ClientConnect(string host)
         {
-            client.Connect(new Uri($"ws://{host}:{port}"));
+			if (Secure)
+			{
+				client.Connect(new Uri($"wss://{host}:{port}"));
+			}
+			else
+			{
+				client.Connect(new Uri($"ws://{host}:{port}"));
+			}
         }
-        public override bool ClientSend(int channelId, byte[] data)
-        {
-            client.Send(data); return true;
-        }
+        public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
         public override void ClientDisconnect() { client.Disconnect(); }
 
         // server
         public override bool ServerActive() { return server.Active; }
         public override void ServerStart()
         {
+			
+			if (Secure)
+			{
+				server._secure = Secure;
+				server._sslConfig = new Server.SslConfiguration
+				{
+					Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(Application.dataPath + CertificatePath, CertificatePassword),
+					ClientCertificateRequired = false,
+					CheckCertificateRevocation = false,
+					EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
+				};
+			}
             server.Listen(port);
         }
 
