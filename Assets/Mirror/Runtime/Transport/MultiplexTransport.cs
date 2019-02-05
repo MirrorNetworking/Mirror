@@ -37,12 +37,10 @@ namespace Mirror
         // The client just uses the first transport available
         Transport getAvailableTransport()
         {
-            foreach (Transport transport in transports)
+            Transport first = transports.FirstOrDefault(t => t.Available());
+            if (first != null)
             {
-                if (transport.Available())
-                {
-                    return transport;
-                }
+                return first;
             }
             throw new Exception("No transport suitable for this platform");
         }
