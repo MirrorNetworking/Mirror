@@ -163,7 +163,7 @@ namespace Mirror.Components.NetworkLobby
             ServerChangeScene(LobbyScene);
         }
 
-        public void CallOnClientEnterLobby()
+        void CallOnClientEnterLobby()
         {
             OnLobbyClientEnter();
             foreach (NetworkLobbyPlayer player in lobbySlots)
