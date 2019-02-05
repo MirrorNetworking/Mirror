@@ -53,12 +53,11 @@ namespace Mirror.Weaver
 
                 try
                 {
-                    TypeReference parent = typedef.BaseType;
-                    typedef = parent == null ? null : parent.Resolve();
+                    typedef = typedef.BaseType?.Resolve();
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
