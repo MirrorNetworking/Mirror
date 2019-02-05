@@ -33,6 +33,8 @@ namespace Mirror.Components.NetworkLobby
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
         List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
+        internal bool allPlayersReady = false;
+
         public override void OnValidate()
         {
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
@@ -77,6 +79,8 @@ namespace Mirror.Components.NetworkLobby
             }
             if (CurrentPlayers == ReadyPlayers)
                 CheckReadyToBegin();
+            else
+                allPlayersReady = false;
         }
 
 
@@ -147,9 +151,13 @@ namespace Mirror.Components.NetworkLobby
             }
 
             if (minPlayers > 0 && readyCount < minPlayers)
+            {
+                allPlayersReady = false;
                 return;
+            }
 
             pendingPlayers.Clear();
+            allPlayersReady = true;
             OnLobbyServerPlayersReady();
         }
 
@@ -477,7 +485,7 @@ namespace Mirror.Components.NetworkLobby
 
         // ------------------------ optional UI ------------------------
 
-        void OnGUI()
+        public virtual void OnGUI()
         {
             if (!showLobbyGUI)
                 return;

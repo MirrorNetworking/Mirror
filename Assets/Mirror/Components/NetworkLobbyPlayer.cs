@@ -88,7 +88,7 @@ namespace Mirror.Components.NetworkLobby
 
         // ------------------------ optional UI ------------------------
 
-        void OnGUI()
+        public virtual void OnGUI()
         {
             if (!ShowLobbyGUI)
                 return;

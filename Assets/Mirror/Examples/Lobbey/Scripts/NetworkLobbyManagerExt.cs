@@ -20,5 +20,27 @@ namespace Mirror.Examples.NetworkLobby
             player.playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             return true;
         }
+
+        bool showStartButton = false;
+
+        public override void OnLobbyServerPlayersReady()
+        {
+            //base.OnLobbyServerPlayersReady();
+            showStartButton = true;
+        }
+
+        public override void OnGUI()
+        {
+            base.OnGUI();
+            if (allPlayersReady && showStartButton)
+            {
+                Rect startRect = new Rect(150, 300, 120, 20);
+                if (GUI.Button(startRect, "START GAME"))
+                {
+                    showStartButton = false;
+                    ServerChangeScene(GameplayScene);
+                }
+            }
+        }
     }
 }
