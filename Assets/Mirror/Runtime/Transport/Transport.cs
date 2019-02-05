@@ -26,10 +26,20 @@ namespace Mirror
         public abstract bool ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
 
+        // determines if the transport is available for this platform
+        // by default a transport is available in all platforms except webgl
+        public virtual bool Available()
+        {
+            return Application.platform != RuntimePlatform.WebGLPlayer;
+        }
+
+
         // server
         [HideInInspector] public UnityEventInt OnServerConnected;
         [HideInInspector] public UnityEventIntByteArray OnServerDataReceived;
         [HideInInspector] public UnityEventIntException OnServerError;
+
+
         [HideInInspector] public UnityEventInt OnServerDisconnected;
 
         public abstract bool ServerActive();
