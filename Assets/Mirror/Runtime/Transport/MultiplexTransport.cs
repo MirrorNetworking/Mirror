@@ -35,7 +35,7 @@ namespace Mirror
         }
 
         // The client just uses the first transport available
-        Transport getAvailableTransport()
+        Transport GetAvailableTransport()
         {
             foreach (Transport transport in transports)
             {
@@ -49,27 +49,27 @@ namespace Mirror
 
         public override void ClientConnect(string address)
         {
-            getAvailableTransport().ClientConnect(address);
+            GetAvailableTransport().ClientConnect(address);
         }
 
         public override bool ClientConnected()
         {
-            return getAvailableTransport().ClientConnected();
+            return GetAvailableTransport().ClientConnected();
         }
 
         public override void ClientDisconnect()
         {
-            getAvailableTransport().ClientDisconnect();
+            GetAvailableTransport().ClientDisconnect();
         }
 
         public override bool ClientSend(int channelId, byte[] data)
         {
-            return getAvailableTransport().ClientSend(channelId, data);
+            return GetAvailableTransport().ClientSend(channelId, data);
         }
 
         public override int GetMaxPacketSize(int channelId = 0)
         {
-            return getAvailableTransport().GetMaxPacketSize(channelId);
+            return GetAvailableTransport().GetMaxPacketSize(channelId);
         }
 
         #endregion
