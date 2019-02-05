@@ -174,6 +174,12 @@ namespace Mirror
             }
         }
 
+        public override bool Available()
+        {
+            // websocket is available in all platforms (including webgl)
+            return useWebsockets || base.Available();
+        }
+
         // server //////////////////////////////////////////////////////////////
         public override bool ServerActive()
         {
