@@ -8,8 +8,6 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar(hook = "SetColor")]
         public Color prizeColor = Color.black;
 
-        bool available = true;
-
         private void Start()
         {
             // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
@@ -22,6 +20,7 @@ namespace Mirror.Examples.NetworkLobby
             GetComponent<Renderer>().material.color = color;
         }
 
+        bool available = true;
         public Spawner spawner;
         private void OnTriggerEnter(Collider other)
         {
@@ -42,10 +41,10 @@ namespace Mirror.Examples.NetworkLobby
                 other.GetComponent<PlayerController>().score += points;
 
                 // destroy this one
-                 NetworkServer.Destroy(gameObject);
+                NetworkServer.Destroy(gameObject);
 
-                 //... and spawn a replacement
-                 spawner.SpawnPrize();
+                //... and spawn a replacement
+                spawner.SpawnPrize();
             }
         }
     }

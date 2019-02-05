@@ -27,12 +27,6 @@ namespace Mirror.Examples.NetworkLobby
         public float turnSpeedDecel = 30;
         public float maxTurnSpeed = 100;
 
-        private void Start()
-        {
-            // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
-            SetColor(playerColor);
-        }
-
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
@@ -48,6 +42,12 @@ namespace Mirror.Examples.NetworkLobby
         {
             //Debug.LogWarningFormat("PlayerController SetColor netId:{0} to {1}", netId, color);
             GetComponent<Renderer>().material.color = color;
+        }
+
+        private void Start()
+        {
+            // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
+            SetColor(playerColor);
         }
 
         void Update()
