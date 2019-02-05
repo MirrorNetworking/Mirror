@@ -22,7 +22,7 @@ namespace Mirror
 
         #region Client
         // clients always pick the first transport
-        private void InitClient()
+        void InitClient()
         {
             // wire all the base transports to my events
             foreach (Transport transport in transports)
@@ -81,17 +81,17 @@ namespace Mirror
         // transport 0 will produce connection ids [0, 3, 6, 9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-        private int FromBaseId(int transportId, int connectionId)
+        int FromBaseId(int transportId, int connectionId)
         {
             return connectionId * transports.Length + transportId;
         }
 
-        private int ToBaseId(int connectionId)
+        int ToBaseId(int connectionId)
         {
             return connectionId / transports.Length;
         }
 
-        private int ToTransportId(int connectionId)
+        int ToTransportId(int connectionId)
         {
             return connectionId % transports.Length;
         }
@@ -99,7 +99,7 @@ namespace Mirror
         void InitServer()
         {
             // wire all the base transports to my events
-            for (int i=0; i< transports.Length; i++)
+            for (int i = 0; i < transports.Length; i++)
             {
                 // this is required for the handlers,  if I use i directly
                 // then all the handlers will use the last i
@@ -127,12 +127,10 @@ namespace Mirror
             }
         }
 
-
         public override bool ServerActive()
         {
             return transports.All(t => t.ServerActive());
         }
-
 
         public override bool GetConnectionInfo(int connectionId, out string address)
         {
