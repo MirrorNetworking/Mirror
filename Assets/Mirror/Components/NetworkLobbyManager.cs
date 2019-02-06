@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
-namespace Mirror.Components.NetworkLobby
+namespace Mirror
 {
     [AddComponentMenu("Network/NetworkLobbyManager")]
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyManager")]
