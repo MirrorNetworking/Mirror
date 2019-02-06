@@ -14,8 +14,6 @@ NetworkConnection is a high-level API class that encapsulates a network connecti
     The last time that a message was received on this connection.
 -   **address**  
     The IP address of the end-point that this connection is connected to.
--   **playerControllers**  
-    The set of players that have been added with AddPlayer().
 -   **clientOwnedObjects**  
     The set of objects that this connection has authority over.
 
