@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465934, g: 0.49642956, b: 0.5748249, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -248,23 +248,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkPort: 7777
-  serverBindToIP: 0
-  serverBindAddress: 
-  networkAddress: localhost
   dontDestroyOnLoad: 1
   runInBackground: 1
+  startOnHeadless: 1
   showDebugMessages: 0
+  offlineScene: 
+  onlineScene: 
+  transport: {fileID: 437631053}
+  networkAddress: localhost
+  maxConnections: 4
   playerPrefab: {fileID: 1554290044306088, guid: 9a0fd4c42c5d249c8896b66cc9a2985c,
     type: 2}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
-  offlineScene: 
-  onlineScene: 
-  maxConnections: 4
   spawnPrefabs: []
-  clientLoadedScene: 0
-  isNetworkActive: 0
 --- !u!4 &437631052
 Transform:
   m_ObjectHideFlags: 0
@@ -289,6 +286,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7424c1070fad4ba2a7a96b02fbeb4bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  port: 7777
+  NoDelay: 1
 --- !u!1001 &525505044
 Prefab:
   m_ObjectHideFlags: 0

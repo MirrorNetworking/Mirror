@@ -10,6 +10,7 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkManagerHUD")]
     [RequireComponent(typeof(NetworkManager))]
     [EditorBrowsable(EditorBrowsableState.Never)]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManagerHUD")]
     public class NetworkManagerHUD : MonoBehaviour
     {
         NetworkManager manager;

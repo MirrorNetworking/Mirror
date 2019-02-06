@@ -7,15 +7,54 @@ using UnityEngine.Networking.Types;
 namespace Mirror
 {
     [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
-    public class LLAPITransport : MonoBehaviour, ITransport
+    public class LLAPITransport : Transport
     {
         public ushort port = 7777;
 
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
         public bool useWebsockets;
 
-        ConnectionConfig connectionConfig;
-        GlobalConfig globalConfig;
+        // settings copied from uMMORPG configuration for best results
+        public ConnectionConfig connectionConfig = new ConnectionConfig
+        {
+            PacketSize = 1500,
+            FragmentSize = 500,
+            ResendTimeout = 1200,
+            DisconnectTimeout = 6000,
+            ConnectTimeout = 6000,
+            MinUpdateTimeout = 1,
+            PingTimeout = 2000,
+            ReducedPingTimeout = 100,
+            AllCostTimeout = 20,
+            NetworkDropThreshold = 80,
+            OverflowDropThreshold = 80,
+            MaxConnectionAttempt = 10,
+            AckDelay = 33,
+            SendDelay = 10,
+            MaxCombinedReliableMessageSize = 100,
+            MaxCombinedReliableMessageCount = 10,
+            MaxSentMessageQueueSize = 512,
+            AcksType = ConnectionAcksType.Acks128,
+            InitialBandwidth = 0,
+            BandwidthPeakFactor = 2,
+            WebSocketReceiveBufferMaxSize = 0,
+            UdpSocketReceiveBufferMaxSize = 0
+        };
+
+        // settings copied from uMMORPG configuration for best results
+        public GlobalConfig globalConfig = new GlobalConfig
+        {
+            ReactorModel = ReactorModel.SelectReactor,
+            ThreadAwakeTimeout = 1,
+            ReactorMaximumSentMessages = 4096,
+            ReactorMaximumReceivedMessages = 4096,
+            MaxPacketSize = 2000,
+            MaxHosts = 16,
+            ThreadPoolSize = 3,
+            MinTimerTimeout = 1,
+            MaxTimerTimeout = 12000
+        };
+
         readonly int channelId; // always use first channel
         byte error;
 
@@ -26,69 +65,35 @@ namespace Mirror
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
 
-        void Awake()
+        void OnValidate()
         {
-            // create global config if none passed
-            // -> settings copied from uMMORPG configuration for best results
-            if (globalConfig == null)
+            // add connectionconfig channels if none
+            if (connectionConfig.Channels.Count == 0)
             {
-                globalConfig = new GlobalConfig();
-                globalConfig.ReactorModel = ReactorModel.SelectReactor;
-                globalConfig.ThreadAwakeTimeout = 1;
-                globalConfig.ReactorMaximumSentMessages = 4096;
-                globalConfig.ReactorMaximumReceivedMessages = 4096;
-                globalConfig.MaxPacketSize = 2000;
-                globalConfig.MaxHosts = 16;
-                globalConfig.ThreadPoolSize = 3;
-                globalConfig.MinTimerTimeout = 1;
-                globalConfig.MaxTimerTimeout = 12000;
-            }
-            NetworkTransport.Init(globalConfig);
-
-            // create connection config if none passed
-            // -> settings copied from uMMORPG configuration for best results
-            if (connectionConfig == null)
-            {
-                connectionConfig = new ConnectionConfig();
-                connectionConfig.PacketSize = 1500;
-                connectionConfig.FragmentSize = 500;
-                connectionConfig.ResendTimeout = 1200;
-                connectionConfig.DisconnectTimeout = 6000;
-                connectionConfig.ConnectTimeout = 6000;
-                connectionConfig.MinUpdateTimeout = 1;
-                connectionConfig.PingTimeout = 2000;
-                connectionConfig.ReducedPingTimeout = 100;
-                connectionConfig.AllCostTimeout = 20;
-                connectionConfig.NetworkDropThreshold = 80;
-                connectionConfig.OverflowDropThreshold = 80;
-                connectionConfig.MaxConnectionAttempt = 10;
-                connectionConfig.AckDelay = 33;
-                connectionConfig.SendDelay = 10;
-                connectionConfig.MaxCombinedReliableMessageSize = 100;
-                connectionConfig.MaxCombinedReliableMessageCount = 10;
-                connectionConfig.MaxSentMessageQueueSize = 512;
-                connectionConfig.AcksType = ConnectionAcksType.Acks128;
-                connectionConfig.InitialBandwidth = 0;
-                connectionConfig.BandwidthPeakFactor = 2;
-                connectionConfig.WebSocketReceiveBufferMaxSize = 0;
-                connectionConfig.UdpSocketReceiveBufferMaxSize = 0;
                 // channel 0 is reliable fragmented sequenced
                 connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
                 // channel 1 is unreliable
                 connectionConfig.AddChannel(QosType.Unreliable);
             }
+        }
 
+        void Awake()
+        {
+            NetworkTransport.Init(globalConfig);
             Debug.Log("LLAPITransport initialized!");
         }
 
         // client //////////////////////////////////////////////////////////////
-        public bool ClientConnected()
+        public override bool ClientConnected()
         {
             return clientConnectionId != -1;
         }
 
-        public void ClientConnect(string address)
+        public override void ClientConnect(string address)
         {
+            // LLAPI can't handle 'localhost'
+            if (address.ToLower() == "localhost") address = "127.0.0.1";
+
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
             // important:
@@ -97,7 +102,7 @@ namespace Mirror
             clientId = NetworkTransport.AddHost(hostTopology, 0);
 
             clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
-            NetworkError networkError = (NetworkError) error;
+            NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
                 Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
@@ -105,15 +110,15 @@ namespace Mirror
             }
         }
 
-        public bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, byte[] data)
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessClientMessage()
         {
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
+            if (clientId == -1) return false;
+
             int connectionId;
             int channel;
             int receivedSize;
@@ -128,21 +133,23 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.Log("NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                string message = "NetworkTransport.Receive failed: hostid=" + clientId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
+                OnClientError.Invoke(new Exception(message));
             }
 
+            // raise events
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    transportEvent = TransportEvent.Connected;
+                    OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    transportEvent = TransportEvent.Data;
-                    data = new byte[receivedSize];
+                    byte[] data = new byte[receivedSize];
                     Array.Copy(clientReceiveBuffer, data, receivedSize);
+                    OnClientDataReceived.Invoke(data);
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    transportEvent = TransportEvent.Disconnected;
+                    OnClientDisconnected.Invoke();
                     break;
                 default:
                     return false;
@@ -151,7 +158,14 @@ namespace Mirror
             return true;
         }
 
-        public void ClientDisconnect()
+        public void LateUpdate()
+        {
+            // process all messages
+            while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
+        }
+
+        public override void ClientDisconnect()
         {
             if (clientId != -1)
             {
@@ -160,38 +174,44 @@ namespace Mirror
             }
         }
 
+        public override bool Available()
+        {
+            // websocket is available in all platforms (including webgl)
+            return useWebsockets || base.Available();
+        }
+
         // server //////////////////////////////////////////////////////////////
-        public bool ServerActive()
+        public override bool ServerActive()
         {
             return serverHostId != -1;
         }
 
-        public void ServerStart()
+        public override void ServerStart()
         {
             if (useWebsockets)
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
             else
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
         }
 
-        public bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
         }
 
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public bool ProcessServerMessage()
         {
-            connectionId = -1;
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
+            if (serverHostId == -1) return false;
+
+            int connectionId = -1;
             int channel;
             int receivedSize;
             NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
@@ -205,7 +225,10 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.Log("NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError);
+                string message = "NetworkTransport.Receive failed: hostid=" + serverHostId + " connId=" + connectionId + " channelId=" + channel + " error=" + networkError;
+
+                // TODO write a TransportException or better
+                OnServerError.Invoke(connectionId, new Exception(message));
             }
 
             // LLAPI client sends keep alive messages (75-6C-6C) on channel=110.
@@ -218,15 +241,15 @@ namespace Mirror
             switch (networkEvent)
             {
                 case NetworkEventType.ConnectEvent:
-                    transportEvent = TransportEvent.Connected;
+                    OnServerConnected.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    transportEvent = TransportEvent.Data;
-                    data = new byte[receivedSize];
+                    byte[] data = new byte[receivedSize];
                     Array.Copy(serverReceiveBuffer, data, receivedSize);
+                    OnServerDataReceived.Invoke(connectionId, data);
                     break;
                 case NetworkEventType.DisconnectEvent:
-                    transportEvent = TransportEvent.Disconnected;
+                    OnServerDisconnected.Invoke(connectionId);
                     break;
                 default:
                     // nothing or a message we don't recognize
@@ -236,12 +259,12 @@ namespace Mirror
             return true;
         }
 
-        public bool ServerDisconnect(int connectionId)
+        public override bool ServerDisconnect(int connectionId)
         {
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public override bool GetConnectionInfo(int connectionId, out string address)
         {
             int port;
             NetworkID networkId;
@@ -250,7 +273,7 @@ namespace Mirror
             return true;
         }
 
-        public void ServerStop()
+        public override void ServerStop()
         {
             NetworkTransport.RemoveHost(serverHostId);
             serverHostId = -1;
@@ -258,7 +281,7 @@ namespace Mirror
         }
 
         // common //////////////////////////////////////////////////////////////
-        public void Shutdown()
+        public override void Shutdown()
         {
             NetworkTransport.Shutdown();
             serverHostId = -1;
@@ -266,7 +289,7 @@ namespace Mirror
             Debug.Log("LLAPITransport.Shutdown");
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             return globalConfig.MaxPacketSize;
         }

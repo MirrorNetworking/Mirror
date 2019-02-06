@@ -18,6 +18,7 @@ namespace Mirror
     [ExecuteInEditMode]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
+    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkIdentity")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
@@ -44,21 +45,21 @@ namespace Mirror
         bool m_Reset;
 
         // properties
-        public bool isClient { get { return m_IsClient; } }
-        public bool isServer { get { return m_IsServer && NetworkServer.active; } } // dont return true if server stopped.
-        public bool isLocalPlayer { get { return m_IsLocalPlayer; } }
-        public bool hasAuthority { get { return m_HasAuthority; } }
+        public bool isClient => m_IsClient;
+        public bool isServer => m_IsServer && NetworkServer.active; // dont return true if server stopped.
+        public bool isLocalPlayer => m_IsLocalPlayer;
+        public bool hasAuthority => m_HasAuthority;
 
         // <connectionId, NetworkConnection>
         public Dictionary<int, NetworkConnection> observers;
 
-        public uint netId { get { return m_NetId; } }
-        public uint sceneId { get { return m_SceneId; } }
+        public uint netId => m_NetId;
+        public uint sceneId => m_SceneId;
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
-        public NetworkConnection clientAuthorityOwner { get { return m_ClientAuthorityOwner; }}
-        public NetworkConnection connectionToServer { get { return m_ConnectionToServer; } }
-        public NetworkConnection connectionToClient { get { return m_ConnectionToClient; } }
+        public NetworkConnection clientAuthorityOwner => m_ClientAuthorityOwner;
+        public NetworkConnection connectionToServer => m_ConnectionToServer;
+        public NetworkConnection connectionToClient => m_ConnectionToClient;
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -196,10 +197,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            if (observers != null)
-            {
-                observers.Remove(conn.connectionId);
-            }
+            observers?.Remove(conn.connectionId);
         }
 
 #if UNITY_EDITOR
@@ -246,6 +244,11 @@ namespace Mirror
             {
                 return false;
             }
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#elif UNITY_2018_2_OR_NEWER
+            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+            if (prefabType == PrefabType.None)
+                return false;
             prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 #else
             PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
@@ -448,30 +451,33 @@ namespace Mirror
         //    -> we can properly track down errors
         internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
-            // serialize into a temporary writer
-            NetworkWriter temp = new NetworkWriter();
+            // write placeholder length bytes
+            // (jumping back later is WAY faster than allocating a temporary
+            //  writer for the payload, then writing payload.size, payload)
+            int headerPosition = writer.Position;
+            writer.Write((int)0);
+            int contentPosition = writer.Position;
+
+            // write payload
             bool result = false;
             try
             {
-                result = comp.OnSerialize(temp, initialState);
+                result = comp.OnSerialize(writer, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "\n\n" + e.ToString());
             }
-            byte[] bytes = temp.ToArray();
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            int endPosition = writer.Position;
 
-            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
-            // be useful for debugging.
-            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize())
-            {
-                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId + " from script:" + comp);
-            }
+            // fill in length now
+            writer.Position = headerPosition;
+            writer.Write(endPosition - contentPosition);
+            writer.Position = endPosition;
 
-            // serialize length,data into the real writer, untouched by user code
-            writer.WriteBytesAndSize(bytes);
+            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition)); }
+
             return result;
         }
 
@@ -535,9 +541,11 @@ namespace Mirror
 
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-            // extract data length and data safely, untouched by user code
-            // -> returns empty array if length is 0, so .Length is always the proper length
-            byte[] bytes = reader.ReadBytesAndSize();
+            // read header as 4 bytes
+            int contentSize = reader.ReadInt32();
+
+            // read content
+            byte[] bytes = reader.ReadBytes(contentSize);
             if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
 
             // call OnDeserialize with a temporary reader, so that the
@@ -846,15 +854,14 @@ namespace Mirror
             ForceAuthority(true);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage();
-            msg.netId = netId;
-            msg.authority = false;
+            var msg = new ClientAuthorityMessage
+            {
+                netId = netId,
+                authority = false
+            };
             conn.Send((short)MsgType.LocalClientAuthority, msg);
 
-            if (clientAuthorityCallback != null)
-            {
-                clientAuthorityCallback(conn, this, false);
-            }
+            clientAuthorityCallback?.Invoke(conn, this, false);
             return true;
         }
 
@@ -890,15 +897,14 @@ namespace Mirror
             ForceAuthority(false);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage();
-            msg.netId = netId;
-            msg.authority = true;
+            var msg = new ClientAuthorityMessage
+            {
+                netId = netId,
+                authority = true
+            };
             conn.Send((short)MsgType.LocalClientAuthority, msg);
 
-            if (clientAuthorityCallback != null)
-            {
-                clientAuthorityCallback(conn, this, true);
-            }
+            clientAuthorityCallback?.Invoke(conn, this, true);
             return true;
         }
 
@@ -944,9 +950,11 @@ namespace Mirror
             if (payload != null)
             {
                 // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage();
-                message.netId = netId;
-                message.payload = payload;
+                UpdateVarsMessage message = new UpdateVarsMessage
+                {
+                    netId = netId,
+                    payload = payload
+                };
 
                 NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
             }

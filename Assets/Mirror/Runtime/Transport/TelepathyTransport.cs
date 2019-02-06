@@ -1,19 +1,28 @@
 ﻿// wraps Telepathy for use as HLAPI TransportLayer
+using System;
 using UnityEngine;
 namespace Mirror
 {
-    public class TelepathyTransport : MonoBehaviour, ITransport
+    public class TelepathyTransport : Transport
     {
         public ushort port = 7777;
+
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        public bool NoDelay = true;
+
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
         void Awake()
         {
             // tell Telepathy to use Unity's Debug.Log
-            Telepathy.Logger.LogMethod = Debug.Log;
-            Telepathy.Logger.LogWarningMethod = Debug.LogWarning;
-            Telepathy.Logger.LogErrorMethod = Debug.LogError;
+            Telepathy.Logger.Log = Debug.Log;
+            Telepathy.Logger.LogWarning = Debug.LogWarning;
+            Telepathy.Logger.LogError = Debug.LogError;
+
+            // configure
+            client.NoDelay = NoDelay;
+            server.NoDelay = NoDelay;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
@@ -24,10 +33,11 @@ namespace Mirror
         }
 
         // client
-        public bool ClientConnected() { return client.Connected; }
-        public void ClientConnect(string address) { client.Connect(address, port); }
-        public bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
-        public bool ClientGetNextMessage(out TransportEvent transportEvent, out byte[] data)
+        public override bool ClientConnected() { return client.Connected; }
+        public override void ClientConnect(string address) { client.Connect(address, port); }
+        public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+
+        bool ProcessClientMessage()
         {
             Telepathy.Message message;
             if (client.GetNextMessage(out message))
@@ -36,35 +46,37 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        OnClientConnected.Invoke();
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        OnClientDataReceived.Invoke(message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        OnClientDisconnected.Invoke();
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO:  Telepathy does not report errors at all
+                        // it just disconnects,  should be fixed
+                        OnClientDisconnected.Invoke();
                         break;
                 }
-
-                // assign rest of the values and return true
-                data = message.data;
                 return true;
             }
-
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
-        public void ClientDisconnect() { client.Disconnect(); }
+        public override void ClientDisconnect() { client.Disconnect(); }
+
+        public void LateUpdate()
+        {
+            while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
+        }
 
         // server
-        public bool ServerActive() { return server.Active; }
-        public void ServerStart() { server.Start(port); }
-        public bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
-        public bool ServerGetNextMessage(out int connectionId, out TransportEvent transportEvent, out byte[] data)
+        public override bool ServerActive() { return server.Active; }
+        public override void ServerStart() { server.Start(port); }
+        public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+        public bool ProcessServerMessage()
         {
             Telepathy.Message message;
             if (server.GetNextMessage(out message))
@@ -73,46 +85,36 @@ namespace Mirror
                 {
                     // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
-                        transportEvent = TransportEvent.Connected;
+                        OnServerConnected.Invoke(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        transportEvent = TransportEvent.Data;
+                        OnServerDataReceived.Invoke(message.connectionId, message.data);
                         break;
                     case Telepathy.EventType.Disconnected:
-                        transportEvent = TransportEvent.Disconnected;
+                        OnServerDisconnected.Invoke(message.connectionId);
                         break;
                     default:
-                        transportEvent = TransportEvent.Disconnected;
+                        // TODO handle errors from Telepathy when telepathy can report errors
+                        OnServerDisconnected.Invoke(message.connectionId);
                         break;
                 }
-
-                // assign rest of the values and return true
-                connectionId = message.connectionId;
-                data = message.data;
                 return true;
             }
-
-            connectionId = -1;
-            transportEvent = TransportEvent.Disconnected;
-            data = null;
             return false;
         }
-        public bool ServerDisconnect(int connectionId)
-        {
-            return server.Disconnect(connectionId);
-        }
-        public bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
-        public void ServerStop() { server.Stop(); }
+        public override bool ServerDisconnect(int connectionId) { return server.Disconnect(connectionId); }
+        public override bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public override void ServerStop() { server.Stop(); }
 
         // common
-        public void Shutdown()
+        public override void Shutdown()
         {
             Debug.Log("TelepathyTransport Shutdown()");
             client.Disconnect();
             server.Stop();
         }
 
-        public int GetMaxPacketSize(int channelId)
+        public override int GetMaxPacketSize(int channelId)
         {
             // Telepathy's limit is Array.Length, which is int
             return int.MaxValue;
@@ -120,7 +122,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            if (server.Active)
+            if (server.Active && server.listener != null)
             {
                 return "Telepathy Server port: " + server.listener.LocalEndpoint;
             }

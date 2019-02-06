@@ -5,6 +5,8 @@ General description of Client Events
 -   **OnClientConnect**  
     Called on the client when it connects.
     Mirror calls this on the client when it connects to the Server. Use an override to tell the NetworkManager what to do when the client connects to a server.
+-   **OnStartLocalPlayer**  
+    Called when the local player object has been set up. This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.
 -   **OnClientDisconnect**  
     Called on clients when disconnected from a server.
     This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.
