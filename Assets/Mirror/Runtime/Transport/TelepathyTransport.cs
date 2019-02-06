@@ -68,8 +68,8 @@ namespace Mirror
 
         public void LateUpdate()
         {
-            while (ProcessClientMessage()) { }
-            while (ProcessServerMessage()) { }
+            while (this.enabled && ProcessClientMessage()) { }
+            while (this.enabled && ProcessServerMessage()) { }
         }
 
         // server
