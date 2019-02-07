@@ -68,8 +68,11 @@ namespace Mirror
 
         public void LateUpdate()
         {
-            while (this.enabled && ProcessClientMessage()) { }
-            while (this.enabled && ProcessServerMessage()) { }
+            // note: we need to check enabled in case we set it to false
+            // when LateUpdate already started.
+            // (https://github.com/vis2k/Mirror/pull/379)
+            while (enabled && ProcessClientMessage()) { }
+            while (enabled && ProcessServerMessage()) { }
         }
 
         // server
