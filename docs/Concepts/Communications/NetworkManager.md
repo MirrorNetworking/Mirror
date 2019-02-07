@@ -23,6 +23,7 @@ When the host is started:
 -   `OnServerSceneChanged`
 -   `OnServerReady`
 -   `OnServerAddPlayer`
+-   `OnClientChangeScene`
 -   `OnClientSceneChanged`
 
 When a client connects:
@@ -48,6 +49,7 @@ When the client starts:
 -   `Start()` function is called
 -   `OnStartClient`
 -   `OnClientConnect`
+-   `OnClientChangeScene`
 -   `OnClientSceneChanged`
 
 When the client stops:
