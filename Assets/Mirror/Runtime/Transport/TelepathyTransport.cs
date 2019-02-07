@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 namespace Mirror
 {
+    [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     public class TelepathyTransport : Transport
     {
         public ushort port = 7777;
