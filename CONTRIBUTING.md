@@ -117,7 +117,6 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
     \`NetworkIdentity identity\`, not \`NetworkIdentity uv\` or similar. If the variable needs a comment the name needs to be changed. For example, `msg = ... // the message` use `message = ...` without a comment instead
 * **private** 
     Fields and methods in a class are private by default, no need to use the private keyword there.
-    Note fields and methods are public by default in structs so it might be necessary there.
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
 
 **One Python Way**
