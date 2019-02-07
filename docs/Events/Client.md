@@ -13,6 +13,9 @@ General description of Client Events
 -   **OnClientNotReady**  
     Called on clients when a servers tells the client it is no longer ready.
     This is commonly used when switching Scenes.
+-   **OnClientChangeScene**  
+    Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed.  
+    This allows client to do work / cleanup / prep before the scene changes.
 -   **OnClientSceneChanged**  
     Called on clients when a Scene has completed loading, when the Scene load was initiated by the server.
     Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.

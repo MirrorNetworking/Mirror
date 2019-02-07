@@ -405,6 +405,9 @@ namespace Mirror
                 NetworkManager.singleton.transport.enabled = false;
             }
 
+            // Let client prepare for scene change
+            OnClientChangeScene(newSceneName);
+
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
             networkSceneName = newSceneName;
         }
@@ -745,6 +748,10 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn)
         {
         }
+
+        // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        // This allows client to do work / cleanup / prep before the scene changes.
+        public virtual void OnClientChangeScene(string newSceneName) { }
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
