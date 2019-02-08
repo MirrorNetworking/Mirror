@@ -79,18 +79,6 @@ namespace Mirror
 
                 EditorGUI.indentLevel -= 1;
             }
-
-            if (Application.isPlaying)
-            {
-                EditorGUILayout.Separator();
-                for (int i = 0; i < m_AnimSync.parameters.Length; ++i)
-                {
-                    if (!string.IsNullOrEmpty(m_AnimSync.parameters[i]))
-                    {
-                        EditorGUILayout.LabelField("Param " + i, m_AnimSync.parameters[i]);
-                    }
-                }
-            }
         }
     }
 }
