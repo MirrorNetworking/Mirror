@@ -73,17 +73,17 @@ namespace Mirror
             return clients[connectionId];
         }
 
-		public bool _secure = false;
+        public bool _secure = false;
 
-		public SslConfiguration _sslConfig;
+        public SslConfiguration _sslConfig;
 
-		public class SslConfiguration
-		{
-			public System.Security.Cryptography.X509Certificates.X509Certificate2 Certificate;
-			public bool ClientCertificateRequired;
-			public System.Security.Authentication.SslProtocols EnabledSslProtocols;
-			public bool CheckCertificateRevocation;
-		}
+        public class SslConfiguration
+        {
+            public System.Security.Cryptography.X509Certificates.X509Certificate2 Certificate;
+            public bool ClientCertificateRequired;
+            public System.Security.Authentication.SslProtocols EnabledSslProtocols;
+            public bool CheckCertificateRevocation;
+        }
 
         public async void Listen(int port)
         {
@@ -123,12 +123,12 @@ namespace Mirror
 
                 // get a secure or insecure stream
                 Stream stream = tcpClient.GetStream();
-				if (_secure)
-				{
-					var sslStream = new SslStream(stream, false, CertVerificationCallback);
-					sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
-					stream = sslStream;
-				}
+                if (_secure)
+                {
+                    var sslStream = new SslStream(stream, false, CertVerificationCallback);
+                    sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
+                    stream = sslStream;
+                }
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
                 if (context.IsWebSocketRequest)
                 {
@@ -166,12 +166,12 @@ namespace Mirror
             }
         }
 
-		private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-		{
-			return true;
-		}
+        private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
 
-		private async Task ReceiveLoopAsync(WebSocket webSocket, CancellationToken token)
+        private async Task ReceiveLoopAsync(WebSocket webSocket, CancellationToken token)
         {
             int connectionId = NextConnectionId();
             clients.Add(connectionId, webSocket);
