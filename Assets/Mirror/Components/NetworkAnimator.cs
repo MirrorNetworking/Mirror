@@ -46,9 +46,6 @@ namespace Mirror
         int                     m_TransitionHash;
         float                   m_SendTimer;
 
-        // tracking - these should probably move to a Preview component.
-        public string[] parameters = new string[6];
-
         bool sendMessagesAllowed
         {
             get
@@ -170,16 +167,6 @@ namespace Mirror
             }
         }
 
-        void SetSendTrackingParam(string p, int i)
-        {
-            parameters[i] = "Sent Param: " + p;
-        }
-
-        void SetRecvTrackingParam(string p, int i)
-        {
-            parameters[i] = "Recv Param: " + p;
-        }
-
         internal void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
         {
             if (hasAuthority)
@@ -224,17 +211,14 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetInteger(par.nameHash), i);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     writer.Write(m_Animator.GetFloat(par.nameHash));
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetFloat(par.nameHash), i);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     writer.Write(m_Animator.GetBool(par.nameHash));
-                    SetSendTrackingParam(par.name + ":" + m_Animator.GetBool(par.nameHash), i);
                 }
             }
         }
@@ -255,22 +239,16 @@ namespace Mirror
                 {
                     int newValue = (int)reader.ReadPackedUInt32();
                     m_Animator.SetInteger(par.nameHash, newValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newValue, i);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = reader.ReadSingle();
                     m_Animator.SetFloat(par.nameHash, newFloatValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newFloatValue, i);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = reader.ReadBoolean();
                     m_Animator.SetBool(par.nameHash, newBoolValue);
-
-                    SetRecvTrackingParam(par.name + ":" + newBoolValue, i);
                 }
             }
         }
