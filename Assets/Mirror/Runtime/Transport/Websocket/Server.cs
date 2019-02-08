@@ -166,12 +166,12 @@ namespace Mirror.Websocket
             }
         }
 
-		private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-		{
-			return true;
-		}
+        private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
 
-		private async Task ReceiveLoopAsync(WebSocket webSocket, CancellationToken token)
+        private async Task ReceiveLoopAsync(WebSocket webSocket, CancellationToken token)
         {
             int connectionId = NextConnectionId();
             clients.Add(connectionId, webSocket);
