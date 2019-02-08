@@ -102,7 +102,7 @@ namespace Mirror
             {
                 if (singleton != null)
                 {
-                    if (LogFilter.Debug) { Debug.Log("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used."); }
+                    Debug.LogError("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used.");
                     Destroy(gameObject);
                     return;
                 }
@@ -404,6 +404,9 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
                 NetworkManager.singleton.transport.enabled = false;
             }
+
+            // Let client prepare for scene change
+            OnClientChangeScene(newSceneName);
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
             networkSceneName = newSceneName;
@@ -745,6 +748,10 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn)
         {
         }
+
+        // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        // This allows client to do work / cleanup / prep before the scene changes.
+        public virtual void OnClientChangeScene(string newSceneName) { }
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
