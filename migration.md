@@ -38,8 +38,8 @@ public class Player : NetworkBehaviour
 
 At this point,  you might get some compilation errors.  Don't panic,  these are easy to fix. Keep going
 
-## 4. Remove channels from NetworkSettings
-NetworkSettings in HLAPI have channels,  but this is flat out broken. Rather than ignoring your settings we removed channels from NetworkSettings.
+## 4. Remove NetworkSettings
+NetworkSettings in HLAPI have channels, but this is flat out broken. Rather than ignoring your settings we removed NetworkSettings completely.
 
 For example, if you have this code:
 
@@ -53,7 +53,6 @@ public class NetStreamer : NetworkBehaviour
 
 replace it with:
 ```cs
-[NetworkSettings(sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
     ...
@@ -61,6 +60,8 @@ public class NetStreamer : NetworkBehaviour
 ```
 
 Please note that the default transport (Telepathy),  completely ignores channels,  all messages are reliable, sequenced and fragmented.  They just work with no fuss.  If you want to take advantage of unreliable channels use LLAPITransport instead.
+
+If you are looking for the send interval: every component shows it's sync interval in the Inspector now (if the component actually syncs anything).
 
 ## 5. Rename SyncListStruct to SyncListSTRUCT
 There is a bug in the original UNET Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace.
