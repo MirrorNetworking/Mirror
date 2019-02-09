@@ -17,19 +17,29 @@ namespace Mirror
         [SyncVar]
         public int Index;
 
-        void Start()
+        /// <summary>
+        /// Do not use Start - Override OnStartrHost / OnStartClient instead!
+        /// </summary>
+        public void Start()
         {
-            DontDestroyOnLoad(gameObject);
-            if (isClient)
-                SceneManager.sceneLoaded += ClientLoadedScene;
+            if (isClient) SceneManager.sceneLoaded += ClientLoadedScene;
+
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
+            if (lobby)
+            {
+                ReadyToBegin = false;
+                OnClientEnterLobby();
+            }
+            else
+                Debug.LogError("LobbyPlayer could not find a NetworkLobbyManager. The LobbyPlayer requires a NetworkLobbyManager object to function. Make sure that there is one in the scene.");
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             SceneManager.sceneLoaded -= ClientLoadedScene;
         }
 
-        private void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+        void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby)
@@ -49,18 +59,6 @@ namespace Mirror
                 CmdSendLevelLoaded();
         }
 
-        public override void OnStartClient()
-        {
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                ReadyToBegin = false;
-                OnClientEnterLobby();
-            }
-            else
-                Debug.LogError("LobbyPlayer could not find a NetworkLobbyManager. The LobbyPlayer requires a NetworkLobbyManager object to function. Make sure that there is one in the scene.");
-        }
-
         [Command]
         public void CmdChangeReadyState(bool ReadyState)
         {
@@ -78,7 +76,7 @@ namespace Mirror
                 lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
         }
 
-        // ------------------------ callbacks ------------------------
+        #region lobby client virtuals
 
         public virtual void OnClientEnterLobby() { }
 
@@ -86,7 +84,9 @@ namespace Mirror
 
         public virtual void OnClientReady(bool readyState) { }
 
-        // ------------------------ optional UI ------------------------
+        #endregion
+
+        #region optional UI
 
         public virtual void OnGUI()
         {
@@ -139,5 +139,7 @@ namespace Mirror
                 }
             }
         }
+
+        #endregion
     }
 }
