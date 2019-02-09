@@ -148,6 +148,20 @@ namespace Mirror
             {
                 offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
 
+                //Only include active scenes in index calculator while in editor
+                if(Application.isEditor)
+                {
+                    int activeSceneCount = 0;
+                    foreach(EditorBuildSettingsScene scene in EditorBuildSettings.scenes)
+                    {
+                        if(scene.enabled)
+                        {
+                            activeSceneCount++;
+                        }
+                    }
+                    offsetPerScene = uint.MaxValue / (uint)activeSceneCount;
+                }
+                
                 // make sure that there aren't more sceneIds than offsetPerScene
                 // -> only if we have multiple scenes. otherwise offset is 0, in
                 //    which case it doesn't matter.
