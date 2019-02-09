@@ -26,8 +26,6 @@ NetworkServer is a High-Level-API class that manages connections from multiple c
     The class to be used when creating new network connections.
 -   **numChannels**  
     The number of channels the network is configure with.
--   **objects**  
-    This is a dictionary of networked objects that have been spawned on the server.
 -   **serverHostId**  
     The transport layer hostId used by this server.
 -   **useWebSockets**  
