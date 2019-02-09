@@ -38,11 +38,10 @@ GameObject:
   - component: {fileID: 4822224316094678}
   - component: {fileID: 33762848230157288}
   - component: {fileID: 23313067197120050}
-  - component: {fileID: 136452704075818754}
   - component: {fileID: 143011667059871024}
+  - component: {fileID: 114892629901890886}
   - component: {fileID: 114402732107420660}
   - component: {fileID: 114265392388239132}
-  - component: {fileID: 114892629901890886}
   m_Layer: 0
   m_Name: GamePlayer
   m_TagString: Untagged
@@ -202,8 +201,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0
   Index: 0
-  playerColor: {r: 0, g: 0, b: 0, a: 1}
   score: 0
+  playerColor: {r: 0, g: 0, b: 0, a: 1}
   moveSpeed: 300
   horiz: 0
   vert: 0
@@ -211,19 +210,6 @@ MonoBehaviour:
   turnSpeedAccel: 30
   turnSpeedDecel: 30
   maxTurnSpeed: 100
---- !u!136 &136452704075818754
-CapsuleCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1480027675339556}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!143 &143011667059871024
 CharacterController:
   m_ObjectHideFlags: 1

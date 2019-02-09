@@ -20,12 +20,11 @@ namespace Mirror.Examples.NetworkLobby
             float z = Random.Range(-19, 20);
 
             GameObject newPrize = Instantiate(prizePrefab.gameObject, new Vector3(x, 1, z), Quaternion.identity);
-
             Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
-
             reward.prizeColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-            Debug.LogFormat("Prize Spawned R:{0} G:{1} B:{2}", reward.prizeColor.r, reward.prizeColor.g, reward.prizeColor.b);
+
+            if (LogFilter.Debug) Debug.LogFormat("Spawning Prize R:{0} G:{1} B:{2}", reward.prizeColor.r, reward.prizeColor.g, reward.prizeColor.b);
 
             NetworkServer.Spawn(newPrize);
         }

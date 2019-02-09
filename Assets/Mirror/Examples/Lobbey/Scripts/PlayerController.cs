@@ -81,6 +81,27 @@ namespace Mirror.Examples.NetworkLobby
             characterController.SimpleMove(forward * Time.fixedDeltaTime);
         }
 
+        void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            // If player and prize objects are on their own layer(s) with correct
+            // collision matrix, we wouldn't have to validate the hit.gameobject.
+            // Since this is just an example, project settings aren't included so we check the name.
+
+            GameObject hitGO = hit.gameObject;
+
+            if (isLocalPlayer && hitGO.name == "Prize(Clone)")
+            {
+                if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, hitGO.name, hitGO.GetComponent<NetworkIdentity>().netId);
+                CmdClaimPrize(hitGO);
+            }
+        }
+
+        [Command]
+        public void CmdClaimPrize(GameObject hitGO)
+        {
+            hitGO.GetComponent<Reward>().ClaimPrize(gameObject);
+        }
+
         private void OnGUI()
         {
             GUI.Box(new Rect(10 + (Index * 110), 10, 100, 25), score.ToString().PadLeft(10));

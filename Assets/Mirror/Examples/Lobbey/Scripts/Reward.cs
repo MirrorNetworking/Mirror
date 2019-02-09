@@ -15,35 +15,35 @@ namespace Mirror.Examples.NetworkLobby
 
         void SetColor(Color color)
         {
-            //Debug.LogWarningFormat("Reward SetColor netId:{0} to {1}", netId, color);
             GetComponent<Renderer>().material.color = color;
         }
 
-        bool available = true;
+        public bool available = true;
         public Spawner spawner;
-        private void OnTriggerEnter(Collider other)
-        {
-            // Set Players and Prizes to their own layer(s) and set up collision matrix
-            // Doing so means we don't have to validate the 'other' collider.
 
-            if (isServer && available)
+        // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
+        // This only runs on the server
+        public void ClaimPrize(GameObject player)
+        {
+            if (available)
             {
                 // This is a fast switch to prevent two players claiming the prize in a bang-bang close contest for it.
-                // First hit turns it off, pending the object being moved or destroyed a few frames later.
+                // First hit turns it off, pending the object being destroyed a few frames later.
                 available = false;
 
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
+                // UnityEngine.Color RGB values are float fractions of 255
                 uint points = (uint)(((prizeColor.r * 255) + (prizeColor.g * 255) + (prizeColor.b * 255)) / 3);
-                Debug.LogFormat("Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
+                if (LogFilter.Debug) Debug.LogFormat("Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
 
                 // award the points via SyncVar on the PlayerController
-                other.GetComponent<PlayerController>().score += points;
+                player.GetComponent<PlayerController>().score += points;
+
+                // spawn a replacement
+                spawner.SpawnPrize();
 
                 // destroy this one
                 NetworkServer.Destroy(gameObject);
-
-                //... and spawn a replacement
-                spawner.SpawnPrize();
             }
         }
     }

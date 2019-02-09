@@ -22,14 +22,14 @@ GameObject:
   - component: {fileID: 33086497388294428}
   - component: {fileID: 23203154358629070}
   - component: {fileID: 135606878775227198}
-  - component: {fileID: 114251241889735402}
   - component: {fileID: 114048121767222990}
+  - component: {fileID: 114251241889735402}
   m_Layer: 0
   m_Name: Prize
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &4362442735993418
 Transform:
@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0.1
   prizeColor: {r: 0, g: 0, b: 0, a: 1}
+  available: 1
   spawner: {fileID: 0}
 --- !u!114 &114251241889735402
 MonoBehaviour:
@@ -122,7 +123,7 @@ SphereCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1139254171913846}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
