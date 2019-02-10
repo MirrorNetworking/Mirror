@@ -201,13 +201,11 @@ namespace Mirror
             // set a fixed tick rate instead of updating as often as possible
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
-            // => set both Update and FixedUpdate tick rate.
 #if !UNITY_EDITOR
             if (!NetworkClient.active)
             {
-                Application.targetFrameRate = serverTickRate; // Update
-                Time.fixedDeltaTime = 1f / serverTickRate; // FixedUpdate
-                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz. fixedDeltaTime: " + Time.fixedDeltaTime + ".");
+                Application.targetFrameRate = serverTickRate;
+                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
 
