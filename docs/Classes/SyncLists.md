@@ -19,8 +19,6 @@ A SyncList can only be of the following type
 -   Basic type (byte, int, float, string, UInt64, etc)
 -   Built-in Unity math type (Vector3, Quaternion, etc)
 -   NetworkIdentity
--   NetworkInstanceId
--   NetworkHash128
 -   GameObject with a NetworkIdentity component attached.
 
 ## Usage
@@ -33,20 +31,22 @@ Don't modify them in Awake, use OnStartServer or Start. SyncListStructs use Stru
 SyncListString myStringList;
 SyncListItem myItemList;
 
+// this will add the delegates on both server and client.
+// Use OnStartClient instead if you just want the client to act upon updates
 void Start()
 {
-	myStringList.Callback += MyStringCallback;
-	myItemList.Callback += MyItemCallback;
+    myStringList.Callback += MyStringCallback;
+    myItemList.Callback += MyItemCallback;
 }
 
 void MyStringCallback(SyncListString.Operation op, int index, String item)
 {
-	// Callback functionality here
+    // Callback functionality here
 }
 
 void MyItemCallback(SyncListItem.Operation op, int index, Item item)
 {
-	// Callback functionality here
+    // Callback functionality here
 }
 
 public struct Item
@@ -54,8 +54,5 @@ public struct Item
     // Define struct
 }
 
-public class SyncListItem : SyncListSTRUCT<Item>
-{
-
-}
+public class SyncListItem : SyncListSTRUCT<Item> { }
 ```
