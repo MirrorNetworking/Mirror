@@ -12,7 +12,7 @@ Commands are sent from player objects on the client to player objects on the ser
 
 Commands functions must have the prefix “Cmd”. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
 
-```
+```cs
 class Player : NetworkBehaviour
 {
     public GameObject bulletPrefab;
@@ -53,10 +53,9 @@ ClientRpc calls are sent from objects on the server to objects on clients. They 
 
 ClientRpc functions must have the prefix “Rpc”. This is a hint when reading code that calls the method - this function is special and is not invoked locally like a normal function.
 
-```
+```cs
 class Player : NetworkBehaviour
 {
-
     [SyncVar]
     int health;
 
@@ -117,8 +116,6 @@ The arguments passed to commands and ClientRpc calls are serialized and sent ove
 -   structs containing allowable types
 -   built-in unity math types (Vector3, Quaternion, etc)
 -   NetworkIdentity
--   NetworkInstanceId
--   NetworkHash128
 -   GameObject with a NetworkIdentity component attached
 
 Arguments to remote actions cannot be subcomponents of GameObjects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.
