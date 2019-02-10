@@ -11,7 +11,7 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar]
         public uint score = 0;
 
-        [SyncVar(hook = "SetColor")]
+        [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
 
         CharacterController characterController;
@@ -25,6 +25,9 @@ namespace Mirror.Examples.NetworkLobby
         public float turnSpeedAccel = 30;
         public float turnSpeedDecel = 30;
         public float maxTurnSpeed = 100;
+
+        Vector3 direction = Vector3.zero;
+        GameObject controllerColliderHitObject;
 
         public override void OnStartLocalPlayer()
         {
@@ -77,8 +80,8 @@ namespace Mirror.Examples.NetworkLobby
 
             transform.Rotate(0f, turn * Time.deltaTime, 0f);
 
-            Vector3 forward = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0, vert), 1) * moveSpeed));
-            characterController.SimpleMove(forward * Time.fixedDeltaTime);
+            direction = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0, vert), 1) * moveSpeed));
+            characterController.SimpleMove(direction * Time.fixedDeltaTime);
         }
 
         void OnControllerColliderHit(ControllerColliderHit hit)
@@ -87,19 +90,27 @@ namespace Mirror.Examples.NetworkLobby
             // collision matrix, we wouldn't have to validate the hit.gameobject.
             // Since this is just an example, project settings aren't included so we check the name.
 
-            GameObject hitGO = hit.gameObject;
+            controllerColliderHitObject = hit.gameObject;
 
-            if (isLocalPlayer && hitGO.name == "Prize(Clone)")
+            if (isLocalPlayer && controllerColliderHitObject.name == "Prize(Clone)")
             {
-                if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, hitGO.name, hitGO.GetComponent<NetworkIdentity>().netId);
-                CmdClaimPrize(hitGO);
+                if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
+
+                // Disable the prize gameobject so it doesn't impede player movement
+                // It's going to be destroyed in a few frames and we don't want to spam CmdClaimPrize.
+                // OnControllerColliderHit will fire many times as the player slides against the object.
+                controllerColliderHitObject.SetActive(false);
+
+                CmdClaimPrize(controllerColliderHitObject);
             }
         }
 
         [Command]
-        public void CmdClaimPrize(GameObject hitGO)
+        public void CmdClaimPrize(GameObject hitObject)
         {
-            hitGO.GetComponent<Reward>().ClaimPrize(gameObject);
+            // Null check is required, otherwise close timing of multiple claims could throw a null ref.
+            if (hitObject != null)
+                hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
         }
 
         private void OnGUI()

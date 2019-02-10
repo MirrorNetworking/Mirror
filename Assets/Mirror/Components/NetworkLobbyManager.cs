@@ -56,10 +56,7 @@ namespace Mirror
         internal void PlayerLoadedScene(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnSceneLoadedMessage");
-
-            NetworkIdentity lobbyController = conn.playerController;
-
-            SceneLoadedForPlayer(conn, lobbyController.gameObject);
+            SceneLoadedForPlayer(conn, conn.playerController.gameObject);
         }
 
         internal void ReadyStatusChanged()
@@ -83,17 +80,12 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
         {
-            NetworkLobbyPlayer lobbyPlayer = lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>();
-            if (lobbyPlayer == null)
-            {
-                // not a lobby player.. dont replace it
-                return;
-            }
+            // if not a lobby player.. dont replace it
+            if (lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>() == null) return;
 
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (LogFilter.Debug) Debug.Log("NetworkLobby SceneLoadedForPlayer scene:" + loadedSceneName + " " + conn);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkLobby SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
 
-            if (loadedSceneName == LobbyScene)
+            if (SceneManager.GetActiveScene().name == LobbyScene)
             {
                 // cant be ready in lobby, add to ready list
                 PendingPlayer pending;
@@ -123,9 +115,7 @@ namespace Mirror
         static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
         {
             int countPlayers = 0;
-            NetworkIdentity player = conn.playerController;
-            NetworkLobbyPlayer lobbyPlayer = player.gameObject.GetComponent<NetworkLobbyPlayer>();
-            if (lobbyPlayer.ReadyToBegin)
+            if (conn.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().ReadyToBegin)
                 countPlayers += 1;
 
             return countPlayers;
@@ -133,9 +123,7 @@ namespace Mirror
 
         public void CheckReadyToBegin()
         {
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (loadedSceneName != LobbyScene)
-                return;
+            if (SceneManager.GetActiveScene().name != LobbyScene) return;
 
             int readyCount = 0;
 
@@ -203,8 +191,7 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (loadedSceneName != LobbyScene)
+            if (SceneManager.GetActiveScene().name != LobbyScene)
             {
                 conn.Disconnect();
                 return;
@@ -242,16 +229,14 @@ namespace Mirror
 
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (loadedSceneName != LobbyScene)
-                return;
+            if (SceneManager.GetActiveScene().name != LobbyScene) return;
 
-            if (lobbySlots.Count == maxConnections)
-                return;
+            if (lobbySlots.Count == maxConnections) return;
 
             allPlayersReady = false;
 
-            Debug.LogWarningFormat("NetworkLobbyManager:OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager:OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
+
             GameObject newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)
                 newLobbyGameObject = (GameObject)Instantiate(lobbyPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
@@ -265,7 +250,7 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, newLobbyGameObject);
         }
 
-        private void RecalculateLobbyPlayerIndices()
+        void RecalculateLobbyPlayerIndices()
         {
             if (lobbySlots.Count > 0)
             {
@@ -284,8 +269,7 @@ namespace Mirror
 
                 foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
                 {
-                    if (lobbyPlayer == null)
-                        continue;
+                    if (lobbyPlayer == null) continue;
 
                     // find the game-player object for this connection, and destroy it
                     NetworkIdentity uv = lobbyPlayer.GetComponent<NetworkIdentity>();
@@ -385,22 +369,14 @@ namespace Mirror
         {
 
             if (lobbyPlayerPrefab == null || lobbyPlayerPrefab.gameObject == null)
-            {
                 Debug.LogError("NetworkLobbyManager no LobbyPlayer prefab is registered. Please add a LobbyPlayer prefab.");
-            }
             else
-            {
                 ClientScene.RegisterPrefab(lobbyPlayerPrefab.gameObject);
-            }
 
             if (playerPrefab == null)
-            {
                 Debug.LogError("NetworkLobbyManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
-            }
             else
-            {
                 ClientScene.RegisterPrefab(playerPrefab);
-            }
 
             OnLobbyStartClient(lobbyClient);
         }
@@ -452,8 +428,7 @@ namespace Mirror
 
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (loadedSceneName == LobbyScene)
+            if (SceneManager.GetActiveScene().name == LobbyScene)
             {
                 if (client.isConnected)
                     CallOnClientEnterLobby();
@@ -533,8 +508,7 @@ namespace Mirror
             if (!showLobbyGUI)
                 return;
 
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (loadedSceneName != LobbyScene)
+            if (SceneManager.GetActiveScene().name != LobbyScene)
                 return;
 
             GUI.Box(new Rect(10, 180, 520, 150), "PLAYERS");

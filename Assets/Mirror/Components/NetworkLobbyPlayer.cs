@@ -24,8 +24,7 @@ namespace Mirror
         {
             if (isClient) SceneManager.sceneLoaded += ClientLoadedScene;
 
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
+            if (NetworkManager.singleton as NetworkLobbyManager)
             {
                 ReadyToBegin = false;
                 OnClientEnterLobby();
@@ -45,8 +44,7 @@ namespace Mirror
             if (lobby)
             {
                 // dont even try this in the startup scene
-                string loadedSceneName = SceneManager.GetActiveScene().name;
-                if (loadedSceneName == lobby.LobbyScene)
+                if (SceneManager.GetActiveScene().name == lobby.LobbyScene)
                 {
                     Application.targetFrameRate = 10;
                     return;
@@ -99,8 +97,7 @@ namespace Mirror
                 if (!lobby.showLobbyGUI)
                     return;
 
-                string loadedSceneName = SceneManager.GetActiveScene().name;
-                if (loadedSceneName != lobby.LobbyScene)
+                if (SceneManager.GetActiveScene().name != lobby.LobbyScene)
                     return;
 
                 Rect rec = new Rect(20 + Index * 100, 200, 90, 20);

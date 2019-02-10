@@ -6,6 +6,11 @@ namespace Mirror.Examples.NetworkLobby
     {
         public NetworkIdentity prizePrefab;
 
+        float x = 0;
+        float z = 0;
+        GameObject newPrize;
+        Reward reward;
+
         private void Start()
         {
             for (int i = 0; i < 10; i++)
@@ -16,11 +21,11 @@ namespace Mirror.Examples.NetworkLobby
 
         public void SpawnPrize()
         {
-            float x = Random.Range(-19, 20);
-            float z = Random.Range(-19, 20);
+            x = Random.Range(-19, 20);
+            z = Random.Range(-19, 20);
 
-            GameObject newPrize = Instantiate(prizePrefab.gameObject, new Vector3(x, 1, z), Quaternion.identity);
-            Reward reward = newPrize.gameObject.GetComponent<Reward>();
+            newPrize = Instantiate(prizePrefab.gameObject, new Vector3(x, 1, z), Quaternion.identity);
+            reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
             reward.prizeColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
 

@@ -4,7 +4,7 @@ namespace Mirror.Examples.NetworkLobby
 {
     public class Reward : NetworkBehaviour
     {
-        [SyncVar(hook = "SetColor")]
+        [SyncVar(hook = nameof(SetColor))]
         public Color prizeColor = Color.black;
 
         private void Start()
@@ -20,6 +20,7 @@ namespace Mirror.Examples.NetworkLobby
 
         public bool available = true;
         public Spawner spawner;
+        uint points = 0;
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
         // This only runs on the server
@@ -33,7 +34,7 @@ namespace Mirror.Examples.NetworkLobby
 
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
                 // UnityEngine.Color RGB values are float fractions of 255
-                uint points = (uint)(((prizeColor.r * 255) + (prizeColor.g * 255) + (prizeColor.b * 255)) / 3);
+                points = (uint)(((prizeColor.r * 255) + (prizeColor.g * 255) + (prizeColor.b * 255)) / 3);
                 if (LogFilter.Debug) Debug.LogFormat("Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
 
                 // award the points via SyncVar on the PlayerController
