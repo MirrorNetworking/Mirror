@@ -756,7 +756,7 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            ClientScene.Ready(conn);
+            //ClientScene.Ready(conn); to fixing "A connection has already been set as ready. There can only be one." error on respawning player
 
             // vis2k: replaced all this weird code with something more simple
             if (autoCreatePlayer)
