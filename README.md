@@ -42,7 +42,7 @@ Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/conte
 
 *Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
 
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018).
+1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
 2. Decompress the zip file in Assets
 
 ## Migration Guide
