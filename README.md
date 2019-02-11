@@ -34,7 +34,7 @@ _Oh, and you won't have to worry about channels, low level networking, [packet l
 
 ## Usage Guide
 
-**If you are coming from a current UNET implementation or are seeking the stable version**
+**If you are coming from a current UNET implementation or are seeking the stable version:**
 
 Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
