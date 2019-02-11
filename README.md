@@ -33,11 +33,16 @@ The main difference is that you have to use `using Mirror;` instead of `using Un
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 ## Usage Guide
+
+**If you are coming from a current UNET implementation or are seeking the stable version**
+
 Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
-Alternatively,  you can install it manually:
+**Alternatively, you can install new releases manually:**
 
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
+*Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
+
+1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018).
 2. Decompress the zip file in Assets
 
 ## Migration Guide
