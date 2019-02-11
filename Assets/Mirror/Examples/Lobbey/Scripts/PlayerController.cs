@@ -37,7 +37,7 @@ namespace Mirror.Examples.NetworkLobby
 
             Camera.main.transform.parent = gameObject.transform;
             Camera.main.transform.localPosition = new Vector3(0, 3, -8);
-            Camera.main.transform.localRotation = Quaternion.identity;
+            Camera.main.transform.localRotation = Quaternion.Euler(10, 0, 0);
         }
 
         void SetColor(Color color)
