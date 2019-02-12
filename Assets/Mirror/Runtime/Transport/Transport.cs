@@ -23,6 +23,7 @@ namespace Mirror
 
         public abstract bool ClientConnected();
         public abstract void ClientConnect(string address);
+        public abstract void ClientConnect(string address, ushort port);
         public abstract bool ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
 
@@ -44,6 +45,7 @@ namespace Mirror
 
         public abstract bool ServerActive();
         public abstract void ServerStart();
+        public abstract void ServerStart(ushort port);
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
         public abstract bool GetConnectionInfo(int connectionId, out string address);
