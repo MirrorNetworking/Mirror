@@ -26,6 +26,24 @@ namespace Mirror
         public abstract bool ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
 
+        public virtual bool ClientSend(int channelId, ArraySegment<byte> data)
+        {
+            if (data.Array == null)
+                throw new ArgumentNullException("data");
+
+            //If the underlying array is the same size as the segment just directly send it
+            if (data.Count == data.Array.Length)
+                return ClientSend(channelId, data.Array);
+            else
+            {
+                //Copy data into an array of exactly the right size
+                byte[] packet = new byte[data.Count];
+                Array.Copy(data.Array, data.Offset, packet, 0, data.Count);
+
+                return ClientSend(channelId, packet);
+            }
+        }
+
         // determines if the transport is available for this platform
         // by default a transport is available in all platforms except webgl
         public virtual bool Available()
@@ -48,6 +66,24 @@ namespace Mirror
         public abstract bool ServerDisconnect(int connectionId);
         public abstract bool GetConnectionInfo(int connectionId, out string address);
         public abstract void ServerStop();
+
+        public virtual bool ServerSend(int connectionId, int channelId, ArraySegment<byte> data)
+        {
+            if (data.Array == null)
+                throw new ArgumentNullException("data");
+
+            //If the underlying array is the same size as the segment just directly send it
+            if (data.Count == data.Array.Length)
+                return ServerSend(connectionId, channelId, data.Array);
+            else
+            {
+                //Copy data into an array of exactly the right size
+                byte[] packet = new byte[data.Count];
+                Array.Copy(data.Array, data.Offset, packet, 0, data.Count);
+
+                return ServerSend(connectionId, channelId, packet);
+            }
+        }
 
         // common
         public abstract void Shutdown();

@@ -34,6 +34,7 @@ bin/
 .idea/
 Mirror/packages
 .mfractor
+_ReSharper.Caches
 
 # Unity generated
 Library

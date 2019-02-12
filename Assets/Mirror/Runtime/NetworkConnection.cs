@@ -281,6 +281,11 @@ namespace Mirror
 
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
+            return TransportSend(channelId, new ArraySegment<byte>(bytes), out error);
+        }
+
+        public virtual bool TransportSend(int channelId, ArraySegment<byte> bytes, out byte error)
+        {
             error = 0;
             if (NetworkManager.singleton.transport.ClientConnected())
             {
