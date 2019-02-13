@@ -2,20 +2,16 @@
 # Core EditorConfig Options   # 
 ############################### 
 root = true
-[*.md] 
+[*.{cs,csx,vb,vbx,md}] 
 indent_style = space 
 indent_size = 4 
 insert_final_newline = true 
 charset = utf-8
 end_of_line = lf
+[*.md] 
 trim_trailing_whitespace = false
 # Code files 
 [*.{cs,csx,vb,vbx}] 
-indent_style = space 
-indent_size = 4 
-insert_final_newline = true 
-charset = utf-8
-end_of_line = lf
 trim_trailing_whitespace = true
 ############################### 
 # .NET Coding Conventions     # 
