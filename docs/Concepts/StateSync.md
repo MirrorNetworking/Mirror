@@ -1,4 +1,4 @@
-# State synchronization
+# State Synchronization
 
 State synchronization refers to the synchronization of values such as integers, floating point numbers, strings and boolean values belonging to scripts.
 
@@ -65,7 +65,7 @@ public class MyScript : NetworkBehaviour
         Debug.Log("buf changed:" + op);
     }
     
-    void Start()
+    void OnStartClient()
     {
         m_bufs.Callback = BufChanged;
     }
