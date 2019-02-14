@@ -887,11 +887,10 @@ namespace Mirror
 
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            if (conn.playerController == null)
-            {
-                // null if players are still in a lobby etc., no need to show a warning
-                return;
-            }
+            // note: conn.playerController/clientOwnedObjects might be null if
+            // the player is still in a lobby and hasn't joined the world yet,
+            // so we need null checks for both of them.
+            // => destroy what we can destroy.
 
             if (conn.clientOwnedObjects != null)
             {
