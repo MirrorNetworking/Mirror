@@ -555,7 +555,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId); }
 
-            var localConnection = conn as ULocalConnectionToClient;
+            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
@@ -672,7 +672,7 @@ namespace Mirror
 
             conn.isReady = true;
 
-            var localConnection = conn as ULocalConnectionToClient;
+            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
