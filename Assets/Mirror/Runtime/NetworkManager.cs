@@ -24,6 +24,8 @@ namespace Mirror
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
         public bool startOnHeadless = true;
+        [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
+        public int serverTickRate = 30;
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
 
         [Scene]
@@ -195,6 +197,17 @@ namespace Mirror
 
             if (runInBackground)
                 Application.runInBackground = true;
+
+            // set a fixed tick rate instead of updating as often as possible
+            // * if not in Editor (it doesn't work in the Editor)
+            // * if not in Host mode
+#if !UNITY_EDITOR
+            if (!NetworkClient.active)
+            {
+                Application.targetFrameRate = serverTickRate;
+                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+            }
+#endif
 
             if (!NetworkServer.Listen(maxConnections))
             {
