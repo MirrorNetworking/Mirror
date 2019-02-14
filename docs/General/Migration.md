@@ -49,7 +49,7 @@ NetworkSettings in HLAPI have channels, but this is flat out broken. Rather than
 
 For example, if you have this code:
 
-```
+```cs
 [NetworkSettings(channel=1,sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
@@ -59,7 +59,7 @@ public class NetStreamer : NetworkBehaviour
 
 replace it with:
 
-```
+```cs
 [NetworkSettings(sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
@@ -103,7 +103,7 @@ public sealed class SpawnItemMessage : MessageBase
 
 replace with:
 
-```
+```cs
 public sealed class SpawnItemMessage : MessageBase
 {
     public System.Guid assetID;
@@ -210,5 +210,8 @@ See for yourself how uMMORPG was migrated to Mirror
 -   `error CS0246: The type or namespace name 'UnityWebRequest'  could not be found. Are you missing 'UnityEngine.Networking' using  directive?`
 
     Add this to the top of your script:
-	`using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;`
+    ```cs
+        using UnityWebRequest = UnityEngine.Networking.UnityWebRequest;
+    ```
+    
     `UnityWebRequest` is not part of UNet or Mirror, but it is in the same namespace as UNet. Changing the namespace to Mirror caused your script not to find UnityWebRequest. The same applies for `WWW` and all `UnityWebRequest` related classes.
