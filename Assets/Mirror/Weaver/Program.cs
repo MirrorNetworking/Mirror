@@ -25,13 +25,19 @@ namespace Mirror.Weaver
     {
         public static bool Process(string unityEngine, string unetDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, IAssemblyResolver assemblyResolver, Action<string> printWarning, Action<string> printError)
         {
+            bool rv = false;
+
             CheckDLLPath(unityEngine);
             CheckDLLPath(unetDLL);
             CheckOutputDirectory(outputDirectory);
             CheckAssemblies(assemblies);
             Log.WarningMethod = printWarning;
             Log.ErrorMethod = printError;
-            return Weaver.WeaveAssemblies(assemblies, extraAssemblyPaths, assemblyResolver, outputDirectory, unityEngine, unetDLL);
+
+            rv = Weaver.WeaveAssemblies(assemblies, extraAssemblyPaths, assemblyResolver, outputDirectory, unityEngine, unetDLL);
+            Weaver.Cleanup();
+
+            return rv;
         }
 
         private static void CheckDLLPath(string path)
