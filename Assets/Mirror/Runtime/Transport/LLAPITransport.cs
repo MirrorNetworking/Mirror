@@ -112,10 +112,10 @@ namespace Mirror
 
         public override void ClientSend(int channelId, byte[] data)
         {
-			if (!NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error))
-			{
-				throw new Exception("Send exception!");
-			}
+            if (!NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error))
+            {
+                throw new Exception("Send exception!");
+            }
         }
 
         public bool ProcessClientMessage()
@@ -207,10 +207,10 @@ namespace Mirror
 
         public override void ServerSend(int connectionId, int channelId, byte[] data)
         {
-			if (!NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error))
-			{
+            if (!NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error))
+            {
                 throw new Exception("Send exception");
-			}
+            }
         }
 
         public bool ProcessServerMessage()
