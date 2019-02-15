@@ -2,7 +2,7 @@
 
 ## Migrating a project from UNet (HLAPI)
 
-This guide gives you a step by step instruction for migrating your project from HLAP to Mirror. Mirror is a fork of HLAPI. As such the migration is straight forward for most projects.
+This guide gives you a step by step instruction for migrating your project from HLAP to Mirror. Mirror is a fork of UNet. As such the migration is straight forward for most projects.
 
 You should review the information on the [Deprecations](Deprecations) page to see if your project will be impacted.
 
@@ -13,10 +13,12 @@ There's also a Migration Tool you can try:
 
 You have been warned.
 
-### 2. Install Mirror
+### 2. Install Mirror and Restart Unity
 
 Get Mirror from the [asset store](https://assetstore.unity.com/packages/tools/network/mirror-129321) and import it in your project.  
-Alternatively you can grab the latest [release](https://github.com/vis2k/Mirror/releases) from GitHub if you're feeling adventurous.  
+
+Alternatively you can grab the latest [release](https://github.com/vis2k/Mirror/releases) from GitHub if you're feeling adventurous, but be aware that bleeding edge dev releases are not necessarily stable.  
+
 **NOTE:** You must restart Unity after adding Mirror to the project for the components menu to update correctly.
 
 ### 3. Replace namespace
@@ -26,7 +28,8 @@ Replace `UnityEngine.Networking` for `Mirror` everywhere in your project. For ex
 ```cs
 using UnityEngine.Networking;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour
+{
     ...
 }
 ```
@@ -36,16 +39,17 @@ replace it with:
 ```cs
 using Mirror;
 
-public class Player : NetworkBehaviour {
+public class Player : NetworkBehaviour
+{
     ...
 }
 ```
 
-At this point, you might get some compilation errors. Don't panic, these are easy to fix. Keep going
+At this point, you might get some compilation errors. Don't panic, these are easy to fix. Keep going...
 
-### 4. Remove channels from NetworkSettings
+### 4. Remove NetworkSettings
 
-NetworkSettings in HLAPI have channels, but this is flat out broken. Rather than ignoring your settings we removed channels from NetworkSettings.
+NetworkSettings in UNet have channels, but this is flat out broken. Rather than ignoring your settings we removed channels from NetworkSettings completely.  `sendInterval` is now set in code and / or the inspector too.
 
 For example, if you have this code:
 
@@ -60,10 +64,12 @@ public class NetStreamer : NetworkBehaviour
 replace it with:
 
 ```cs
-[NetworkSettings(sendInterval=0.05f)]
 public class NetStreamer : NetworkBehaviour
 {
-    ...
+    void Start()
+    {
+        syncInterval = 0.05f;
+    }
 }
 ```
 
@@ -71,18 +77,18 @@ Please note that the default transport (Telepathy), completely ignores channels,
 
 ### 5. Rename SyncListStruct to SyncListSTRUCT
 
-There is a bug in the original UNET Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace. Until Unity officially removes UNET in 2019.1, we will have to use the name `SyncListSTRUCT` instead.
+There is a bug in the original UNet Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace. Until Unity officially removes UNET in 2019.1, we will have to use the name `SyncListSTRUCT` instead.
 
 For example, if you have definitions like:
 
 ```cs
-public class SyncListQuest : SyncListStruct<Quest> {}
+public class SyncListQuest : SyncListStruct<Quest> { }
 ```
 
 replace them with:
 
 ```cs
-public class SyncListQuest : SyncListSTRUCT<Quest> {}
+public class SyncListQuest : SyncListSTRUCT<Quest> { }
 ```
 
 ### 6. Replace NetworkHash128 and NetworkInstanceId
@@ -115,7 +121,7 @@ public sealed class SpawnItemMessage : MessageBase
 
 ### 7. Update your synclist callbacks
 
-In HLAPI SyncLists have a callback delegate that gets called in the client whenever the list is updated We have changed the callback to be a C\# event instead and we also pass the item that was updated/removed
+In UNet, SyncLists have a callback delegate that gets called in the client whenever the list is updated.  We have changed the callback to be a C\# event instead and we also pass the item that was updated/removed.
 
 For example, if you have this code:
 
@@ -191,7 +197,7 @@ public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader ext
 }
 ```
 
-Note that in both HLAPI and Mirror the parameter "extraMessageReader" is optional.
+Note that in both UNet and Mirror the parameter "extraMessageReader" is optional.
 
 ### 10. Update your firewall and router
 

@@ -15,6 +15,13 @@ namespace Mirror
 
     public abstract class Transport : MonoBehaviour
     {
+        // determines if the transport is available for this platform
+        // by default a transport is available in all platforms except webgl
+        public virtual bool Available()
+        {
+            return Application.platform != RuntimePlatform.WebGLPlayer;
+        }
+
         // client
         [HideInInspector] public UnityEvent OnClientConnected;
         [HideInInspector] public UnityEventByteArray OnClientDataReceived;
@@ -25,14 +32,6 @@ namespace Mirror
         public abstract void ClientConnect(string address);
         public abstract bool ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
-
-        // determines if the transport is available for this platform
-        // by default a transport is available in all platforms except webgl
-        public virtual bool Available()
-        {
-            return Application.platform != RuntimePlatform.WebGLPlayer;
-        }
-
 
         // server
         [HideInInspector] public UnityEventInt OnServerConnected;
