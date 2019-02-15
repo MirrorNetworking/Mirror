@@ -62,9 +62,9 @@ namespace Mirror
             GetAvailableTransport().ClientDisconnect();
         }
 
-        public override bool ClientSend(int channelId, byte[] data)
+        public override void ClientSend(int channelId, byte[] data)
         {
-            return GetAvailableTransport().ClientSend(channelId, data);
+            GetAvailableTransport().ClientSend(channelId, data);
         }
 
         public override int GetMaxPacketSize(int channelId = 0)
@@ -146,11 +146,11 @@ namespace Mirror
             return transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override void ServerSend(int connectionId, int channelId, byte[] data)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerSend(baseConnectionId, channelId, data);
+            transports[transportId].ServerSend(baseConnectionId, channelId, data);
         }
 
         public override void ServerStart()

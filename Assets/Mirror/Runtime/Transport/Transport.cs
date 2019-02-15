@@ -30,7 +30,7 @@ namespace Mirror
 
         public abstract bool ClientConnected();
         public abstract void ClientConnect(string address);
-        public abstract bool ClientSend(int channelId, byte[] data);
+        public abstract void ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
 
         // server
@@ -43,7 +43,7 @@ namespace Mirror
 
         public abstract bool ServerActive();
         public abstract void ServerStart();
-        public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+        public abstract void ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
         public abstract bool GetConnectionInfo(int connectionId, out string address);
         public abstract void ServerStop();
@@ -60,6 +60,8 @@ namespace Mirror
         //    'Observer not ready for ...' log messages when using Update
         // -> occupying a public Update() function will cause Warnings if a
         //    transport uses Update.
-        public void Update() {}
+#if UNITY_EDITOR
+        public void Update() { }
+#endif
     }
 }

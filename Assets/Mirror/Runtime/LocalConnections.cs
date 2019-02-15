@@ -16,10 +16,9 @@ namespace Mirror
             m_LocalClient = localClient;
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected override void SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             m_LocalClient.InvokeBytesOnClient(bytes);
-            return true;
         }
     }
 
@@ -31,14 +30,13 @@ namespace Mirror
         {
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected override void SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {
-                Debug.LogError("LocalConnection:SendBytes cannot send zero bytes");
-                return false;
+                throw new Exception("LocalConnection:SendBytes cannot send zero bytes");
             }
-            return NetworkServer.InvokeBytes(this, bytes);
+            NetworkServer.InvokeBytes(this, bytes);
         }
     }
 }

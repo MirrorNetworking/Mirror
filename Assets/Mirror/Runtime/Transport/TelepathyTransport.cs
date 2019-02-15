@@ -36,7 +36,14 @@ namespace Mirror
         // client
         public override bool ClientConnected() { return client.Connected; }
         public override void ClientConnect(string address) { client.Connect(address, port); }
-        public override bool ClientSend(int channelId, byte[] data) { return client.Send(data); }
+
+        public override void ClientSend(int channelId, byte[] data)
+        {
+            if (!client.Send(data))
+            {
+                throw new Exception("Client.Send: not connected!");
+            }
+        }
 
         bool ProcessClientMessage()
         {
@@ -78,7 +85,15 @@ namespace Mirror
         // server
         public override bool ServerActive() { return server.Active; }
         public override void ServerStart() { server.Start(port); }
-        public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
+
+        public override void ServerSend(int connectionId, int channelId, byte[] data)
+        {
+            if (!server.Send(connectionId, data))
+            {
+                throw new Exception("Server.Send: invalid connectionId: " + connectionId);
+            }
+        }
+
         public bool ProcessServerMessage()
         {
             Telepathy.Message message;

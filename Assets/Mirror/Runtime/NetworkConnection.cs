@@ -154,37 +154,34 @@ namespace Mirror
             m_PlayerController = null;
         }
 
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public virtual void Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
 
             // pack message and send
             byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
-            return SendBytes(message, channelId);
+            SendBytes(message, channelId);
         }
 
         // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
         // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
+        protected virtual void SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
             if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
-                return false;
+                throw new Exception("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
             }
 
             if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection:SendBytes cannot send zero bytes");
-                return false;
+                throw new Exception("NetworkConnection:SendBytes cannot send zero bytes");
             }
 
-            byte error;
-            return TransportSend(channelId, bytes, out error);
+            TransportSend(channelId, bytes);
         }
 
         // handle this message
@@ -279,18 +276,16 @@ namespace Mirror
             HandleBytes(bytes);
         }
 
-        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
+        public virtual void TransportSend(int channelId, byte[] bytes)
         {
-            error = 0;
             if (NetworkManager.singleton.transport.ClientConnected())
             {
-                return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
+                NetworkManager.singleton.transport.ClientSend(channelId, bytes);
             }
             else if (NetworkManager.singleton.transport.ServerActive())
             {
-                return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
+                NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
             }
-            return false;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)

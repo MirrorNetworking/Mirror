@@ -193,7 +193,17 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.Send(msgType, msg);
+                    bool success = true;
+                    try
+                    {
+                        kvp.Value.Send(msgType, msg);
+                    }
+                    catch
+                    {
+                        success = false;
+                    }
+
+                    result &= success;
                 }
                 return result;
             }
@@ -207,7 +217,17 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.Send(msgType, msg, channelId);
+                bool success = true;
+                try
+                {
+                    kvp.Value.Send(msgType, msg, channelId);
+                }
+                catch
+                {
+                    success = false;
+                }
+
+                result &= success;
             }
             return result;
         }
@@ -223,7 +243,17 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.Send(msgType, msg, channelId);
+                        bool success = true;
+                        try
+                        {
+                            kvp.Value.Send(msgType, msg, channelId);
+                        }
+                        catch
+                        {
+                            success = false;
+                        }
+
+                        result &= success;
                     }
                 }
                 return result;

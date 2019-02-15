@@ -151,19 +151,17 @@ namespace Mirror
             NetworkManager.singleton.transport.OnClientError.RemoveListener(OnError);
         }
 
-        public bool Send(short msgType, MessageBase msg)
+        public void Send(short msgType, MessageBase msg)
         {
             if (m_Connection != null)
             {
                 if (connectState != ConnectState.Connected)
                 {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
-                    return false;
+                    throw new Exception("NetworkClient Send when not connected to a server");
                 }
-                return m_Connection.Send(msgType, msg);
+                m_Connection.Send(msgType, msg);
             }
-            Debug.LogError("NetworkClient Send with no connection");
-            return false;
+            throw new Exception("NetworkClient Send with no connection");
         }
 
         public void Shutdown()
