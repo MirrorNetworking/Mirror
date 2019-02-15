@@ -264,13 +264,14 @@ namespace Mirror
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address)
+        public override string ServerGetClientAddress(int connectionId)
         {
+            string address = "";
             int port;
             NetworkID networkId;
             NodeID node;
             NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out address, out port, out networkId, out node, out error);
-            return true;
+            return address;
         }
 
         public override void ServerStop()

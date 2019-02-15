@@ -45,7 +45,7 @@ namespace Mirror
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
-        public abstract bool GetConnectionInfo(int connectionId, out string address);
+        public abstract string ServerGetClientAddress(int connectionId);
         public abstract void ServerStop();
 
         // common
