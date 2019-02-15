@@ -11,6 +11,8 @@ namespace Mirror.Examples.Basic
 
         [SyncVar]
         public int data;
+        [SyncVar]
+        public int suckitNerrrrrrrrds;
 
         public TextMesh text;
 
@@ -24,6 +26,7 @@ namespace Mirror.Examples.Basic
         public void UpdateData()
         {
             data = Random.Range(0, 10);
+            suckitNerrrrrrrrds = Random.Range(0, 10);
         }
 
         public void Update()
@@ -31,7 +34,7 @@ namespace Mirror.Examples.Basic
             if (isLocalPlayer)
                 text.color = Color.red;
 
-            text.text = string.Format("Player {0}\ndata={1}", netId, data);
+            text.text = string.Format("Player {0}\ndata={1}\nnerds={2}\n", netId, data, suckitNerrrrrrrrds);
         }
     }
 }
