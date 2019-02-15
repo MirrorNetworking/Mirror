@@ -750,6 +750,7 @@ namespace Mirror
             GameObject player = startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+            player.name = playerPrefab.name; // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }
