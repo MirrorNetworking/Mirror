@@ -444,7 +444,10 @@ namespace Mirror
             if (GetPrefab(msg.assetId, out prefab))
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
-                obj.name = prefab.name; // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
+
+                // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
+                obj.name = prefab.name;
+
                 if (LogFilter.Debug)
                 {
                     Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
