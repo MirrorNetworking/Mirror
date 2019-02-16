@@ -11,7 +11,7 @@ public class NetworkLobbyPlayerExt : NetworkLobbyPlayer
         if (LogFilter.Debug) Debug.LogFormat("OnStartClient {0}", SceneManager.GetActiveScene().name);
         NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
         if (lobby && lobby.LobbyScene == SceneManager.GetActiveScene().name)
-            gameObject.transform.parent = GameObject.Find("Players").transform;
+            gameObject.transform.SetParent(GameObject.Find("Players").transform);
     }
 
     public override void OnClientEnterLobby()

@@ -11,7 +11,7 @@ namespace Mirror.Examples.NetworkLobby
         GameObject newPrize;
         Reward reward;
 
-        private void Start()
+        void Start()
         {
             for (int i = 0; i < 10; i++)
             {

@@ -5,7 +5,7 @@ namespace Mirror.Examples.NetworkLobby
 {
     public class OfflineGUI : MonoBehaviour
     {
-        private void Start()
+        void Start()
         {
             Application.targetFrameRate = 10;
         }

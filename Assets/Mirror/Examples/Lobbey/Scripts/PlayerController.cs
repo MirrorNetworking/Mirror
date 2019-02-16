@@ -46,7 +46,7 @@ namespace Mirror.Examples.NetworkLobby
             GetComponent<Renderer>().material.color = color;
         }
 
-        private void Start()
+        void Start()
         {
             // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
             SetColor(playerColor);
@@ -113,7 +113,7 @@ namespace Mirror.Examples.NetworkLobby
                 hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             GUI.Box(new Rect(10 + (Index * 110), 10, 100, 25), score.ToString().PadLeft(10));
         }
