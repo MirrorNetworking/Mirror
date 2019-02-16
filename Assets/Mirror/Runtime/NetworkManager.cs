@@ -57,7 +57,9 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
-        public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        // this is used to make sure that all scene changes are initialized by UNET. 
+        // Loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        public static string networkSceneName = ""; 
         [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
@@ -689,6 +691,9 @@ namespace Mirror
             GameObject player = startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+
+            // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
+            player.name = playerPrefab.name;
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }

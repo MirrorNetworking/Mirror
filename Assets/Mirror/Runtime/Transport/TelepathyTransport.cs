@@ -45,7 +45,6 @@ namespace Mirror
             {
                 switch (message.eventType)
                 {
-                    // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
                         OnClientConnected.Invoke();
                         break;
@@ -87,7 +86,6 @@ namespace Mirror
             {
                 switch (message.eventType)
                 {
-                    // convert Telepathy EventType to TransportEvent
                     case Telepathy.EventType.Connected:
                         OnServerConnected.Invoke(message.connectionId);
                         break;
