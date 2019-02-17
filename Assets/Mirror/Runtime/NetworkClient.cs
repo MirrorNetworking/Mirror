@@ -141,6 +141,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
+        [Obsolete("Use SendMessage<T> instead with no message id instead")]
         public bool Send(short msgType, MessageBase msg)
         {
             if (connection != null)
@@ -151,6 +152,23 @@ namespace Mirror
                     return false;
                 }
                 return connection.Send(msgType, msg);
+            }
+            Debug.LogError("NetworkClient Send with no connection");
+            return false;
+        }
+
+        public bool SendMessage<T>(T message) where T : MessageBase
+        {
+            // TODO use int instead to avoid collisions
+            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            if (connection != null)
+            {
+                if (connectState != ConnectState.Connected)
+                {
+                    Debug.LogError("NetworkClient Send when not connected to a server");
+                    return false;
+                }
+                return connection.Send(msgType, message);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
@@ -252,6 +270,7 @@ namespace Mirror
             RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
         }
 
+        [Obsolete("Use RegisterHandler<T> instead")]
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
@@ -261,19 +280,43 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        [Obsolete("Use RegisterHandler<T> instead")]
         public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((short)msgType, handler);
         }
 
+        public void RegisterHandler<T>(Action<T> handler) where T : MessageBase, new()
+        {
+            // TODO use int instead to avoid collisions
+            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            if (handlers.ContainsKey(msgType))
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+            }
+            handlers[msgType] = (networkMessage) =>
+            {
+                handler(networkMessage.ReadMessage<T>());
+            };
+        }
+
+        [Obsolete("Use UnregisterHandler<T> instead")]
         public void UnregisterHandler(short msgType)
         {
             handlers.Remove(msgType);
         }
 
+        [Obsolete("Use UnregisterHandler<T> instead")]
         public void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((short)msgType);
+        }
+
+        public void UnregisterHandler<T>()
+        {
+            // use int to minimize collisions
+            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            handlers.Remove(msgType);
         }
 
         internal static void UpdateClient()
