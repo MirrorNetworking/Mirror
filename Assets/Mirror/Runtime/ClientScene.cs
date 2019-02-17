@@ -111,7 +111,7 @@ namespace Mirror
             if (readyConnection.playerController != null)
             {
                 RemovePlayerMessage msg = new RemovePlayerMessage();
-                readyConnection.Send((short)MsgType.RemovePlayer, msg);
+                readyConnection.Send(msg);
 
                 Object.Destroy(readyConnection.playerController.gameObject);
 
