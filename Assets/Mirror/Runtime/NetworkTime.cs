@@ -65,11 +65,11 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkMessage netMsg)
         {
-            var pingMsg = netMsg.ReadMessage<NetworkPingMessage>();
+            NetworkPingMessage pingMsg = netMsg.ReadMessage<NetworkPingMessage>();
 
             if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
 
-            var pongMsg = new NetworkPongMessage
+            NetworkPongMessage pongMsg = new NetworkPongMessage
             {
                 clientTime = pingMsg.value,
                 serverTime = LocalTime()
