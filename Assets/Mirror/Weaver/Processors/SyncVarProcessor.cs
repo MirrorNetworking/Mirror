@@ -290,7 +290,7 @@ namespace Mirror.Weaver
                         }
 
                         var fieldModuleName = resolvedField.Module.Name;
-                        if (fieldModuleName != Weaver.scriptDef.MainModule.Name &&
+                        if (fieldModuleName != Weaver.CurrentAssembly.MainModule.Name &&
                             fieldModuleName != Weaver.m_UnityAssemblyDefinition.MainModule.Name &&
                             fieldModuleName != Weaver.m_UNetAssemblyDefinition.MainModule.Name &&
                             fieldModuleName != Weaver.corLib.Name &&
