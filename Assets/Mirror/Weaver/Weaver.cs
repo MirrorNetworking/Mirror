@@ -51,7 +51,7 @@ namespace Mirror.Weaver
         #endregion
 
         #region Private Properties
-        static bool m_DebugFlag = true;
+        static bool m_debugLogEnabled = true;
         // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
         // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
         // A NetworkBehaviour with the max SyncVars (32) can legitimately increment this value to 65 - so max must be higher than that
@@ -189,7 +189,7 @@ namespace Mirror.Weaver
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
-            if (!m_DebugFlag)
+            if (!m_debugLogEnabled)
                 return;
 
             Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
