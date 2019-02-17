@@ -428,6 +428,7 @@ namespace Mirror
             }
         }
 
+        [Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
@@ -437,19 +438,42 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        [Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((short)msgType, handler);
         }
 
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
+        {
+            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            if (handlers.ContainsKey(msgType))
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
+            }
+            handlers[msgType] = networkMessage =>
+            {
+                T message = networkMessage.ReadMessage<T>();
+                handler(networkMessage.conn, message);
+            };
+        }
+
+        [Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(short msgType)
         {
             handlers.Remove(msgType);
         }
 
+        [Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((short)msgType);
+        }
+
+        public static void UnregisterHandler<T>() where T:MessageBase
+        {
+            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            handlers.Remove(msgType);
         }
 
         public static void ClearHandlers()
