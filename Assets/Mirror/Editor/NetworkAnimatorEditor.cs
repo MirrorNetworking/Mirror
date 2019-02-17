@@ -47,14 +47,14 @@ namespace Mirror
             if (m_AnimSync.animator == null)
                 return;
 
-            var controller = m_AnimSync.animator.runtimeAnimatorController as AnimatorController;
+            AnimatorController controller = m_AnimSync.animator.runtimeAnimatorController as AnimatorController;
             if (controller != null)
             {
-                var showWarning = false;
+                bool showWarning = false;
                 EditorGUI.indentLevel += 1;
                 int i = 0;
 
-                foreach (var p in controller.parameters)
+                foreach (AnimatorControllerParameter p in controller.parameters)
                 {
                     if (i >= 32)
                     {
