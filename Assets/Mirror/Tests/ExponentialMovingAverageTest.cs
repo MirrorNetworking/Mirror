@@ -8,7 +8,7 @@ namespace Mirror.Tests
         [Test]
         public void TestInitial()
         {
-            var ema = new ExponentialMovingAverage(10);
+            ExponentialMovingAverage ema = new ExponentialMovingAverage(10);
 
             ema.Add(3);
 
@@ -19,7 +19,7 @@ namespace Mirror.Tests
         [Test]
         public void TestMovingAverage()
         {
-            var ema = new ExponentialMovingAverage(10);
+            ExponentialMovingAverage ema = new ExponentialMovingAverage(10);
 
             ema.Add(5);
             ema.Add(6);
@@ -31,7 +31,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVar()
         {
-            var ema = new ExponentialMovingAverage(10);
+            ExponentialMovingAverage ema = new ExponentialMovingAverage(10);
 
             ema.Add(5);
             ema.Add(6);

@@ -111,8 +111,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListIntTest()
         {
-            var serverList = new SyncListInt();
-            var clientList = new SyncListInt();
+            SyncListInt serverList = new SyncListInt();
+            SyncListInt clientList = new SyncListInt();
 
             serverList.Add(1);
             serverList.Add(2);
@@ -125,8 +125,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListBoolTest()
         {
-            var serverList = new SyncListBool();
-            var clientList = new SyncListBool();
+            SyncListBool serverList = new SyncListBool();
+            SyncListBool clientList = new SyncListBool();
 
             serverList.Add(true);
             serverList.Add(false);
@@ -139,8 +139,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListUintTest()
         {
-            var serverList = new SyncListUInt();
-            var clientList = new SyncListUInt();
+            SyncListUInt serverList = new SyncListUInt();
+            SyncListUInt clientList = new SyncListUInt();
 
             serverList.Add(1U);
             serverList.Add(2U);
@@ -153,8 +153,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListFloatTest()
         {
-            var serverList = new SyncListFloat();
-            var clientList = new SyncListFloat();
+            SyncListFloat serverList = new SyncListFloat();
+            SyncListFloat clientList = new SyncListFloat();
 
             serverList.Add(1.0F);
             serverList.Add(2.0F);
@@ -238,8 +238,8 @@ namespace Mirror.Tests
         [Test]
         public void DirtyTest()
         {
-            var serverList = new SyncListInt();
-            var clientList = new SyncListInt();
+            SyncListInt serverList = new SyncListInt();
+            SyncListInt clientList = new SyncListInt();
 
             // nothing to send
             Assert.That(serverList.IsDirty, Is.False);
@@ -256,8 +256,8 @@ namespace Mirror.Tests
         [Test]
         public void ReadonlyTest()
         {
-            var serverList = new SyncListUInt();
-            var clientList = new SyncListUInt();
+            SyncListUInt serverList = new SyncListUInt();
+            SyncListUInt clientList = new SyncListUInt();
 
             // data has been flushed,  should go back to clear
             Assert.That(clientList.IsReadOnly, Is.False);

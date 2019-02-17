@@ -71,7 +71,7 @@ Mirror is developed by volunteers. If you like what we are doing, consider leavi
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
-* [uMMORPG 207 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vQqf_iqOLlBRTUqqyor_OUx_rHlYx-SYvZWMvHGuLIuRuxJ-qX3s8JzrrBB5vxDdGfl-HhYZW3g5lLW/pub#h.h4wha2mpetsc) (everyone broadcasting to everyone else)
+* [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## Contributing

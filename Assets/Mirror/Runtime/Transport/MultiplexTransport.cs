@@ -132,11 +132,11 @@ namespace Mirror
             return transports.All(t => t.ServerActive());
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address)
+        public override string ServerGetClientAddress(int connectionId)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
-            return transports[transportId].GetConnectionInfo(baseConnectionId, out address);
+            return transports[transportId].ServerGetClientAddress(baseConnectionId);
         }
 
         public override bool ServerDisconnect(int connectionId)

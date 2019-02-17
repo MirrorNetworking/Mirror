@@ -313,8 +313,7 @@ namespace Mirror
             if (connections.Count < s_MaxConnections)
             {
                 // get ip address from connection
-                string address;
-                NetworkManager.singleton.transport.GetConnectionInfo(connectionId, out address);
+                string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
@@ -535,7 +534,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId); }
 
-            var localConnection = conn as ULocalConnectionToClient;
+            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
@@ -652,7 +651,7 @@ namespace Mirror
 
             conn.isReady = true;
 
-            var localConnection = conn as ULocalConnectionToClient;
+            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
             if (localConnection != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }

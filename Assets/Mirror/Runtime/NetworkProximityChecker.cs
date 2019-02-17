@@ -18,8 +18,9 @@ namespace Mirror
         [TooltipAttribute("The maximum range that objects will be visible at.")]
         public int visRange = 10;
 
+        // how often to refresh the list of observers, in seconds
         [TooltipAttribute("How often (in seconds) that this object should update the set of players that can see it.")]
-        public float visUpdateInterval = 1.0f; // in seconds
+        public float visUpdateInterval = 1.0f; 
 
         [TooltipAttribute("Which method to use for checking proximity of players.\n\nPhysics3D uses 3D physics to determine proximity.\n\nPhysics2D uses 2D physics to determine proximity.")]
         public CheckMethod checkMethod = CheckMethod.Physics3D;
@@ -27,8 +28,9 @@ namespace Mirror
         [TooltipAttribute("Enable to force this object to be hidden from players.")]
         public bool forceHidden;
 
+        // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.
         [TooltipAttribute("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
-        public LayerMask castLayers = ~0; // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.
+        public LayerMask castLayers = ~0; 
 
         float m_VisUpdateTime;
 
