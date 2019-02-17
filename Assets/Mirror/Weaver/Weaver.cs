@@ -179,7 +179,6 @@ namespace Mirror.Weaver
         public static MethodReference sendEventInternal;
         #endregion
 
-        public static ModuleDefinition corLib;
         public static AssemblyDefinition m_UnityAssemblyDefinition;
         public static AssemblyDefinition m_UNetAssemblyDefinition;
         public static bool fail;
@@ -1054,12 +1053,12 @@ namespace Mirror.Weaver
             {
                 AssemblyResolver = CurrentAssembly.MainModule.AssemblyResolver,
             };
-            corLib = CurrentAssembly.MainModule.AssemblyResolver.Resolve(name, parameters).MainModule;
+            CorLibModule = CurrentAssembly.MainModule.AssemblyResolver.Resolve(name, parameters).MainModule;
         }
 
         static TypeReference ImportCorLibType(string fullName)
         {
-            TypeDefinition type = corLib.GetType(fullName) ?? corLib.ExportedTypes.First(t => t.FullName == fullName).Resolve();
+            TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.First(t => t.FullName == fullName).Resolve();
             return CurrentAssembly.MainModule.ImportReference(type);
         }
 
@@ -1544,7 +1543,7 @@ namespace Mirror.Weaver
                 Log.Error("Exception :" + e);
                 return false;
             }
-            corLib = null;
+            CorLibModule = null;
             return true;
         }
     }
