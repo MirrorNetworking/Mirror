@@ -291,7 +291,7 @@ namespace Mirror.Weaver
 
                         var fieldModuleName = resolvedField.Module.Name;
                         if (fieldModuleName != Weaver.CurrentAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.m_UnityAssemblyDefinition.MainModule.Name &&
+                            fieldModuleName != Weaver.UnityAssembly.MainModule.Name &&
                             fieldModuleName != Weaver.m_UNetAssemblyDefinition.MainModule.Name &&
                             fieldModuleName != Weaver.CorLibModule.Name &&
                             fieldModuleName != "System.Runtime.dll" && // this is only for Metro, built-in types are not in corlib on metro
