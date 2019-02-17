@@ -1513,33 +1513,80 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string unityUNetDLLPath)
+        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveList = new WeaverLists();
 
             UnityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
-            NetAssembly = AssemblyDefinition.ReadAssembly(unityUNetDLLPath);
+            NetAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath);
 
             SetupUnityTypes();
 
+            bool returnValue = true;
+
             try
             {
+                // after each call to Weave, we must guarantee DisposeCurrentAssembly is called afterwards
                 foreach (string ass in assemblies)
                 {
-                    if (!Weave(ass, dependencies, assemblyResolver, unityEngineDLLPath, unityUNetDLLPath, outputDir))
+                    if (!Weave(ass, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                     {
-                        return false;
+                        // current assembly will be disposed during cleanup, so break out of foreach
+                        returnValue = false;
+                        break;
                     }
+
+                    // current assembly needs to be disposed now, because we will weave a new assembly
+                    DisposeCurrentAssembly();
                 }
             }
             catch (Exception e)
             {
                 Log.Error("Exception :" + e);
-                return false;
+                returnValue = false;
             }
-            CorLibModule = null;
-            return true;
+
+            // guarantee Dispose is called on all open assemblies / associated file streams
+            Cleanup();
+
+            return returnValue;
+        }
+
+        // make sure file handles of current assembly and corlib are closed
+        // this needs to happen after each weave
+        private static void DisposeCurrentAssembly()
+        {
+            if (Weaver.CurrentAssembly != null)
+            {
+                Weaver.CurrentAssembly.Dispose();
+                Weaver.CurrentAssembly = null;
+            }
+
+            if (Weaver.CorLibModule != null)
+            {
+                Weaver.CorLibModule.Dispose();
+                Weaver.CorLibModule = null;
+            }
+        }
+
+        // call DisposeCurrentAssembly and then guarantee file handles of unity and mirror assembly are closed
+        // this needs to happen after all weaving is complete
+        public static void Cleanup()
+        {
+            DisposeCurrentAssembly();
+
+            if (Weaver.UnityAssembly != null)
+            {
+                Weaver.UnityAssembly.Dispose();
+                Weaver.UnityAssembly = null;
+            }
+
+            if (Weaver.NetAssembly != null)
+            {
+                Weaver.NetAssembly.Dispose();
+                Weaver.NetAssembly = null;
+            }
         }
     }
 }
