@@ -57,7 +57,7 @@ namespace Mirror
         Highest = 47
     }
 
-    public class NetworkMessage
+    public struct NetworkMessage
     {
         public short msgType;
         public NetworkConnection conn;
