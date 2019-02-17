@@ -1435,8 +1435,6 @@ namespace Mirror.Weaver
                         }
                         catch (Exception ex)
                         {
-                            if (CurrentAssembly.MainModule.SymbolReader != null)
-                                CurrentAssembly.MainModule.SymbolReader.Dispose();
                             WeavingFailed = true;
                             throw ex;
                         }
@@ -1444,8 +1442,6 @@ namespace Mirror.Weaver
 
                     if (WeavingFailed)
                     {
-                        if (CurrentAssembly.MainModule.SymbolReader != null)
-                            CurrentAssembly.MainModule.SymbolReader.Dispose();
                         return false;
                     }
                 }
