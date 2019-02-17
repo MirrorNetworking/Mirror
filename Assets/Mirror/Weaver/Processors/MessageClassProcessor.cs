@@ -13,7 +13,7 @@ namespace Mirror.Weaver
             Weaver.ResetRecursionCount();
 
             GenerateSerialization(td);
-            if (Weaver.fail)
+            if (Weaver.WeavingFailed)
             {
                 return;
             }
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             {
                 if (field.FieldType.FullName == td.FullName)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FullName + "]. [MessageBase] member cannot be self referencing.");
                     return;
                 }
@@ -61,14 +61,14 @@ namespace Mirror.Weaver
 
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot have generic parameters.");
                     return;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot be an interface.");
                     return;
                 }
@@ -83,7 +83,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member variables must be basic types.");
                     return;
                 }
@@ -129,7 +129,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateDeSerialization for " + td.Name + " unknown type [" + field.FieldType + "]. [SyncVar] member variables must be basic types.");
                     return;
                 }

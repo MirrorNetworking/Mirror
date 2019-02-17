@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             if (eventField == null)
             {
                 Weaver.DLog(td, "ERROR: no event field?!");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return null;
             }
 
@@ -115,14 +115,14 @@ namespace Mirror.Weaver
                         if (ed.Name.Length > 4 && ed.Name.Substring(0, 5) != "Event")
                         {
                             Log.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
-                            Weaver.fail = true;
+                            Weaver.WeavingFailed = true;
                             return;
                         }
 
                         if (ed.EventType.Resolve().HasGenericParameters)
                         {
                             Log.Error("Event  [" + td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
-                            Weaver.fail = true;
+                            Weaver.WeavingFailed = true;
                             return;
                         }
 

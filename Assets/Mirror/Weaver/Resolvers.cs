@@ -1,6 +1,6 @@
 // all the resolve functions for the weaver
 // NOTE: these functions should be made extensions, but right now they still
-//       make heavy use of Weaver.fail and we'd have to check each one's return
+//       make heavy use of Weaver.WeavingFailed and we'd have to check each one's return
 //       value for null otherwise.
 //       (original FieldType.Resolve returns null if not found too, so
 //        exceptions would be a bit inconsistent here)
@@ -16,7 +16,7 @@ namespace Mirror.Weaver
             if (tr == null)
             {
                 Log.Error("Type missing for " + name);
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -34,17 +34,17 @@ namespace Mirror.Weaver
                 Log.Error("Method " + methodRef.Name);
             }
 
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 
-        // TODO reuse ResolveMethod in here after Weaver.fail was removed
+        // TODO reuse ResolveMethod in here after Weaver.WeavingFailed was removed
         public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
             if (tr == null)
             {
                 Log.Error("Type missing for " + name);
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -75,7 +75,7 @@ namespace Mirror.Weaver
                 }
             }
             Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 
@@ -122,7 +122,7 @@ namespace Mirror.Weaver
             }
 
             Log.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 
