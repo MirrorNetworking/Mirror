@@ -24,17 +24,18 @@ namespace Mirror.Weaver
         // constructor sets up assembly excludes and adds our callback to trigger after an assembly compiles
         static CompilationFinishedHook()
         {
+            EditorApplication.LockReloadAssemblies();
+
             try
             {
-                EditorApplication.LockReloadAssemblies();
-                // weave assemblies every time after they are compiled
-                CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
-
                 // weave all existing assemblies
                 WeaveAssemblies();
             }
             finally
             {
+                // weave assemblies every time after they are compiled
+                CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
+
                 EditorApplication.UnlockReloadAssemblies();
             }
         }
