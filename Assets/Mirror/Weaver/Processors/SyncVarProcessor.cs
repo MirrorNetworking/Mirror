@@ -222,7 +222,7 @@ namespace Mirror.Weaver
             td.Methods.Add(get);
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
-            Weaver.lists.replacementSetterProperties[fd] = set;
+            Weaver.WeaveList.replacementSetterProperties[fd] = set;
 
             // replace getter field if GameObject/NetworkIdentity so it uses
             // netId instead
@@ -231,7 +231,7 @@ namespace Mirror.Weaver
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
-                Weaver.lists.replacementGetterProperties[fd] = get;
+                Weaver.WeaveList.replacementGetterProperties[fd] = get;
             }
         }
 

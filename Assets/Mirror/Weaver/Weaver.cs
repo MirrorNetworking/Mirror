@@ -179,7 +179,6 @@ namespace Mirror.Weaver
         public static MethodReference sendEventInternal;
         #endregion
 
-        public static WeaverLists lists;
         public static AssemblyDefinition scriptDef;
         public static ModuleDefinition corLib;
         public static AssemblyDefinition m_UnityAssemblyDefinition;
@@ -202,14 +201,14 @@ namespace Mirror.Weaver
 
         public static int GetSyncVarStart(string className)
         {
-            return lists.numSyncVars.ContainsKey(className)
-                   ? lists.numSyncVars[className]
+            return WeaveList.numSyncVars.ContainsKey(className)
+                   ? WeaveList.numSyncVars[className]
                    : 0;
         }
 
         public static void SetNumSyncVars(string className, int num)
         {
-            lists.numSyncVars[className] = num;
+            WeaveList.numSyncVars[className] = num;
         }
 
         public static MethodReference GetWriteFunc(TypeReference variable)
@@ -221,9 +220,9 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (lists.writeFuncs.ContainsKey(variable.FullName))
+            if (WeaveList.writeFuncs.ContainsKey(variable.FullName))
             {
-                MethodReference foundFunc = lists.writeFuncs[variable.FullName];
+                MethodReference foundFunc = WeaveList.writeFuncs[variable.FullName];
                 if (foundFunc.Parameters[0].ParameterType.IsArray == variable.IsArray)
                 {
                     return foundFunc;
@@ -270,18 +269,18 @@ namespace Mirror.Weaver
 
         public static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
         {
-            lists.writeFuncs[name] = newWriterFunc;
-            lists.generatedWriteFunctions.Add(newWriterFunc);
+            WeaveList.writeFuncs[name] = newWriterFunc;
+            WeaveList.generatedWriteFunctions.Add(newWriterFunc);
 
             ConfirmGeneratedCodeClass(scriptDef.MainModule);
-            lists.generateContainerClass.Methods.Add(newWriterFunc);
+            WeaveList.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
         public static MethodReference GetReadFunc(TypeReference variable)
         {
-            if (lists.readFuncs.ContainsKey(variable.FullName))
+            if (WeaveList.readFuncs.ContainsKey(variable.FullName))
             {
-                MethodReference foundFunc = lists.readFuncs[variable.FullName];
+                MethodReference foundFunc = WeaveList.readFuncs[variable.FullName];
                 if (foundFunc.ReturnType.IsArray == variable.IsArray)
                 {
                     return foundFunc;
@@ -335,11 +334,11 @@ namespace Mirror.Weaver
 
         public static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
         {
-            lists.readFuncs[name] = newReaderFunc;
-            lists.generatedReadFunctions.Add(newReaderFunc);
+            WeaveList.readFuncs[name] = newReaderFunc;
+            WeaveList.generatedReadFunctions.Add(newReaderFunc);
 
             ConfirmGeneratedCodeClass(scriptDef.MainModule);
-            lists.generateContainerClass.Methods.Add(newReaderFunc);
+            WeaveList.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
         static MethodDefinition GenerateArrayReadFunc(TypeReference variable, MethodReference elementReadFunc)
@@ -707,7 +706,7 @@ namespace Mirror.Weaver
                         //       that's why we use dict<string,method>.
                         // TODO maybe replaceEvents[md] would work too?
                         MethodDefinition replacement;
-                        if (lists.replaceEvents.TryGetValue(opField.Name, out replacement))
+                        if (WeaveList.replaceEvents.TryGetValue(opField.Name, out replacement))
                         {
                             instr.Operand = replacement;
                             inst.OpCode = OpCodes.Nop;
@@ -723,7 +722,7 @@ namespace Mirror.Weaver
                 //       that's why we use dict<string,method>.
                 // TODO maybe replaceMethods[md] would work too?
                 MethodDefinition replacement;
-                if (lists.replaceMethods.TryGetValue(opMethodRef.FullName, out replacement))
+                if (WeaveList.replaceMethods.TryGetValue(opMethodRef.FullName, out replacement))
                 {
                     //DLog(td, "    replacing "  + md.Name + ":" + i);
                     instr.Operand = replacement;
@@ -734,9 +733,9 @@ namespace Mirror.Weaver
 
         static void ConfirmGeneratedCodeClass(ModuleDefinition moduleDef)
         {
-            if (lists.generateContainerClass == null)
+            if (WeaveList.generateContainerClass == null)
             {
-                lists.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
+                WeaveList.generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                         TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass,
                         objectType);
 
@@ -746,7 +745,7 @@ namespace Mirror.Weaver
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, Resolvers.ResolveMethod(objectType, scriptDef, ".ctor")));
                 method.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
-                lists.generateContainerClass.Methods.Add(method);
+                WeaveList.generateContainerClass.Methods.Add(method);
             }
         }
 
@@ -759,7 +758,7 @@ namespace Mirror.Weaver
 
             // does it set a field that we replaced?
             MethodDefinition replacement;
-            if (lists.replacementSetterProperties.TryGetValue(opField, out replacement))
+            if (WeaveList.replacementSetterProperties.TryGetValue(opField, out replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -778,7 +777,7 @@ namespace Mirror.Weaver
 
             // does it set a field that we replaced?
             MethodDefinition replacement;
-            if (lists.replacementGetterProperties.TryGetValue(opField, out replacement))
+            if (WeaveList.replacementGetterProperties.TryGetValue(opField, out replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -986,17 +985,17 @@ namespace Mirror.Weaver
                     ProcessSiteClass(moduleDef, td);
                 }
             }
-            if (lists.generateContainerClass != null)
+            if (WeaveList.generateContainerClass != null)
             {
-                moduleDef.Types.Add(lists.generateContainerClass);
-                scriptDef.MainModule.ImportReference(lists.generateContainerClass);
+                moduleDef.Types.Add(WeaveList.generateContainerClass);
+                scriptDef.MainModule.ImportReference(WeaveList.generateContainerClass);
 
-                foreach (MethodDefinition f in lists.generatedReadFunctions)
+                foreach (MethodDefinition f in WeaveList.generatedReadFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
 
-                foreach (MethodDefinition f in lists.generatedWriteFunctions)
+                foreach (MethodDefinition f in WeaveList.generatedWriteFunctions)
                 {
                     scriptDef.MainModule.ImportReference(f);
                 }
@@ -1186,7 +1185,7 @@ namespace Mirror.Weaver
 
         static void SetupReadFunctions()
         {
-            lists.readFuncs = new Dictionary<string, MethodReference>
+            WeaveList.readFuncs = new Dictionary<string, MethodReference>
             {
                 { singleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadSingle") },
                 { doubleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, scriptDef, "ReadDouble") },
@@ -1222,7 +1221,7 @@ namespace Mirror.Weaver
 
         static void SetupWriteFunctions()
         {
-            lists.writeFuncs = new Dictionary<string, MethodReference>
+            WeaveList.writeFuncs = new Dictionary<string, MethodReference>
             {
                 { singleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", singleType) },
                 { doubleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, scriptDef, "Write", doubleType) },
@@ -1524,7 +1523,7 @@ namespace Mirror.Weaver
         public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string unityUNetDLLPath)
         {
             fail = false;
-            lists = new WeaverLists();
+            WeaveList = new WeaverLists();
 
             m_UnityAssemblyDefinition = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
             m_UNetAssemblyDefinition = AssemblyDefinition.ReadAssembly(unityUNetDLLPath);
