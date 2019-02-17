@@ -40,10 +40,23 @@ namespace Mirror.Weaver
 
     class Weaver
     {
-        #region Public Properties 
+        #region Public Properties
+        public static WeaverLists WeaveList { get; private set; }
+        public static AssemblyDefinition CurrentAssembly { get; private set; }
+        public static ModuleDefinition CorLibModule { get; private set; }
+        public static AssemblyDefinition UnityAssembly { get; private set; }
+        public static AssemblyDefinition NetAssembly { get; private set; }
+        public static bool WeavingFailed { get; set; }
+        public static bool GenerateLogErrors { get; set; }
         #endregion
 
         #region Private Properties
+        static bool m_DebugFlag = true;
+        // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
+        // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
+        // A NetworkBehaviour with the max SyncVars (32) can legitimately increment this value to 65 - so max must be higher than that
+        const int MaxRecursionCount = 128;
+        static int s_RecursionCount;
         #endregion
 
         #region TypeReferences and MethodReferences
@@ -167,22 +180,13 @@ namespace Mirror.Weaver
         #endregion
 
         public static WeaverLists lists;
-
         public static AssemblyDefinition scriptDef;
         public static ModuleDefinition corLib;
         public static AssemblyDefinition m_UnityAssemblyDefinition;
         public static AssemblyDefinition m_UNetAssemblyDefinition;
-
-        static bool m_DebugFlag = true;
-
         public static bool fail;
         public static bool generateLogErrors = false;
 
-        // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
-        // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
-        // A NetworkBehaviour with the max SyncVars (32) can legitimately increment this value to 65 - so max must be higher than that
-        const int MaxRecursionCount = 128;
-        static int s_RecursionCount;
         public static void ResetRecursionCount()
         {
             s_RecursionCount = 0;
