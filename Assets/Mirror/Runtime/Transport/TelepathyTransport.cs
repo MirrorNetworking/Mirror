@@ -105,12 +105,7 @@ namespace Mirror
             return false;
         }
         public override bool ServerDisconnect(int connectionId) { return server.Disconnect(connectionId); }
-        public override string ServerGetClientAddress(int connectionId)
-        {
-            string address = "";
-            server.GetConnectionInfo(connectionId, out address);
-            return address;
-        }
+        public override string ServerGetClientAddress(int connectionId) { return server.GetClientAddress(connectionId); }
         public override void ServerStop() { server.Stop(); }
 
         // common
