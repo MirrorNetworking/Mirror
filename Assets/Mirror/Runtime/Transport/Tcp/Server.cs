@@ -216,17 +216,15 @@ namespace Mirror.Tcp
 
         // get connection info in case it's needed (IP etc.)
         // (we should never pass the TcpClient to the outside)
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public string GetClientAddress(int connectionId)
         {
             // find the connection
             TcpClient client;
             if (clients.TryGetValue(connectionId, out client))
             {
-                address = ((IPEndPoint)client.Client.RemoteEndPoint).ToString();
-                return true;
+                return ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
             }
-            address = null;
-            return false;
+            return null;
         }
 
         // disconnect (kick) a client

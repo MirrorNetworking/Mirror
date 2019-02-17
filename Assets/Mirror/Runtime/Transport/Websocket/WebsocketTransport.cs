@@ -70,7 +70,10 @@ namespace Mirror.Websocket
             return server.Disconnect(connectionId);
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address) { return server.GetConnectionInfo(connectionId, out address); }
+        public override string ServerGetClientAddress(int connectionId)
+        {
+            return server.GetClientAddress(connectionId);
+        }
         public override void ServerStop() { server.Stop(); }
 
         // common
