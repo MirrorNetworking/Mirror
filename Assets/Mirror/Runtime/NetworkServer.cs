@@ -76,7 +76,7 @@ namespace Mirror
         {
             RegisterHandler(MsgType.Ready, OnClientReadyMessage);
             RegisterHandler(MsgType.Command, OnCommandMessage);
-            RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
+            RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
@@ -793,12 +793,12 @@ namespace Mirror
         }
 
         // default remove player handler
-        static void OnRemovePlayerMessage(NetworkMessage netMsg)
+        static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
         {
-            if (netMsg.conn.playerController != null)
+            if (conn.playerController != null)
             {
-                Destroy(netMsg.conn.playerController.gameObject);
-                netMsg.conn.RemovePlayerController();
+                Destroy(conn.playerController.gameObject);
+                conn.RemovePlayerController();
             }
             else
             {
