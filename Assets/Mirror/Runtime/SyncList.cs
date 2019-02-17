@@ -377,7 +377,7 @@ namespace Mirror
 
         public bool Remove(T item)
         {
-            var result = m_Objects.Remove(item);
+            bool result = m_Objects.Remove(item);
             if (result)
             {
                 AddOperation(Operation.OP_REMOVE, 0, item);

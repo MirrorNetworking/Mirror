@@ -854,7 +854,7 @@ namespace Mirror
             ForceAuthority(true);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage
+            ClientAuthorityMessage msg = new ClientAuthorityMessage
             {
                 netId = netId,
                 authority = false
@@ -897,7 +897,7 @@ namespace Mirror
             ForceAuthority(false);
 
             // send msg to that client
-            var msg = new ClientAuthorityMessage
+            ClientAuthorityMessage msg = new ClientAuthorityMessage
             {
                 netId = netId,
                 authority = true

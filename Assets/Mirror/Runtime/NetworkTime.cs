@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
@@ -67,7 +67,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + conn); }
 
-            var pongMsg = new NetworkPongMessage
+            NetworkPongMessage pongMsg = new NetworkPongMessage
             {
                 clientTime = pingMsg.value,
                 serverTime = LocalTime()
