@@ -1,6 +1,6 @@
 // this class generates OnSerialize/OnDeserialize when inheriting from MessageBase
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.MirrorCecil;
+using Mono.MirrorCecil.Cil;
 
 namespace Mirror.Weaver
 {

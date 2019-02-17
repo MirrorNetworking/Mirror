@@ -1,6 +1,6 @@
 ﻿// https://docs.unity3d.com/Manual/RunningEditorCodeOnLaunch.html
 using System.IO;
-using Mono.Cecil;
+using Mono.MirrorCecil;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Compilation;

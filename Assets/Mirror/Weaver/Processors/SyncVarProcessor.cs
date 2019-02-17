@@ -1,7 +1,7 @@
 // all the [SyncVar] code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.MirrorCecil;
+using Mono.MirrorCecil.Cil;
 
 namespace Mirror.Weaver
 {

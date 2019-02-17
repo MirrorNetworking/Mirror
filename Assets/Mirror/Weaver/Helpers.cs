@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Cecil.Mdb;
-using Mono.Cecil.Pdb;
+using Mono.MirrorCecil;
+using Mono.MirrorCecil.Cil;
+using Mono.MirrorCecil.Mdb;
+using Mono.MirrorCecil.Pdb;
 
 namespace Mirror.Weaver
 {
@@ -89,7 +89,9 @@ namespace Mirror.Weaver
         {
             ReaderParameters parameters = new ReaderParameters();
             if (assemblyResolver == null)
+            {
                 assemblyResolver = new DefaultAssemblyResolver();
+            }
             AddSearchDirectoryHelper helper = new AddSearchDirectoryHelper(assemblyResolver);
             helper.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
             helper.AddSearchDirectory(UnityEngineDLLDirectoryName());
@@ -102,6 +104,9 @@ namespace Mirror.Weaver
             }
             parameters.AssemblyResolver = assemblyResolver;
             parameters.SymbolReaderProvider = GetSymbolReaderProvider(assemblyPath);
+            parameters.InMemory = true; // new since cecil 0.10.0 beta 1
+            parameters.ReadWrite = true; // new since cecil 0.10.0 beta 3
+            parameters.ReadSymbols = true; // new since cecil 0.10.0 beta 3
             return parameters;
         }
 
@@ -110,14 +115,13 @@ namespace Mirror.Weaver
             WriterParameters writeParams = new WriterParameters();
             if (readParams.SymbolReaderProvider is PdbReaderProvider)
             {
-                //Log("Will export symbols of pdb format");
                 writeParams.SymbolWriterProvider = new PdbWriterProvider();
             }
             else if (readParams.SymbolReaderProvider is MdbReaderProvider)
             {
-                //Log("Will export symbols of mdb format");
                 writeParams.SymbolWriterProvider = new MdbWriterProvider();
             }
+            writeParams.WriteSymbols = true; // new since cecil 0.10.0 beta 3
             return writeParams;
         }
     }
