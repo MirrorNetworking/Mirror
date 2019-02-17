@@ -165,6 +165,16 @@ namespace Mirror
             while (ProcessServerMessage()) { }
         }
 
+        public string ClientGetAddress()
+        {
+            string address = "";
+            int port;
+            NetworkID networkId;
+            NodeID node;
+            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out address, out port, out networkId, out node, out error);
+            return address;
+        }
+
         public override void ClientDisconnect()
         {
             if (clientId != -1)
@@ -303,8 +313,7 @@ namespace Mirror
             }
             else if (ClientConnected())
             {
-                string ip;
-                GetConnectionInfo(clientId, out ip);
+                string ip = ClientGetAddress();
                 return "LLAPI Client ip: " + ip + " port: " + port;
             }
             return "LLAPI (inactive/disconnected)";
