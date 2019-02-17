@@ -188,9 +188,9 @@ namespace Mirror
             NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
             NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
             NetworkServer.RegisterHandler(MsgType.Ready, OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler<AddPlayerMessage>(MsgType.AddPlayer, OnServerAddPlayerMessageInternal);
             NetworkServer.RegisterHandler(MsgType.RemovePlayer, OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
+            NetworkServer.RegisterHandler<ErrorMessage>(MsgType.Error, OnServerErrorInternal);
         }
 
         public bool StartServer()
@@ -512,36 +512,34 @@ namespace Mirror
 
         // ----------------------------- Server Internal Message Handlers  --------------------------------
 
-        internal void OnServerConnectInternal(NetworkMessage netMsg)
+        internal void OnServerConnectInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
-                netMsg.conn.Send((short)MsgType.Scene, msg);
+                conn.Send((short)MsgType.Scene, msg);
             }
 
-            OnServerConnect(netMsg.conn);
+            OnServerConnect(conn);
         }
 
-        internal void OnServerDisconnectInternal(NetworkMessage netMsg)
+        internal void OnServerDisconnectInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerDisconnectInternal"); }
-            OnServerDisconnect(netMsg.conn);
+            OnServerDisconnect(conn);
         }
 
-        internal void OnServerReadyMessageInternal(NetworkMessage netMsg)
+        internal void OnServerReadyMessageInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerReadyMessageInternal"); }
-            OnServerReady(netMsg.conn);
+            OnServerReady(conn);
         }
 
-        internal void OnServerAddPlayerMessageInternal(NetworkMessage netMsg)
+        internal void OnServerAddPlayerMessageInternal(NetworkConnection conn, AddPlayerMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerAddPlayerMessageInternal"); }
-
-            AddPlayerMessage msg = netMsg.ReadMessage<AddPlayerMessage>();
 
             if (msg.value != null && msg.value.Length > 0)
             {
@@ -550,33 +548,31 @@ namespace Mirror
                 NetworkMessage extraMessage = new NetworkMessage
                 {
                     reader = new NetworkReader(msg.value),
-                    conn = netMsg.conn
+                    conn = conn
                 };
-                OnServerAddPlayer(netMsg.conn, extraMessage);
+                OnServerAddPlayer(conn, extraMessage);
             }
             else
             {
-                OnServerAddPlayer(netMsg.conn);
+                OnServerAddPlayer(conn);
             }
         }
 
-        internal void OnServerRemovePlayerMessageInternal(NetworkMessage netMsg)
+        internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
 
-            if (netMsg.conn.playerController != null)
+            if (conn.playerController != null)
             {
-                OnServerRemovePlayer(netMsg.conn, netMsg.conn.playerController);
-                netMsg.conn.RemovePlayerController();
+                OnServerRemovePlayer(conn, conn.playerController);
+                conn.RemovePlayerController();
             }
         }
 
-        internal void OnServerErrorInternal(NetworkMessage netMsg)
+        internal void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
-
-            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnServerError(netMsg.conn, msg.value);
+            OnServerError(conn, msg.value);
         }
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
@@ -618,7 +614,6 @@ namespace Mirror
         internal void OnClientErrorInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
-
             ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnClientError(netMsg.conn, msg.value);
         }

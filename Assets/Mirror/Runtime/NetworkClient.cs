@@ -270,6 +270,17 @@ namespace Mirror
             RegisterHandler((short)msgType, handler);
         }
 
+        // Registers a handler of MessageBase objects
+        public void RegisterHandler<T> (MsgType msgType, Action<T> handler) where T: MessageBase, new()
+        {
+            NetworkMessageDelegate rawHandler = networkMessage =>
+            {
+                T message = networkMessage.ReadMessage<T>();
+                handler(message);
+            };
+            RegisterHandler(msgType, rawHandler);
+        }
+
         public void UnregisterHandler(short msgType)
         {
             handlers.Remove(msgType);

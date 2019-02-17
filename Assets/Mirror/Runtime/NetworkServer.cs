@@ -84,9 +84,9 @@ namespace Mirror
         internal static void RegisterMessageHandlers()
         {
             RegisterHandler(MsgType.Ready, OnClientReadyMessage);
-            RegisterHandler(MsgType.Command, OnCommandMessage);
+            RegisterHandler<CommandMessage>(MsgType.Command, OnCommandMessage);
             RegisterHandler(MsgType.RemovePlayer, OnRemovePlayerMessage);
-            RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
+            RegisterHandler<NetworkPingMessage>(MsgType.Ping, NetworkTime.OnServerPing);
         }
 
         public static bool Listen(int maxConnections)
@@ -443,6 +443,23 @@ namespace Mirror
             RegisterHandler((short)msgType, handler);
         }
 
+        // Registers a handler of MessageBase objects
+        public static void RegisterHandler<T>(MsgType msgType, Action<NetworkConnection, T> handler) where T : MessageBase, new()
+        {
+            NetworkMessageDelegate rawHandler = networkMessage =>
+            {
+                T message = networkMessage.ReadMessage<T>();
+                handler(networkMessage.conn, message);
+            };
+            RegisterHandler(msgType, rawHandler);
+        }
+
+        // Registers a handler
+        public static void RegisterHandler(MsgType msgType, Action<NetworkConnection> handler)
+        {
+            RegisterHandler(msgType, networkMessage => handler(networkMessage.conn));
+        }
+
         public static void UnregisterHandler(short msgType)
         {
             handlers.Remove(msgType);
@@ -774,19 +791,19 @@ namespace Mirror
         }
 
         // default ready handler.
-        static void OnClientReadyMessage(NetworkMessage netMsg)
+        static void OnClientReadyMessage(NetworkConnection conn)
         {
-            if (LogFilter.Debug) { Debug.Log("Default handler for ready message from " + netMsg.conn); }
-            SetClientReady(netMsg.conn);
+            if (LogFilter.Debug) { Debug.Log("Default handler for ready message from " + conn); }
+            SetClientReady(conn);
         }
 
         // default remove player handler
-        static void OnRemovePlayerMessage(NetworkMessage netMsg)
+        static void OnRemovePlayerMessage(NetworkConnection conn)
         {
-            if (netMsg.conn.playerController != null)
+            if (conn.playerController != null)
             {
-                Destroy(netMsg.conn.playerController.gameObject);
-                netMsg.conn.RemovePlayerController();
+                Destroy(conn.playerController.gameObject);
+                conn.RemovePlayerController();
             }
             else
             {
@@ -795,10 +812,8 @@ namespace Mirror
         }
 
         // Handle command from specific player, this could be one of multiple players on a single client
-        static void OnCommandMessage(NetworkMessage netMsg)
+        static void OnCommandMessage(NetworkConnection conn, CommandMessage message)
         {
-            CommandMessage message = netMsg.ReadMessage<CommandMessage>();
-
             NetworkIdentity identity;
             if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
             {
@@ -809,16 +824,16 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (netMsg.conn.playerController != null && netMsg.conn.playerController.netId != identity.netId)
+            if (conn.playerController != null && conn.playerController.netId != identity.netId)
             {
-                if (identity.clientAuthorityOwner != netMsg.conn)
+                if (identity.clientAuthorityOwner != conn)
                 {
                     Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]");
                     return;
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + conn); }
             identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(message.payload));
         }
 
