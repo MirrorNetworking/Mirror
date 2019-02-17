@@ -359,7 +359,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Weaver.WeavingFailed = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
                     return;
                 }
             }
@@ -407,7 +407,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
                     Weaver.WeavingFailed = true;
                     return;
                 }
@@ -512,7 +512,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                        Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
                         Weaver.WeavingFailed = true;
                         return;
                     }
@@ -593,7 +593,7 @@ namespace Mirror.Weaver
                     MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
                     if (readFunc == null)
                     {
-                        Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                        Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
                         Weaver.WeavingFailed = true;
                         return;
                     }
