@@ -157,10 +157,9 @@ namespace Mirror
             return false;
         }
 
-        public bool SendMessage<T>(T message) where T : MessageBase
+        public bool Send<T>(T message) where T : MessageBase
         {
             // TODO use int instead to avoid collisions
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
             if (connection != null)
             {
                 if (connectState != ConnectState.Connected)
@@ -168,7 +167,7 @@ namespace Mirror
                     Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
-                return connection.Send(msgType, message);
+                return connection.Send(message);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
