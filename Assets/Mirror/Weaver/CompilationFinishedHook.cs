@@ -13,6 +13,14 @@ namespace Mirror.Weaver
     [InitializeOnLoad]
     public class CompilationFinishedHook
     {
+        public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
+        public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
+        public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
+
+        public static bool WeaverDisabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
+        public static bool UnityLogDisabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
+
         static CompilationFinishedHook()
         {
             try
@@ -30,13 +38,34 @@ namespace Mirror.Weaver
             }
         }
 
+        // debug message handler that also calls OnMessageMethod delegate
+        static void HandleMessage(string msg)
+        {
+            if (!UnityLogDisabled) Debug.Log(msg);
+            OnWeaverMessage?.Invoke(msg);
+        }
+
+        // warning message handler that also calls OnWarningMethod delegate
+        static void HandleWarning(string msg)
+        {
+            if (!UnityLogDisabled) Debug.LogWarning(msg);
+            OnWeaverWarning?.Invoke(msg);
+        }
+
+        // error message handler that also calls OnErrorMethod delegate
+        static void HandleError(string msg)
+        {
+            if (!UnityLogDisabled) Debug.LogError(msg);
+            OnWeaverError?.Invoke(msg);
+        }
+
         static void WeaveAssemblies()
         {
             Assembly[] assemblies = CompilationPipeline.GetAssemblies();
 
             foreach (Assembly assembly in assemblies)
             {
-                Debug.Log("Weaving " + assembly.outputPath);
+                if (!UnityLogDisabled) Debug.Log("Weaving " + assembly.outputPath);
                 AssemblyCompilationFinishedHandler(assembly.outputPath, new CompilerMessage[] { } );               
             }
         }
@@ -86,13 +115,13 @@ namespace Mirror.Weaver
                 //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                 // but Weaver creates it's own if null, which is this one:
                 IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
+                if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
                 {
                     Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                 }
                 else
                 {
-                    Debug.LogError("Weaving failed for: " + assemblyPath);
+                    if (!UnityLogDisabled) Debug.LogError("Weaving failed for: " + assemblyPath);
                 }
             }
         }
@@ -115,7 +144,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
+            if (!UnityLogDisabled) Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
             return new string[] { };
         }
 
