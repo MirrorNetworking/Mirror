@@ -21,6 +21,7 @@ namespace Mirror.Weaver
         public static bool UnityLogDisabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
 
+        // constructor sets up assembly excludes and adds our callback to trigger after an assembly compiles
         static CompilationFinishedHook()
         {
             try
@@ -59,6 +60,7 @@ namespace Mirror.Weaver
             OnWeaverError?.Invoke(msg);
         }
 
+        // weave all assemblies by manually triggering the callback
         static void WeaveAssemblies()
         {
             Assembly[] assemblies = CompilationPipeline.GetAssemblies();
@@ -70,6 +72,7 @@ namespace Mirror.Weaver
             }
         }
 
+        // callback to perform weaving when called manually or by CompilationPipeline.assemblyCompilationFinished delegate being invoked
         static void AssemblyCompilationFinishedHandler(string assemblyPath, CompilerMessage[] messages)
         {
             // if user scripts can't be compiled because of errors,
@@ -150,6 +153,7 @@ namespace Mirror.Weaver
             return new string[] { };
         }
 
+        // find Mirror assembly from CompilationPipeline.GetAssemblies array
         static string FindMirrorRuntime()
         {
             Assembly[] assemblies = CompilationPipeline.GetAssemblies();
