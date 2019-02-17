@@ -10,6 +10,7 @@ using Mono.Cecil.Mdb;
 
 namespace Mirror.Weaver
 {
+    #region WeaverLists class
     // This data is flushed each time - if we are run multiple times in the same process/domain
     class WeaverLists
     {
@@ -35,9 +36,17 @@ namespace Mirror.Weaver
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
     }
+    #endregion
 
     class Weaver
     {
+        #region Public Properties 
+        #endregion
+
+        #region Private Properties
+        #endregion
+
+        #region TypeReferences and MethodReferences
         // UNetwork types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference NetworkBehaviourType2;
@@ -155,6 +164,7 @@ namespace Mirror.Weaver
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
+        #endregion
 
         public static WeaverLists lists;
 
