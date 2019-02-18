@@ -465,7 +465,7 @@ namespace Mirror
             s_IsSpawnFinished = false;
         }
 
-        internal static void OnObjectSpawnFinished(NetworkMessage netMsg)
+        internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
