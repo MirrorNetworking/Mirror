@@ -449,7 +449,7 @@ namespace Mirror
         static void GenerateError(NetworkConnection conn, byte error)
         {
             short msgId = MessageBase.GetId<ErrorMessage>();
-            if (handlers.ContainsKey((short)MsgType.Error))
+            if (handlers.ContainsKey(msgId))
             {
                 ErrorMessage msg = new ErrorMessage
                 {
@@ -462,7 +462,7 @@ namespace Mirror
 
                 // pass a reader (attached to local buffer) to handler
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler((short)MsgType.Error, reader);
+                conn.InvokeHandler(msgId, reader);
             }
         }
 

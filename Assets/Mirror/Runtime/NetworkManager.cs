@@ -614,7 +614,7 @@ namespace Mirror
         internal void OnClientErrorInternal(ErrorMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
-            OnClientError(netMsg.conn, msg.value);
+            OnClientError(this.client.connection, msg.value);
         }
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)

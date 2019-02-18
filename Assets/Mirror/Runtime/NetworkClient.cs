@@ -238,7 +238,8 @@ namespace Mirror
 
         void GenerateError(byte error)
         {
-            if (handlers.TryGetValue((short)MsgType.Error, out NetworkMessageDelegate msgDelegate))
+            short msgId = MessageBase.GetId<ErrorMessage>();
+            if (handlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage
                 {
@@ -251,7 +252,7 @@ namespace Mirror
 
                 NetworkMessage netMsg = new NetworkMessage
                 {
-                    msgType = (short)MsgType.Error,
+                    msgType = msgId,
                     reader = new NetworkReader(writer.ToArray()),
                     conn = m_Connection
                 };
