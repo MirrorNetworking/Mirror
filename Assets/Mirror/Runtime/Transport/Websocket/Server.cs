@@ -302,17 +302,15 @@ namespace Mirror
 
         // get connection info in case it's needed (IP etc.)
         // (we should never pass the TcpClient to the outside)
-        public bool GetConnectionInfo(int connectionId, out string address)
+        public string GetClientAddress(int connectionId)
         {
             // find the connection
             WebSocket client;
             if (clients.TryGetValue(connectionId, out client))
             {
-                address = "";
-                return true;
+                return "";
             }
-            address = null;
-            return false;
+            return null;
         }
 
         // disconnect (kick) a client
