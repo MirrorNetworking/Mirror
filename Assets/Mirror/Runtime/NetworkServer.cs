@@ -184,6 +184,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
+        [Obsolete("use SendToObservers<T> instead")]
         static bool SendToObservers(NetworkIdentity identity, short msgType, MessageBase msg)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + msgType); }
@@ -194,6 +195,24 @@ namespace Mirror
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     result &= kvp.Value.Send(msgType, msg);
+                }
+                return result;
+            }
+            return false;
+        }
+
+        // this is like SendToReady - but it doesn't check the ready flag on the connection.
+        // this is used for ObjectDestroy messages.
+        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: MessageBase
+        {
+            if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + typeof(T)); }
+
+            if (identity != null && identity.observers != null)
+            {
+                bool result = true;
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                {
+                    result &= kvp.Value.Send(msg);
                 }
                 return result;
             }
@@ -761,11 +780,11 @@ namespace Mirror
 
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            ObjectDestroyMessage msg = new ObjectDestroyMessage
+            ObjectHideMessage msg = new ObjectHideMessage
             {
                 netId = identity.netId
             };
-            conn.Send((short)MsgType.ObjectHide, msg);
+            conn.Send(msg);
         }
 
         // call this to make all the clients not ready, such as when changing levels.
@@ -1066,7 +1085,7 @@ namespace Mirror
             {
                 netId = identity.netId
             };
-            SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
+            SendToObservers(identity, msg);
 
             identity.ClearObservers();
             if (NetworkClient.active && s_LocalClientActive)

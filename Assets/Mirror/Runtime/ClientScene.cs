@@ -200,8 +200,8 @@ namespace Mirror
         {
             if (localClient)
             {
-                client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler<ObjectDestroyMessage>(OnLocalClientObjectDestroy);
+                client.RegisterHandler<ObjectHideMessage>(OnLocalClientObjectHide);
                 client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
@@ -213,8 +213,8 @@ namespace Mirror
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
                 client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+                client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
@@ -533,13 +533,21 @@ namespace Mirror
             s_IsSpawnFinished = true;
         }
 
-        static void OnObjectDestroy(NetworkMessage netMsg)
+        static void OnObjectHide(ObjectHideMessage msg)
         {
-            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnObjDestroy netId:" + msg.netId); }
+            DestroyObject(msg.netId);
+        }
+        static void OnObjectDestroy(ObjectDestroyMessage msg)
+        {
+            DestroyObject(msg.netId);
+        }
+
+        static void DestroyObject(uint netId)
+        {
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnObjDestroy netId:" + netId); }
 
             NetworkIdentity localObject;
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(netId, out localObject) && localObject != null)
             {
                 localObject.OnNetworkDestroy();
 
@@ -557,26 +565,24 @@ namespace Mirror
                         spawnableObjects[localObject.sceneId] = localObject;
                     }
                 }
-                NetworkIdentity.spawned.Remove(msg.netId);
+                NetworkIdentity.spawned.Remove(netId);
                 localObject.MarkForReset();
             }
             else
             {
-                if (LogFilter.Debug) { Debug.LogWarning("Did not find target for destroy message for " + msg.netId); }
+                if (LogFilter.Debug) { Debug.LogWarning("Did not find target for destroy message for " + netId); }
             }
         }
 
-        static void OnLocalClientObjectDestroy(NetworkMessage netMsg)
+        static void OnLocalClientObjectDestroy(ObjectDestroyMessage msg)
         {
-            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjDestroy netId:" + msg.netId); }
 
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
-        static void OnLocalClientObjectHide(NetworkMessage netMsg)
+        static void OnLocalClientObjectHide(ObjectHideMessage msg)
         {
-            ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId); }
 
             NetworkIdentity localObject;
