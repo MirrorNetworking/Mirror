@@ -202,14 +202,14 @@ namespace Mirror
                 client.RegisterHandler<ObjectDestroyMessage>(OnLocalClientObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnLocalClientObjectHide);
                 client.RegisterHandler<SpawnPrefabMessage>(OnLocalClientSpawnPrefab);
-                client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
+                client.RegisterHandler<SpawnSceneObjectMessage>(OnLocalClientSpawnSceneObject);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
             else
             {
                 // LocalClient shares the sim/scene with the server, no need for these events
                 client.RegisterHandler<SpawnPrefabMessage>(OnSpawnPrefab);
-                client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
+                client.RegisterHandler<SpawnSceneObjectMessage>(OnSpawnSceneObject);
                 client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
                 client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
@@ -465,10 +465,8 @@ namespace Mirror
             }
         }
 
-        static void OnSpawnSceneObject(NetworkMessage netMsg)
+        static void OnSpawnSceneObject(SpawnSceneObjectMessage msg)
         {
-            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
-
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
@@ -585,10 +583,8 @@ namespace Mirror
             }
         }
 
-        static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
+        static void OnLocalClientSpawnSceneObject(SpawnSceneObjectMessage msg)
         {
-            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
-
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
