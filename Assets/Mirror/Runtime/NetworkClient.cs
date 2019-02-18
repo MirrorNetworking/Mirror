@@ -264,7 +264,7 @@ namespace Mirror
             }
             RegisterHandler<ClientAuthorityMessage>(ClientScene.OnClientAuthority);
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
-            RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
+            RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
         [Obsolete("Use RegisterHandler<T> instead")]

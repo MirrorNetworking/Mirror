@@ -580,10 +580,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnSyncEventMessage(NetworkMessage netMsg)
+        internal static void OnSyncEventMessage(SyncEventMessage msg)
         {
-            SyncEventMessage msg = netMsg.ReadMessage<SyncEventMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
