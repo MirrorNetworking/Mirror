@@ -158,11 +158,26 @@ namespace Mirror
             return true;
         }
 
+        // IMPORTANT: set script execution order to >1000 to call Transport's
+        //            LateUpdate after all others. Fixes race condition where
+        //            e.g. in uSurvival Transport would apply Cmds before
+        //            ShoulderRotation.LateUpdate, resulting in projectile
+        //            spawns at the point before shoulder rotation.
         public void LateUpdate()
         {
             // process all messages
             while (ProcessClientMessage()) { }
             while (ProcessServerMessage()) { }
+        }
+
+        public string ClientGetAddress()
+        {
+            string address = "";
+            int port;
+            NetworkID networkId;
+            NodeID node;
+            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out address, out port, out networkId, out node, out error);
+            return address;
         }
 
         public override void ClientDisconnect()
@@ -264,13 +279,14 @@ namespace Mirror
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address)
+        public override string ServerGetClientAddress(int connectionId)
         {
+            string address = "";
             int port;
             NetworkID networkId;
             NodeID node;
             NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out address, out port, out networkId, out node, out error);
-            return true;
+            return address;
         }
 
         public override void ServerStop()
@@ -302,8 +318,7 @@ namespace Mirror
             }
             else if (ClientConnected())
             {
-                string ip;
-                GetConnectionInfo(clientId, out ip);
+                string ip = ClientGetAddress();
                 return "LLAPI Client ip: " + ip + " port: " + port;
             }
             return "LLAPI (inactive/disconnected)";

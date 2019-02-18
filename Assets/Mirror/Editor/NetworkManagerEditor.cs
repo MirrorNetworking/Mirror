@@ -68,11 +68,11 @@ namespace Mirror
             }
             else
             {
-                var identity = go.GetComponent<NetworkIdentity>();
+                NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
                 label = new GUIContent(go.name, identity != null ? "AssetId: [" + identity.assetId + "]" : "No Network Identity");
             }
 
-            var newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
+            GameObject newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
 
             if (newGameObject != go)
             {
@@ -95,7 +95,7 @@ namespace Mirror
             spawnListProperty.arraySize += 1;
             list.index = spawnListProperty.arraySize - 1;
 
-            var obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
+            SerializedProperty obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
             obj.objectReferenceValue = null;
 
             spawnList.index = spawnList.count - 1;

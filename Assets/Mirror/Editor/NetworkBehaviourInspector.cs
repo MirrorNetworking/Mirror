@@ -143,7 +143,7 @@ namespace Mirror
 
             // find SyncLists.. they are not properties.
             int syncListIndex = 0;
-            foreach (var field in serializedObject.targetObject.GetType().GetFields())
+            foreach (FieldInfo field in serializedObject.targetObject.GetType().GetFields())
             {
                 if (field.FieldType.BaseType != null && field.FieldType.BaseType.Name.Contains("SyncList"))
                 {
@@ -151,11 +151,11 @@ namespace Mirror
                     if (m_ShowSyncLists[syncListIndex])
                     {
                         EditorGUI.indentLevel += 1;
-                        var synclist = field.GetValue(serializedObject.targetObject) as IEnumerable;
+                        IEnumerable synclist = field.GetValue(serializedObject.targetObject) as IEnumerable;
                         if (synclist != null)
                         {
                             int index = 0;
-                            var enu = synclist.GetEnumerator();
+                            IEnumerator enu = synclist.GetEnumerator();
                             while (enu.MoveNext())
                             {
                                 if (enu.Current != null)

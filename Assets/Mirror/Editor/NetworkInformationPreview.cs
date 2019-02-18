@@ -114,7 +114,7 @@ namespace Mirror
             Rect labelRect = new Rect(initialX, initialY, maxNameLabelSize.x, maxNameLabelSize.y);
             Rect idLabelRect = new Rect(maxNameLabelSize.x, initialY, maxValueLabelSize.x, maxValueLabelSize.y);
 
-            foreach (var info in m_Info)
+            foreach (NetworkIdentityInfo info in m_Info)
             {
                 GUI.Label(labelRect, info.name, m_Styles.labelStyle);
                 GUI.Label(idLabelRect, info.value, m_Styles.componentName);
@@ -134,7 +134,7 @@ namespace Mirror
                 behaviourRect.x += 20; // indent names
                 behaviourRect.y += behaviourRect.height;
 
-                foreach (var info in m_Behaviours)
+                foreach (NetworkBehaviourInfo info in m_Behaviours)
                 {
                     if (info.behaviour == null)
                     {
@@ -175,7 +175,7 @@ namespace Mirror
         Vector2 GetMaxNameLabelSize()
         {
             Vector2 maxLabelSize = Vector2.zero;
-            foreach (var info in m_Info)
+            foreach (NetworkIdentityInfo info in m_Info)
             {
                 Vector2 labelSize = m_Styles.labelStyle.CalcSize(info.value);
                 if (maxLabelSize.x < labelSize.x)
@@ -193,7 +193,7 @@ namespace Mirror
         Vector2 GetMaxBehaviourLabelSize()
         {
             Vector2 maxLabelSize = Vector2.zero;
-            foreach (var behaviour in m_Behaviours)
+            foreach (NetworkBehaviourInfo behaviour in m_Behaviours)
             {
                 Vector2 labelSize = m_Styles.labelStyle.CalcSize(behaviour.name);
                 if (maxLabelSize.x < labelSize.x)
@@ -234,7 +234,7 @@ namespace Mirror
                 if (behaviours.Length > 0)
                 {
                     m_Behaviours = new List<NetworkBehaviourInfo>();
-                    foreach (var behaviour in behaviours)
+                    foreach (NetworkBehaviour behaviour in behaviours)
                     {
                         NetworkBehaviourInfo info = new NetworkBehaviourInfo
                         {
