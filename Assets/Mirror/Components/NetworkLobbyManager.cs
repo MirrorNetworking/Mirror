@@ -21,11 +21,11 @@ namespace Mirror
         [FormerlySerializedAs("m_MinPlayers")] [SerializeField] int minPlayers = 1;
         [FormerlySerializedAs("m_LobbyPlayerPrefab")] [SerializeField] NetworkLobbyPlayer lobbyPlayerPrefab;
 
-        [SerializeField, Scene]
-        internal string LobbyScene;
+        [Scene]
+        public string LobbyScene;
 
-        [SerializeField, Scene]
-        internal string GameplayScene;
+        [Scene]
+        public string GameplayScene;
 
         // runtime data
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
@@ -103,6 +103,7 @@ namespace Mirror
                 gamePlayer = startPos != null
                     ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                     : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+                gamePlayer.name = playerPrefab.name;
             }
 
             if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayerGameObject, gamePlayer))
@@ -293,7 +294,7 @@ namespace Mirror
                     {
                         if (lobbyPlayer != null)
                         {
-                            lobbyPlayer.transform.parent = null;
+                            lobbyPlayer.transform.SetParent(null);
                             DontDestroyOnLoad(lobbyPlayer);
                         }
                     }
@@ -416,14 +417,14 @@ namespace Mirror
                 GameObject lobbyPlayer = client?.connection?.playerController?.gameObject;
                 if (lobbyPlayer != null)
                 {
-                    lobbyPlayer.transform.parent = null;
+                    lobbyPlayer.transform.SetParent(null);
                     DontDestroyOnLoad(lobbyPlayer);
                 }
                 else
                     Debug.LogWarningFormat("OnClientChangeScene: lobbyPlayer is null");
             }
             else
-               if (LogFilter.Debug) Debug.LogWarningFormat("OnClientChangeScene {0} {1} {2}", dontDestroyOnLoad, IsClientConnected(), client != null);
+               if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene {0} {1} {2}", dontDestroyOnLoad, IsClientConnected(), client != null);
         }
 
         public override void OnClientSceneChanged(NetworkConnection conn)

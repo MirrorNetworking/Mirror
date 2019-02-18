@@ -25,6 +25,7 @@ namespace Mirror.Examples.NetworkLobby
             z = Random.Range(-19, 20);
 
             newPrize = Instantiate(prizePrefab.gameObject, new Vector3(x, 1, z), Quaternion.identity);
+            newPrize.name = prizePrefab.name;
             reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
             reward.prizeColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);

@@ -7,6 +7,10 @@ namespace Mirror.Examples.NetworkLobby
     {
         void Start()
         {
+            // Ensure main camera is enabled because it will be disabled by PlayerController
+            Camera.main.enabled = true;
+
+            // Since this is a UI only screen, lower the framerate and thereby lower the CPU load
             Application.targetFrameRate = 10;
         }
 

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.NetworkLobby
 {
@@ -32,12 +32,11 @@ namespace Mirror.Examples.NetworkLobby
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
-
             characterController = GetComponent<CharacterController>();
 
-            Camera.main.transform.parent = gameObject.transform;
-            Camera.main.transform.localPosition = new Vector3(0, 3, -8);
-            Camera.main.transform.localRotation = Quaternion.Euler(10, 0, 0);
+            // Turn off main camera because GamePlayer prefab has its own camera
+            GetComponentInChildren<Camera>().enabled = true;
+            Camera.main.enabled = false;
         }
 
         void SetColor(Color color)
@@ -92,7 +91,7 @@ namespace Mirror.Examples.NetworkLobby
 
             controllerColliderHitObject = hit.gameObject;
 
-            if (isLocalPlayer && controllerColliderHitObject.name == "Prize(Clone)")
+            if (isLocalPlayer && controllerColliderHitObject.name == "Prize")
             {
                 if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
 
