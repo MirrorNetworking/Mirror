@@ -75,28 +75,27 @@ namespace Mirror
                 serverTime = LocalTime()
             };
 
-            netMsg.conn.Send((short)MsgType.Pong, pongMsg);
+            netMsg.conn.Send(pongMsg);
         }
 
         // Executed at the client when we receive a Pong message
         // find out how long it took since we sent the Ping
         // and update time offset
-        internal static void OnClientPong(NetworkMessage netMsg)
+        internal static void OnClientPong(NetworkPongMessage msg)
         {
-            NetworkPongMessage pongMsg = netMsg.ReadMessage<NetworkPongMessage>();
             double now = LocalTime();
 
             // how long did this message take to come back
-            double rtt = now - pongMsg.clientTime;
+            double rtt = now - msg.clientTime;
             _rtt.Add(rtt);
 
             // the difference in time between the client and the server
             // but subtract half of the rtt to compensate for latency
             // half of rtt is the best approximation we have
-            double offset = now - rtt * 0.5f - pongMsg.serverTime;
+            double offset = now - rtt * 0.5f - msg.serverTime;
 
-            double newOffsetMin = now - rtt - pongMsg.serverTime;
-            double newOffsetMax = now - pongMsg.serverTime;
+            double newOffsetMin = now - rtt - msg.serverTime;
+            double newOffsetMax = now - msg.serverTime;
             offsetMin = Math.Max(offsetMin, newOffsetMin);
             offsetMax = Math.Min(offsetMax, newOffsetMax);
 
