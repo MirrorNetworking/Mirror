@@ -11,15 +11,10 @@ namespace Mirror
     {
         static bool s_IsSpawnFinished;
 
-        internal static void SetNotReady()
-        {
-            ready = false;
-        }
-
         static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
         public static NetworkIdentity localPlayer { get; private set; }
-        public static bool ready { get; private set; }
+        public static bool ready { get; internal set; }
         public static NetworkConnection readyConnection { get; private set; }
 
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
