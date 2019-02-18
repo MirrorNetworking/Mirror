@@ -21,10 +21,19 @@ namespace Mirror.Weaver
         public static bool UnityLogDisabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
 
+        // the static constructor is called again if any of the cached information is changed
+        static Assembly[] m_cachedAssemblies; // cached copy of CompilationPipeline.GetAssemblies
+        static string m_cachedMirrorAssemblyPath; // cached Mirror.dll path
+        static string m_cachedUnityEngineCoreAssemblyPath;
+
         // constructor sets up assembly excludes and adds our callback to trigger after an assembly compiles
         static CompilationFinishedHook()
         {
             EditorApplication.LockReloadAssemblies();
+
+            m_cachedAssemblies = CompilationPipeline.GetAssemblies();
+            m_cachedMirrorAssemblyPath = FindMirrorRuntime();
+            m_cachedUnityEngineCoreAssemblyPath = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
 
             try
             {
@@ -64,9 +73,7 @@ namespace Mirror.Weaver
         // weave all assemblies by manually triggering the callback
         static void WeaveAssemblies()
         {
-            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
-
-            foreach (Assembly assembly in assemblies)
+            foreach (Assembly assembly in m_cachedAssemblies)
             {
                 if (!UnityLogDisabled) Debug.Log("Weaving " + assembly.outputPath);
                 AssemblyCompilationFinishedHandler(assembly.outputPath, new CompilerMessage[] { } );               
@@ -93,14 +100,10 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // UnityEngineCoreModule.DLL path:
-            string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-
             // outputDirectory is the directory of assemblyPath
             string outputDirectory = Path.GetDirectoryName(assemblyPath);
 
-            string mirrorRuntimeDll = FindMirrorRuntime();
-            if (!File.Exists(mirrorRuntimeDll))
+            if (!File.Exists(m_cachedMirrorAssemblyPath))
             {
                 // this is normal, it happens with any assembly that is built before mirror
                 // such as unity packages or your own assemblies
@@ -119,7 +122,7 @@ namespace Mirror.Weaver
                 //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                 // but Weaver creates it's own if null, which is this one:
                 IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
+                if (Program.Process(m_cachedUnityEngineCoreAssemblyPath, m_cachedMirrorAssemblyPath, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
                 {
                     WeaveFailed = false;
                     Console.WriteLine("Weaving succeeded for: " + assemblyPath);
@@ -140,9 +143,7 @@ namespace Mirror.Weaver
         //  original Weaver.Program.Process function.)
         static string[] GetExtraAssemblyPaths(string assemblyPath)
         {
-            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
-
-            foreach (Assembly assembly in assemblies)
+            foreach (Assembly assembly in m_cachedAssemblies)
             {
                 if (assembly.outputPath == assemblyPath)
                 {
@@ -154,12 +155,10 @@ namespace Mirror.Weaver
             return new string[] { };
         }
 
-        // find Mirror assembly from CompilationPipeline.GetAssemblies array
+        // find Mirror assembly from cached CompilationPipeline.GetAssemblies array
         static string FindMirrorRuntime()
         {
-            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
-
-            foreach (Assembly assembly in assemblies)
+            foreach (Assembly assembly in m_cachedAssemblies)
             {
                 if (assembly.name == "Mirror")
                 {
