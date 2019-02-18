@@ -26,7 +26,9 @@ namespace Mirror.Weaver
         static string m_cachedMirrorAssemblyPath; // cached Mirror.dll path
         static string m_cachedUnityEngineCoreAssemblyPath;
 
-        // constructor sets up assembly excludes and adds our callback to trigger after an assembly compiles
+        // constructor sets up cached assembly paths and adds our callback to trigger after an assembly compiles
+        // CompilationPipeline.assemblyCompilationFinished will only be called on scripts that actually needed recompile
+        // after all compilations are complete, all InitializeOnLoad methods (eg. this static constructor) will get called again
         static CompilationFinishedHook()
         {
             EditorApplication.LockReloadAssemblies();
@@ -35,18 +37,10 @@ namespace Mirror.Weaver
             m_cachedMirrorAssemblyPath = FindMirrorRuntime();
             m_cachedUnityEngineCoreAssemblyPath = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
 
-            try
-            {
-                // weave all existing assemblies
-                WeaveAssemblies();
-            }
-            finally
-            {
-                // weave assemblies every time after they are compiled
-                CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
+            // weave assemblies every time after they are compiled
+            CompilationPipeline.assemblyCompilationFinished += AssemblyCompilationFinishedHandler;
 
-                EditorApplication.UnlockReloadAssemblies();
-            }
+            EditorApplication.UnlockReloadAssemblies();
         }
 
         // debug message handler that also calls OnMessageMethod delegate
@@ -116,6 +110,7 @@ namespace Mirror.Weaver
             bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
             if (!buildingForEditor)
             {
+                if (!UnityLogDisabled) Debug.Log("Weaving: " + assemblyName);
                 Console.WriteLine("Weaving: " + assemblyPath);
                 // assemblyResolver: unity uses this by default:
                 //   ICompilationExtension compilationExtension = GetCompilationExtension();
