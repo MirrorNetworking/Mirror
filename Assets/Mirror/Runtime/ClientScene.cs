@@ -202,14 +202,14 @@ namespace Mirror
             {
                 client.RegisterHandler<ObjectDestroyMessage>(OnLocalClientObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnLocalClientObjectHide);
-                client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
+                client.RegisterHandler<SpawnPrefabMessage>(OnLocalClientSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
                 client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
             }
             else
             {
                 // LocalClient shares the sim/scene with the server, no need for these events
-                client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
+                client.RegisterHandler<SpawnPrefabMessage>(OnSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
                 client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
@@ -409,10 +409,8 @@ namespace Mirror
             }
         }
 
-        static void OnSpawnPrefab(NetworkMessage netMsg)
+        static void OnSpawnPrefab(SpawnPrefabMessage msg)
         {
-            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
-
             if (msg.assetId == Guid.Empty)
             {
                 Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
@@ -592,10 +590,8 @@ namespace Mirror
             }
         }
 
-        static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
+        static void OnLocalClientSpawnPrefab(SpawnPrefabMessage msg)
         {
-            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
-
             NetworkIdentity localObject;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
