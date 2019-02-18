@@ -136,7 +136,7 @@ namespace Mirror
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
         {
             // TODO use int to reduce collisions
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
 
             // pack message and send
             byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
