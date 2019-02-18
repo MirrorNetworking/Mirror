@@ -84,7 +84,7 @@ namespace Mirror
         internal static void RegisterMessageHandlers()
         {
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
-            RegisterHandler(MsgType.Command, OnCommandMessage);
+            RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
         }
@@ -857,31 +857,29 @@ namespace Mirror
         }
 
         // Handle command from specific player, this could be one of multiple players on a single client
-        static void OnCommandMessage(NetworkMessage netMsg)
+        static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
         {
-            CommandMessage message = netMsg.ReadMessage<CommandMessage>();
-
             NetworkIdentity identity;
-            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
+            if (!NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
-                Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
+                Debug.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
                 return;
             }
 
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (netMsg.conn.playerController != null && netMsg.conn.playerController.netId != identity.netId)
+            if (conn.playerController != null && conn.playerController.netId != identity.netId)
             {
-                if (identity.clientAuthorityOwner != netMsg.conn)
+                if (identity.clientAuthorityOwner != conn)
                 {
-                    Debug.LogWarning("Command for object without authority [netId=" + message.netId + "]");
+                    Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
                     return;
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + message.netId + " conn=" + netMsg.conn); }
-            identity.HandleCommand(message.componentIndex, message.functionHash, new NetworkReader(message.payload));
+            if (LogFilter.Debug) { Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn); }
+            identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
         internal static void SpawnObject(GameObject obj)
