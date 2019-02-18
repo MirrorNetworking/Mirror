@@ -214,7 +214,7 @@ namespace Mirror
                 client.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
-                client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
+                client.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
                 client.RegisterHandler<ClientAuthorityMessage>(OnClientAuthority);
                 client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
@@ -591,10 +591,8 @@ namespace Mirror
             }
         }
 
-        static void OnUpdateVarsMessage(NetworkMessage netMsg)
+        static void OnUpdateVarsMessage(UpdateVarsMessage msg)
         {
-            UpdateVarsMessage msg = netMsg.ReadMessage<UpdateVarsMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnUpdateVarsMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)

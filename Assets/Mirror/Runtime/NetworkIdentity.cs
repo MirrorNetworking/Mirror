@@ -922,7 +922,7 @@ namespace Mirror
                     payload = payload
                 };
 
-                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
+                NetworkServer.SendToReady(this, message);
             }
         }
 
