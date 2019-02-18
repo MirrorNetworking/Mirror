@@ -9,7 +9,7 @@ namespace Mirror
         NetworkIdentity m_PlayerController;
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
+        Dictionary<int, NetworkMessageDelegate> m_MessageHandlers;
 
         public int hostId = -1;
         public int connectionId = -1;
@@ -90,17 +90,17 @@ namespace Mirror
             }
         }
 
-        internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
+        internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
         }
 
-        public bool InvokeHandlerNoData(short msgType)
+        public bool InvokeHandlerNoData(int msgType)
         {
             return InvokeHandler(msgType, null);
         }
 
-        public bool InvokeHandler(short msgType, NetworkReader reader)
+        public bool InvokeHandler(int msgType, NetworkReader reader)
         {
             NetworkMessageDelegate msgDelegate;
             if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
@@ -155,13 +155,13 @@ namespace Mirror
         }
 
         [Obsolete("use Send<T> instead")]
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
 
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            byte[] message = Protocol.PackMessage(msgType, writer.ToArray());
             return SendBytes(message, channelId);
         }
 
@@ -170,11 +170,10 @@ namespace Mirror
             NetworkWriter writer = new NetworkWriter();
             msg.Serialize(writer);
 
-            // TODO use int to reduce collisions
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
 
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            byte[] message = Protocol.PackMessage(msgType, writer.ToArray());
             return SendBytes(message, channelId);
         }
 
@@ -211,7 +210,7 @@ namespace Mirror
         protected void HandleBytes(byte[] buffer)
         {
             // unpack message
-            ushort msgType;
+            int msgType;
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
@@ -230,12 +229,12 @@ namespace Mirror
                 }
 
                 NetworkMessageDelegate msgDelegate;
-                if (m_MessageHandlers.TryGetValue((short)msgType, out msgDelegate))
+                if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
                 {
                     // create message here instead of caching it. so we can add it to queue more easily.
                     NetworkMessage msg = new NetworkMessage
                     {
-                        msgType = (short)msgType,
+                        msgType = msgType,
                         reader = new NetworkReader(content),
                         conn = this
                     };
