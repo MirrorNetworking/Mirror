@@ -457,7 +457,7 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
-        internal static void OnObjectSpawnStarted(NetworkMessage netMsg)
+        internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
 
