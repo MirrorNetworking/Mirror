@@ -951,12 +951,12 @@ namespace Mirror
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send((short)MsgType.SpawnSceneObject, msg);
+                    conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, (short)MsgType.SpawnSceneObject, msg);
+                    SendToReady(identity, msg);
                 }
             }
         }

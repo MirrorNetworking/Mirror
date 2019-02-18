@@ -430,10 +430,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnSceneObject(NetworkMessage netMsg)
+        internal static void OnSpawnSceneObject(SpawnSceneObjectMessage msg)
         {
-            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
-
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
@@ -550,10 +548,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
+        internal static void OnLocalClientSpawnSceneObject(SpawnSceneObjectMessage msg)
         {
-            SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
-
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
