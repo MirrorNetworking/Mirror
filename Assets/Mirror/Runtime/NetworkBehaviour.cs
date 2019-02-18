@@ -127,7 +127,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
+            NetworkServer.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -149,7 +149,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            conn.Send((short)MsgType.Rpc, message, channelId);
+            conn.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
