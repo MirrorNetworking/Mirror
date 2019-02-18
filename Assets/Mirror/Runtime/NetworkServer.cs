@@ -450,6 +450,7 @@ namespace Mirror
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
+            short msgId = MessageBase.GetId<ErrorMessage>();
             if (handlers.ContainsKey((short)MsgType.Error))
             {
                 ErrorMessage msg = new ErrorMessage

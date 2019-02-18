@@ -199,7 +199,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
+            NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
 
         public bool StartServer()
@@ -260,7 +260,7 @@ namespace Mirror
             client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
             client.RegisterHandler(MsgType.Disconnect, OnClientDisconnectInternal);
             client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
-            client.RegisterHandler(MsgType.Error, OnClientErrorInternal);
+            client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
             client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
 
             if (playerPrefab != null)
@@ -578,12 +578,10 @@ namespace Mirror
             }
         }
 
-        internal void OnServerErrorInternal(NetworkMessage netMsg)
+        internal void OnServerErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerErrorInternal"); }
-
-            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnServerError(netMsg.conn, msg.value);
+            OnServerError(conn, msg.value);
         }
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
@@ -622,12 +620,10 @@ namespace Mirror
             // NOTE: s_ClientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
-        internal void OnClientErrorInternal(NetworkMessage netMsg)
+        internal void OnClientErrorInternal(ErrorMessage msg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientErrorInternal"); }
-
-            ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
-            OnClientError(netMsg.conn, msg.value);
+            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
+            OnClientError(client.connection, msg.value);
         }
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)
