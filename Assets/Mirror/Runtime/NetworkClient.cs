@@ -238,6 +238,7 @@ namespace Mirror
 
         void GenerateError(byte error)
         {
+            short msgId = MessageBase.GetId<ErrorMessage>();
             NetworkMessageDelegate msgDelegate;
             if (handlers.TryGetValue((short)MsgType.Error, out msgDelegate))
             {
