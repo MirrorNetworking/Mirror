@@ -570,10 +570,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnRPCMessage(NetworkMessage netMsg)
+        internal static void OnRPCMessage(RpcMessage msg)
         {
-            RpcMessage msg = netMsg.ReadMessage<RpcMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
