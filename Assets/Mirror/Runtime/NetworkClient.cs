@@ -240,7 +240,6 @@ namespace Mirror
             // 'message id not found' errors.
             if (localClient)
             {
-                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnLocalClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
                 RegisterHandler(MsgType.Owner, (msg) => {});
@@ -253,7 +252,6 @@ namespace Mirror
             }
             else
             {
-                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
                 RegisterHandler(MsgType.Owner, ClientScene.OnOwnerMessage);
@@ -264,7 +262,7 @@ namespace Mirror
                 RegisterHandler(MsgType.SpawnFinished, ClientScene.OnObjectSpawnFinished);
                 RegisterHandler(MsgType.UpdateVars, ClientScene.OnUpdateVarsMessage);
             }
-
+            RegisterHandler<ClientAuthorityMessage>(ClientScene.OnClientAuthority);
             RegisterHandler(MsgType.Rpc, ClientScene.OnRPCMessage);
             RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
         }

@@ -600,11 +600,9 @@ namespace Mirror
             }
         }
 
-        internal static void OnClientAuthority(NetworkMessage netMsg)
+        internal static void OnClientAuthority(ClientAuthorityMessage msg)
         {
-            ClientAuthorityMessage msg = netMsg.ReadMessage<ClientAuthorityMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("ClientScene.OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnClientAuthority for netId: " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
