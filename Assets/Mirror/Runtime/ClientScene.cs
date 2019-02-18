@@ -215,7 +215,7 @@ namespace Mirror
                 client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 client.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
-                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler<OwnerMessage>(OnOwnerMessage);
                 client.RegisterHandler<ClientAuthorityMessage>(OnClientAuthority);
                 client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
             }
@@ -644,19 +644,17 @@ namespace Mirror
         }
 
         // OnClientAddedPlayer?
-        static void OnOwnerMessage(NetworkMessage netMsg)
+        static void OnOwnerMessage(OwnerMessage msg)
         {
-            OwnerMessage msg = netMsg.ReadMessage<OwnerMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + msg.netId); }
 
             // is there already an owner that is a different object??
-            netMsg.conn.playerController?.SetNotLocalPlayer();
+            readyConnection.playerController?.SetNotLocalPlayer();
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 // this object already exists
-                localObject.SetConnectionToServer(netMsg.conn);
+                localObject.SetConnectionToServer(readyConnection);
                 localObject.SetLocalPlayer();
                 InternalAddPlayer(localObject);
             }
