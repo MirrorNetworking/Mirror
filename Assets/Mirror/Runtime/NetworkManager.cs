@@ -387,7 +387,7 @@ namespace Mirror
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             StringMessage msg = new StringMessage(networkSceneName);
-            NetworkServer.SendToAll((short)MsgType.Scene, msg);
+            NetworkServer.SendToAll((int)MsgType.Scene, msg);
 
             s_StartPositionIndex = 0;
             startPositions.Clear();
@@ -528,7 +528,7 @@ namespace Mirror
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
-                netMsg.conn.Send((short)MsgType.Scene, msg);
+                netMsg.conn.Send((int)MsgType.Scene, msg);
             }
 
             OnServerConnect(netMsg.conn);

@@ -13,10 +13,9 @@ namespace Mirror
         // Serialize the contents of this message into the writer
         public virtual void Serialize(NetworkWriter writer) {}
 
-        public static short GetId<T>() where T: MessageBase
+        public static int GetId<T>() where T: MessageBase
         {
-            // TODO use int instead of short for less collissions
-            return (short)typeof(T).FullName.GetStableHashCode();
+            return typeof(T).FullName.GetStableHashCode();
         }
     }
 

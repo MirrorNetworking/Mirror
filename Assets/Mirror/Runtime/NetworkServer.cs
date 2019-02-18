@@ -17,7 +17,7 @@ namespace Mirror
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
-        public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
+        public static Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         public static bool dontListen;
 
@@ -208,7 +208,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool SendToAll(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
@@ -371,7 +371,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandlerNoData((short)MsgType.Connect);
+            conn.InvokeHandlerNoData((int)MsgType.Connect);
         }
 
         static void OnDisconnected(int connectionId)
@@ -390,7 +390,7 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandlerNoData((short)MsgType.Disconnect);
+            conn.InvokeHandlerNoData((int)MsgType.Disconnect);
 
             if (conn.playerController != null)
             {
@@ -450,7 +450,7 @@ namespace Mirror
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
-            short msgId = MessageBase.GetId<ErrorMessage>();
+            int msgId = MessageBase.GetId<ErrorMessage>();
             if (handlers.ContainsKey(msgId))
             {
                 ErrorMessage msg = new ErrorMessage
@@ -469,7 +469,7 @@ namespace Mirror
         }
 
         [Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
             {
@@ -481,12 +481,12 @@ namespace Mirror
         [Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
-            RegisterHandler((short)msgType, handler);
+            RegisterHandler((int)msgType, handler);
         }
 
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
         {
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
@@ -499,7 +499,7 @@ namespace Mirror
         }
 
         [Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(short msgType)
+        public static void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
@@ -507,12 +507,12 @@ namespace Mirror
         [Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
         {
-            UnregisterHandler((short)msgType);
+            UnregisterHandler((int)msgType);
         }
 
         public static void UnregisterHandler<T>() where T:MessageBase
         {
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
             handlers.Remove(msgType);
         }
 
@@ -521,7 +521,7 @@ namespace Mirror
             handlers.Clear();
         }
 
-        public static void SendToClient(int connectionId, short msgType, MessageBase msg)
+        public static void SendToClient(int connectionId, int msgType, MessageBase msg)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
@@ -532,7 +532,7 @@ namespace Mirror
         }
 
         // send this message to the player only
-        public static void SendToClientOfPlayer(NetworkIdentity identity, short msgType, MessageBase msg)
+        public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
         {
             if (identity != null)
             {
@@ -827,7 +827,7 @@ namespace Mirror
                 conn.RemoveObservers();
 
                 NotReadyMessage msg = new NotReadyMessage();
-                conn.Send((short)MsgType.NotReady, msg);
+                conn.Send((int)MsgType.NotReady, msg);
             }
         }
 

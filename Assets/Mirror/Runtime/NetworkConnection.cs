@@ -8,7 +8,7 @@ namespace Mirror
     {
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
+        Dictionary<int, NetworkMessageDelegate> m_MessageHandlers;
 
         public int connectionId = -1;
         public bool isReady;
@@ -96,7 +96,7 @@ namespace Mirror
             RemoveObservers();
         }
 
-        internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
+        internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
         }
@@ -126,20 +126,19 @@ namespace Mirror
         }
 
         [Obsolete("use Send<T> instead")]
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage(msgType, msg);
             return SendBytes(message, channelId);
         }
 
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
         {
-            // TODO use int to reduce collisions
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
 
             // pack message and send
-            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage(msgType, msg);
             return SendBytes(message, channelId);
         }
 
@@ -198,12 +197,12 @@ namespace Mirror
             visList.Clear();
         }
 
-        public bool InvokeHandlerNoData(short msgType)
+        public bool InvokeHandlerNoData(int msgType)
         {
             return InvokeHandler(msgType, null);
         }
 
-        public bool InvokeHandler(short msgType, NetworkReader reader)
+        public bool InvokeHandler(int msgType, NetworkReader reader)
         {
             if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -232,7 +231,7 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 if (logNetworkMessages)
                 {
@@ -249,7 +248,7 @@ namespace Mirror
                 }
 
                 // try to invoke the handler for that message
-                if (InvokeHandler((short)msgType, reader))
+                if (InvokeHandler(msgType, reader))
                 {
                     lastMessageTime = Time.time;
                 }

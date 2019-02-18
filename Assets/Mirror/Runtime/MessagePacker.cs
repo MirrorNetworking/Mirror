@@ -22,13 +22,13 @@ namespace Mirror
         // pack message before sending
         // -> pass writer instead of byte[] so we can reuse it
         [Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(ushort msgType, MessageBase msg)
+        public static byte[] PackMessage(int msgType, MessageBase msg)
         {
             // reset cached writer length and position
             packWriter.SetLength(0);
 
             // write message type
-            packWriter.WritePackedUInt32(msgType);
+            packWriter.WritePackedUInt32((uint)msgType);
 
             // serialize message into writer
             msg.Serialize(packWriter);
@@ -44,7 +44,7 @@ namespace Mirror
             packWriter.SetLength(0);
 
             // write message type
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
             packWriter.WritePackedUInt32((uint)msgType);
 
             // serialize message into writer
@@ -58,10 +58,10 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
-        public static bool UnpackMessage(NetworkReader messageReader, out ushort msgType)
+        public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
-            msgType = (ushort)messageReader.ReadPackedUInt32();
+            msgType = (int)messageReader.ReadPackedUInt32();
             return true;
         }
     }

@@ -12,7 +12,7 @@ namespace Mirror
         [Obsolete("Use NetworkClient.singleton instead. There is always exactly one client.")]
         public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
 
-        public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
+        public readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         public NetworkConnection connection { get; protected set; }
 
@@ -88,7 +88,7 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
+            connection?.InvokeHandlerNoData((int)MsgType.Disconnect);
         }
 
         protected void OnDataReceived(byte[] data)
@@ -111,7 +111,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient(this);
-                connection.InvokeHandlerNoData((short)MsgType.Connect);
+                connection.InvokeHandlerNoData((int)MsgType.Connect);
             }
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
@@ -159,7 +159,6 @@ namespace Mirror
 
         public bool Send<T>(T message) where T : MessageBase
         {
-            // TODO use int instead to avoid collisions
             if (connection != null)
             {
                 if (connectState != ConnectState.Connected)
@@ -205,7 +204,7 @@ namespace Mirror
 
         void GenerateError(byte error)
         {
-            short msgId = MessageBase.GetId<ErrorMessage>();
+            int msgId = MessageBase.GetId<ErrorMessage>();
             if (handlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage
@@ -269,7 +268,7 @@ namespace Mirror
         }
 
         [Obsolete("Use RegisterHandler<T> instead")]
-        public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
+        public void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
             {
@@ -281,13 +280,12 @@ namespace Mirror
         [Obsolete("Use RegisterHandler<T> instead")]
         public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
-            RegisterHandler((short)msgType, handler);
+            RegisterHandler((int)msgType, handler);
         }
 
         public void RegisterHandler<T>(Action<T> handler) where T : MessageBase, new()
         {
-            // TODO use int instead to avoid collisions
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
@@ -299,7 +297,7 @@ namespace Mirror
         }
 
         [Obsolete("Use UnregisterHandler<T> instead")]
-        public void UnregisterHandler(short msgType)
+        public void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
@@ -307,13 +305,13 @@ namespace Mirror
         [Obsolete("Use UnregisterHandler<T> instead")]
         public void UnregisterHandler(MsgType msgType)
         {
-            UnregisterHandler((short)msgType);
+            UnregisterHandler((int)msgType);
         }
 
         public void UnregisterHandler<T>() where T : MessageBase
         {
             // use int to minimize collisions
-            short msgType = MessageBase.GetId<T>();
+            int msgType = MessageBase.GetId<T>();
             handlers.Remove(msgType);
         }
 
