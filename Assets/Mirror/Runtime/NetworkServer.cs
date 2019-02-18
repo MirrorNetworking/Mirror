@@ -789,7 +789,7 @@ namespace Mirror
                 }
             }
 
-            conn.Send((short)MsgType.SpawnFinished, new ObjectSpawnFinishedMessage());
+            conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
