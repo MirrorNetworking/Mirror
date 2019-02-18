@@ -556,10 +556,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnUpdateVarsMessage(NetworkMessage netMsg)
+        internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
         {
-            UpdateVarsMessage msg = netMsg.ReadMessage<UpdateVarsMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)

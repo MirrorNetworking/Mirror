@@ -248,7 +248,7 @@ namespace Mirror
                 RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnLocalClientSpawnSceneObject);
                 RegisterHandler<ObjectSpawnStartedMessage>((msg) => {});
                 RegisterHandler<ObjectSpawnFinishedMessage>((msg) => {});
-                RegisterHandler(MsgType.UpdateVars, (msg) => {});
+                RegisterHandler<UpdateVarsMessage>((msg) => {});
             }
             else
             {
@@ -260,7 +260,7 @@ namespace Mirror
                 RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnSpawnSceneObject);
                 RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
-                RegisterHandler(MsgType.UpdateVars, ClientScene.OnUpdateVarsMessage);
+                RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             }
             RegisterHandler<ClientAuthorityMessage>(ClientScene.OnClientAuthority);
             RegisterHandler(MsgType.Rpc, ClientScene.OnRPCMessage);

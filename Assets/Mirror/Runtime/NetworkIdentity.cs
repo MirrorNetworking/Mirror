@@ -874,7 +874,7 @@ namespace Mirror
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
                 varsMessage.payload = payload;
-                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, varsMessage);
+                NetworkServer.SendToReady(this, varsMessage);
             }
         }
     }
