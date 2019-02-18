@@ -221,7 +221,7 @@ namespace Mirror
                 client.RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong);
             }
 
-            client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
+            client.RegisterHandler<RpcMessage>(OnRPCMessage);
             client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
         }
 
@@ -621,10 +621,8 @@ namespace Mirror
             }
         }
 
-        static void OnRPCMessage(NetworkMessage netMsg)
+        static void OnRPCMessage(RpcMessage msg)
         {
-            RpcMessage msg = netMsg.ReadMessage<RpcMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
             NetworkIdentity identity;
