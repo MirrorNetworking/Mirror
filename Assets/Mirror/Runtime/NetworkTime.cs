@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
@@ -55,7 +55,7 @@ namespace Mirror
             if (Time.time - lastPingTime >= PingFrequency)
             {
                 NetworkPingMessage pingMessage = GetPing();
-                networkClient.Send((short)MsgType.Ping, pingMessage);
+                networkClient.Send(pingMessage);
                 lastPingTime = Time.time;
             }
         }
@@ -63,19 +63,17 @@ namespace Mirror
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
         // and time from the server
-        internal static void OnServerPing(NetworkMessage netMsg)
+        internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage msg)
         {
-            NetworkPingMessage pingMsg = netMsg.ReadMessage<NetworkPingMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + netMsg.conn); }
+            if (LogFilter.Debug) { Debug.Log("OnPingServerMessage  conn=" + conn); }
 
             NetworkPongMessage pongMsg = new NetworkPongMessage
             {
-                clientTime = pingMsg.value,
+                clientTime = msg.value,
                 serverTime = LocalTime()
             };
 
-            netMsg.conn.Send(pongMsg);
+            conn.Send(pongMsg);
         }
 
         // Executed at the client when we receive a Pong message
