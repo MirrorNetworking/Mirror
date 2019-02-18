@@ -104,7 +104,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
+            ClientScene.readyConnection.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
