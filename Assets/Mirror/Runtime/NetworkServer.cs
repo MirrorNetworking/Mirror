@@ -224,6 +224,7 @@ namespace Mirror
             return result;
         }
 
+        [Obsolete("Use SendToReady<T> instead")]
         public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
@@ -234,6 +235,28 @@ namespace Mirror
                 byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all ready observers
+                bool result = true;
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                {
+                    if (kvp.Value.isReady)
+                    {
+                        result &= kvp.Value.SendBytes(bytes, channelId);
+                    }
+                }
+                return result;
+            }
+            return false;
+        }
+
+        public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
+        {
+            if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + typeof(T)); }
+
+            if (identity != null && identity.observers != null)
+            {
+                // pack message into byte[] once
+                byte[] bytes = MessagePacker.Pack(msg);
+
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
@@ -903,12 +926,12 @@ namespace Mirror
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    conn.Send((short)MsgType.SpawnPrefab, msg);
+                    conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, (short)MsgType.SpawnPrefab, msg);
+                    SendToReady(identity, msg);
                 }
             }
             // 'identity' is a scene object that should be spawned again

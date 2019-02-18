@@ -371,10 +371,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnPrefab(NetworkMessage netMsg)
+        internal static void OnSpawnPrefab(SpawnPrefabMessage msg)
         {
-            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
-
             if (msg.assetId == Guid.Empty)
             {
                 Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
@@ -544,10 +542,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
+        internal static void OnLocalClientSpawnPrefab(SpawnPrefabMessage msg)
         {
-            SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
-
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);

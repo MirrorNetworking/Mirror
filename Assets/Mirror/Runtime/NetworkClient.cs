@@ -245,7 +245,7 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
                 RegisterHandler(MsgType.Owner, (msg) => {});
                 RegisterHandler(MsgType.Pong, (msg) => {});
-                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnLocalClientSpawnPrefab);
+                RegisterHandler<SpawnPrefabMessage>(ClientScene.OnLocalClientSpawnPrefab);
                 RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnLocalClientSpawnSceneObject);
                 RegisterHandler(MsgType.SpawnStarted, (msg) => {});
                 RegisterHandler(MsgType.SpawnFinished, (msg) => {});
@@ -258,7 +258,7 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
                 RegisterHandler(MsgType.Owner, ClientScene.OnOwnerMessage);
                 RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
-                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnSpawnPrefab);
+                RegisterHandler<SpawnPrefabMessage>(ClientScene.OnSpawnPrefab);
                 RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnSpawnSceneObject);
                 RegisterHandler(MsgType.SpawnStarted, ClientScene.OnObjectSpawnStarted);
                 RegisterHandler(MsgType.SpawnFinished, ClientScene.OnObjectSpawnFinished);
