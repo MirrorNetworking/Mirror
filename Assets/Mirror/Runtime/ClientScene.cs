@@ -217,7 +217,7 @@ namespace Mirror
                 client.RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
                 client.RegisterHandler<OwnerMessage>(OnOwnerMessage);
                 client.RegisterHandler<ClientAuthorityMessage>(OnClientAuthority);
-                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
+                client.RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong);
             }
 
             client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
