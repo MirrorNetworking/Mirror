@@ -106,27 +106,22 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
-            bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
-            if (!buildingForEditor)
+            if (!UnityLogDisabled) Debug.Log("Weaving: " + assemblyName);
+            Console.WriteLine("Weaving: " + assemblyPath);
+            // assemblyResolver: unity uses this by default:
+            //   ICompilationExtension compilationExtension = GetCompilationExtension();
+            //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
+            // but Weaver creates it's own if null, which is this one:
+            IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
+            if (Program.Process(m_cachedUnityEngineCoreAssemblyPath, m_cachedMirrorAssemblyPath, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
             {
-                if (!UnityLogDisabled) Debug.Log("Weaving: " + assemblyName);
-                Console.WriteLine("Weaving: " + assemblyPath);
-                // assemblyResolver: unity uses this by default:
-                //   ICompilationExtension compilationExtension = GetCompilationExtension();
-                //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
-                // but Weaver creates it's own if null, which is this one:
-                IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                if (Program.Process(m_cachedUnityEngineCoreAssemblyPath, m_cachedMirrorAssemblyPath, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
-                {
-                    WeaveFailed = false;
-                    Console.WriteLine("Weaving succeeded for: " + assemblyPath);
-                }
-                else
-                {
-                    WeaveFailed = true;
-                    if (!UnityLogDisabled) Debug.LogError("Weaving failed for: " + assemblyPath);
-                }
+                WeaveFailed = false;
+                Console.WriteLine("Weaving succeeded for: " + assemblyPath);
+            }
+            else
+            {
+                WeaveFailed = true;
+                if (!UnityLogDisabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
 
