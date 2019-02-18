@@ -196,7 +196,7 @@ namespace Mirror
         {
             NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
             NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Ready, OnServerReadyMessageInternal);
+            NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler(MsgType.Error, OnServerErrorInternal);
@@ -540,10 +540,10 @@ namespace Mirror
             OnServerDisconnect(netMsg.conn);
         }
 
-        internal void OnServerReadyMessageInternal(NetworkMessage netMsg)
+        internal void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerReadyMessageInternal"); }
-            OnServerReady(netMsg.conn);
+            OnServerReady(conn);
         }
 
         internal void OnServerAddPlayerMessageInternal(NetworkConnection conn, AddPlayerMessage msg)

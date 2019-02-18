@@ -129,8 +129,7 @@ namespace Mirror
 
             if (conn != null)
             {
-                ReadyMessage msg = new ReadyMessage();
-                conn.Send((short)MsgType.Ready, msg);
+                conn.Send(new ReadyMessage());
                 ready = true;
                 readyConnection = conn;
                 readyConnection.isReady = true;

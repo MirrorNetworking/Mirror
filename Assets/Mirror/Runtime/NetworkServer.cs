@@ -74,7 +74,7 @@ namespace Mirror
 
         internal static void RegisterMessageHandlers()
         {
-            RegisterHandler(MsgType.Ready, OnClientReadyMessage);
+            RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler(MsgType.Command, OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
             RegisterHandler(MsgType.Ping, NetworkTime.OnServerPing);
@@ -786,10 +786,10 @@ namespace Mirror
         }
 
         // default ready handler.
-        static void OnClientReadyMessage(NetworkMessage netMsg)
+        static void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
         {
-            if (LogFilter.Debug) { Debug.Log("Default handler for ready message from " + netMsg.conn); }
-            SetClientReady(netMsg.conn);
+            if (LogFilter.Debug) { Debug.Log("Default handler for ready message from " + conn); }
+            SetClientReady(conn);
         }
 
         // default remove player handler
