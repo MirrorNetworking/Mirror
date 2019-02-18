@@ -7,7 +7,7 @@ This guide gives you a step by step instruction for migrating your project from 
 You should review the information on the [Deprecations](Deprecations) page to see if your project will be impacted.
 
 There's also a Migration Tool you can try:  
-<https://gist.github.com/Lymdun/dae130c5a69d69ab202bd621af2de1ad>
+<https://github.com/Lymdun/MirrorConverter/>
 
 ### 1. BACKUP
 
