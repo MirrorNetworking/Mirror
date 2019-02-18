@@ -178,7 +178,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
+            NetworkServer.SendToReady(netIdentity,message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

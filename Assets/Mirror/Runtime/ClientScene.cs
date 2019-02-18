@@ -221,7 +221,7 @@ namespace Mirror
             }
 
             client.RegisterHandler<RpcMessage>(OnRPCMessage);
-            client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
+            client.RegisterHandler<SyncEventMessage>(OnSyncEventMessage);
         }
 
         // spawn handlers and prefabs //////////////////////////////////////////
@@ -615,10 +615,8 @@ namespace Mirror
             }
         }
 
-        static void OnSyncEventMessage(NetworkMessage netMsg)
+        static void OnSyncEventMessage(SyncEventMessage msg)
         {
-            SyncEventMessage msg = netMsg.ReadMessage<SyncEventMessage>();
-
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnSyncEventMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
