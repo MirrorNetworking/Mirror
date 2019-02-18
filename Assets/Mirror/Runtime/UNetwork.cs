@@ -61,7 +61,7 @@ namespace Mirror
 
     public class NetworkMessage
     {
-        public short msgType;
+        public int msgType;
         public NetworkConnection conn;
         public NetworkReader reader;
 
@@ -100,7 +100,7 @@ namespace Mirror
     public static class Protocol
     {
         // pack message before sending
-        public static byte[] PackMessage(ushort msgType, byte[] content)
+        public static byte[] PackMessage(int msgType, byte[] content)
         {
             // original HLAPI's 'content' part is never null, so we don't have to handle that case.
             // just create an empty array if null.
@@ -109,7 +109,7 @@ namespace Mirror
             NetworkWriter writer = new NetworkWriter();
 
             // message type (varint)
-            writer.WritePackedUInt32(msgType);
+            writer.WritePackedUInt32((uint)msgType);
 
             // message content (if any)
             writer.Write(content, 0, content.Length);
@@ -118,12 +118,12 @@ namespace Mirror
         }
 
         // unpack message after receiving
-        public static bool UnpackMessage(byte[] message, out ushort msgType, out byte[] content)
+        public static bool UnpackMessage(byte[] message, out int msgType, out byte[] content)
         {
             NetworkReader reader = new NetworkReader(message);
 
             // read message type (varint)
-            msgType = (UInt16)reader.ReadPackedUInt32();
+            msgType = (int)reader.ReadPackedUInt32();
 
             // read content (remaining data in message)
             content = reader.ReadBytes(reader.Length - reader.Position);

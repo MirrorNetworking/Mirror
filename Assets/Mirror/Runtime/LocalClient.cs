@@ -14,7 +14,7 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(m_Connection);
             if (m_Connected)
             {
-                PostInternalMessage((short)MsgType.Disconnect);
+                PostInternalMessage((int)MsgType.Disconnect);
                 m_Connected = false;
             }
             connectState = ConnectState.Disconnected;
@@ -33,7 +33,7 @@ namespace Mirror
 
             if (generateConnectMsg)
             {
-                PostInternalMessage((short)MsgType.Connect);
+                PostInternalMessage((int)MsgType.Connect);
             }
             m_Connected = true;
         }
@@ -59,7 +59,7 @@ namespace Mirror
             ClientScene.InternalAddPlayer(localPlayer);
         }
 
-        void PostInternalMessage(short msgType, byte[] content)
+        void PostInternalMessage(int msgType, byte[] content)
         {
             NetworkMessage msg = new NetworkMessage
             {
@@ -70,7 +70,7 @@ namespace Mirror
             m_InternalMsgs.Enqueue(msg);
         }
 
-        void PostInternalMessage(short msgType)
+        void PostInternalMessage(int msgType)
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> original NetworkTransport used empty [] and not null array for those messages too
@@ -91,7 +91,7 @@ namespace Mirror
         internal void InvokeBytesOnClient(byte[] buffer)
         {
             // unpack message and post to internal list for processing
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            if (Protocol.UnpackMessage(buffer, out int msgType, out byte[] content))
             {
                 PostInternalMessage((short)msgType, content);
             }
