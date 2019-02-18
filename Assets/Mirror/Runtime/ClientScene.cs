@@ -211,7 +211,7 @@ namespace Mirror
                 // LocalClient shares the sim/scene with the server, no need for these events
                 client.RegisterHandler<SpawnPrefabMessage>(OnSpawnPrefab);
                 client.RegisterHandler<SpawnSceneObjectMessage>(OnSpawnSceneObject);
-                client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
+                client.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
                 client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
@@ -503,7 +503,7 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
-        static void OnObjectSpawnStarted(NetworkMessage netMsg)
+        static void OnObjectSpawnStarted(ObjectSpawnStartedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
 

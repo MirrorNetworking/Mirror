@@ -766,7 +766,7 @@ namespace Mirror
             // Spawn/update all current server objects
             if (LogFilter.Debug) { Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId); }
 
-            conn.Send((short)MsgType.SpawnStarted, new ObjectSpawnStartedMessage());
+            conn.Send(new ObjectSpawnStartedMessage());
 
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
