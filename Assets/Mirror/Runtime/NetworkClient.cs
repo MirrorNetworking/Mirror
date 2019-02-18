@@ -290,7 +290,7 @@ namespace Mirror
         public void RegisterHandler<T>(Action<T> handler) where T : MessageBase, new()
         {
             // TODO use int instead to avoid collisions
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
@@ -313,10 +313,10 @@ namespace Mirror
             UnregisterHandler((short)msgType);
         }
 
-        public void UnregisterHandler<T>()
+        public void UnregisterHandler<T>() where T : MessageBase
         {
             // use int to minimize collisions
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
             handlers.Remove(msgType);
         }
 

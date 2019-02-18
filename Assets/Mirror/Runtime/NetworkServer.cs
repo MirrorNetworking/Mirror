@@ -446,7 +446,7 @@ namespace Mirror
 
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
         {
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
@@ -472,7 +472,7 @@ namespace Mirror
 
         public static void UnregisterHandler<T>() where T:MessageBase
         {
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
             handlers.Remove(msgType);
         }
 

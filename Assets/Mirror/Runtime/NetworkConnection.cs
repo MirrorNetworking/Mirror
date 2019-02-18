@@ -171,7 +171,7 @@ namespace Mirror
             msg.Serialize(writer);
 
             // TODO use int to reduce collisions
-            short msgType = (short)typeof(T).FullName.GetStableHashCode();
+            short msgType = MessageBase.GetId<T>();
 
             // pack message and send
             byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
