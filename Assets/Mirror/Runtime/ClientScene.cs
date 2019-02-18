@@ -211,7 +211,7 @@ namespace Mirror
                 client.RegisterHandler<SpawnPrefabMessage>(OnSpawnPrefab);
                 client.RegisterHandler<SpawnSceneObjectMessage>(OnSpawnSceneObject);
                 client.RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-                client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
+                client.RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 client.RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
@@ -500,7 +500,7 @@ namespace Mirror
             s_IsSpawnFinished = false;
         }
 
-        static void OnObjectSpawnFinished(NetworkMessage netMsg)
+        static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
