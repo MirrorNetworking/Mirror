@@ -25,6 +25,13 @@ namespace Mirror.Weaver
         static Assembly[] m_cachedAssemblies; // cached copy of CompilationPipeline.GetAssemblies
         static string m_cachedMirrorAssemblyPath; // cached Mirror.dll path
         static string m_cachedUnityEngineCoreAssemblyPath;
+        static string[] m_excludedAssemblies = new string[]
+        {
+            "Telepathy.dll",
+            "Mirror.dll",
+            "Mirror.Weaver.dll",
+            "Unity.Entities"
+        };
 
         // constructor sets up cached assembly paths and adds our callback to trigger after an assembly compiles
         // CompilationPipeline.assemblyCompilationFinished will only be called on scripts that actually needed recompile
@@ -88,10 +95,13 @@ namespace Mirror.Weaver
 
             string assemblyName = Path.GetFileName(assemblyPath);
 
-            if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+            // don't weave anything in our array of excluded assemblies
+            foreach (string excluded in m_excludedAssemblies)
             {
-                // don't weave mirror files
-                return;
+                if (assemblyName.Contains(excluded))
+                {
+                    return;
+                }
             }
 
             // outputDirectory is the directory of assemblyPath
