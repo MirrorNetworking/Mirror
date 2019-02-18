@@ -609,19 +609,17 @@ namespace Mirror
         }
 
         // OnClientAddedPlayer?
-        internal static void OnOwnerMessage(NetworkMessage netMsg)
+        internal static void OnOwnerMessage(OwnerMessage msg)
         {
-            OwnerMessage msg = netMsg.ReadMessage<OwnerMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + msg.netId); }
 
             // is there already an owner that is a different object??
-            netMsg.conn.playerController?.SetNotLocalPlayer();
+            readyConnection.playerController?.SetNotLocalPlayer();
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 // this object already exists
-                localObject.connectionToServer = netMsg.conn;
+                localObject.connectionToServer = readyConnection;
                 localObject.SetLocalPlayer();
                 InternalAddPlayer(localObject);
             }

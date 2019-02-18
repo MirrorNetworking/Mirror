@@ -655,7 +655,7 @@ namespace Mirror
             {
                 netId = identity.netId
             };
-            conn.Send((short)MsgType.Owner, owner);
+            conn.Send(owner);
         }
 
         internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
