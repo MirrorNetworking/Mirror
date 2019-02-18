@@ -204,7 +204,7 @@ namespace Mirror
                 client.RegisterHandler<ObjectHideMessage>(OnLocalClientObjectHide);
                 client.RegisterHandler<SpawnPrefabMessage>(OnLocalClientSpawnPrefab);
                 client.RegisterHandler<SpawnSceneObjectMessage>(OnLocalClientSpawnSceneObject);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler<ClientAuthorityMessage>(OnClientAuthority);
             }
             else
             {
@@ -217,7 +217,7 @@ namespace Mirror
                 client.RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
                 client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler<ClientAuthorityMessage>(OnClientAuthority);
                 client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
             }
 
@@ -653,11 +653,9 @@ namespace Mirror
             }
         }
 
-        static void OnClientAuthority(NetworkMessage netMsg)
+        static void OnClientAuthority(ClientAuthorityMessage msg)
         {
-            ClientAuthorityMessage msg = netMsg.ReadMessage<ClientAuthorityMessage>();
-
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::OnClientAuthority for netId: " + msg.netId); }
 
             NetworkIdentity identity;
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
