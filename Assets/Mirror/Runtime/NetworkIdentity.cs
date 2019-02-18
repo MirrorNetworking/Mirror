@@ -825,7 +825,7 @@ namespace Mirror
                 netId = netId,
                 authority = false
             };
-            conn.Send((short)MsgType.LocalClientAuthority, msg);
+            conn.Send(msg);
 
             clientAuthorityCallback?.Invoke(conn, this, false);
             return true;
@@ -868,7 +868,7 @@ namespace Mirror
                 netId = netId,
                 authority = true
             };
-            conn.Send((short)MsgType.LocalClientAuthority, msg);
+            conn.Send(msg);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
             return true;
