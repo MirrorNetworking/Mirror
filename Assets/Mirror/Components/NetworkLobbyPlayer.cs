@@ -9,7 +9,7 @@ namespace Mirror
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
-        [SerializeField] public bool ShowLobbyGUI = true;
+        public bool ShowLobbyGUI = true;
 
         [SyncVar]
         public bool ReadyToBegin = false;
@@ -46,11 +46,11 @@ namespace Mirror
                 // dont even try this in the startup scene
                 if (SceneManager.GetActiveScene().name == lobby.LobbyScene)
                 {
-                    Application.targetFrameRate = 10;
+                    //Application.targetFrameRate = 10;
                     return;
                 }
-                else
-                    Application.targetFrameRate = 60;
+                //else
+                //    Application.targetFrameRate = 60;
             }
 
             if (this != null && isLocalPlayer)

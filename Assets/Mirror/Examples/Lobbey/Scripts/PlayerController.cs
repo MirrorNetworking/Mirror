@@ -22,9 +22,9 @@ namespace Mirror.Examples.NetworkLobby
         public float vert = 0f;
         public float turn = 0f;
 
-        public float turnSpeedAccel = 30;
-        public float turnSpeedDecel = 30;
-        public float maxTurnSpeed = 100;
+        public float turnSpeedAccel = 30f;
+        public float turnSpeedDecel = 30f;
+        public float maxTurnSpeed = 100f;
 
         Vector3 direction = Vector3.zero;
         GameObject controllerColliderHitObject;
@@ -69,7 +69,7 @@ namespace Mirror.Examples.NetworkLobby
                 else if (turn < -turnSpeedDecel)
                     turn = turn + turnSpeedDecel;
                 else
-                    turn = 0;
+                    turn = 0f;
             }
         }
 

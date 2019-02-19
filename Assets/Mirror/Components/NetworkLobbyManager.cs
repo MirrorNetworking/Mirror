@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -31,7 +32,7 @@ namespace Mirror
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
         List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
-        internal bool allPlayersReady = false;
+        public bool allPlayersReady = false;
 
         public override void OnValidate()
         {
@@ -42,8 +43,8 @@ namespace Mirror
 
             if (lobbyPlayerPrefab != null)
             {
-                NetworkIdentity uv = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
-                if (uv == null)
+                NetworkIdentity identity = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
+                if (identity == null)
                 {
                     lobbyPlayerPrefab = null;
                     Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
@@ -53,7 +54,7 @@ namespace Mirror
             base.OnValidate();
         }
 
-        internal void PlayerLoadedScene(NetworkConnection conn)
+        public void PlayerLoadedScene(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnSceneLoadedMessage");
             SceneLoadedForPlayer(conn, conn.playerController.gameObject);
@@ -113,30 +114,11 @@ namespace Mirror
             NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
         }
 
-        static int CheckConnectionIsReadyToBegin(NetworkConnection conn)
-        {
-            int countPlayers = 0;
-            if (conn.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().ReadyToBegin)
-                countPlayers += 1;
-
-            return countPlayers;
-        }
-
         public void CheckReadyToBegin()
         {
             if (SceneManager.GetActiveScene().name != LobbyScene) return;
 
-            int readyCount = 0;
-
-            foreach (KeyValuePair<int, NetworkConnection> conn in NetworkServer.connections)
-            {
-                if (conn.Value == null)
-                    continue;
-
-                readyCount += CheckConnectionIsReadyToBegin(conn.Value);
-            }
-
-            if (minPlayers > 0 && readyCount < minPlayers)
+            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().ReadyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -162,10 +144,8 @@ namespace Mirror
             OnLobbyClientEnter();
             foreach (NetworkLobbyPlayer player in lobbySlots)
             {
-                if (player == null)
-                    continue;
-
-                player.OnClientEnterLobby();
+                if (player != null)
+                    player.OnClientEnterLobby();
             }
         }
 
@@ -174,10 +154,8 @@ namespace Mirror
             OnLobbyClientExit();
             foreach (NetworkLobbyPlayer player in lobbySlots)
             {
-                if (player == null)
-                    continue;
-
-                player.OnClientExitLobby();
+                if (player != null)
+                    player.OnClientExitLobby();
             }
         }
 
@@ -220,6 +198,7 @@ namespace Mirror
                     p.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
             }
 
+            // TODO: "please add comment on why base.onserverdisconnect is called here and not before/after"
             base.OnServerDisconnect(conn);
 
             if (SceneManager.GetActiveScene().name == LobbyScene)
@@ -266,23 +245,23 @@ namespace Mirror
         {
             if (sceneName == LobbyScene)
             {
-                Application.targetFrameRate = 10;
+                //Application.targetFrameRate = 10;
 
                 foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
                 {
                     if (lobbyPlayer == null) continue;
 
                     // find the game-player object for this connection, and destroy it
-                    NetworkIdentity uv = lobbyPlayer.GetComponent<NetworkIdentity>();
+                    NetworkIdentity identity = lobbyPlayer.GetComponent<NetworkIdentity>();
 
-                    NetworkIdentity playerController = uv.connectionToClient.playerController;
+                    NetworkIdentity playerController = identity.connectionToClient.playerController;
                     NetworkServer.Destroy(playerController.gameObject);
 
                     if (NetworkServer.active)
                     {
                         // re-add the lobby object
                         lobbyPlayer.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(uv.connectionToClient, lobbyPlayer.gameObject);
+                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, lobbyPlayer.gameObject);
                     }
                 }
             }
@@ -300,7 +279,7 @@ namespace Mirror
                     }
                 }
 
-                Application.targetFrameRate = 60;
+                //Application.targetFrameRate = 60;
             }
 
             base.ServerChangeScene(sceneName);
@@ -368,7 +347,6 @@ namespace Mirror
 
         public override void OnStartClient(NetworkClient lobbyClient)
         {
-
             if (lobbyPlayerPrefab == null || lobbyPlayerPrefab.gameObject == null)
                 Debug.LogError("NetworkLobbyManager no LobbyPlayer prefab is registered. Please add a LobbyPlayer prefab.");
             else
