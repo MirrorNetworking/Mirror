@@ -195,7 +195,7 @@ namespace Mirror
         internal void RegisterServerMessages()
         {
             NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
-            NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnectInternal);
+            NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
@@ -258,7 +258,7 @@ namespace Mirror
         internal void RegisterClientMessages(NetworkClient client)
         {
             client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
-            client.RegisterHandler(MsgType.Disconnect, OnClientDisconnectInternal);
+            client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
             client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
             client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
@@ -534,10 +534,10 @@ namespace Mirror
             OnServerConnect(netMsg.conn);
         }
 
-        internal void OnServerDisconnectInternal(NetworkMessage netMsg)
+        internal void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerDisconnectInternal"); }
-            OnServerDisconnect(netMsg.conn);
+            OnServerDisconnect(conn);
         }
 
         internal void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
@@ -603,11 +603,10 @@ namespace Mirror
             }
         }
 
-        internal void OnClientDisconnectInternal(NetworkMessage netMsg)
+        internal void OnClientDisconnectInternal(DisconnectMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientDisconnectInternal"); }
-
-            OnClientDisconnect(netMsg.conn);
+            OnClientDisconnect(client.connection);
         }
 
         internal void OnClientNotReadyMessageInternal(NetworkMessage netMsg)

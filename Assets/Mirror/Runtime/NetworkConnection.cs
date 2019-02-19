@@ -220,6 +220,13 @@ namespace Mirror
             return false;
         }
 
+        public bool InvokeHandler<T>(T msg) where T : MessageBase
+        {
+            int msgType = MessageBase.GetId<T>();
+            byte[] data = MessagePacker.Pack(msg);
+            return InvokeHandler(msgType, new NetworkReader(data));
+        }
+
         // handle this message
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per

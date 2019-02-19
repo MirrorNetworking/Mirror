@@ -390,7 +390,7 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandlerNoData((int)MsgType.Disconnect);
+            conn.InvokeHandler(new DisconnectMessage());
 
             if (conn.playerController != null)
             {
