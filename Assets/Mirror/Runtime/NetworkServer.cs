@@ -147,7 +147,7 @@ namespace Mirror
             };
             AddConnection(s_LocalConnection);
 
-            s_LocalConnection.InvokeHandlerNoData((int)MsgType.Connect);
+            s_LocalConnection.InvokeHandler(new ConnectMessage());
             return 0;
         }
 
@@ -369,7 +369,7 @@ namespace Mirror
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + conn.connectionId); }
-            conn.InvokeHandlerNoData((int)MsgType.Connect);
+            conn.InvokeHandler(new ConnectMessage());
         }
 
         static void OnDisconnected(int connectionId)

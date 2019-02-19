@@ -185,7 +185,7 @@ namespace Mirror
 
         internal void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnectInternal);
+            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
@@ -248,7 +248,7 @@ namespace Mirror
 
         internal void RegisterClientMessages(NetworkClient client)
         {
-            client.RegisterHandler(MsgType.Connect, OnClientConnectInternal);
+            client.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
             client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
             client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
@@ -512,17 +512,17 @@ namespace Mirror
 
         // ----------------------------- Server Internal Message Handlers  --------------------------------
 
-        internal void OnServerConnectInternal(NetworkMessage netMsg)
+        internal void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 StringMessage msg = new StringMessage(networkSceneName);
-                netMsg.conn.Send((int)MsgType.Scene, msg);
+                conn.Send((int)MsgType.Scene, msg);
             }
 
-            OnServerConnect(netMsg.conn);
+            OnServerConnect(conn);
         }
 
         internal void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
@@ -577,7 +577,7 @@ namespace Mirror
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
 
-        internal void OnClientConnectInternal(NetworkMessage netMsg)
+        internal void OnClientConnectInternal(ConnectMessage message)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
 
@@ -585,12 +585,12 @@ namespace Mirror
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
                 clientLoadedScene = false;
-                OnClientConnect(netMsg.conn);
+                OnClientConnect(client.connection);
             }
             else
             {
                 // will wait for scene id to come from the server.
-                s_ClientReadyConnection = netMsg.conn;
+                s_ClientReadyConnection = client.connection;
             }
         }
 
