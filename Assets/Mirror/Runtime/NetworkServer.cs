@@ -219,6 +219,7 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Use SendToAll<T> instead")]
         public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
@@ -227,6 +228,18 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 result &= kvp.Value.Send(msgType, msg, channelId);
+            }
+            return result;
+        }
+
+        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : MessageBase
+        {
+            if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + typeof(T)); }
+
+            bool result = true;
+            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
+            {
+                result &= kvp.Value.Send(msg, channelId);
             }
             return result;
         }
