@@ -261,7 +261,7 @@ namespace Mirror
             client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
             client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
-            client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
+            client.RegisterHandler<SceneMessage>(OnClientSceneInternal);
 
             if (playerPrefab != null)
             {
@@ -386,8 +386,8 @@ namespace Mirror
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
-            StringMessage msg = new StringMessage(networkSceneName);
-            NetworkServer.SendToAll((int)MsgType.Scene, msg);
+            SceneMessage msg = new SceneMessage(networkSceneName);
+            NetworkServer.SendToAll(msg);
 
             s_StartPositionIndex = 0;
             startPositions.Clear();
@@ -527,8 +527,8 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                StringMessage msg = new StringMessage(networkSceneName);
-                conn.Send((int)MsgType.Scene, msg);
+                SceneMessage msg = new SceneMessage(networkSceneName);
+                conn.Send(msg);
             }
 
             OnServerConnect(conn);
@@ -625,11 +625,11 @@ namespace Mirror
             OnClientError(client.connection, msg.value);
         }
 
-        internal void OnClientSceneInternal(NetworkMessage netMsg)
+        internal void OnClientSceneInternal(SceneMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientSceneInternal"); }
 
-            string newSceneName = netMsg.reader.ReadString();
+            string newSceneName = msg.value;
 
             if (IsClientConnected() && !NetworkServer.active)
             {
