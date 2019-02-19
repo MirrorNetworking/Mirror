@@ -94,7 +94,7 @@ namespace Mirror
                 extraMessage.Serialize(writer);
                 msg.value = writer.ToArray();
             }
-            readyConnection.Send((short)MsgType.AddPlayer, msg);
+            readyConnection.Send(msg);
             return true;
         }
 
