@@ -212,16 +212,7 @@ namespace Mirror
             {
                 if (logNetworkMessages)
                 {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
-                    {
-                        // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
-                    }
-                    else
-                    {
-                        // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
-                    }
+                    Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
                 }
 
                 if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
