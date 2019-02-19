@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.NetworkLobby
@@ -16,14 +16,17 @@ namespace Mirror.Examples.NetworkLobby
 
         void OnGUI()
         {
-            GUI.Box(new Rect(10, 10, 200, 130), "OFFLINE  SCENE");
+            GUILayout.BeginArea(new Rect(10, 10, 200, 130));
 
-            GUI.Box(new Rect(10, 40, 200, 40), "WASDQE keys to move & turn\nTouch the spheres for points\nLighter colors score higher");
+            GUILayout.Box("OFFLINE  SCENE");
+            GUILayout.Box("WASDQE keys to move & turn\nTouch the spheres for points\nLighter colors score higher");
 
-            if (GUI.Button(new Rect(60, 100, 100, 30), "Join Game"))
+            if (GUILayout.Button("Join Game"))
             {
                 SceneManager.LoadScene("Lobby");
             }
+
+            GUILayout.EndArea();
         }
     }
 }
