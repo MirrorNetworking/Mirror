@@ -831,8 +831,7 @@ namespace Mirror
                 conn.isReady = false;
                 conn.RemoveObservers();
 
-                NotReadyMessage msg = new NotReadyMessage();
-                conn.Send((int)MsgType.NotReady, msg);
+                conn.Send(new NotReadyMessage());
             }
         }
 
