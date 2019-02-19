@@ -259,7 +259,7 @@ namespace Mirror
         {
             client.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
             client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
-            client.RegisterHandler(MsgType.NotReady, OnClientNotReadyMessageInternal);
+            client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
             client.RegisterHandler(MsgType.Scene, OnClientSceneInternal);
 
@@ -609,12 +609,12 @@ namespace Mirror
             OnClientDisconnect(client.connection);
         }
 
-        internal void OnClientNotReadyMessageInternal(NetworkMessage netMsg)
+        internal void OnClientNotReadyMessageInternal(NotReadyMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientNotReadyMessageInternal"); }
 
             ClientScene.ready = false;
-            OnClientNotReady(netMsg.conn);
+            OnClientNotReady(client.connection);
 
             // NOTE: s_ClientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
