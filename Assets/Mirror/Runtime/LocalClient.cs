@@ -95,7 +95,7 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                PostInternalMessage((short)msgType, content);
+                PostInternalMessage(msgType, content);
             }
             else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
