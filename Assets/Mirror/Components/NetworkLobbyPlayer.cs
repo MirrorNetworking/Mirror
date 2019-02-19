@@ -100,39 +100,41 @@ namespace Mirror
                 if (SceneManager.GetActiveScene().name != lobby.LobbyScene)
                     return;
 
-                Rect rec = new Rect(20f + (Index * 100), 200f, 90f, 20f);
+                GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
 
-                GUI.Label(rec, String.Format("Player [{0}]", Index + 1));
+                GUILayout.Label(String.Format("Player [{0}]", Index + 1));
 
-                rec.y += 25f;
                 if (ReadyToBegin)
-                    GUI.Label(rec, "Ready");
+                    GUILayout.Label("Ready");
                 else
-                    GUI.Label(rec, "Not Ready");
+                    GUILayout.Label("Not Ready");
 
-                rec.y += 25f;
-                if (isServer && Index > 0 && GUI.Button(rec, "REMOVE"))
+                if (isServer && Index > 0 && GUILayout.Button("REMOVE"))
                 {
                     // This button only shows on the Host for all players other than the Host
                     // Host and Players can't remove themselves (stop the client instead)
                     // Host can kick a Player this way.
-                    GetComponent<NetworkIdentity>().clientAuthorityOwner.Disconnect();
+                    GetComponent<NetworkIdentity>().connectionToClient.Disconnect();
                 }
+
+                GUILayout.EndArea();
 
                 if (NetworkClient.active && isLocalPlayer)
                 {
-                    Rect readyCancelRect = new Rect(20f, 300f, 120f, 20f);
+                    GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 
                     if (ReadyToBegin)
                     {
-                        if (GUI.Button(readyCancelRect, "Cancel"))
+                        if (GUILayout.Button("Cancel"))
                             CmdChangeReadyState(false);
                     }
                     else
                     {
-                        if (GUI.Button(readyCancelRect, "Ready"))
+                        if (GUILayout.Button("Ready"))
                             CmdChangeReadyState(true);
                     }
+
+                    GUILayout.EndArea();
                 }
             }
         }
