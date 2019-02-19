@@ -93,7 +93,7 @@ namespace Mirror
             // unpack message and post to internal list for processing
             if (Protocol.UnpackMessage(buffer, out int msgType, out byte[] content))
             {
-                PostInternalMessage((short)msgType, content);
+                PostInternalMessage(msgType, content);
             }
             else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
