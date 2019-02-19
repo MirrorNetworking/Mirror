@@ -88,7 +88,7 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(m_Connection);
            
-            m_Connection?.InvokeHandlerNoData((int)MsgType.Disconnect);
+            m_Connection?.InvokeHandler(new DisconnectMessage());
         }
 
         void OnDataReceived(byte[] data)

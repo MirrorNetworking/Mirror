@@ -389,7 +389,7 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandlerNoData((int)MsgType.Disconnect);
+            conn.InvokeHandler(new DisconnectMessage());
 
             if (conn.playerController != null)
             {
@@ -1156,10 +1156,10 @@ namespace Mirror
             byte[] content;
             if (Protocol.UnpackMessage(buffer, out msgType, out content))
             {
-                if (handlers.ContainsKey((int)msgType) && s_LocalConnection != null)
+                if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
                 {
                     // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content));
+                    s_LocalConnection.InvokeHandler(msgType, new NetworkReader(content));
                     return true;
                 }
             }
