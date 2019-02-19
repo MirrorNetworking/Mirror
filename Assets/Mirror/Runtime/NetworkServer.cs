@@ -371,7 +371,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandlerNoData((int)MsgType.Connect);
+            conn.InvokeHandler(new ConnectMessage());
         }
 
         static void OnDisconnected(int connectionId)

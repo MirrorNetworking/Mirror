@@ -111,7 +111,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient(this);
-                connection.InvokeHandlerNoData((int)MsgType.Connect);
+                connection.InvokeHandler(new ConnectMessage());
             }
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
