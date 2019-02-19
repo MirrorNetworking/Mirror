@@ -80,13 +80,6 @@ namespace Mirror
             PostInternalMessage(msgId, writer.ToArray());
         }
 
-        void PostInternalMessage(int msgType)
-        {
-            // call PostInternalMessage with empty content array if we just want to call a message like Connect
-            // -> original NetworkTransport used empty [] and not null array for those messages too
-            PostInternalMessage(msgType, new byte[0]);
-        }
-
         void ProcessInternalMessages()
         {
             while (m_InternalMsgs.Count > 0)
