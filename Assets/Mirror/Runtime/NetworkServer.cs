@@ -537,6 +537,7 @@ namespace Mirror
             handlers.Clear();
         }
 
+        [Obsolete("Use SendToClient<T> instead")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
@@ -547,12 +548,37 @@ namespace Mirror
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
-        // send this message to the player only
+        public static void SendToClient<T>(int connectionId, T msg) where T : MessageBase
+        {
+            NetworkConnection conn;
+            if (connections.TryGetValue(connectionId, out conn))
+            {
+                conn.Send(msg);
+                return;
+            }
+            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
+        }
+
+
+        [Obsolete("Use SendToClientOfPlayer<T> instead")]
         public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
         {
             if (identity != null)
             {
                 identity.connectionToClient.Send(msgType, msg);
+            }
+            else
+            {
+                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
+            }
+        }
+
+        // send this message to the player only
+        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T: MessageBase
+        {
+            if (identity != null)
+            {
+                identity.connectionToClient.Send(msg);
             }
             else
             {
