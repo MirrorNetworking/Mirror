@@ -170,6 +170,7 @@ namespace Mirror
 
     public class DisconnectMessage : EmptyMessage { }
 
+    public class ConnectMessage : EmptyMessage { }
     // ---------- System Messages requried for code gen path -------------------
 
     // remote calls like Rpc/Cmd/SyncEvent all use the same message type

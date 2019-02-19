@@ -33,7 +33,7 @@ namespace Mirror
 
             if (generateConnectMsg)
             {
-                PostInternalMessage((int)MsgType.Connect);
+                PostInternalMessage(new ConnectMessage());
             }
             m_Connected = true;
         }
