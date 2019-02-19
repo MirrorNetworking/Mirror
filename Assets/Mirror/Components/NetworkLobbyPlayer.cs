@@ -100,17 +100,17 @@ namespace Mirror
                 if (SceneManager.GetActiveScene().name != lobby.LobbyScene)
                     return;
 
-                Rect rec = new Rect(20 + Index * 100, 200, 90, 20);
+                Rect rec = new Rect(20f + (Index * 100), 200f, 90f, 20f);
 
                 GUI.Label(rec, String.Format("Player [{0}]", Index + 1));
 
-                rec.y += 25;
+                rec.y += 25f;
                 if (ReadyToBegin)
                     GUI.Label(rec, "Ready");
                 else
                     GUI.Label(rec, "Not Ready");
 
-                rec.y += 25;
+                rec.y += 25f;
                 if (isServer && Index > 0 && GUI.Button(rec, "REMOVE"))
                 {
                     // This button only shows on the Host for all players other than the Host
@@ -121,7 +121,7 @@ namespace Mirror
 
                 if (NetworkClient.active && isLocalPlayer)
                 {
-                    Rect readyCancelRect = new Rect(20, 300, 120, 20);
+                    Rect readyCancelRect = new Rect(20f, 300f, 120f, 20f);
 
                     if (ReadyToBegin)
                     {

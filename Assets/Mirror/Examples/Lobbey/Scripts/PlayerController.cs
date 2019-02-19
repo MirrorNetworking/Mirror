@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Mirror.Examples.NetworkLobby
 {
@@ -79,7 +79,7 @@ namespace Mirror.Examples.NetworkLobby
 
             transform.Rotate(0f, turn * Time.deltaTime, 0f);
 
-            direction = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0, vert), 1) * moveSpeed));
+            direction = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0f, vert), 1f) * moveSpeed));
             characterController.SimpleMove(direction * Time.fixedDeltaTime);
         }
 
@@ -114,7 +114,7 @@ namespace Mirror.Examples.NetworkLobby
 
         void OnGUI()
         {
-            GUI.Box(new Rect(10 + (Index * 110), 10, 100, 25), score.ToString().PadLeft(10));
+            GUI.Box(new Rect(10f + (Index * 110), 10f, 100f, 25f), score.ToString().PadLeft(10));
         }
     }
 }

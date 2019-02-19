@@ -490,7 +490,7 @@ namespace Mirror
             if (SceneManager.GetActiveScene().name != LobbyScene)
                 return;
 
-            GUI.Box(new Rect(10, 180, 520, 150), "PLAYERS");
+            GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
         #endregion
