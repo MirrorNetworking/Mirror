@@ -7,12 +7,6 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar(hook = nameof(SetColor))]
         public Color prizeColor = Color.black;
 
-        void Start()
-        {
-            // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
-            SetColor(prizeColor);
-        }
-
         void SetColor(Color color)
         {
             GetComponent<Renderer>().material.color = color;

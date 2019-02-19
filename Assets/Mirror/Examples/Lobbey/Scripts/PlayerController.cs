@@ -45,12 +45,6 @@ namespace Mirror.Examples.NetworkLobby
             GetComponent<Renderer>().material.color = color;
         }
 
-        void Start()
-        {
-            // This is a workaround pending a fix for https://github.com/vis2k/Mirror/issues/372
-            SetColor(playerColor);
-        }
-
         void Update()
         {
             if (!isLocalPlayer) return;
