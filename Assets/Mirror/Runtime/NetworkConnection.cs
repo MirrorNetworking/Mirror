@@ -99,22 +99,24 @@ namespace Mirror
             return InvokeHandler(msgType, null);
         }
 
+        public bool InvokeHandler<T>(T msg) where T : MessageBase
+        {
+            int msgId = MessageBase.GetId<T>();
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(msg);
+
+            return InvokeHandler(msgId, new NetworkReader(writer.ToArray()));
+        }
+
         public bool InvokeHandler(int msgType, NetworkReader reader)
         {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            NetworkMessage message = new NetworkMessage
             {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    conn = this,
-                    reader = reader
-                };
-
-                msgDelegate(message);
-                return true;
-            }
-            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
-            return false;
+                msgType = msgType,
+                conn = this,
+                reader = reader
+            };
+            return InvokeHandler(message);
         }
 
         public bool InvokeHandler(NetworkMessage netMsg)

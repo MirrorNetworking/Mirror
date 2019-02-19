@@ -14,7 +14,7 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(m_Connection);
             if (m_Connected)
             {
-                PostInternalMessage((int)MsgType.Disconnect);
+                PostInternalMessage(new DisconnectMessage());
                 m_Connected = false;
             }
             connectState = ConnectState.Disconnected;
@@ -68,6 +68,16 @@ namespace Mirror
                 conn = connection
             };
             m_InternalMsgs.Enqueue(msg);
+        }
+
+        void PostInternalMessage<T>(T msg) where T:MessageBase
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(msg);
+
+            int msgId = MessageBase.GetId<T>();
+
+            PostInternalMessage(msgId, writer.ToArray());
         }
 
         void PostInternalMessage(int msgType)

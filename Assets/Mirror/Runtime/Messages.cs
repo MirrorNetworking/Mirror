@@ -168,6 +168,8 @@ namespace Mirror
 
     public class RemovePlayerMessage : EmptyMessage {}
 
+    public class DisconnectMessage : EmptyMessage { }
+
     // ---------- System Messages requried for code gen path -------------------
 
     // remote calls like Rpc/Cmd/SyncEvent all use the same message type
