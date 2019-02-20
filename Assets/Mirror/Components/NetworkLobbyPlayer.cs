@@ -41,17 +41,8 @@ namespace Mirror
         void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-            {
-                // dont even try this in the startup scene
-                if (SceneManager.GetActiveScene().name == lobby.LobbyScene)
-                {
-                    //Application.targetFrameRate = 10;
-                    return;
-                }
-                //else
-                //    Application.targetFrameRate = 60;
-            }
+            if (lobby && SceneManager.GetActiveScene().name == lobby.LobbyScene)
+                return;
 
             if (this != null && isLocalPlayer)
                 CmdSendLevelLoaded();
@@ -62,16 +53,14 @@ namespace Mirror
         {
             ReadyToBegin = ReadyState;
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-                lobby.ReadyStatusChanged();
+            lobby?.ReadyStatusChanged();
         }
 
         [Command]
         public void CmdSendLevelLoaded()
         {
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
-                lobby.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
+            lobby?.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
         }
 
         #region lobby client virtuals

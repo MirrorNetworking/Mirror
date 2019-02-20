@@ -36,10 +36,14 @@ namespace Mirror
 
         public override void OnValidate()
         {
-            maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
+            // always >= 0
+            maxConnections = Mathf.Max(maxConnections, 0);
 
-            minPlayers = Mathf.Min(minPlayers, maxConnections); // always <= maxConnections
-            minPlayers = Mathf.Max(minPlayers, 0); // always >= 0
+            // always <= maxConnections 
+            minPlayers = Mathf.Min(minPlayers, maxConnections);
+
+            // always >= 0
+            minPlayers = Mathf.Max(minPlayers, 0);
 
             if (lobbyPlayerPrefab != null)
             {
@@ -47,7 +51,7 @@ namespace Mirror
                 if (identity == null)
                 {
                     lobbyPlayerPrefab = null;
-                    Debug.LogWarning("LobbyPlayer prefab must have a NetworkIdentity component.");
+                    Debug.LogError("LobbyPlayer prefab must have a NetworkIdentity component.");
                 }
             }
 
@@ -143,20 +147,14 @@ namespace Mirror
         {
             OnLobbyClientEnter();
             foreach (NetworkLobbyPlayer player in lobbySlots)
-            {
-                if (player != null)
-                    player.OnClientEnterLobby();
-            }
+                player?.OnClientEnterLobby();
         }
 
         void CallOnClientExitLobby()
         {
             OnLobbyClientExit();
             foreach (NetworkLobbyPlayer player in lobbySlots)
-            {
-                if (player != null)
-                    player.OnClientExitLobby();
-            }
+                player?.OnClientExitLobby();
         }
 
         #region server handlers
@@ -192,18 +190,16 @@ namespace Mirror
 
             allPlayersReady = false;
 
-            foreach (NetworkLobbyPlayer p in lobbySlots)
+            foreach (NetworkLobbyPlayer player in lobbySlots)
             {
-                if (p != null)
-                    p.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
+                if (player != null)
+                    player.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
             }
-
-            // TODO: "please add comment on why base.onserverdisconnect is called here and not before/after"
-            base.OnServerDisconnect(conn);
 
             if (SceneManager.GetActiveScene().name == LobbyScene)
                 RecalculateLobbyPlayerIndices();
 
+            base.OnServerDisconnect(conn);
             OnLobbyServerDisconnect(conn);
         }
 
@@ -245,8 +241,6 @@ namespace Mirror
         {
             if (sceneName == LobbyScene)
             {
-                //Application.targetFrameRate = 10;
-
                 foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
                 {
                     if (lobbyPlayer == null) continue;
@@ -278,8 +272,6 @@ namespace Mirror
                         }
                     }
                 }
-
-                //Application.targetFrameRate = 60;
             }
 
             base.ServerChangeScene(sceneName);
