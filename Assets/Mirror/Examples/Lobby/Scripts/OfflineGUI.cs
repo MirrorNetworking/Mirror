@@ -5,6 +5,9 @@ namespace Mirror.Examples.NetworkLobby
 {
     public class OfflineGUI : MonoBehaviour
     {
+        [Scene]
+        public string LobbyScene;
+
         void Start()
         {
             // Ensure main camera is enabled because it will be disabled by PlayerController
@@ -23,7 +26,7 @@ namespace Mirror.Examples.NetworkLobby
 
             if (GUILayout.Button("Join Game"))
             {
-                SceneManager.LoadScene("Lobby");
+                SceneManager.LoadScene(LobbyScene);
             }
 
             GUILayout.EndArea();

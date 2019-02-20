@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Mirror.Examples.NetworkLobby
 {
@@ -103,7 +103,7 @@ namespace Mirror.Examples.NetworkLobby
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
             //if (hitObject != null)
-                hitObject?.GetComponent<Reward>().ClaimPrize(gameObject);
+            hitObject?.GetComponent<Reward>().ClaimPrize(gameObject);
         }
 
         void OnGUI()

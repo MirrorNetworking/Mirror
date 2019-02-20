@@ -312,7 +312,7 @@ MonoBehaviour:
   startOnHeadless: 1
   serverTickRate: 30
   showDebugMessages: 0
-  offlineScene: 
+  offlineScene: OfflineScene
   onlineScene: 
   transport: {fileID: 2008127830}
   networkAddress: localhost
@@ -327,8 +327,8 @@ MonoBehaviour:
   minPlayers: 1
   lobbyPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
     type: 3}
-  LobbyScene: Lobby
-  GameplayScene: Online
+  LobbyScene: LobbyScene
+  GameplayScene: OnlineScene
   allPlayersReady: 0
 --- !u!4 &2008127832
 Transform:
