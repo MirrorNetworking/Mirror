@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.NetworkLobby
 {
@@ -85,7 +85,7 @@ namespace Mirror.Examples.NetworkLobby
 
             controllerColliderHitObject = hit.gameObject;
 
-            if (isLocalPlayer && controllerColliderHitObject.name == "Prize")
+            if (isLocalPlayer && controllerColliderHitObject.name.StartsWith("Prize"))
             {
                 if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
 
