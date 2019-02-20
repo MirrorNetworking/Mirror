@@ -311,8 +311,8 @@ MonoBehaviour:
   runInBackground: 1
   startOnHeadless: 1
   serverTickRate: 30
-  showDebugMessages: 1
-  offlineScene: Offline
+  showDebugMessages: 0
+  offlineScene: 
   onlineScene: 
   transport: {fileID: 2008127830}
   networkAddress: localhost
@@ -329,6 +329,7 @@ MonoBehaviour:
     type: 3}
   LobbyScene: Lobby
   GameplayScene: Online
+  allPlayersReady: 0
 --- !u!4 &2008127832
 Transform:
   m_ObjectHideFlags: 0
