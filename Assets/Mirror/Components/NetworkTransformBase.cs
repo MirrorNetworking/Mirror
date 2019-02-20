@@ -297,10 +297,13 @@ namespace Mirror
             bool rotated = lastRotation != targetComponent.transform.rotation;
 
             // save last for next frame to compare
-            lastPosition = targetComponent.transform.position;
-            lastRotation = targetComponent.transform.rotation;
-
-            return moved || rotated;
+            bool change = moved || rotated;
+            if (change)
+            {
+                lastPosition = targetComponent.transform.position;
+                lastRotation = targetComponent.transform.rotation;
+            }
+            return change;
         }
 
         // set position carefully depending on the target component
