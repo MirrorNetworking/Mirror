@@ -13,7 +13,7 @@ NetworkDiscovery was a UNet component intended for UDP projects.  Since Mirror w
 
 ## networkPort in Network Manager
 
-Network Manager's `networkPort` property was removed now that all transports are separate components.  Not all transports use ports, but those that do have a field for it.  See [Transports](https://vis2k.github.io/Mirror/Transports) for more info.
+Network Manager's `networkPort` property was removed now that all transports are separate components.  Not all transports use ports, but those that do have a field for it.  See [Transports](../Transports) for more info.
 
 ## Couch Co-Op
 
