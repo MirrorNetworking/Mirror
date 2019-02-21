@@ -5,7 +5,7 @@ For the most part we recommend the high level [Commands and RPC](RemoteActions.m
 There is a class called MessageBase that you can extend to make serializable network message classes. This class has Serialize and Deserialize functions that take writer and reader objects. You can implement these functions yourself, but we recommend you let Mirror generate them for you.
 The base class looks like this:
 
-```
+```cs
 public abstract class MessageBase
 {
     // De-serialize the contents of the reader into this message
@@ -22,7 +22,7 @@ To send a message, use the `Send()` method on the NetworkClient, NetworkServer, 
 
 To declare a custom network message class and use it:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -72,7 +72,7 @@ There is also an ErrorMessage class that is derived from `MessageBase`. This cla
 
 The errorCode in the ErrorMessage class corresponds to the Networking.NetworkError enumeration.
 
-```
+```cs
 class MyClient
 {
     NetworkClient client;
