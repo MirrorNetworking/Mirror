@@ -28,7 +28,7 @@ namespace Mirror
             packWriter.SetLength(0);
 
             // write message type
-            packWriter.WritePackedUInt32((uint)msgType);
+            packWriter.Write((short)msgType);
 
             // serialize message into writer
             msg.Serialize(packWriter);
@@ -45,7 +45,7 @@ namespace Mirror
 
             // write message type
             int msgType = MessageBase.GetId<T>();
-            packWriter.WritePackedUInt32((uint)msgType);
+            packWriter.Write((ushort)msgType);
 
             // serialize message into writer
             message.Serialize(packWriter);
@@ -61,7 +61,7 @@ namespace Mirror
         public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
-            msgType = (int)messageReader.ReadPackedUInt32();
+            msgType = (int)messageReader.ReadUInt16();
             return true;
         }
     }
