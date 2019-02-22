@@ -108,8 +108,7 @@ namespace Mirror
 
             NetworkWriter writer = new NetworkWriter();
 
-            // message type (varint)
-            writer.WritePackedUInt32((uint)msgType);
+            writer.Write((short)msgType);
 
             // message content (if any)
             writer.Write(content, 0, content.Length);
@@ -122,8 +121,7 @@ namespace Mirror
         {
             NetworkReader reader = new NetworkReader(message);
 
-            // read message type (varint)
-            msgType = (int)reader.ReadPackedUInt32();
+            msgType = reader.ReadInt16();
 
             // read content (remaining data in message)
             content = reader.ReadBytes(reader.Length - reader.Position);
