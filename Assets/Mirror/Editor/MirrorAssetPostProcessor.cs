@@ -11,7 +11,7 @@ namespace Mirror
     /// </summary>
     public class MirrorAssetPostprocessor : AssetPostprocessor
     {
-        private const string assetToCheck = "/Mirror/Runtime/NetworkIdentity.cs";
+        private const string assetToCheck = "/MirrorPreProcessorKeyFile.txt";
         private const string preProcessor = "MIRROR_NET";
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Mirror
 
             foreach (string assetName in importedAssets)
             {
-                if (assetName.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                if (assetName.EndsWith(assetToCheck, System.StringComparison.OrdinalIgnoreCase))
                 {
                     AddPreProcessor();
                     return;
@@ -75,7 +75,7 @@ namespace Mirror
                     foreach (string file in Directory.GetFiles(assetName, "*", SearchOption.AllDirectories))
                     {
                         string normFile = file.Replace("\\", "/");
-                        if (normFile.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                        if (normFile.EndsWith(assetToCheck, System.StringComparison.OrdinalIgnoreCase))
                         {
                             RemovePreProcessor();
                             return;
@@ -84,7 +84,7 @@ namespace Mirror
                 }
                 else
                 {
-                    if (assetName.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (assetName.EndsWith(assetToCheck, System.StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePreProcessor();
                         return;
