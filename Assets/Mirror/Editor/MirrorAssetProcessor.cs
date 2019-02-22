@@ -27,7 +27,7 @@ namespace DigitalRuby.WeatherMaker
         // asset name / pre processor value key / value pair
         internal static readonly KeyValuePair<string, string>[] preProcessors = new KeyValuePair<string, string>[]
         {
-            new KeyValuePair<string, string>("/Mirror/Runtime/NetworkIdentity.cs", "MIRROR_NETWORKING_PRESENT"),
+            new KeyValuePair<string, string>("/Mirror/Runtime/NetworkIdentity.cs", "MIRROR_NET"),
         };
 
         /// <summary>
