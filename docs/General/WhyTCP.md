@@ -58,7 +58,7 @@ And it worked. What good would it be if Minecraft ran at twice the framerate and
 
 Back in 2015 when we started uMMORPG and Cubica, we originally used Unity's built in Networking system aka UNET. UNET used UDP and avoided garbage collection at all costs.
 
-What sounds good in theory, was terrible in practice. We spent about half our work hours from 2015 to 2018 dealing with UNET bugs. There was packet loss. Highly complex code due to GC avoidance. Synchronization issues. Random errors. And most importantly, no decent way to debug any of it.
+What sounds good in theory, was terrible in practice. We spent about half our work hours from 2015 to 2018 dealing with UNET bugs. There was packet loss, highly complex code due to GC avoidance, synchronization issues, memory leaks and random errors. Most importantly, no decent way to debug any of it.
 
 If a monster didn't spawn on a client, we wouldn't know what caused it.
 
@@ -72,3 +72,5 @@ If a monster didn't spawn on a client, we wouldn't know what caused it.
 After 3 years in UDP hell, we realized what Notch had realized a long time ago: if we ever wanted to finish our games, we would need a networking layer that just works.
 
 That's why we made Telepathy and Mirror. **Life is short. We just need the damn thing to work.**
+
+We acknowledge not everyone will agree with our reasoning. Rather than push our views on users, we made Mirror transport independent.  You can easily swap out the transport for one of the several RUDP implementations simply by dragging it into your NetworkManager gameobject. Pick whatever works best for you. We recommend you profile your game and collect real world numbers before you make a final decision.
