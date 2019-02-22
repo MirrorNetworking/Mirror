@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
 
-namespace DigitalRuby.WeatherMaker
+namespace Mirror
 {
     /// <summary>
     /// Pre-process define utility
