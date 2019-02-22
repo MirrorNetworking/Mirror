@@ -55,6 +55,7 @@ namespace DigitalRuby.WeatherMaker
                 if (assetName.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     AddPreProcessor();
+                    return;
                 }
             }
         }
@@ -77,6 +78,7 @@ namespace DigitalRuby.WeatherMaker
                         if (normFile.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
                         {
                             RemovePreProcessor();
+                            return;
                         }
                     }
                 }
@@ -85,6 +87,7 @@ namespace DigitalRuby.WeatherMaker
                     if (assetName.IndexOf(assetToCheck, System.StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         RemovePreProcessor();
+                        return;
                     }
                 }
             }
