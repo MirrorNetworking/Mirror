@@ -153,17 +153,6 @@ namespace Mirror
             m_PlayerController = null;
         }
 
-        [Obsolete("use Send<T> instead")]
-        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
-
-            // pack message and send
-            byte[] message = Protocol.PackMessage(msgType, writer.ToArray());
-            return SendBytes(message, channelId);
-        }
-
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
         {
             NetworkWriter writer = new NetworkWriter();
