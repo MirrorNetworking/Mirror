@@ -10,15 +10,11 @@ namespace Mirror
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
         // sync interval for OnSerialize (in seconds)
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         [HideInInspector] public float syncInterval = 0.1f;
-
-        // this prevents recursion when SyncVar hook functions are called.
-        bool m_SyncVarGuard;
 
         ///<summary>True if the object is controlled by the client that owns it.</summary>
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
@@ -39,9 +35,9 @@ namespace Mirror
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient => netIdentity.connectionToClient; 
-        protected ulong syncVarDirtyBits => m_SyncVarDirtyBits;
-        protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
+        public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+        protected ulong syncVarDirtyBits { get; private set; }
+        protected bool syncVarHookGuard { get; set; }
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
@@ -301,7 +297,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (m_SyncVarGuard)
+            if (syncVarHookGuard)
                 return;
 
             uint newNetId = 0;
@@ -351,7 +347,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (m_SyncVarGuard)
+            if (syncVarHookGuard)
                 return;
 
             uint newNetId = 0;
@@ -408,13 +404,13 @@ namespace Mirror
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
         {
-            m_SyncVarDirtyBits |= dirtyBit;
+            syncVarDirtyBits |= dirtyBit;
         }
 
         public void ClearAllDirtyBits()
         {
             m_LastSendTime = Time.time;
-            m_SyncVarDirtyBits = 0L;
+            syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
             m_SyncObjects.ForEach(obj => obj.Flush());
@@ -439,7 +435,7 @@ namespace Mirror
         {
             if (Time.time - m_LastSendTime >= syncInterval)
             {
-                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
+                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }

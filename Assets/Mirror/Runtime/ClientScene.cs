@@ -9,22 +9,13 @@ namespace Mirror
 {
     public static class ClientScene
     {
-        static NetworkIdentity s_LocalPlayer;
-        static NetworkConnection s_ReadyConnection;
-
-        static bool s_IsReady;
         static bool s_IsSpawnFinished;
-
-        internal static void SetNotReady()
-        {
-            s_IsReady = false;
-        }
 
         static List<uint> s_PendingOwnerNetIds = new List<uint>();
 
-        public static NetworkIdentity localPlayer => s_LocalPlayer;
-        public static bool ready => s_IsReady;
-        public static NetworkConnection readyConnection => s_ReadyConnection;
+        public static NetworkIdentity localPlayer { get; private set; }
+        public static bool ready { get; internal set; }
+        public static NetworkConnection readyConnection { get; private set; }
 
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
         // scene id to NetworkIdentity
@@ -40,8 +31,8 @@ namespace Mirror
             ClearSpawners();
             s_PendingOwnerNetIds = new List<uint>();
             spawnableObjects = null;
-            s_ReadyConnection = null;
-            s_IsReady = false;
+            readyConnection = null;
+            ready = false;
             s_IsSpawnFinished = false;
 
             NetworkManager.singleton.transport.ClientDisconnect();
@@ -54,14 +45,14 @@ namespace Mirror
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
-            s_LocalPlayer = identity;
-            if (s_ReadyConnection == null)
+            localPlayer = identity;
+            if (readyConnection == null)
             {
                 Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
             else
             {
-                s_ReadyConnection.SetPlayerController(identity);
+                readyConnection.SetPlayerController(identity);
             }
         }
 
@@ -84,23 +75,23 @@ namespace Mirror
             // ensure valid ready connection
             if (readyConn != null)
             {
-                s_IsReady = true;
-                s_ReadyConnection = readyConn;
+                ready = true;
+                readyConnection = readyConn;
             }
 
-            if (!s_IsReady)
+            if (!ready)
             {
                 Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
                 return false;
             }
 
-            if (s_ReadyConnection.playerController != null)
+            if (readyConnection.playerController != null)
             {
                 Debug.LogError("ClientScene::AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
                 return false;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::AddPlayer() called with connection [" + s_ReadyConnection + "]"); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::AddPlayer() called with connection [" + readyConnection + "]"); }
 
             AddPlayerMessage msg = new AddPlayerMessage();
             if (extraMessage != null)
@@ -109,23 +100,23 @@ namespace Mirror
                 extraMessage.Serialize(writer);
                 msg.value = writer.ToArray();
             }
-            s_ReadyConnection.Send((short)MsgType.AddPlayer, msg);
+            readyConnection.Send((short)MsgType.AddPlayer, msg);
             return true;
         }
 
         public static bool RemovePlayer()
         {
-            if (LogFilter.Debug) { Debug.Log("ClientScene::RemovePlayer() called with connection [" + s_ReadyConnection + "]"); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene::RemovePlayer() called with connection [" + readyConnection + "]"); }
 
-            if (s_ReadyConnection.playerController != null)
+            if (readyConnection.playerController != null)
             {
                 RemovePlayerMessage msg = new RemovePlayerMessage();
-                s_ReadyConnection.Send((short)MsgType.RemovePlayer, msg);
+                readyConnection.Send((short)MsgType.RemovePlayer, msg);
 
-                Object.Destroy(s_ReadyConnection.playerController.gameObject);
+                Object.Destroy(readyConnection.playerController.gameObject);
 
-                s_ReadyConnection.RemovePlayerController();
-                s_LocalPlayer = null;
+                readyConnection.RemovePlayerController();
+                localPlayer = null;
 
                 return true;
             }
@@ -134,7 +125,7 @@ namespace Mirror
 
         public static bool Ready(NetworkConnection conn)
         {
-            if (s_IsReady)
+            if (ready)
             {
                 Debug.LogError("A connection has already been set as ready. There can only be one.");
                 return false;
@@ -146,9 +137,9 @@ namespace Mirror
             {
                 ReadyMessage msg = new ReadyMessage();
                 conn.Send((short)MsgType.Ready, msg);
-                s_IsReady = true;
-                s_ReadyConnection = conn;
-                s_ReadyConnection.isReady = true;
+                ready = true;
+                readyConnection = conn;
+                readyConnection.isReady = true;
                 return true;
             }
             Debug.LogError("Ready() called with invalid connection object: conn=null");
@@ -165,10 +156,10 @@ namespace Mirror
 
         internal static void HandleClientDisconnect(NetworkConnection conn)
         {
-            if (s_ReadyConnection == conn && s_IsReady)
+            if (readyConnection == conn && ready)
             {
-                s_IsReady = false;
-                s_ReadyConnection = null;
+                ready = false;
+                readyConnection = null;
             }
         }
 
@@ -444,10 +435,6 @@ namespace Mirror
             if (GetPrefab(msg.assetId, out prefab))
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
-
-                // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
-                obj.name = prefab.name;
-
                 if (LogFilter.Debug)
                 {
                     Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
@@ -712,11 +699,11 @@ namespace Mirror
                     // found owner, turn into a local player
 
                     // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                    identity.SetConnectionToServer(s_ReadyConnection);
+                    identity.SetConnectionToServer(readyConnection);
                     identity.SetLocalPlayer();
 
                     if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + identity.name); }
-                    if (s_ReadyConnection.connectionId < 0)
+                    if (readyConnection.connectionId < 0)
                     {
                         Debug.LogError("Owner message received on a local client.");
                         return;

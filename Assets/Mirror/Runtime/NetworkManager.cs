@@ -57,9 +57,9 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
-        // this is used to make sure that all scene changes are initialized by UNET. 
+        // this is used to make sure that all scene changes are initialized by UNET.
         // Loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
-        public static string networkSceneName = ""; 
+        public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
@@ -85,7 +85,7 @@ namespace Mirror
             InitializeSingleton();
 
             // headless mode? then start the server
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
+            if (Utils.IsHeadless() && startOnHeadless)
             {
                 Application.targetFrameRate = 60;
                 StartServer();
@@ -649,7 +649,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientNotReadyMessageInternal"); }
 
-            ClientScene.SetNotReady();
+            ClientScene.ready = false;
             OnClientNotReady(netMsg.conn);
 
             // NOTE: s_ClientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
@@ -752,9 +752,6 @@ namespace Mirror
             GameObject player = startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-
-            // Avoid "(Clone)" suffix. some games do show the name. no need for an extra sync to fix the suffix.
-            player.name = playerPrefab.name;
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }

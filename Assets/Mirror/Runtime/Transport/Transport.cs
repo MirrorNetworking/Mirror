@@ -60,6 +60,12 @@ namespace Mirror
         //    'Observer not ready for ...' log messages when using Update
         // -> occupying a public Update() function will cause Warnings if a
         //    transport uses Update.
+        //
+        // IMPORTANT: set script execution order to >1000 to call Transport's
+        //            LateUpdate after all others. Fixes race condition where
+        //            e.g. in uSurvival Transport would apply Cmds before
+        //            ShoulderRotation.LateUpdate, resulting in projectile
+        //            spawns at the point before shoulder rotation.
         public void Update() {}
     }
 }
