@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Mirror
 {
@@ -183,6 +184,12 @@ namespace Mirror
             float v = ScaleByteToFloat(middle, 0x00, 0x1F, minTarget, maxTarget);
             float w = ScaleByteToFloat(upper, 0x00, 0x1F, minTarget, maxTarget);
             return new float[]{u, v, w};
+        }
+
+        // headless mode detection
+        public static bool IsHeadless()
+        {
+            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
     }
 }
