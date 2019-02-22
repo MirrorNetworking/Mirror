@@ -22,8 +22,8 @@ namespace Mirror
             string currBuildSettings = UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup);
             if (!currBuildSettings.Contains(preProcessor))
             {
-                Debug.LogWarning("Updating preprocessor to " + currBuildSettings);
                 currBuildSettings += ";" + preProcessor;
+                Debug.LogWarning("Updating preprocessor to " + currBuildSettings);
                 UnityEditor.PlayerSettings.SetScriptingDefineSymbolsForGroup(UnityEditor.EditorUserBuildSettings.selectedBuildTargetGroup, currBuildSettings);
             }
         }
