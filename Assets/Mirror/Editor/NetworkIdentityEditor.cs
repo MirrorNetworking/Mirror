@@ -92,14 +92,8 @@ namespace Mirror
                 }
             }
 
-#if UNITY_2018_3_OR_NEWER
             if (PrefabUtility.IsPartOfPrefabAsset(m_NetworkIdentity.gameObject))
                 return;
-#else
-            PrefabType prefabType = PrefabUtility.GetPrefabType(m_NetworkIdentity.gameObject);
-            if (prefabType == PrefabType.Prefab)
-                return;
-#endif
 
             if (m_NetworkIdentity.gameObject.activeSelf && m_NetworkIdentity.netId == 0 && NetworkServer.active)
             {
