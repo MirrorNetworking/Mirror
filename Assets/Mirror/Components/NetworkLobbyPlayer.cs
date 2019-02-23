@@ -12,7 +12,7 @@ namespace Mirror
         public bool ShowLobbyGUI = true;
 
         [SyncVar]
-        public bool ReadyToBegin = false;
+        public bool ReadyToBegin;
 
         [SyncVar]
         public int Index;
