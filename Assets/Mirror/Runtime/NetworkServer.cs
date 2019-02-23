@@ -337,8 +337,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -365,8 +364,7 @@ namespace Mirror
 
         static void OnDataReceived(int connectionId, byte[] data)
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 OnData(conn, data);
             }
@@ -459,8 +457,7 @@ namespace Mirror
 
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Send(msgType, msg);
                 return;
@@ -483,8 +480,7 @@ namespace Mirror
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(player, out identity))
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -498,8 +494,7 @@ namespace Mirror
 
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(player, out identity))
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -798,8 +793,7 @@ namespace Mirror
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            NetworkIdentity identity;
-            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
@@ -916,8 +910,7 @@ namespace Mirror
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (uint netId in tmp)
                 {
-                    NetworkIdentity identity;
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                     {
                         Destroy(identity.gameObject);
                     }
@@ -1022,8 +1015,7 @@ namespace Mirror
         {
             if (VerifyCanSpawn(obj))
             {
-                NetworkIdentity identity;
-                if (GetNetworkIdentity(obj, out identity))
+                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
                 {
                     identity.SetDynamicAssetId(assetId);
                 }
@@ -1066,8 +1058,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
                 DestroyObject(identity, true);
             }
@@ -1081,8 +1072,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
                 DestroyObject(identity, false);
             }
@@ -1090,9 +1080,7 @@ namespace Mirror
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
             {
                 if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
                 {
@@ -1108,8 +1096,7 @@ namespace Mirror
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
-            NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
                 return identity.gameObject;
             }
