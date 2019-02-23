@@ -243,15 +243,20 @@ namespace Mirror
 
         internal static void UpdateClients()
         {
-            // remove null clients first
-            allClients.RemoveAll(cl => cl == null);
-
-            // now update valid clients
             // IMPORTANT: no foreach, otherwise we get an InvalidOperationException
             // when stopping the client.
-            for (int i = 0; i < allClients.Count; ++i)
+            for (int i = allClients.Count - 1; i >= 0; --i)
             {
-                allClients[i].Update();
+                if (allClients[i] == null)
+                {
+                    // remove null clients first
+                    allClients.RemoveAt(i);
+                }
+                else
+                {
+                    // now update valid clients
+                    allClients[i].Update();
+                }
             }
         }
 
