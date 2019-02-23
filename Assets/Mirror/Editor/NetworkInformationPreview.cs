@@ -213,10 +213,11 @@ namespace Mirror
             m_Identity = gameObject.GetComponent<NetworkIdentity>();
             if (m_Identity != null)
             {
-                m_Info = new List<NetworkIdentityInfo>();
-
-                m_Info.Add(GetAssetId());
-                m_Info.Add(GetString("Scene ID", m_Identity.sceneId.ToString()));
+                m_Info = new List<NetworkIdentityInfo>
+                {
+                    GetAssetId(),
+                    GetString("Scene ID", m_Identity.sceneId.ToString())
+                };
 
                 if (!Application.isPlaying)
                 {
