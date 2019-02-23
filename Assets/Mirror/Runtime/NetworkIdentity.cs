@@ -213,37 +213,18 @@ namespace Mirror
 
         bool ThisIsAPrefab()
         {
-#if UNITY_2018_3_OR_NEWER
             return PrefabUtility.IsPartOfPrefabAsset(gameObject);
-#else
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.Prefab)
-                return true;
-            return false;
-#endif
         }
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
             prefab = null;
 
-#if UNITY_2018_3_OR_NEWER
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
             {
                 return false;
             }
             prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-#elif UNITY_2018_2_OR_NEWER
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.None)
-                return false;
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-#else
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.None)
-                return false;
-            prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
-#endif
 
             if (prefab == null)
             {
@@ -255,24 +236,21 @@ namespace Mirror
 
         void SetupIDs()
         {
-            GameObject prefab;
             if (ThisIsAPrefab())
             {
                 ForceSceneId(0);
                 AssignAssetID(gameObject);
             }
-            else if (ThisIsASceneObjectWithPrefabParent(out prefab))
+            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
             {
                 AssignAssetID(prefab);
             }
-#if UNITY_2018_3_OR_NEWER
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
-#endif
             else
             {
                 m_AssetId = "";
