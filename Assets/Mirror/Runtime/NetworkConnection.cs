@@ -52,8 +52,7 @@ namespace Mirror
             {
                 foreach (uint netId in clientOwnedObjects)
                 {
-                    NetworkIdentity identity;
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                     {
                         identity.ClearClientOwner();
                     }
@@ -102,8 +101,7 @@ namespace Mirror
 
         public bool InvokeHandler(short msgType, NetworkReader reader)
         {
-            NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
+            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
                 NetworkMessage message = new NetworkMessage
                 {
@@ -121,8 +119,7 @@ namespace Mirror
 
         public bool InvokeHandler(NetworkMessage netMsg)
         {
-            NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out msgDelegate))
+            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out NetworkMessageDelegate msgDelegate))
             {
                 msgDelegate(netMsg);
                 return true;
@@ -206,8 +203,7 @@ namespace Mirror
 
             if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer)); }
 
-            NetworkMessageDelegate msgDelegate;
-            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
+            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
                 // create message here instead of caching it. so we can add it to queue more easily.
                 NetworkMessage msg = new NetworkMessage

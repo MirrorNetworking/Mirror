@@ -9,9 +9,6 @@ namespace Mirror
         readonly float alpha;
         bool initialized;
 
-        double _value;
-        double _var;
-
         public ExponentialMovingAverage(int n)
         {
             // standard N-day EMA alpha calculation
@@ -24,19 +21,19 @@ namespace Mirror
             // https://en.wikipedia.org/wiki/Moving_average#Exponentially_weighted_moving_variance_and_standard_deviation
             if (initialized)
             {
-                double delta = newValue - _value;
-                _value = _value + alpha * delta;
-                _var = (1 - alpha) * (_var + alpha * delta * delta);
+                double delta = newValue - Value;
+                Value = Value + alpha * delta;
+                Var = (1 - alpha) * (Var + alpha * delta * delta);
             }
             else
             {
-                _value = newValue;
+                Value = newValue;
                 initialized = true;
             }
         }
 
-        public double Value => _value;
+        public double Value { get; private set; }
 
-        public double Var => _var;
+        public double Var { get; private set; }
     }
 }

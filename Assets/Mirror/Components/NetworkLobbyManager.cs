@@ -32,7 +32,7 @@ namespace Mirror
         [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
         List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
-        public bool allPlayersReady = false;
+        public bool allPlayersReady;
 
         public override void OnValidate()
         {

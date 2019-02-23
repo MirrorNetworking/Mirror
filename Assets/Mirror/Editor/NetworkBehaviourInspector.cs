@@ -17,7 +17,7 @@ namespace Mirror
         bool m_SyncsAnything;
         bool[] m_ShowSyncLists;
 
-        GUIContent m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
+        readonly GUIContent m_SyncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
         internal virtual bool hideScriptField => false;
 
@@ -151,8 +151,7 @@ namespace Mirror
                     if (m_ShowSyncLists[syncListIndex])
                     {
                         EditorGUI.indentLevel += 1;
-                        IEnumerable synclist = field.GetValue(serializedObject.targetObject) as IEnumerable;
-                        if (synclist != null)
+                        if (field.GetValue(serializedObject.targetObject) is IEnumerable synclist)
                         {
                             int index = 0;
                             IEnumerator enu = synclist.GetEnumerator();

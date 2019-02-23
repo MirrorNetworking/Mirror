@@ -9,7 +9,7 @@ namespace Mirror.Examples.NetworkLobby
         public int Index;
 
         [SyncVar]
-        public uint score = 0;
+        public uint score;
 
         [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
@@ -18,9 +18,9 @@ namespace Mirror.Examples.NetworkLobby
 
         public float moveSpeed = 300f;
 
-        public float horiz = 0f;
-        public float vert = 0f;
-        public float turn = 0f;
+        public float horiz;
+        public float vert;
+        public float turn;
 
         public float turnSpeedAccel = 30f;
         public float turnSpeedDecel = 30f;
