@@ -30,7 +30,7 @@ namespace Mirror.Examples.NetworkLobby
             is set as DontDestroyOnLoad = true.
         */
 
-        bool showStartButton = false;
+        bool showStartButton;
 
         public override void OnLobbyServerPlayersReady()
         {
