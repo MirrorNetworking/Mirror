@@ -14,7 +14,7 @@ namespace Mirror.Examples.NetworkLobby
 
         public bool available = true;
         public Spawner spawner;
-        uint points = 0;
+        uint points;
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
         // This only runs on the server

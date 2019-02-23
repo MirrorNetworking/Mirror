@@ -8,11 +8,7 @@ namespace Mirror
 {
     public static class NetworkServer
     {
-        static bool s_Active;
-        static bool s_LocalClientActive;
         static ULocalConnectionToClient s_LocalConnection;
-
-        static int s_ServerHostId = -1;
         static bool s_Initialized;
         static int s_MaxConnections;
 
@@ -21,7 +17,7 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection => s_LocalConnection;
 
-        public static int serverHostId => s_ServerHostId;
+        public static int serverHostId { get; private set; } = -1;
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
@@ -29,12 +25,12 @@ namespace Mirror
 
         public static bool dontListen;
 
-        public static bool active => s_Active;
-        public static bool localClientActive => s_LocalClientActive;
+        public static bool active { get; private set; }
+        public static bool localClientActive { get; private set; }
 
         public static void Reset()
         {
-            s_Active = false;
+            active = false;
         }
 
         public static void Shutdown()
@@ -50,7 +46,7 @@ namespace Mirror
                 else
                 {
                     NetworkManager.singleton.transport.ServerStop();
-                    s_ServerHostId = -1;
+                    serverHostId = -1;
                 }
 
                 NetworkManager.singleton.transport.OnServerDisconnected.RemoveListener(OnDisconnected);
@@ -61,7 +57,7 @@ namespace Mirror
                 s_Initialized = false;
             }
             dontListen = false;
-            s_Active = false;
+            active = false;
         }
 
         static void Initialize()
@@ -98,9 +94,9 @@ namespace Mirror
             if (!dontListen)
             {
                 NetworkManager.singleton.transport.ServerStart();
-                s_ServerHostId = 0; // so it doesn't return false
+                serverHostId = 0; // so it doesn't return false
 
-                if (s_ServerHostId == -1)
+                if (serverHostId == -1)
                 {
                     return false;
                 }
@@ -108,7 +104,7 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
-            s_Active = true;
+            active = true;
             RegisterMessageHandlers();
             return true;
         }
@@ -159,17 +155,17 @@ namespace Mirror
                 s_LocalConnection.Dispose();
                 s_LocalConnection = null;
             }
-            s_LocalClientActive = false;
+            localClientActive = false;
             RemoveConnection(0);
         }
 
         internal static void ActivateLocalClientScene()
         {
-            if (s_LocalClientActive)
+            if (localClientActive)
                 return;
 
             // ClientScene for a local connection is becoming active. any spawned objects need to be started as client objects
-            s_LocalClientActive = true;
+            localClientActive = true;
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 if (!identity.isClient)
@@ -242,8 +238,8 @@ namespace Mirror
                 s_LocalConnection = null;
             }
 
-            s_Active = false;
-            s_LocalClientActive = false;
+            active = false;
+            localClientActive = false;
         }
 
         public static void DisconnectAllConnections()
@@ -278,7 +274,7 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
-            if (s_ServerHostId == -1)
+            if (serverHostId == -1)
                 return;
 
             UpdateServerObjects();
@@ -315,7 +311,7 @@ namespace Mirror
                 string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
 
                 // add player info
-                NetworkConnection conn = new NetworkConnection(address, s_ServerHostId, connectionId);
+                NetworkConnection conn = new NetworkConnection(address, serverHostId, connectionId);
                 AddConnection(conn);
                 OnConnected(conn);
             }
@@ -337,8 +333,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -365,8 +360,7 @@ namespace Mirror
 
         static void OnDataReceived(int connectionId, byte[] data)
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 OnData(conn, data);
             }
@@ -459,8 +453,7 @@ namespace Mirror
 
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Send(msgType, msg);
                 return;
@@ -483,8 +476,7 @@ namespace Mirror
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(player, out identity))
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -498,8 +490,7 @@ namespace Mirror
 
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(player, out identity))
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -554,8 +545,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId); }
 
-            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
-            if (localConnection != null)
+            if (conn is ULocalConnectionToClient localConnection)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
@@ -671,8 +661,7 @@ namespace Mirror
 
             conn.isReady = true;
 
-            ULocalConnectionToClient localConnection = conn as ULocalConnectionToClient;
-            if (localConnection != null)
+            if (conn is ULocalConnectionToClient localConnection)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
 
@@ -798,8 +787,7 @@ namespace Mirror
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            NetworkIdentity identity;
-            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
@@ -916,8 +904,7 @@ namespace Mirror
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (uint netId in tmp)
                 {
-                    NetworkIdentity identity;
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                     {
                         Destroy(identity.gameObject);
                     }
@@ -1022,8 +1009,7 @@ namespace Mirror
         {
             if (VerifyCanSpawn(obj))
             {
-                NetworkIdentity identity;
-                if (GetNetworkIdentity(obj, out identity))
+                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
                 {
                     identity.SetDynamicAssetId(assetId);
                 }
@@ -1045,7 +1031,7 @@ namespace Mirror
             SendToObservers(identity, (short)MsgType.ObjectDestroy, msg);
 
             identity.ClearObservers();
-            if (NetworkClient.active && s_LocalClientActive)
+            if (NetworkClient.active && localClientActive)
             {
                 identity.OnNetworkDestroy();
             }
@@ -1066,8 +1052,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
                 DestroyObject(identity, true);
             }
@@ -1081,8 +1066,7 @@ namespace Mirror
                 return;
             }
 
-            NetworkIdentity identity;
-            if (GetNetworkIdentity(obj, out identity))
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
                 DestroyObject(identity, false);
             }
@@ -1090,9 +1074,7 @@ namespace Mirror
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
             {
                 if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
                 {
@@ -1108,8 +1090,7 @@ namespace Mirror
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
-            NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
                 return identity.gameObject;
             }

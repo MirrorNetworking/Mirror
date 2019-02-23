@@ -220,8 +220,7 @@ namespace Mirror
 
         void GenerateError(byte error)
         {
-            NetworkMessageDelegate msgDelegate;
-            if (handlers.TryGetValue((short)MsgType.Error, out msgDelegate))
+            if (handlers.TryGetValue((short)MsgType.Error, out NetworkMessageDelegate msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage
                 {

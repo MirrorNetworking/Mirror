@@ -82,9 +82,7 @@ namespace Mirror
 
             CheckSendRate();
 
-            int stateHash;
-            float normalizedTime;
-            if (!CheckAnimStateChanged(out stateHash, out normalizedTime))
+            if (!CheckAnimStateChanged(out int stateHash, out float normalizedTime))
             {
                 return;
             }

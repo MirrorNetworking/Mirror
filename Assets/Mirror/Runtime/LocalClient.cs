@@ -91,9 +91,7 @@ namespace Mirror
         internal void InvokeBytesOnClient(byte[] buffer)
         {
             // unpack message and post to internal list for processing
-            ushort msgType;
-            byte[] content;
-            if (Protocol.UnpackMessage(buffer, out msgType, out content))
+            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
             {
                 PostInternalMessage((short)msgType, content);
             }
