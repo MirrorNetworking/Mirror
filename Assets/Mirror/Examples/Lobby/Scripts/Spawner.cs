@@ -6,8 +6,8 @@ namespace Mirror.Examples.NetworkLobby
     {
         public NetworkIdentity prizePrefab;
 
-        float x = 0f;
-        float z = 0f;
+        float x;
+        float z;
         GameObject newPrize;
         Reward reward;
 
