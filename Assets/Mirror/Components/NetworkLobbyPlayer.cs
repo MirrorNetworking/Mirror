@@ -38,10 +38,10 @@ namespace Mirror
             SceneManager.sceneLoaded -= ClientLoadedScene;
         }
 
-        void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+        public virtual void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby && SceneManager.GetActiveScene().name == lobby.LobbyScene)
+            if (lobby != null && SceneManager.GetActiveScene().name == lobby.LobbyScene)
                 return;
 
             if (this != null && isLocalPlayer)

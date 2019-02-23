@@ -24,18 +24,28 @@ namespace Mirror.Examples.NetworkLobby
                       in ServerChangeScene and OnClientChangeScene.
             */
 
-            if (lobby && lobby.LobbyScene == SceneManager.GetActiveScene().name)
+            if (lobby != null && SceneManager.GetActiveScene().name == lobby.LobbyScene)
                 gameObject.transform.SetParent(GameObject.Find("Players").transform);
+        }
+
+        public override void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+        {
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
+
+            if (lobby != null && SceneManager.GetActiveScene().name == lobby.GameplayScene)
+                QualitySettings.vSyncCount = 1;
+
+            base.ClientLoadedScene(arg0, arg1);
         }
 
         public override void OnClientEnterLobby()
         {
-            Debug.LogFormat("OnClientEnterLobby {0}", SceneManager.GetActiveScene().name);
+            if (LogFilter.Debug) Debug.LogFormat("OnClientEnterLobby {0}", SceneManager.GetActiveScene().name);
         }
 
         public override void OnClientExitLobby()
         {
-            Debug.LogFormat("OnClientExitLobby {0}", SceneManager.GetActiveScene().name);
+            if (LogFilter.Debug) Debug.LogFormat("OnClientExitLobby {0}", SceneManager.GetActiveScene().name);
         }
     }
 }

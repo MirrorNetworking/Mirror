@@ -14,7 +14,7 @@ namespace Mirror.Examples.NetworkLobby
             Camera.main.enabled = true;
 
             // Since this is a UI only screen, lower the framerate and thereby lower the CPU load
-            Application.targetFrameRate = 10;
+            QualitySettings.vSyncCount = 4;
         }
 
         void OnGUI()
@@ -26,6 +26,7 @@ namespace Mirror.Examples.NetworkLobby
 
             if (GUILayout.Button("Join Game"))
             {
+                QualitySettings.vSyncCount = 2;
                 SceneManager.LoadScene(LobbyScene);
             }
 
