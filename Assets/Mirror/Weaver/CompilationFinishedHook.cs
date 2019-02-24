@@ -10,10 +10,11 @@ using System.Linq;
 namespace Mirror.Weaver
 {
     // InitializeOnLoad is needed for Unity to call the static constructor on load
-    [InitializeOnLoad]
+
     public class CompilationFinishedHook
     {
-        static CompilationFinishedHook()
+        [InitializeOnLoadMethod]
+        public void InitializeWeaver()
         {
             CompilationPipeline.assemblyCompilationFinished += OnAssemblyCompilationFinished;
         }
