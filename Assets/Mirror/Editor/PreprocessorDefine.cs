@@ -5,9 +5,8 @@ using UnityEngine;
 
 namespace Mirror
 {
-    class PreprocessorDefine
+    static class PreprocessorDefine
     {
-
         /// <summary>
         /// Symbols that will be added to the editor
         /// </summary>
@@ -29,6 +28,5 @@ namespace Mirror
                 EditorUserBuildSettings.selectedBuildTargetGroup,
                 string.Join(";", allDefines.ToArray()));
         }
-
     }
 }
