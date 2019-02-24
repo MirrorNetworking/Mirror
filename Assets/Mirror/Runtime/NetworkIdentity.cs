@@ -909,6 +909,11 @@ namespace Mirror
             clientAuthorityOwner = null;
         }
 
+
+        // UNetUpdate is in hot path. caching the vars msg is really worth it to
+        // avoid large amounts of allocations.
+        static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
+
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
@@ -921,14 +926,10 @@ namespace Mirror
             byte[] payload = OnSerializeAllSafely(false);
             if (payload != null)
             {
-                // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage
-                {
-                    netId = netId,
-                    payload = payload
-                };
-
-                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
+                // populate cached UpdateVarsMessage and send
+                varsMessage.netId = netId;
+                varsMessage.payload = payload;
+                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, varsMessage);
             }
         }
 
