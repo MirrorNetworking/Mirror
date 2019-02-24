@@ -18,8 +18,7 @@ namespace Mirror
         /// <summary>
         /// Add define symbols as soon as Unity gets done compiling.
         /// </summary>
-        [InitializeOnLoadMethod]
-        static void AddDefineSymbols()
+        public static void AddDefineSymbols()
         {
             string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             List<string> allDefines = definesString.Split(';').ToList();
