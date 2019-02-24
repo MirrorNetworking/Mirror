@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Mirror;
 using UnityEngine.SceneManagement;
 
@@ -31,10 +31,6 @@ namespace Mirror.Examples.NetworkLobby
         public override void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
         {
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-
-            if (lobby != null && SceneManager.GetActiveScene().name == lobby.GameplayScene)
-                QualitySettings.vSyncCount = 1;
-
             base.ClientLoadedScene(arg0, arg1);
         }
 
