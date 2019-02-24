@@ -153,11 +153,8 @@ namespace Mirror
 
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
-            NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
-
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
