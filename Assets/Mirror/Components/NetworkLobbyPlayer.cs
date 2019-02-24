@@ -25,10 +25,7 @@ namespace Mirror
             if (isClient) SceneManager.sceneLoaded += ClientLoadedScene;
 
             if (NetworkManager.singleton as NetworkLobbyManager)
-            {
-                ReadyToBegin = false;
                 OnClientEnterLobby();
-            }
             else
                 Debug.LogError("LobbyPlayer could not find a NetworkLobbyManager. The LobbyPlayer requires a NetworkLobbyManager object to function. Make sure that there is one in the scene.");
         }
