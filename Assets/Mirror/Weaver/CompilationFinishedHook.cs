@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.Compilation;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Mirror.Weaver
 {
@@ -13,10 +14,36 @@ namespace Mirror.Weaver
 
     public class CompilationFinishedHook
     {
+        /// <summary>
+        /// Symbols that will be added to the editor
+        /// </summary>
+        public static readonly string[] Symbols = new string[] {
+            "MIRROR",
+            "MIRROR_1726_OR_NEWER"
+        };
+
         [InitializeOnLoadMethod]
-        public void InitializeWeaver()
+        public static void InitializeWeaver()
         {
             CompilationPipeline.assemblyCompilationFinished += OnAssemblyCompilationFinished;
+
+            // paul:  The first time mirror is imported it will add the preprocessor definitions
+            // this will cause all dlls to be rebuilt and weaved because the hook
+            // is already installed
+            AddDefineSymbols();
+        }
+
+        /// <summary>
+        /// Add define symbols as soon as Unity gets done compiling.
+        /// </summary>
+        static void AddDefineSymbols()
+        {
+            string definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+            List<string> allDefines = definesString.Split(';').ToList();
+            allDefines.AddRange(Symbols.Except(allDefines));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(
+                EditorUserBuildSettings.selectedBuildTargetGroup,
+                string.Join(";", allDefines.ToArray()));
         }
 
         static void OnAssemblyCompilationFinished(string assemblyPath, CompilerMessage[] messages)
