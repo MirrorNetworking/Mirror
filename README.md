@@ -26,7 +26,7 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/) and read the [Wiki](https://github.com/vis2k/Mirror/wiki).
+Check out our [Documentation](https://vis2k.github.io/Mirror/).
 
 The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 

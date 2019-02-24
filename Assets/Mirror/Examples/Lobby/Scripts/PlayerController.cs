@@ -41,7 +41,6 @@ namespace Mirror.Examples.NetworkLobby
 
         void SetColor(Color color)
         {
-            //Debug.LogWarningFormat("PlayerController SetColor netId:{0} to {1}", netId, color);
             GetComponent<Renderer>().material.color = color;
         }
 
@@ -102,7 +101,6 @@ namespace Mirror.Examples.NetworkLobby
         public void CmdClaimPrize(GameObject hitObject)
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
-            //if (hitObject != null)
             hitObject?.GetComponent<Reward>().ClaimPrize(gameObject);
         }
 

@@ -68,6 +68,7 @@ namespace Mirror
         {
             int CurrentPlayers = 0;
             int ReadyPlayers = 0;
+
             foreach (NetworkLobbyPlayer item in lobbySlots)
             {
                 if (item != null)
@@ -77,6 +78,7 @@ namespace Mirror
                         ReadyPlayers++;
                 }
             }
+
             if (CurrentPlayers == ReadyPlayers)
                 CheckReadyToBegin();
             else
