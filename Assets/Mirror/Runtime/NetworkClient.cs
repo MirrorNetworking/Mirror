@@ -8,7 +8,7 @@ namespace Mirror
     {
         // the client (can be a regular NetworkClient or a LocalClient)
         public static NetworkClient singleton;
-        public static bool active { get; private set; }
+        public static bool active { get; protected set; }
 
         int m_ClientId = -1;
 
@@ -49,7 +49,7 @@ namespace Mirror
         // initialize with connection. calls NetworkClient() to setup singleton.
         public NetworkClient(NetworkConnection conn) : this()
         {
-            SetActive(true);
+            active = true;
             m_Connection = conn;
             connectState = ConnectState.Connected;
             conn.SetHandlers(handlers);
@@ -123,7 +123,7 @@ namespace Mirror
 
         void PrepareForConnect()
         {
-            SetActive(true);
+            active = true;
             RegisterSystemHandlers(false);
             m_ClientId = 0;
             NetworkManager.singleton.transport.enabled = true;
@@ -173,7 +173,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
             singleton = null;
-            SetActive(false);
+            active = false;
         }
 
         internal virtual void Update()
@@ -289,11 +289,6 @@ namespace Mirror
             singleton = null;
             active = false;
             ClientScene.Shutdown();
-        }
-
-        internal static void SetActive(bool state)
-        {
-            active = state;
         }
     }
 }
