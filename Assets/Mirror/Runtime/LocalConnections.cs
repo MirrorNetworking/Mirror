@@ -14,7 +14,7 @@ namespace Mirror
             this.localClient = localClient;
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             localClient.InvokeBytesOnClient(bytes);
             return true;
@@ -29,7 +29,7 @@ namespace Mirror
         {
         }
 
-        protected override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {
