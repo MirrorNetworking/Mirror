@@ -49,8 +49,6 @@ namespace Mirror
         // initialize with connection. calls NetworkClient() to setup singleton.
         public NetworkClient(NetworkConnection conn) : this()
         {
-            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
-
             SetActive(true);
             m_Connection = conn;
             connectState = ConnectState.Connected;
