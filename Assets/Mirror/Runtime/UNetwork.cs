@@ -96,7 +96,7 @@ namespace Mirror
     // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
     //    using 2 bytes for shorts.
     // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
-    public static class Protocol
+    public static class MessagePacker
     {
         // pack message before sending
         public static byte[] PackMessage(ushort msgType, byte[] content)

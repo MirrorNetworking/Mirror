@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -157,7 +157,7 @@ namespace Mirror
             msg.Serialize(writer);
 
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            byte[] message = MessagePacker.PackMessage((ushort)msgType, writer.ToArray());
             return SendBytes(message, channelId);
         }
 
@@ -193,7 +193,7 @@ namespace Mirror
         protected void HandleBytes(byte[] buffer)
         {
             // unpack message
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            if (MessagePacker.UnpackMessage(buffer, out ushort msgType, out byte[] content))
             {
                 if (logNetworkMessages)
                 {

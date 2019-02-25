@@ -1074,7 +1074,7 @@ namespace Mirror
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            if (MessagePacker.UnpackMessage(buffer, out ushort msgType, out byte[] content))
             {
                 if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
                 {
