@@ -32,7 +32,7 @@ This is a work in progress branch.  The differences with mirror branch are:
  * Proper error handling.  Just override OnClientError and OnServerError in your network manager
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/) and read the [Wiki](https://github.com/vis2k/Mirror/wiki).
+Check out our [Documentation](https://vis2k.github.io/Mirror/).
 
 The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
