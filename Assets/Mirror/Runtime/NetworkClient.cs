@@ -8,6 +8,9 @@ namespace Mirror
     {
         // the client (can be a regular NetworkClient or a LocalClient)
         public static NetworkClient singleton;
+
+        // active is true while a client is connecting/connected
+        // (= while the network is active)
         public static bool active { get; protected set; }
 
         int m_ClientId = -1;
