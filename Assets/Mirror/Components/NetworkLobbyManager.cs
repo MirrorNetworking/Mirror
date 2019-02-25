@@ -135,16 +135,6 @@ namespace Mirror
             OnLobbyServerPlayersReady();
         }
 
-        public void ServerReturnToLobby()
-        {
-            if (!NetworkServer.active)
-            {
-                Debug.Log("ServerReturnToLobby called on client");
-                return;
-            }
-            ServerChangeScene(LobbyScene);
-        }
-
         void CallOnClientEnterLobby()
         {
             OnLobbyClientEnter();
@@ -293,13 +283,6 @@ namespace Mirror
             }
 
             OnLobbyServerSceneChanged(sceneName);
-        }
-
-        void OnServerReturnToLobbyMessage(NetworkMessage netMsg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnServerReturnToLobbyMessage");
-
-            ServerReturnToLobby();
         }
 
         public override void OnStartServer()
