@@ -98,22 +98,25 @@ namespace Mirror
     // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
     public static class MessagePacker
     {
+        // PackMessage is in hot path. caching the writer is really worth it to
+        // avoid large amounts of allocations.
+        static NetworkWriter packWriter = new NetworkWriter();
+
         // pack message before sending
-        public static byte[] PackMessage(ushort msgType, byte[] content)
+        // -> pass writer instead of byte[] so we can reuse it
+        public static byte[] PackMessage(ushort msgType, MessageBase msg)
         {
-            // original HLAPI's 'content' part is never null, so we don't have to handle that case.
-            // just create an empty array if null.
-            if (content == null) content = new byte[0];
+            // reset cached writer's position
+            packWriter.Position = 0;
 
-            NetworkWriter writer = new NetworkWriter();
+            // write message type
+            packWriter.WritePackedUInt32(msgType);
 
-            // message type (varint)
-            writer.WritePackedUInt32(msgType);
+            // serialize message into writer
+            msg.Serialize(packWriter);
 
-            // message content (if any)
-            writer.Write(content, 0, content.Length);
-
-            return writer.ToArray();
+            // return byte[]
+            return packWriter.ToArray();
         }
 
         // unpack message after receiving
