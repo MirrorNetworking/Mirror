@@ -199,7 +199,15 @@ public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader ext
 
 Note that in both UNet and Mirror the parameter "extraMessageReader" is optional.
 
-### 10. Update your firewall and router
+### 10. Pick your transport
+
+You can choose one of several transports in Mirror.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTranport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
+
+### 11. Configure address and port
+
+In HLAPI, you configure the port and local address in the NetworkManager. One of our goals is to make Mirror transport independent. Not all transports need address and port.  Some transports might even use more than one port at the same time, so these settings were inadequate. We removed the port and address and all other Network Info properties from NetworkManager,  and we moved them to the transport components instead.
+
+### 12. Update your firewall and router
 
 LLAPI uses UDP. Mirror uses TCP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the TCP port instead of UDP. This highly depends on your router and operating system.
 

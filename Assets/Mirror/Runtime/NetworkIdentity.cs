@@ -213,37 +213,18 @@ namespace Mirror
 
         bool ThisIsAPrefab()
         {
-#if UNITY_2018_3_OR_NEWER
             return PrefabUtility.IsPartOfPrefabAsset(gameObject);
-#else
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.Prefab)
-                return true;
-            return false;
-#endif
         }
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
             prefab = null;
 
-#if UNITY_2018_3_OR_NEWER
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
             {
                 return false;
             }
             prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-#elif UNITY_2018_2_OR_NEWER
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.None)
-                return false;
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-#else
-            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
-            if (prefabType == PrefabType.None)
-                return false;
-            prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
-#endif
 
             if (prefab == null)
             {
@@ -255,24 +236,21 @@ namespace Mirror
 
         void SetupIDs()
         {
-            GameObject prefab;
             if (ThisIsAPrefab())
             {
                 ForceSceneId(0);
                 AssignAssetID(gameObject);
             }
-            else if (ThisIsASceneObjectWithPrefabParent(out prefab))
+            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
             {
                 AssignAssetID(prefab);
             }
-#if UNITY_2018_3_OR_NEWER
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
-#endif
             else
             {
                 m_AssetId = "";
@@ -469,10 +447,17 @@ namespace Mirror
             return result;
         }
 
+        // OnSerializeAllSafely is in hot path. caching the writer is really
+        // worth it to avoid large amounts of allocations.
+        static NetworkWriter onSerializeWriter = new NetworkWriter();
+
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
         internal byte[] OnSerializeAllSafely(bool initialState)
         {
+            // reset cached writer's position
+            onSerializeWriter.Position = 0;
+
             if (m_NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
@@ -483,8 +468,7 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return null;
 
-            NetworkWriter writer = new NetworkWriter();
-            writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+            onSerializeWriter.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
             foreach (NetworkBehaviour comp in m_NetworkBehaviours)
             {
@@ -495,7 +479,7 @@ namespace Mirror
                 {
                     // serialize the data
                     if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
-                    OnSerializeSafely(comp, writer, initialState);
+                    OnSerializeSafely(comp, onSerializeWriter, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
                     // This preserves the behavior in HLAPI
@@ -506,7 +490,7 @@ namespace Mirror
                 }
             }
 
-            return writer.ToArray();
+            return onSerializeWriter.ToArray();
         }
 
         private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
@@ -925,6 +909,11 @@ namespace Mirror
             clientAuthorityOwner = null;
         }
 
+
+        // UNetUpdate is in hot path. caching the vars msg is really worth it to
+        // avoid large amounts of allocations.
+        static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
+
         // invoked by unity runtime immediately after the regular "Update()" function.
         internal void UNetUpdate()
         {
@@ -937,14 +926,10 @@ namespace Mirror
             byte[] payload = OnSerializeAllSafely(false);
             if (payload != null)
             {
-                // construct message and send
-                UpdateVarsMessage message = new UpdateVarsMessage
-                {
-                    netId = netId,
-                    payload = payload
-                };
-
-                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, message);
+                // populate cached UpdateVarsMessage and send
+                varsMessage.netId = netId;
+                varsMessage.payload = payload;
+                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, varsMessage);
             }
         }
 

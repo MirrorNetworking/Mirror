@@ -110,10 +110,11 @@ namespace Mirror
         void DeserializeFromReader(NetworkReader reader)
         {
             // put it into a data point immediately
-            DataPoint temp = new DataPoint();
-
-            // deserialize position
-            temp.position = reader.ReadVector3();
+            DataPoint temp = new DataPoint
+            {
+                // deserialize position
+                position = reader.ReadVector3()
+            };
 
             // deserialize rotation
             if (compressRotation == Compression.None)
