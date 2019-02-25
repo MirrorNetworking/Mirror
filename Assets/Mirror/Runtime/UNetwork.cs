@@ -120,16 +120,13 @@ namespace Mirror
         }
 
         // unpack message after receiving
-        public static bool UnpackMessage(byte[] message, out ushort msgType, out byte[] content)
+        // -> pass NetworkReader so it's less strange if we create it in here
+        //    and pass it upwards.
+        // -> NetworkReader will point at content afterwards!
+        public static bool UnpackMessage(NetworkReader messageReader, out ushort msgType)
         {
-            NetworkReader reader = new NetworkReader(message);
-
             // read message type (varint)
-            msgType = (UInt16)reader.ReadPackedUInt32();
-
-            // read content (remaining data in message)
-            content = reader.ReadBytes(reader.Length - reader.Position);
-
+            msgType = (UInt16)messageReader.ReadPackedUInt32();
             return true;
         }
     }
