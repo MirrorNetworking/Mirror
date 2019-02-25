@@ -1086,12 +1086,12 @@ namespace Mirror
 
         internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
         {
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            if (Protocol.UnpackMessage(buffer, out ushort msgType, out NetworkReader contentReader))
             {
                 if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
                 {
                     // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, new NetworkReader(content));
+                    s_LocalConnection.InvokeHandler((short)msgType, contentReader);
                     return true;
                 }
             }

@@ -190,19 +190,19 @@ namespace Mirror
         protected void HandleBytes(byte[] buffer)
         {
             // unpack message
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            if (Protocol.UnpackMessage(buffer, out ushort msgType, out NetworkReader contentReader))
             {
                 if (logNetworkMessages)
                 {
                     if (Enum.IsDefined(typeof(MsgType), msgType))
                     {
                         // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(content));
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " buffer:" + BitConverter.ToString(buffer));
                     }
                     else
                     {
                         // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(content));
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " buffer:" + BitConverter.ToString(buffer));
                     }
                 }
 
@@ -212,7 +212,7 @@ namespace Mirror
                     NetworkMessage msg = new NetworkMessage
                     {
                         msgType = (short)msgType,
-                        reader = new NetworkReader(content),
+                        reader = contentReader,
                         conn = this
                     };
 
