@@ -91,9 +91,10 @@ namespace Mirror
         internal void InvokeBytesOnClient(byte[] buffer)
         {
             // unpack message and post to internal list for processing
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out NetworkReader contentReader))
+            NetworkReader reader = new NetworkReader(buffer);
+            if (Protocol.UnpackMessage(reader, out ushort msgType))
             {
-                PostInternalMessage((short)msgType, contentReader);
+                PostInternalMessage((short)msgType, reader);
             }
             else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }

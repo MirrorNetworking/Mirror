@@ -190,7 +190,8 @@ namespace Mirror
         protected void HandleBytes(byte[] buffer)
         {
             // unpack message
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out NetworkReader contentReader))
+            NetworkReader reader = new NetworkReader(buffer);
+            if (Protocol.UnpackMessage(reader, out ushort msgType))
             {
                 if (logNetworkMessages)
                 {
@@ -212,7 +213,7 @@ namespace Mirror
                     NetworkMessage msg = new NetworkMessage
                     {
                         msgType = (short)msgType,
-                        reader = contentReader,
+                        reader = reader,
                         conn = this
                     };
 
