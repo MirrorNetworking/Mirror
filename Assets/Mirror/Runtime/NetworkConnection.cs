@@ -16,10 +16,10 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController; 
+        public NetworkIdentity playerController => m_PlayerController;
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected => hostId != -1; 
+        public bool isConnected => hostId != -1;
 
         public NetworkConnection(string networkAddress)
         {
@@ -71,7 +71,7 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            
+
             // paul:  we may be connecting or connected,  either way, we need to disconnect
             // transport should not do anything if it is not connecting/connected
             NetworkManager.singleton.transport.ClientDisconnect();
@@ -153,17 +153,14 @@ namespace Mirror
 
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
-            NetworkWriter writer = new NetworkWriter();
-            msg.Serialize(writer);
-
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, writer.ToArray());
+            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
-        // protected because no one except NetworkConnection should ever send bytes directly to the client, as they
-        // would be detected as some kind of message. send messages instead.
-        protected virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
+        // internal because no one except Mirror should send bytes directly to
+        // the client. they would be detected as a message. send messages instead.
+        internal virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
