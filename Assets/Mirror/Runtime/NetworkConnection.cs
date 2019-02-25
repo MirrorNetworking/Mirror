@@ -16,10 +16,10 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController; 
+        public NetworkIdentity playerController => m_PlayerController;
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected => hostId != -1; 
+        public bool isConnected => hostId != -1;
 
         public NetworkConnection(string networkAddress)
         {
@@ -71,7 +71,7 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            
+
             // paul:  we may be connecting or connected,  either way, we need to disconnect
             // transport should not do anything if it is not connecting/connected
             NetworkManager.singleton.transport.ClientDisconnect();
