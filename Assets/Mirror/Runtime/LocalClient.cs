@@ -6,6 +6,10 @@ namespace Mirror
 {
     sealed class LocalClient : NetworkClient
     {
+        // local client in host mode might call Cmds/Rpcs during Update, but we
+        // want to apply them in LateUpdate like all other Transport messages
+        // to avoid race conditions.
+        // -> that's why there is an internal message queue.
         Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
         bool m_Connected;
 
