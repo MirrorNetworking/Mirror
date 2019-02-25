@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Profiling;
 
 namespace Mirror
 {
