@@ -6,7 +6,8 @@ namespace Mirror
 {
     public class NetworkClient
     {
-        public static List<NetworkClient> allClients = new List<NetworkClient>();
+        // the client (can be a regular NetworkClient or a LocalClient)
+        public static NetworkClient singleton;
         public static bool active { get; private set; }
 
         int m_ClientId = -1;
@@ -36,14 +37,18 @@ namespace Mirror
         public NetworkClient()
         {
             if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
-            AddClient(this);
+
+            if (singleton != null)
+            {
+                Debug.LogError("NetworkClient: can only create one!");
+                return;
+            }
+            singleton = this;
         }
 
-        public NetworkClient(NetworkConnection conn)
+        // initialize with connection. calls NetworkClient() to setup singleton.
+        public NetworkClient(NetworkConnection conn) : this()
         {
-            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
-            AddClient(this);
-
             SetActive(true);
             m_Connection = conn;
             connectState = ConnectState.Connected;
@@ -87,7 +92,7 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
 
             ClientScene.HandleClientDisconnect(m_Connection);
-           
+
             m_Connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
         }
 
@@ -167,11 +172,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client " + m_ClientId);
             m_ClientId = -1;
-            RemoveClient(this);
-            if (allClients.Count == 0)
-            {
-                SetActive(false);
-            }
+            singleton = null;
+            SetActive(false);
         }
 
         internal virtual void Update()
@@ -276,37 +278,15 @@ namespace Mirror
             UnregisterHandler((short)msgType);
         }
 
-        internal static void AddClient(NetworkClient client)
-        {
-            allClients.Add(client);
-        }
-
-        internal static bool RemoveClient(NetworkClient client)
-        {
-            return allClients.Remove(client);
-        }
-
         internal static void UpdateClients()
         {
-            // remove null clients first
-            allClients.RemoveAll(cl => cl == null);
-
-            // now update valid clients
-            // IMPORTANT: no foreach, otherwise we get an InvalidOperationException
-            // when stopping the client.
-            for (int i = 0; i < allClients.Count; ++i)
-            {
-                allClients[i].Update();
-            }
+            singleton?.Update();
         }
 
         public static void ShutdownAll()
         {
-            while (allClients.Count != 0)
-            {
-                allClients[0].Shutdown();
-            }
-            allClients = new List<NetworkClient>();
+            singleton?.Shutdown();
+            singleton = null;
             active = false;
             ClientScene.Shutdown();
         }
