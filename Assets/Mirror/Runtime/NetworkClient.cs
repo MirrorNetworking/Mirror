@@ -13,7 +13,7 @@ namespace Mirror
 
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
-        public NetworkConnection connection { get; protected set; } = null;
+        public NetworkConnection connection { get; protected set; }
 
         protected enum ConnectState
         {
