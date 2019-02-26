@@ -147,7 +147,7 @@ namespace Mirror
             return 0;
         }
 
-        internal static void RemoveLocalClient(NetworkConnection localClientConnection)
+        internal static void RemoveLocalClient()
         {
             if (s_LocalConnection != null)
             {
