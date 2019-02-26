@@ -9,6 +9,8 @@ namespace Mirror
         // the client (can be a regular NetworkClient or a LocalClient)
         public static NetworkClient singleton;
 
+        // this is always 0 or -1 because NetworkClient is only used for our own
+        // client.
         int clientId = -1;
 
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
