@@ -15,21 +15,21 @@ namespace Mirror
 
         public override void Disconnect()
         {
-            ClientScene.HandleClientDisconnect(m_Connection);
+            ClientScene.HandleClientDisconnect(connection);
             if (m_Connected)
             {
                 PostInternalMessage((short)MsgType.Disconnect);
                 m_Connected = false;
             }
             connectState = ConnectState.Disconnected;
-            NetworkServer.RemoveLocalClient(m_Connection);
+            NetworkServer.RemoveLocalClient(connection);
         }
 
         internal void InternalConnectLocalServer(bool generateConnectMsg)
         {
-            m_Connection = new ULocalConnectionToServer();
-            SetHandlers(m_Connection);
-            m_Connection.connectionId = NetworkServer.AddLocalClient(this);
+            connection = new ULocalConnectionToServer();
+            SetHandlers(connection);
+            connection.connectionId = NetworkServer.AddLocalClient(this);
             connectState = ConnectState.Connected;
 
             active = true;
@@ -50,14 +50,14 @@ namespace Mirror
         // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
         internal void AddLocalPlayer(NetworkIdentity localPlayer)
         {
-            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + m_Connection.connectionId);
-            m_Connection.isReady = true;
-            m_Connection.SetPlayerController(localPlayer);
+            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + connection.connectionId);
+            connection.isReady = true;
+            connection.SetPlayerController(localPlayer);
             if (localPlayer != null)
             {
                 localPlayer.EnableIsClient();
                 NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
-                localPlayer.SetConnectionToServer(m_Connection);
+                localPlayer.SetConnectionToServer(connection);
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead
             ClientScene.InternalAddPlayer(localPlayer);
@@ -86,7 +86,7 @@ namespace Mirror
             while (m_InternalMsgs.Count > 0)
             {
                 NetworkMessage internalMessage = m_InternalMsgs.Dequeue();
-                m_Connection.InvokeHandler(internalMessage);
+                connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
             }
         }

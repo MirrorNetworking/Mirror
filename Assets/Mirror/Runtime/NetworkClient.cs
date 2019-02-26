@@ -13,8 +13,7 @@ namespace Mirror
 
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
-        protected NetworkConnection m_Connection;
-        public NetworkConnection connection => m_Connection;
+        public NetworkConnection connection { get; protected set; } = null;
 
         protected enum ConnectState
         {
@@ -63,8 +62,8 @@ namespace Mirror
             NetworkManager.singleton.transport.ClientConnect(serverIp);
 
             // setup all the handlers
-            m_Connection = new NetworkConnection(this.serverIp, clientId, 0);
-            m_Connection.SetHandlers(handlers);
+            connection = new NetworkConnection(this.serverIp, clientId, 0);
+            connection.SetHandlers(handlers);
         }
 
         private void InitializeTransportHandlers()
@@ -85,23 +84,23 @@ namespace Mirror
         {
             connectState = ConnectState.Disconnected;
 
-            ClientScene.HandleClientDisconnect(m_Connection);
+            ClientScene.HandleClientDisconnect(connection);
 
-            m_Connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
+            connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
         }
 
         void OnDataReceived(byte[] data)
         {
-            if (m_Connection != null)
+            if (connection != null)
             {
-                m_Connection.TransportReceive(data);
+                connection.TransportReceive(data);
             }
             else Debug.LogError("Skipped Data message handling because m_Connection is null.");
         }
 
         void OnConnected()
         {
-            if (m_Connection != null)
+            if (connection != null)
             {
                 // reset network time stats
                 NetworkTime.Reset();
@@ -110,7 +109,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient(this);
-                m_Connection.InvokeHandlerNoData((short)MsgType.Connect);
+                connection.InvokeHandlerNoData((short)MsgType.Connect);
             }
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
@@ -127,12 +126,12 @@ namespace Mirror
         public virtual void Disconnect()
         {
             connectState = ConnectState.Disconnected;
-            ClientScene.HandleClientDisconnect(m_Connection);
-            if (m_Connection != null)
+            ClientScene.HandleClientDisconnect(connection);
+            if (connection != null)
             {
-                m_Connection.Disconnect();
-                m_Connection.Dispose();
-                m_Connection = null;
+                connection.Disconnect();
+                connection.Dispose();
+                connection = null;
                 clientId = -1;
                 RemoveTransportHandlers();
             }
@@ -149,14 +148,14 @@ namespace Mirror
 
         public bool Send(short msgType, MessageBase msg)
         {
-            if (m_Connection != null)
+            if (connection != null)
             {
                 if (connectState != ConnectState.Connected)
                 {
                     Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
-                return m_Connection.Send(msgType, msg);
+                return connection.Send(msgType, msg);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
@@ -231,7 +230,7 @@ namespace Mirror
                 {
                     msgType = (short)MsgType.Error,
                     reader = new NetworkReader(writer.ToArray()),
-                    conn = m_Connection
+                    conn = connection
                 };
                 msgDelegate(netMsg);
             }
