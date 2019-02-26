@@ -230,23 +230,10 @@ namespace Mirror
                     }
                 }
 
-                if (m_MessageHandlers.TryGetValue((short)msgType, out NetworkMessageDelegate msgDelegate))
+                // try to invoke the handler for that message
+                if (InvokeHandler((short)msgType, reader))
                 {
-                    // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage
-                    {
-                        msgType = (short)msgType,
-                        reader = reader,
-                        conn = this
-                    };
-
-                    msgDelegate(msg);
                     lastMessageTime = Time.time;
-                }
-                else
-                {
-                    //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
                 }
             }
             else
