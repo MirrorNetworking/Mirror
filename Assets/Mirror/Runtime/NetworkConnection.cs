@@ -236,10 +236,7 @@ namespace Mirror
                     lastMessageTime = Time.time;
                 }
             }
-            else
-            {
-                Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
-            }
+            else Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
         }
 
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
