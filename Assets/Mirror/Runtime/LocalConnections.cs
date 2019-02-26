@@ -16,7 +16,7 @@ namespace Mirror
 
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
-            localClient.InvokeBytesOnClient(bytes);
+            localClient.packetQueue.Enqueue(bytes);
             return true;
         }
     }
