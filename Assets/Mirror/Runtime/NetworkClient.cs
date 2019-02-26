@@ -160,14 +160,6 @@ namespace Mirror
             return false;
         }
 
-        public void Shutdown()
-        {
-            if (LogFilter.Debug) Debug.Log("Shutting down client " + clientId);
-            clientId = -1;
-            singleton = null;
-            active = false;
-        }
-
         internal virtual void Update()
         {
             if (clientId == -1)
@@ -265,6 +257,14 @@ namespace Mirror
         internal static void UpdateClients()
         {
             singleton?.Update();
+        }
+
+        public void Shutdown()
+        {
+            if (LogFilter.Debug) Debug.Log("Shutting down client " + clientId);
+            clientId = -1;
+            singleton = null;
+            active = false;
         }
 
         public static void ShutdownAll()
