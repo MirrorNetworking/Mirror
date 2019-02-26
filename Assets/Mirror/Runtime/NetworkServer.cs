@@ -141,7 +141,6 @@ namespace Mirror
             {
                 connectionId = 0
             };
-            AddConnection(s_LocalConnection);
             OnConnected(s_LocalConnection);
             return 0;
         }
@@ -323,7 +322,6 @@ namespace Mirror
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, serverHostId, connectionId);
-                AddConnection(conn);
                 OnConnected(conn);
             }
             else
@@ -337,6 +335,9 @@ namespace Mirror
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + conn.connectionId); }
+
+            // add connection and invoke connected event
+            AddConnection(conn);
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
