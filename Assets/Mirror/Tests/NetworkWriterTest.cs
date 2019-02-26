@@ -54,9 +54,8 @@ namespace Mirror.Tests
             // set position back by one
             writer.Position = 1;
 
-            // .ToArray() length is 1, even though the internal array contains 2 bytes?
-            // (see .ToArray() function comments)
-            Assert.That(writer.ToArray().Length, Is.EqualTo(1));
+            // Changing the position should not alter the size of the data
+            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
         }
 
         [Test]

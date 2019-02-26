@@ -106,8 +106,8 @@ namespace Mirror
         // -> pass writer instead of byte[] so we can reuse it
         public static byte[] PackMessage(ushort msgType, MessageBase msg)
         {
-            // reset cached writer's position
-            packWriter.Position = 0;
+            // reset cached writer length and position
+            packWriter.Reset();
 
             // write message type
             packWriter.WritePackedUInt32(msgType);
