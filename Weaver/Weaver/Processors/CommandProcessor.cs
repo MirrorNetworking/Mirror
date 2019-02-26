@@ -144,14 +144,14 @@ namespace Mirror.Weaver
             if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
             if (md.IsStatic)
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 

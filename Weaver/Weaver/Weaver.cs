@@ -43,6 +43,7 @@ namespace Mirror.Weaver
         public static ModuleDefinition CorLibModule { get; private set; }
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
+        public static bool WeavingFailed { get; set; }
 
         // private properties
         static bool m_debugLogEnabled = true;
@@ -171,7 +172,6 @@ namespace Mirror.Weaver
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
 
-        public static bool fail;
         public static bool generateLogErrors = false;
 
         public static void ResetRecursionCount()
@@ -204,7 +204,7 @@ namespace Mirror.Weaver
             if (m_recursionCount++ > m_kMaxRecursionCount)
             {
                 Log.Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                fail = true;
+                WeavingFailed = true;
                 return null;
             }
 
@@ -537,14 +537,14 @@ namespace Mirror.Weaver
 
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot have generic parameters.");
                     return null;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot be an interface.");
                     return null;
                 }
@@ -561,7 +561,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error("WriteReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    fail = true;
+                    WeavingFailed = true;
                     return null;
                 }
             }
@@ -578,7 +578,7 @@ namespace Mirror.Weaver
             if (m_recursionCount++ > m_kMaxRecursionCount)
             {
                 Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                fail = true;
+                WeavingFailed = true;
                 return null;
             }
 
@@ -652,7 +652,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    fail = true;
+                    WeavingFailed = true;
                     return null;
                 }
 
@@ -1260,7 +1260,7 @@ namespace Mirror.Weaver
                     "] is of the type [" +
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
-                fail = true;
+                WeavingFailed = true;
                 return false;
             }
             return true;
@@ -1432,12 +1432,12 @@ namespace Mirror.Weaver
                         {
                             if (CurrentAssembly.MainModule.SymbolReader != null)
                                 CurrentAssembly.MainModule.SymbolReader.Dispose();
-                            fail = true;
+                            WeavingFailed = true;
                             throw ex;
                         }
                     }
 
-                    if (fail)
+                    if (WeavingFailed)
                     {
                         if (CurrentAssembly.MainModule.SymbolReader != null)
                             CurrentAssembly.MainModule.SymbolReader.Dispose();
@@ -1463,7 +1463,7 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-                if (fail)
+                if (WeavingFailed)
                 {
                     //Log.Error("Failed phase II.");
                     if (CurrentAssembly.MainModule.SymbolReader != null)
@@ -1510,7 +1510,7 @@ namespace Mirror.Weaver
 
         public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string unityUNetDLLPath)
         {
-            fail = false;
+            WeavingFailed = false;
             WeaveList = new WeaverLists();
 
             UnityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
