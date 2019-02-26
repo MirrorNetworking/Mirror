@@ -254,7 +254,7 @@ namespace Mirror
             UnregisterHandler((short)msgType);
         }
 
-        internal static void UpdateClients()
+        internal static void UpdateClient()
         {
             singleton?.Update();
         }

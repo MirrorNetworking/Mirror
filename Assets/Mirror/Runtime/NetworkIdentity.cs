@@ -937,7 +937,7 @@ namespace Mirror
         public static void UNetStaticUpdate()
         {
             NetworkServer.Update();
-            NetworkClient.UpdateClients();
+            NetworkClient.UpdateClient();
             NetworkManager.UpdateScene();
         }
     }
