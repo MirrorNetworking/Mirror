@@ -94,6 +94,37 @@ namespace Mirror
             m_MessageHandlers = handlers;
         }
 
+        public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
+        {
+            if (m_MessageHandlers.ContainsKey(msgType))
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+            }
+            m_MessageHandlers[msgType] = handler;
+        }
+
+        public void UnregisterHandler(short msgType)
+        {
+            m_MessageHandlers.Remove(msgType);
+        }
+
+        internal void SetPlayerController(NetworkIdentity player)
+        {
+            m_PlayerController = player;
+        }
+
+        internal void RemovePlayerController()
+        {
+            m_PlayerController = null;
+        }
+
+        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        {
+            // pack message and send
+            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
+            return SendBytes(message, channelId);
+        }
+
         public bool InvokeHandlerNoData(short msgType)
         {
             return InvokeHandler(msgType, null);
@@ -125,37 +156,6 @@ namespace Mirror
                 return true;
             }
             return false;
-        }
-
-        public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
-        {
-            if (m_MessageHandlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
-            }
-            m_MessageHandlers[msgType] = handler;
-        }
-
-        public void UnregisterHandler(short msgType)
-        {
-            m_MessageHandlers.Remove(msgType);
-        }
-
-        internal void SetPlayerController(NetworkIdentity player)
-        {
-            m_PlayerController = player;
-        }
-
-        internal void RemovePlayerController()
-        {
-            m_PlayerController = null;
-        }
-
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
-            return SendBytes(message, channelId);
         }
 
         // internal because no one except Mirror should send bytes directly to
