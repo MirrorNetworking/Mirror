@@ -47,6 +47,12 @@ namespace Mirror.Weaver
         // private properties
         static bool m_debugLogEnabled = true;
 
+        // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
+        // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
+        // A NetworkBehaviour with the max SyncVars (64) can legitimately increment this value to 65 - so max must be higher than that
+        const int m_kMaxRecursionCount = 128;
+        static int m_recursionCount;
+
         // UNetwork types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference NetworkBehaviourType2;
@@ -168,11 +174,6 @@ namespace Mirror.Weaver
         public static bool fail;
         public static bool generateLogErrors = false;
 
-        // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
-        // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
-        // A NetworkBehaviour with the max SyncVars (32) can legitimately increment this value to 65 - so max must be higher than that
-        const int m_kMaxRecursionCount = 128;
-        static int m_recursionCount;
         public static void ResetRecursionCount()
         {
             m_recursionCount = 0;
