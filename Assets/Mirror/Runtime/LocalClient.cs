@@ -19,7 +19,7 @@ namespace Mirror
             {
                 packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
             }
-            NetworkServer.RemoveLocalClient(connection);
+            NetworkServer.RemoveLocalClient();
         }
 
         internal void InternalConnectLocalServer()
