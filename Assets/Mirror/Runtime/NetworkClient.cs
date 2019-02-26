@@ -88,7 +88,7 @@ namespace Mirror
             connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
         }
 
-        void OnDataReceived(byte[] data)
+        protected void OnDataReceived(byte[] data)
         {
             if (connection != null)
             {
