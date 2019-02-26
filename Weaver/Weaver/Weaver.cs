@@ -55,7 +55,7 @@ namespace Mirror.Weaver
         const int m_kMaxRecursionCount = 128;
         static int m_recursionCount;
 
-        // UNetwork types
+        // Network types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference NetworkBehaviourType2;
         public static TypeReference MonoBehaviourType;
@@ -80,7 +80,7 @@ namespace Mirror.Weaver
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
         public static MethodReference getComponentReference;
-        public static MethodReference getUNetIdReference;
+        public static MethodReference getNetIdReference;
         public static TypeReference NetworkIdentityType;
         public static TypeReference IEnumeratorType;
 
@@ -1110,8 +1110,8 @@ namespace Mirror.Weaver
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
             CurrentAssembly.MainModule.ImportReference(transformType);
 
-            TypeReference unetViewTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
-            NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(unetViewTmp);
+            TypeReference netViewTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
+            NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(netViewTmp);
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
@@ -1141,7 +1141,7 @@ namespace Mirror.Weaver
             // get specialized GetComponent<NetworkIdentity>()
             getComponentReference = Resolvers.ResolveMethodGeneric(ComponentType, CurrentAssembly, "GetComponent", NetworkIdentityType);
 
-            getUNetIdReference = Resolvers.ResolveMethod(unetViewTmp, CurrentAssembly, "get_netId");
+            getNetIdReference = Resolvers.ResolveMethod(netViewTmp, CurrentAssembly, "get_netId");
 
             gameObjectInequality = Resolvers.ResolveMethod(unityObjectType, CurrentAssembly, "op_Inequality");
 
@@ -1392,9 +1392,9 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string unityUNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
-            ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, unityUNetDLLPath);
+            ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath);
             CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams);
 
             SetupTargetTypes();
@@ -1507,13 +1507,13 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string unityUNetDLLPath)
+        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveList = new WeaverLists();
 
             UnityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
-            NetAssembly = AssemblyDefinition.ReadAssembly(unityUNetDLLPath);
+            NetAssembly = AssemblyDefinition.ReadAssembly(mirrorNetDLLPath);
 
             SetupUnityTypes();
 
@@ -1521,7 +1521,7 @@ namespace Mirror.Weaver
             {
                 foreach (string ass in assemblies)
                 {
-                    if (!Weave(ass, dependencies, assemblyResolver, unityEngineDLLPath, unityUNetDLLPath, outputDir))
+                    if (!Weave(ass, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                     {
                         return false;
                     }
