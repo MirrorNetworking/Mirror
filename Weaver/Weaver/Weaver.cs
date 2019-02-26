@@ -41,6 +41,7 @@ namespace Mirror.Weaver
         public static WeaverLists WeaveList { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static ModuleDefinition CorLibModule { get; private set; }
+        public static AssemblyDefinition UnityAssembly { get; private set; }
 
         // UNetwork types
         public static TypeReference NetworkBehaviourType;
@@ -160,7 +161,6 @@ namespace Mirror.Weaver
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
 
-        public static AssemblyDefinition m_UnityAssemblyDefinition;
         public static AssemblyDefinition m_UNetAssemblyDefinition;
 
         static bool m_DebugFlag = true;
@@ -1010,19 +1010,19 @@ namespace Mirror.Weaver
 
         static void SetupUnityTypes()
         {
-            vector2Type = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Vector2");
-            vector3Type = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Vector3");
-            vector4Type = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Vector4");
-            colorType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Color");
-            color32Type = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Color32");
-            quaternionType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Quaternion");
-            rectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Rect");
-            planeType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Plane");
-            rayType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Ray");
-            matrixType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Matrix4x4");
-            gameObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.GameObject");
-            transformType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Transform");
-            unityObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Object");
+            vector2Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector2");
+            vector3Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector3");
+            vector4Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector4");
+            colorType = UnityAssembly.MainModule.GetType("UnityEngine.Color");
+            color32Type = UnityAssembly.MainModule.GetType("UnityEngine.Color32");
+            quaternionType = UnityAssembly.MainModule.GetType("UnityEngine.Quaternion");
+            rectType = UnityAssembly.MainModule.GetType("UnityEngine.Rect");
+            planeType = UnityAssembly.MainModule.GetType("UnityEngine.Plane");
+            rayType = UnityAssembly.MainModule.GetType("UnityEngine.Ray");
+            matrixType = UnityAssembly.MainModule.GetType("UnityEngine.Matrix4x4");
+            gameObjectType = UnityAssembly.MainModule.GetType("UnityEngine.GameObject");
+            transformType = UnityAssembly.MainModule.GetType("UnityEngine.Transform");
+            unityObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
 
             NetworkClientType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkClient");
             NetworkServerType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkServer");
@@ -1117,8 +1117,8 @@ namespace Mirror.Weaver
             NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
             NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkConnection");
 
-            MonoBehaviourType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.MonoBehaviour");
-            ScriptableObjectType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.ScriptableObject");
+            MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
+            ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
 
             NetworkConnectionType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
@@ -1134,7 +1134,7 @@ namespace Mirror.Weaver
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
 
-            ComponentType = m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Component");
+            ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = m_UNetAssemblyDefinition.MainModule.GetType("Mirror.ClientScene");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
 
@@ -1159,8 +1159,8 @@ namespace Mirror.Weaver
             registerEventDelegateReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "RegisterEventDelegate");
             getTypeReference = Resolvers.ResolveMethod(objectType, CurrentAssembly, "GetType");
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, CurrentAssembly, "GetTypeFromHandle");
-            logErrorReference = Resolvers.ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogError");
-            logWarningReference = Resolvers.ResolveMethod(m_UnityAssemblyDefinition.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogWarning");
+            logErrorReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogError");
+            logWarningReference = Resolvers.ResolveMethod(UnityAssembly.MainModule.GetType("UnityEngine.Debug"), CurrentAssembly, "LogWarning");
             sendCommandInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendCommandInternal");
             sendRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendRPCInternal");
             sendTargetRpcInternal = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SendTargetRPCInternal");
@@ -1512,7 +1512,7 @@ namespace Mirror.Weaver
             fail = false;
             WeaveList = new WeaverLists();
 
-            m_UnityAssemblyDefinition = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
+            UnityAssembly = AssemblyDefinition.ReadAssembly(unityEngineDLLPath);
             m_UNetAssemblyDefinition = AssemblyDefinition.ReadAssembly(unityUNetDLLPath);
 
             SetupUnityTypes();
