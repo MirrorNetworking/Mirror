@@ -44,6 +44,9 @@ namespace Mirror.Weaver
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
 
+        // private properties
+        static bool m_debugLogEnabled = true;
+
         // UNetwork types
         public static TypeReference NetworkBehaviourType;
         public static TypeReference NetworkBehaviourType2;
@@ -162,8 +165,6 @@ namespace Mirror.Weaver
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
 
-        static bool m_DebugFlag = true;
-
         public static bool fail;
         public static bool generateLogErrors = false;
 
@@ -179,7 +180,7 @@ namespace Mirror.Weaver
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
-            if (!m_DebugFlag)
+            if (!m_debugLogEnabled)
                 return;
 
             Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
