@@ -56,13 +56,13 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
 
             string hostnameOrIp = ip;
-            this.serverIp = hostnameOrIp;
+            serverIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
             NetworkManager.singleton.transport.ClientConnect(ip);
 
             // setup all the handlers
-            connection = new NetworkConnection(this.serverIp, clientId, 0);
+            connection = new NetworkConnection(serverIp, clientId, 0);
             connection.SetHandlers(handlers);
         }
 
