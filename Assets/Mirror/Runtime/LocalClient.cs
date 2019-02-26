@@ -44,7 +44,13 @@ namespace Mirror
 
         internal override void Update()
         {
-            ProcessInternalMessages();
+            // process internal messages so they are applied at the correct time
+            while (m_InternalMsgs.Count > 0)
+            {
+                NetworkMessage internalMessage = m_InternalMsgs.Dequeue();
+                connection.InvokeHandler(internalMessage);
+                connection.lastMessageTime = Time.time;
+            }
         }
 
         // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
@@ -79,16 +85,6 @@ namespace Mirror
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> original NetworkTransport used empty [] and not null array for those messages too
             PostInternalMessage(msgType, new NetworkReader(new byte[0]));
-        }
-
-        void ProcessInternalMessages()
-        {
-            while (m_InternalMsgs.Count > 0)
-            {
-                NetworkMessage internalMessage = m_InternalMsgs.Dequeue();
-                connection.InvokeHandler(internalMessage);
-                connection.lastMessageTime = Time.time;
-            }
         }
 
         // called by the server, to bypass network
