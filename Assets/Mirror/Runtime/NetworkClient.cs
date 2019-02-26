@@ -9,14 +9,12 @@ namespace Mirror
         // the client (can be a regular NetworkClient or a LocalClient)
         public static NetworkClient singleton;
 
-        // active is true while a client is connecting/connected
-        // (= while the network is active)
-        public static bool active { get; protected set; }
-
         int m_ClientId = -1;
 
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
+
         protected NetworkConnection m_Connection;
+        public NetworkConnection connection => m_Connection;
 
         protected enum ConnectState
         {
@@ -27,13 +25,11 @@ namespace Mirror
         }
         protected ConnectState connectState = ConnectState.None;
 
-        internal void SetHandlers(NetworkConnection conn)
-        {
-            conn.SetHandlers(handlers);
-        }
-
         public string serverIp { get; private set; } = "";
-        public NetworkConnection connection => m_Connection;
+
+        // active is true while a client is connecting/connected
+        // (= while the network is active)
+        public static bool active { get; protected set; }
 
         public bool isConnected => connectState == ConnectState.Connected;
 
@@ -57,6 +53,11 @@ namespace Mirror
             connectState = ConnectState.Connected;
             conn.SetHandlers(handlers);
             RegisterSystemHandlers(false);
+        }
+
+        internal void SetHandlers(NetworkConnection conn)
+        {
+            conn.SetHandlers(handlers);
         }
 
         public void Connect(string serverIp)
