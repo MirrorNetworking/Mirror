@@ -107,7 +107,7 @@ namespace Mirror
         public static byte[] PackMessage(ushort msgType, MessageBase msg)
         {
             // reset cached writer length and position
-            packWriter.Reset();
+            packWriter.SetLength(0);
 
             // write message type
             packWriter.WritePackedUInt32(msgType);
