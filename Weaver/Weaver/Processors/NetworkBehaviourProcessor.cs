@@ -760,7 +760,7 @@ namespace Mirror.Weaver
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
-                            Weaver.WeaveList.replaceMethods[md.FullName] = cmdCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
                         }
                         break;
                     }
@@ -789,7 +789,7 @@ namespace Mirror.Weaver
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.WeaveList.replaceMethods[md.FullName] = rpcCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
                         }
                         break;
                     }
@@ -818,7 +818,7 @@ namespace Mirror.Weaver
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.WeaveList.replaceMethods[md.FullName] = rpcCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
                         }
                         break;
                     }
