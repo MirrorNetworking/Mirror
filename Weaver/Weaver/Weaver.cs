@@ -47,13 +47,13 @@ namespace Mirror.Weaver
         public static bool GenerateLogErrors { get; set; }
 
         // private properties
-        static bool m_debugLogEnabled = true;
+        static bool DebugLogEnabled = true;
 
         // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
         // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
         // A NetworkBehaviour with the max SyncVars (64) can legitimately increment this value to 65 - so max must be higher than that
-        const int m_kMaxRecursionCount = 128;
-        static int m_recursionCount;
+        const int MaxRecursionCount = 128;
+        static int RecursionCount;
 
         // Network types
         public static TypeReference NetworkBehaviourType;
@@ -175,12 +175,12 @@ namespace Mirror.Weaver
 
         public static void ResetRecursionCount()
         {
-            m_recursionCount = 0;
+            RecursionCount = 0;
         }
 
         public static void DLog(TypeDefinition td, string fmt, params object[] args)
         {
-            if (!m_debugLogEnabled)
+            if (!DebugLogEnabled)
                 return;
 
             Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
@@ -200,7 +200,7 @@ namespace Mirror.Weaver
 
         public static MethodReference GetWriteFunc(TypeReference variable)
         {
-            if (m_recursionCount++ > m_kMaxRecursionCount)
+            if (RecursionCount++ > MaxRecursionCount)
             {
                 Log.Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 WeavingFailed = true;
@@ -574,7 +574,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateReadFunction(TypeReference variable)
         {
-            if (m_recursionCount++ > m_kMaxRecursionCount)
+            if (RecursionCount++ > MaxRecursionCount)
             {
                 Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 WeavingFailed = true;
