@@ -49,17 +49,17 @@ namespace Mirror
             conn.SetHandlers(handlers);
         }
 
-        public void Connect(string serverIp)
+        public void Connect(string ip)
         {
             PrepareForConnect();
 
-            if (LogFilter.Debug) { Debug.Log("Client Connect: " + serverIp); }
+            if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
 
-            string hostnameOrIp = serverIp;
+            string hostnameOrIp = ip;
             this.serverIp = hostnameOrIp;
 
             connectState = ConnectState.Connecting;
-            NetworkManager.singleton.transport.ClientConnect(serverIp);
+            NetworkManager.singleton.transport.ClientConnect(ip);
 
             // setup all the handlers
             connection = new NetworkConnection(this.serverIp, clientId, 0);
