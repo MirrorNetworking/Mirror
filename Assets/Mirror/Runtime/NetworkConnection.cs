@@ -180,6 +180,39 @@ namespace Mirror
             return TransportSend(channelId, bytes, out byte error);
         }
 
+        public override string ToString()
+        {
+            return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
+        }
+
+        internal void AddToVisList(NetworkIdentity identity)
+        {
+            visList.Add(identity);
+
+            // spawn uv for this conn
+            NetworkServer.ShowForConnection(identity, this);
+        }
+
+        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
+        {
+            visList.Remove(identity);
+
+            if (!isDestroyed)
+            {
+                // hide uv for this conn
+                NetworkServer.HideForConnection(identity, this);
+            }
+        }
+
+        internal void RemoveObservers()
+        {
+            foreach (NetworkIdentity identity in visList)
+            {
+                identity.RemoveObserverInternal(this);
+            }
+            visList.Clear();
+        }
+
         // handle this message
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
@@ -187,7 +220,7 @@ namespace Mirror
         //       -> in other words, we always receive 1 message per Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer)
+        public virtual void TransportReceive(byte[] buffer)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
@@ -230,44 +263,6 @@ namespace Mirror
             {
                 Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
             }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
-        }
-
-        internal void AddToVisList(NetworkIdentity identity)
-        {
-            visList.Add(identity);
-
-            // spawn uv for this conn
-            NetworkServer.ShowForConnection(identity, this);
-        }
-
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
-        {
-            visList.Remove(identity);
-
-            if (!isDestroyed)
-            {
-                // hide uv for this conn
-                NetworkServer.HideForConnection(identity, this);
-            }
-        }
-
-        internal void RemoveObservers()
-        {
-            foreach (NetworkIdentity identity in visList)
-            {
-                identity.RemoveObserverInternal(this);
-            }
-            visList.Clear();
-        }
-
-        public virtual void TransportReceive(byte[] bytes)
-        {
-            HandleBytes(bytes);
         }
 
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
