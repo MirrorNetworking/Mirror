@@ -293,7 +293,7 @@ namespace Mirror
         {
             if (hasAuthority && localPlayerAuthority)
             {
-                if (NetworkClient.allClients.Count > 0 && ClientScene.readyConnection != null)
+                if (NetworkClient.singleton != null && ClientScene.readyConnection != null)
                 {
                     CmdOnAnimationTriggerServerMessage(hash);
                 }

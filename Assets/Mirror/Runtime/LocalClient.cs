@@ -6,6 +6,10 @@ namespace Mirror
 {
     sealed class LocalClient : NetworkClient
     {
+        // local client in host mode might call Cmds/Rpcs during Update, but we
+        // want to apply them in LateUpdate like all other Transport messages
+        // to avoid race conditions.
+        // -> that's why there is an internal message queue.
         Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
         bool m_Connected;
 
@@ -59,12 +63,12 @@ namespace Mirror
             ClientScene.InternalAddPlayer(localPlayer);
         }
 
-        void PostInternalMessage(short msgType, byte[] content)
+        void PostInternalMessage(short msgType, NetworkReader contentReader)
         {
             NetworkMessage msg = new NetworkMessage
             {
                 msgType = msgType,
-                reader = new NetworkReader(content),
+                reader = contentReader,
                 conn = connection
             };
             m_InternalMsgs.Enqueue(msg);
@@ -74,7 +78,7 @@ namespace Mirror
         {
             // call PostInternalMessage with empty content array if we just want to call a message like Connect
             // -> original NetworkTransport used empty [] and not null array for those messages too
-            PostInternalMessage(msgType, new byte[0]);
+            PostInternalMessage(msgType, new NetworkReader(new byte[0]));
         }
 
         void ProcessInternalMessages()
@@ -91,9 +95,10 @@ namespace Mirror
         internal void InvokeBytesOnClient(byte[] buffer)
         {
             // unpack message and post to internal list for processing
-            if (Protocol.UnpackMessage(buffer, out ushort msgType, out byte[] content))
+            NetworkReader reader = new NetworkReader(buffer);
+            if (Protocol.UnpackMessage(reader, out ushort msgType))
             {
-                PostInternalMessage((short)msgType, content);
+                PostInternalMessage((short)msgType, reader);
             }
             else Debug.LogError("InvokeBytesOnClient failed to unpack message: " + BitConverter.ToString(buffer));
         }
