@@ -32,7 +32,7 @@ namespace Mirror
             m_Connection.connectionId = NetworkServer.AddLocalClient(this);
             connectState = ConnectState.Connected;
 
-            SetActive(true);
+            active = true;
             RegisterSystemHandlers(true);
 
             if (generateConnectMsg)
