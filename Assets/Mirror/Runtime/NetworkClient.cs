@@ -176,15 +176,7 @@ namespace Mirror
                 return;
             }
 
-            // don't do anything if we aren't fully connected
-            // -> we don't check Client.Connected because then we wouldn't
-            //    process the last disconnect message.
-            if (connectState != ConnectState.Connecting &&
-                connectState != ConnectState.Connected)
-            {
-                return;
-            }
-
+            // only update things while connected
             if (connectState == ConnectState.Connected)
             {
                 NetworkTime.UpdateClient(this);
