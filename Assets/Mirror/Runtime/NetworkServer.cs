@@ -95,12 +95,6 @@ namespace Mirror
             {
                 NetworkManager.singleton.transport.ServerStart();
                 serverHostId = 0; // so it doesn't return false
-
-                if (serverHostId == -1)
-                {
-                    return false;
-                }
-
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
