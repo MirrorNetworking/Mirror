@@ -20,7 +20,7 @@ namespace Mirror
             None,
             Connecting,
             Connected,
-            Disconnected,
+            Disconnected
         }
         protected ConnectState connectState = ConnectState.None;
 
