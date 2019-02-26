@@ -55,8 +55,7 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
 
-            string hostnameOrIp = ip;
-            serverIp = hostnameOrIp;
+            serverIp = ip;
 
             connectState = ConnectState.Connecting;
             NetworkManager.singleton.transport.ClientConnect(ip);
