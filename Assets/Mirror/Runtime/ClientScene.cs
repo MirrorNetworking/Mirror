@@ -150,7 +150,7 @@ namespace Mirror
         {
             LocalClient newClient = new LocalClient();
             NetworkServer.ActivateLocalClientScene();
-            newClient.InternalConnectLocalServer(true);
+            newClient.InternalConnectLocalServer();
             return newClient;
         }
 
