@@ -10,15 +10,13 @@ namespace Mirror
         // want to apply them in LateUpdate like all other Transport messages
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal Queue<byte[]> packetQueue = new Queue<byte[]>();
-        bool m_Connected;
 
         public override void Disconnect()
         {
             ClientScene.HandleClientDisconnect(connection);
-            if (m_Connected)
+            if (isConnected)
             {
                 packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
-                m_Connected = false;
             }
             connectState = ConnectState.Disconnected;
             NetworkServer.RemoveLocalClient(connection);
@@ -35,8 +33,6 @@ namespace Mirror
             RegisterSystemHandlers(true);
 
             packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
-
-            m_Connected = true;
         }
 
         internal override void Update()
