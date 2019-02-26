@@ -663,7 +663,7 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 // this object already exists
-                localObject.SetConnectionToServer(netMsg.conn);
+                localObject.connectionToServer = netMsg.conn;
                 localObject.SetLocalPlayer();
                 InternalAddPlayer(localObject);
             }
@@ -683,7 +683,7 @@ namespace Mirror
                     // found owner, turn into a local player
 
                     // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                    identity.SetConnectionToServer(readyConnection);
+                    identity.connectionToServer = readyConnection;
                     identity.SetLocalPlayer();
 
                     if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + identity.name); }
