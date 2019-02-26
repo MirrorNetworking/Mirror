@@ -1,6 +1,6 @@
 ﻿# Lobby Example
 
-In Buld Settings, remove all scenes and add all of the scenes from the Examples\Lobbey\Scenes folder in the following order:
+In Build Settings, remove all scenes and add all of the scenes from the Examples\Lobby\Scenes folder in the following order:
 
 -	Offline
 -	Lobby
