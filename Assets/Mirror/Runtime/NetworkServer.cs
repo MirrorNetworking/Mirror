@@ -142,8 +142,7 @@ namespace Mirror
                 connectionId = 0
             };
             AddConnection(s_LocalConnection);
-
-            s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
+            OnConnected(s_LocalConnection);
             return 0;
         }
 
