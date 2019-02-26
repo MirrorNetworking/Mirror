@@ -31,11 +31,11 @@ namespace Mirror.Weaver
             MethodReference listCtor;
             try
             {
-                listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
+                listCtor = Weaver.CurrentAssembly.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
             }
             catch (Exception)
             {
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 Log.Error("Missing parameter-less constructor for:" + fd.FieldType.Name);
                 return;
             }

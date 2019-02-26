@@ -12,17 +12,17 @@ namespace Mirror.Weaver
             GenericInstanceType gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count == 0)
             {
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 Log.Error("SyncListStructProcessor no generic args");
                 return;
             }
-            TypeReference itemType = Weaver.scriptDef.MainModule.ImportReference(gt.GenericArguments[0]);
+            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[0]);
 
             Weaver.DLog(td, "SyncListStructProcessor Start item:" + itemType.FullName);
 
             Weaver.ResetRecursionCount();
             MethodReference writeItemFunc = GenerateSerialization(td, itemType);
-            if (Weaver.fail)
+            if (Weaver.WeavingFailed)
             {
                 return;
             }
@@ -51,13 +51,13 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
             if (itemType.IsGenericInstance)
             {
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 Log.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Struct passed into SyncListStruct<T> can't have generic parameters");
                 return null;
             }
@@ -67,19 +67,19 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
                 TypeDefinition ft = importedField.FieldType.Resolve();
 
                 if (ft.HasGenericParameters)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot have generic parameters.");
                     return null;
                 }
 
                 if (ft.IsInterface)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot be an interface.");
                     return null;
                 }
@@ -94,7 +94,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
@@ -120,7 +120,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     itemType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
 
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
@@ -136,7 +136,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
                 TypeDefinition ft = importedField.FieldType.Resolve();
 
                 MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
@@ -149,7 +149,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateDeserialization for " + td.Name + " unknown type [" + ft + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }

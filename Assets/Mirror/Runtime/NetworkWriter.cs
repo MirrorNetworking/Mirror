@@ -14,19 +14,22 @@ namespace Mirror
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
 
-        // MemoryStream.ToArray() ignores .Position, but HLAPI's .ToArray() expects only the valid data until .Position.
-        // .ToArray() is often used for payloads or sends, we don't unnecessary old data in there (bandwidth etc.)
-        //   Example:
-        //     HLAPI writes 10 bytes, sends them
-        //     HLAPI sets .Position = 0
-        //     HLAPI writes 5 bytes, sends them
-        //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
+        // MemoryStream has 3 values: Position, Length and Capacity.  
+        // Position is used to indicate where we are writing
+        // Length is how much data we have written
+        // capacity is how much memory we have allocated
+        // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
             writer.Flush();
-            byte[] slice = new byte[Position];
-            Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
-            return slice;
+            return ((MemoryStream)writer.BaseStream).ToArray();
+        }
+
+        // reset both the position and length of the stream,  but leaves the capacity the same
+        // so that we can reuse this writer without extra allocations
+        public void Reset()
+        {
+            ((MemoryStream)writer.BaseStream).SetLength(0);
         }
 
         public void Write(byte value)  { writer.Write(value); }
