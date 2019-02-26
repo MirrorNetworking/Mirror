@@ -192,8 +192,8 @@ namespace Mirror
                 NetworkMessage message = new NetworkMessage
                 {
                     msgType = msgType,
-                    conn = this,
-                    reader = reader
+                    reader = reader,
+                    conn = this
                 };
 
                 msgDelegate(message);
