@@ -63,7 +63,7 @@ namespace Mirror
             NetworkManager.singleton.transport.ClientConnect(ip);
 
             // setup all the handlers
-            connection = new NetworkConnection(serverIp, clientId, 0);
+            connection = new NetworkConnection(serverIp, 0, 0);
             connection.SetHandlers(handlers);
         }
 
