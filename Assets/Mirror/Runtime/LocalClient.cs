@@ -11,17 +11,6 @@ namespace Mirror
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal Queue<byte[]> packetQueue = new Queue<byte[]>();
 
-        public override void Disconnect()
-        {
-            connectState = ConnectState.Disconnected;
-            ClientScene.HandleClientDisconnect(connection);
-            if (isConnected)
-            {
-                packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
-            }
-            NetworkServer.RemoveLocalClient();
-        }
-
         internal void InternalConnectLocalServer()
         {
             connection = new ULocalConnectionToServer();
@@ -33,6 +22,17 @@ namespace Mirror
             RegisterSystemHandlers(true);
 
             packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
+        }
+
+        public override void Disconnect()
+        {
+            connectState = ConnectState.Disconnected;
+            ClientScene.HandleClientDisconnect(connection);
+            if (isConnected)
+            {
+                packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
+            }
+            NetworkServer.RemoveLocalClient();
         }
 
         internal override void Update()
