@@ -14,7 +14,7 @@ namespace Mirror
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
 
-        // MemoryStream has 3 values: Position, Length and Capacity.  
+        // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
         // Length is how much data we have written
         // capacity is how much memory we have allocated
@@ -27,9 +27,9 @@ namespace Mirror
 
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
-        public void Reset()
+        public void SetLength(long value)
         {
-            ((MemoryStream)writer.BaseStream).SetLength(0);
+            ((MemoryStream)writer.BaseStream).SetLength(value);
         }
 
         public void Write(byte value)  { writer.Write(value); }

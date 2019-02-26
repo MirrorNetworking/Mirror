@@ -456,7 +456,7 @@ namespace Mirror
         internal byte[] OnSerializeAllSafely(bool initialState)
         {
             // reset cached writer length and position
-            onSerializeWriter.Reset();
+            onSerializeWriter.SetLength(0);
 
             if (m_NetworkBehaviours.Length > 64)
             {
