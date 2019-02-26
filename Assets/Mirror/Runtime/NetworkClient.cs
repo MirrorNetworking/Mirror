@@ -136,6 +136,9 @@ namespace Mirror
                 clientId = -1;
                 RemoveTransportHandlers();
             }
+
+            // the client's network is not active anymore.
+            active = false;
         }
 
         void RemoveTransportHandlers()
