@@ -11,7 +11,6 @@ namespace Mirror
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
-        public int hostId = -1;
         public int connectionId = -1;
         public bool isReady;
         public string address;
@@ -19,17 +18,20 @@ namespace Mirror
         public NetworkIdentity playerController => m_PlayerController;
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected => hostId != -1;
+
+        // this is always true for regular connections, false for local
+        // connections because it's set in the constructor and never reset.
+        public bool isConnected { get; protected set; }
 
         public NetworkConnection(string networkAddress)
         {
             address = networkAddress;
         }
-        public NetworkConnection(string networkAddress, int networkHostId, int networkConnectionId)
+        public NetworkConnection(string networkAddress, int networkConnectionId)
         {
             address = networkAddress;
-            hostId = networkHostId;
             connectionId = networkConnectionId;
+            isConnected = true;
         }
 
         ~NetworkConnection()
@@ -82,11 +84,8 @@ namespace Mirror
                 NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
 
-            // remove observers. original HLAPI has hostId check for that too.
-            if (hostId != -1)
-            {
-                RemoveObservers();
-            }
+            // remove observers
+            RemoveObservers();
         }
 
         internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
@@ -149,7 +148,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
+            return string.Format("connectionId: {0} isReady: {1}", connectionId, isReady);
         }
 
         internal void AddToVisList(NetworkIdentity identity)

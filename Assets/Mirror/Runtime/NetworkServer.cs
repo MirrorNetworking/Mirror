@@ -17,8 +17,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection => s_LocalConnection;
 
-        public static int serverHostId { get; private set; } = -1;
-
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
@@ -46,7 +44,6 @@ namespace Mirror
                 else
                 {
                     NetworkManager.singleton.transport.ServerStop();
-                    serverHostId = -1;
                 }
 
                 NetworkManager.singleton.transport.OnServerDisconnected.RemoveListener(OnDisconnected);
@@ -94,7 +91,6 @@ namespace Mirror
             if (!dontListen)
             {
                 NetworkManager.singleton.transport.ServerStart();
-                serverHostId = 0; // so it doesn't return false
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
@@ -278,10 +274,10 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
-            if (serverHostId == -1)
-                return;
-
-            UpdateServerObjects();
+            if (active)
+            {
+                UpdateServerObjects();
+            }
         }
 
         static void OnConnected(int connectionId)
@@ -315,7 +311,7 @@ namespace Mirror
                 string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
 
                 // add player info
-                NetworkConnection conn = new NetworkConnection(address, serverHostId, connectionId);
+                NetworkConnection conn = new NetworkConnection(address, connectionId);
                 OnConnected(conn);
             }
             else
