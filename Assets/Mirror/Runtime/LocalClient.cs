@@ -13,12 +13,12 @@ namespace Mirror
 
         public override void Disconnect()
         {
+            connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
             if (isConnected)
             {
                 packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
             }
-            connectState = ConnectState.Disconnected;
             NetworkServer.RemoveLocalClient(connection);
         }
 
