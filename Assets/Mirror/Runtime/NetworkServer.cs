@@ -1084,22 +1084,6 @@ namespace Mirror
             }
         }
 
-        internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
-        {
-            NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
-            {
-                if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
-                {
-                    // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, reader);
-                    return true;
-                }
-            }
-            Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer));
-            return false;
-        }
-
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {

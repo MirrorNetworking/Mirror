@@ -36,7 +36,11 @@ namespace Mirror
                 Debug.LogError("LocalConnection:SendBytes cannot send zero bytes");
                 return false;
             }
-            return NetworkServer.InvokeBytes(this, bytes);
+
+            // handle the server's message directly
+            // TODO any way to do this without NetworkServer.localConnection?
+            NetworkServer.localConnection.TransportReceive(bytes);
+            return true;
         }
     }
 }
