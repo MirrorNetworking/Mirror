@@ -21,6 +21,7 @@ namespace Mirror
         private static int idGenerator = 0;
         private static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
+        public bool NoDelay = true;
 
         public event Action Connected;
         public event Action<byte[]> ReceivedData;

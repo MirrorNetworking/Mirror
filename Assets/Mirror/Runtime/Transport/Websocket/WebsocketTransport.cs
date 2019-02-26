@@ -12,6 +12,9 @@ namespace Mirror
 
         public int port;
 
+        [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
+        public bool NoDelay = true;
+
         public bool Secure = false;
 
         public string CertificatePath;
@@ -21,16 +24,20 @@ namespace Mirror
         public WebsocketTransport()
         {
             // dispatch the events from the server
-            server.Connected += (id) => OnServerConnected.Invoke(id);
-            server.Disconnected +=(id)=>OnServerDisconnected.Invoke(id);
-            server.ReceivedData += (id, data) => OnServerDataReceived.Invoke(id, data);
-            server.ReceivedError += (id, exception) => OnServerError?.Invoke(id, exception);
+            server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
+            server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
+            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, data);
+            server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
             client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
-            client.ReceivedError += (exception) => OnClientError?.Invoke(exception);
+            client.ReceivedError += (error) => OnClientError.Invoke(error);
+
+            // configure
+            client.NoDelay = NoDelay;
+            server.NoDelay = NoDelay;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
@@ -48,6 +55,7 @@ namespace Mirror
 
         // client
         public override bool ClientConnected() { return client.IsConnected; }
+
         public override void ClientConnect(string host)
         {
             if (Secure)
@@ -59,11 +67,14 @@ namespace Mirror
                 client.Connect(new Uri($"ws://{host}:{port}"));
             }
         }
+
         public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
+
         public override void ClientDisconnect() { client.Disconnect(); }
 
         // server
         public override bool ServerActive() { return server.Active; }
+
         public override void ServerStart()
         {
             
@@ -81,7 +92,11 @@ namespace Mirror
             server.Listen(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data) { server.Send(connectionId, data); return true;  }
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        {
+            server.Send(connectionId, data);
+            return true;
+        }
 
         public override bool ServerDisconnect(int connectionId)
         {
