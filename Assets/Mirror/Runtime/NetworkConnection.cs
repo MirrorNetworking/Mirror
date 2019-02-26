@@ -19,10 +19,6 @@ namespace Mirror
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
 
-        // this is always true for regular connections, false for local
-        // connections because it's set in the constructor and never reset.
-        public bool isConnected { get; protected set; }
-
         public NetworkConnection(string networkAddress)
         {
             address = networkAddress;
@@ -31,7 +27,6 @@ namespace Mirror
         {
             address = networkAddress;
             connectionId = networkConnectionId;
-            isConnected = true;
         }
 
         ~NetworkConnection()
