@@ -199,7 +199,7 @@ namespace Mirror
                 msgDelegate(message);
                 return true;
             }
-            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
+            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
             return false;
         }
 
