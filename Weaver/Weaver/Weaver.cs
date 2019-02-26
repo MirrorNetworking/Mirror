@@ -170,7 +170,7 @@ namespace Mirror.Weaver
         // this is used to prevent stack overflows when generating serialization code when there are self-referencing types.
         // All the utility classes use GetWriteFunc() to generate serialization code, so the recursion check is implemented there instead of in each utility class.
         // A NetworkBehaviour with the max SyncVars (32) can legitimately increment this value to 65 - so max must be higher than that
-        const int MaxRecursionCount = 128;
+        const int m_kMaxRecursionCount = 128;
         static int s_RecursionCount;
         public static void ResetRecursionCount()
         {
@@ -199,7 +199,7 @@ namespace Mirror.Weaver
 
         public static MethodReference GetWriteFunc(TypeReference variable)
         {
-            if (s_RecursionCount++ > MaxRecursionCount)
+            if (s_RecursionCount++ > m_kMaxRecursionCount)
             {
                 Log.Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 fail = true;
@@ -573,7 +573,7 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateReadFunction(TypeReference variable)
         {
-            if (s_RecursionCount++ > MaxRecursionCount)
+            if (s_RecursionCount++ > m_kMaxRecursionCount)
             {
                 Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 fail = true;
