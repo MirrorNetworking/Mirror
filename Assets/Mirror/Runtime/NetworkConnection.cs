@@ -241,7 +241,7 @@ namespace Mirror
         {
             visList.Add(identity);
 
-            // spawn uv for this conn
+            // spawn identity for this conn
             NetworkServer.ShowForConnection(identity, this);
         }
 
@@ -251,7 +251,7 @@ namespace Mirror
 
             if (!isDestroyed)
             {
-                // hide uv for this conn
+                // hide identity for this conn
                 NetworkServer.HideForConnection(identity, this);
             }
         }
