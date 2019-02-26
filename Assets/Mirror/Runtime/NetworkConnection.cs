@@ -148,16 +148,6 @@ namespace Mirror
             return false;
         }
 
-        public bool InvokeHandler(NetworkMessage netMsg)
-        {
-            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                msgDelegate(netMsg);
-                return true;
-            }
-            return false;
-        }
-
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
