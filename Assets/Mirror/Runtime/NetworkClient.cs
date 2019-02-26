@@ -9,10 +9,6 @@ namespace Mirror
         // the client (can be a regular NetworkClient or a LocalClient)
         public static NetworkClient singleton;
 
-        // this is always 0 or -1 because NetworkClient is only used for our own
-        // client.
-        int clientId = -1;
-
         public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
 
         public NetworkConnection connection { get; protected set; }
@@ -119,7 +115,6 @@ namespace Mirror
         {
             active = true;
             RegisterSystemHandlers(false);
-            clientId = 0;
             NetworkManager.singleton.transport.enabled = true;
             InitializeTransportHandlers();
         }
@@ -133,7 +128,6 @@ namespace Mirror
                 connection.Disconnect();
                 connection.Dispose();
                 connection = null;
-                clientId = -1;
                 RemoveTransportHandlers();
             }
 
@@ -167,13 +161,8 @@ namespace Mirror
 
         internal virtual void Update()
         {
-            if (clientId == -1)
-            {
-                return;
-            }
-
             // only update things while connected
-            if (connectState == ConnectState.Connected)
+            if (active && connectState == ConnectState.Connected)
             {
                 NetworkTime.UpdateClient(this);
             }
@@ -266,8 +255,7 @@ namespace Mirror
 
         public void Shutdown()
         {
-            if (LogFilter.Debug) Debug.Log("Shutting down client " + clientId);
-            clientId = -1;
+            if (LogFilter.Debug) Debug.Log("Shutting down client.");
             singleton = null;
             active = false;
         }
