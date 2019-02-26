@@ -192,13 +192,13 @@ namespace Mirror
             }
         }
 
+        /* TODO use or remove
         void GenerateConnectError(byte error)
         {
             Debug.LogError("UNet Client Error Connect Error: " + error);
             GenerateError(error);
         }
 
-        /* TODO use or remove
         void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
