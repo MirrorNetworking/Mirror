@@ -211,7 +211,6 @@ namespace Mirror
             Debug.LogError("UNet Client Disconnect Error: " + disconnectError);
             GenerateError(error);
         }
-        */
 
         void GenerateError(byte error)
         {
@@ -235,6 +234,7 @@ namespace Mirror
                 msgDelegate(netMsg);
             }
         }
+        */
 
         [Obsolete("Use NetworkTime.rtt instead")]
         public float GetRTT()
