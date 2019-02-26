@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -168,6 +167,9 @@ namespace Mirror
 
         private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
+            // Much research has been done on this. When this is initiated from a HTTPS/WSS stream,
+            // the certificate is null and the SslPolicyErrors is RemoteCertificateNotAvailable.
+            // Meaning we CAN'T verify this and this is all we can do.
             return true;
         }
 
