@@ -29,7 +29,7 @@ namespace Mirror
         {
             NetworkIdentity.spawned.Clear();
             ClearSpawners();
-            s_PendingOwnerNetIds = new List<uint>();
+            s_PendingOwnerNetIds.Clear();
             spawnableObjects = null;
             readyConnection = null;
             ready = false;
