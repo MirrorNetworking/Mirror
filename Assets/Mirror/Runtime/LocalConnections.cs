@@ -7,7 +7,7 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnection
     {
-        public LocalClient localClient { get; }
+        public LocalClient localClient;
 
         public ULocalConnectionToClient(LocalClient localClient) : base ("localClient")
         {
