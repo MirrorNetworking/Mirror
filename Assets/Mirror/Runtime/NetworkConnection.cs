@@ -216,19 +216,7 @@ namespace Mirror
             NetworkReader reader = new NetworkReader(buffer);
             if (Protocol.UnpackMessage(reader, out ushort msgType))
             {
-                if (logNetworkMessages)
-                {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
-                    {
-                        // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " buffer:" + BitConverter.ToString(buffer));
-                    }
-                    else
-                    {
-                        // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " buffer:" + BitConverter.ToString(buffer));
-                    }
-                }
+                if (logNetworkMessages) { Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " buffer:" + BitConverter.ToString(buffer)); }
 
                 if (m_MessageHandlers.TryGetValue((short)msgType, out NetworkMessageDelegate msgDelegate))
                 {
