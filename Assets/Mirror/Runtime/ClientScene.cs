@@ -198,27 +198,34 @@ namespace Mirror
 
         internal static void RegisterSystemHandlers(NetworkClient client, bool localClient)
         {
+            // local client / regular client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
             if (localClient)
             {
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
                 client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
                 client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler(MsgType.Owner, (msg) => {});
+                client.RegisterHandler(MsgType.Pong, (msg) => {});
                 client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.SpawnStarted, (msg) => {});
+                client.RegisterHandler(MsgType.SpawnFinished, (msg) => {});
+                client.RegisterHandler(MsgType.UpdateVars, (msg) => {});
             }
             else
             {
-                // LocalClient shares the sim/scene with the server, no need for these events
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
                 client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
                 client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
-                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
-                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
             }
 
             client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
