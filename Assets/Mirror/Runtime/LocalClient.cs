@@ -47,21 +47,7 @@ namespace Mirror
             while (packetQueue.Count > 0)
             {
                 byte[] packet = packetQueue.Dequeue();
-
-                // unpack message
-                NetworkReader reader = new NetworkReader(packet);
-                if (Protocol.UnpackMessage(reader, out ushort msgType))
-                {
-                    NetworkMessage msg = new NetworkMessage
-                    {
-                        msgType = (short)msgType,
-                        reader = reader,
-                        conn = connection
-                    };
-
-                    connection.InvokeHandler(msg);
-                    connection.lastMessageTime = Time.time;
-                }
+                OnDataReceived(packet);
             }
         }
 
