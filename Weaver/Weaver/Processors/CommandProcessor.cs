@@ -49,7 +49,7 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));

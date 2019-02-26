@@ -44,6 +44,7 @@ namespace Mirror.Weaver
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
         public static bool WeavingFailed { get; set; }
+        public static bool GenerateLogErrors { get; set; }
 
         // private properties
         static bool m_debugLogEnabled = true;
@@ -171,8 +172,6 @@ namespace Mirror.Weaver
         public static MethodReference sendRpcInternal;
         public static MethodReference sendTargetRpcInternal;
         public static MethodReference sendEventInternal;
-
-        public static bool generateLogErrors = false;
 
         public static void ResetRecursionCount()
         {

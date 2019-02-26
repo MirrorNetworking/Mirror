@@ -420,7 +420,7 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Serialize " + m_td.Name));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
@@ -595,7 +595,7 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + m_td.Name));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
