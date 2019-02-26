@@ -31,7 +31,7 @@ namespace Mirror.Weaver
             MethodReference listCtor;
             try
             {
-                listCtor = Weaver.scriptDef.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
+                listCtor = Weaver.CurrentAssembly.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
             }
             catch (Exception)
             {

@@ -16,7 +16,7 @@ namespace Mirror.Weaver
                 Log.Error("SyncListStructProcessor no generic args");
                 return;
             }
-            TypeReference itemType = Weaver.scriptDef.MainModule.ImportReference(gt.GenericArguments[0]);
+            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[0]);
 
             Weaver.DLog(td, "SyncListStructProcessor Start item:" + itemType.FullName);
 
@@ -51,7 +51,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
@@ -67,7 +67,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
                 TypeDefinition ft = importedField.FieldType.Resolve();
 
                 if (ft.HasGenericParameters)
@@ -120,7 +120,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     itemType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
 
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
@@ -136,7 +136,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                FieldReference importedField = Weaver.scriptDef.MainModule.ImportReference(field);
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
                 TypeDefinition ft = importedField.FieldType.Resolve();
 
                 MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
