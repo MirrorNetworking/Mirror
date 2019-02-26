@@ -24,7 +24,7 @@ namespace Mirror
             NetworkServer.RemoveLocalClient(connection);
         }
 
-        internal void InternalConnectLocalServer(bool generateConnectMsg)
+        internal void InternalConnectLocalServer()
         {
             connection = new ULocalConnectionToServer();
             SetHandlers(connection);
@@ -34,10 +34,8 @@ namespace Mirror
             active = true;
             RegisterSystemHandlers(true);
 
-            if (generateConnectMsg)
-            {
-                packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
-            }
+            packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
+
             m_Connected = true;
         }
 
