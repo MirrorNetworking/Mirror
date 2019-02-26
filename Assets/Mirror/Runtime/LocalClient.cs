@@ -8,9 +8,8 @@ namespace Mirror
     {
         // local client in host mode might call Cmds/Rpcs during Update, but we
         // want to apply them in LateUpdate like all other Transport messages
-        // to avoid race conditions.
-        // -> that's why there is an internal message queue.
-        Queue<NetworkMessage> m_InternalMsgs = new Queue<NetworkMessage>();
+        // to avoid race conditions. keep packets in Queue until LateUpdate.
+        Queue<NetworkMessage> packetQueue = new Queue<NetworkMessage>();
         bool m_Connected;
 
         public override void Disconnect()
@@ -45,9 +44,9 @@ namespace Mirror
         internal override void Update()
         {
             // process internal messages so they are applied at the correct time
-            while (m_InternalMsgs.Count > 0)
+            while (packetQueue.Count > 0)
             {
-                NetworkMessage internalMessage = m_InternalMsgs.Dequeue();
+                NetworkMessage internalMessage = packetQueue.Dequeue();
                 connection.InvokeHandler(internalMessage);
                 connection.lastMessageTime = Time.time;
             }
@@ -77,7 +76,7 @@ namespace Mirror
                 reader = contentReader,
                 conn = connection
             };
-            m_InternalMsgs.Enqueue(msg);
+            packetQueue.Enqueue(msg);
         }
 
         void PostInternalMessage(short msgType)
