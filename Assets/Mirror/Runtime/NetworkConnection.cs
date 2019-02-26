@@ -125,29 +125,6 @@ namespace Mirror
             return SendBytes(message, channelId);
         }
 
-        public bool InvokeHandlerNoData(short msgType)
-        {
-            return InvokeHandler(msgType, null);
-        }
-
-        public bool InvokeHandler(short msgType, NetworkReader reader)
-        {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    conn = this,
-                    reader = reader
-                };
-
-                msgDelegate(message);
-                return true;
-            }
-            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
-            return false;
-        }
-
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
@@ -201,6 +178,29 @@ namespace Mirror
                 identity.RemoveObserverInternal(this);
             }
             visList.Clear();
+        }
+
+        public bool InvokeHandlerNoData(short msgType)
+        {
+            return InvokeHandler(msgType, null);
+        }
+
+        public bool InvokeHandler(short msgType, NetworkReader reader)
+        {
+            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            {
+                NetworkMessage message = new NetworkMessage
+                {
+                    msgType = msgType,
+                    conn = this,
+                    reader = reader
+                };
+
+                msgDelegate(message);
+                return true;
+            }
+            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
+            return false;
         }
 
         // handle this message
