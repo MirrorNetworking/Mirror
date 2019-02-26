@@ -45,16 +45,6 @@ namespace Mirror
             singleton = this;
         }
 
-        // initialize with connection. calls NetworkClient() to setup singleton.
-        public NetworkClient(NetworkConnection conn) : this()
-        {
-            active = true;
-            m_Connection = conn;
-            connectState = ConnectState.Connected;
-            conn.SetHandlers(handlers);
-            RegisterSystemHandlers(false);
-        }
-
         internal void SetHandlers(NetworkConnection conn)
         {
             conn.SetHandlers(handlers);
