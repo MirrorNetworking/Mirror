@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,9 +21,7 @@ namespace Mirror
     {
         public string value;
 
-        public StringMessage()
-        {
-        }
+        public StringMessage() { }
 
         public StringMessage(string v)
         {
@@ -45,9 +43,7 @@ namespace Mirror
     {
         public byte value;
 
-        public ByteMessage()
-        {
-        }
+        public ByteMessage() { }
 
         public ByteMessage(byte v)
         {
@@ -69,9 +65,7 @@ namespace Mirror
     {
         public byte[] value;
 
-        public BytesMessage()
-        {
-        }
+        public BytesMessage() { }
 
         public BytesMessage(byte[] v)
         {
@@ -93,9 +87,7 @@ namespace Mirror
     {
         public int value;
 
-        public IntegerMessage()
-        {
-        }
+        public IntegerMessage() { }
 
         public IntegerMessage(int v)
         {
@@ -117,9 +109,7 @@ namespace Mirror
     {
         public double value;
 
-        public DoubleMessage()
-        {
-        }
+        public DoubleMessage() { }
 
         public DoubleMessage(double v)
         {
@@ -139,13 +129,9 @@ namespace Mirror
 
     public class EmptyMessage : MessageBase
     {
-        public override void Deserialize(NetworkReader reader)
-        {
-        }
+        public override void Deserialize(NetworkReader reader) { }
 
-        public override void Serialize(NetworkWriter writer)
-        {
-        }
+        public override void Serialize(NetworkWriter writer) { }
     }
 
     // ---------- Public System Messages -------------------
@@ -323,13 +309,9 @@ namespace Mirror
     // to calculate RTT and synchronize time
     class NetworkPingMessage : DoubleMessage
     {
-        public NetworkPingMessage()
-        {
-        }
+        public NetworkPingMessage() { }
 
-        public NetworkPingMessage(double value) : base(value)
-        {
-        }
+        public NetworkPingMessage(double value) : base(value) { }
     }
 
     // The server responds with this message

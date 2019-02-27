@@ -531,9 +531,7 @@ namespace Mirror
             return false;
         }
 
-        public virtual void OnSetLocalVisibility(bool vis)
-        {
-        }
+        public virtual void OnSetLocalVisibility(bool vis) { }
 
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {

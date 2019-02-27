@@ -45,7 +45,7 @@ namespace Mirror
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
 
-        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
@@ -637,9 +637,7 @@ namespace Mirror
 
         // ----------------------------- Server System Callbacks --------------------------------
 
-        public virtual void OnServerConnect(NetworkConnection conn)
-        {
-        }
+        public virtual void OnServerConnect(NetworkConnection conn) { }
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
@@ -728,13 +726,9 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode)
-        {
-        }
+        public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnServerSceneChanged(string sceneName)
-        {
-        }
+        public virtual void OnServerSceneChanged(string sceneName) { }
 
         // ----------------------------- Client System Callbacks --------------------------------
 
@@ -756,13 +750,9 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode)
-        {
-        }
+        public virtual void OnClientError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnClientNotReady(NetworkConnection conn)
-        {
-        }
+        public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
@@ -790,11 +780,11 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost() {}
-        public virtual void OnStartServer() {}
-        public virtual void OnStartClient(NetworkClient client) {}
-        public virtual void OnStopServer() {}
-        public virtual void OnStopClient() {}
-        public virtual void OnStopHost() {}
+        public virtual void OnStartHost() { }
+        public virtual void OnStartServer() { }
+        public virtual void OnStartClient(NetworkClient client) { }
+        public virtual void OnStopServer() { }
+        public virtual void OnStopClient() { }
+        public virtual void OnStopHost() { }
     }
 }

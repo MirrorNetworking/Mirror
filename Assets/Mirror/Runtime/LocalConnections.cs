@@ -25,9 +25,7 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnection
     {
-        public ULocalConnectionToServer() : base("localServer")
-        {
-        }
+        public ULocalConnectionToServer() : base("localServer") { }
 
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
