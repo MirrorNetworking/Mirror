@@ -27,6 +27,9 @@ namespace Mirror
 
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
+        [Obsolete("Use SetLength(0) instead.")]
+        public void Reset() { SetLength(0L); }
+
         public void SetLength(long value)
         {
             ((MemoryStream)writer.BaseStream).SetLength(value);
