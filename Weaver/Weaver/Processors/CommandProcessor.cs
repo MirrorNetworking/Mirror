@@ -49,7 +49,7 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
@@ -144,14 +144,14 @@ namespace Mirror.Weaver
             if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
             if (md.IsStatic)
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 

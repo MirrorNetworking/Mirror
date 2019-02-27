@@ -459,8 +459,8 @@ namespace Mirror
         // -> returns serialized data of everything dirty,  null if nothing was dirty
         internal byte[] OnSerializeAllSafely(bool initialState)
         {
-            // reset cached writer's position
-            onSerializeWriter.Reset();
+            // reset cached writer length and position
+            onSerializeWriter.SetLength(0);
 
             if (m_NetworkBehaviours.Length > 64)
             {
@@ -945,7 +945,7 @@ namespace Mirror
         public static void UNetStaticUpdate()
         {
             NetworkServer.Update();
-            NetworkClient.UpdateClients();
+            NetworkClient.UpdateClient();
             NetworkManager.UpdateScene();
         }
     }

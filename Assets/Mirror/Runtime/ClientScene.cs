@@ -29,7 +29,7 @@ namespace Mirror
         {
             NetworkIdentity.spawned.Clear();
             ClearSpawners();
-            s_PendingOwnerNetIds = new List<uint>();
+            s_PendingOwnerNetIds.Clear();
             spawnableObjects = null;
             readyConnection = null;
             ready = false;
@@ -57,16 +57,10 @@ namespace Mirror
         }
 
         // use this if already ready
-        public static bool AddPlayer()
-        {
-            return AddPlayer(null);
-        }
+        public static bool AddPlayer() => AddPlayer(null);
 
         // use this to implicitly become ready
-        public static bool AddPlayer(NetworkConnection readyConn)
-        {
-            return AddPlayer(readyConn, null);
-        }
+        public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer(readyConn, null);
 
         // use this to implicitly become ready
         // -> extraMessage can contain character selection, etc.
@@ -150,7 +144,7 @@ namespace Mirror
         {
             LocalClient newClient = new LocalClient();
             NetworkServer.ActivateLocalClientScene();
-            newClient.InternalConnectLocalServer(true);
+            newClient.InternalConnectLocalServer();
             return newClient;
         }
 
@@ -198,27 +192,34 @@ namespace Mirror
 
         internal static void RegisterSystemHandlers(NetworkClient client, bool localClient)
         {
+            // local client / regular client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
             if (localClient)
             {
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
                 client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
                 client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
+                client.RegisterHandler(MsgType.Owner, (msg) => {});
+                client.RegisterHandler(MsgType.Pong, (msg) => {});
                 client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.SpawnStarted, (msg) => {});
+                client.RegisterHandler(MsgType.SpawnFinished, (msg) => {});
+                client.RegisterHandler(MsgType.UpdateVars, (msg) => {});
             }
             else
             {
-                // LocalClient shares the sim/scene with the server, no need for these events
+                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
+                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
+                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
+                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
+                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
                 client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
                 client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
                 client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
                 client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
                 client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
-                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
-                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
             }
 
             client.RegisterHandler(MsgType.Rpc, OnRPCMessage);

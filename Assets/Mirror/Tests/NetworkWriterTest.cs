@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using UnityEngine;
 
@@ -10,27 +10,27 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingSmallMessage()
         {
-            // try serializing <32kb and see what happens
+            // try serializing less than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 30000 / 4; ++i)
                 writer.Write(i);
-            Assert.That(writer.ToArray().Length, Is.EqualTo(30000));
+            Assert.That(writer.Position, Is.EqualTo(30000));
         }
 
         [Test]
         public void TestWritingLargeMessage()
         {
-            // try serializing <32kb and see what happens
+            // try serializing more than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 40000 / 4; ++i)
                 writer.Write(i);
-            Assert.That(writer.ToArray().Length, Is.EqualTo(40000));
+            Assert.That(writer.Position, Is.EqualTo(40000));
         }
 
         [Test]
         public void TestWritingHugeArray()
         {
-            // try serializing array > 64KB and see what happens
+            // try serializing array more than 64KB large and see what happens
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSize(new byte[100000]);
             byte[] data = writer.ToArray();
@@ -51,8 +51,10 @@ namespace Mirror.Tests
             // .ToArray() length is 2?
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
 
-            // .ToArray() length is 1, even though the internal array contains 2 bytes?
-            // (see .ToArray() function comments)
+            // set position back by one
+            writer.Position = 1;
+
+            // Changing the position should not alter the size of the data
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
         }
 

@@ -120,14 +120,14 @@ namespace Mirror.Weaver
             if (md.Name.Length > prefixLen && md.Name.Substring(0, prefixLen) != targetPrefix)
             {
                 Log.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
             if (md.IsStatic)
             {
                 Log.Error("TargetRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
@@ -139,14 +139,14 @@ namespace Mirror.Weaver
             if (md.Parameters.Count < 1)
             {
                 Log.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] must have a NetworkConnection as the first parameter");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
             if (md.Parameters[0].ParameterType.FullName != Weaver.NetworkConnectionType.FullName)
             {
                 Log.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] first parameter must be a NetworkConnection");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 

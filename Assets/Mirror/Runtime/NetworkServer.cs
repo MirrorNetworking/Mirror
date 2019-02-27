@@ -17,8 +17,6 @@ namespace Mirror
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection => s_LocalConnection;
 
-        public static int serverHostId { get; private set; } = -1;
-
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
         public static Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
@@ -46,7 +44,6 @@ namespace Mirror
                 else
                 {
                     NetworkManager.singleton.transport.ServerStop();
-                    serverHostId = -1;
                 }
 
                 NetworkManager.singleton.transport.OnServerDisconnected.RemoveListener(OnDisconnected);
@@ -95,13 +92,6 @@ namespace Mirror
             if (!dontListen)
             {
                 NetworkManager.singleton.transport.ServerStart();
-                serverHostId = 0; // so it doesn't return false
-
-                if (serverHostId == -1)
-                {
-                    return false;
-                }
-
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
@@ -142,13 +132,11 @@ namespace Mirror
             {
                 connectionId = 0
             };
-            AddConnection(s_LocalConnection);
-
-            s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
+            OnConnected(s_LocalConnection);
             return 0;
         }
 
-        internal static void RemoveLocalClient(NetworkConnection localClientConnection)
+        internal static void RemoveLocalClient()
         {
             if (s_LocalConnection != null)
             {
@@ -287,10 +275,10 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
-            if (serverHostId == -1)
-                return;
-
-            UpdateServerObjects();
+            if (active)
+            {
+                UpdateServerObjects();
+            }
         }
 
         static void OnConnected(int connectionId)
@@ -324,8 +312,7 @@ namespace Mirror
                 string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
 
                 // add player info
-                NetworkConnection conn = new NetworkConnection(address, serverHostId, connectionId);
-                AddConnection(conn);
+                NetworkConnection conn = new NetworkConnection(address, connectionId);
                 OnConnected(conn);
             }
             else
@@ -339,6 +326,9 @@ namespace Mirror
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + conn.connectionId); }
+
+            // add connection and invoke connected event
+            AddConnection(conn);
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
@@ -1062,20 +1052,6 @@ namespace Mirror
             {
                 DestroyObject(identity, false);
             }
-        }
-
-        internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
-        {
-            NetworkReader reader = new NetworkReader(buffer);
-            short msgType = (short)reader.ReadPackedUInt32();
-
-            if (handlers.ContainsKey(msgType) && s_LocalConnection != null)
-            {
-                // this must be invoked with the connection to the client, not the client's connection to the server
-                s_LocalConnection.InvokeHandler((short)msgType, reader);
-                return true;
-            }
-            return false;
         }
 
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]

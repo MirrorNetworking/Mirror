@@ -11,25 +11,27 @@ namespace Mirror
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
-        public int hostId = -1;
         public int connectionId = -1;
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController; 
+        public NetworkIdentity playerController => m_PlayerController;
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected => hostId != -1; 
+
+        // this is always true for regular connections, false for local
+        // connections because it's set in the constructor and never reset.
+        public bool isConnected { get; protected set; }
 
         public NetworkConnection(string networkAddress)
         {
             address = networkAddress;
         }
-        public NetworkConnection(string networkAddress, int networkHostId, int networkConnectionId)
+        public NetworkConnection(string networkAddress, int networkConnectionId)
         {
             address = networkAddress;
-            hostId = networkHostId;
             connectionId = networkConnectionId;
+            isConnected = true;
         }
 
         ~NetworkConnection()
@@ -71,7 +73,7 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
-            
+
             // paul:  we may be connecting or connected,  either way, we need to disconnect
             // transport should not do anything if it is not connecting/connected
             NetworkManager.singleton.transport.ClientDisconnect();
@@ -82,49 +84,13 @@ namespace Mirror
                 NetworkManager.singleton.transport.ServerDisconnect(connectionId);
             }
 
-            // remove observers. original HLAPI has hostId check for that too.
-            if (hostId != -1)
-            {
-                RemoveObservers();
-            }
+            // remove observers
+            RemoveObservers();
         }
 
         internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
-        }
-
-        public bool InvokeHandlerNoData(short msgType)
-        {
-            return InvokeHandler(msgType, null);
-        }
-
-        public bool InvokeHandler(short msgType, NetworkReader reader)
-        {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    conn = this,
-                    reader = reader
-                };
-
-                msgDelegate(message);
-                return true;
-            }
-            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
-            return false;
-        }
-
-        public bool InvokeHandler(NetworkMessage netMsg)
-        {
-            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                msgDelegate(netMsg);
-                return true;
-            }
-            return false;
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
@@ -180,68 +146,16 @@ namespace Mirror
             return TransportSend(channelId, bytes);
         }
 
-        // handle this message
-        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
-        //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
-        //       frame already.
-        //       -> in other words, we always receive 1 message per Receive call, never two.
-        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
-        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer)
-        {
-            NetworkReader reader = new NetworkReader(buffer);
-            // unpack message
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
-            {
-                if (logNetworkMessages)
-                {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
-                    {
-                        // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " content:" + BitConverter.ToString(buffer));
-                    }
-                    else
-                    {
-                        // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-                    }
-                }
-
-                if (m_MessageHandlers.TryGetValue((short)msgType, out NetworkMessageDelegate msgDelegate))
-                {
-                    // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage
-                    {
-                        msgType = (short)msgType,
-                        reader = reader,
-                        conn = this
-                    };
-
-                    msgDelegate(msg);
-                    lastMessageTime = Time.time;
-                }
-                else
-                {
-                    //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
-                }
-            }
-            else
-            {
-                Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
-            }
-        }
-
         public override string ToString()
         {
-            return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
+            return string.Format("connectionId: {0} isReady: {1}", connectionId, isReady);
         }
 
         internal void AddToVisList(NetworkIdentity identity)
         {
             visList.Add(identity);
 
-            // spawn uv for this conn
+            // spawn identity for this conn
             NetworkServer.ShowForConnection(identity, this);
         }
 
@@ -251,7 +165,7 @@ namespace Mirror
 
             if (!isDestroyed)
             {
-                // hide uv for this conn
+                // hide identity for this conn
                 NetworkServer.HideForConnection(identity, this);
             }
         }
@@ -265,9 +179,63 @@ namespace Mirror
             visList.Clear();
         }
 
-        public virtual void TransportReceive(byte[] bytes)
+        public bool InvokeHandlerNoData(short msgType)
         {
-            HandleBytes(bytes);
+            return InvokeHandler(msgType, null);
+        }
+
+        public bool InvokeHandler(short msgType, NetworkReader reader)
+        {
+            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            {
+                NetworkMessage message = new NetworkMessage
+                {
+                    msgType = msgType,
+                    reader = reader,
+                    conn = this
+                };
+
+                msgDelegate(message);
+                return true;
+            }
+            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
+            return false;
+        }
+
+        // handle this message
+        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
+        //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
+        //       frame already.
+        //       -> in other words, we always receive 1 message per Receive call, never two.
+        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
+        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
+        public virtual void TransportReceive(byte[] buffer)
+        {
+            // unpack message
+            NetworkReader reader = new NetworkReader(buffer);
+            if (Protocol.UnpackMessage(reader, out ushort msgType))
+            {
+                if (logNetworkMessages)
+                {
+                    if (Enum.IsDefined(typeof(MsgType), msgType))
+                    {
+                        // one of Mirror mesage types,  display the message name
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " buffer:" + BitConverter.ToString(buffer));
+                    }
+                    else
+                    {
+                        // user defined message,  display the number
+                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " buffer:" + BitConverter.ToString(buffer));
+                    }
+                }
+
+                // try to invoke the handler for that message
+                if (InvokeHandler((short)msgType, reader))
+                {
+                    lastMessageTime = Time.time;
+                }
+            }
+            else Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
         }
 
         public virtual bool TransportSend(int channelId, byte[] bytes)

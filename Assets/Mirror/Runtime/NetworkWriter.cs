@@ -10,10 +10,26 @@ namespace Mirror
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
+        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
+        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
+
+        // MemoryStream has 3 values: Position, Length and Capacity.
+        // Position is used to indicate where we are writing
+        // Length is how much data we have written
+        // capacity is how much memory we have allocated
+        // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
             writer.Flush();
             return ((MemoryStream)writer.BaseStream).ToArray();
+        }
+
+        // reset both the position and length of the stream,  but leaves the capacity the same
+        // so that we can reuse this writer without extra allocations
+        public void SetLength(long value)
+        {
+            ((MemoryStream)writer.BaseStream).SetLength(value);
         }
 
         public void Write(byte value)  { writer.Write(value); }
@@ -312,12 +328,6 @@ namespace Mirror
         public void Write(MessageBase msg)
         {
             msg.Serialize(this);
-        }
-
-        public void Reset()
-        {
-            writer.Flush();
-            ((MemoryStream)writer.BaseStream).SetLength(0);
         }
     }
 }
