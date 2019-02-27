@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +21,7 @@ namespace Mirror
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
+        [Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
         public bool isConnected { get; protected set; }
 
         public NetworkConnection(string networkAddress)
@@ -120,7 +121,7 @@ namespace Mirror
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
@@ -148,7 +149,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return string.Format("connectionId: {0} isReady: {1}", connectionId, isReady);
+            return $"connectionId: {connectionId} isReady: {isReady}";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -213,7 +214,7 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
             {
                 if (logNetworkMessages)
                 {
