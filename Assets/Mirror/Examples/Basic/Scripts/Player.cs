@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
@@ -18,7 +18,7 @@ namespace Mirror.Examples.Basic
         public override void OnStartServer()
         {
             base.OnStartServer();
-            InvokeRepeating("UpdateData", 1, 1);
+            InvokeRepeating(nameof(UpdateData), 1, 1);
         }
 
         public void UpdateData()
