@@ -380,8 +380,7 @@ namespace Mirror
 
         private static void OnError(int connectionId, Exception exception)
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 OnError(conn, exception);
             }
@@ -394,14 +393,7 @@ namespace Mirror
 
         private static void OnError(NetworkConnection conn, Exception exception)
         {
-            NetworkError errorMessage = new NetworkError
-            {
-                msgType = (short)MsgType.Error,
-                conn = conn,
-                exception = exception,
-            };
-
-            conn.InvokeHandler(errorMessage);
+            Debug.LogException(exception);
         }
 
         public static void RegisterHandler(short msgType, NetworkMessageDelegate handler)
