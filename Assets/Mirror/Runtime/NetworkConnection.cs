@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -148,7 +148,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return string.Format("connectionId: {0} isReady: {1}", connectionId, isReady);
+            return $"connectionId: {connectionId} isReady: {isReady}";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
