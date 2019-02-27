@@ -216,12 +216,7 @@ namespace Mirror
                     return;
                 }
 
-                Debug.LogError(string.Format(
-                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
-                    oldInvoker.invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName(),
-                    invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName()));
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {

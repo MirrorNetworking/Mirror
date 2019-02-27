@@ -31,7 +31,7 @@ namespace Mirror.Examples.Basic
             if (isLocalPlayer)
                 text.color = Color.red;
 
-            text.text = string.Format("Player {0}\ndata={1}", netId, data);
+            text.text = $"Player {netId}\ndata={data}";
         }
     }
 }
