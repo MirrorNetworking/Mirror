@@ -21,6 +21,7 @@ namespace Mirror
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
+        [Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
         public bool isConnected { get; protected set; }
 
         public NetworkConnection(string networkAddress)
