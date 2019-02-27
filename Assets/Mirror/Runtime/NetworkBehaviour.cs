@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
-using System.Linq;
 
 namespace Mirror
 {
@@ -399,7 +398,13 @@ namespace Mirror
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            m_SyncObjects.ForEach(obj => obj.Flush());
+            // note: don't use Linq here, this is a hot path
+            // Linq: 432b/frame
+            // for: 231b/frame
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            {
+                m_SyncObjects[i].Flush();
+            }
         }
 
         internal bool AnySyncObjectDirty()
