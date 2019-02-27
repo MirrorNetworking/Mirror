@@ -398,8 +398,8 @@ namespace Mirror
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            // note: don't use Linq here, this is a hot path
-            // Linq: 432b/frame
+            // note: don't use List.ForEach here, this is a hot path
+            // List.ForEach: 432b/frame
             // for: 231b/frame
             for (int i = 0; i < m_SyncObjects.Count; ++i)
             {
