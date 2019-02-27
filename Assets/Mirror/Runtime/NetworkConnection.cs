@@ -121,7 +121,7 @@ namespace Mirror
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
@@ -214,7 +214,7 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
             {
                 if (logNetworkMessages)
                 {

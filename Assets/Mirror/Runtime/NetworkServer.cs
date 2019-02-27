@@ -175,7 +175,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all observers
                 bool result = true;
@@ -193,7 +193,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             // pack message into byte[] once
-            byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
             // send to all
             bool result = true;
@@ -211,7 +211,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all ready observers
                 bool result = true;
