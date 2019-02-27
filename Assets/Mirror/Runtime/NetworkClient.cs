@@ -221,7 +221,38 @@ namespace Mirror
 
         internal void RegisterSystemHandlers(bool localClient)
         {
-            ClientScene.RegisterSystemHandlers(this, localClient);
+            // local client / regular client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
+            if (localClient)
+            {
+                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
+                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnLocalClientObjectDestroy);
+                RegisterHandler(MsgType.ObjectHide, ClientScene.OnLocalClientObjectHide);
+                RegisterHandler(MsgType.Owner, (msg) => {});
+                RegisterHandler(MsgType.Pong, (msg) => {});
+                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnLocalClientSpawnPrefab);
+                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnLocalClientSpawnSceneObject);
+                RegisterHandler(MsgType.SpawnStarted, (msg) => {});
+                RegisterHandler(MsgType.SpawnFinished, (msg) => {});
+                RegisterHandler(MsgType.UpdateVars, (msg) => {});
+            }
+            else
+            {
+                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
+                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnObjectDestroy);
+                RegisterHandler(MsgType.ObjectHide, ClientScene.OnObjectDestroy);
+                RegisterHandler(MsgType.Owner, ClientScene.OnOwnerMessage);
+                RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
+                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnSpawnPrefab);
+                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnSpawnSceneObject);
+                RegisterHandler(MsgType.SpawnStarted, ClientScene.OnObjectSpawnStarted);
+                RegisterHandler(MsgType.SpawnFinished, ClientScene.OnObjectSpawnFinished);
+                RegisterHandler(MsgType.UpdateVars, ClientScene.OnUpdateVarsMessage);
+            }
+
+            RegisterHandler(MsgType.Rpc, ClientScene.OnRPCMessage);
+            RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
