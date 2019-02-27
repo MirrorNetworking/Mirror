@@ -60,6 +60,7 @@ namespace Mirror
         // this is used to make sure that all scene changes are initialized by UNET.
         // Loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
         public static string networkSceneName = "";
+        private static string activeSceneName;
         [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
@@ -99,6 +100,8 @@ namespace Mirror
                 return;
             }
 
+            activeSceneName = SceneManager.GetActiveScene().name;
+            SceneManager.sceneLoaded += OnSceneChange;
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -129,6 +132,11 @@ namespace Mirror
             {
                 networkAddress = s_Address;
             }
+        }
+
+        private static void OnSceneChange(Scene scene, LoadSceneMode mode)
+        {
+            activeSceneName = scene.name;
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -586,9 +594,8 @@ namespace Mirror
         internal void OnClientConnectInternal(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
-
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
+            
+            if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || activeSceneName == onlineScene)
             {
                 clientLoadedScene = false;
                 OnClientConnect(netMsg.conn);
