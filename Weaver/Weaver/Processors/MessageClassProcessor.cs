@@ -13,7 +13,7 @@ namespace Mirror.Weaver
             Weaver.ResetRecursionCount();
 
             GenerateSerialization(td);
-            if (Weaver.fail)
+            if (Weaver.WeavingFailed)
             {
                 return;
             }
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             {
                 if (field.FieldType.FullName == td.FullName)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FullName + "]. [MessageBase] member cannot be self referencing.");
                     return;
                 }
@@ -51,7 +51,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
             foreach (FieldDefinition field in td.Fields)
@@ -61,14 +61,14 @@ namespace Mirror.Weaver
 
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot have generic parameters.");
                     return;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot be an interface.");
                     return;
                 }
@@ -83,7 +83,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member variables must be basic types.");
                     return;
                 }
@@ -111,7 +111,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
             foreach (FieldDefinition field in td.Fields)
@@ -129,7 +129,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     Log.Error("GenerateDeSerialization for " + td.Name + " unknown type [" + field.FieldType + "]. [SyncVar] member variables must be basic types.");
                     return;
                 }
