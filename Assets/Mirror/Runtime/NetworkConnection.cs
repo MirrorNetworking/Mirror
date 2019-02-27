@@ -37,8 +37,10 @@ namespace Mirror
         {
             address = networkAddress;
             connectionId = networkConnectionId;
+#pragma warning disable 618
             isConnected = true;
             hostId = 0;
+#pragma warning restore 618
         }
 
         ~NetworkConnection()
