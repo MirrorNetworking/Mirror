@@ -10,7 +10,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingSmallMessage()
         {
-            // try serializing <32kb and see what happens
+            // try serializing less than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 30000 / 4; ++i)
                 writer.Write(i);
@@ -20,7 +20,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingLargeMessage()
         {
-            // try serializing <32kb and see what happens
+            // try serializing more than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 40000 / 4; ++i)
                 writer.Write(i);
@@ -30,7 +30,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingHugeArray()
         {
-            // try serializing array > 64KB and see what happens
+            // try serializing array more than 64KB large and see what happens
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSize(new byte[100000]);
             byte[] data = writer.ToArray();
