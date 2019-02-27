@@ -57,16 +57,10 @@ namespace Mirror
         }
 
         // use this if already ready
-        public static bool AddPlayer()
-        {
-            return AddPlayer(null);
-        }
+        public static bool AddPlayer() => AddPlayer(null);
 
         // use this to implicitly become ready
-        public static bool AddPlayer(NetworkConnection readyConn)
-        {
-            return AddPlayer(readyConn, null);
-        }
+        public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer(readyConn, null);
 
         // use this to implicitly become ready
         // -> extraMessage can contain character selection, etc.
