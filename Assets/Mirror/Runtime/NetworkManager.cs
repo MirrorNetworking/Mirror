@@ -585,7 +585,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
 
-            string loadedSceneName = SceneManager.GetActiveScene().name;
+            string loadedSceneName = SceneManager.GetSceneAt(0).name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
                 clientLoadedScene = false;
