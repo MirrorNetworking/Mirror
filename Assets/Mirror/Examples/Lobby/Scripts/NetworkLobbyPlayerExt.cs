@@ -1,5 +1,4 @@
 using UnityEngine;
-using Mirror;
 using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.NetworkLobby

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Mirror;
+using UnityEngine;
 
 namespace Mirror.Examples.Movement
 {
