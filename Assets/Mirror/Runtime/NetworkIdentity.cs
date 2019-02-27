@@ -932,13 +932,5 @@ namespace Mirror
                 NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, varsMessage);
             }
         }
-
-        // this is invoked by the UnityEngine
-        public static void UNetStaticUpdate()
-        {
-            NetworkServer.Update();
-            NetworkClient.UpdateClient();
-            NetworkManager.UpdateScene();
-        }
     }
 }

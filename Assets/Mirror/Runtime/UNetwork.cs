@@ -88,15 +88,18 @@ namespace Mirror
         public const int DefaultUnreliable = 1;
     }
 
-    // network protocol all in one place, instead of constructing headers in all kinds of different places
+    // message packing all in one place, instead of constructing headers in all
+    // kinds of different places
     //
     //   MsgType     (1-n bytes)
     //   Content     (ContentSize bytes)
     //
-    // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
+    // -> we use varint for headers because most messages will result in 1 byte
+    //    type/size headers then instead of always
     //    using 2 bytes for shorts.
-    // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
-    public static class Protocol
+    // -> this reduces bandwidth by 10% if average message size is 20 bytes
+    //    (probably even shorter)
+    public static class MessagePacker
     {
         // PackMessage is in hot path. caching the writer is really worth it to
         // avoid large amounts of allocations.

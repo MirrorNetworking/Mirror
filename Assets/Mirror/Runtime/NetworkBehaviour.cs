@@ -216,12 +216,7 @@ namespace Mirror
                     return;
                 }
 
-                Debug.LogError(string.Format(
-                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
-                    oldInvoker.invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName(),
-                    invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName()));
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {
@@ -399,7 +394,13 @@ namespace Mirror
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            m_SyncObjects.ForEach(obj => obj.Flush());
+            // note: don't use List.ForEach here, this is a hot path
+            // List.ForEach: 432b/frame
+            // for: 231b/frame
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            {
+                m_SyncObjects[i].Flush();
+            }
         }
 
         internal bool AnySyncObjectDirty()

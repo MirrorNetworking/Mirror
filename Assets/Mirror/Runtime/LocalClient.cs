@@ -21,7 +21,7 @@ namespace Mirror
             active = true;
             RegisterSystemHandlers(true);
 
-            packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
+            packetQueue.Enqueue(MessagePacker.PackMessage((ushort)MsgType.Connect, new EmptyMessage()));
         }
 
         public override void Disconnect()
@@ -30,7 +30,7 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(connection);
             if (isConnected)
             {
-                packetQueue.Enqueue(Protocol.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
+                packetQueue.Enqueue(MessagePacker.PackMessage((ushort)MsgType.Disconnect, new EmptyMessage()));
             }
             NetworkServer.RemoveLocalClient();
         }

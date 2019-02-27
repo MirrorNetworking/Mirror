@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
@@ -18,7 +18,7 @@ namespace Mirror.Examples.Basic
         public override void OnStartServer()
         {
             base.OnStartServer();
-            InvokeRepeating("UpdateData", 1, 1);
+            InvokeRepeating(nameof(UpdateData), 1, 1);
         }
 
         public void UpdateData()
@@ -31,7 +31,7 @@ namespace Mirror.Examples.Basic
             if (isLocalPlayer)
                 text.color = Color.red;
 
-            text.text = string.Format("Player {0}\ndata={1}", netId, data);
+            text.text = $"Player {netId}\ndata={data}";
         }
     }
 }

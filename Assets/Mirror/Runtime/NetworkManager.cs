@@ -141,7 +141,9 @@ namespace Mirror
             // call it while the NetworkManager exists.
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
-            NetworkIdentity.UNetStaticUpdate();
+            NetworkServer.Update();
+            NetworkClient.UpdateClient();
+            UpdateScene();
         }
 
         // When pressing Stop in the Editor, Unity keeps threads alive until we
@@ -585,7 +587,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
 
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
                 clientLoadedScene = false;
