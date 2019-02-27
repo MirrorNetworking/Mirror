@@ -21,7 +21,13 @@ namespace Mirror
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
+        [Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
         public bool isConnected { get; protected set; }
+
+        // this is always 0 for regular connections, -1 for local
+        // connections because it's set in the constructor and never reset.
+        [Obsolete("hostId will be removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use connection.GetType() == NetworkConnection to check if it's a regular or local connection.")]
+        public int hostId = -1;
 
         public NetworkConnection(string networkAddress)
         {
@@ -32,6 +38,7 @@ namespace Mirror
             address = networkAddress;
             connectionId = networkConnectionId;
             isConnected = true;
+            hostId = 0;
         }
 
         ~NetworkConnection()
@@ -120,7 +127,7 @@ namespace Mirror
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
@@ -148,7 +155,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return string.Format("connectionId: {0} isReady: {1}", connectionId, isReady);
+            return $"connectionId: {connectionId} isReady: {isReady}";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -213,7 +220,7 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
             {
                 if (logNetworkMessages)
                 {
