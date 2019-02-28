@@ -142,7 +142,6 @@ namespace Mirror
         // only used when fixing duplicate scene IDs during post-processing
         public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
         internal void EnableIsClient() => isClient = true;
-        internal void EnableIsServer() => m_IsServer = true;
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
