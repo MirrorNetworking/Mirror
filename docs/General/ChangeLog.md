@@ -6,6 +6,7 @@
 - Added: Unit tests for Weaver
 - Added: Configurable Server Tickrate in NetworkManager
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed
+- Added: WebGL / Websockets with SSL Secure Sockets
 - Fixed: Garbage allocations removed from a lot of things (more work to do, we know)
 - Fixed: SyncVar hook not firing when clients joined
 - Fixed: NetworkManager no longer assumes it's on Scene(0) in Build Settings
