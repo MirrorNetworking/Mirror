@@ -6,7 +6,6 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        NetworkIdentity m_PlayerController;
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
@@ -15,7 +14,7 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController;
+        public NetworkIdentity playerController { get; private set; }
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
 
@@ -118,12 +117,12 @@ namespace Mirror
 
         internal void SetPlayerController(NetworkIdentity player)
         {
-            m_PlayerController = player;
+            playerController = player;
         }
 
         internal void RemovePlayerController()
         {
-            m_PlayerController = null;
+            playerController = null;
         }
 
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
