@@ -27,7 +27,7 @@
 
 ## [The Last IO](http://thelast.io/)
 
-![The Last IO](TheLastIO.jpg)
+![The Last IO](TheLastIO.png)
 
 
 ## [Project Retrograde](https://freemergency.weebly.com/)
