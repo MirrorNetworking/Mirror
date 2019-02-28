@@ -105,7 +105,7 @@ public class WeaverAssembler : MonoBehaviour
 
         try
         {
-            File.Delete(Path.ChangeExtension(projPathFile, ".mdb"));
+            File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
 
         }
         catch { }
