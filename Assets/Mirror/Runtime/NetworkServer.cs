@@ -524,7 +524,7 @@ namespace Mirror
             conn.SetPlayerController(identity);
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            identity.SetConnectionToClient(conn);
+            identity.connectionToClient = conn;
 
             SetClientReady(conn);
 
@@ -613,7 +613,7 @@ namespace Mirror
             conn.SetPlayerController(playerNetworkIdentity);
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            playerNetworkIdentity.SetConnectionToClient(conn);
+            playerNetworkIdentity.connectionToClient = conn;
 
             //NOTE: DONT set connection ready.
 

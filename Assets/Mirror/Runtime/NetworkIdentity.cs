@@ -46,8 +46,8 @@ namespace Mirror
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get; private set; }
-        public NetworkConnection connectionToServer { get; private set; }
-        public NetworkConnection connectionToClient { get; private set; }
+        public NetworkConnection connectionToServer { get; internal set; }
+        public NetworkConnection connectionToClient { get; internal set; }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -646,16 +646,6 @@ namespace Mirror
                     comp.OnStartAuthority();
                 }
             }
-        }
-
-        internal void SetConnectionToServer(NetworkConnection conn)
-        {
-            connectionToServer = conn;
-        }
-
-        internal void SetConnectionToClient(NetworkConnection conn)
-        {
-            connectionToClient = conn;
         }
 
         internal void OnNetworkDestroy()
