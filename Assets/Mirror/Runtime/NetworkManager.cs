@@ -85,11 +85,17 @@ namespace Mirror
             InitializeSingleton();
 
             // headless mode? then start the server
-            if (Utils.IsHeadless() && startOnHeadless)
+            if (IsHeadless() && startOnHeadless)
             {
                 Application.targetFrameRate = 60;
                 StartServer();
             }
+        }
+
+        // headless mode detection
+        public static bool IsHeadless()
+        {
+            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
 
         void InitializeSingleton()
