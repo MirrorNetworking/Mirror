@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class WeaverAssembler : MonoBehaviour
 {
-    public const string OutputDirectory = "Assets/Mirror/Tests/WeaverTests/";
+    public const string OutputDirectory = "Assets/Mirror/Tests/WeaverTests~/";
     public static string OutputFile { get; set; }
     public static HashSet<string> SourceFiles { get; private set; }
     public static HashSet<string> ReferenceAssemblies { get; private set; }
