@@ -1,11 +1,10 @@
+using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
-using System;
 
 namespace Mirror
 {

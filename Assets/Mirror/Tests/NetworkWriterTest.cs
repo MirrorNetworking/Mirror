@@ -1,6 +1,5 @@
-﻿using NUnit.Framework;
 using System;
-using UnityEngine;
+using NUnit.Framework;
 
 namespace Mirror.Tests
 {
