@@ -61,7 +61,6 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
-        public static TypeReference ULocalConnectionToServerType;
         public static TypeReference ULocalConnectionToClientType;
 
         public static TypeReference MessageBaseType;
@@ -1122,9 +1121,6 @@ namespace Mirror.Weaver
 
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
-
-            ULocalConnectionToServerType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToServer");
-            ULocalConnectionToServerType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToServerType);
 
             ULocalConnectionToClientType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToClient");
             ULocalConnectionToClientType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToClientType);

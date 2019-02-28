@@ -6,7 +6,6 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        NetworkIdentity m_PlayerController;
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
@@ -15,7 +14,7 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController;
+        public NetworkIdentity playerController { get; private set; }
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
 
@@ -85,12 +84,12 @@ namespace Mirror
 
             // paul:  we may be connecting or connected,  either way, we need to disconnect
             // transport should not do anything if it is not connecting/connected
-            NetworkManager.singleton.transport.ClientDisconnect();
+            Transport.activeTransport.ClientDisconnect();
 
             // server? then disconnect that client
-            if (NetworkManager.singleton.transport.ServerActive())
+            if (Transport.activeTransport.ServerActive())
             {
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
             }
 
             // remove observers
@@ -118,12 +117,12 @@ namespace Mirror
 
         internal void SetPlayerController(NetworkIdentity player)
         {
-            m_PlayerController = player;
+            playerController = player;
         }
 
         internal void RemovePlayerController()
         {
-            m_PlayerController = null;
+            playerController = null;
         }
 
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
@@ -139,9 +138,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(channelId))
+            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -250,13 +249,13 @@ namespace Mirror
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
             error = 0;
-            if (NetworkManager.singleton.transport.ClientConnected())
+            if (Transport.activeTransport.ClientConnected())
             {
-                return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
+                return Transport.activeTransport.ClientSend(channelId, bytes);
             }
-            else if (NetworkManager.singleton.transport.ServerActive())
+            else if (Transport.activeTransport.ServerActive())
             {
-                return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
+                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
             }
             return false;
         }

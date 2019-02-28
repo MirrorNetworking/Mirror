@@ -59,7 +59,7 @@ namespace Mirror
             serverIp = ip;
 
             connectState = ConnectState.Connecting;
-            NetworkManager.singleton.transport.ClientConnect(ip);
+            Transport.activeTransport.ClientConnect(ip);
 
             // setup all the handlers
             connection = new NetworkConnection(serverIp, 0);
@@ -69,10 +69,10 @@ namespace Mirror
         private void InitializeTransportHandlers()
         {
             // TODO do this in inspector?
-            NetworkManager.singleton.transport.OnClientConnected.AddListener(OnConnected);
-            NetworkManager.singleton.transport.OnClientDataReceived.AddListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnClientDisconnected.AddListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnClientError.AddListener(OnError);
+            Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
+            Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
+            Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
+            Transport.activeTransport.OnClientError.AddListener(OnError);
         }
 
         void OnError(Exception exception)
@@ -118,7 +118,7 @@ namespace Mirror
         {
             active = true;
             RegisterSystemHandlers(false);
-            NetworkManager.singleton.transport.enabled = true;
+            Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
         }
 
@@ -141,10 +141,10 @@ namespace Mirror
         void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            NetworkManager.singleton.transport.OnClientConnected.RemoveListener(OnConnected);
-            NetworkManager.singleton.transport.OnClientDataReceived.RemoveListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnClientDisconnected.RemoveListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnClientError.RemoveListener(OnError);
+            Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
+            Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
+            Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
+            Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
         public bool Send(short msgType, MessageBase msg)

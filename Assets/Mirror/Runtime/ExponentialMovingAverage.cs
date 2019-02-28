@@ -1,4 +1,3 @@
-﻿using System;
 namespace Mirror
 {
     // implementation of N-day EMA

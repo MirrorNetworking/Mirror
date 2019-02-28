@@ -95,14 +95,14 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
-        public void WritePackedUInt32(UInt32 value)
+        public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
             // same exact thing bit by bit
             WritePackedUInt64(value);
         }
 
-        public void WritePackedUInt64(UInt64 value)
+        public void WritePackedUInt64(ulong value)
         {
             if (value <= 240)
             {
