@@ -1,5 +1,3 @@
-using System;
-
 namespace Mirror
 {
     // message packing all in one place, instead of constructing headers in all
