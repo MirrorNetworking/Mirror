@@ -8,7 +8,7 @@ The spawn / un-spawner need to have this GameObject signature. This is defined i
 
 ```cs
 // Handles requests to spawn GameObjects on the client
-public delegate GameObject SpawnDelegate(Vector3 position, System.Guid assetId);
+public delegate GameObject SpawnDelegate(Vector3 position, byte[] assetId);
 
 // Handles requests to unspawn GameObjects on the client
 public delegate void UnSpawnDelegate(GameObject spawned);
@@ -18,13 +18,13 @@ The asset ID passed to the spawn function can be found on NetworkIdentity.assetI
 
 ```cs
 // generate a new unique assetId 
-System.Guid creatureAssetId = System.Guid.NewGuid();
+byte[] creatureAssetId = System.Guid.NewGuid().ToByteArray();
 
 // register handlers for the new assetId
 ClientScene.RegisterSpawnHandler(creatureAssetId, SpawnCreature, UnSpawnCreature);
 
 // get assetId on an existing prefab
-System.Guid coinAssetId = coinPrefab.GetComponent<NetworkIdentity>().assetId;
+byte[] coinAssetId = coinPrefab.GetComponent<NetworkIdentity>().assetId;
 
 // register handlers for an existing prefab you'd like to custom spawn
 ClientScene.RegisterSpawnHandler(coinAssetId, SpawnCoin, UnSpawnCoin);
@@ -36,7 +36,7 @@ NetworkServer.Spawn(gameObject, coinAssetId);
 The spawn functions themselves are implemented with the delegate signature. Here is the coin spawner. The SpawnCreature would look the same, but have different spawn logic:
 
 ```cs
-public GameObject SpawnCoin(Vector3 position, System.Guid assetId)
+public GameObject SpawnCoin(Vector3 position, byte[] assetId)
 {
     return (GameObject)Instantiate(m_CoinPrefab, position, Quaternion.identity);
 }
@@ -65,10 +65,9 @@ public class SpawnManager : MonoBehaviour
     public GameObject m_Prefab;
     public GameObject[] m_Pool;
 
-    public System.Guid assetId { get; set;
-}
-    
-    public delegate GameObject SpawnDelegate(Vector3 position, System.Guid assetId);
+    public byte[] assetId { get; set; }
+
+    public delegate GameObject SpawnDelegate(Vector3 position, byte[] assetId);
     public delegate void UnSpawnDelegate(GameObject spawned);
 
     void Start()
@@ -101,7 +100,7 @@ public class SpawnManager : MonoBehaviour
         return null;
     }
     
-    public GameObject SpawnObject(Vector3 position, System.Guid assetId)
+    public GameObject SpawnObject(Vector3 position, byte[] assetId)
     {
         return GetFromPool(position);
     }
