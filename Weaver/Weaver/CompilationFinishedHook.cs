@@ -93,10 +93,12 @@ namespace Mirror.Weaver
                     IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
                     if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
                     {
+                        WeaveFailed = false;
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }
                     else
                     {
+                        WeaveFailed = true;
                         if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
                     }
                 }
