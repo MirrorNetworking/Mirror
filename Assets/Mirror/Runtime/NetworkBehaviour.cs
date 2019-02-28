@@ -16,13 +16,13 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
 
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-        public bool isServer => netIdentity.isServer; 
-        public bool isClient => netIdentity.isClient; 
-        public bool isLocalPlayer => netIdentity.isLocalPlayer; 
+        public bool isServer => netIdentity.isServer;
+        public bool isClient => netIdentity.isClient;
+        public bool isLocalPlayer => netIdentity.isLocalPlayer;
         public bool isServerOnly => isServer && !isClient;
         public bool isClientOnly => isClient && !isServer;
         public bool hasAuthority => netIdentity.hasAuthority;
-        public uint netId => netIdentity.netId; 
+        public uint netId => netIdentity.netId;
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
         protected ulong syncVarDirtyBits { get; private set; }
