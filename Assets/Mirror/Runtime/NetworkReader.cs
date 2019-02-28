@@ -193,8 +193,7 @@ namespace Mirror
 
         public Guid ReadGuid()
         {
-            byte[] bytes = reader.ReadBytes(16);
-            return new Guid(bytes);
+            return new Guid(ReadUInt64(), ReadUInt64());
         }
 
         public Transform ReadTransform()

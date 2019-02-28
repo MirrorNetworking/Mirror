@@ -113,7 +113,7 @@ namespace Mirror.Tests
         [Test]
         public void TestGuid()
         {
-            Guid originalGuid = new Guid("0123456789abcdef9876543210fedcba");
+            Guid originalGuid = new Guid(0x0123456789abcdef, 0x9876543210fedcba);
             NetworkWriter writer = new NetworkWriter();
             writer.Write(originalGuid);
 

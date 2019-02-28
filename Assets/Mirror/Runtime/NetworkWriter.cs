@@ -274,7 +274,8 @@ namespace Mirror
 
         public void Write(Guid value)
         {
-            writer.Write(value.ToByteArray());
+            writer.Write(value.hash1);
+            writer.Write(value.hash2);
         }
 
         public void Write(NetworkIdentity value)

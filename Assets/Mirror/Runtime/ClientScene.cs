@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Guid = System.Guid;
 using Object = UnityEngine.Object;
 
 namespace Mirror
@@ -240,7 +239,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity)
             {
-                identity.SetDynamicAssetId(newAssetId);
+                identity.assetId = newAssetId;
 
                 if (LogFilter.Debug) { Debug.Log("Registering prefab '" + prefab.name + "' as asset:" + identity.assetId); }
                 prefabs[identity.assetId] = prefab;
@@ -460,7 +459,7 @@ namespace Mirror
                     return;
                 }
                 localObject.Reset();
-                localObject.SetDynamicAssetId(msg.assetId);
+                localObject.assetId = msg.assetId;
                 ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.payload, msg.netId);
             }
             else

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -61,41 +62,26 @@ namespace Mirror
             }
         }
 
-        // the AssetId trick:
-        // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
-        //   serialize it because Guid's internal bytes are private
-        // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
-        //   which works, but it just unnecessary extra code
-        // - using just the Guid string would work, but it's 32 chars long and
-        //   would then be sent over the network as 64 instead of 16 bytes
-        // -> the solution is to serialize the string internally here and then
-        //    use the real 'Guid' type for everything else via .assetId
-        [SerializeField] string m_AssetId;
+        [SerializeField] Guid m_AssetId;
         public Guid assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
+                if (m_AssetId == Guid.Empty)
                     SetupIDs();
 #endif
-                // convert string to Guid and use .Empty to avoid exception if
-                // we would use 'new Guid("")'
-                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                return m_AssetId;
             }
-        }
-
-        internal void SetDynamicAssetId(Guid newAssetId)
-        {
-            string newAssetIdString = newAssetId.ToString("N");
-            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+            internal set
             {
-                m_AssetId = newAssetIdString;
-            }
-            else
-            {
-                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                if (m_AssetId != Guid.Empty && m_AssetId != value)
+                {
+                    Debug.LogWarning("Set assetId object already has an assetId <" + m_AssetId + ">");
+                    return;
+                }
+                m_AssetId = value;
             }
         }
 
@@ -200,21 +186,10 @@ namespace Mirror
             SetupIDs();
         }
 
-        void AssignAssetID(GameObject prefab)
-        {
-            string path = AssetDatabase.GetAssetPath(prefab);
-            AssignAssetID(path);
-        }
-
-        void AssignAssetID(string path)
-        {
-            m_AssetId = AssetDatabase.AssetPathToGUID(path);
-        }
-
-        bool ThisIsAPrefab()
-        {
-            return PrefabUtility.IsPartOfPrefabAsset(gameObject);
-        }
+        void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
+        void AssignAssetID(string path) => AssignAssetID(new System.Guid(AssetDatabase.AssetPathToGUID(path)));
+        void AssignAssetID(System.Guid guid) => m_AssetId = new NetworkReader(guid.ToByteArray()).ReadGuid();
+        bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
@@ -253,7 +228,7 @@ namespace Mirror
             }
             else
             {
-                m_AssetId = "";
+                m_AssetId = default;
             }
         }
 
