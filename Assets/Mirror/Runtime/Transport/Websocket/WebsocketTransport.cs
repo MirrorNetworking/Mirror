@@ -9,7 +9,7 @@ namespace Mirror
         protected Client client = new Client();
         protected Server server = new Server();
 
-        public int port = 7777;
+        public int port = 7778;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
