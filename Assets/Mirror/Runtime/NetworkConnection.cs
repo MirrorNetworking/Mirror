@@ -135,10 +135,8 @@ namespace Mirror
 
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
         {
-            int msgType = MessageBase.GetId<T>();
-
             // pack message and send
-            byte[] message = MessagePacker.PackMessage(msgType, msg);
+            byte[] message = MessagePacker.Pack(msg);
             return SendBytes(message, channelId);
         }
 
