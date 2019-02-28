@@ -1,3 +1,5 @@
+using System;
+
 namespace Mirror
 {
     // message packing all in one place, instead of constructing headers in all
@@ -19,6 +21,7 @@ namespace Mirror
 
         // pack message before sending
         // -> pass writer instead of byte[] so we can reuse it
+        [Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(ushort msgType, MessageBase msg)
         {
             // reset cached writer length and position
@@ -29,6 +32,23 @@ namespace Mirror
 
             // serialize message into writer
             msg.Serialize(packWriter);
+
+            // return byte[]
+            return packWriter.ToArray();
+        }
+
+        // pack message before sending
+        public static byte[] Pack<T>(T message) where T : MessageBase
+        {
+            // reset cached writer length and position
+            packWriter.SetLength(0);
+
+            // write message type
+            short msgType = MessageBase.GetId<T>();
+            packWriter.WritePackedUInt32((uint)msgType);
+
+            // serialize message into writer
+            message.Serialize(packWriter);
 
             // return byte[]
             return packWriter.ToArray();
