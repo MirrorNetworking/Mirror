@@ -80,7 +80,7 @@ namespace Mirror
         #endregion
 
         #region General tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void InvalidType()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -90,7 +90,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void RecursionCount()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -100,7 +100,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Check for self-referencing member variables"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void ClientGuardWrongClass()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -110,7 +110,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void ServerGuardWrongClass()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -120,7 +120,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void GuardCmdWrongClass()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -133,7 +133,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[3], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void JaggedArray()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -145,7 +145,7 @@ namespace Mirror
         #endregion
 
         #region SyncVar tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -154,7 +154,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsNoHook()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -164,7 +164,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* not found for"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsNoHookParams()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -174,7 +174,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsTooManyHookParams()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -184,7 +184,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsWrongHookType()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -194,7 +194,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* has wrong type signature for"));
         }
 
-       [Test] // -----------------------------------------------------------------------------------------
+       [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -204,7 +204,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsDerivedScriptableObject()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -214,7 +214,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from ScriptableObject"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsStatic()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -224,7 +224,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be static"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsGenericParam()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -234,7 +234,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsInterface()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -244,7 +244,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an interface"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsDifferentModule()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -254,7 +254,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be a different module"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsCantBeArray()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -264,7 +264,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an array"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsSyncList()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -276,7 +276,7 @@ namespace Mirror
             Assert.That(m_weaverWarnings[1], Does.Match("SyncLists should not be marked with SyncVar"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncVarsMoreThan63()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -288,7 +288,7 @@ namespace Mirror
         #endregion
 
         #region SyncList tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -297,7 +297,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListMissingParamlessCtor()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -309,7 +309,7 @@ namespace Mirror
         #endregion
 
         #region SyncListStruct tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListStructValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -318,7 +318,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListStructGenericGeneric()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -328,7 +328,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Struct passed into SyncListStruct<T> can't have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListStructMemberGeneric()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -338,7 +338,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("member cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListStructMemberInterface()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -348,7 +348,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("member cannot be an interface"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncListStructMemberBasicType()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -361,7 +361,7 @@ namespace Mirror
         #endregion
 
         #region NetworkBehaviour tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -370,7 +370,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourAbstractBaseValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -379,7 +379,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourGeneric()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -389,7 +389,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("NetworkBehaviour .* cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdGenericParam()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -399,7 +399,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdCoroutine()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -409,7 +409,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot be a coroutine"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -419,7 +419,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command .* must have a void return type"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcGenericParam()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -429,7 +429,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcCoroutine()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -439,7 +439,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot be a coroutine"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcVoidReturn()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -449,7 +449,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* must have a void return type"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamOut()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -459,7 +459,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have out parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamOptional()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -469,7 +469,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpcfunction .* cannot have optional parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamRef()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -479,7 +479,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have ref parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -489,7 +489,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have abstract parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamComponent()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -499,7 +499,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* You cannot pass a Component to a remote call"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamNetworkConnection()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -508,7 +508,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcParamNetworkConnectionNotFirst()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -519,7 +519,7 @@ namespace Mirror
         }
         
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -529,7 +529,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Duplicate Target Rpc name"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -539,7 +539,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcCoroutine()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -549,7 +549,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot be a coroutine"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcVoidReturn()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -559,7 +559,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* must have a void return type"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamOut()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -569,7 +569,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have out parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamOptional()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -579,7 +579,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpcfunction .* cannot have optional parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamRef()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -589,7 +589,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have ref parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -599,7 +599,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have abstract parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -609,7 +609,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* You cannot pass a Component to a remote call"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -619,7 +619,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot use a NetworkConnection as a parameter"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourClientRpcDuplicateName()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -629,7 +629,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Duplicate ClientRpc name"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamOut()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -639,7 +639,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have out parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamOptional()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -649,7 +649,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Commandfunction .* cannot have optional parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamRef()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -659,7 +659,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have ref parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -669,7 +669,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have abstract parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamComponent()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -679,7 +679,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* You cannot pass a Component to a remote call"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -689,7 +689,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot use a NetworkConnection as a parameter"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -701,7 +701,7 @@ namespace Mirror
         #endregion
 
         #region Command tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void CommandValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -710,7 +710,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void CommandStartsWithCmd()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -720,7 +720,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* doesnt have 'Cmd' prefix"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void CommandCantBeStatic()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -732,7 +732,7 @@ namespace Mirror
         #endregion
 
         #region ClientRpc tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void ClientRpcValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -741,7 +741,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void ClientRpcStartsWithRpc()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -751,7 +751,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* doesnt have 'Rpc' prefix"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void ClientRpcCantBeStatic()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -763,7 +763,7 @@ namespace Mirror
         #endregion
 
         #region TargetRpc tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void TargetRpcValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -772,7 +772,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void TargetRpcStartsWithTarget()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -782,7 +782,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* doesnt have 'Target' prefix"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void TargetRpcCantBeStatic()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -792,7 +792,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("TargetRpc function .* cant be a static method"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void TargetRpcNetworkConnectionMissing()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -802,7 +802,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* must have a NetworkConnection as the first parameter"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void TargetRpcNetworkConnectionNotFirst()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -814,7 +814,7 @@ namespace Mirror
         #endregion
 
         #region TargetRpc tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncEventValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -823,7 +823,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncEventStartsWithEvent()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -833,7 +833,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Event .* doesnt have 'Event' prefix"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void SyncEventParamGeneric()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -845,7 +845,7 @@ namespace Mirror
         #endregion
 
         #region MonoBehaviour tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -854,7 +854,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourSyncVar()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -864,7 +864,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[SyncVar\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourSyncList()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -874,7 +874,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* defines field .* with type .*, but it's not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourCommand()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -884,7 +884,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[Command\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourClientRpc()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -894,7 +894,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[ClientRpc\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourTargetRpc()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -904,7 +904,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[TargetRpc\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourServer()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -914,7 +914,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Server\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourServerCallback()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -924,7 +924,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[ServerCallback\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourClient()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -934,7 +934,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Client\\] .* but is not a NetworkBehaviour"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MonoBehaviourClientCallback()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -946,7 +946,7 @@ namespace Mirror
         #endregion
 
         #region Message tests
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageValid()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -955,7 +955,7 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageSelfReferencing()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -965,7 +965,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot be self referencing"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageInvalidSerializeFieldType()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -976,7 +976,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[1], Does.Match("GenerateSerialization for .* member variables must be basic types"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageInvalidDeserializeFieldType()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -988,7 +988,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[2], Does.Match("GenerateDeSerialization for .* member variables must be basic types"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageMemberGeneric()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
@@ -998,7 +998,7 @@ namespace Mirror
             Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot have generic parameters"));
         }
 
-        [Test] // -----------------------------------------------------------------------------------------
+        [Test]
         public void MessageMemberInterface()
         {
             BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
