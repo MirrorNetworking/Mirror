@@ -66,6 +66,7 @@ namespace Mirror
         [SetUp]
         public void TestSetup()
         {
+            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
         }
 
         [TearDown]
@@ -83,8 +84,6 @@ namespace Mirror
         [Test]
         public void InvalidType()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
@@ -93,8 +92,6 @@ namespace Mirror
         [Test]
         public void RecursionCount()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
             Assert.That(m_weaverErrors[0], Does.Match("Check for self-referencing member variables"));
@@ -103,8 +100,6 @@ namespace Mirror
         [Test]
         public void ClientGuardWrongClass()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
@@ -113,8 +108,6 @@ namespace Mirror
         [Test]
         public void ServerGuardWrongClass()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
@@ -123,8 +116,6 @@ namespace Mirror
         [Test]
         public void GuardCmdWrongClass()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
             Assert.That(m_weaverErrors[0], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
@@ -136,8 +127,6 @@ namespace Mirror
         [Test]
         public void JaggedArray()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
             Assert.That(m_weaverErrors[0], Does.Match("Jagged and multidimensional arrays are not supported"));
@@ -148,8 +137,6 @@ namespace Mirror
         [Test]
         public void SyncVarsValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -157,8 +144,6 @@ namespace Mirror
         [Test]
         public void SyncVarsNoHook()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* not found for"));
@@ -167,8 +152,6 @@ namespace Mirror
         [Test]
         public void SyncVarsNoHookParams()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
@@ -177,8 +160,6 @@ namespace Mirror
         [Test]
         public void SyncVarsTooManyHookParams()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
@@ -187,8 +168,6 @@ namespace Mirror
         [Test]
         public void SyncVarsWrongHookType()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* has wrong type signature for"));
@@ -197,8 +176,6 @@ namespace Mirror
        [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from NetworkBehaviour"));
@@ -207,8 +184,6 @@ namespace Mirror
         [Test]
         public void SyncVarsDerivedScriptableObject()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from ScriptableObject"));
@@ -217,8 +192,6 @@ namespace Mirror
         [Test]
         public void SyncVarsStatic()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be static"));
@@ -227,8 +200,6 @@ namespace Mirror
         [Test]
         public void SyncVarsGenericParam()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot have generic parameters"));
@@ -237,8 +208,6 @@ namespace Mirror
         [Test]
         public void SyncVarsInterface()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an interface"));
@@ -247,8 +216,6 @@ namespace Mirror
         [Test]
         public void SyncVarsDifferentModule()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be a different module"));
@@ -257,8 +224,6 @@ namespace Mirror
         [Test]
         public void SyncVarsCantBeArray()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an array"));
@@ -267,8 +232,6 @@ namespace Mirror
         [Test]
         public void SyncVarsSyncList()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
             Assert.That(m_weaverWarnings.Count, Is.EqualTo(2));
@@ -279,8 +242,6 @@ namespace Mirror
         [Test]
         public void SyncVarsMoreThan63()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script class .* has too many SyncVars"));
@@ -291,8 +252,6 @@ namespace Mirror
         [Test]
         public void SyncListValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -300,8 +259,6 @@ namespace Mirror
         [Test]
         public void SyncListMissingParamlessCtor()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Missing parameter-less constructor"));
@@ -312,8 +269,6 @@ namespace Mirror
         [Test]
         public void SyncListStructValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -321,8 +276,6 @@ namespace Mirror
         [Test]
         public void SyncListStructGenericGeneric()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Struct passed into SyncListStruct<T> can't have generic parameters"));
@@ -331,8 +284,6 @@ namespace Mirror
         [Test]
         public void SyncListStructMemberGeneric()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("member cannot have generic parameters"));
@@ -341,8 +292,6 @@ namespace Mirror
         [Test]
         public void SyncListStructMemberInterface()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("member cannot be an interface"));
@@ -351,8 +300,6 @@ namespace Mirror
         [Test]
         public void SyncListStructMemberBasicType()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
@@ -364,8 +311,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -373,8 +318,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourAbstractBaseValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -382,8 +325,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourGeneric()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("NetworkBehaviour .* cannot have generic parameters"));
@@ -392,8 +333,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdGenericParam()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot have generic parameters"));
@@ -402,8 +341,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdCoroutine()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot be a coroutine"));
@@ -412,8 +349,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdVoidReturn()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command .* must have a void return type"));
@@ -422,8 +357,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcGenericParam()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot have generic parameters"));
@@ -432,8 +365,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcCoroutine()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot be a coroutine"));
@@ -442,8 +373,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcVoidReturn()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* must have a void return type"));
@@ -452,8 +381,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamOut()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have out parameters"));
@@ -462,8 +389,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamOptional()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpcfunction .* cannot have optional parameters"));
@@ -472,8 +397,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamRef()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have ref parameters"));
@@ -482,8 +405,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have abstract parameters"));
@@ -492,8 +413,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamComponent()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* You cannot pass a Component to a remote call"));
@@ -502,8 +421,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamNetworkConnection()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -511,8 +428,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcParamNetworkConnectionNotFirst()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* first parameter must be a NetworkConnection"));
@@ -522,8 +437,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Duplicate Target Rpc name"));
@@ -532,8 +445,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot have generic parameters"));
@@ -542,8 +453,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcCoroutine()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot be a coroutine"));
@@ -552,8 +461,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcVoidReturn()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* must have a void return type"));
@@ -562,8 +469,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamOut()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have out parameters"));
@@ -572,8 +477,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamOptional()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpcfunction .* cannot have optional parameters"));
@@ -582,8 +485,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamRef()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have ref parameters"));
@@ -592,8 +493,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have abstract parameters"));
@@ -602,8 +501,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* You cannot pass a Component to a remote call"));
@@ -612,8 +509,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot use a NetworkConnection as a parameter"));
@@ -622,8 +517,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourClientRpcDuplicateName()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Duplicate ClientRpc name"));
@@ -632,8 +525,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamOut()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have out parameters"));
@@ -642,8 +533,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamOptional()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Commandfunction .* cannot have optional parameters"));
@@ -652,8 +541,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamRef()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have ref parameters"));
@@ -662,8 +549,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have abstract parameters"));
@@ -672,8 +557,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamComponent()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* You cannot pass a Component to a remote call"));
@@ -682,8 +565,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
             Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot use a NetworkConnection as a parameter"));
@@ -692,8 +573,6 @@ namespace Mirror
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Duplicate Command name"));
@@ -704,8 +583,6 @@ namespace Mirror
         [Test]
         public void CommandValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -713,8 +590,6 @@ namespace Mirror
         [Test]
         public void CommandStartsWithCmd()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* doesnt have 'Cmd' prefix"));
@@ -723,8 +598,6 @@ namespace Mirror
         [Test]
         public void CommandCantBeStatic()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Command function .* cant be a static method"));
@@ -735,8 +608,6 @@ namespace Mirror
         [Test]
         public void ClientRpcValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -744,8 +615,6 @@ namespace Mirror
         [Test]
         public void ClientRpcStartsWithRpc()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* doesnt have 'Rpc' prefix"));
@@ -754,8 +623,6 @@ namespace Mirror
         [Test]
         public void ClientRpcCantBeStatic()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("ClientRpc function .* cant be a static method"));
@@ -766,8 +633,6 @@ namespace Mirror
         [Test]
         public void TargetRpcValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -775,8 +640,6 @@ namespace Mirror
         [Test]
         public void TargetRpcStartsWithTarget()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* doesnt have 'Target' prefix"));
@@ -785,8 +648,6 @@ namespace Mirror
         [Test]
         public void TargetRpcCantBeStatic()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("TargetRpc function .* cant be a static method"));
@@ -795,8 +656,6 @@ namespace Mirror
         [Test]
         public void TargetRpcNetworkConnectionMissing()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* must have a NetworkConnection as the first parameter"));
@@ -805,8 +664,6 @@ namespace Mirror
         [Test]
         public void TargetRpcNetworkConnectionNotFirst()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* first parameter must be a NetworkConnection"));
@@ -817,8 +674,6 @@ namespace Mirror
         [Test]
         public void SyncEventValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -826,8 +681,6 @@ namespace Mirror
         [Test]
         public void SyncEventStartsWithEvent()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Event .* doesnt have 'Event' prefix"));
@@ -836,8 +689,6 @@ namespace Mirror
         [Test]
         public void SyncEventParamGeneric()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Event .* cannot have generic parameters"));
@@ -848,8 +699,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -857,8 +706,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourSyncVar()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[SyncVar\\] .* but is not a NetworkBehaviour"));
@@ -867,8 +714,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourSyncList()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* defines field .* with type .*, but it's not a NetworkBehaviour"));
@@ -877,8 +722,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourCommand()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[Command\\] .* but is not a NetworkBehaviour"));
@@ -887,8 +730,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourClientRpc()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[ClientRpc\\] .* but is not a NetworkBehaviour"));
@@ -897,8 +738,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourTargetRpc()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[TargetRpc\\] .* but is not a NetworkBehaviour"));
@@ -907,8 +746,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourServer()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Server\\] .* but is not a NetworkBehaviour"));
@@ -917,8 +754,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourServerCallback()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[ServerCallback\\] .* but is not a NetworkBehaviour"));
@@ -927,8 +762,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourClient()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Client\\] .* but is not a NetworkBehaviour"));
@@ -937,8 +770,6 @@ namespace Mirror
         [Test]
         public void MonoBehaviourClientCallback()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[ClientCallback\\] .* but is not a NetworkBehaviour"));
@@ -949,8 +780,6 @@ namespace Mirror
         [Test]
         public void MessageValid()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
@@ -958,8 +787,6 @@ namespace Mirror
         [Test]
         public void MessageSelfReferencing()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot be self referencing"));
@@ -968,8 +795,6 @@ namespace Mirror
         [Test]
         public void MessageInvalidSerializeFieldType()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
@@ -979,8 +804,6 @@ namespace Mirror
         [Test]
         public void MessageInvalidDeserializeFieldType()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
@@ -991,8 +814,6 @@ namespace Mirror
         [Test]
         public void MessageMemberGeneric()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot have generic parameters"));
@@ -1001,8 +822,6 @@ namespace Mirror
         [Test]
         public void MessageMemberInterface()
         {
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot be an interface"));
