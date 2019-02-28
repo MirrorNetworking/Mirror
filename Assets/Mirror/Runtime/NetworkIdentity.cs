@@ -62,21 +62,21 @@ namespace Mirror
             }
         }
 
-        [SerializeField] Guid m_AssetId;
-        public Guid assetId
+        [SerializeField] NetworkGuid m_AssetId;
+        public NetworkGuid assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (m_AssetId == Guid.Empty)
+                if (m_AssetId == NetworkGuid.Empty)
                     SetupIDs();
 #endif
                 return m_AssetId;
             }
             internal set
             {
-                if (m_AssetId != Guid.Empty && m_AssetId != value)
+                if (m_AssetId != NetworkGuid.Empty && m_AssetId != value)
                 {
                     Debug.LogWarning("Set assetId object already has an assetId <" + m_AssetId + ">");
                     return;
@@ -188,7 +188,7 @@ namespace Mirror
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => AssignAssetID(new System.Guid(AssetDatabase.AssetPathToGUID(path)));
-        void AssignAssetID(System.Guid guid) => m_AssetId = new NetworkReader(guid.ToByteArray()).ReadGuid();
+        void AssignAssetID(System.Guid guid) => m_AssetId = NetworkGuid.FromGuid(guid);
         bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)

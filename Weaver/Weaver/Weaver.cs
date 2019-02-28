@@ -1074,7 +1074,7 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            guidType = NetAssembly.MainModule.GetType("Mirror.Guid");
+            guidType = NetAssembly.MainModule.GetType("Mirror.NetworkGuid");
 
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
             NetworkReaderDef = NetworkReaderType.Resolve();
@@ -1480,7 +1480,7 @@ namespace Mirror.Weaver
                 // However it's much more simple to just write mdb file.
                 // System.NullReferenceException: Object reference not set to an instance of an object
                 //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
-                //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
+                //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, NetworkGuid language, NetworkGuid languageVendor, NetworkGuid documentType)[0x00000] in < filename unknown >:0
                 if (writeParams.SymbolWriterProvider is PdbWriterProvider)
                 {
                     writeParams.SymbolWriterProvider = new MdbWriterProvider();

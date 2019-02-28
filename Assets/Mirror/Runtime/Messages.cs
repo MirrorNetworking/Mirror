@@ -198,7 +198,7 @@ namespace Mirror
     class SpawnPrefabMessage : MessageBase
     {
         public uint netId;
-        public Guid assetId;
+        public NetworkGuid assetId;
         public Vector3 position;
         public Quaternion rotation;
         public byte[] payload;

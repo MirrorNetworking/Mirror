@@ -16,13 +16,13 @@ namespace Mirror
         public static bool ready { get; internal set; }
         public static NetworkConnection readyConnection { get; private set; }
 
-        public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
+        public static Dictionary<NetworkGuid, GameObject> prefabs = new Dictionary<NetworkGuid, GameObject>();
         // scene id to NetworkIdentity
         public static Dictionary<uint, NetworkIdentity> spawnableObjects;
 
         // spawn handlers
-        internal static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
-        internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        internal static Dictionary<NetworkGuid, SpawnDelegate> spawnHandlers = new Dictionary<NetworkGuid, SpawnDelegate>();
+        internal static Dictionary<NetworkGuid, UnSpawnDelegate> unspawnHandlers = new Dictionary<NetworkGuid, UnSpawnDelegate>();
 
         internal static void Shutdown()
         {
@@ -226,15 +226,15 @@ namespace Mirror
         }
 
         // spawn handlers and prefabs //////////////////////////////////////////
-        internal static bool GetPrefab(Guid assetId, out GameObject prefab)
+        internal static bool GetPrefab(NetworkGuid assetId, out GameObject prefab)
         {
             prefab = null;
-            return assetId != Guid.Empty &&
+            return assetId != NetworkGuid.Empty &&
                    prefabs.TryGetValue(assetId, out prefab) && prefab != null;
         }
 
         // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
-        public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
+        public static void RegisterPrefab(GameObject prefab, NetworkGuid newAssetId)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity)
@@ -286,7 +286,7 @@ namespace Mirror
                 return;
             }
 
-            if (identity.assetId == Guid.Empty)
+            if (identity.assetId == NetworkGuid.Empty)
             {
                 Debug.LogError("RegisterPrefab game object " + prefab.name + " has no prefab. Use RegisterSpawnHandler() instead?");
                 return;
@@ -310,7 +310,7 @@ namespace Mirror
             unspawnHandlers.Remove(identity.assetId);
         }
 
-        public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(NetworkGuid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (spawnHandler == null || unspawnHandler == null)
             {
@@ -324,7 +324,7 @@ namespace Mirror
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
-        public static void UnregisterSpawnHandler(Guid assetId)
+        public static void UnregisterSpawnHandler(NetworkGuid assetId)
         {
             spawnHandlers.Remove(assetId);
             unspawnHandlers.Remove(assetId);
@@ -337,7 +337,7 @@ namespace Mirror
             unspawnHandlers.Clear();
         }
 
-        internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
+        internal static bool InvokeUnSpawnHandler(NetworkGuid assetId, GameObject obj)
         {
             if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
             {
@@ -411,7 +411,7 @@ namespace Mirror
         {
             SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
-            if (msg.assetId == Guid.Empty)
+            if (msg.assetId == NetworkGuid.Empty)
             {
                 Debug.LogError("OnObjSpawn netId: " + msg.netId + " has invalid asset Id");
                 return;

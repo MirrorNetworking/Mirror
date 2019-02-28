@@ -113,12 +113,12 @@ namespace Mirror.Tests
         [Test]
         public void TestGuid()
         {
-            Guid originalGuid = new Guid(0x0123456789abcdef, 0x9876543210fedcba);
+            NetworkGuid originalGuid = new NetworkGuid(0x0123456789abcdef, 0x9876543210fedcba);
             NetworkWriter writer = new NetworkWriter();
             writer.Write(originalGuid);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            Guid readGuid = reader.ReadGuid();
+            NetworkGuid readGuid = reader.ReadGuid();
             Assert.That(readGuid, Is.EqualTo(originalGuid));
         }
 

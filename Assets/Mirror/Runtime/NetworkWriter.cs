@@ -272,7 +272,7 @@ namespace Mirror
             Write(value.m33);
         }
 
-        public void Write(Guid value)
+        public void Write(NetworkGuid value)
         {
             writer.Write(value.hash1);
             writer.Write(value.hash2);

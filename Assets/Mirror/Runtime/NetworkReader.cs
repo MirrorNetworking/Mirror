@@ -191,10 +191,7 @@ namespace Mirror
             return m;
         }
 
-        public Guid ReadGuid()
-        {
-            return new Guid(ReadUInt64(), ReadUInt64());
-        }
+        public NetworkGuid ReadGuid() => NetworkGuid.FromReader(this);
 
         public Transform ReadTransform()
         {
