@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -55,7 +54,7 @@ namespace Mirror
             {
                 localPlayer.EnableIsClient();
                 NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
-                localPlayer.SetConnectionToServer(connection);
+                localPlayer.connectionToServer = connection;
             }
             // there is no SystemOwnerMessage for local client. add to ClientScene here instead
             ClientScene.InternalAddPlayer(localPlayer);
