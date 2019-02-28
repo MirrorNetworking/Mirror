@@ -74,6 +74,14 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            // NOTE: we could remove this later to allow calling Cmds on Server
+            //       to avoid Wrapper functions. a lot of people requested this.
+            if (!NetworkClient.active)
+            {
+                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
+                return;
+            }
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
