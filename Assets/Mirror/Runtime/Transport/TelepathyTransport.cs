@@ -1,5 +1,4 @@
-﻿// wraps Telepathy for use as HLAPI TransportLayer
-using System;
+// wraps Telepathy for use as HLAPI TransportLayer
 using UnityEngine;
 namespace Mirror
 {

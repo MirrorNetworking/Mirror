@@ -16,7 +16,6 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
-using System;
 using UnityEngine;
 
 namespace Mirror
