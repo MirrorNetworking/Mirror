@@ -67,7 +67,7 @@ namespace Mirror.Tests
             writer.WritePackedUInt32(67821);
             writer.WritePackedUInt32(16777210);
             writer.WritePackedUInt32(16777219);
-            writer.WritePackedUInt32(UInt32.MaxValue);
+            writer.WritePackedUInt32(uint.MaxValue);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(0));
@@ -76,7 +76,7 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(67821));
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777210));
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777219));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(UInt32.MaxValue));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(uint.MaxValue));
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Mirror.Tests
             writer.WritePackedUInt64(1099511627775);
             writer.WritePackedUInt64(281474976710655);
             writer.WritePackedUInt64(72057594037927935);
-            writer.WritePackedUInt64(UInt64.MaxValue);
+            writer.WritePackedUInt64(ulong.MaxValue);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(0));
@@ -106,7 +106,7 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(1099511627775));
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(281474976710655));
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(72057594037927935));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(UInt64.MaxValue));
+            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(ulong.MaxValue));
         }
 
         [Test]

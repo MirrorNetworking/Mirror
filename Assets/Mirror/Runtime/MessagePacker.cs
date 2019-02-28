@@ -43,7 +43,7 @@ namespace Mirror
         public static bool UnpackMessage(NetworkReader messageReader, out ushort msgType)
         {
             // read message type (varint)
-            msgType = (UInt16)messageReader.ReadPackedUInt32();
+            msgType = (ushort)messageReader.ReadPackedUInt32();
             return true;
         }
     }
