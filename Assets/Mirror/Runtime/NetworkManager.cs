@@ -35,7 +35,7 @@ namespace Mirror
 
         [Header("Network Info")]
         // transport layer
-        public Transport transport;
+        [SerializeField] Transport transport;
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
 
@@ -104,6 +104,8 @@ namespace Mirror
                 return;
             }
 
+            Transport.activeTransport = transport;
+
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -160,7 +162,7 @@ namespace Mirror
         // virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
         public virtual void OnApplicationQuit()
         {
-            transport.Shutdown();
+            Transport.activeTransport.Shutdown();
         }
 
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
@@ -424,7 +426,7 @@ namespace Mirror
             if (client != null)
             {
                 if (LogFilter.Debug) { Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded."); }
-                NetworkManager.singleton.transport.enabled = false;
+                Transport.activeTransport.enabled = false;
             }
 
             // Let client prepare for scene change
@@ -442,7 +444,7 @@ namespace Mirror
             {
                 // process queued messages that we received while loading the scene
                 if (LogFilter.Debug) { Debug.Log("FinishLoadScene: resuming handlers after scene was loading."); }
-                NetworkManager.singleton.transport.enabled = true;
+                Transport.activeTransport.enabled = true;
 
                 if (s_ClientReadyConnection != null)
                 {

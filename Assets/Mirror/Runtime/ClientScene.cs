@@ -35,7 +35,7 @@ namespace Mirror
             ready = false;
             s_IsSpawnFinished = false;
 
-            NetworkManager.singleton.transport.ClientDisconnect();
+            Transport.activeTransport.ClientDisconnect();
         }
 
         // this is called from message handler for Owner message
