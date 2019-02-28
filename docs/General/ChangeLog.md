@@ -2,10 +2,13 @@
 
 ## Version 1.5 -- 2019-Mar-01
 
+- Added: **Migration Tool** to (mostly) automate conversion from UNet
+- Added: Full support for WebSockets and WebSocketsSecure to replace UNet LLAPI
+- Added: Transport Multiplexer - allows the use of multiple concurrent transports
 - Added: Lobby Manager and Lobby Player with example game
-- Added: Unit tests for Weaver
 - Added: Configurable Server Tickrate in NetworkManager
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed
+- Added: Unit tests for Weaver
 - Fixed: Garbage allocations removed from a lot of things (more work to do, we know)
 - Fixed: SyncVar hook not firing when clients joined
 - Fixed: NetworkManager no longer assumes it's on Scene(0) in Build Settings
@@ -15,13 +18,11 @@
 - Removed: NetworkClient.allClients (Use NetworkClient.singleton instead)
 - Removed: NetworkServer.hostId and NetworkConnection.hostId (holdovers from LLAPI)
 - Removed: NetworkConnection.isConnected (NetworkConnection is always connected)
-- Changed: Minimum Unity version: 2018.3.6
+- Changed: Minimum Unity version: **2018.3.6**
 
 
 ## Version 1.4 -- 2019-Feb-01
 
-- Mirror is now full source - no more DLL's
-- Transports are now components: TCP, UDP, WebGL, Steam
 - Added: HelpURL attirbutes to components
 - Added: Automatic targetFramerate for headless builds
 - Added: ByteMessage to Messages class
@@ -31,6 +32,8 @@
 - Fixed: SceneId assignment
 - Fixed: Changed syncInterval wasn't saved...it is now
 - Fixed: Additive Scene loading
+- Changed: **Mirror is now full source** -- no more DLL's
+- Changed: **Transports are now components** -- TCP, UDP, WebGL, Steam
 - Changed: Transport class now dispatches Unity Events
 - Changed: NetworkServer.SendToClientOfPlayer uses NetworkIdentity now
 - Changed: NetworkServer.SendToObservers uses NetworkIdentity parameter now
