@@ -1486,7 +1486,8 @@ namespace Mirror.Weaver
                     catch (Exception ex)
                     {
                         // workaround until Unity fixes C#7 compiler compability with the UNET weaver
-                        UnityEngine.Debug.LogWarning(string.Format("Unable to delete file {0}: {1}", pdb, ex.Message));
+                        // un-comment it if you want lot of noise
+                        //UnityEngine.Debug.LogWarning(string.Format("Unable to delete file {0}: {1}", pdb, ex.Message));
                     }
                 }
 
