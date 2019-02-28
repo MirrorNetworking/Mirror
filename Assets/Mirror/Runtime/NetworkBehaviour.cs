@@ -110,6 +110,12 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {

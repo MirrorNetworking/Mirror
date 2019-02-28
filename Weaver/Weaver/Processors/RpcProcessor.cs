@@ -38,13 +38,9 @@ namespace Mirror.Weaver
         /* generates code like:
         public void CallRpcTest (int param)
         {
-            if (!NetworkServer.get_active ()) {
-                Debug.LogError ((object)"RPC Function RpcTest called on client.");
-            } else {
-                NetworkWriter writer = new NetworkWriter ();
-                writer.WritePackedUInt32((uint)param);
-                base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
-            }
+            NetworkWriter writer = new NetworkWriter ();
+            writer.WritePackedUInt32((uint)param);
+            base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
         }
         */
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
@@ -63,8 +59,6 @@ namespace Mirror.Weaver
             Instruction label = rpcWorker.Create(OpCodes.Nop);
 
             NetworkBehaviourProcessor.WriteSetupLocals(rpcWorker);
-
-            NetworkBehaviourProcessor.WriteServerActiveCheck(rpcWorker, md.Name, label, "RPC Function");
 
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
