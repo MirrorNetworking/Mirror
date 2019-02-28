@@ -47,14 +47,14 @@ namespace Mirror
             if (m_AnimSync.animator == null)
                 return;
 
-            var controller = m_AnimSync.animator.runtimeAnimatorController as AnimatorController;
+            AnimatorController controller = m_AnimSync.animator.runtimeAnimatorController as AnimatorController;
             if (controller != null)
             {
-                var showWarning = false;
+                bool showWarning = false;
                 EditorGUI.indentLevel += 1;
                 int i = 0;
 
-                foreach (var p in controller.parameters)
+                foreach (AnimatorControllerParameter p in controller.parameters)
                 {
                     if (i >= 32)
                     {
@@ -78,18 +78,6 @@ namespace Mirror
                 }
 
                 EditorGUI.indentLevel -= 1;
-            }
-
-            if (Application.isPlaying)
-            {
-                EditorGUILayout.Separator();
-                for (int i = 0; i < m_AnimSync.parameters.Length; ++i)
-                {
-                    if (!string.IsNullOrEmpty(m_AnimSync.parameters[i]))
-                    {
-                        EditorGUILayout.LabelField("Param " + i, m_AnimSync.parameters[i]);
-                    }
-                }
             }
         }
     }

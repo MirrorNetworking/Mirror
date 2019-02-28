@@ -110,16 +110,13 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 * **KISS / Occam's Razor** - always use the most simple solution.
 * **No Premature Optimizations**
 	MMOs need to run for weeks without issues or exploits.
-	If you want your code to run 1% faster, spend \$100 on a better CPU.
-* **Curly Braces { }**  
+    Only do GC optimizations and caching in hot path. Avoid it everywhere else to keep the code simple.
+* **Curly Braces { }**
     Always use braces even for one line if's. Unity did this everywhere, and there is value in not accidentally missing a line in an if statement because there were no braces.
 * **Variable naming**  
     \`NetworkIdentity identity\`, not \`NetworkIdentity uv\` or similar. If the variable needs a comment the name needs to be changed. For example, `msg = ... // the message` use `message = ...` without a comment instead
-* **type vs. var**:
-    Please use 'int x' instead of 'var x', etc. in all cases. Here is why: whenever
 * **private** 
     Fields and methods in a class are private by default, no need to use the private keyword there.
-    Note fields and methods are public by default in structs so it might be necessary there.
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
 
 **One Python Way**

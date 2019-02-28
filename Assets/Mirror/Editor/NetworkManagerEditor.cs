@@ -27,15 +27,16 @@ namespace Mirror
 
                 spawnListProperty = serializedObject.FindProperty("spawnPrefabs");
 
-                spawnList = new ReorderableList(serializedObject, spawnListProperty);
-                spawnList.drawHeaderCallback = DrawHeader;
-                spawnList.drawElementCallback = DrawChild;
-                spawnList.onReorderCallback = Changed;
-                spawnList.onRemoveCallback = RemoveButton;
-                spawnList.onChangedCallback = Changed;
-                spawnList.onReorderCallback = Changed;
-                spawnList.onAddCallback = AddButton;
-                spawnList.elementHeight = 16; // this uses a 16x16 icon. other sizes make it stretch.
+                spawnList = new ReorderableList(serializedObject, spawnListProperty)
+                {
+                    drawHeaderCallback = DrawHeader,
+                    drawElementCallback = DrawChild,
+                    onReorderCallback = Changed,
+                    onRemoveCallback = RemoveButton,
+                    onChangedCallback = Changed,
+                    onAddCallback = AddButton,
+                    elementHeight = 16 // this uses a 16x16 icon. other sizes make it stretch.
+                };
             }
         }
 
@@ -68,11 +69,11 @@ namespace Mirror
             }
             else
             {
-                var identity = go.GetComponent<NetworkIdentity>();
+                NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
                 label = new GUIContent(go.name, identity != null ? "AssetId: [" + identity.assetId + "]" : "No Network Identity");
             }
 
-            var newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
+            GameObject newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
 
             if (newGameObject != go)
             {
@@ -95,7 +96,7 @@ namespace Mirror
             spawnListProperty.arraySize += 1;
             list.index = spawnListProperty.arraySize - 1;
 
-            var obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
+            SerializedProperty obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
             obj.objectReferenceValue = null;
 
             spawnList.index = spawnList.count - 1;

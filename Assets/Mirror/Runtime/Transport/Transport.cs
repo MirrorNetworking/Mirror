@@ -15,6 +15,13 @@ namespace Mirror
 
     public abstract class Transport : MonoBehaviour
     {
+        // determines if the transport is available for this platform
+        // by default a transport is available in all platforms except webgl
+        public virtual bool Available()
+        {
+            return Application.platform != RuntimePlatform.WebGLPlayer;
+        }
+
         // client
         [HideInInspector] public UnityEvent OnClientConnected;
         [HideInInspector] public UnityEventByteArray OnClientDataReceived;
@@ -30,13 +37,15 @@ namespace Mirror
         [HideInInspector] public UnityEventInt OnServerConnected;
         [HideInInspector] public UnityEventIntByteArray OnServerDataReceived;
         [HideInInspector] public UnityEventIntException OnServerError;
+
+
         [HideInInspector] public UnityEventInt OnServerDisconnected;
 
         public abstract bool ServerActive();
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
-        public abstract bool GetConnectionInfo(int connectionId, out string address);
+        public abstract string ServerGetClientAddress(int connectionId);
         public abstract void ServerStop();
 
         // common
@@ -51,6 +60,12 @@ namespace Mirror
         //    'Observer not ready for ...' log messages when using Update
         // -> occupying a public Update() function will cause Warnings if a
         //    transport uses Update.
+        //
+        // IMPORTANT: set script execution order to >1000 to call Transport's
+        //            LateUpdate after all others. Fixes race condition where
+        //            e.g. in uSurvival Transport would apply Cmds before
+        //            ShoulderRotation.LateUpdate, resulting in projectile
+        //            spawns at the point before shoulder rotation.
         public void Update() {}
     }
 }

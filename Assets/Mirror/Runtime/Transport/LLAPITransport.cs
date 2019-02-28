@@ -14,8 +14,47 @@ namespace Mirror
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
         public bool useWebsockets;
 
-        ConnectionConfig connectionConfig;
-        GlobalConfig globalConfig;
+        // settings copied from uMMORPG configuration for best results
+        public ConnectionConfig connectionConfig = new ConnectionConfig
+        {
+            PacketSize = 1500,
+            FragmentSize = 500,
+            ResendTimeout = 1200,
+            DisconnectTimeout = 6000,
+            ConnectTimeout = 6000,
+            MinUpdateTimeout = 1,
+            PingTimeout = 2000,
+            ReducedPingTimeout = 100,
+            AllCostTimeout = 20,
+            NetworkDropThreshold = 80,
+            OverflowDropThreshold = 80,
+            MaxConnectionAttempt = 10,
+            AckDelay = 33,
+            SendDelay = 10,
+            MaxCombinedReliableMessageSize = 100,
+            MaxCombinedReliableMessageCount = 10,
+            MaxSentMessageQueueSize = 512,
+            AcksType = ConnectionAcksType.Acks128,
+            InitialBandwidth = 0,
+            BandwidthPeakFactor = 2,
+            WebSocketReceiveBufferMaxSize = 0,
+            UdpSocketReceiveBufferMaxSize = 0
+        };
+
+        // settings copied from uMMORPG configuration for best results
+        public GlobalConfig globalConfig = new GlobalConfig
+        {
+            ReactorModel = ReactorModel.SelectReactor,
+            ThreadAwakeTimeout = 1,
+            ReactorMaximumSentMessages = 4096,
+            ReactorMaximumReceivedMessages = 4096,
+            MaxPacketSize = 2000,
+            MaxHosts = 16,
+            ThreadPoolSize = 3,
+            MinTimerTimeout = 1,
+            MaxTimerTimeout = 12000
+        };
+
         readonly int channelId; // always use first channel
         byte error;
 
@@ -26,62 +65,21 @@ namespace Mirror
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
 
-        void Awake()
+        void OnValidate()
         {
-            // create global config if none passed
-            // -> settings copied from uMMORPG configuration for best results
-            if (globalConfig == null)
+            // add connectionconfig channels if none
+            if (connectionConfig.Channels.Count == 0)
             {
-                globalConfig = new GlobalConfig
-                {
-                    ReactorModel = ReactorModel.SelectReactor,
-                    ThreadAwakeTimeout = 1,
-                    ReactorMaximumSentMessages = 4096,
-                    ReactorMaximumReceivedMessages = 4096,
-                    MaxPacketSize = 2000,
-                    MaxHosts = 16,
-                    ThreadPoolSize = 3,
-                    MinTimerTimeout = 1,
-                    MaxTimerTimeout = 12000
-                };
-            }
-            NetworkTransport.Init(globalConfig);
-
-            // create connection config if none passed
-            // -> settings copied from uMMORPG configuration for best results
-            if (connectionConfig == null)
-            {
-                connectionConfig = new ConnectionConfig
-                {
-                    PacketSize = 1500,
-                    FragmentSize = 500,
-                    ResendTimeout = 1200,
-                    DisconnectTimeout = 6000,
-                    ConnectTimeout = 6000,
-                    MinUpdateTimeout = 1,
-                    PingTimeout = 2000,
-                    ReducedPingTimeout = 100,
-                    AllCostTimeout = 20,
-                    NetworkDropThreshold = 80,
-                    OverflowDropThreshold = 80,
-                    MaxConnectionAttempt = 10,
-                    AckDelay = 33,
-                    SendDelay = 10,
-                    MaxCombinedReliableMessageSize = 100,
-                    MaxCombinedReliableMessageCount = 10,
-                    MaxSentMessageQueueSize = 512,
-                    AcksType = ConnectionAcksType.Acks128,
-                    InitialBandwidth = 0,
-                    BandwidthPeakFactor = 2,
-                    WebSocketReceiveBufferMaxSize = 0,
-                    UdpSocketReceiveBufferMaxSize = 0
-                };
                 // channel 0 is reliable fragmented sequenced
                 connectionConfig.AddChannel(QosType.ReliableFragmentedSequenced);
                 // channel 1 is unreliable
                 connectionConfig.AddChannel(QosType.Unreliable);
             }
+        }
 
+        void Awake()
+        {
+            NetworkTransport.Init(globalConfig);
             Debug.Log("LLAPITransport initialized!");
         }
 
@@ -93,6 +91,9 @@ namespace Mirror
 
         public override void ClientConnect(string address)
         {
+            // LLAPI can't handle 'localhost'
+            if (address.ToLower() == "localhost") address = "127.0.0.1";
+
             HostTopology hostTopology = new HostTopology(connectionConfig, 1);
 
             // important:
@@ -116,10 +117,9 @@ namespace Mirror
 
         public bool ProcessClientMessage()
         {
-            int connectionId;
-            int channel;
-            int receivedSize;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out connectionId, out channel, clientReceiveBuffer, clientReceiveBuffer.Length, out receivedSize, out error);
+            if (clientId == -1) return false;
+
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -155,11 +155,22 @@ namespace Mirror
             return true;
         }
 
+        // IMPORTANT: set script execution order to >1000 to call Transport's
+        //            LateUpdate after all others. Fixes race condition where
+        //            e.g. in uSurvival Transport would apply Cmds before
+        //            ShoulderRotation.LateUpdate, resulting in projectile
+        //            spawns at the point before shoulder rotation.
         public void LateUpdate()
         {
             // process all messages
             while (ProcessClientMessage()) { }
             while (ProcessServerMessage()) { }
+        }
+
+        public string ClientGetAddress()
+        {
+            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            return address;
         }
 
         public override void ClientDisconnect()
@@ -169,6 +180,12 @@ namespace Mirror
                 NetworkTransport.RemoveHost(clientId);
                 clientId = -1;
             }
+        }
+
+        public override bool Available()
+        {
+            // websocket is available in all platforms (including webgl)
+            return useWebsockets || base.Available();
         }
 
         // server //////////////////////////////////////////////////////////////
@@ -181,13 +198,13 @@ namespace Mirror
         {
             if (useWebsockets)
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
             else
             {
-                HostTopology topology = new HostTopology(connectionConfig, int.MaxValue);
+                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
@@ -200,10 +217,10 @@ namespace Mirror
 
         public bool ProcessServerMessage()
         {
+            if (serverHostId == -1) return false;
+
             int connectionId = -1;
-            int channel;
-            int receivedSize;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -253,13 +270,10 @@ namespace Mirror
             return NetworkTransport.Disconnect(serverHostId, connectionId, out error);
         }
 
-        public override bool GetConnectionInfo(int connectionId, out string address)
+        public override string ServerGetClientAddress(int connectionId)
         {
-            int port;
-            NetworkID networkId;
-            NodeID node;
-            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out address, out port, out networkId, out node, out error);
-            return true;
+            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            return address;
         }
 
         public override void ServerStop()
@@ -291,8 +305,7 @@ namespace Mirror
             }
             else if (ClientConnected())
             {
-                string ip;
-                GetConnectionInfo(clientId, out ip);
+                string ip = ClientGetAddress();
                 return "LLAPI Client ip: " + ip + " port: " + port;
             }
             return "LLAPI (inactive/disconnected)";

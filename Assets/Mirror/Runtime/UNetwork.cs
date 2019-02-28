@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Mirror
 {
@@ -57,7 +58,7 @@ namespace Mirror
         Highest = 47
     }
 
-    public class NetworkMessage
+    public struct NetworkMessage
     {
         public short msgType;
         public NetworkConnection conn;
@@ -87,45 +88,48 @@ namespace Mirror
         public const int DefaultUnreliable = 1;
     }
 
-    // network protocol all in one place, instead of constructing headers in all kinds of different places
+    // message packing all in one place, instead of constructing headers in all
+    // kinds of different places
     //
     //   MsgType     (1-n bytes)
     //   Content     (ContentSize bytes)
     //
-    // -> we use varint for headers because most messages will result in 1 byte type/size headers then instead of always
+    // -> we use varint for headers because most messages will result in 1 byte
+    //    type/size headers then instead of always
     //    using 2 bytes for shorts.
-    // -> this reduces bandwidth by 10% if average message size is 20 bytes (probably even shorter)
-    public static class Protocol
+    // -> this reduces bandwidth by 10% if average message size is 20 bytes
+    //    (probably even shorter)
+    public static class MessagePacker
     {
+        // PackMessage is in hot path. caching the writer is really worth it to
+        // avoid large amounts of allocations.
+        static NetworkWriter packWriter = new NetworkWriter();
+
         // pack message before sending
-        public static byte[] PackMessage(ushort msgType, byte[] content)
+        // -> pass writer instead of byte[] so we can reuse it
+        public static byte[] PackMessage(ushort msgType, MessageBase msg)
         {
-            // original HLAPI's 'content' part is never null, so we don't have to handle that case.
-            // just create an empty array if null.
-            if (content == null) content = new byte[0];
+            // reset cached writer length and position
+            packWriter.SetLength(0);
 
-            NetworkWriter writer = new NetworkWriter();
+            // write message type
+            packWriter.WritePackedUInt32(msgType);
 
-            // message type (varint)
-            writer.WritePackedUInt32(msgType);
+            // serialize message into writer
+            msg.Serialize(packWriter);
 
-            // message content (if any)
-            writer.Write(content, 0, content.Length);
-
-            return writer.ToArray();
+            // return byte[]
+            return packWriter.ToArray();
         }
 
         // unpack message after receiving
-        public static bool UnpackMessage(byte[] message, out ushort msgType, out byte[] content)
+        // -> pass NetworkReader so it's less strange if we create it in here
+        //    and pass it upwards.
+        // -> NetworkReader will point at content afterwards!
+        public static bool UnpackMessage(NetworkReader messageReader, out ushort msgType)
         {
-            NetworkReader reader = new NetworkReader(message);
-
             // read message type (varint)
-            msgType = (UInt16)reader.ReadPackedUInt32();
-
-            // read content (remaining data in message)
-            content = reader.ReadBytes(reader.Length - reader.Position);
-
+            msgType = (UInt16)messageReader.ReadPackedUInt32();
             return true;
         }
     }
@@ -183,6 +187,12 @@ namespace Mirror
             float v = ScaleByteToFloat(middle, 0x00, 0x1F, minTarget, maxTarget);
             float w = ScaleByteToFloat(upper, 0x00, 0x1F, minTarget, maxTarget);
             return new float[]{u, v, w};
+        }
+
+        // headless mode detection
+        public static bool IsHeadless()
+        {
+            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
     }
 }

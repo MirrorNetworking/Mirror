@@ -82,6 +82,19 @@ namespace Mirror
             return CompareSiblingPaths(SiblingPathFor(left.transform), SiblingPathFor(right.transform));
         }
 
+        // we might have inactive scenes in the Editor's build settings, which
+        // aren't actually included in builds.
+        // so we have to only count the active ones when in Editor, otherwise
+        // editor and build sceneIds might get out of sync.
+        public static int GetSceneCount()
+        {
+#if UNITY_EDITOR
+            return EditorBuildSettings.scenes.Count(scene => scene.enabled);
+#else
+            return SceneManager.sceneCountInBuildSettings;
+#endif
+        }
+
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
@@ -146,7 +159,7 @@ namespace Mirror
             uint offsetPerScene = 0;
             if (SceneManager.sceneCountInBuildSettings > 1)
             {
-                offsetPerScene = uint.MaxValue / (uint)SceneManager.sceneCountInBuildSettings;
+                offsetPerScene = uint.MaxValue / (uint)GetSceneCount();
 
                 // make sure that there aren't more sceneIds than offsetPerScene
                 // -> only if we have multiple scenes. otherwise offset is 0, in

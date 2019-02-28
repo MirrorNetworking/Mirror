@@ -16,7 +16,7 @@ namespace Mirror.Weaver
             if (tr == null)
             {
                 Log.Error("Type missing for " + name);
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -34,7 +34,7 @@ namespace Mirror.Weaver
                 Log.Error("Method " + methodRef.Name);
             }
 
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 
@@ -44,7 +44,7 @@ namespace Mirror.Weaver
             if (tr == null)
             {
                 Log.Error("Type missing for " + name);
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -75,7 +75,7 @@ namespace Mirror.Weaver
                 }
             }
             Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 
@@ -122,7 +122,7 @@ namespace Mirror.Weaver
             }
 
             Log.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
-            Weaver.fail = true;
+            Weaver.WeavingFailed = true;
             return null;
         }
 

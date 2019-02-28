@@ -10,15 +10,11 @@ namespace Mirror
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        ulong m_SyncVarDirtyBits; // ulong instead of uint for 64 instead of 32 SyncVar limit per component
         float m_LastSendTime;
 
         // sync interval for OnSerialize (in seconds)
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         [HideInInspector] public float syncInterval = 0.1f;
-
-        // this prevents recursion when SyncVar hook functions are called.
-        bool m_SyncVarGuard;
 
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
         public bool isServer => netIdentity.isServer; 
@@ -29,9 +25,9 @@ namespace Mirror
         public bool hasAuthority => netIdentity.hasAuthority;
         public uint netId => netIdentity.netId; 
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
-        public NetworkConnection connectionToClient => netIdentity.connectionToClient; 
-        protected ulong syncVarDirtyBits => m_SyncVarDirtyBits;
-        protected bool syncVarHookGuard { get { return m_SyncVarGuard; } set { m_SyncVarGuard = value; }}
+        public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+        protected ulong syncVarDirtyBits { get; private set; }
+        protected bool syncVarHookGuard { get; set; }
 
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
@@ -220,12 +216,7 @@ namespace Mirror
                     return;
                 }
 
-                Debug.LogError(string.Format(
-                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
-                    oldInvoker.invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName(),
-                    invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName()));
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {
@@ -274,8 +265,7 @@ namespace Mirror
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
         internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            Invoker invoker;
-            if (GetInvokerForHash(cmdHash, invokeType, out invoker) &&
+            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
                 invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
@@ -290,7 +280,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (m_SyncVarGuard)
+            if (syncVarHookGuard)
                 return;
 
             uint newNetId = 0;
@@ -330,8 +320,7 @@ namespace Mirror
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            NetworkIdentity identity;
-            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
                 return identity.gameObject;
             return null;
         }
@@ -340,7 +329,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (m_SyncVarGuard)
+            if (syncVarHookGuard)
                 return;
 
             uint newNetId = 0;
@@ -376,8 +365,7 @@ namespace Mirror
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            NetworkIdentity identity;
-            NetworkIdentity.spawned.TryGetValue(netId, out identity);
+            NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity);
             return identity;
         }
 
@@ -397,16 +385,22 @@ namespace Mirror
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
         {
-            m_SyncVarDirtyBits |= dirtyBit;
+            syncVarDirtyBits |= dirtyBit;
         }
 
         public void ClearAllDirtyBits()
         {
             m_LastSendTime = Time.time;
-            m_SyncVarDirtyBits = 0L;
+            syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            m_SyncObjects.ForEach(obj => obj.Flush());
+            // note: don't use List.ForEach here, this is a hot path
+            // List.ForEach: 432b/frame
+            // for: 231b/frame
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            {
+                m_SyncObjects[i].Flush();
+            }
         }
 
         internal bool AnySyncObjectDirty()
@@ -428,7 +422,7 @@ namespace Mirror
         {
             if (Time.time - m_LastSendTime >= syncInterval)
             {
-                return m_SyncVarDirtyBits != 0L || AnySyncObjectDirty();
+                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }

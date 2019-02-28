@@ -24,6 +24,8 @@ namespace Mirror
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
         public bool startOnHeadless = true;
+        [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
+        public int serverTickRate = 30;
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
 
         [Scene]
@@ -55,7 +57,9 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
-        public static string networkSceneName = ""; // this is used to make sure that all scene changes are initialized by UNET. loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        // this is used to make sure that all scene changes are initialized by UNET.
+        // Loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
         public NetworkClient client;
@@ -81,7 +85,7 @@ namespace Mirror
             InitializeSingleton();
 
             // headless mode? then start the server
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
+            if (Utils.IsHeadless() && startOnHeadless)
             {
                 Application.targetFrameRate = 60;
                 StartServer();
@@ -102,7 +106,7 @@ namespace Mirror
             {
                 if (singleton != null)
                 {
-                    if (LogFilter.Debug) { Debug.Log("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used."); }
+                    Debug.LogError("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used.");
                     Destroy(gameObject);
                     return;
                 }
@@ -137,7 +141,9 @@ namespace Mirror
             // call it while the NetworkManager exists.
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
-            NetworkIdentity.UNetStaticUpdate();
+            NetworkServer.Update();
+            NetworkClient.UpdateClient();
+            UpdateScene();
         }
 
         // When pressing Stop in the Editor, Unity keeps threads alive until we
@@ -195,6 +201,17 @@ namespace Mirror
 
             if (runInBackground)
                 Application.runInBackground = true;
+
+            // set a fixed tick rate instead of updating as often as possible
+            // * if not in Editor (it doesn't work in the Editor)
+            // * if not in Host mode
+#if !UNITY_EDITOR
+            if (!NetworkClient.active)
+            {
+                Application.targetFrameRate = serverTickRate;
+                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+            }
+#endif
 
             if (!NetworkServer.Listen(maxConnections))
             {
@@ -405,6 +422,9 @@ namespace Mirror
                 NetworkManager.singleton.transport.enabled = false;
             }
 
+            // Let client prepare for scene change
+            OnClientChangeScene(newSceneName);
+
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
             networkSceneName = newSceneName;
         }
@@ -567,7 +587,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
 
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
                 clientLoadedScene = false;
@@ -591,7 +611,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientNotReadyMessageInternal"); }
 
-            ClientScene.SetNotReady();
+            ClientScene.ready = false;
             OnClientNotReady(netMsg.conn);
 
             // NOTE: s_ClientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
@@ -745,6 +765,10 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn)
         {
         }
+
+        // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        // This allows client to do work / cleanup / prep before the scene changes.
+        public virtual void OnClientChangeScene(string newSceneName) { }
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {

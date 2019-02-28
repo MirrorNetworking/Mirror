@@ -26,18 +26,23 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/) and read the [Wiki](https://github.com/vis2k/Mirror/wiki).
+Check out our [Documentation](https://vis2k.github.io/Mirror/).
 
 The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
 
 _Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
 
 ## Usage Guide
+
+**If you are coming from a current UNET implementation or are seeking the stable version:**
+
 Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
 
-Alternatively,  you can install it manually:
+**Alternatively, you can install new releases manually:**
 
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2017.4 and 2018). Use it at your own risk!
+*Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
+
+1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
 2. Decompress the zip file in Assets
 
 ## Migration Guide
@@ -58,7 +63,7 @@ Mirror is developed by volunteers. If you like what we are doing, consider leavi
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
-* [uMMORPG 207 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vQqf_iqOLlBRTUqqyor_OUx_rHlYx-SYvZWMvHGuLIuRuxJ-qX3s8JzrrBB5vxDdGfl-HhYZW3g5lLW/pub#h.h4wha2mpetsc) (everyone broadcasting to everyone else)
+* [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## Contributing

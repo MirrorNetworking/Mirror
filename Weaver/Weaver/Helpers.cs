@@ -85,7 +85,7 @@ namespace Mirror.Weaver
             return type.Name;
         }
 
-        public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string unityUNetDLLPath)
+        public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             ReaderParameters parameters = new ReaderParameters();
             if (assemblyResolver == null)
@@ -94,7 +94,7 @@ namespace Mirror.Weaver
             helper.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
             helper.AddSearchDirectory(UnityEngineDLLDirectoryName());
             helper.AddSearchDirectory(Path.GetDirectoryName(unityEngineDLLPath));
-            helper.AddSearchDirectory(Path.GetDirectoryName(unityUNetDLLPath));
+            helper.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
             if (extraPaths != null)
             {
                 foreach (var path in extraPaths)
