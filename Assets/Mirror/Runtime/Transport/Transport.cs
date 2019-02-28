@@ -49,9 +49,27 @@ namespace Mirror
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
+
         [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
-        public abstract bool GetConnectionInfo(int connectionId, out string address);
+        public virtual bool GetConnectionInfo(int connectionId, out string address)
+        {
+            try
+            {
+                address = ServerGetClientAddress(connectionId);
+                return true;
+            }
+            catch
+            {
+                //we have no idea who this connection is
+                Debug.LogErrorFormat("Trying to get info on an unknown connection {0}", connectionId);
+            }
+
+            address = null;
+            return false;
+        }
+
         public abstract string ServerGetClientAddress(int connectionId);
+
         public abstract void ServerStop();
 
         // common
