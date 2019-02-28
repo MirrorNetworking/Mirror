@@ -24,10 +24,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Castclass, td));
 
-            //ClientScene.readyconnection
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.ReadyConnectionReference));
-
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, rpcWorker, true))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, rpcWorker, false))
                 return null;
 
             // invoke actual command function
@@ -40,7 +37,7 @@ namespace Mirror.Weaver
         }
 
         /* generates code like:
-        public void CallTargetTest (NetworkConnection conn, int param)
+        public void CallTargetTest (int param)
         {
             NetworkWriter writer = new NetworkWriter ();
             writer.WritePackedUInt32 ((uint)param);
@@ -53,7 +50,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            // add paramters
+            // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {
                 rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
@@ -66,7 +63,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
             // write all the arguments that the user passed to the TargetRpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "TargetRPC", true))
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "TargetRPC", false))
                 return null;
 
             var rpcName = md.Name;
@@ -111,20 +108,6 @@ namespace Mirror.Weaver
 
             if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Target Rpc"))
             {
-                return false;
-            }
-
-            if (md.Parameters.Count < 1)
-            {
-                Log.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] must have a NetworkConnection as the first parameter");
-                Weaver.WeavingFailed = true;
-                return false;
-            }
-
-            if (md.Parameters[0].ParameterType.FullName != Weaver.NetworkConnectionType.FullName)
-            {
-                Log.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] first parameter must be a NetworkConnection");
-                Weaver.WeavingFailed = true;
                 return false;
             }
 
