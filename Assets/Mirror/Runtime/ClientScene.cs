@@ -402,7 +402,7 @@ namespace Mirror
             // objects spawned as part of initial state are started on a second pass
             if (s_IsSpawnFinished)
             {
-                identity.EnableIsClient();
+                identity.isClient = true;
                 identity.OnStartClient();
                 CheckForOwner(identity);
             }
