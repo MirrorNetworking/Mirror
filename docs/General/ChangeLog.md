@@ -2,6 +2,7 @@
 
 ## Version 1.5 -- 2019-Mar-01
 
+- Added: **Migration Tool** to (mostly) automate conversion from UNet
 - Added: Lobby Manager and Lobby Player with example game
 - Added: Unit tests for Weaver
 - Added: Configurable Server Tickrate in NetworkManager
