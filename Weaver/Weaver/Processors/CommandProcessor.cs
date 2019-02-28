@@ -12,13 +12,6 @@ namespace Mirror.Weaver
             // generates code like:
             public void CallCmdThrust(float thrusting, int spin)
             {
-                Debug.LogError("Call Command function CmdThrust");
-                if (!NetworkClient.active)
-                {
-                    Debug.LogError("Command function CmdThrust called on server.");
-                    return;
-                }
-
                 if (isServer)
                 {
                     // we are ON the server, invoke directly
@@ -54,8 +47,6 @@ namespace Mirror.Weaver
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
-
-            NetworkBehaviourProcessor.WriteClientActiveCheck(cmdWorker, md.Name, label, "Command function");
 
             // local client check
             Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
