@@ -33,8 +33,8 @@ namespace Mirror
         bool m_Reset;
 
         // properties
-        public bool isClient { get; private set; }
-        public bool isServer => m_IsServer && NetworkServer.active; // dont return true if server stopped.
+        public bool isClient { get; internal set; }
+        public bool isServer { get => m_IsServer && NetworkServer.active; internal set => m_IsServer = value; } // dont return true if server stopped.
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
 
@@ -45,7 +45,7 @@ namespace Mirror
         public uint sceneId => m_SceneId;
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
-        public NetworkConnection clientAuthorityOwner { get; private set; }
+        public NetworkConnection clientAuthorityOwner { get; internal set; }
         public NetworkConnection connectionToServer { get; internal set; }
         public NetworkConnection connectionToClient { get; internal set; }
 
@@ -103,9 +103,6 @@ namespace Mirror
             clientAuthorityOwner.AddOwnedObject(this);
         }
 
-        // used during dispose after disconnect
-        internal void ClearClientOwner() => clientAuthorityOwner = null;
-
         internal void ForceAuthority(bool authority)
         {
             if (hasAuthority == authority)
@@ -142,8 +139,6 @@ namespace Mirror
 
         // only used when fixing duplicate scene IDs during post-processing
         public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
-        internal void EnableIsClient() => isClient = true;
-        internal void EnableIsServer() => m_IsServer = true;
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
@@ -276,7 +271,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                EnableIsClient();
+                isClient = true;
                 OnStartClient();
             }
 

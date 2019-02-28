@@ -160,7 +160,7 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + identity.netId + " " + identity); }
 
-                    identity.EnableIsClient();
+                    identity.isClient = true;
                     identity.OnStartClient();
                 }
             }
@@ -607,7 +607,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 conn.playerController.SetNotLocalPlayer();
-                conn.playerController.ClearClientOwner();
+                conn.playerController.clientAuthorityOwner = null;
             }
 
             conn.SetPlayerController(playerNetworkIdentity);
