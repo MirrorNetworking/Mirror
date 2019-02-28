@@ -15,6 +15,10 @@ namespace Mirror
 
     public abstract class Transport : MonoBehaviour
     {
+        // static Transport which receives all network events
+        // this is usually set by NetworkManager, but doesn't have to be.
+        public static Transport activeTransport;
+
         // determines if the transport is available for this platform
         // by default a transport is available in all platforms except webgl
         public virtual bool Available()
