@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,30 +6,40 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        NetworkIdentity m_PlayerController;
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
 
-        public int hostId = -1;
         public int connectionId = -1;
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController => m_PlayerController;
+        public NetworkIdentity playerController { get; private set; }
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
-        public bool isConnected => hostId != -1;
+
+        // this is always true for regular connections, false for local
+        // connections because it's set in the constructor and never reset.
+        [Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
+        public bool isConnected { get; protected set; }
+
+        // this is always 0 for regular connections, -1 for local
+        // connections because it's set in the constructor and never reset.
+        [Obsolete("hostId will be removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use connection.GetType() == NetworkConnection to check if it's a regular or local connection.")]
+        public int hostId = -1;
 
         public NetworkConnection(string networkAddress)
         {
             address = networkAddress;
         }
-        public NetworkConnection(string networkAddress, int networkHostId, int networkConnectionId)
+        public NetworkConnection(string networkAddress, int networkConnectionId)
         {
             address = networkAddress;
-            hostId = networkHostId;
             connectionId = networkConnectionId;
+#pragma warning disable 618
+            isConnected = true;
+            hostId = 0;
+#pragma warning restore 618
         }
 
         ~NetworkConnection()
@@ -74,57 +84,21 @@ namespace Mirror
 
             // paul:  we may be connecting or connected,  either way, we need to disconnect
             // transport should not do anything if it is not connecting/connected
-            NetworkManager.singleton.transport.ClientDisconnect();
+            Transport.activeTransport.ClientDisconnect();
 
             // server? then disconnect that client
-            if (NetworkManager.singleton.transport.ServerActive())
+            if (Transport.activeTransport.ServerActive())
             {
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
             }
 
-            // remove observers. original HLAPI has hostId check for that too.
-            if (hostId != -1)
-            {
-                RemoveObservers();
-            }
+            // remove observers
+            RemoveObservers();
         }
 
         internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
-        }
-
-        public bool InvokeHandlerNoData(short msgType)
-        {
-            return InvokeHandler(msgType, null);
-        }
-
-        public bool InvokeHandler(short msgType, NetworkReader reader)
-        {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    conn = this,
-                    reader = reader
-                };
-
-                msgDelegate(message);
-                return true;
-            }
-            Debug.LogError("NetworkConnection InvokeHandler no handler for " + msgType);
-            return false;
-        }
-
-        public bool InvokeHandler(NetworkMessage netMsg)
-        {
-            if (m_MessageHandlers.TryGetValue(netMsg.msgType, out NetworkMessageDelegate msgDelegate))
-            {
-                msgDelegate(netMsg);
-                return true;
-            }
-            return false;
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
@@ -143,18 +117,18 @@ namespace Mirror
 
         internal void SetPlayerController(NetworkIdentity player)
         {
-            m_PlayerController = player;
+            playerController = player;
         }
 
         internal void RemovePlayerController()
         {
-            m_PlayerController = null;
+            playerController = null;
         }
 
         public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
             return SendBytes(message, channelId);
         }
 
@@ -164,9 +138,9 @@ namespace Mirror
         {
             if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
 
-            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize(channelId))
+            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + NetworkManager.singleton.transport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection:SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
@@ -180,6 +154,62 @@ namespace Mirror
             return TransportSend(channelId, bytes, out byte error);
         }
 
+        public override string ToString()
+        {
+            return $"connectionId: {connectionId} isReady: {isReady}";
+        }
+
+        internal void AddToVisList(NetworkIdentity identity)
+        {
+            visList.Add(identity);
+
+            // spawn identity for this conn
+            NetworkServer.ShowForConnection(identity, this);
+        }
+
+        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
+        {
+            visList.Remove(identity);
+
+            if (!isDestroyed)
+            {
+                // hide identity for this conn
+                NetworkServer.HideForConnection(identity, this);
+            }
+        }
+
+        internal void RemoveObservers()
+        {
+            foreach (NetworkIdentity identity in visList)
+            {
+                identity.RemoveObserverInternal(this);
+            }
+            visList.Clear();
+        }
+
+        public bool InvokeHandlerNoData(short msgType)
+        {
+            return InvokeHandler(msgType, null);
+        }
+
+        public bool InvokeHandler(short msgType, NetworkReader reader)
+        {
+            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            {
+                NetworkMessage message = new NetworkMessage
+                {
+                    msgType = msgType,
+                    reader = reader,
+                    conn = this
+                };
+
+                msgDelegate(message);
+                return true;
+            }
+            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
+            return false;
+        }
+
         // handle this message
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
@@ -187,11 +217,11 @@ namespace Mirror
         //       -> in other words, we always receive 1 message per Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        protected void HandleBytes(byte[] buffer)
+        public virtual void TransportReceive(byte[] buffer)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
             {
                 if (logNetworkMessages)
                 {
@@ -207,79 +237,25 @@ namespace Mirror
                     }
                 }
 
-                if (m_MessageHandlers.TryGetValue((short)msgType, out NetworkMessageDelegate msgDelegate))
+                // try to invoke the handler for that message
+                if (InvokeHandler((short)msgType, reader))
                 {
-                    // create message here instead of caching it. so we can add it to queue more easily.
-                    NetworkMessage msg = new NetworkMessage
-                    {
-                        msgType = (short)msgType,
-                        reader = reader,
-                        conn = this
-                    };
-
-                    msgDelegate(msg);
                     lastMessageTime = Time.time;
                 }
-                else
-                {
-                    //NOTE: this throws away the rest of the buffer. Need moar error codes
-                    Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
-                }
             }
-            else
-            {
-                Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("hostId: {0} connectionId: {1} isReady: {2}", hostId, connectionId, isReady);
-        }
-
-        internal void AddToVisList(NetworkIdentity identity)
-        {
-            visList.Add(identity);
-
-            // spawn uv for this conn
-            NetworkServer.ShowForConnection(identity, this);
-        }
-
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
-        {
-            visList.Remove(identity);
-
-            if (!isDestroyed)
-            {
-                // hide uv for this conn
-                NetworkServer.HideForConnection(identity, this);
-            }
-        }
-
-        internal void RemoveObservers()
-        {
-            foreach (NetworkIdentity identity in visList)
-            {
-                identity.RemoveObserverInternal(this);
-            }
-            visList.Clear();
-        }
-
-        public virtual void TransportReceive(byte[] bytes)
-        {
-            HandleBytes(bytes);
+            else Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
         }
 
         public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
         {
             error = 0;
-            if (NetworkManager.singleton.transport.ClientConnected())
+            if (Transport.activeTransport.ClientConnected())
             {
-                return NetworkManager.singleton.transport.ClientSend(channelId, bytes);
+                return Transport.activeTransport.ClientSend(channelId, bytes);
             }
-            else if (NetworkManager.singleton.transport.ServerActive())
+            else if (Transport.activeTransport.ServerActive())
             {
-                return NetworkManager.singleton.transport.ServerSend(connectionId, channelId, bytes);
+                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
             }
             return false;
         }

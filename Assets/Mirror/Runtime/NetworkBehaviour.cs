@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
-using System.Linq;
 
 namespace Mirror
 {
@@ -17,13 +16,13 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
 
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-        public bool isServer => netIdentity.isServer; 
-        public bool isClient => netIdentity.isClient; 
-        public bool isLocalPlayer => netIdentity.isLocalPlayer; 
+        public bool isServer => netIdentity.isServer;
+        public bool isClient => netIdentity.isClient;
+        public bool isLocalPlayer => netIdentity.isLocalPlayer;
         public bool isServerOnly => isServer && !isClient;
         public bool isClientOnly => isClient && !isServer;
         public bool hasAuthority => netIdentity.hasAuthority;
-        public uint netId => netIdentity.netId; 
+        public uint netId => netIdentity.netId;
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
         protected ulong syncVarDirtyBits { get; private set; }
@@ -75,6 +74,14 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            // NOTE: we could remove this later to allow calling Cmds on Server
+            //       to avoid Wrapper functions. a lot of people requested this.
+            if (!NetworkClient.active)
+            {
+                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
+                return;
+            }
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
@@ -111,6 +118,12 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -133,6 +146,18 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
+                return;
+            }
+            // this was in Weaver before
+            if (conn is ULocalConnectionToServer)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -216,12 +241,7 @@ namespace Mirror
                     return;
                 }
 
-                Debug.LogError(string.Format(
-                    "Function {0}.{1} and {2}.{3} have the same hash.  Please rename one of them",
-                    oldInvoker.invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName(),
-                    invokeClass,
-                    oldInvoker.invokeFunction.GetMethodName()));
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
             }
             Invoker invoker = new Invoker
             {
@@ -399,7 +419,13 @@ namespace Mirror
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            m_SyncObjects.ForEach(obj => obj.Flush());
+            // note: don't use List.ForEach here, this is a hot path
+            // List.ForEach: 432b/frame
+            // for: 231b/frame
+            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            {
+                m_SyncObjects[i].Flush();
+            }
         }
 
         internal bool AnySyncObjectDirty()

@@ -37,7 +37,7 @@ namespace Mirror.Weaver
         {
             if (m_td.HasGenericParameters)
             {
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 Log.Error("NetworkBehaviour " + m_td.Name + " cannot have generic parameters");
                 return;
             }
@@ -49,7 +49,7 @@ namespace Mirror.Weaver
             ProcessMethods();
 
             SyncEventProcessor.ProcessEvents(m_td, m_Events, m_EventInvocationFuncs);
-            if (Weaver.fail)
+            if (Weaver.WeavingFailed)
             {
                 return;
             }
@@ -57,7 +57,7 @@ namespace Mirror.Weaver
 
             Weaver.ResetRecursionCount();
             GenerateSerialization();
-            if (Weaver.fail)
+            if (Weaver.WeavingFailed)
             {
                 return;
             }
@@ -104,7 +104,7 @@ namespace Mirror.Weaver
         public static void WriteSetupLocals(ILProcessor worker)
         {
             worker.Body.InitLocals = true;
-            worker.Body.Variables.Add(new VariableDefinition(Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            worker.Body.Variables.Add(new VariableDefinition(Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
         }
 
         public static void WriteCreateWriter(ILProcessor worker)
@@ -130,7 +130,7 @@ namespace Mirror.Weaver
                 if (writeFunc == null)
                 {
                     Log.Error("WriteArguments for " + md.Name + " type " + pd.ParameterType + " not supported");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 // use built-in writer func on writer object
@@ -194,7 +194,7 @@ namespace Mirror.Weaver
                     else
                     {
                         Log.Error("No cctor for " + m_td.Name);
-                        Weaver.fail = true;
+                        Weaver.WeavingFailed = true;
                         return;
                     }
                 }
@@ -226,7 +226,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Weaver.fail = true;
+                        Weaver.WeavingFailed = true;
                         Log.Error("No ctor for " + m_td.Name);
                         return;
                     }
@@ -237,7 +237,7 @@ namespace Mirror.Weaver
 
             if (ctor == null)
             {
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 Log.Error("No ctor for " + m_td.Name);
                 return;
             }
@@ -320,7 +320,7 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.boolType);
 
-            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
@@ -330,7 +330,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.scriptDef, "OnSerialize");
+            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.CurrentAssembly, "OnSerialize");
             if (baseSerialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
@@ -358,8 +358,8 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.fail = true;
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
+                    Weaver.WeavingFailed = true;
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
                     return;
                 }
             }
@@ -407,8 +407,8 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    Weaver.fail = true;
+                    Log.Error("GenerateSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
+                    Weaver.WeavingFailed = true;
                     return;
                 }
 
@@ -420,7 +420,7 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Serialize " + m_td.Name));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
@@ -493,8 +493,8 @@ namespace Mirror.Weaver
                 MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
                 if (readFunc == null)
                 {
-                    Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. UNet [SyncVar] member variables must be basic types.");
-                    Weaver.fail = true;
+                    Log.Error("GenerateDeSerialization for " + m_td.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
+                    Weaver.WeavingFailed = true;
                     return;
                 }
 
@@ -538,11 +538,11 @@ namespace Mirror.Weaver
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            serialize.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
             serialize.Parameters.Add(new ParameterDefinition("initialState", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
-            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.scriptDef, "OnDeserialize");
+            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(m_td.BaseType, Weaver.CurrentAssembly, "OnDeserialize");
             if (baseDeserialize != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
@@ -595,7 +595,7 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + m_td.Name));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.logErrorReference));
@@ -636,7 +636,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error("ProcessNetworkReaderParameters for " + td.Name + ":" + md.Name + " type " + arg.ParameterType + " not supported");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
             }
@@ -646,7 +646,7 @@ namespace Mirror.Weaver
         public static void AddInvokeParameters(ICollection<ParameterDefinition> collection)
         {
             collection.Add(new ParameterDefinition("obj", ParameterAttributes.None, Weaver.NetworkBehaviourType2));
-            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.scriptDef.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
         public static bool ProcessMethodsValidateFunction(TypeDefinition td, MethodReference md, string actionType)
@@ -654,19 +654,19 @@ namespace Mirror.Weaver
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
                 Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot be a coroutine");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
             if (md.ReturnType.FullName != Weaver.voidType.FullName)
             {
                 Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] must have a void return type.");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
             if (md.HasGenericParameters)
             {
                 Log.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot have generic parameters");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
             return true;
@@ -680,25 +680,25 @@ namespace Mirror.Weaver
                 if (p.IsOut)
                 {
                     Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have out parameters");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 if (p.IsOptional)
                 {
                     Log.Error(actionType + "function [" + td.FullName + ":" + md.Name + "] cannot have optional parameters");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 if (p.ParameterType.Resolve().IsAbstract)
                 {
                     Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have abstract parameters");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 if (p.ParameterType.IsByReference)
                 {
                     Log.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have ref parameters");
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
@@ -707,7 +707,7 @@ namespace Mirror.Weaver
                 {
                     Log.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot use a NetworkConnection as a parameter. To access a player object's connection on the server use connectionToClient");
                     Log.Error("Name: " + ca.AttributeType.FullName + " parameter: " + md.Parameters[0].ParameterType.FullName);
-                    Weaver.fail = true;
+                    Weaver.WeavingFailed = true;
                     return false;
                 }
                 if (p.ParameterType.Resolve().IsDerivedFrom(Weaver.ComponentType))
@@ -718,7 +718,7 @@ namespace Mirror.Weaver
                             "] is of the type [" +
                             p.ParameterType.Name +
                             "] which is a Component. You cannot pass a Component to a remote call. Try passing data from within the component.");
-                        Weaver.fail = true;
+                        Weaver.WeavingFailed = true;
                         return false;
                     }
                 }
@@ -744,7 +744,7 @@ namespace Mirror.Weaver
                         if (names.Contains(md.Name))
                         {
                             Log.Error("Duplicate Command name [" + m_td.FullName + ":" + md.Name + "]");
-                            Weaver.fail = true;
+                            Weaver.WeavingFailed = true;
                             return;
                         }
                         names.Add(md.Name);
@@ -760,7 +760,7 @@ namespace Mirror.Weaver
                         if (cmdCallFunc != null)
                         {
                             m_CmdCallFuncs.Add(cmdCallFunc);
-                            Weaver.lists.replaceMethods[md.FullName] = cmdCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
                         }
                         break;
                     }
@@ -773,7 +773,7 @@ namespace Mirror.Weaver
                         if (names.Contains(md.Name))
                         {
                             Log.Error("Duplicate Target Rpc name [" + m_td.FullName + ":" + md.Name + "]");
-                            Weaver.fail = true;
+                            Weaver.WeavingFailed = true;
                             return;
                         }
                         names.Add(md.Name);
@@ -789,7 +789,7 @@ namespace Mirror.Weaver
                         if (rpcCallFunc != null)
                         {
                             m_TargetRpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.lists.replaceMethods[md.FullName] = rpcCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
                         }
                         break;
                     }
@@ -802,7 +802,7 @@ namespace Mirror.Weaver
                         if (names.Contains(md.Name))
                         {
                             Log.Error("Duplicate ClientRpc name [" + m_td.FullName + ":" + md.Name + "]");
-                            Weaver.fail = true;
+                            Weaver.WeavingFailed = true;
                             return;
                         }
                         names.Add(md.Name);
@@ -818,7 +818,7 @@ namespace Mirror.Weaver
                         if (rpcCallFunc != null)
                         {
                             m_RpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.lists.replaceMethods[md.FullName] = rpcCallFunc;
+                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
                         }
                         break;
                     }

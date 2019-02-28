@@ -12,13 +12,6 @@ namespace Mirror.Weaver
             // generates code like:
             public void CallCmdThrust(float thrusting, int spin)
             {
-                Debug.LogError("Call Command function CmdThrust");
-                if (!NetworkClient.active)
-                {
-                    Debug.LogError("Command function CmdThrust called on server.");
-                    return;
-                }
-
                 if (isServer)
                 {
                     // we are ON the server, invoke directly
@@ -49,13 +42,11 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
-            if (Weaver.generateLogErrors)
+            if (Weaver.GenerateLogErrors)
             {
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
-
-            NetworkBehaviourProcessor.WriteClientActiveCheck(cmdWorker, md.Name, label, "Command function");
 
             // local client check
             Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
@@ -144,14 +135,14 @@ namespace Mirror.Weaver
             if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Cmd")
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 
             if (md.IsStatic)
             {
                 Log.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.fail = true;
+                Weaver.WeavingFailed = true;
                 return false;
             }
 

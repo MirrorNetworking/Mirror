@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -16,8 +14,6 @@ namespace Mirror
         // (for downwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConection now!
         public static NetworkConnection localConnection => s_LocalConnection;
-
-        public static int serverHostId { get; private set; } = -1;
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
@@ -45,14 +41,13 @@ namespace Mirror
                 }
                 else
                 {
-                    NetworkManager.singleton.transport.ServerStop();
-                    serverHostId = -1;
+                    Transport.activeTransport.ServerStop();
                 }
 
-                NetworkManager.singleton.transport.OnServerDisconnected.RemoveListener(OnDisconnected);
-                NetworkManager.singleton.transport.OnServerConnected.RemoveListener(OnConnected);
-                NetworkManager.singleton.transport.OnServerDataReceived.RemoveListener(OnDataReceived);
-                NetworkManager.singleton.transport.OnServerError.RemoveListener(OnError);
+                Transport.activeTransport.OnServerDisconnected.RemoveListener(OnDisconnected);
+                Transport.activeTransport.OnServerConnected.RemoveListener(OnConnected);
+                Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
+                Transport.activeTransport.OnServerError.RemoveListener(OnError);
 
                 s_Initialized = false;
             }
@@ -70,10 +65,10 @@ namespace Mirror
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
-            NetworkManager.singleton.transport.OnServerDisconnected.AddListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnServerConnected.AddListener(OnConnected);
-            NetworkManager.singleton.transport.OnServerDataReceived.AddListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnServerError.AddListener(OnError);
+            Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);
+            Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
+            Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
+            Transport.activeTransport.OnServerError.AddListener(OnError);
 
         }
 
@@ -93,14 +88,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                NetworkManager.singleton.transport.ServerStart();
-                serverHostId = 0; // so it doesn't return false
-
-                if (serverHostId == -1)
-                {
-                    return false;
-                }
-
+                Transport.activeTransport.ServerStart();
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
@@ -141,13 +129,11 @@ namespace Mirror
             {
                 connectionId = 0
             };
-            AddConnection(s_LocalConnection);
-
-            s_LocalConnection.InvokeHandlerNoData((short)MsgType.Connect);
+            OnConnected(s_LocalConnection);
             return 0;
         }
 
-        internal static void RemoveLocalClient(NetworkConnection localClientConnection)
+        internal static void RemoveLocalClient()
         {
             if (s_LocalConnection != null)
             {
@@ -187,7 +173,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all observers
                 bool result = true;
@@ -205,7 +191,7 @@ namespace Mirror
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
 
             // pack message into byte[] once
-            byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
             // send to all
             bool result = true;
@@ -223,7 +209,7 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                byte[] bytes = Protocol.PackMessage((ushort)msgType, msg);
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all ready observers
                 bool result = true;
@@ -286,10 +272,10 @@ namespace Mirror
         // The user should never need to pump the update loop manually
         internal static void Update()
         {
-            if (serverHostId == -1)
-                return;
-
-            UpdateServerObjects();
+            if (active)
+            {
+                UpdateServerObjects();
+            }
         }
 
         static void OnConnected(int connectionId)
@@ -300,14 +286,14 @@ namespace Mirror
             if (connectionId <= 0)
             {
                 Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId); }
                 return;
             }
@@ -320,17 +306,16 @@ namespace Mirror
             if (connections.Count < s_MaxConnections)
             {
                 // get ip address from connection
-                string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
+                string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
 
                 // add player info
-                NetworkConnection conn = new NetworkConnection(address, serverHostId, connectionId);
-                AddConnection(conn);
+                NetworkConnection conn = new NetworkConnection(address, connectionId);
                 OnConnected(conn);
             }
             else
             {
                 // kick
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
             }
         }
@@ -338,6 +323,9 @@ namespace Mirror
         static void OnConnected(NetworkConnection conn)
         {
             if (LogFilter.Debug) { Debug.Log("Server accepted client:" + conn.connectionId); }
+
+            // add connection and invoke connected event
+            AddConnection(conn);
             conn.InvokeHandlerNoData((short)MsgType.Connect);
         }
 
@@ -534,7 +522,7 @@ namespace Mirror
             conn.SetPlayerController(identity);
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            identity.SetConnectionToClient(conn);
+            identity.connectionToClient = conn;
 
             SetClientReady(conn);
 
@@ -623,7 +611,7 @@ namespace Mirror
             conn.SetPlayerController(playerNetworkIdentity);
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            playerNetworkIdentity.SetConnectionToClient(conn);
+            playerNetworkIdentity.connectionToClient = conn;
 
             //NOTE: DONT set connection ready.
 
@@ -1082,22 +1070,6 @@ namespace Mirror
             {
                 DestroyObject(identity, false);
             }
-        }
-
-        internal static bool InvokeBytes(ULocalConnectionToServer conn, byte[] buffer)
-        {
-            NetworkReader reader = new NetworkReader(buffer);
-            if (Protocol.UnpackMessage(reader, out ushort msgType))
-            {
-                if (handlers.ContainsKey((short)msgType) && s_LocalConnection != null)
-                {
-                    // this must be invoked with the connection to the client, not the client's connection to the server
-                    s_LocalConnection.InvokeHandler((short)msgType, reader);
-                    return true;
-                }
-            }
-            Debug.LogError("InvokeBytes: failed to unpack message:" + BitConverter.ToString(buffer));
-            return false;
         }
 
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
