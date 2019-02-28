@@ -474,11 +474,11 @@ namespace Mirror
             }
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, byte[] assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.SetDynamicAssetId(assetId);
+                identity.assetId = assetId;
             }
             return InternalReplacePlayerForConnection(conn, player);
         }
@@ -488,11 +488,11 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, player);
         }
 
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, byte[] assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.SetDynamicAssetId(assetId);
+                identity.assetId = assetId;
             }
             return InternalAddPlayerForConnection(conn, player);
         }
@@ -991,7 +991,7 @@ namespace Mirror
             return identity.AssignClientAuthority(conn);
         }
 
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
+        public static bool SpawnWithClientAuthority(GameObject obj, byte[] assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
 
@@ -1005,13 +1005,13 @@ namespace Mirror
             return identity.AssignClientAuthority(conn);
         }
 
-        public static void Spawn(GameObject obj, Guid assetId)
+        public static void Spawn(GameObject obj, byte[] assetId)
         {
             if (VerifyCanSpawn(obj))
             {
                 if (GetNetworkIdentity(obj, out NetworkIdentity identity))
                 {
-                    identity.SetDynamicAssetId(assetId);
+                    identity.assetId = assetId;
                 }
                 SpawnObject(obj);
             }

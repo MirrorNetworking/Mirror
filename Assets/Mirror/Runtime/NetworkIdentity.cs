@@ -53,41 +53,25 @@ namespace Mirror
 
         public NetworkBehaviour[] NetworkBehaviours => m_NetworkBehaviours = m_NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
 
-        // the AssetId trick:
-        // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
-        //   serialize it because Guid's internal bytes are private
-        // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
-        //   which works, but it just unnecessary extra code
-        // - using just the Guid string would work, but it's 32 chars long and
-        //   would then be sent over the network as 64 instead of 16 bytes
-        // -> the solution is to serialize the string internally here and then
-        //    use the real 'Guid' type for everything else via .assetId
-        [SerializeField] string m_AssetId;
-        public Guid assetId
+        [SerializeField] byte[] m_AssetId;
+        public byte[] assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
+                if (m_AssetId == null)
                     SetupIDs();
 #endif
-                // convert string to Guid and use .Empty to avoid exception if
-                // we would use 'new Guid("")'
-                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                return m_AssetId;
             }
-        }
-
-        internal void SetDynamicAssetId(Guid newAssetId)
-        {
-            string newAssetIdString = newAssetId.ToString("N");
-            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+            set
             {
-                m_AssetId = newAssetIdString;
-            }
-            else
-            {
-                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                if (m_AssetId != null && m_AssetId != value)
+                {
+                    Debug.LogWarning("set assetId object already has an assetId <" + m_AssetId + ">");
+                }
+                m_AssetId = value;
             }
         }
 
@@ -176,7 +160,7 @@ namespace Mirror
         }
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
-        void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        void AssignAssetID(string path) => m_AssetId = new Guid(AssetDatabase.AssetPathToGUID(path)).ToByteArray();
         bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
@@ -213,10 +197,6 @@ namespace Mirror
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
-            }
-            else
-            {
-                m_AssetId = "";
             }
         }
 
