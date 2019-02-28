@@ -1,4 +1,4 @@
-﻿// https://docs.unity3d.com/Manual/RunningEditorCodeOnLaunch.html
+// https://docs.unity3d.com/Manual/RunningEditorCodeOnLaunch.html
 using System.IO;
 using Mono.Cecil;
 using UnityEngine;
@@ -13,6 +13,35 @@ namespace Mirror.Weaver
     [InitializeOnLoad]
     public class CompilationFinishedHook
     {
+        public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
+        public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
+        public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
+
+        public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
+        public static bool UnityLogEnabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
+
+        // debug message handler that also calls OnMessageMethod delegate
+        static void HandleMessage(string msg)
+        {
+            if (UnityLogEnabled) Debug.Log(msg);
+            OnWeaverMessage?.Invoke(msg);
+        }
+
+        // warning message handler that also calls OnWarningMethod delegate
+        static void HandleWarning(string msg)
+        {
+            if (UnityLogEnabled) Debug.LogWarning(msg);
+            OnWeaverWarning?.Invoke(msg);
+        }
+
+        // error message handler that also calls OnErrorMethod delegate
+        static void HandleError(string msg)
+        {
+            if (UnityLogEnabled) Debug.LogError(msg);
+            OnWeaverError?.Invoke(msg);
+        }
+
         static CompilationFinishedHook()
         {
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
@@ -56,19 +85,19 @@ namespace Mirror.Weaver
                 bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
-                    Console.WriteLine("Weaving: " + assemblyPath);
+                    if (UnityLogEnabled) Console.WriteLine("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
                     // but Weaver creates it's own if null, which is this one:
                     IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, Debug.LogWarning, Debug.LogError))
+                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
                     {
                         Console.WriteLine("Weaving succeeded for: " + assemblyPath);
                     }
                     else
                     {
-                        Debug.LogError("Weaving failed for: " + assemblyPath);
+                        if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
                     }
                 }
             };
@@ -92,7 +121,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
+            if (UnityLogEnabled) Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
             return new string[] { };
         }
 
