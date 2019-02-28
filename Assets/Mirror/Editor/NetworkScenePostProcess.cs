@@ -183,7 +183,7 @@ namespace Mirror
                     continue;
 
                 uint offset = (uint)identity.gameObject.scene.buildIndex * offsetPerScene;
-                identity.ForceSceneId(offset + nextSceneId++);
+                identity.sceneId = offset + nextSceneId++;
                 if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
 
                 // disable it AFTER assigning the sceneId.
