@@ -191,12 +191,6 @@ namespace Mirror
             return m;
         }
 
-        public Guid ReadGuid()
-        {
-            byte[] bytes = reader.ReadBytes(16);
-            return new Guid(bytes);
-        }
-
         public Transform ReadTransform()
         {
             uint netId = ReadPackedUInt32();

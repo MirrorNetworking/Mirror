@@ -272,11 +272,6 @@ namespace Mirror
             Write(value.m33);
         }
 
-        public void Write(Guid value)
-        {
-            writer.Write(value.ToByteArray());
-        }
-
         public void Write(NetworkIdentity value)
         {
             if (value == null)
