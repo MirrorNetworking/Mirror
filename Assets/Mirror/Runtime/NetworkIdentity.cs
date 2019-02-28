@@ -52,14 +52,7 @@ namespace Mirror
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
-        public NetworkBehaviour[] NetworkBehaviours
-        {
-            get
-            {
-                m_NetworkBehaviours = m_NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
-                return m_NetworkBehaviours;
-            }
-        }
+        public NetworkBehaviour[] NetworkBehaviours => m_NetworkBehaviours = m_NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
 
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
@@ -111,10 +104,7 @@ namespace Mirror
         }
 
         // used during dispose after disconnect
-        internal void ClearClientOwner()
-        {
-            clientAuthorityOwner = null;
-        }
+        internal void ClearClientOwner() => clientAuthorityOwner = null;
 
         internal void ForceAuthority(bool authority)
         {
@@ -135,10 +125,7 @@ namespace Mirror
         }
 
         static uint s_NextNetworkId = 1;
-        internal static uint GetNextNetworkId()
-        {
-            return s_NextNetworkId++;
-        }
+        internal static uint GetNextNetworkId() => s_NextNetworkId++;
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
@@ -154,20 +141,9 @@ namespace Mirror
         }
 
         // only used when fixing duplicate scene IDs during post-processing
-        public void ForceSceneId(uint newSceneId)
-        {
-            m_SceneId = newSceneId;
-        }
-
-        internal void EnableIsClient()
-        {
-            isClient = true;
-        }
-
-        internal void EnableIsServer()
-        {
-            m_IsServer = true;
-        }
+        public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
+        internal void EnableIsClient() => isClient = true;
+        internal void EnableIsServer() => m_IsServer = true;
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
@@ -200,21 +176,9 @@ namespace Mirror
             SetupIDs();
         }
 
-        void AssignAssetID(GameObject prefab)
-        {
-            string path = AssetDatabase.GetAssetPath(prefab);
-            AssignAssetID(path);
-        }
-
-        void AssignAssetID(string path)
-        {
-            m_AssetId = AssetDatabase.AssetPathToGUID(path);
-        }
-
-        bool ThisIsAPrefab()
-        {
-            return PrefabUtility.IsPartOfPrefabAsset(gameObject);
-        }
+        void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
+        void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
@@ -873,10 +837,7 @@ namespace Mirror
         // marks the identity for future reset, this is because we cant reset the identity during destroy
         // as people might want to be able to read the members inside OnDestroy(), and we have no way
         // of invoking reset after OnDestroy is called.
-        internal void MarkForReset()
-        {
-            m_Reset = true;
-        }
+        internal void MarkForReset() => m_Reset = true;
 
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
