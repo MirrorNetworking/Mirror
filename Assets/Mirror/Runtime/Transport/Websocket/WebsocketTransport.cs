@@ -1,4 +1,3 @@
-// wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace Mirror
         protected Client client = new Client();
         protected Server server = new Server();
 
-        public int port;
+        public int port = 7777;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
