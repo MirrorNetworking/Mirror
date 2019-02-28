@@ -44,7 +44,7 @@ namespace Mirror.Weaver
         {
             NetworkWriter writer = new NetworkWriter ();
             writer.WritePackedUInt32 ((uint)param);
-            base.SendTargetRPCInternal (conn, typeof(class), "TargetTest", val);
+            base.SendTargetRPCInternal (typeof(class), "TargetTest", val);
         }
         */
         public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
@@ -78,7 +78,6 @@ namespace Mirror.Weaver
 
             // invoke SendInternal and return
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0)); // this
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_1)); // connection
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference)); // invokerClass
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));

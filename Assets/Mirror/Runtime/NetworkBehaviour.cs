@@ -144,7 +144,7 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        protected void SendTargetRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
             if (!NetworkServer.active)
@@ -153,7 +153,7 @@ namespace Mirror
                 return;
             }
             // this was in Weaver before
-            if (conn is ULocalConnectionToServer)
+            if (connectionToClient is ULocalConnectionToServer)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
                 return;
@@ -174,7 +174,8 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            conn.Send((short)MsgType.Rpc, message, channelId);
+            // TargetRPCs are only sent to this client
+            connectionToClient.Send((short)MsgType.Rpc, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
