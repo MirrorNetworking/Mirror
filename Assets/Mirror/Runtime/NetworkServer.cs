@@ -605,7 +605,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 conn.playerController.SetNotLocalPlayer();
-                conn.playerController.ClearClientOwner();
+                conn.playerController.clientAuthorityOwner = null;
             }
 
             conn.SetPlayerController(playerNetworkIdentity);
