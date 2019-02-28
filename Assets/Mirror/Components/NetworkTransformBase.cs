@@ -297,6 +297,9 @@ namespace Mirror
             bool rotated = lastRotation != targetComponent.transform.rotation;
 
             // save last for next frame to compare
+            // (only if change was detected. otherwise slow moving objects might
+            //  never sync because of C#'s float comparison tolerance. see also:
+            //  https://github.com/vis2k/Mirror/pull/428)
             bool change = moved || rotated;
             if (change)
             {
