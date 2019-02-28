@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using System;
@@ -85,17 +84,11 @@ namespace Mirror
             InitializeSingleton();
 
             // headless mode? then start the server
-            if (IsHeadless() && startOnHeadless)
+            if (Utils.IsHeadless() && startOnHeadless)
             {
                 Application.targetFrameRate = 60;
                 StartServer();
             }
-        }
-
-        // headless mode detection
-        public static bool IsHeadless()
-        {
-            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
         }
 
         void InitializeSingleton()
