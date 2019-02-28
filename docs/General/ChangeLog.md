@@ -8,6 +8,7 @@
 - Added: Configurable Server Tickrate in NetworkManager
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed
 - Added: Full support for WebSockets and WebSocketsSecure to replace UNet LLAPI
+- Added: Transport Multiplexer - allows the use of multiple concurrent transports
 - Fixed: Garbage allocations removed from a lot of things (more work to do, we know)
 - Fixed: SyncVar hook not firing when clients joined
 - Fixed: NetworkManager no longer assumes it's on Scene(0) in Build Settings
