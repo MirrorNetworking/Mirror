@@ -58,9 +58,9 @@ namespace Mirror
         ///<summary>The client that has authority for this object. This will be null if no client has authority.</summary>
         public NetworkConnection clientAuthorityOwner { get; private set; }
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
-        public NetworkConnection connectionToServer { get; private set; }
+        public NetworkConnection connectionToServer { get; internal set; }
         ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient { get; private set; }
+        public NetworkConnection connectionToClient { get; internal set; }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
@@ -654,16 +654,6 @@ namespace Mirror
                     comp.OnStartAuthority();
                 }
             }
-        }
-
-        internal void SetConnectionToServer(NetworkConnection conn)
-        {
-            connectionToServer = conn;
-        }
-
-        internal void SetConnectionToClient(NetworkConnection conn)
-        {
-            connectionToClient = conn;
         }
 
         internal void OnNetworkDestroy()

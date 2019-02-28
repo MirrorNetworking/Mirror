@@ -70,4 +70,9 @@ namespace Mirror
     public class ClientCallbackAttribute : Attribute
     {
     }
+
+    // For Scene property Drawer
+    public class SceneAttribute : PropertyAttribute
+    {
+    }
 }
