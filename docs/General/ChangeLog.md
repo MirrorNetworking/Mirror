@@ -18,6 +18,7 @@
 - Removed: NetworkClient.allClients (Use NetworkClient.singleton instead)
 - Removed: NetworkServer.hostId and NetworkConnection.hostId (holdovers from LLAPI)
 - Removed: NetworkConnection.isConnected (NetworkConnection is always connected)
+- Removed: Transport.GetConnectionInfo (Use ServerGetClientAddress instead)
 - Changed: Minimum Unity version: **2018.3.6**
 
 
