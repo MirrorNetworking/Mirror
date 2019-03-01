@@ -86,7 +86,7 @@ namespace Mirror.Weaver
                 bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
-                    if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath);
+                    //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
                     Console.WriteLine("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
