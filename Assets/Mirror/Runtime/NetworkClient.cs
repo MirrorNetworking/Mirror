@@ -71,7 +71,6 @@ namespace Mirror
 
         private void InitializeTransportHandlers()
         {
-            // TODO do this in inspector?
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
             Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
