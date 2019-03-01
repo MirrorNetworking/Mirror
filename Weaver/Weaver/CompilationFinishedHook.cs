@@ -85,7 +85,8 @@ namespace Mirror.Weaver
                 bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
-                    if (UnityLogEnabled) Console.WriteLine("Weaving: " + assemblyPath);
+                    if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath);
+                    Console.WriteLine("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
