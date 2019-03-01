@@ -32,7 +32,7 @@ namespace Mirror
         bool m_Reset;
 
         // properties
-        public bool isClient { get; private set; }
+        public bool isClient { get; internal set; }
         public bool isServer => m_IsServer && NetworkServer.active; // dont return true if server stopped.
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
@@ -141,7 +141,6 @@ namespace Mirror
 
         // only used when fixing duplicate scene IDs during post-processing
         public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
-        internal void EnableIsClient() => isClient = true;
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
@@ -274,7 +273,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                EnableIsClient();
+                isClient=true;
                 OnStartClient();
             }
 
