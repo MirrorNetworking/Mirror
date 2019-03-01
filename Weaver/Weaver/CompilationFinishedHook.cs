@@ -25,21 +25,21 @@ namespace Mirror.Weaver
         static void HandleMessage(string msg)
         {
             if (UnityLogEnabled) Debug.Log(msg);
-            OnWeaverMessage?.Invoke(msg);
+            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
         }
 
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
             if (UnityLogEnabled) Debug.LogWarning(msg);
-            OnWeaverWarning?.Invoke(msg);
+            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
             if (UnityLogEnabled) Debug.LogError(msg);
-            OnWeaverError?.Invoke(msg);
+            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
         }
 
         static CompilationFinishedHook()
