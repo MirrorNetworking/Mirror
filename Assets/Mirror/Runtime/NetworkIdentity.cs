@@ -33,7 +33,7 @@ namespace Mirror
 
         // properties
         public bool isClient { get; private set; }
-        public bool isServer { get => m_IsServer && NetworkServer.active; internal set => m_IsServer = value; } // dont return true if server stopped.
+        public bool isServer { get => m_IsServer && NetworkServer.active && netId != 0; internal set => m_IsServer = value; } // dont return true if server stopped.
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
 

@@ -396,10 +396,6 @@ namespace Mirror
             }
 
             identity.netId = netId;
-            if (netId == 0)
-            {
-                identity.isServer = false;
-            }
             NetworkIdentity.spawned[netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
