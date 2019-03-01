@@ -54,7 +54,7 @@ namespace Mirror
 
         // common
         public abstract void Shutdown();
-        public abstract int GetMaxPacketSize(int channelId=Channels.DefaultReliable);
+        public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
 
         // block Update() to force Transports to use LateUpdate to avoid race
         // conditions. messages should be processed after all the game state

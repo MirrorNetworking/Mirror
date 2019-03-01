@@ -152,10 +152,10 @@ namespace Mirror
             if (start == null)
             {
                 start = new DataPoint{
-                    timeStamp=Time.time - syncInterval,
-                    position=targetComponent.transform.position,
-                    rotation=targetComponent.transform.rotation,
-                    movementSpeed=temp.movementSpeed
+                    timeStamp = Time.time - syncInterval,
+                    position = targetComponent.transform.position,
+                    rotation = targetComponent.transform.rotation,
+                    movementSpeed = temp.movementSpeed
                 };
             }
             // -> second or nth data point? then update previous, but:

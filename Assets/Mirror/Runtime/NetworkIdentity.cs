@@ -270,7 +270,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkServer.localClientActive)
             {
                 // there will be no spawn message, so start the client here too
-                isClient=true;
+                isClient = true;
                 OnStartClient();
             }
 
