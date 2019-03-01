@@ -1,4 +1,4 @@
-﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -119,7 +119,10 @@ namespace Mirror
         {
             if (clientId == -1) return false;
 
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out error);
+            int receivedSize;
+            int connectionId;
+            int channel;
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out connectionId, out channel, clientReceiveBuffer, clientReceiveBuffer.Length, out receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -169,7 +172,11 @@ namespace Mirror
 
         public string ClientGetAddress()
         {
-            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            string address;
+            int port;
+            NetworkID networkId;
+            NodeID node;
+            NetworkTransport.GetConnectionInfo(serverHostId, clientId, out address, out port, out networkId, out node, out error);
             return address;
         }
 
@@ -220,7 +227,9 @@ namespace Mirror
             if (serverHostId == -1) return false;
 
             int connectionId = -1;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
+            int channel;
+            int receivedSize;
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out channel, serverReceiveBuffer, serverReceiveBuffer.Length, out receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -272,7 +281,11 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId)
         {
-            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out string address, out int port, out NetworkID networkId, out NodeID node, out error);
+            string address;
+            int port;
+            NetworkID networkId;
+            NodeID node;
+            NetworkTransport.GetConnectionInfo(serverHostId, connectionId, out address, out port, out networkId, out node, out error);
             return address;
         }
 

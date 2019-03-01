@@ -39,7 +39,8 @@ namespace Mirror
 
         bool ProcessClientMessage()
         {
-            if (client.GetNextMessage(out Telepathy.Message message))
+            Telepathy.Message message;
+            if (client.GetNextMessage(out message))
             {
                 switch (message.eventType)
                 {
@@ -84,7 +85,8 @@ namespace Mirror
         public override bool ServerSend(int connectionId, int channelId, byte[] data) { return server.Send(connectionId, data); }
         public bool ProcessServerMessage()
         {
-            if (server.GetNextMessage(out Telepathy.Message message))
+            Telepathy.Message message;
+            if (server.GetNextMessage(out message))
             {
                 switch (message.eventType)
                 {

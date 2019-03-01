@@ -333,7 +333,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("Server disconnect client:" + connectionId); }
 
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            NetworkConnection conn;
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -360,7 +361,8 @@ namespace Mirror
 
         static void OnDataReceived(int connectionId, byte[] data)
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            NetworkConnection conn;
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 OnData(conn, data);
             }
@@ -453,7 +455,8 @@ namespace Mirror
 
         public static void SendToClient(int connectionId, short msgType, MessageBase msg)
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            NetworkConnection conn;
+            if (connections.TryGetValue(connectionId, out conn))
             {
                 conn.Send(msgType, msg);
                 return;
@@ -476,7 +479,8 @@ namespace Mirror
 
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(player, out identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -490,7 +494,8 @@ namespace Mirror
 
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(player, out identity))
             {
                 identity.SetDynamicAssetId(assetId);
             }
@@ -545,7 +550,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId); }
 
-            if (conn is ULocalConnectionToClient localConnection)
+            ULocalConnectionToClient localConnection1 = conn as ULocalConnectionToClient;
+            if (localConnection1 != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient"); }
 
@@ -560,8 +566,8 @@ namespace Mirror
                 SendSpawnMessage(identity, null);
 
                 // Set up local player instance on the client instance and update local object map
-                localConnection.localClient.AddLocalPlayer(identity);
-                identity.SetClientOwner(conn);
+                localConnection1.localClient.AddLocalPlayer(identity);
+                identity.SetClientOwner(localConnection1);
 
                 // Trigger OnAuthority
                 identity.ForceAuthority(true);
@@ -661,7 +667,8 @@ namespace Mirror
 
             conn.isReady = true;
 
-            if (conn is ULocalConnectionToClient localConnection)
+            ULocalConnectionToClient localConnection1 = conn as ULocalConnectionToClient;
+            if (localConnection1 != null)
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer Ready handling ULocalConnectionToClient"); }
 
@@ -674,10 +681,10 @@ namespace Mirror
                     // in the above SetLocalPlayer call
                     if (identity.gameObject != null)
                     {
-                        bool visible = identity.OnCheckObserver(conn);
+                        bool visible = identity.OnCheckObserver(localConnection1);
                         if (visible)
                         {
-                            identity.AddObserver(conn);
+                            identity.AddObserver(localConnection1);
                         }
                         if (!identity.isClient)
                         {
@@ -787,7 +794,8 @@ namespace Mirror
         {
             CommandMessage message = netMsg.ReadMessage<CommandMessage>();
 
-            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (!NetworkIdentity.spawned.TryGetValue(message.netId, out identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + message.netId + "]");
                 return;
@@ -904,7 +912,8 @@ namespace Mirror
                 HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
                 foreach (uint netId in tmp)
                 {
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                    NetworkIdentity identity;
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
                         Destroy(identity.gameObject);
                     }
@@ -1009,7 +1018,8 @@ namespace Mirror
         {
             if (VerifyCanSpawn(obj))
             {
-                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+                NetworkIdentity identity;
+                if (GetNetworkIdentity(obj, out identity))
                 {
                     identity.SetDynamicAssetId(assetId);
                 }
@@ -1052,7 +1062,8 @@ namespace Mirror
                 return;
             }
 
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
             {
                 DestroyObject(identity, true);
             }
@@ -1066,7 +1077,8 @@ namespace Mirror
                 return;
             }
 
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (GetNetworkIdentity(obj, out identity))
             {
                 DestroyObject(identity, false);
             }
@@ -1075,7 +1087,8 @@ namespace Mirror
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.gameObject;
             }

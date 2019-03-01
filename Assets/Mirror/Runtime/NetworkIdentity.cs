@@ -172,17 +172,36 @@ namespace Mirror
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
-        bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
+        bool ThisIsAPrefab()
+        {
+#if UNITY_2018_3_OR_NEWER
+            return PrefabUtility.IsPartOfPrefabAsset(gameObject);
+#else
+            return PrefabUtility.GetPrefabType(gameObject) == PrefabType.Prefab;
+#endif
+        }
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
             prefab = null;
 
+#if UNITY_2018_3_OR_NEWER
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
             {
                 return false;
             }
             prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#elif UNITY_2018_2_OR_NEWER
+            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+            if (prefabType == PrefabType.None)
+                return false;
+            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#else
+            PrefabType prefabType = PrefabUtility.GetPrefabType(gameObject);
+            if (prefabType == PrefabType.None)
+                return false;
+            prefab = (GameObject)PrefabUtility.GetPrefabParent(gameObject);
+#endif
 
             if (prefab == null)
             {
@@ -194,21 +213,24 @@ namespace Mirror
 
         void SetupIDs()
         {
+            GameObject prefab;
             if (ThisIsAPrefab())
             {
                 ForceSceneId(0);
                 AssignAssetID(gameObject);
             }
-            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
+            else if (ThisIsASceneObjectWithPrefabParent(out prefab))
             {
                 AssignAssetID(prefab);
             }
+#if UNITY_2018_3_OR_NEWER
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
+#endif
             else
             {
                 m_AssetId = "";
@@ -216,7 +238,7 @@ namespace Mirror
         }
 
 #endif
-        void OnDestroy()
+            void OnDestroy()
         {
             if (m_IsServer && NetworkServer.active)
             {

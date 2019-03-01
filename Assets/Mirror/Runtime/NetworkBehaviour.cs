@@ -290,7 +290,8 @@ namespace Mirror
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
         internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
         {
-            if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
+            Invoker invoker;
+            if (GetInvokerForHash(cmdHash, invokeType, out invoker) &&
                 invoker.invokeClass.IsInstanceOfType(this))
             {
                 invoker.invokeFunction(this, reader);
@@ -345,7 +346,8 @@ namespace Mirror
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity) && identity != null)
                 return identity.gameObject;
             return null;
         }
@@ -390,7 +392,8 @@ namespace Mirror
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity);
+            NetworkIdentity identity;
+            NetworkIdentity.spawned.TryGetValue(netId, out identity);
             return identity;
         }
 

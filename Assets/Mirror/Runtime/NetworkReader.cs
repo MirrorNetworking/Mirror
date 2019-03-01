@@ -205,7 +205,8 @@ namespace Mirror
                 return null;
             }
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.transform;
             }
@@ -222,7 +223,8 @@ namespace Mirror
                 return null;
             }
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.gameObject;
             }
@@ -239,7 +241,8 @@ namespace Mirror
                 return null;
             }
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity;
             }

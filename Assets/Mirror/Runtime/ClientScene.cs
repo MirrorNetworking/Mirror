@@ -178,7 +178,8 @@ namespace Mirror
 
         internal static NetworkIdentity SpawnSceneObject(uint sceneId)
         {
-            if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (spawnableObjects.TryGetValue(sceneId, out identity))
             {
                 spawnableObjects.Remove(sceneId);
                 return identity;
@@ -304,7 +305,8 @@ namespace Mirror
 
         internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
-            if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
+            UnSpawnDelegate handler;
+            if (unspawnHandlers.TryGetValue(assetId, out handler) && handler != null)
             {
                 handler(obj);
                 return true;
@@ -339,7 +341,8 @@ namespace Mirror
         [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
             {
                 return identity.gameObject;
             }
@@ -383,7 +386,8 @@ namespace Mirror
             }
             if (LogFilter.Debug) { Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + "]"); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists (was in the scene), just apply the update to existing object
                 localObject.Reset();
@@ -391,7 +395,9 @@ namespace Mirror
                 return;
             }
 
-            if (GetPrefab(msg.assetId, out GameObject prefab))
+            GameObject prefab;
+            SpawnDelegate handler;
+            if (GetPrefab(msg.assetId, out prefab))
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
                 if (LogFilter.Debug)
@@ -409,7 +415,7 @@ namespace Mirror
                 ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.payload, msg.netId);
             }
             // lookup registered factory for type:
-            else if (spawnHandlers.TryGetValue(msg.assetId, out SpawnDelegate handler))
+            else if (spawnHandlers.TryGetValue(msg.assetId, out handler))
             {
                 GameObject obj = handler(msg.position, msg.assetId);
                 if (obj == null)
@@ -439,7 +445,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists (was in the scene)
                 localObject.Reset();
@@ -493,7 +500,8 @@ namespace Mirror
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnObjDestroy netId:" + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 localObject.OnNetworkDestroy();
 
@@ -533,7 +541,8 @@ namespace Mirror
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnLocalObjectObjHide netId:" + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(false);
             }
@@ -543,7 +552,8 @@ namespace Mirror
         {
             SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
             }
@@ -553,7 +563,8 @@ namespace Mirror
         {
             SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
             }
@@ -565,7 +576,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 localObject.OnUpdateVars(new NetworkReader(msg.payload), false);
             }
@@ -581,7 +593,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleRPC(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
             }
@@ -593,7 +606,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleSyncEvent(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
             }
@@ -609,7 +623,8 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            NetworkIdentity identity;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out identity))
             {
                 identity.HandleClientAuthority(msg.authority);
             }
@@ -625,7 +640,8 @@ namespace Mirror
             // is there already an owner that is a different object??
             netMsg.conn.playerController?.SetNotLocalPlayer();
 
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            NetworkIdentity localObject;
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out localObject) && localObject != null)
             {
                 // this object already exists
                 localObject.connectionToServer = netMsg.conn;

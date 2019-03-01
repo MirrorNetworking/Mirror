@@ -62,7 +62,8 @@ namespace Mirror
             {
                 foreach (uint netId in clientOwnedObjects)
                 {
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                    NetworkIdentity identity;
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out identity))
                     {
                         identity.clientAuthorityOwner = null;
                     }
@@ -151,7 +152,8 @@ namespace Mirror
                 return false;
             }
 
-            return TransportSend(channelId, bytes, out byte error);
+            byte error;
+            return TransportSend(channelId, bytes, out error);
         }
 
         public override string ToString()
@@ -194,7 +196,8 @@ namespace Mirror
 
         public bool InvokeHandler(short msgType, NetworkReader reader)
         {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            NetworkMessageDelegate msgDelegate;
+            if (m_MessageHandlers.TryGetValue(msgType, out msgDelegate))
             {
                 NetworkMessage message = new NetworkMessage
                 {
@@ -221,7 +224,8 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
+            ushort msgType;
+            if (MessagePacker.UnpackMessage(reader, out msgType))
             {
                 if (logNetworkMessages)
                 {
