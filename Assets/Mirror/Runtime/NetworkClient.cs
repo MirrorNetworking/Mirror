@@ -52,9 +52,12 @@ namespace Mirror
 
         public void Connect(string ip)
         {
-            PrepareForConnect();
-
             if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
+
+            active = true;
+            RegisterSystemHandlers(false);
+            Transport.activeTransport.enabled = true;
+            InitializeTransportHandlers();
 
             serverIp = ip;
 
@@ -112,14 +115,6 @@ namespace Mirror
                 connection.InvokeHandlerNoData((short)MsgType.Connect);
             }
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
-        }
-
-        void PrepareForConnect()
-        {
-            active = true;
-            RegisterSystemHandlers(false);
-            Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
         }
 
         public virtual void Disconnect()
