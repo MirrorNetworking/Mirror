@@ -44,7 +44,7 @@ namespace Mirror
         public uint sceneId => m_SceneId;
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
-        public NetworkConnection clientAuthorityOwner { get; private set; }
+        public NetworkConnection clientAuthorityOwner { get; internal set; }
         public NetworkConnection connectionToServer { get; internal set; }
         public NetworkConnection connectionToClient { get; internal set; }
 
@@ -101,9 +101,6 @@ namespace Mirror
             clientAuthorityOwner = conn;
             clientAuthorityOwner.AddOwnedObject(this);
         }
-
-        // used during dispose after disconnect
-        internal void ClearClientOwner() => clientAuthorityOwner = null;
 
         internal void ForceAuthority(bool authority)
         {

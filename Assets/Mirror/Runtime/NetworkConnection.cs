@@ -64,7 +64,7 @@ namespace Mirror
                 {
                     if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                     {
-                        identity.ClearClientOwner();
+                        identity.clientAuthorityOwner = null;
                     }
                 }
             }
