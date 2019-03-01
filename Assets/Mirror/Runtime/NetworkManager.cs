@@ -523,7 +523,7 @@ namespace Mirror
 
         internal void OnServerConnectInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerConnectInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerConnectInternal"); }
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
@@ -536,19 +536,19 @@ namespace Mirror
 
         internal void OnServerDisconnectInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerDisconnectInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerDisconnectInternal"); }
             OnServerDisconnect(netMsg.conn);
         }
 
         internal void OnServerReadyMessageInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerReadyMessageInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerReadyMessageInternal"); }
             OnServerReady(netMsg.conn);
         }
 
         internal void OnServerAddPlayerMessageInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerAddPlayerMessageInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal"); }
 
             AddPlayerMessage msg = netMsg.ReadMessage<AddPlayerMessage>();
 
@@ -571,7 +571,7 @@ namespace Mirror
 
         internal void OnServerRemovePlayerMessageInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerRemovePlayerMessageInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal"); }
 
             if (netMsg.conn.playerController != null)
             {
@@ -582,7 +582,7 @@ namespace Mirror
 
         internal void OnServerErrorInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnServerErrorInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerErrorInternal"); }
 
             ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnServerError(netMsg.conn, msg.value);
@@ -592,7 +592,7 @@ namespace Mirror
 
         internal void OnClientConnectInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientConnectInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientConnectInternal"); }
 
             string loadedSceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
@@ -609,14 +609,14 @@ namespace Mirror
 
         internal void OnClientDisconnectInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientDisconnectInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientDisconnectInternal"); }
 
             OnClientDisconnect(netMsg.conn);
         }
 
         internal void OnClientNotReadyMessageInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientNotReadyMessageInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientNotReadyMessageInternal"); }
 
             ClientScene.ready = false;
             OnClientNotReady(netMsg.conn);
@@ -626,7 +626,7 @@ namespace Mirror
 
         internal void OnClientErrorInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientErrorInternal"); }
 
             ErrorMessage msg = netMsg.ReadMessage<ErrorMessage>();
             OnClientError(netMsg.conn, msg.value);
@@ -634,7 +634,7 @@ namespace Mirror
 
         internal void OnClientSceneInternal(NetworkMessage netMsg)
         {
-            if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientSceneInternal"); }
+            if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientSceneInternal"); }
 
             string newSceneName = netMsg.reader.ReadString();
 
