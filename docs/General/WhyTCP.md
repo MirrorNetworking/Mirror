@@ -45,7 +45,7 @@ The obvious question is:  do RUDP libraries just reinventing TCP?  yes, to some 
 
 Back in 2015 when we started uMMORPG and Cubica, we originally used Unity's built in Networking system aka UNET. UNET used LLAPI, which was an RUDP library that avoided garbage collection at all costs.
 
-What sounds good in theory, but was terrible in practice. We spent about half our work hours from 2015 to 2018 dealing with UNET bugs. There was packet loss, highly complex code due to GC avoidance, synchronization issues, memory leaks and random errors. Most importantly, no decent way to debug any of it.
+What sounds good in theory, was terrible in practice. We spent about half our work hours from 2015 to 2018 dealing with UNET bugs. There was packet loss, highly complex code due to GC avoidance, synchronization issues, memory leaks and random errors. Most importantly, no decent way to debug any of it.
 
 If a monster didn't spawn on a client, we wouldn't know what caused it.
 
