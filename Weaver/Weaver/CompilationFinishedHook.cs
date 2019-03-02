@@ -18,7 +18,7 @@ namespace Mirror.Weaver
         public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
 
         public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool UnityLogEnabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
 
         // debug message handler that also calls OnMessageMethod delegate
@@ -44,7 +44,6 @@ namespace Mirror.Weaver
 
         static CompilationFinishedHook()
         {
-            UnityLogEnabled = true;
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
             CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
