@@ -2,7 +2,7 @@
 
 ## The same old Discussion
 
-It's the year 2018 and every game developer swears by UDP. Yet we chose TCP as default for Mirror. Why is that?
+It's the year 2019 and every game developer swears by UDP. Yet we chose TCP as default for Mirror. Why is that?
 
 UDP vs. TCP, the technical aspects
 
