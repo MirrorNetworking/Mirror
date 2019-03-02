@@ -27,12 +27,6 @@ namespace Mirror.Examples.NetworkLobby
                 gameObject.transform.SetParent(GameObject.Find("Players").transform);
         }
 
-        public override void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
-        {
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            base.ClientLoadedScene(arg0, arg1);
-        }
-
         public override void OnClientEnterLobby()
         {
             if (LogFilter.Debug) Debug.LogFormat("OnClientEnterLobby {0}", SceneManager.GetActiveScene().name);
