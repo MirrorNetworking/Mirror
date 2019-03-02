@@ -58,32 +58,28 @@ namespace Mirror
         //   serialize it because Guid's internal bytes are private
         // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
         //   which works, but it just unnecessary extra code
-        // - using just the Guid string would work, but it's 32 chars long and
-        //   would then be sent over the network as 64 instead of 16 bytes
-        // -> the solution is to serialize the string internally here and then
-        //    use the real 'Guid' type for everything else via .assetId
-        [SerializeField] string m_AssetId;
-        public Guid assetId
+        // - 64 bits is more than enough to tell prefabs appart
+        [SerializeField] ulong m_AssetId;
+        public ulong assetId
         {
             get
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
+                if (m_AssetId == 0)
                     SetupIDs();
 #endif
                 // convert string to Guid and use .Empty to avoid exception if
                 // we would use 'new Guid("")'
-                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                return m_AssetId;
             }
         }
 
-        internal void SetDynamicAssetId(Guid newAssetId)
+        internal void SetDynamicAssetId(ulong newAssetId)
         {
-            string newAssetIdString = newAssetId.ToString("N");
-            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+            if (m_AssetId == 0 || m_AssetId == newAssetId)
             {
-                m_AssetId = newAssetIdString;
+                m_AssetId = newAssetId;
             }
             else
             {
@@ -171,7 +167,13 @@ namespace Mirror
         }
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
-        void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        void AssignAssetID(string path) 
+        {
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            // take the first 8 bytes of the guid and convert to ulong
+            m_AssetId = Convert.ToUInt64(guid.Substring(0, 16), 16);
+        }
+
         bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
@@ -211,7 +213,7 @@ namespace Mirror
             }
             else
             {
-                m_AssetId = "";
+                m_AssetId = 0;
             }
         }
 

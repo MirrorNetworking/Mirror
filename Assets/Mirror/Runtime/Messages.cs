@@ -197,7 +197,7 @@ namespace Mirror
     class SpawnPrefabMessage : MessageBase
     {
         public uint netId;
-        public Guid assetId;
+        public ulong assetId;
         public Vector3 position;
         public Quaternion rotation;
         public byte[] payload;
@@ -205,7 +205,7 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            assetId = reader.ReadGuid();
+            assetId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             payload = reader.ReadBytesAndSize();

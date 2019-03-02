@@ -474,7 +474,7 @@ namespace Mirror
             }
         }
 
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, ulong assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -488,7 +488,7 @@ namespace Mirror
             return InternalReplacePlayerForConnection(conn, player);
         }
 
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, ulong assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -991,7 +991,7 @@ namespace Mirror
             return identity.AssignClientAuthority(conn);
         }
 
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
+        public static bool SpawnWithClientAuthority(GameObject obj, ulong assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
 
@@ -1005,7 +1005,7 @@ namespace Mirror
             return identity.AssignClientAuthority(conn);
         }
 
-        public static void Spawn(GameObject obj, Guid assetId)
+        public static void Spawn(GameObject obj, ulong assetId)
         {
             if (VerifyCanSpawn(obj))
             {
