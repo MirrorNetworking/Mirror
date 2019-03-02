@@ -20,7 +20,7 @@ A server opens a port and waits for connections.  Clients send an initial messag
 * Reliable: if you try to send data,  it will either make it to the other end,  or you will get an error,  nothing is ever silently dropped.
 * Fragmented: Your network card cannot just send 1 MB of data,  it can only send small packets of 1.5Kb or less.  If you try to send a lot of data, TCP will split your data into small packets and reassemble the data on the receiving end.
 * Sequenced: If you send data a,b,c in that order,  TCP guarantees that it will arrive in the same order (or an error will be generated)
-* Connection oriented: you don't just send data,  TCP will send a message first to let the server know that they will be talking together. Both the client and server and disconnect and react to the disconnection.
+* Connection oriented: you don't just send data,  TCP will send a message first to let the server know that they will be talking together. Both the client and server can disconnect and react to the disconnection.
 * Congestion control: If a server is being overwhelmed,  TCP will throttle the data to avoid congestion collapse.
 
 These are great features that make it very easy for programmers to work with TCP, but they come at a cost:  Latency.  
