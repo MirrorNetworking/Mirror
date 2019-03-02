@@ -53,23 +53,11 @@ namespace Mirror
         [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
         public virtual bool GetConnectionInfo(int connectionId, out string address)
         {
-            try
-            {
-                address = ServerGetClientAddress(connectionId);
-                return true;
-            }
-            catch
-            {
-                //we have no idea who this connection is
-                Debug.LogErrorFormat("Trying to get info on an unknown connection {0}", connectionId);
-            }
-
-            address = null;
-            return false;
+            address = ServerGetClientAddress(connectionId);
+            return true;
         }
 
         public abstract string ServerGetClientAddress(int connectionId);
-
         public abstract void ServerStop();
 
         // common
