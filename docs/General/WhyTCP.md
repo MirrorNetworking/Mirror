@@ -8,8 +8,8 @@ UDP vs. TCP, the technical aspects
 
 First of all, a quick word about the major differences between UDP and TCP.
 
--   UDP has lower latency and is unreliable and hard to use correctly
--   TCP has higher latency and is reliable by easy to use
+-   UDP has lower latency, unreliable and hard to use correctly
+-   TCP has higher latency, reliable and easy to use
 
 ## TCP (Transmision Control Protocol)
 
