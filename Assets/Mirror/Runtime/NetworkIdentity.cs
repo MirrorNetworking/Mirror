@@ -69,8 +69,6 @@ namespace Mirror
                 if (m_AssetId == 0)
                     SetupIDs();
 #endif
-                // convert string to Guid and use .Empty to avoid exception if
-                // we would use 'new Guid("")'
                 return m_AssetId;
             }
         }
