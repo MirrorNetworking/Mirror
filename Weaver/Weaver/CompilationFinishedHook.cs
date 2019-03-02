@@ -25,25 +25,26 @@ namespace Mirror.Weaver
         static void HandleMessage(string msg)
         {
             if (UnityLogEnabled) Debug.Log(msg);
-            OnWeaverMessage?.Invoke(msg);
+            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
         }
 
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
             if (UnityLogEnabled) Debug.LogWarning(msg);
-            OnWeaverWarning?.Invoke(msg);
+            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
             if (UnityLogEnabled) Debug.LogError(msg);
-            OnWeaverError?.Invoke(msg);
+            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
         }
 
         static CompilationFinishedHook()
         {
+            UnityLogEnabled = true;
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
             // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
             CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
@@ -85,7 +86,8 @@ namespace Mirror.Weaver
                 bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
-                    if (UnityLogEnabled) Console.WriteLine("Weaving: " + assemblyPath);
+                    //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
+                    Console.WriteLine("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
