@@ -18,28 +18,28 @@ namespace Mirror.Weaver
         public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
 
         public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool UnityLogEnabled { get; set; } // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
 
         // debug message handler that also calls OnMessageMethod delegate
         static void HandleMessage(string msg)
         {
             if (UnityLogEnabled) Debug.Log(msg);
-            OnWeaverMessage?.Invoke(msg);
+            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
         }
 
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
             if (UnityLogEnabled) Debug.LogWarning(msg);
-            OnWeaverWarning?.Invoke(msg);
+            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
             if (UnityLogEnabled) Debug.LogError(msg);
-            OnWeaverError?.Invoke(msg);
+            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
         }
 
         static CompilationFinishedHook()
@@ -85,7 +85,8 @@ namespace Mirror.Weaver
                 bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
                 if (!buildingForEditor)
                 {
-                    if (UnityLogEnabled) Console.WriteLine("Weaving: " + assemblyPath);
+                    //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
+                    Console.WriteLine("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
