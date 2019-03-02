@@ -145,7 +145,6 @@ namespace Mirror.Weaver
         public static TypeReference rayType;
         public static TypeReference planeType;
         public static TypeReference matrixType;
-        public static TypeReference guidType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
@@ -1072,7 +1071,6 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
             NetworkReaderDef = NetworkReaderType.Resolve();
@@ -1190,7 +1188,6 @@ namespace Mirror.Weaver
                 { planeType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPlane") },
                 { rayType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadRay") },
                 { matrixType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadMatrix4x4") },
-                { guidType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadGuid") },
                 { gameObjectType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadGameObject") },
                 { NetworkIdentityType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadNetworkIdentity") },
                 { transformType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadTransform") },
@@ -1226,7 +1223,6 @@ namespace Mirror.Weaver
                 { planeType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", planeType) },
                 { rayType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", rayType) },
                 { matrixType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", matrixType) },
-                { guidType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", guidType) },
                 { gameObjectType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", gameObjectType) },
                 { NetworkIdentityType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", NetworkIdentityType) },
                 { transformType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", transformType) },
