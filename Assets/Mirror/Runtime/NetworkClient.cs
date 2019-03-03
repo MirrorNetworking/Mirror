@@ -168,21 +168,21 @@ namespace Mirror
         /* TODO use or remove
         void GenerateConnectError(byte error)
         {
-            Debug.LogError("UNet Client Error Connect Error: " + error);
+            Debug.LogError("Mirror Client Error Connect Error: " + error);
             GenerateError(error);
         }
 
         void GenerateDataError(byte error)
         {
             NetworkError dataError = (NetworkError)error;
-            Debug.LogError("UNet Client Data Error: " + dataError);
+            Debug.LogError("Mirror Client Data Error: " + dataError);
             GenerateError(error);
         }
 
         void GenerateDisconnectError(byte error)
         {
             NetworkError disconnectError = (NetworkError)error;
-            Debug.LogError("UNet Client Disconnect Error: " + disconnectError);
+            Debug.LogError("Mirror Client Disconnect Error: " + disconnectError);
             GenerateError(error);
         }
 
