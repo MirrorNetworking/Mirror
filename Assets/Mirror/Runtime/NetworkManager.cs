@@ -645,7 +645,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage message)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             OnServerAddPlayerInternal(conn);
         }
