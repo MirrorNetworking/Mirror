@@ -35,7 +35,7 @@ namespace Mirror
 
         [Header("Network Info")]
         // transport layer
-        [SerializeField] Transport transport;
+        [SerializeField] protected Transport transport;
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
 
