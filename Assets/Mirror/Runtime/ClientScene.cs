@@ -371,7 +371,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnPrefab(SpawnPrefabMessage msg)
+        internal static void OnSpawnPrefab(NetworkConnection conn, SpawnPrefabMessage msg)
         {
             if (msg.assetId == Guid.Empty)
             {
@@ -430,7 +430,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnSceneObject(SpawnSceneObjectMessage msg)
+        internal static void OnSpawnSceneObject(NetworkConnection conn, SpawnSceneObjectMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position); }
 
@@ -457,7 +457,7 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
-        internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage msg)
+        internal static void OnObjectSpawnStarted(NetworkConnection conn, ObjectSpawnStartedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
 
@@ -465,7 +465,7 @@ namespace Mirror
             s_IsSpawnFinished = false;
         }
 
-        internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage msg)
+        internal static void OnObjectSpawnFinished(NetworkConnection conn, ObjectSpawnFinishedMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
@@ -483,11 +483,11 @@ namespace Mirror
             s_IsSpawnFinished = true;
         }
 
-        internal static void OnObjectHide(ObjectHideMessage msg)
+        internal static void OnObjectHide(NetworkConnection conn, ObjectHideMessage msg)
         {
             DestroyObject(msg.netId);
         }
-        internal static void OnObjectDestroy(ObjectDestroyMessage msg)
+        internal static void OnObjectDestroy(NetworkConnection conn, ObjectDestroyMessage msg)
         {
             DestroyObject(msg.netId);
         }
@@ -523,14 +523,14 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientObjectDestroy(ObjectDestroyMessage msg)
+        internal static void OnLocalClientObjectDestroy(NetworkConnection conn, ObjectDestroyMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId); }
 
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
-        internal static void OnLocalClientObjectHide(ObjectHideMessage msg)
+        internal static void OnLocalClientObjectHide(NetworkConnection conn, ObjectHideMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId); }
 
@@ -540,7 +540,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnPrefab(SpawnPrefabMessage msg)
+        internal static void OnLocalClientSpawnPrefab(NetworkConnection conn, SpawnPrefabMessage msg)
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -548,7 +548,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnSceneObject(SpawnSceneObjectMessage msg)
+        internal static void OnLocalClientSpawnSceneObject(NetworkConnection conn, SpawnSceneObjectMessage msg)
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -556,7 +556,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
+        internal static void OnUpdateVarsMessage(NetworkConnection conn, UpdateVarsMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId); }
 
@@ -570,7 +570,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnRPCMessage(RpcMessage msg)
+        internal static void OnRPCMessage(NetworkConnection conn, RpcMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
@@ -580,7 +580,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSyncEventMessage(SyncEventMessage msg)
+        internal static void OnSyncEventMessage(NetworkConnection conn, SyncEventMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId); }
 
@@ -594,7 +594,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnClientAuthority(ClientAuthorityMessage msg)
+        internal static void OnClientAuthority(NetworkConnection conn, ClientAuthorityMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnClientAuthority for netId: " + msg.netId); }
 
@@ -605,7 +605,7 @@ namespace Mirror
         }
 
         // OnClientAddedPlayer?
-        internal static void OnOwnerMessage(OwnerMessage msg)
+        internal static void OnOwnerMessage(NetworkConnection conn, OwnerMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + msg.netId); }
 

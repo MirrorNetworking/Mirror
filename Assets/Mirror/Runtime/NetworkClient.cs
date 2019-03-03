@@ -242,13 +242,13 @@ namespace Mirror
             {
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnLocalClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
-                RegisterHandler<OwnerMessage>((msg) => {});
-                RegisterHandler<NetworkPongMessage>((msg) => {});
+                RegisterHandler<OwnerMessage>((conn, msg) => {});
+                RegisterHandler<NetworkPongMessage>((conn, msg) => {});
                 RegisterHandler<SpawnPrefabMessage>(ClientScene.OnLocalClientSpawnPrefab);
                 RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnLocalClientSpawnSceneObject);
-                RegisterHandler<ObjectSpawnStartedMessage>((msg) => {});
-                RegisterHandler<ObjectSpawnFinishedMessage>((msg) => {});
-                RegisterHandler<UpdateVarsMessage>((msg) => {});
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
+                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
             }
             else
             {
@@ -283,7 +283,7 @@ namespace Mirror
             RegisterHandler((int)msgType, handler);
         }
 
-        public void RegisterHandler<T>(Action<T> handler) where T : MessageBase, new()
+        public void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : MessageBase, new()
         {
             int msgType = MessageBase.GetId<T>();
             if (handlers.ContainsKey(msgType))
@@ -292,7 +292,7 @@ namespace Mirror
             }
             handlers[msgType] = (networkMessage) =>
             {
-                handler(networkMessage.ReadMessage<T>());
+                handler(networkMessage.conn, networkMessage.ReadMessage<T>());
             };
         }
 

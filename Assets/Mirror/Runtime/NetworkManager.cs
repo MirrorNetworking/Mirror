@@ -586,7 +586,7 @@ namespace Mirror
 
         // ----------------------------- Client Internal Message Handlers  --------------------------------
 
-        internal void OnClientConnectInternal(ConnectMessage message)
+        internal void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientConnectInternal"); }
 
@@ -594,38 +594,38 @@ namespace Mirror
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
                 clientLoadedScene = false;
-                OnClientConnect(client.connection);
+                OnClientConnect(conn);
             }
             else
             {
                 // will wait for scene id to come from the server.
-                s_ClientReadyConnection = client.connection;
+                s_ClientReadyConnection = conn;
             }
         }
 
-        internal void OnClientDisconnectInternal(DisconnectMessage msg)
+        internal void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientDisconnectInternal"); }
-            OnClientDisconnect(client.connection);
+            OnClientDisconnect(conn);
         }
 
-        internal void OnClientNotReadyMessageInternal(NotReadyMessage msg)
+        internal void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientNotReadyMessageInternal"); }
 
             ClientScene.ready = false;
-            OnClientNotReady(client.connection);
+            OnClientNotReady(conn);
 
             // NOTE: s_ClientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
-        internal void OnClientErrorInternal(ErrorMessage msg)
+        internal void OnClientErrorInternal(NetworkConnection conn, ErrorMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager:OnClientErrorInternal"); }
-            OnClientError(client.connection, msg.value);
+            OnClientError(conn, msg.value);
         }
 
-        internal void OnClientSceneInternal(SceneMessage msg)
+        internal void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnClientSceneInternal"); }
 
