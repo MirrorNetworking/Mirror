@@ -19,6 +19,14 @@ namespace Mirror
         // avoid large amounts of allocations.
         static NetworkWriter packWriter = new NetworkWriter();
 
+        public static int GetId<T>() where T : MessageBase
+        {
+            // paul: 16 bits is enough to avoid collisions
+            //  - keeps the message size small because it gets varinted
+            //  - in case of collisions,  Mirror will display an error
+            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
+        }
+
         // pack message before sending
         // -> pass writer instead of byte[] so we can reuse it
         [Obsolete("Use Pack<T> instead")]
@@ -44,7 +52,7 @@ namespace Mirror
             packWriter.SetLength(0);
 
             // write message type
-            int msgType = MessageBase.GetId<T>();
+            int msgType = GetId<T>();
             packWriter.Write((ushort)msgType);
 
             // serialize message into writer

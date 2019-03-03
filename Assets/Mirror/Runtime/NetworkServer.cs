@@ -466,7 +466,7 @@ namespace Mirror
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
-            int msgId = MessageBase.GetId<ErrorMessage>();
+            int msgId = MessagePacker.GetId<ErrorMessage>();
             if (handlers.ContainsKey(msgId))
             {
                 ErrorMessage msg = new ErrorMessage
@@ -502,7 +502,7 @@ namespace Mirror
 
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
         {
-            int msgType = MessageBase.GetId<T>();
+            int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
@@ -528,7 +528,7 @@ namespace Mirror
 
         public static void UnregisterHandler<T>() where T:MessageBase
         {
-            int msgType = MessageBase.GetId<T>();
+            int msgType = MessagePacker.GetId<T>();
             handlers.Remove(msgType);
         }
 
