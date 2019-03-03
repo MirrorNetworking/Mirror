@@ -478,7 +478,7 @@ namespace Mirror
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.SetDynamicAssetId(assetId);
+                identity.assetId = assetId;
             }
             return InternalReplacePlayerForConnection(conn, player);
         }
@@ -492,7 +492,7 @@ namespace Mirror
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
-                identity.SetDynamicAssetId(assetId);
+                identity.assetId = assetId;
             }
             return InternalAddPlayerForConnection(conn, player);
         }
@@ -1011,7 +1011,7 @@ namespace Mirror
             {
                 if (GetNetworkIdentity(obj, out NetworkIdentity identity))
                 {
-                    identity.SetDynamicAssetId(assetId);
+                    identity.assetId = assetId;
                 }
                 SpawnObject(obj);
             }
