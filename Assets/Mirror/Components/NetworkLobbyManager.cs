@@ -195,7 +195,7 @@ namespace Mirror
             OnLobbyServerDisconnect(conn);
         }
 
-        public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage msg)
+        public override void OnServerAddPlayer(NetworkConnection conn, byte[] extraData)
         {
             if (SceneManager.GetActiveScene().name != LobbyScene) return;
 

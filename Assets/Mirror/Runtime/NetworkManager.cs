@@ -550,7 +550,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal"); }
 
-            OnServerAddPlayer(conn, msg);
+            OnServerAddPlayer(conn, msg.value);
         }
 
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
@@ -645,7 +645,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage message)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, byte[] extraData)
         {
             OnServerAddPlayerInternal(conn);
         }
