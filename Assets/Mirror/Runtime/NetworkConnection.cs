@@ -220,7 +220,7 @@ namespace Mirror
 
         public bool InvokeHandler<T>(T msg) where T : MessageBase
         {
-            int msgType = MessageBase.GetId<T>();
+            int msgType = MessagePacker.GetId<T>();
             byte[] data = MessagePacker.Pack(msg);
             return InvokeHandler(msgType, new NetworkReader(data));
         }

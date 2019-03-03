@@ -285,7 +285,7 @@ namespace Mirror
 
         public void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : MessageBase, new()
         {
-            int msgType = MessageBase.GetId<T>();
+            int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
@@ -311,7 +311,7 @@ namespace Mirror
         public void UnregisterHandler<T>() where T : MessageBase
         {
             // use int to minimize collisions
-            int msgType = MessageBase.GetId<T>();
+            int msgType = MessagePacker.GetId<T>();
             handlers.Remove(msgType);
         }
 

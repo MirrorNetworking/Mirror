@@ -12,14 +12,6 @@ namespace Mirror
 
         // Serialize the contents of this message into the writer
         public virtual void Serialize(NetworkWriter writer) {}
-
-        public static int GetId<T>() where T: MessageBase
-        {
-            // paul: 16 bits is enough to avoid collisions
-            //  - keeps the message size small because it gets varinted
-            //  - in case of collisions,  Mirror will display an error
-            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
-        }
     }
 
     // ---------- General Typed Messages -------------------
