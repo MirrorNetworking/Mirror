@@ -1,3 +1,5 @@
+using System;
+
 namespace Mirror
 {
     // message packing all in one place, instead of constructing headers in all
@@ -19,16 +21,34 @@ namespace Mirror
 
         // pack message before sending
         // -> pass writer instead of byte[] so we can reuse it
-        public static byte[] PackMessage(ushort msgType, MessageBase msg)
+        [Obsolete("Use Pack<T> instead")]
+        public static byte[] PackMessage(int msgType, MessageBase msg)
         {
             // reset cached writer length and position
             packWriter.SetLength(0);
 
             // write message type
-            packWriter.WritePackedUInt32(msgType);
+            packWriter.Write((short)msgType);
 
             // serialize message into writer
             msg.Serialize(packWriter);
+
+            // return byte[]
+            return packWriter.ToArray();
+        }
+
+        // pack message before sending
+        public static byte[] Pack<T>(T message) where T : MessageBase
+        {
+            // reset cached writer length and position
+            packWriter.SetLength(0);
+
+            // write message type
+            int msgType = MessageBase.GetId<T>();
+            packWriter.Write((ushort)msgType);
+
+            // serialize message into writer
+            message.Serialize(packWriter);
 
             // return byte[]
             return packWriter.ToArray();
@@ -38,10 +58,10 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
-        public static bool UnpackMessage(NetworkReader messageReader, out ushort msgType)
+        public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
-            msgType = (ushort)messageReader.ReadPackedUInt32();
+            msgType = (int)messageReader.ReadUInt16();
             return true;
         }
     }

@@ -12,6 +12,14 @@ namespace Mirror
 
         // Serialize the contents of this message into the writer
         public virtual void Serialize(NetworkWriter writer) {}
+
+        public static int GetId<T>() where T: MessageBase
+        {
+            // paul: 16 bits is enough to avoid collisions
+            //  - keeps the message size small because it gets varinted
+            //  - in case of collisions,  Mirror will display an error
+            return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
+        }
     }
 
     // ---------- General Typed Messages -------------------
@@ -159,6 +167,19 @@ namespace Mirror
 
     public class RemovePlayerMessage : EmptyMessage {}
 
+    public class DisconnectMessage : EmptyMessage { }
+
+    public class ConnectMessage : EmptyMessage { }
+
+    public class SceneMessage : StringMessage 
+    {
+        public SceneMessage(string value) : base(value)
+        {
+        }
+
+        public SceneMessage() { }
+    }
+
     // ---------- System Messages requried for code gen path -------------------
 
     // remote calls like Rpc/Cmd/SyncEvent all use the same message type
@@ -267,7 +288,22 @@ namespace Mirror
         }
     }
 
-    class OwnerMessage : MessageBase
+    class ObjectHideMessage : MessageBase
+    {
+        public uint netId;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+        }
+    }
+
+        class OwnerMessage : MessageBase
     {
         public uint netId;
 

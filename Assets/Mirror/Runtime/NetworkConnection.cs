@@ -8,7 +8,7 @@ namespace Mirror
     {
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        Dictionary<short, NetworkMessageDelegate> m_MessageHandlers;
+        Dictionary<int, NetworkMessageDelegate> m_MessageHandlers;
 
         public int connectionId = -1;
         public bool isReady;
@@ -96,7 +96,7 @@ namespace Mirror
             RemoveObservers();
         }
 
-        internal void SetHandlers(Dictionary<short, NetworkMessageDelegate> handlers)
+        internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
             m_MessageHandlers = handlers;
         }
@@ -125,10 +125,18 @@ namespace Mirror
             playerController = null;
         }
 
-        public virtual bool Send(short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        [Obsolete("use Send<T> instead")]
+        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
-            byte[] message = MessagePacker.PackMessage((ushort)msgType, msg);
+            byte[] message = MessagePacker.PackMessage(msgType, msg);
+            return SendBytes(message, channelId);
+        }
+
+        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
+        {
+            // pack message and send
+            byte[] message = MessagePacker.Pack(msg);
             return SendBytes(message, channelId);
         }
 
@@ -187,12 +195,12 @@ namespace Mirror
             visList.Clear();
         }
 
-        public bool InvokeHandlerNoData(short msgType)
+        public bool InvokeHandlerNoData(int msgType)
         {
             return InvokeHandler(msgType, null);
         }
 
-        public bool InvokeHandler(short msgType, NetworkReader reader)
+        public bool InvokeHandler(int msgType, NetworkReader reader)
         {
             if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -210,6 +218,13 @@ namespace Mirror
             return false;
         }
 
+        public bool InvokeHandler<T>(T msg) where T : MessageBase
+        {
+            int msgType = MessageBase.GetId<T>();
+            byte[] data = MessagePacker.Pack(msg);
+            return InvokeHandler(msgType, new NetworkReader(data));
+        }
+
         // handle this message
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient.Update both use while loops to handle >1 data events per
@@ -221,24 +236,15 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (MessagePacker.UnpackMessage(reader, out ushort msgType))
+            if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 if (logNetworkMessages)
                 {
-                    if (Enum.IsDefined(typeof(MsgType), msgType))
-                    {
-                        // one of Mirror mesage types,  display the message name
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + (MsgType)msgType + " buffer:" + BitConverter.ToString(buffer));
-                    }
-                    else
-                    {
-                        // user defined message,  display the number
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " buffer:" + BitConverter.ToString(buffer));
-                    }
+                    Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
                 }
 
                 // try to invoke the handler for that message
-                if (InvokeHandler((short)msgType, reader))
+                if (InvokeHandler(msgType, reader))
                 {
                     lastMessageTime = Time.time;
                 }

@@ -12,7 +12,7 @@ namespace Mirror
         [Obsolete("Use NetworkClient.singleton instead. There is always exactly one client.")]
         public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
 
-        public readonly Dictionary<short, NetworkMessageDelegate> handlers = new Dictionary<short, NetworkMessageDelegate>();
+        public readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         public NetworkConnection connection { get; protected set; }
 
@@ -88,7 +88,7 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandlerNoData((short)MsgType.Disconnect);
+            connection?.InvokeHandler(new DisconnectMessage());
         }
 
         protected void OnDataReceived(byte[] data)
@@ -111,7 +111,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient(this);
-                connection.InvokeHandlerNoData((short)MsgType.Connect);
+                connection.InvokeHandler(new ConnectMessage());
             }
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
@@ -141,6 +141,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
+        [Obsolete("Use SendMessage<T> instead with no message id instead")]
         public bool Send(short msgType, MessageBase msg)
         {
             if (connection != null)
@@ -151,6 +152,21 @@ namespace Mirror
                     return false;
                 }
                 return connection.Send(msgType, msg);
+            }
+            Debug.LogError("NetworkClient Send with no connection");
+            return false;
+        }
+
+        public bool Send<T>(T message) where T : MessageBase
+        {
+            if (connection != null)
+            {
+                if (connectState != ConnectState.Connected)
+                {
+                    Debug.LogError("NetworkClient Send when not connected to a server");
+                    return false;
+                }
+                return connection.Send(message);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
@@ -188,7 +204,8 @@ namespace Mirror
 
         void GenerateError(byte error)
         {
-            if (handlers.TryGetValue((short)MsgType.Error, out NetworkMessageDelegate msgDelegate))
+            int msgId = MessageBase.GetId<ErrorMessage>();
+            if (handlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
             {
                 ErrorMessage msg = new ErrorMessage
                 {
@@ -201,7 +218,7 @@ namespace Mirror
 
                 NetworkMessage netMsg = new NetworkMessage
                 {
-                    msgType = (short)MsgType.Error,
+                    msgType = msgId,
                     reader = new NetworkReader(writer.ToArray()),
                     conn = connection
                 };
@@ -223,36 +240,35 @@ namespace Mirror
             // 'message id not found' errors.
             if (localClient)
             {
-                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
-                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnLocalClientObjectDestroy);
-                RegisterHandler(MsgType.ObjectHide, ClientScene.OnLocalClientObjectHide);
-                RegisterHandler(MsgType.Owner, (msg) => {});
-                RegisterHandler(MsgType.Pong, (msg) => {});
-                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnLocalClientSpawnPrefab);
-                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnLocalClientSpawnSceneObject);
-                RegisterHandler(MsgType.SpawnStarted, (msg) => {});
-                RegisterHandler(MsgType.SpawnFinished, (msg) => {});
-                RegisterHandler(MsgType.UpdateVars, (msg) => {});
+                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnLocalClientObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
+                RegisterHandler<OwnerMessage>((conn, msg) => {});
+                RegisterHandler<NetworkPongMessage>((conn, msg) => {});
+                RegisterHandler<SpawnPrefabMessage>(ClientScene.OnLocalClientSpawnPrefab);
+                RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnLocalClientSpawnSceneObject);
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
+                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
             }
             else
             {
-                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
-                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnObjectDestroy);
-                RegisterHandler(MsgType.ObjectHide, ClientScene.OnObjectDestroy);
-                RegisterHandler(MsgType.Owner, ClientScene.OnOwnerMessage);
-                RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
-                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnSpawnPrefab);
-                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnSpawnSceneObject);
-                RegisterHandler(MsgType.SpawnStarted, ClientScene.OnObjectSpawnStarted);
-                RegisterHandler(MsgType.SpawnFinished, ClientScene.OnObjectSpawnFinished);
-                RegisterHandler(MsgType.UpdateVars, ClientScene.OnUpdateVarsMessage);
+                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
+                RegisterHandler<OwnerMessage>(ClientScene.OnOwnerMessage);
+                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong);
+                RegisterHandler<SpawnPrefabMessage>(ClientScene.OnSpawnPrefab);
+                RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnSpawnSceneObject);
+                RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
+                RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
+                RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             }
-
-            RegisterHandler(MsgType.Rpc, ClientScene.OnRPCMessage);
-            RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
+            RegisterHandler<ClientAuthorityMessage>(ClientScene.OnClientAuthority);
+            RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
+            RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
+        [Obsolete("Use RegisterHandler<T> instead")]
+        public void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
             {
@@ -261,19 +277,42 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        [Obsolete("Use RegisterHandler<T> instead")]
         public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
-            RegisterHandler((short)msgType, handler);
+            RegisterHandler((int)msgType, handler);
         }
 
-        public void UnregisterHandler(short msgType)
+        public void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : MessageBase, new()
+        {
+            int msgType = MessageBase.GetId<T>();
+            if (handlers.ContainsKey(msgType))
+            {
+                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+            }
+            handlers[msgType] = (networkMessage) =>
+            {
+                handler(networkMessage.conn, networkMessage.ReadMessage<T>());
+            };
+        }
+
+        [Obsolete("Use UnregisterHandler<T> instead")]
+        public void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
 
+        [Obsolete("Use UnregisterHandler<T> instead")]
         public void UnregisterHandler(MsgType msgType)
         {
-            UnregisterHandler((short)msgType);
+            UnregisterHandler((int)msgType);
+        }
+
+        public void UnregisterHandler<T>() where T : MessageBase
+        {
+            // use int to minimize collisions
+            int msgType = MessageBase.GetId<T>();
+            handlers.Remove(msgType);
         }
 
         internal static void UpdateClient()
