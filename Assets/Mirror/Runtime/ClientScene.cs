@@ -64,7 +64,7 @@ namespace Mirror
 
         // use this to implicitly become ready
         // -> extraMessage can contain character selection, etc.
-        public static bool AddPlayer(NetworkConnection readyConn, MessageBase extraMessage)
+        public static bool AddPlayer(NetworkConnection readyConn, byte[] extraData)
         {
             // ensure valid ready connection
             if (readyConn != null)
@@ -87,13 +87,10 @@ namespace Mirror
 
             if (LogFilter.Debug) { Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]"); }
 
-            AddPlayerMessage msg = new AddPlayerMessage();
-            if (extraMessage != null)
+            AddPlayerMessage msg = new AddPlayerMessage()
             {
-                NetworkWriter writer = new NetworkWriter();
-                extraMessage.Serialize(writer);
-                msg.value = writer.ToArray();
-            }
+                value = extraData
+            };
             readyConnection.Send(msg);
             return true;
         }

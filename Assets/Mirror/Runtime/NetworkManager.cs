@@ -35,7 +35,7 @@ namespace Mirror
 
         [Header("Network Info")]
         // transport layer
-        [SerializeField] Transport transport;
+        [SerializeField] protected Transport transport;
         [FormerlySerializedAs("m_NetworkAddress")] public string networkAddress = "localhost";
         [FormerlySerializedAs("m_MaxConnections")] public int maxConnections = 4;
 
@@ -104,8 +104,6 @@ namespace Mirror
                 return;
             }
 
-            Transport.activeTransport = transport;
-
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -113,7 +111,7 @@ namespace Mirror
             {
                 if (singleton != null)
                 {
-                    Debug.LogError("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used.");
+                    Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
                     Destroy(gameObject);
                     return;
                 }
@@ -126,6 +124,10 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("NetworkManager created singleton (ForScene)"); }
                 singleton = this;
             }
+
+            // set active transport AFTER setting singleton.
+            // so only if we didn't destroy ourselves.
+            Transport.activeTransport = transport;
 
             // persistent network address between scene changes
             if (networkAddress != "")
@@ -550,17 +552,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal"); }
 
-            if (msg.value != null && msg.value.Length > 0)
-            {
-                // convert payload to extra message and call OnServerAddPlayer
-                // (usually for character selection information)
-                NetworkReader data = new NetworkReader(msg.value);
-                OnServerAddPlayer(conn, data);
-            }
-            else
-            {
-                OnServerAddPlayer(conn);
-            }
+            OnServerAddPlayer(conn, msg);
         }
 
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
@@ -655,12 +647,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkReader data)
-        {
-            OnServerAddPlayerInternal(conn);
-        }
-
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             OnServerAddPlayerInternal(conn);
         }
