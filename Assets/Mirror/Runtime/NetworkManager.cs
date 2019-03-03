@@ -56,8 +56,8 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
 
         // runtime data
-        // this is used to make sure that all scene changes are initialized by UNET.
-        // Loading a scene manually wont set networkSceneName, so UNET would still load it again on start.
+        // this is used to make sure that all scene changes are initialized by Mirror.
+        // Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.
         public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;

@@ -101,7 +101,7 @@ namespace Mirror
             // problem:
             //   * FindObjectsOfType order is not guaranteed. restarting the
             //     editor results in a different order
-            //   * connecting to a build again would cause UNET to deserialize
+            //   * connecting to a build again would cause Mirror to deserialize
             //     the wrong objects, causing all kinds of weird errors like
             //     'ReadString out of range'
             //

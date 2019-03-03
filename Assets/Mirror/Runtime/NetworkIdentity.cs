@@ -851,12 +851,12 @@ namespace Mirror
         }
 
 
-        // UNetUpdate is in hot path. caching the vars msg is really worth it to
+        // MirrorUpdate is a hot path. Caching the vars msg is really worth it to
         // avoid large amounts of allocations.
         static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
 
-        // invoked by unity runtime immediately after the regular "Update()" function.
-        internal void UNetUpdate()
+        // invoked by NetworkServer during Update()
+        internal void MirrorUpdate()
         {
             // SendToReady sends to all observers. no need to serialize if we
             // don't have any.
