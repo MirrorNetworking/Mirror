@@ -143,7 +143,22 @@ namespace Mirror
             //
             // note: this can still fail if DontDestroyOnLoad is called for a
             // NetworkIdentity - but no one should ever do that anyway.
-            List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>().ToList();
+            //
+            // SCENE SWITCHING BUG FIX:
+            // - when switching scenes (e.g. with network zones), there was the
+            //   following bug:
+            //   - network was shutdown and cleaned up
+            //   - player was deleted
+            //   - scene was switched
+            //   - if in Editor, then NetworkScenePostProcess ran again
+            //   - deleted player was still in hierarchy until end of the frame,
+            //     so NetworkScenePostProcess included it in sceneId assignment.
+            //     (deleted player .gameObject.scene == previous scene though)
+            //   -> sceneIds were all too big by one because of the dead object
+            // ---> solution: only include identities of THIS scene
+            List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>()
+                .Where(ni => ni.gameObject.scene == SceneManager.GetActiveScene())
+                .ToList();
             identities.Sort(CompareNetworkIdentitySiblingPaths);
 
             // sceneId assignments need to work with additive scene loading, so
