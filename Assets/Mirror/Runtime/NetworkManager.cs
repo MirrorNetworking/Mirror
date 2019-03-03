@@ -552,21 +552,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) { Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal"); }
 
-            if (msg.value != null && msg.value.Length > 0)
-            {
-                // convert payload to extra message and call OnServerAddPlayer
-                // (usually for character selection information)
-                NetworkMessage extraMessage = new NetworkMessage
-                {
-                    reader = new NetworkReader(msg.value),
-                    conn = conn
-                };
-                OnServerAddPlayer(conn, extraMessage);
-            }
-            else
-            {
-                OnServerAddPlayer(conn);
-            }
+            OnServerAddPlayer(conn, msg);
         }
 
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
@@ -661,12 +647,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
-        {
-            OnServerAddPlayerInternal(conn);
-        }
-
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             OnServerAddPlayerInternal(conn);
         }
