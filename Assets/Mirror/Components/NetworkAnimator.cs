@@ -11,6 +11,10 @@ namespace Mirror
         // configuration
         [SerializeField] Animator m_Animator;
         [SerializeField] uint m_ParameterSendBits;
+        // Note: not an object[] array because otherwise initialization is real annoying
+        int[] intShadowCopy;
+        float[] floatShadowCopy;
+        bool[] boolShadowCopy;
 
         // properties
         public Animator animator
@@ -133,9 +137,11 @@ namespace Mirror
                 m_SendTimer = Time.time + syncInterval;
 
                 NetworkWriter writer = new NetworkWriter();
-                WriteParameters(writer, true);
-
-                SendAnimationParametersMessage(writer.ToArray());
+                if (WriteParameters(writer, true))
+                {
+                    SendAnimationParametersMessage(writer.ToArray());
+                    Debug.Log("Thing happened");
+                }
             }
         }
 
@@ -192,12 +198,16 @@ namespace Mirror
             m_Animator.SetTrigger(hash);
         }
 
-        void WriteParameters(NetworkWriter writer, bool autoSend)
+        bool WriteParameters(NetworkWriter writer, bool autoSend)
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
+            if (intShadowCopy == null) intShadowCopy = new int[parameters.Length];
+            if (floatShadowCopy == null) floatShadowCopy = new float[parameters.Length];
+            if (boolShadowCopy == null) boolShadowCopy = new bool[parameters.Length];
 
+            bool didWork = false;
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
@@ -206,17 +216,36 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    int val = m_Animator.GetInteger(par.nameHash);
+                    if (val != intShadowCopy[i])
+                    {
+                        writer.WritePackedUInt32((uint) val);
+                        didWork = true;
+                        intShadowCopy[i] = val;
+                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    writer.Write(m_Animator.GetFloat(par.nameHash));
+                    float val = m_Animator.GetFloat(par.nameHash);
+                    if (Mathf.Abs(val - floatShadowCopy[i]) < 0.001f)
+                    {
+                        writer.Write(val);
+                        didWork = true;
+                        floatShadowCopy[i] = val;
+                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    writer.Write(m_Animator.GetBool(par.nameHash));
+                    bool val = m_Animator.GetBool(par.nameHash);
+                    if (val != boolShadowCopy[i])
+                    {
+                        writer.Write(val);
+                        didWork = true;
+                        boolShadowCopy[i] = val;
+                    }
                 }
             }
+            return didWork;
         }
 
         void ReadParameters(NetworkReader reader, bool autoSend)
