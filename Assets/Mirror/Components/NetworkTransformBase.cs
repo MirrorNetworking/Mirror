@@ -139,7 +139,6 @@ namespace Mirror
                 temp.rotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
             }
 
-            // timestamp
             temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
