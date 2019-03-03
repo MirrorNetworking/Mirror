@@ -104,8 +104,6 @@ namespace Mirror
                 return;
             }
 
-            Transport.activeTransport = transport;
-
             // do this early
             LogFilter.Debug = showDebugMessages;
 
@@ -126,6 +124,10 @@ namespace Mirror
                 if (LogFilter.Debug) { Debug.Log("NetworkManager created singleton (ForScene)"); }
                 singleton = this;
             }
+
+            // set active transport AFTER setting singleton.
+            // so only if we didn't destroy ourselves.
+            Transport.activeTransport = transport;
 
             // persistent network address between scene changes
             if (networkAddress != "")
