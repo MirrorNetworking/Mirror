@@ -166,29 +166,6 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        [Obsolete("use SendToObservers<T> instead")]
-        static bool SendToObservers(NetworkIdentity identity, short msgType, MessageBase msg)
-        {
-            if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + msgType); }
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-                // send to all observers
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    result &= kvp.Value.SendBytes(bytes);
-                }
-                return result;
-            }
-            return false;
-        }
-
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
         static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: MessageBase
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToObservers id:" + typeof(T)); }
@@ -208,23 +185,6 @@ namespace Mirror
             return false;
         }
 
-        [Obsolete("Use SendToAll<T> instead")]
-        public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + msgType); }
-
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-            // send to all
-            bool result = true;
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
-            {
-                result &= kvp.Value.SendBytes(bytes, channelId);
-            }
-            return result;
-        }
-
         public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : MessageBase
         {
             if (LogFilter.Debug) { Debug.Log("Server.SendToAll id:" + typeof(T)); }
@@ -238,30 +198,6 @@ namespace Mirror
                 result &= kvp.Value.SendBytes(bytes, channelId);
             }
             return result;
-        }
-
-        [Obsolete("Use SendToReady<T> instead")]
-        public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) { Debug.Log("Server.SendToReady msgType:" + msgType); }
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-                // send to all ready observers
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    if (kvp.Value.isReady)
-                    {
-                        result &= kvp.Value.SendBytes(bytes, channelId);
-                    }
-                }
-                return result;
-            }
-            return false;
         }
 
         public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
@@ -484,22 +420,6 @@ namespace Mirror
             }
         }
 
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
-            }
-            handlers[msgType] = handler;
-        }
-
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
         {
             int msgType = MessageBase.GetId<T>();
@@ -514,18 +434,6 @@ namespace Mirror
             };
         }
 
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
-        }
-
         public static void UnregisterHandler<T>() where T:MessageBase
         {
             int msgType = MessageBase.GetId<T>();
@@ -537,17 +445,6 @@ namespace Mirror
             handlers.Clear();
         }
 
-        [Obsolete("Use SendToClient<T> instead")]
-        public static void SendToClient(int connectionId, int msgType, MessageBase msg)
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
-            {
-                conn.Send(msgType, msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
         public static void SendToClient<T>(int connectionId, T msg) where T : MessageBase
         {
             NetworkConnection conn;
@@ -557,20 +454,6 @@ namespace Mirror
                 return;
             }
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
-
-        [Obsolete("Use SendToClientOfPlayer<T> instead")]
-        public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
-        {
-            if (identity != null)
-            {
-                identity.connectionToClient.Send(msgType, msg);
-            }
-            else
-            {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
-            }
         }
 
         // send this message to the player only

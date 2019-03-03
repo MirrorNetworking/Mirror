@@ -125,14 +125,6 @@ namespace Mirror
             playerController = null;
         }
 
-        [Obsolete("use Send<T> instead")]
-        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            // pack message and send
-            byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(message, channelId);
-        }
-
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
         {
             // pack message and send

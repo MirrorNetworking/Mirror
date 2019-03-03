@@ -141,22 +141,6 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
-        [Obsolete("Use SendMessage<T> instead with no message id instead")]
-        public bool Send(short msgType, MessageBase msg)
-        {
-            if (connection != null)
-            {
-                if (connectState != ConnectState.Connected)
-                {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
-                    return false;
-                }
-                return connection.Send(msgType, msg);
-            }
-            Debug.LogError("NetworkClient Send with no connection");
-            return false;
-        }
-
         public bool Send<T>(T message) where T : MessageBase
         {
             if (connection != null)
@@ -267,22 +251,6 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
-            }
-            handlers[msgType] = handler;
-        }
-
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         public void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : MessageBase, new()
         {
             int msgType = MessageBase.GetId<T>();
@@ -294,18 +262,6 @@ namespace Mirror
             {
                 handler(networkMessage.conn, networkMessage.ReadMessage<T>());
             };
-        }
-
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
         }
 
         public void UnregisterHandler<T>() where T : MessageBase

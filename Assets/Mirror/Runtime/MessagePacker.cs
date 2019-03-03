@@ -20,24 +20,6 @@ namespace Mirror
         static NetworkWriter packWriter = new NetworkWriter();
 
         // pack message before sending
-        // -> pass writer instead of byte[] so we can reuse it
-        [Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(int msgType, MessageBase msg)
-        {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
-
-            // write message type
-            packWriter.Write((short)msgType);
-
-            // serialize message into writer
-            msg.Serialize(packWriter);
-
-            // return byte[]
-            return packWriter.ToArray();
-        }
-
-        // pack message before sending
         public static byte[] Pack<T>(T message) where T : MessageBase
         {
             // reset cached writer length and position
