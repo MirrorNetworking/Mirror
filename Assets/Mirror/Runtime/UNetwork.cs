@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     // Handles network messages on client and server
-    public delegate void NetworkMessageDelegate(NetworkMessage netMsg);
+    public delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader);
 
     // Handles requests to spawn objects on the client
     public delegate GameObject SpawnDelegate(Vector3 position, Guid assetId);

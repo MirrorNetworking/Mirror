@@ -554,12 +554,8 @@ namespace Mirror
             {
                 // convert payload to extra message and call OnServerAddPlayer
                 // (usually for character selection information)
-                NetworkMessage extraMessage = new NetworkMessage
-                {
-                    reader = new NetworkReader(msg.value),
-                    conn = conn
-                };
-                OnServerAddPlayer(conn, extraMessage);
+                NetworkReader data = new NetworkReader(msg.value);
+                OnServerAddPlayer(conn, data);
             }
             else
             {
@@ -659,7 +655,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkReader data)
         {
             OnServerAddPlayerInternal(conn);
         }

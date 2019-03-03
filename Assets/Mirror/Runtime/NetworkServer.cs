@@ -402,22 +402,11 @@ namespace Mirror
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
-            int msgId = MessageBase.GetId<ErrorMessage>();
-            if (handlers.ContainsKey(msgId))
+            ErrorMessage msg = new ErrorMessage
             {
-                ErrorMessage msg = new ErrorMessage
-                {
-                    value = error
-                };
-
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler(msgId, reader);
-            }
+                value = error
+            };
+            conn.InvokeHandler(msg);
         }
 
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
@@ -427,10 +416,11 @@ namespace Mirror
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkServer.RegisterHandler replacing " + msgType); }
             }
-            handlers[msgType] = networkMessage =>
+            handlers[msgType] = (conn, reader) =>
             {
-                T message = networkMessage.ReadMessage<T>();
-                handler(networkMessage.conn, message);
+                T message = new T(); 
+                message.Deserialize(reader);
+                handler(conn, message);
             };
         }
 

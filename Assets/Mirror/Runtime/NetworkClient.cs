@@ -258,9 +258,11 @@ namespace Mirror
             {
                 if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
             }
-            handlers[msgType] = (networkMessage) =>
+            handlers[msgType] = (conn, reader) =>
             {
-                handler(networkMessage.conn, networkMessage.ReadMessage<T>());
+                T message = new T();
+                message.Deserialize(reader);
+                handler(conn, message);
             };
         }
 
