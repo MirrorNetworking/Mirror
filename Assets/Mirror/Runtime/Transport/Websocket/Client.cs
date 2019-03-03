@@ -1,4 +1,4 @@
-﻿#if !UNITY_WEBGL || UNITY_EDITOR
+#if !UNITY_WEBGL || UNITY_EDITOR
 
 using System;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror.Websocket
+namespace Mirror
 {
 
     public class Client 

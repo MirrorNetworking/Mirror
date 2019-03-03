@@ -203,7 +203,7 @@ namespace Mirror
 
             allPlayersReady = false;
 
-            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager:OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager.OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
 
             GameObject newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)

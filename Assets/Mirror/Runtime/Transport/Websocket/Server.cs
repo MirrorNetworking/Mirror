@@ -1,16 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror.Websocket
+namespace Mirror
 {
     public class Server 
     {
@@ -71,6 +72,18 @@ namespace Mirror.Websocket
             return clients[connectionId];
         }
 
+        public bool _secure = false;
+
+        public SslConfiguration _sslConfig;
+
+        public class SslConfiguration
+        {
+            public System.Security.Cryptography.X509Certificates.X509Certificate2 Certificate;
+            public bool ClientCertificateRequired;
+            public System.Security.Authentication.SslProtocols EnabledSslProtocols;
+            public bool CheckCertificateRevocation;
+        }
+
         public async void Listen(int port)
         {
             try
@@ -109,6 +122,12 @@ namespace Mirror.Websocket
 
                 // get a secure or insecure stream
                 Stream stream = tcpClient.GetStream();
+                if (_secure)
+                {
+                    var sslStream = new SslStream(stream, false, CertVerificationCallback);
+                    sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
+                    stream = sslStream;
+                }
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
                 if (context.IsWebSocketRequest)
                 {
@@ -144,6 +163,14 @@ namespace Mirror.Websocket
                     ReceivedError?.Invoke(0, ex);
                 }
             }
+        }
+
+        private bool CertVerificationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            // Much research has been done on this. When this is initiated from a HTTPS/WSS stream,
+            // the certificate is null and the SslPolicyErrors is RemoteCertificateNotAvailable.
+            // Meaning we CAN'T verify this and this is all we can do.
+            return true;
         }
 
         private async Task ReceiveLoopAsync(WebSocket webSocket, CancellationToken token)

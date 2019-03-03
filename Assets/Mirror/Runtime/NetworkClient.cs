@@ -52,14 +52,17 @@ namespace Mirror
 
         public void Connect(string ip)
         {
-            PrepareForConnect();
-
             if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
+
+            active = true;
+            RegisterSystemHandlers(false);
+            Transport.activeTransport.enabled = true;
+            InitializeTransportHandlers();
 
             serverIp = ip;
 
             connectState = ConnectState.Connecting;
-            NetworkManager.singleton.transport.ClientConnect(ip);
+            Transport.activeTransport.ClientConnect(ip);
 
             // setup all the handlers
             connection = new NetworkConnection(serverIp, 0);
@@ -68,11 +71,10 @@ namespace Mirror
 
         private void InitializeTransportHandlers()
         {
-            // TODO do this in inspector?
-            NetworkManager.singleton.transport.OnClientConnected.AddListener(OnConnected);
-            NetworkManager.singleton.transport.OnClientDataReceived.AddListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnClientDisconnected.AddListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnClientError.AddListener(OnError);
+            Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
+            Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
+            Transport.activeTransport.OnClientDisconnected.AddListener(OnDisconnected);
+            Transport.activeTransport.OnClientError.AddListener(OnError);
         }
 
         void OnError(Exception exception)
@@ -114,14 +116,6 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
 
-        void PrepareForConnect()
-        {
-            active = true;
-            RegisterSystemHandlers(false);
-            NetworkManager.singleton.transport.enabled = true;
-            InitializeTransportHandlers();
-        }
-
         public virtual void Disconnect()
         {
             connectState = ConnectState.Disconnected;
@@ -141,10 +135,10 @@ namespace Mirror
         void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
-            NetworkManager.singleton.transport.OnClientConnected.RemoveListener(OnConnected);
-            NetworkManager.singleton.transport.OnClientDataReceived.RemoveListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnClientDisconnected.RemoveListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnClientError.RemoveListener(OnError);
+            Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
+            Transport.activeTransport.OnClientDataReceived.RemoveListener(OnDataReceived);
+            Transport.activeTransport.OnClientDisconnected.RemoveListener(OnDisconnected);
+            Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
         public bool Send(short msgType, MessageBase msg)
@@ -224,7 +218,38 @@ namespace Mirror
 
         internal void RegisterSystemHandlers(bool localClient)
         {
-            ClientScene.RegisterSystemHandlers(this, localClient);
+            // local client / regular client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
+            if (localClient)
+            {
+                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
+                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnLocalClientObjectDestroy);
+                RegisterHandler(MsgType.ObjectHide, ClientScene.OnLocalClientObjectHide);
+                RegisterHandler(MsgType.Owner, (msg) => {});
+                RegisterHandler(MsgType.Pong, (msg) => {});
+                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnLocalClientSpawnPrefab);
+                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnLocalClientSpawnSceneObject);
+                RegisterHandler(MsgType.SpawnStarted, (msg) => {});
+                RegisterHandler(MsgType.SpawnFinished, (msg) => {});
+                RegisterHandler(MsgType.UpdateVars, (msg) => {});
+            }
+            else
+            {
+                RegisterHandler(MsgType.LocalClientAuthority, ClientScene.OnClientAuthority);
+                RegisterHandler(MsgType.ObjectDestroy, ClientScene.OnObjectDestroy);
+                RegisterHandler(MsgType.ObjectHide, ClientScene.OnObjectDestroy);
+                RegisterHandler(MsgType.Owner, ClientScene.OnOwnerMessage);
+                RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
+                RegisterHandler(MsgType.SpawnPrefab, ClientScene.OnSpawnPrefab);
+                RegisterHandler(MsgType.SpawnSceneObject, ClientScene.OnSpawnSceneObject);
+                RegisterHandler(MsgType.SpawnStarted, ClientScene.OnObjectSpawnStarted);
+                RegisterHandler(MsgType.SpawnFinished, ClientScene.OnObjectSpawnFinished);
+                RegisterHandler(MsgType.UpdateVars, ClientScene.OnUpdateVarsMessage);
+            }
+
+            RegisterHandler(MsgType.Rpc, ClientScene.OnRPCMessage);
+            RegisterHandler(MsgType.SyncEvent, ClientScene.OnSyncEventMessage);
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)

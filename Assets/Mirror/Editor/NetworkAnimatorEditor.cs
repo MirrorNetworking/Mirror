@@ -63,7 +63,7 @@ namespace Mirror
                     }
 
                     bool oldSend = m_AnimSync.GetParameterAutoSend(i);
-                    bool send = EditorGUILayout.Toggle(p.name, oldSend);
+                    bool send = EditorGUILayout.Toggle("Sync " + p.name, oldSend);
                     if (send != oldSend)
                     {
                         m_AnimSync.SetParameterAutoSend(i, send);

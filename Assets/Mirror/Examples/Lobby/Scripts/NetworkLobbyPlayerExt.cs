@@ -1,5 +1,4 @@
 using UnityEngine;
-using Mirror;
 using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.NetworkLobby
@@ -26,12 +25,6 @@ namespace Mirror.Examples.NetworkLobby
 
             if (lobby != null && SceneManager.GetActiveScene().name == lobby.LobbyScene)
                 gameObject.transform.SetParent(GameObject.Find("Players").transform);
-        }
-
-        public override void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
-        {
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            base.ClientLoadedScene(arg0, arg1);
         }
 
         public override void OnClientEnterLobby()

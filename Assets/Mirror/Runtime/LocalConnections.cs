@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -33,7 +32,7 @@ namespace Mirror
         {
             if (bytes.Length == 0)
             {
-                Debug.LogError("LocalConnection:SendBytes cannot send zero bytes");
+                Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
                 return false;
             }
 

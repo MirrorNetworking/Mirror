@@ -30,8 +30,8 @@ namespace Mirror
         private static int lastFrame;
 
         // the true offset guaranteed to be in this range
-        private static double offsetMin = Double.MinValue;
-        private static double offsetMax = Double.MaxValue;
+        private static double offsetMin = double.MinValue;
+        private static double offsetMax = double.MaxValue;
 
         // returns the clock time _in this system_
         static double LocalTime()
@@ -43,8 +43,8 @@ namespace Mirror
         {
             _rtt = new ExponentialMovingAverage(PingWindowSize);
             _offset = new ExponentialMovingAverage(PingWindowSize);
-            offsetMin = Double.MinValue;
-            offsetMax = Double.MaxValue;
+            offsetMin = double.MinValue;
+            offsetMax = double.MaxValue;
         }
 
         internal static NetworkPingMessage GetPing()

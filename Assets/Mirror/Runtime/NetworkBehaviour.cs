@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
-using System.Linq;
 
 namespace Mirror
 {
@@ -20,7 +19,7 @@ namespace Mirror
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
         ///<summary>True if this object is running on the server, and has been spawned.</summary>
         public bool isServer => netIdentity.isServer;
-        ///<summary>True if the object is running on a client.</summary>
+        ///<summary>True if this object is running on the server, and has been spawned.</summary>
         public bool isClient => netIdentity.isClient;
         ///<summary>True if the object is the one that represents the player on the local machine.</summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
@@ -86,6 +85,14 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            // NOTE: we could remove this later to allow calling Cmds on Server
+            //       to avoid Wrapper functions. a lot of people requested this.
+            if (!NetworkClient.active)
+            {
+                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
+                return;
+            }
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
@@ -122,6 +129,12 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -144,6 +157,18 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
+                return;
+            }
+            // this was in Weaver before
+            if (conn is ULocalConnectionToServer)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {

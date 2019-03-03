@@ -18,7 +18,7 @@ The asset ID passed to the spawn function can be found on NetworkIdentity.assetI
 
 ```cs
 // generate a new unique assetId 
-System.Guid creatureAssetId = System.Guid.NewGuid;
+System.Guid creatureAssetId = System.Guid.NewGuid();
 
 // register handlers for the new assetId
 ClientScene.RegisterSpawnHandler(creatureAssetId, SpawnCreature, UnSpawnCreature);

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -11,13 +10,13 @@ namespace Mirror
     public class NetworkAnimator : NetworkBehaviour
     {
         // configuration
-        [SerializeField] Animator   m_Animator;
-        [SerializeField] uint       m_ParameterSendBits;
+        [SerializeField] Animator m_Animator;
+        [SerializeField] uint m_ParameterSendBits;
 
         // properties
         public Animator animator
         {
-            get { return m_Animator; }
+            get => m_Animator;
             set
             {
                 m_Animator = value;
@@ -42,9 +41,9 @@ namespace Mirror
             return (m_ParameterSendBits & (uint)(1 << index)) != 0;
         }
 
-        int                     m_AnimationHash;
-        int                     m_TransitionHash;
-        float                   m_SendTimer;
+        int m_AnimationHash;
+        int m_TransitionHash;
+        float m_SendTimer;
 
         bool sendMessagesAllowed
         {

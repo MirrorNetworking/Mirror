@@ -61,8 +61,6 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
-        public static TypeReference ULocalConnectionToServerType;
-        public static TypeReference ULocalConnectionToClientType;
 
         public static TypeReference MessageBaseType;
         public static TypeReference SyncListStructType;
@@ -1123,12 +1121,6 @@ namespace Mirror.Weaver
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
-            ULocalConnectionToServerType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToServer");
-            ULocalConnectionToServerType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToServerType);
-
-            ULocalConnectionToClientType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToClient");
-            ULocalConnectionToClientType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToClientType);
-
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
             SyncListStructType = NetAssembly.MainModule.GetType("Mirror.SyncListSTRUCT`1");
 
@@ -1474,30 +1466,6 @@ namespace Mirror.Weaver
                 //Console.WriteLine ("Output:" + dest);
 
                 WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
-
-                // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
-                // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
-                // However it's much more simple to just write mdb file.
-                // System.NullReferenceException: Object reference not set to an instance of an object
-                //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
-                //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
-                if (writeParams.SymbolWriterProvider is PdbWriterProvider)
-                {
-                    writeParams.SymbolWriterProvider = new MdbWriterProvider();
-                    // old pdb file is out of date so delete it. symbols will be stored in mdb
-                    string pdb = Path.ChangeExtension(assName, ".pdb");
-
-                    try
-                    {
-                        File.Delete(pdb);
-                    }
-                    catch (Exception ex)
-                    {
-                        // workaround until Unity fixes C#7 compiler compability with the UNET weaver
-                        UnityEngine.Debug.LogWarning(string.Format("Unable to delete file {0}: {1}", pdb, ex.Message));
-                    }
-                }
-
                 CurrentAssembly.Write(dest, writeParams);
             }
 

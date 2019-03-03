@@ -1,20 +1,26 @@
-// wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 
-namespace Mirror.Websocket
+namespace Mirror
 {
     public class WebsocketTransport : Transport
     {
+
         protected Client client = new Client();
         protected Server server = new Server();
 
-        public int port;
+        public int port = 7778;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
-        public void Awake()
+        public bool Secure = false;
+
+        public string CertificatePath;
+
+        public string CertificatePassword;
+
+        public WebsocketTransport()
         {
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
@@ -40,22 +46,48 @@ namespace Mirror.Websocket
             Debug.Log("Websocket transport initialized!");
         }
 
+        public override bool Available()
+        {
+            // WebSockets should be available on all platforms, including WebGL (automatically) using our included JSLIB code
+            return true;
+        }
+
         // client
         public override bool ClientConnected() { return client.IsConnected; }
+
         public override void ClientConnect(string host)
         {
-            client.Connect(new Uri($"ws://{host}:{port}"));
+            if (Secure)
+            {
+                client.Connect(new Uri($"wss://{host}:{port}"));
+            }
+            else
+            {
+                client.Connect(new Uri($"ws://{host}:{port}"));
+            }
         }
-        public override bool ClientSend(int channelId, byte[] data)
-        {
-            client.Send(data); return true;
-        }
+
+        public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
+
         public override void ClientDisconnect() { client.Disconnect(); }
 
         // server
         public override bool ServerActive() { return server.Active; }
+
         public override void ServerStart()
         {
+            
+            if (Secure)
+            {
+                server._secure = Secure;
+                server._sslConfig = new Server.SslConfiguration
+                {
+                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(Application.dataPath + CertificatePath, CertificatePassword),
+                    ClientCertificateRequired = false,
+                    CheckCertificateRevocation = false,
+                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
+                };
+            }
             server.Listen(port);
         }
 

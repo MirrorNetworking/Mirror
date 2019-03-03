@@ -1,6 +1,5 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
-using System;
 using System.ComponentModel;
 using UnityEngine;
 
@@ -79,7 +78,7 @@ namespace Mirror
                 // server / client status message
                 if (NetworkServer.active)
                 {
-                    GUILayout.Label("Server: active. Transport: " + manager.transport);
+                    GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
                 }
                 if (manager.IsClientConnected())
                 {

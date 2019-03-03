@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using UnityEngine;
 
 namespace Mirror
@@ -43,13 +41,13 @@ namespace Mirror
                 }
                 else
                 {
-                    NetworkManager.singleton.transport.ServerStop();
+                    Transport.activeTransport.ServerStop();
                 }
 
-                NetworkManager.singleton.transport.OnServerDisconnected.RemoveListener(OnDisconnected);
-                NetworkManager.singleton.transport.OnServerConnected.RemoveListener(OnConnected);
-                NetworkManager.singleton.transport.OnServerDataReceived.RemoveListener(OnDataReceived);
-                NetworkManager.singleton.transport.OnServerError.RemoveListener(OnError);
+                Transport.activeTransport.OnServerDisconnected.RemoveListener(OnDisconnected);
+                Transport.activeTransport.OnServerConnected.RemoveListener(OnConnected);
+                Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
+                Transport.activeTransport.OnServerError.RemoveListener(OnError);
 
                 s_Initialized = false;
             }
@@ -67,10 +65,10 @@ namespace Mirror
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
-            NetworkManager.singleton.transport.OnServerDisconnected.AddListener(OnDisconnected);
-            NetworkManager.singleton.transport.OnServerConnected.AddListener(OnConnected);
-            NetworkManager.singleton.transport.OnServerDataReceived.AddListener(OnDataReceived);
-            NetworkManager.singleton.transport.OnServerError.AddListener(OnError);
+            Transport.activeTransport.OnServerDisconnected.AddListener(OnDisconnected);
+            Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
+            Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
+            Transport.activeTransport.OnServerError.AddListener(OnError);
 
         }
 
@@ -91,7 +89,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                NetworkManager.singleton.transport.ServerStart();
+                Transport.activeTransport.ServerStart();
                 if (LogFilter.Debug) { Debug.Log("Server started listening"); }
             }
 
@@ -161,7 +159,7 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) { Debug.Log("ActivateClientScene " + identity.netId + " " + identity); }
 
-                    identity.EnableIsClient();
+                    identity.isClient = true;
                     identity.OnStartClient();
                 }
             }
@@ -289,14 +287,14 @@ namespace Mirror
             if (connectionId <= 0)
             {
                 Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server connectionId " + connectionId + " already in use. kicked client:" + connectionId); }
                 return;
             }
@@ -309,7 +307,7 @@ namespace Mirror
             if (connections.Count < s_MaxConnections)
             {
                 // get ip address from connection
-                string address = NetworkManager.singleton.transport.ServerGetClientAddress(connectionId);
+                string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
 
                 // add player info
                 NetworkConnection conn = new NetworkConnection(address, connectionId);
@@ -318,7 +316,7 @@ namespace Mirror
             else
             {
                 // kick
-                NetworkManager.singleton.transport.ServerDisconnect(connectionId);
+                Transport.activeTransport.ServerDisconnect(connectionId);
                 if (LogFilter.Debug) { Debug.Log("Server full, kicked client:" + connectionId); }
             }
         }
@@ -579,7 +577,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 conn.playerController.SetNotLocalPlayer();
-                conn.playerController.ClearClientOwner();
+                conn.playerController.clientAuthorityOwner = null;
             }
 
             conn.SetPlayerController(playerNetworkIdentity);

@@ -1,4 +1,4 @@
-﻿#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
 
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using AOT;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror.Websocket
+namespace Mirror
 {
     // this is the client implementation used by browsers
     public class Client 
@@ -21,9 +21,7 @@ namespace Mirror.Websocket
         private static int idGenerator = 0;
         private static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
-
         public bool NoDelay = true;
-
 
         public event Action Connected;
         public event Action<byte[]> ReceivedData;
@@ -68,7 +66,7 @@ namespace Mirror.Websocket
         }
 
 
-#region Javascript native functions
+        #region Javascript native functions
         [DllImport("__Internal")]
         private static extern int SocketCreate(
             string url, 
@@ -86,9 +84,9 @@ namespace Mirror.Websocket
         [DllImport("__Internal")]
         private static extern void SocketClose(int socketInstance);
 
-#endregion
+        #endregion
 
-#region Javascript callbacks
+        #region Javascript callbacks
 
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnOpen(int id)
@@ -113,7 +111,7 @@ namespace Mirror.Websocket
 
             clients[id].ReceivedData(data);
         }
-#endregion
+        #endregion
     }
 }
 

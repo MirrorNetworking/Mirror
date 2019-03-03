@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -53,7 +52,7 @@ namespace Mirror
             connection.SetPlayerController(localPlayer);
             if (localPlayer != null)
             {
-                localPlayer.EnableIsClient();
+                localPlayer.isClient = true;
                 NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
                 localPlayer.connectionToServer = connection;
             }

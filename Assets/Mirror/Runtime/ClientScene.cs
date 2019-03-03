@@ -35,13 +35,13 @@ namespace Mirror
             ready = false;
             s_IsSpawnFinished = false;
 
-            NetworkManager.singleton.transport.ClientDisconnect();
+            Transport.activeTransport.ClientDisconnect();
         }
 
         // this is called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity identity)
         {
-            if (LogFilter.Debug) { Debug.LogWarning("ClientScene::InternalAddPlayer"); }
+            if (LogFilter.Debug) { Debug.LogWarning("ClientScene.InternalAddPlayer"); }
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
@@ -81,11 +81,11 @@ namespace Mirror
 
             if (readyConnection.playerController != null)
             {
-                Debug.LogError("ClientScene::AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
+                Debug.LogError("ClientScene.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
                 return false;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::AddPlayer() called with connection [" + readyConnection + "]"); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]"); }
 
             AddPlayerMessage msg = new AddPlayerMessage();
             if (extraMessage != null)
@@ -100,7 +100,7 @@ namespace Mirror
 
         public static bool RemovePlayer()
         {
-            if (LogFilter.Debug) { Debug.Log("ClientScene::RemovePlayer() called with connection [" + readyConnection + "]"); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.RemovePlayer() called with connection [" + readyConnection + "]"); }
 
             if (readyConnection.playerController != null)
             {
@@ -125,7 +125,7 @@ namespace Mirror
                 return false;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::Ready() called with connection [" + conn + "]"); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.Ready() called with connection [" + conn + "]"); }
 
             if (conn != null)
             {
@@ -188,42 +188,6 @@ namespace Mirror
                 Debug.LogWarning("Could not find scene object with sceneid:" + sceneId);
             }
             return null;
-        }
-
-        internal static void RegisterSystemHandlers(NetworkClient client, bool localClient)
-        {
-            // local client / regular client react to some messages differently.
-            // but we still need to add handlers for all of them to avoid
-            // 'message id not found' errors.
-            if (localClient)
-            {
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
-                client.RegisterHandler(MsgType.ObjectDestroy, OnLocalClientObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnLocalClientObjectHide);
-                client.RegisterHandler(MsgType.Owner, (msg) => {});
-                client.RegisterHandler(MsgType.Pong, (msg) => {});
-                client.RegisterHandler(MsgType.SpawnPrefab, OnLocalClientSpawnPrefab);
-                client.RegisterHandler(MsgType.SpawnSceneObject, OnLocalClientSpawnSceneObject);
-                client.RegisterHandler(MsgType.SpawnStarted, (msg) => {});
-                client.RegisterHandler(MsgType.SpawnFinished, (msg) => {});
-                client.RegisterHandler(MsgType.UpdateVars, (msg) => {});
-            }
-            else
-            {
-                client.RegisterHandler(MsgType.LocalClientAuthority, OnClientAuthority);
-                client.RegisterHandler(MsgType.ObjectDestroy, OnObjectDestroy);
-                client.RegisterHandler(MsgType.ObjectHide, OnObjectDestroy);
-                client.RegisterHandler(MsgType.Owner, OnOwnerMessage);
-                client.RegisterHandler(MsgType.Pong, NetworkTime.OnClientPong);
-                client.RegisterHandler(MsgType.SpawnPrefab, OnSpawnPrefab);
-                client.RegisterHandler(MsgType.SpawnSceneObject, OnSpawnSceneObject);
-                client.RegisterHandler(MsgType.SpawnStarted, OnObjectSpawnStarted);
-                client.RegisterHandler(MsgType.SpawnFinished, OnObjectSpawnFinished);
-                client.RegisterHandler(MsgType.UpdateVars, OnUpdateVarsMessage);
-            }
-
-            client.RegisterHandler(MsgType.Rpc, OnRPCMessage);
-            client.RegisterHandler(MsgType.SyncEvent, OnSyncEventMessage);
         }
 
         // spawn handlers and prefabs //////////////////////////////////////////
@@ -402,13 +366,13 @@ namespace Mirror
             // objects spawned as part of initial state are started on a second pass
             if (s_IsSpawnFinished)
             {
-                identity.EnableIsClient();
+                identity.isClient = true;
                 identity.OnStartClient();
                 CheckForOwner(identity);
             }
         }
 
-        static void OnSpawnPrefab(NetworkMessage netMsg)
+        internal static void OnSpawnPrefab(NetworkMessage netMsg)
         {
             SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
@@ -469,7 +433,7 @@ namespace Mirror
             }
         }
 
-        static void OnSpawnSceneObject(NetworkMessage netMsg)
+        internal static void OnSpawnSceneObject(NetworkMessage netMsg)
         {
             SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
 
@@ -498,7 +462,7 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.payload, msg.netId);
         }
 
-        static void OnObjectSpawnStarted(NetworkMessage netMsg)
+        internal static void OnObjectSpawnStarted(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnStarted"); }
 
@@ -506,7 +470,7 @@ namespace Mirror
             s_IsSpawnFinished = false;
         }
 
-        static void OnObjectSpawnFinished(NetworkMessage netMsg)
+        internal static void OnObjectSpawnFinished(NetworkMessage netMsg)
         {
             if (LogFilter.Debug) { Debug.Log("SpawnFinished"); }
 
@@ -524,10 +488,10 @@ namespace Mirror
             s_IsSpawnFinished = true;
         }
 
-        static void OnObjectDestroy(NetworkMessage netMsg)
+        internal static void OnObjectDestroy(NetworkMessage netMsg)
         {
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnObjDestroy netId:" + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnObjDestroy netId:" + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -556,18 +520,18 @@ namespace Mirror
             }
         }
 
-        static void OnLocalClientObjectDestroy(NetworkMessage netMsg)
+        internal static void OnLocalClientObjectDestroy(NetworkMessage netMsg)
         {
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjDestroy netId:" + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId); }
 
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
-        static void OnLocalClientObjectHide(NetworkMessage netMsg)
+        internal static void OnLocalClientObjectHide(NetworkMessage netMsg)
         {
             ObjectDestroyMessage msg = netMsg.ReadMessage<ObjectDestroyMessage>();
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnLocalObjectObjHide netId:" + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -575,7 +539,7 @@ namespace Mirror
             }
         }
 
-        static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
+        internal static void OnLocalClientSpawnPrefab(NetworkMessage netMsg)
         {
             SpawnPrefabMessage msg = netMsg.ReadMessage<SpawnPrefabMessage>();
 
@@ -585,7 +549,7 @@ namespace Mirror
             }
         }
 
-        static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
+        internal static void OnLocalClientSpawnSceneObject(NetworkMessage netMsg)
         {
             SpawnSceneObjectMessage msg = netMsg.ReadMessage<SpawnSceneObjectMessage>();
 
@@ -595,11 +559,11 @@ namespace Mirror
             }
         }
 
-        static void OnUpdateVarsMessage(NetworkMessage netMsg)
+        internal static void OnUpdateVarsMessage(NetworkMessage netMsg)
         {
             UpdateVarsMessage msg = netMsg.ReadMessage<UpdateVarsMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnUpdateVarsMessage " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -611,11 +575,11 @@ namespace Mirror
             }
         }
 
-        static void OnRPCMessage(NetworkMessage netMsg)
+        internal static void OnRPCMessage(NetworkMessage netMsg)
         {
             RpcMessage msg = netMsg.ReadMessage<RpcMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
@@ -623,11 +587,11 @@ namespace Mirror
             }
         }
 
-        static void OnSyncEventMessage(NetworkMessage netMsg)
+        internal static void OnSyncEventMessage(NetworkMessage netMsg)
         {
             SyncEventMessage msg = netMsg.ReadMessage<SyncEventMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnSyncEventMessage " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
@@ -639,11 +603,11 @@ namespace Mirror
             }
         }
 
-        static void OnClientAuthority(NetworkMessage netMsg)
+        internal static void OnClientAuthority(NetworkMessage netMsg)
         {
             ClientAuthorityMessage msg = netMsg.ReadMessage<ClientAuthorityMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnClientAuthority for  connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
@@ -652,11 +616,11 @@ namespace Mirror
         }
 
         // OnClientAddedPlayer?
-        static void OnOwnerMessage(NetworkMessage netMsg)
+        internal static void OnOwnerMessage(NetworkMessage netMsg)
         {
             OwnerMessage msg = netMsg.ReadMessage<OwnerMessage>();
 
-            if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
+            if (LogFilter.Debug) { Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + netMsg.conn.connectionId + " netId: " + msg.netId); }
 
             // is there already an owner that is a different object??
             netMsg.conn.playerController?.SetNotLocalPlayer();
@@ -687,7 +651,7 @@ namespace Mirror
                     identity.connectionToServer = readyConnection;
                     identity.SetLocalPlayer();
 
-                    if (LogFilter.Debug) { Debug.Log("ClientScene::OnOwnerMessage - player=" + identity.name); }
+                    if (LogFilter.Debug) { Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name); }
                     if (readyConnection.connectionId < 0)
                     {
                         Debug.LogError("Owner message received on a local client.");
