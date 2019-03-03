@@ -113,7 +113,7 @@ namespace Mirror
             {
                 if (singleton != null)
                 {
-                    Debug.LogError("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will not be used.");
+                    Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
                     Destroy(gameObject);
                     return;
                 }
