@@ -24,15 +24,15 @@ namespace Mirror
 
     // ---------- General Typed Messages -------------------
 
-    public class StringMessage : MessageBase
+    public abstract class StringMessage : MessageBase
     {
         public string value;
 
-        public StringMessage()
+        protected StringMessage()
         {
         }
 
-        public StringMessage(string v)
+        protected StringMessage(string v)
         {
             value = v;
         }
@@ -48,15 +48,15 @@ namespace Mirror
         }
     }
 
-    public class ByteMessage : MessageBase
+    public abstract class ByteMessage : MessageBase
     {
         public byte value;
 
-        public ByteMessage()
+        protected ByteMessage()
         {
         }
 
-        public ByteMessage(byte v)
+        protected ByteMessage(byte v)
         {
             value = v;
         }
@@ -72,15 +72,15 @@ namespace Mirror
         }
     }
 
-    public class BytesMessage : MessageBase
+    public abstract class BytesMessage : MessageBase
     {
         public byte[] value;
 
-        public BytesMessage()
+        protected BytesMessage()
         {
         }
 
-        public BytesMessage(byte[] v)
+        protected BytesMessage(byte[] v)
         {
             value = v;
         }
@@ -96,15 +96,15 @@ namespace Mirror
         }
     }
 
-    public class IntegerMessage : MessageBase
+    public abstract class IntegerMessage : MessageBase
     {
         public int value;
 
-        public IntegerMessage()
+        protected IntegerMessage()
         {
         }
 
-        public IntegerMessage(int v)
+        protected IntegerMessage(int v)
         {
             value = v;
         }
@@ -120,15 +120,15 @@ namespace Mirror
         }
     }
 
-    public class DoubleMessage : MessageBase
+    public abstract class DoubleMessage : MessageBase
     {
         public double value;
 
-        public DoubleMessage()
+        protected DoubleMessage()
         {
         }
 
-        public DoubleMessage(double v)
+        protected DoubleMessage(double v)
         {
             value = v;
         }
@@ -144,7 +144,7 @@ namespace Mirror
         }
     }
 
-    public class EmptyMessage : MessageBase
+    public abstract class EmptyMessage : MessageBase
     {
         public override void Deserialize(NetworkReader reader)
         {
