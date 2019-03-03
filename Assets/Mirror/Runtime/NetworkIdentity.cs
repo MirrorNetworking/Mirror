@@ -76,18 +76,14 @@ namespace Mirror
                 // we would use 'new Guid("")'
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
-        }
-
-        internal void SetDynamicAssetId(Guid newAssetId)
-        {
-            string newAssetIdString = newAssetId.ToString("N");
-            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+            internal set
             {
-                m_AssetId = newAssetIdString;
-            }
-            else
-            {
-                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                string newAssetIdString = value.ToString("N");
+                if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+                {
+                    m_AssetId = newAssetIdString;
+                }
+                else Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
             }
         }
 
