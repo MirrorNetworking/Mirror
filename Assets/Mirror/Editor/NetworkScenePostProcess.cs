@@ -183,7 +183,7 @@ namespace Mirror
 
                 uint offset = (uint)identity.gameObject.scene.buildIndex * offsetPerScene;
                 identity.ForceSceneId(offset + nextSceneId++);
-                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
+                if (LogFilter.Debug) Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId);
 
                 // disable it AFTER assigning the sceneId.
                 // -> this way NetworkIdentity.OnDisable adds itself to the
