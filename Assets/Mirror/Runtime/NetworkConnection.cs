@@ -105,7 +105,7 @@ namespace Mirror
         {
             if (m_MessageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) { Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
             }
             m_MessageHandlers[msgType] = handler;
         }
@@ -144,7 +144,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         internal virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) { Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes)); }
+            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
 
             if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
             {

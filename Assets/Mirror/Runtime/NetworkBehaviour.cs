@@ -250,7 +250,7 @@ namespace Mirror
                 invokeFunction = func
             };
             s_CmdHandlerDelegates[cmdHash] = invoker;
-            if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
+            if (LogFilter.Debug) Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -283,7 +283,7 @@ namespace Mirror
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
-            if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+            if (LogFilter.Debug) Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found");
             return false;
         }
 
@@ -325,7 +325,7 @@ namespace Mirror
             // netId changed?
             if (newNetId != netIdField)
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
                 SetDirtyBit(dirtyBit);
                 gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
                 netIdField = newNetId;
@@ -370,7 +370,7 @@ namespace Mirror
             // netId changed?
             if (newNetId != netIdField)
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
                 SetDirtyBit(dirtyBit);
                 netIdField = newNetId;
                 identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
@@ -401,7 +401,7 @@ namespace Mirror
             if ((value == null && fieldValue != null) ||
                 (value != null && !value.Equals(fieldValue)))
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
                 SetDirtyBit(dirtyBit);
                 fieldValue = value;
             }

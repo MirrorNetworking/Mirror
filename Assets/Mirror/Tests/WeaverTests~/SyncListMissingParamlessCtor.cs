@@ -9,7 +9,7 @@ namespace MirrorTest
         {
             public SyncListString2(int phooey) {}
             protected override void SerializeItem(NetworkWriter w, string item) {}
-            protected override string DeserializeItem(NetworkReader r) { return ""; }
+            protected override string DeserializeItem(NetworkReader r) => "";
         }
 
         public SyncListString2 Foo;

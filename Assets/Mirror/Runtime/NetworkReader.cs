@@ -210,7 +210,7 @@ namespace Mirror
                 return identity.transform;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadTransform netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -227,7 +227,7 @@ namespace Mirror
                 return identity.gameObject;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadGameObject netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -244,7 +244,7 @@ namespace Mirror
                 return identity;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
 

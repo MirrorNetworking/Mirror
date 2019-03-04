@@ -35,7 +35,7 @@ namespace Mirror
 
         public NetworkClient()
         {
-            if (LogFilter.Debug) { Debug.Log("Client created version " + Version.Current); }
+            if (LogFilter.Debug) Debug.Log("Client created version " + Version.Current);
 
             if (singleton != null)
             {
@@ -52,7 +52,7 @@ namespace Mirror
 
         public void Connect(string ip)
         {
-            if (LogFilter.Debug) { Debug.Log("Client Connect: " + ip); }
+            if (LogFilter.Debug) Debug.Log("Client Connect: " + ip);
 
             active = true;
             RegisterSystemHandlers(false);
@@ -272,7 +272,7 @@ namespace Mirror
         {
             if (handlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + msgType);
             }
             handlers[msgType] = handler;
         }
@@ -288,7 +288,7 @@ namespace Mirror
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) { Debug.Log("NetworkClient.RegisterHandler replacing " + msgType); }
+                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + msgType);
             }
             handlers[msgType] = (networkMessage) =>
             {
