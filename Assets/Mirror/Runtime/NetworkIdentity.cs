@@ -526,7 +526,7 @@ namespace Mirror
         }
 
         // helper function to handle SyncEvent/Command/Rpc
-        internal void HandleRemoteCall(int componentIndex, int functionHash, UNetInvokeType invokeType, NetworkReader reader)
+        internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (gameObject == null)
             {
@@ -552,19 +552,19 @@ namespace Mirror
         // happens on client
         internal void HandleSyncEvent(int componentIndex, int eventHash, NetworkReader reader)
         {
-            HandleRemoteCall(componentIndex, eventHash, UNetInvokeType.SyncEvent, reader);
+            HandleRemoteCall(componentIndex, eventHash, MirrorInvokeType.SyncEvent, reader);
         }
 
         // happens on server
         internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader)
         {
-            HandleRemoteCall(componentIndex, cmdHash, UNetInvokeType.Command, reader);
+            HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader);
         }
 
         // happens on client
         internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {
-            HandleRemoteCall(componentIndex, rpcHash, UNetInvokeType.ClientRpc, reader);
+            HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)

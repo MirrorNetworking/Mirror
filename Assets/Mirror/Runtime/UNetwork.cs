@@ -13,7 +13,7 @@ namespace Mirror
     public delegate void UnSpawnDelegate(GameObject spawned);
 
     // invoke type for Cmd/Rpc/SyncEvents
-    public enum UNetInvokeType
+    public enum MirrorInvokeType
     {
         Command,
         ClientRpc,
