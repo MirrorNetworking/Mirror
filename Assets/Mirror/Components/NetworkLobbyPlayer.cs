@@ -61,11 +61,11 @@ namespace Mirror
 
         #region lobby client virtuals
 
-        public virtual void OnClientEnterLobby() { }
+        public virtual void OnClientEnterLobby() {}
 
-        public virtual void OnClientExitLobby() { }
+        public virtual void OnClientExitLobby() {}
 
-        public virtual void OnClientReady(bool readyState) { }
+        public virtual void OnClientReady(bool readyState) {}
 
         #endregion
 

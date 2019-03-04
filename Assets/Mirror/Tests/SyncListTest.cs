@@ -58,7 +58,7 @@ namespace Mirror.Tests
         {
             serverSyncList.Clear();
             SerializeDeltaTo(serverSyncList, clientSyncList);
-            Assert.That(clientSyncList, Is.EquivalentTo(new string[] { }));
+            Assert.That(clientSyncList, Is.EquivalentTo(new string[] {}));
         }
 
         [Test]

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Websocket
 {
 
     public class Client 

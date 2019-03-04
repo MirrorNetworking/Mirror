@@ -12,8 +12,6 @@ namespace MirrorTest
         }
 
         [Command]
-        public void CmdCantHaveParamComponent(ComponentClass monkeyComp)
-        {
-        }
+        public void CmdCantHaveParamComponent(ComponentClass monkeyComp) {}
     }
 }
