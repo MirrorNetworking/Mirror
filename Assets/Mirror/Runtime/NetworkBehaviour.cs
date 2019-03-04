@@ -110,7 +110,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(cmdHash, UNetInvokeType.Command, reader);
+            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
         }
 
         // ----------------------------- Client RPCs --------------------------------
@@ -180,7 +180,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(rpcHash, UNetInvokeType.ClientRpc, reader);
+            return InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
 
         // ----------------------------- Sync Events --------------------------------
@@ -209,7 +209,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(eventHash, UNetInvokeType.SyncEvent, reader);
+            return InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader);
         }
 
         // ----------------------------- Code Gen Path Helpers  --------------------------------
@@ -218,7 +218,7 @@ namespace Mirror
 
         protected class Invoker
         {
-            public UNetInvokeType invokeType;
+            public MirrorInvokeType invokeType;
             public Type invokeClass;
             public CmdDelegate invokeFunction;
         }
@@ -227,7 +227,7 @@ namespace Mirror
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
             int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
@@ -256,22 +256,22 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, cmdName, UNetInvokeType.Command, func);
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, rpcName, UNetInvokeType.ClientRpc, func);
+            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, eventName, UNetInvokeType.SyncEvent, func);
+            RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
         }
 
-        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Invoker invoker)
+        static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
             if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
                 invoker != null &&
@@ -288,7 +288,7 @@ namespace Mirror
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
+        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
                 invoker.invokeClass.IsInstanceOfType(this))
