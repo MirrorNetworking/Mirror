@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
