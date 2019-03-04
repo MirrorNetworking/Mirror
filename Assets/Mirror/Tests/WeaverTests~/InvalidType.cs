@@ -11,7 +11,7 @@ namespace MirrorTest
             public AccessViolationException violatedPotato;
         }
 
-        class MyStructClass : SyncListSTRUCT<MyStruct> { };
+        class MyStructClass : SyncListSTRUCT<MyStruct> {};
 
         MyStructClass harpseals;
     }

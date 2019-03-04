@@ -3,9 +3,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    public abstract class EntityBase : NetworkBehaviour
-    {
-    }
+    public abstract class EntityBase : NetworkBehaviour {}
 
     public class EntityConcrete : EntityBase
     {
