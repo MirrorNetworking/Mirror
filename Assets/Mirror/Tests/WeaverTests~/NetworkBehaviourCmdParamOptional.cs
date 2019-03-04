@@ -7,8 +7,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        public void CmdCantHaveParamOptional(int monkeys = 12)
-        {
-        }
+        public void CmdCantHaveParamOptional(int monkeys = 12) {}
     }
 }

@@ -627,9 +627,7 @@ namespace Mirror
 
         // ----------------------------- Server System Callbacks --------------------------------
 
-        public virtual void OnServerConnect(NetworkConnection conn)
-        {
-        }
+        public virtual void OnServerConnect(NetworkConnection conn) {}
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
@@ -713,13 +711,9 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode)
-        {
-        }
+        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnServerSceneChanged(string sceneName)
-        {
-        }
+        public virtual void OnServerSceneChanged(string sceneName) {}
 
         // ----------------------------- Client System Callbacks --------------------------------
 
@@ -741,17 +735,13 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode)
-        {
-        }
+        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnClientNotReady(NetworkConnection conn)
-        {
-        }
+        public virtual void OnClientNotReady(NetworkConnection conn) {}
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
-        public virtual void OnClientChangeScene(string newSceneName) { }
+        public virtual void OnClientChangeScene(string newSceneName) {}
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {

@@ -5,8 +5,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        public void CmdCantHaveParamOptional(NetworkConnection monkeyCon)
-        {
-        }
+        public void CmdCantHaveParamOptional(NetworkConnection monkeyCon) {}
     }
 }

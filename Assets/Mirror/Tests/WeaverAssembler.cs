@@ -94,21 +94,21 @@ public class WeaverAssembler : MonoBehaviour
             File.Delete(projPathFile);
 
         }
-        catch { }
+        catch {}
 
         try
         {
             File.Delete(Path.ChangeExtension(projPathFile, ".pdb"));
 
         }
-        catch { }
+        catch {}
 
         try
         {
             File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
 
         }
-        catch { }
+        catch {}
     }
 
     // clear all settings except for referenced assemblies (which are cleared with ClearReferences)

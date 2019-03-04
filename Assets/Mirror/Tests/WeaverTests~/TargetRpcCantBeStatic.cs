@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        private static void TargetCantBeStatic(NetworkConnection nc)
-        {
-        }
+        private static void TargetCantBeStatic(NetworkConnection nc) {}
     }
 }
