@@ -356,7 +356,7 @@ namespace Mirror
                 identity.OnUpdateVars(payloadReader, true);
             }
 
-            identity.SetNetworkInstanceId(netId);
+            identity.netId = netId;
             NetworkIdentity.spawned[netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass

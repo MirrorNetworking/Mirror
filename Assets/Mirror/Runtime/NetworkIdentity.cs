@@ -33,14 +33,19 @@ namespace Mirror
 
         // properties
         public bool isClient { get; internal set; }
-        public bool isServer => m_IsServer && NetworkServer.active; // dont return true if server stopped.
+        // dont return true if server stopped.
+        public bool isServer
+        {
+            get => m_IsServer && NetworkServer.active && netId != 0;
+            internal set => m_IsServer = value;
+        }
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
 
         // <connectionId, NetworkConnection>
         public Dictionary<int, NetworkConnection> observers;
 
-        public uint netId { get; private set; }
+        public uint netId { get; internal set; }
         public uint sceneId => m_SceneId;
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
@@ -121,16 +126,6 @@ namespace Mirror
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
-
-        // only used during spawning on clients to set the identity.
-        internal void SetNetworkInstanceId(uint newNetId)
-        {
-            netId = newNetId;
-            if (newNetId == 0)
-            {
-                m_IsServer = false;
-            }
-        }
 
         // only used when fixing duplicate scene IDs during post-processing
         public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
