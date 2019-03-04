@@ -309,7 +309,7 @@ namespace Mirror
         [Command]
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
-            if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + netId); }
+            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
             HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
