@@ -245,7 +245,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnStartServer " + this + " GUID:" + netId); }
+            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " GUID:" + netId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
@@ -280,7 +280,7 @@ namespace Mirror
         {
             isClient = true;
 
-            if (LogFilter.Debug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+            if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -396,7 +396,7 @@ namespace Mirror
             writer.Write(endPosition - contentPosition);
             writer.Position = endPosition;
 
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition)); }
+            if (LogFilter.Debug) Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
 
             return result;
         }
@@ -432,7 +432,7 @@ namespace Mirror
                 if (initialState || comp.IsDirty())
                 {
                     // serialize the data
-                    if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
+                    if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
                     OnSerializeSafely(comp, onSerializeWriter, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
@@ -472,7 +472,7 @@ namespace Mirror
 
             // read content
             byte[] bytes = reader.ReadBytes(contentSize);
-            if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            if (LogFilter.Debug) Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length);
 
             // call OnDeserialize with a temporary reader, so that the
             // original one can't be messed with. we also wrap it in a
@@ -639,7 +639,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
+            if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -706,7 +706,7 @@ namespace Mirror
                 {
                     // new observer
                     conn.AddToVisList(this);
-                    if (LogFilter.Debug) { Debug.Log("New Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
@@ -717,7 +717,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
-                    if (LogFilter.Debug) { Debug.Log("Removed Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
