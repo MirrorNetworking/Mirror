@@ -357,8 +357,6 @@ namespace Mirror
             return true;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
         // -> OnSerialize writes length,componentData,length,componentData,...
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
@@ -458,8 +456,6 @@ namespace Mirror
             return dirtyComponentsMask;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes
@@ -505,8 +501,6 @@ namespace Mirror
                 }
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // happens on client
         internal void HandleClientAuthority(bool authority)

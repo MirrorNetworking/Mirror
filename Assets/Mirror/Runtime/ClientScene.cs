@@ -186,7 +186,7 @@ namespace Mirror
             return null;
         }
 
-        // spawn handlers and prefabs //////////////////////////////////////////
+        // spawn handlers and prefabs
         internal static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
