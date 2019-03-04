@@ -12,9 +12,9 @@ namespace Mirror
         [SerializeField] Animator m_Animator;
         [SerializeField] uint m_ParameterSendBits;
         // Note: not an object[] array because otherwise initialization is real annoying
-        int[] intShadowCopy;
-        float[] floatShadowCopy;
-        bool[] boolShadowCopy;
+        int[] lastIntParameters;
+        float[] lastFloatParameters;
+        bool[] lastBoolParameters;
 
         // properties
         public Animator animator
@@ -203,9 +203,9 @@ namespace Mirror
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
-            if (intShadowCopy == null) intShadowCopy = new int[parameters.Length];
-            if (floatShadowCopy == null) floatShadowCopy = new float[parameters.Length];
-            if (boolShadowCopy == null) boolShadowCopy = new bool[parameters.Length];
+            if (lastIntParameters == null) lastIntParameters = new int[parameters.Length];
+            if (lastFloatParameters == null) lastFloatParameters = new float[parameters.Length];
+            if (lastBoolParameters == null) lastBoolParameters = new bool[parameters.Length];
 
             bool didWork = false;
             for (int i = 0; i < parameters.Length; i++)
@@ -216,32 +216,32 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int val = m_Animator.GetInteger(par.nameHash);
-                    if (val != intShadowCopy[i])
+                    int newIntValue = m_Animator.GetInteger(par.nameHash);
+                    if (newIntValue != lastIntParameters[i])
                     {
-                        writer.WritePackedUInt32((uint) val);
+                        writer.WritePackedUInt32((uint) newIntValue);
                         didWork = true;
-                        intShadowCopy[i] = val;
+                        lastIntParameters[i] = newIntValue;
                     }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    float val = m_Animator.GetFloat(par.nameHash);
-                    if (Mathf.Abs(val - floatShadowCopy[i]) < 0.001f)
+                    float newFloatValue = m_Animator.GetFloat(par.nameHash);
+                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) < 0.001f)
                     {
-                        writer.Write(val);
+                        writer.Write(newFloatValue);
                         didWork = true;
-                        floatShadowCopy[i] = val;
+                        lastFloatParameters[i] = newFloatValue;
                     }
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    bool val = m_Animator.GetBool(par.nameHash);
-                    if (val != boolShadowCopy[i])
+                    bool newBoolValue = m_Animator.GetBool(par.nameHash);
+                    if (newBoolValue != lastBoolParameters[i])
                     {
-                        writer.Write(val);
+                        writer.Write(newBoolValue);
                         didWork = true;
-                        boolShadowCopy[i] = val;
+                        lastBoolParameters[i] = newBoolValue;
                     }
                 }
             }
@@ -262,8 +262,8 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newValue);
+                    int newIntValue = (int)reader.ReadPackedUInt32();
+                    m_Animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
