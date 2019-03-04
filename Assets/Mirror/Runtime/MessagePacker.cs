@@ -62,6 +62,22 @@ namespace Mirror
             return packWriter.ToArray();
         }
 
+        // unpack a message we received
+        public static T Unpack<T>(byte[] data) where T : MessageBase, new()
+        {
+            NetworkReader reader = new NetworkReader(data);
+
+            int msgType = GetId<T>();
+
+            int id = reader.ReadUInt16();
+            if (id != msgType)
+                throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+
+            T message = new T();
+            message.Deserialize(reader);
+            return message;
+        }
+
         // unpack message after receiving
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
