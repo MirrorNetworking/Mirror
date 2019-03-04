@@ -18,19 +18,19 @@ namespace Mirror
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
         public int Length => (int)reader.BaseStream.Length; 
 
-        public byte ReadByte() => reader.ReadByte();
-        public sbyte ReadSByte() => reader.ReadSByte();
-        public char ReadChar() => reader.ReadChar();
-        public bool ReadBoolean() => reader.ReadBoolean();
-        public short ReadInt16() => reader.ReadInt16();
-        public ushort ReadUInt16() => reader.ReadUInt16();
-        public int ReadInt32() => reader.ReadInt32();
-        public uint ReadUInt32() => reader.ReadUInt32();
-        public long ReadInt64() => reader.ReadInt64();
-        public ulong ReadUInt64() => reader.ReadUInt64();
+        public byte    ReadByte()    => reader.ReadByte();
+        public sbyte   ReadSByte()   => reader.ReadSByte();
+        public char    ReadChar()    => reader.ReadChar();
+        public bool    ReadBoolean() => reader.ReadBoolean();
+        public short   ReadInt16()   => reader.ReadInt16();
+        public ushort  ReadUInt16()  => reader.ReadUInt16();
+        public int     ReadInt32()   => reader.ReadInt32();
+        public uint    ReadUInt32()  => reader.ReadUInt32();
+        public long    ReadInt64()   => reader.ReadInt64();
+        public ulong   ReadUInt64()  => reader.ReadUInt64();
         public decimal ReadDecimal() => reader.ReadDecimal();
-        public float ReadSingle() => reader.ReadSingle();
-        public double ReadDouble() => reader.ReadDouble();
+        public float   ReadSingle()  => reader.ReadSingle();
+        public double  ReadDouble()  => reader.ReadDouble();
 
         public string ReadString()
         {
