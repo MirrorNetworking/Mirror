@@ -6,9 +6,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2018_3_OR_NEWER
-
 using UnityEditor.Experimental.SceneManagement;
-
 #endif
 #endif
 
