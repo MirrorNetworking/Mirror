@@ -20,9 +20,7 @@ namespace Mirror
     {
         public string value;
 
-        public StringMessage()
-        {
-        }
+        public StringMessage() {}
 
         public StringMessage(string v)
         {
@@ -44,9 +42,7 @@ namespace Mirror
     {
         public byte value;
 
-        public ByteMessage()
-        {
-        }
+        public ByteMessage() {}
 
         public ByteMessage(byte v)
         {
@@ -68,9 +64,7 @@ namespace Mirror
     {
         public byte[] value;
 
-        public BytesMessage()
-        {
-        }
+        public BytesMessage() {}
 
         public BytesMessage(byte[] v)
         {
@@ -92,9 +86,7 @@ namespace Mirror
     {
         public int value;
 
-        public IntegerMessage()
-        {
-        }
+        public IntegerMessage() {}
 
         public IntegerMessage(int v)
         {
@@ -116,9 +108,7 @@ namespace Mirror
     {
         public double value;
 
-        public DoubleMessage()
-        {
-        }
+        public DoubleMessage() {}
 
         public DoubleMessage(double v)
         {
@@ -138,13 +128,9 @@ namespace Mirror
 
     public class EmptyMessage : MessageBase
     {
-        public override void Deserialize(NetworkReader reader)
-        {
-        }
+        public override void Deserialize(NetworkReader reader) {}
 
-        public override void Serialize(NetworkWriter writer)
-        {
-        }
+        public override void Serialize(NetworkWriter writer) {}
     }
 
     // ---------- Public System Messages -------------------
@@ -158,6 +144,17 @@ namespace Mirror
     public class AddPlayerMessage : BytesMessage {}
 
     public class RemovePlayerMessage : EmptyMessage {}
+
+    public class DisconnectMessage : EmptyMessage {}
+
+    public class ConnectMessage : EmptyMessage {}
+
+    public class SceneMessage : StringMessage 
+    {
+        public SceneMessage(string value) : base(value) {}
+
+        public SceneMessage() {}
+    }
 
     // ---------- System Messages requried for code gen path -------------------
 
@@ -267,7 +264,22 @@ namespace Mirror
         }
     }
 
-    class OwnerMessage : MessageBase
+    class ObjectHideMessage : MessageBase
+    {
+        public uint netId;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+        }
+    }
+
+        class OwnerMessage : MessageBase
     {
         public uint netId;
 
@@ -322,13 +334,9 @@ namespace Mirror
     // to calculate RTT and synchronize time
     class NetworkPingMessage : DoubleMessage
     {
-        public NetworkPingMessage()
-        {
-        }
+        public NetworkPingMessage() {}
 
-        public NetworkPingMessage(double value) : base(value)
-        {
-        }
+        public NetworkPingMessage(double value) : base(value) {}
     }
 
     // The server responds with this message

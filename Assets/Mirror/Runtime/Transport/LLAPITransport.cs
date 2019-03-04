@@ -276,8 +276,8 @@ namespace Mirror
         public void LateUpdate()
         {
             // process all messages
-            while (ProcessClientMessage()) { }
-            while (ProcessServerMessage()) { }
+            while (ProcessClientMessage()) {}
+            while (ProcessServerMessage()) {}
         }
 
         public override bool Available()

@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    class HasGeneric<T> { }
+    class HasGeneric<T> {}
 
     class PrefabClone : MessageBase
     {

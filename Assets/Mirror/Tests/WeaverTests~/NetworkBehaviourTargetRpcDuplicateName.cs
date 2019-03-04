@@ -8,13 +8,9 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        public void TargetRpcCantHaveSameName(NetworkConnection monkeyCon, int abc)
-        {
-        }
+        public void TargetRpcCantHaveSameName(NetworkConnection monkeyCon, int abc) {}
 
         [TargetRpc]
-        public void TargetRpcCantHaveSameName(NetworkConnection monkeyCon, int abc, int def)
-        {
-        }
+        public void TargetRpcCantHaveSameName(NetworkConnection monkeyCon, int abc, int def) {}
     }
 }

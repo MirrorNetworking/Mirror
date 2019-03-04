@@ -12,8 +12,6 @@ namespace MirrorTest
         }
 
         [ClientRpc]
-        public void RpcCantHaveParamAbstract(AbstractClass monkeys)
-        {
-        }
+        public void RpcCantHaveParamAbstract(AbstractClass monkeys) {}
     }
 }

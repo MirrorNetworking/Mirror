@@ -76,18 +76,14 @@ namespace Mirror
                 // we would use 'new Guid("")'
                 return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
-        }
-
-        internal void SetDynamicAssetId(Guid newAssetId)
-        {
-            string newAssetIdString = newAssetId.ToString("N");
-            if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+            internal set
             {
-                m_AssetId = newAssetIdString;
-            }
-            else
-            {
-                Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                string newAssetIdString = value.ToString("N");
+                if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+                {
+                    m_AssetId = newAssetIdString;
+                }
+                else Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
             }
         }
 
@@ -249,7 +245,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) { Debug.Log("OnStartServer " + this + " GUID:" + netId); }
+            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " GUID:" + netId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
@@ -284,7 +280,7 @@ namespace Mirror
         {
             isClient = true;
 
-            if (LogFilter.Debug) { Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority); }
+            if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " GUID:" + netId + " localPlayerAuthority:" + localPlayerAuthority);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -398,7 +394,7 @@ namespace Mirror
             writer.Write(endPosition - contentPosition);
             writer.Position = endPosition;
 
-            if (LogFilter.Debug) { Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition)); }
+            if (LogFilter.Debug) Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
 
             return result;
         }
@@ -434,7 +430,7 @@ namespace Mirror
                 if (initialState || comp.IsDirty())
                 {
                     // serialize the data
-                    if (LogFilter.Debug) { Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState); }
+                    if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
                     OnSerializeSafely(comp, onSerializeWriter, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
@@ -472,7 +468,7 @@ namespace Mirror
 
             // read content
             byte[] bytes = reader.ReadBytes(contentSize);
-            if (LogFilter.Debug) { Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length); }
+            if (LogFilter.Debug) Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + " length=" + bytes.Length);
 
             // call OnDeserialize with a temporary reader, so that the
             // original one can't be messed with. we also wrap it in a
@@ -637,7 +633,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) { Debug.Log("Added observer " + conn.address + " added for " + gameObject); }
+            if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -704,7 +700,7 @@ namespace Mirror
                 {
                     // new observer
                     conn.AddToVisList(this);
-                    if (LogFilter.Debug) { Debug.Log("New Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
@@ -715,7 +711,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
-                    if (LogFilter.Debug) { Debug.Log("Removed Observer for " + gameObject + " " + conn); }
+                    if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
@@ -773,7 +769,7 @@ namespace Mirror
                 netId = netId,
                 authority = false
             };
-            conn.Send((short)MsgType.LocalClientAuthority, msg);
+            conn.Send(msg);
 
             clientAuthorityCallback?.Invoke(conn, this, false);
             return true;
@@ -816,7 +812,7 @@ namespace Mirror
                 netId = netId,
                 authority = true
             };
-            conn.Send((short)MsgType.LocalClientAuthority, msg);
+            conn.Send(msg);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
             return true;
@@ -849,12 +845,12 @@ namespace Mirror
         }
 
 
-        // UNetUpdate is in hot path. caching the vars msg is really worth it to
+        // MirrorUpdate is a hot path. Caching the vars msg is really worth it to
         // avoid large amounts of allocations.
         static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
 
-        // invoked by unity runtime immediately after the regular "Update()" function.
-        internal void UNetUpdate()
+        // invoked by NetworkServer during Update()
+        internal void MirrorUpdate()
         {
             // SendToReady sends to all observers. no need to serialize if we
             // don't have any.
@@ -868,7 +864,7 @@ namespace Mirror
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
                 varsMessage.payload = payload;
-                NetworkServer.SendToReady(this, (short)MsgType.UpdateVars, varsMessage);
+                NetworkServer.SendToReady(this, varsMessage);
             }
         }
     }

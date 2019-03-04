@@ -104,7 +104,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
+            ClientScene.readyConnection.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -140,7 +140,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
+            NetworkServer.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -174,7 +174,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            conn.Send((short)MsgType.Rpc, message, channelId);
+            conn.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -203,7 +203,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
+            NetworkServer.SendToReady(netIdentity,message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -557,9 +557,7 @@ namespace Mirror
             return false;
         }
 
-        public virtual void OnSetLocalVisibility(bool vis)
-        {
-        }
+        public virtual void OnSetLocalVisibility(bool vis) {}
 
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {

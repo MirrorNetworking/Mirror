@@ -12,8 +12,6 @@ namespace MirrorTest
         }
 
         [ClientRpc]
-        public void RpcCantHaveParamComponent(ComponentClass monkeyComp)
-        {
-        }
+        public void RpcCantHaveParamComponent(ComponentClass monkeyComp) {}
     }
 }

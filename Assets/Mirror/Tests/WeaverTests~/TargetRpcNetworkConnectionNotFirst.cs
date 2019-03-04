@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        private void TargetRpcMethod(int potatoesRcool, NetworkConnection nc)
-        {
-        }
+        private void TargetRpcMethod(int potatoesRcool, NetworkConnection nc) {}
     }
 }

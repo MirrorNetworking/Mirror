@@ -87,7 +87,7 @@ namespace Mirror
                     {
                         // cast without allocating GC for maximum performance
                         int hitCount = Physics.OverlapSphereNonAlloc(transform.position, visRange, hitsBuffer3D, castLayers);
-                        if (hitCount == hitsBuffer3D.Length) { Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size."); }
+                        if (hitCount == hitsBuffer3D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
                         for (int i = 0; i < hitCount; i++)
                         {
@@ -108,7 +108,7 @@ namespace Mirror
                     {
                         // cast without allocating GC for maximum performance
                         int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, visRange, hitsBuffer2D, castLayers);
-                        if (hitCount == hitsBuffer2D.Length) { Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size."); }
+                        if (hitCount == hitsBuffer2D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
                         for (int i = 0; i < hitCount; i++)
                         {
