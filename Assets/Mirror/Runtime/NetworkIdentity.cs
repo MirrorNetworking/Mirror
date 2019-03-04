@@ -147,9 +147,9 @@ namespace Mirror
             observers?.Remove(conn.connectionId);
         }
 
-#if UNITY_EDITOR
         void OnValidate()
         {
+#if UNITY_EDITOR
             if (m_ServerOnly && m_LocalPlayerAuthority)
             {
                 Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only.");
@@ -157,8 +157,10 @@ namespace Mirror
             }
 
             SetupIDs();
+#endif
         }
 
+#if UNITY_EDITOR
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
         bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
