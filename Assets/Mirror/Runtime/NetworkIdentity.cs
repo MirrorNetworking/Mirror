@@ -163,6 +163,7 @@ namespace Mirror
 #if UNITY_EDITOR
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+
         bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
