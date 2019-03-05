@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2018_3_OR_NEWER
@@ -19,7 +18,6 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
-        [SerializeField] uint m_SceneId;
         [SerializeField] bool m_ServerOnly;
         [SerializeField] bool m_LocalPlayerAuthority;
         bool m_IsServer;
@@ -90,6 +88,12 @@ namespace Mirror
             }
         }
 
+        // persistent scene id
+        [SerializeField] uint m_SceneId;
+
+        // keep track of all sceneIds to detect scene duplicates
+        static Dictionary<uint, NetworkIdentity> sceneIds = new Dictionary<uint, NetworkIdentity>();
+
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
@@ -124,9 +128,6 @@ namespace Mirror
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
-
-        // only used when fixing duplicate scene IDs during post-processing
-        public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
@@ -184,30 +185,97 @@ namespace Mirror
             return true;
         }
 
+        // persistent sceneId assignment
+        // (because scene objects have no persistent unique ID in Unity)
+        //
+        // original UNET used OnPostProcessScene to assign an index based on
+        // FindObjectOfType<NetworkIdentity> order.
+        // -> this didn't work because FindObjectOfType order isn't deterministic.
+        // -> one workaround is to sort them by sibling paths, but it can still
+        //    get out of sync when we open scene2 in editor and we have
+        //    DontDestroyOnLoad objects that messed with the sibling index.
+        //
+        // we absolutely need a persistent id. challenges:
+        // * it needs to be 0 for prefabs
+        //   => we set it to 0 in SetupIDs() if prefab!
+        // * it needs to be only assigned in edit time, not at runtime because
+        //   only the objects that were in the scene since beginning should have
+        //   a scene id.
+        // * it needs to detect duplicated sceneIds after duplicating scene
+        //   objects
+        //   => sceneIds dict takes care of that
+        // * duplicating the whole scene file shouldn't result in duplicate
+        //   scene objects
+        //   => buildIndex is shifted into sceneId for that.
+        //   => if we have no scenes in build index then it doesn't matter
+        //      because by definition a build can't switch to other scenes
+        //   => if we do have scenes in build index then it will be != -1
+        //   note: the duplicated scene still needs to be opened once for it to
+        //          be set properly
+        // * generated sceneIds absolutely need to set scene dirty and force the
+        //   user to resave.
+        //   => Undo.RecordObject does that perfectly.
+        void AssignSceneID()
+        {
+            // no valid sceneId yet, or duplicate?
+            NetworkIdentity existing;
+            bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
+            if (m_SceneId == 0 || duplicate)
+            {
+                // if we generate the sceneId then we MUST be sure to set dirty
+                // in order to save the scene object properly. otherwise it
+                // would be regenerated every time we reopen the scene, and
+                // upgrading would be very difficult.
+                // -> Undo.RecordObject is the new EditorUtility.SetDirty!
+                // -> we need to call it before changing.
+                Undo.RecordObject(this, "Generated SceneId");
+
+                // generate random sceneId
+                // range: 3 bytes to fill 0x00FFFFFF
+                m_SceneId = (uint)UnityEngine.Random.Range(0, 0xFFFFFF);
+                Debug.Log("Assigned sceneId to : " + name + " in scene=" + gameObject.scene.name + (duplicate ? " because duplicated" : ""));
+            }
+
+            // ALWAYS copy scene build index into sceneId for scene objects.
+            // this is the only way for scene file duplication to not contain
+            // duplicate sceneIds as it seems.
+            // -> sceneId before: 0x00AABBCCDD
+            // -> then we put buildIndex into the 0x00 part
+            byte buildIndex = (byte)gameObject.scene.buildIndex;
+            m_SceneId = (uint)(m_SceneId | (buildIndex << 24));
+
+            // add to sceneIds dict no matter what
+            // -> even if we didn't generate anything new, because we still need
+            //    existing sceneIds in there to check duplicates
+            sceneIds[m_SceneId] = this;
+        }
+
         void SetupIDs()
         {
             if (ThisIsAPrefab())
             {
-                ForceSceneId(0);
+                m_SceneId = 0; // force 0 for prefabs
                 AssignAssetID(gameObject);
             }
             else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
             {
+                AssignSceneID();
                 AssignAssetID(prefab);
             }
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
-                ForceSceneId(0);
+                m_SceneId = 0; // force 0 for prefabs
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
             else
             {
+                AssignSceneID();
                 m_AssetId = "";
             }
         }
-
 #endif
+
         void OnDestroy()
         {
             if (m_IsServer && NetworkServer.active)
