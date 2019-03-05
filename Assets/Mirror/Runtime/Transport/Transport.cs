@@ -1,4 +1,4 @@
-﻿// abstract transport layer component
+// abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
 using UnityEngine;
@@ -17,7 +17,22 @@ namespace Mirror
     {
         // static Transport which receives all network events
         // this is usually set by NetworkManager, but doesn't have to be.
-        public static Transport activeTransport;
+        private static Transport _activeTransport;
+        public static Transport activeTransport
+        {
+            get => _activeTransport;
+            set
+            {
+                _activeTransport = value;
+                _activeTransport.TransportInitialize();
+            }
+        }
+
+        // some transports might need some kind of initialization,
+        // since they have to be at the end of Script Execution Order,
+        // it may cause that they won't be initialized in time,
+        // this makes that they don't need to worry about it 
+        protected virtual void TransportInitialize() {}
 
         // determines if the transport is available for this platform
         // by default a transport is available in all platforms except webgl
@@ -78,6 +93,7 @@ namespace Mirror
         //            e.g. in uSurvival Transport would apply Cmds before
         //            ShoulderRotation.LateUpdate, resulting in projectile
         //            spawns at the point before shoulder rotation.
+        // ReSharper disable once Unity.RedundantEventFunction
         public void Update() {}
     }
 }
