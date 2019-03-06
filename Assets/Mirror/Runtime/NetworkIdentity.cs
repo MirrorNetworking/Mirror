@@ -250,7 +250,7 @@ namespace Mirror
             // -> sceneId before: 0x00AABBCCDD
             // -> then we put buildIndex into the 0x00 part
             byte buildIndex = (byte)gameObject.scene.buildIndex;
-            m_SceneId = (uint)(m_SceneId | (buildIndex << 24));
+            m_SceneId = (uint)(m_SceneId | (uint)(buildIndex << 24));
 
             // add to sceneIds dict no matter what
             // -> even if we didn't generate anything new, because we still need
