@@ -39,7 +39,7 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
-            // always <= maxConnections 
+            // always <= maxConnections
             minPlayers = Mathf.Min(minPlayers, maxConnections);
 
             // always >= 0
