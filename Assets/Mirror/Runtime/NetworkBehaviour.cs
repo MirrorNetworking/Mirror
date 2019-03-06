@@ -69,8 +69,7 @@ namespace Mirror
             m_SyncObjects.Add(syncObject);
         }
 
-        // ----------------------------- Commands --------------------------------
-
+        #region Commands
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
@@ -112,9 +111,9 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
         }
+        #endregion
 
-        // ----------------------------- Client RPCs --------------------------------
-
+        #region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
@@ -182,9 +181,9 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
+        #endregion
 
-        // ----------------------------- Sync Events --------------------------------
-
+        #region Sync Events
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
@@ -211,9 +210,9 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader);
         }
+        #endregion
 
-        // ----------------------------- Code Gen Path Helpers  --------------------------------
-
+        #region Code Gen Path Helpers
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
         protected class Invoker
@@ -298,9 +297,9 @@ namespace Mirror
             }
             return false;
         }
+        #endregion
 
-        // ----------------------------- Helpers  --------------------------------
-
+        #region Helpers
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -406,6 +405,7 @@ namespace Mirror
                 fieldValue = value;
             }
         }
+        #endregion
 
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)

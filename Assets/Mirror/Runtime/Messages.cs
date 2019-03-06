@@ -14,8 +14,7 @@ namespace Mirror
         public virtual void Serialize(NetworkWriter writer) {}
     }
 
-    // ---------- General Typed Messages -------------------
-
+    #region General Typed Messages
     public class StringMessage : MessageBase
     {
         public string value;
@@ -132,9 +131,9 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer) {}
     }
+    #endregion
 
-    // ---------- Public System Messages -------------------
-
+    #region Public System Messages
     public class ErrorMessage : ByteMessage {}
 
     public class ReadyMessage : EmptyMessage {}
@@ -155,9 +154,9 @@ namespace Mirror
 
         public SceneMessage() {}
     }
+    #endregion
 
-    // ---------- System Messages requried for code gen path -------------------
-
+    #region System Messages requried for code gen path
     // remote calls like Rpc/Cmd/SyncEvent all use the same message type
     class RemoteCallMessage : MessageBase
     {
@@ -188,9 +187,9 @@ namespace Mirror
     class RpcMessage : RemoteCallMessage {}
 
     class SyncEventMessage : RemoteCallMessage {}
+    #endregion
 
-    // ---------- Internal System Messages -------------------
-
+    #region Internal System Messages
     class SpawnPrefabMessage : MessageBase
     {
         public uint netId;
@@ -279,7 +278,7 @@ namespace Mirror
         }
     }
 
-        class OwnerMessage : MessageBase
+    class OwnerMessage : MessageBase
     {
         public uint netId;
 
@@ -358,4 +357,5 @@ namespace Mirror
             writer.Write(serverTime);
         }
     }
+    #endregion
 }
