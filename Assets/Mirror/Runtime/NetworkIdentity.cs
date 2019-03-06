@@ -89,7 +89,7 @@ namespace Mirror
         }
 
         // persistent scene id
-        [SerializeField] uint m_SceneId;
+        [SerializeField] uint m_SceneId = 0;
 
         // keep track of all sceneIds to detect scene duplicates
         static Dictionary<uint, NetworkIdentity> sceneIds = new Dictionary<uint, NetworkIdentity>();
