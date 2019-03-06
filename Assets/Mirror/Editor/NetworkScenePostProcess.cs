@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -21,8 +22,19 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // set scene id build index byte
-                identity.SetSceneIdSceneIndexByteInternal();
+                // check if the sceneId was set properly
+                // it might not if the scene wasn't opened with new sceneId
+                // Mirror version yet.
+                // => show error for each object where this applies.
+                //    the user should get lots of errors to notice it!
+                // => throwing an exception would only show it for one object
+                //    because this function would return afterwards.
+                if (identity.sceneId != 0)
+                {
+                    // set scene id build index byte
+                    identity.SetSceneIdSceneIndexByteInternal();
+                }
+                else Debug.LogError(identity.name + "'s sceneId wasn't generated yet. This can happen if a scene was last saved with an older version of Mirror. Please open the scene " + identity.gameObject.scene.name + " and click on the " + identity.name + " object in the Hierarchy once, so that OnValidate is called and the sceneId is set. Afterwards resave the scene.");
 
                 // disable it
                 // note: NetworkIdentity.OnDisable adds itself to the
