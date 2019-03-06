@@ -140,7 +140,6 @@ namespace Mirror
                 if (WriteParameters(writer, true))
                 {
                     SendAnimationParametersMessage(writer.ToArray());
-                    Debug.Log("Thing happened");
                 }
             }
         }
