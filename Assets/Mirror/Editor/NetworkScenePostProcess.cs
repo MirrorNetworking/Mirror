@@ -18,6 +18,9 @@ namespace Mirror
             PropertyInfo inspectorModeInfo = typeof(SerializedObject).GetProperty("inspectorMode", BindingFlags.NonPublic | BindingFlags.Instance);
             inspectorModeInfo.SetValue(serializedObject, InspectorMode.Debug, null);
             SerializedProperty localIdProp = serializedObject.FindProperty("m_LocalIdentfierInFile"); // note the misspelling!
+
+            // Unity seems to use 64 bit for prefab fileIDs and 32 bit for scene
+            // fileIDs, so this is fine:
             return (uint)localIdProp.intValue;
         }
 
