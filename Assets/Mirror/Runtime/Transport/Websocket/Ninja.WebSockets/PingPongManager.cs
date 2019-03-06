@@ -1,22 +1,22 @@
 ﻿// ---------------------------------------------------------------------
 // Copyright 2018 David Haig
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy 
-// of this software and associated documentation files (the "Software"), to deal 
-// in the Software without restriction, including without limitation the rights 
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-// copies of the Software, and to permit persons to whom the Software is 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in 
+//
+// The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // ---------------------------------------------------------------------
 
@@ -49,12 +49,12 @@ namespace Ninja.WebSockets
 
         /// <summary>
         /// Initialises a new instance of the PingPongManager to facilitate ping pong WebSocket messages.
-        /// If you are manually creating an instance of this class then it is advisable to set keepAliveInterval to 
+        /// If you are manually creating an instance of this class then it is advisable to set keepAliveInterval to
         /// TimeSpan.Zero when you create the WebSocket instance (using a factory) otherwise you may be automatically
         /// be sending duplicate Ping messages (see keepAliveInterval below)
         /// </summary>
         /// <param name="webSocket">The web socket used to listen to ping messages and send pong messages</param>
-        /// <param name="keepAliveInterval">The time between automatically sending ping messages. 
+        /// <param name="keepAliveInterval">The time between automatically sending ping messages.
         /// Set this to TimeSpan.Zero if you with to manually control sending ping messages.
         /// </param>
         /// <param name="cancellationToken">The token used to cancel a pending ping send AND the automatic sending of ping messages
@@ -129,11 +129,11 @@ namespace Ninja.WebSockets
 
             Events.Log.PingPongManagerEnded(_guid);
         }
-        
+
         private void WebSocketImpl_Pong(object sender, PongEventArgs e)
         {
             _pingSentTicks = 0;
             OnPong(e);
-        }       
+        }
     }
 }

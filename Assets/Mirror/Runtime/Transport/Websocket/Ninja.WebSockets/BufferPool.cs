@@ -30,7 +30,7 @@ namespace Ninja.WebSockets
             _bufferSize = bufferSize;
             _bufferPoolStack = new ConcurrentStack<byte[]>();
         }
-        
+
         /// <summary>
         /// This memory stream is not instance thread safe (not to be confused with the BufferPool which is instance thread safe)
         /// </summary>
@@ -159,7 +159,7 @@ namespace Ninja.WebSockets
             public override void Write(byte[] buffer, int offset, int count)
             {
                 EnlargeBufferIfRequired(count);
-                _ms.Write(buffer, offset, count);                
+                _ms.Write(buffer, offset, count);
             }
 
             public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)

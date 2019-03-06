@@ -57,22 +57,22 @@ var LibraryWebSockets = {
 				{
 					switch (e.code)
 					{
-						case 1001: 
+						case 1001:
 							socket.error = "Endpoint going away.";
 							break;
-						case 1002: 
+						case 1002:
 							socket.error = "Protocol error.";
 							break;
-						case 1003: 
+						case 1003:
 							socket.error = "Unsupported message.";
 							break;
-						case 1005: 
+						case 1005:
 							socket.error = "No status.";
 							break;
-						case 1006: 
+						case 1006:
 							socket.error = "Abnormal disconnection.";
 							break;
-						case 1009: 
+						case 1009:
 							socket.error = "Data frame too large.";
 							break;
 						default:

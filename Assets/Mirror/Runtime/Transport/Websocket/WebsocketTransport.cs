@@ -76,7 +76,7 @@ namespace Mirror.Websocket
 
         public override void ServerStart()
         {
-            
+
             if (Secure)
             {
                 server._secure = Secure;

@@ -7,7 +7,7 @@ namespace Ninja.WebSockets.Exceptions
     {
         public EntityTooLargeException() : base()
         {
-            
+
         }
 
         /// <summary>
@@ -15,7 +15,7 @@ namespace Ninja.WebSockets.Exceptions
         /// </summary>
         public EntityTooLargeException(string message) : base(message)
         {
-            
+
         }
 
         public EntityTooLargeException(string message, Exception inner) : base(message, inner)
