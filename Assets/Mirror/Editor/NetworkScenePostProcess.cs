@@ -51,7 +51,7 @@ namespace Mirror
         //   => hash(scene.name) doesn't care
         // * Ids need to be deterministic or saved if randomly generated
         //   => saving ids is always difficult and full of edge cases
-        //   => generated a deterministic id in OnPostProcessScene is the
+        //   => generating a deterministic id in OnPostProcessScene is the
         //      perfect(!) fail safe solution. doing this in OnValidate would be
         //      very difficult to get right, especially for scenes that were
         //      never opened (where OnValidate wasn't called yet).
