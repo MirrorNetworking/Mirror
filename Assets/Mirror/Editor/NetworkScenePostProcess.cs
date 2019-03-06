@@ -21,6 +21,9 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
+                // set scene id build index byte
+                identity.SetSceneIdSceneIndexByteInternal();
+
                 // disable it
                 // note: NetworkIdentity.OnDisable adds itself to the
                 //       spawnableObjects dictionary (only if sceneId != 0)
