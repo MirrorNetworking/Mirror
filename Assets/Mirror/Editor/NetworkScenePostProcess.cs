@@ -21,31 +21,51 @@ namespace Mirror
             return (uint)localIdProp.intValue;
         }
 
-        // we might have inactive scenes in the Editor's build settings, which
-        // aren't actually included in builds.
-        // so we have to only count the active ones when in Editor, otherwise
-        // editor and build sceneIds might get out of sync.
-        public static int GetSceneCount()
+        // persistent sceneId assignment to fix readstring bug that occurs when
+        // restarting the editor and connecting to a build again. sceneids were
+        // then different because FindObjectsOfType's order is not guaranteed to
+        // be the same.
+        // -> we need something unique and persistent, aka always the same when
+        //    pressing play/building the first time
+        //
+        // sceneId challenges/requirements:
+        // * it needs to be 0 for prefabs
+        //   => we set it to 0 in NetworkIdentity.SetupIDs() if prefab!
+        // * it needs to be only assigned to objects that were in the scene
+        //   since the beginning
+        //   => OnPostProcessScene is only called once on load
+        // * there can be no duplicate ids
+        //   => Unity's fileID is unique
+        //   => fileID + sceneHash is potentially not unique across scenes, but
+        //      that risk is very small. we could still store fileId, hash in a
+        //      64 bit long if needed later.
+        // * duplicating the whole scene file should result in different
+        //   sceneIds for the files in the duplicated scene, even if that file
+        //   was never opened yet (e.g. when upgrading to Mirror)
+        //   => adding hash(scene.name) makes the fileIDs unique across scenes.
+        //   => this even works if the scene was never opened before, because
+        //      Unity calls OnPostProcessScene for all scenes when they are
+        //      built or opened
+        // * it needs to work with scenes that may or may not be in build index
+        //   and may or may not be enabled/disabled there.
+        //   => hash(scene.name) doesn't care
+        // * Ids need to be deterministic or saved if randomly generated
+        //   => saving ids is always difficult and full of edge cases
+        //   => generated a deterministic id in OnPostProcessScene is the
+        //      perfect(!) fail safe solution. doing this in OnValidate would be
+        //      very difficult to get right, especially for scenes that were
+        //      never opened (where OnValidate wasn't called yet).
+        static uint CalculateDeterministicSceneId(NetworkIdentity identity)
         {
-#if UNITY_EDITOR
-            return EditorBuildSettings.scenes.Count(scene => scene.enabled);
-#else
-            return SceneManager.sceneCountInBuildSettings;
-#endif
+            // assign sceneId to hash(scene) + fileID
+            uint sceneHash = (uint)identity.gameObject.scene.name.GetStableHashCode();
+            uint fileID = GetFileID(identity);
+            return sceneHash + fileID;
         }
 
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
-            // vis2k: MISMATCHING SCENEID BUG FIX
-            // problem:
-            //   * FindObjectsOfType order is not guaranteed. restarting the
-            //     editor results in a different order
-            //   * connecting to a build again would cause Mirror to deserialize
-            //     the wrong objects, causing all kinds of weird errors like
-            //     'ReadString out of range'
-            //
-            // solution: use a persistent scene id (see GetFileID())
             foreach (NetworkIdentity identity in FindObjectsOfType<NetworkIdentity>())
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
@@ -57,11 +77,19 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // assign sceneId to fileID
-                // TODO add scene index into it somehow (has to work with disabled too)
-                uint fileID = GetFileID(identity);
-                identity.ForceSceneId(fileID);
-                if (LogFilter.Debug) Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId);
+                // vis2k: MISMATCHING SCENEID BUG FIX
+                // problem:
+                //   * FindObjectsOfType order is not guaranteed. restarting the
+                //     editor results in a different order, so we can't assign a
+                //     counter.
+                //   * connecting to a build again would cause Mirror to deserialize
+                //     the wrong objects, causing all kinds of weird errors like
+                //     'ReadString out of range'
+                //
+                // solution: use a deterministic scene id
+                uint sceneId = CalculateDeterministicSceneId(identity);
+                identity.ForceSceneId(sceneId);
+                if (LogFilter.Debug) Debug.Log("PostProcess sceneId assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId);
 
                 // disable it AFTER assigning the sceneId.
                 // -> this way NetworkIdentity.OnDisable adds itself to the
