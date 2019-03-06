@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +8,7 @@ namespace Ninja.WebSockets.Exceptions
     public class InvalidHttpResponseCodeException : Exception
     {
         public string ResponseCode { get; private set; }
-        
+
         public string ResponseHeader { get; private set; }
 
         public string ResponseDetails { get; private set; }

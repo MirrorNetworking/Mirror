@@ -1,4 +1,4 @@
-﻿namespace Ninja.WebSockets.Internal
+namespace Ninja.WebSockets.Internal
 {
     internal enum WebSocketOpCode
     {
