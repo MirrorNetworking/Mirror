@@ -12,6 +12,9 @@ namespace Mirror
         // -> we can see it in Inspector Debug View as 'Local Identifier in File'
         // -> the only way to access it is via SerializedObject
         //    (https://forum.unity.com/threads/how-to-get-the-local-identifier-in-file-for-scene-objects.265686/)
+        // note: local identifier is somtimes 0 in debug view until Play was
+        //       pressed, which is fine since we only need it in
+        //       OnPostProcessScene here.
         static uint GetFileID(UnityEngine.Object obj)
         {
             SerializedObject serializedObject = new SerializedObject(obj);
