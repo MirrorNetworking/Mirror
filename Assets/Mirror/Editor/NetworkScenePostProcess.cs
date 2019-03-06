@@ -1,17 +1,27 @@
-using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
     public class NetworkScenePostProcess : MonoBehaviour
     {
+        // helper function to check if a NetworkIdentity is in the active scene
+        static bool InActiveScene(NetworkIdentity identity) =>
+            identity.gameObject.scene == SceneManager.GetActiveScene();
+
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
-            // check and disable all NetworkIdentities in scene on load.
-            foreach (NetworkIdentity identity in FindObjectsOfType<NetworkIdentity>())
+            // find all NetworkIdentities in this scene
+            // => but really only from this scene. this avoids weird situations
+            //    like in NetworkZones when we destroy the local player and
+            //    load another scene afterwards, yet the local player is still
+            //    in the FindObjectsOfType result with scene=DontDestroyOnLoad
+            //    for some reason
+            foreach (NetworkIdentity identity in FindObjectsOfType<NetworkIdentity>().Where(InActiveScene))
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
