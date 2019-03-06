@@ -225,10 +225,30 @@ namespace Mirror
             if (Application.isPlaying)
                 return;
 
+            // copy into a temporary variable first to detect changes
+            uint newSceneId = m_SceneId;
+
             // no valid sceneId yet, or duplicate?
             NetworkIdentity existing;
             bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
+            {
+
+                // generate random sceneId
+                // range: 3 bytes to fill 0x00FFFFFF
+                newSceneId = (uint)UnityEngine.Random.Range(0, 0xFFFFFF);
+            }
+
+            // ALWAYS copy scene build index into sceneId for scene objects.
+            // this is the only way for scene file duplication to not contain
+            // duplicate sceneIds as it seems.
+            // -> sceneId before: 0x00AABBCCDD
+            // -> then we put buildIndex into the 0x00 part
+            byte buildIndex = (byte)gameObject.scene.buildIndex;
+            newSceneId |= (uint)(buildIndex << 24);
+
+            // did we change anything? then set dirty to force the user to resave
+            if (newSceneId != m_SceneId)
             {
                 // if we generate the sceneId then we MUST be sure to set dirty
                 // in order to save the scene object properly. otherwise it
@@ -238,19 +258,9 @@ namespace Mirror
                 // -> we need to call it before changing.
                 Undo.RecordObject(this, "Generated SceneId");
 
-                // generate random sceneId
-                // range: 3 bytes to fill 0x00FFFFFF
-                m_SceneId = (uint)UnityEngine.Random.Range(0, 0xFFFFFF);
+                m_SceneId = newSceneId;
                 Debug.Log("Assigned sceneId to : " + name + " in scene=" + gameObject.scene.name + (duplicate ? " because duplicated" : ""));
             }
-
-            // ALWAYS copy scene build index into sceneId for scene objects.
-            // this is the only way for scene file duplication to not contain
-            // duplicate sceneIds as it seems.
-            // -> sceneId before: 0x00AABBCCDD
-            // -> then we put buildIndex into the 0x00 part
-            byte buildIndex = (byte)gameObject.scene.buildIndex;
-            m_SceneId |= (uint)(buildIndex << 24);
 
             // add to sceneIds dict no matter what
             // -> even if we didn't generate anything new, because we still need
