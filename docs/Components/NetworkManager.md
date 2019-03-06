@@ -20,7 +20,7 @@ The Inspector for the Network Manager in the Editor allows you to configure and 
 
 **Note**: You should only ever have one active Network Manager in each Scene. Do not place the Network Manager component on a networked GameObject (one which has a Network Identity component), because Mirror disables these when the Scene loads.
 
-**Another note**: Mirror`s Network Manager uses separate component (derived from the Transport class) to connect across the network. By default it is TelepathyTransport.
+**Another note**: Mirror`s Network Manager uses separate component (derived from the Transport class) to connect across the network. By default, it is TelepathyTransport.
 
 If you are already familiar with multiplayer game development, you might find it useful to know that the Network Manager component is implemented entirely using the API, so everything it does is also available to you through scripting. For advanced users, if you find that you need to expand on the Network Manager component’s features, you can use scripting to derive your own class from NetworkManager and customize its behaviour by overriding any of the virtual function hooks that it provides. However, the Network Manager component wraps up a lot of useful functionality into a single place, and makes creating, running and debugging multiplayer games as simple as possible.
 
@@ -101,7 +101,7 @@ You should normally make sure the Network Manager persists between Scenes, other
 
 There are virtual functions on the NetworkManager class that you can customize by creating your own derived class that inherits from NetworkManager. When implementing these functions, be sure to take care of the functionality that the default implementations provide. For example, in OnServerAddPlayer(), the function NetworkServer.AddPlayer must be called to activate the player GameObject for the connection.
 
-These are all the callbacks that can happen for host/server and clients, in some cases it’s important to invoke the base class function to maintain default behaviour. To see the implementation itself you can view it in the source code.
+These are all the callbacks that can happen for host/server and clients, in some cases it’s important to invoke the base class function to maintain default behavior. To see the implementation itself you can view it in the source code.
 
 ```cs
 using UnityEngine;
@@ -245,7 +245,7 @@ public class CustomManager : NetworkManager {
 }
 ```
 
-##Public properties
+## Public properties
 
 ![The Network Manager component in the Inspector window](NetworkManagerInspector.png)
 
