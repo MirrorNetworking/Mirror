@@ -259,7 +259,7 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 m_SceneId = newSceneId;
-                Debug.Log("Assigned sceneId to : " + name + " in scene=" + gameObject.scene.name + (duplicate ? " because duplicated" : ""));
+                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
             }
 
             // add to sceneIds dict no matter what
