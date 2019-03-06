@@ -270,7 +270,7 @@ namespace Mirror
         {
             byte buildIndex = (byte)gameObject.scene.buildIndex;
             m_SceneId |= (uint)(buildIndex << 24);
-            Debug.Log(name + " scene index byte(" + buildIndex.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index byte(" + buildIndex.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()
