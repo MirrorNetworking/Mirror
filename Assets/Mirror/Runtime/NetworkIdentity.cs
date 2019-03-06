@@ -218,6 +218,10 @@ namespace Mirror
         //   => OnPostProcessScene is the only function that gets called for
         //      each scene before runtime, so this is where we set the scene
         //      byte.
+        // * disabled scenes in build settings should result in same scene index
+        //   in editor and in build
+        //   => .gameObject.scene.buildIndex filters out disabled scenes by
+        //      default
         // * generated sceneIds absolutely need to set scene dirty and force the
         //   user to resave.
         //   => Undo.RecordObject does that perfectly.
