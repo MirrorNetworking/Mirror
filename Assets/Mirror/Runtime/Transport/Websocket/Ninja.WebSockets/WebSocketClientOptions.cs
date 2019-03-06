@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -33,7 +33,7 @@ namespace Ninja.WebSockets
         public Dictionary<string,string> AdditionalHttpHeaders { get; set; }
 
         /// <summary>
-        /// Include the full exception (with stack trace) in the close response 
+        /// Include the full exception (with stack trace) in the close response
         /// when an exception is encountered and the WebSocket connection is closed
         /// The default is false
         /// </summary>

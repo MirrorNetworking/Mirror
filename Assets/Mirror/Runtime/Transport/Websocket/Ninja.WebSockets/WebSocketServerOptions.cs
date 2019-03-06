@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Ninja.WebSockets
 {
@@ -18,7 +18,7 @@ namespace Ninja.WebSockets
         public TimeSpan KeepAliveInterval { get; set; }
 
         /// <summary>
-        /// Include the full exception (with stack trace) in the close response 
+        /// Include the full exception (with stack trace) in the close response
         /// when an exception is encountered and the WebSocket connection is closed
         /// The default is false
         /// </summary>

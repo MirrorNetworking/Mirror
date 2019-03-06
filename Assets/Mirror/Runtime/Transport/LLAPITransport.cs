@@ -1,4 +1,4 @@
-﻿// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
 using UnityEngine;
 using UnityEngine.Networking;

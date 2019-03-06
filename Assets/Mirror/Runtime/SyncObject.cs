@@ -1,4 +1,4 @@
-﻿namespace Mirror
+namespace Mirror
 {
     // A sync object is an object that can synchronize it's state
     // between server and client,  such as a SyncList

@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace Mirror.Websocket
 {
-    public class Server 
+    public class Server
     {
         public event Action<int> Connected;
         public event Action<int, byte[]> ReceivedData;
@@ -225,7 +225,7 @@ namespace Mirror.Websocket
         }
 
         // a message might come splitted in multiple frames
-        // collect all frames 
+        // collect all frames
         private async Task<byte[]> ReadFrames(int connectionId, WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer, CancellationToken token)
         {
             int count = result.Count;
@@ -288,7 +288,7 @@ namespace Mirror.Websocket
                         // because all the WriteAsync wake up at once and throw exceptions
 
                         // by hiding inside this if, I ensure that we only report the first error
-                        // all other errors are swallowed.  
+                        // all other errors are swallowed.
                         // this prevents a log storm that freezes the server for several seconds
                         ReceivedError?.Invoke(connectionId, exception);
                     }

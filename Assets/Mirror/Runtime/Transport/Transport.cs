@@ -1,4 +1,4 @@
-﻿// abstract transport layer component
+// abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
 using UnityEngine;
