@@ -19,7 +19,7 @@ namespace Mirror.Examples.NetworkLobby
                 something more visual for each player in that layout, such as a name, avatar, etc.
 
                 Note: LobbyPAlayer prefab will be marked DontDestroyOnLoad and carried forward to the game scene.
-                      Because of this, NetworkLobbyManager must automatically set the parent to null 
+                      Because of this, NetworkLobbyManager must automatically set the parent to null
                       in ServerChangeScene and OnClientChangeScene.
             */
 

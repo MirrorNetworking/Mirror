@@ -149,7 +149,7 @@ namespace Mirror
 
     public class ConnectMessage : EmptyMessage {}
 
-    public class SceneMessage : StringMessage 
+    public class SceneMessage : StringMessage
     {
         public SceneMessage(string value) : base(value) {}
 

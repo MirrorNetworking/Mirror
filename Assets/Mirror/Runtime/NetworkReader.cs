@@ -16,7 +16,7 @@ namespace Mirror
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
-        public int Length => (int)reader.BaseStream.Length; 
+        public int Length => (int)reader.BaseStream.Length;
 
         public byte ReadByte() => reader.ReadByte();
         public sbyte ReadSByte() => reader.ReadSByte();

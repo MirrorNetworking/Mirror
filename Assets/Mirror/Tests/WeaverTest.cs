@@ -432,7 +432,6 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* first parameter must be a NetworkConnection"));
         }
-        
 
         [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
