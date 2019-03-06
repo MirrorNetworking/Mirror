@@ -304,8 +304,7 @@ namespace Mirror
             }
         }
 
-        // ------------------ server message handlers -------------------
-
+        #region server message handlers
         [Command]
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
@@ -331,8 +330,9 @@ namespace Mirror
             HandleAnimTriggerMsg(hash);
             RpcOnAnimationTriggerClientMessage(hash);
         }
+        #endregion
 
-        // ------------------ client message handlers -------------------
+        #region client message handlers
         [ClientRpc]
         void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
@@ -351,5 +351,6 @@ namespace Mirror
         {
             HandleAnimTriggerMsg(hash);
         }
+        #endregion
     }
 }
