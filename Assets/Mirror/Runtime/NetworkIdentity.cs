@@ -201,6 +201,7 @@ namespace Mirror
         // * it needs to be only assigned in edit time, not at runtime because
         //   only the objects that were in the scene since beginning should have
         //   a scene id.
+        //   => Application.isPlaying check solves that
         // * it needs to detect duplicated sceneIds after duplicating scene
         //   objects
         //   => sceneIds dict takes care of that
@@ -217,6 +218,13 @@ namespace Mirror
         //   => Undo.RecordObject does that perfectly.
         void AssignSceneID()
         {
+            // we only ever assign sceneIds at edit time, never at runtime.
+            // by definition, only the original scene objects should get one.
+            // -> if we assign at runtime then server and client would generate
+            //    different random numbers!
+            if (Application.isPlaying)
+                return;
+
             // no valid sceneId yet, or duplicate?
             NetworkIdentity existing;
             bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
