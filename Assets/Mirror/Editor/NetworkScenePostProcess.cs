@@ -158,18 +158,15 @@ namespace Mirror
             uint offsetPerScene = 0;
             if (SceneManager.sceneCountInBuildSettings > 1)
             {
-                offsetPerScene = uint.MaxValue / (uint)GetSceneCount();
-
                 // make sure that there aren't more sceneIds than offsetPerScene
                 // -> only if we have multiple scenes. otherwise offset is 0, in
                 //    which case it doesn't matter.
-                if (identities.Count >= offsetPerScene)
+                if (identities.Count >= NetworkIdentity.OffsetPerScene)
                 {
                     Debug.LogWarning(">=" + offsetPerScene + " NetworkIdentities in scene. Additive scene loading will cause duplicate ids.");
                 }
             }
 
-            uint nextSceneId = 1;
             foreach (NetworkIdentity identity in identities)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
@@ -181,9 +178,10 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                uint offset = (uint)identity.gameObject.scene.buildIndex * offsetPerScene;
-                identity.ForceSceneId(offset + nextSceneId++);
-                if (LogFilter.Debug) { Debug.Log("PostProcess sceneid assigned: name=" + identity.name + " scene=" + identity.gameObject.scene.name + " sceneid=" + identity.sceneId); }
+                uint offset = (uint)identity.gameObject.scene.buildIndex * NetworkIdentity.OffsetPerScene;
+                uint newId = offset + identity.sceneId;
+                Debug.LogFormat("[NetworkScenePostProcess] SceneId: {0} => {1} Path: {2}",  identity.sceneId, newId, identity.gameObject.GetHierarchyPath());
+                identity.ForceSceneId(newId);
 
                 // disable it AFTER assigning the sceneId.
                 // -> this way NetworkIdentity.OnDisable adds itself to the

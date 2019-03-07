@@ -5,6 +5,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 #if UNITY_2018_3_OR_NEWER
 
 using UnityEditor.Experimental.SceneManagement;
@@ -50,6 +51,7 @@ namespace Mirror
 
         // all spawned NetworkIdentities by netId. needed on server and client.
         public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+        public static uint OffsetPerScene = uint.MaxValue / 1024;   // Each scene has 4.1 Million scene id's
 
         public NetworkBehaviour[] NetworkBehaviours => m_NetworkBehaviours = m_NetworkBehaviours ?? GetComponents<NetworkBehaviour>();
 
@@ -85,6 +87,16 @@ namespace Mirror
                 }
                 else Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
             }
+        }
+
+        private void Awake()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying && !BuildPipeline.isBuildingPlayer)
+            {
+                NetworkIdentityManager.Instance.Add(this);
+            }
+#endif
         }
 
         // used when adding players
@@ -133,7 +145,19 @@ namespace Mirror
         }
 
         // only used when fixing duplicate scene IDs during post-processing
-        public void ForceSceneId(uint newSceneId) => m_SceneId = newSceneId;
+        public void ForceSceneId(uint newSceneId)
+        {
+            m_SceneId = newSceneId;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying && (ThisIsAPrefab() || ThisIsASceneObjectWithPrefabParent(out GameObject prefab)))
+            {
+                Debug.Log("NetworkIdentity: Recording modifications");
+                PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            }
+#endif
+        }
 
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
@@ -192,7 +216,6 @@ namespace Mirror
         {
             if (ThisIsAPrefab())
             {
-                ForceSceneId(0);
                 AssignAssetID(gameObject);
             }
             else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
@@ -201,13 +224,33 @@ namespace Mirror
             }
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
-                ForceSceneId(0);
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
             }
             else
             {
                 m_AssetId = "";
+            }
+        }
+
+        internal void FindAvailableSceneId(bool overrideCheck = false)
+        {
+            // Only find a new scene ID if one is not set or another sceneId has our
+            // sceneId because we were duplicated in editor
+            if (this.sceneId == 0 || overrideCheck)
+            {
+                bool valueFound = false;
+                uint counter = 1;
+                while (!valueFound)
+                {
+                    if (!NetworkIdentityManager.Instance.DoesSceneIdExists(counter))
+                    {
+                        Debug.LogFormat("[NetworkIdentity] Found SceneId {0} for {1}", counter, this.gameObject.GetHierarchyPath());
+                        ForceSceneId(counter);
+                        valueFound = true;
+                    }
+                    counter++;
+                }
             }
         }
 
