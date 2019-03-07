@@ -89,15 +89,15 @@ namespace Mirror
             }
         }
 
+#if UNITY_EDITOR
         private void Awake()
         {
-#if UNITY_EDITOR
             if (!Application.isPlaying && !BuildPipeline.isBuildingPlayer)
             {
                 NetworkIdentityManager.Instance.Add(this);
             }
-#endif
         }
+#endif
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -152,7 +152,8 @@ namespace Mirror
 #if UNITY_EDITOR
             if (!Application.isPlaying && (ThisIsAPrefab() || ThisIsASceneObjectWithPrefabParent(out GameObject prefab)))
             {
-                Debug.Log("NetworkIdentity: Recording modifications");
+                if (LogFilter.Debug)
+                    Debug.Log("NetworkIdentity: Recording modifications");
                 PrefabUtility.RecordPrefabInstancePropertyModifications(this);
                 EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             }
@@ -245,7 +246,9 @@ namespace Mirror
                 {
                     if (!NetworkIdentityManager.Instance.DoesSceneIdExists(counter))
                     {
-                        Debug.LogFormat("[NetworkIdentity] Found SceneId {0} for {1}", counter, this.gameObject.GetHierarchyPath());
+                        if (LogFilter.Debug)                        
+                            Debug.LogFormat("[NetworkIdentity] Found SceneId {0} for {1}", counter, this.gameObject.GetHierarchyPath());
+                        
                         ForceSceneId(counter);
                         valueFound = true;
                     }

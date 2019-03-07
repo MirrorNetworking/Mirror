@@ -31,7 +31,8 @@ namespace Mirror
 
         private void Setup()
         {
-            Debug.Log("NetworkIdentityManager: Setup");
+            if (LogFilter.Debug)
+                Debug.Log("[NetworkIdentityManager] Setup");
             EditorSceneManager.sceneOpening += this.OnSceneLoaded;
             EditorSceneManager.sceneOpened += this.OnSceneOpened;
             lookup.Clear();
@@ -40,7 +41,8 @@ namespace Mirror
 
         private void OnSceneOpened(Scene scene, OpenSceneMode mode)
         {
-            Debug.LogFormat("NetworkIdentityManager: OnSceneOpened {0}", scene.path);
+            if (LogFilter.Debug)
+                Debug.LogFormat("[NetworkIdentityManager] OnSceneOpened {0}", scene.path);
             this.ProcessDupes();
             sceneOpened = true;
         }
@@ -49,7 +51,8 @@ namespace Mirror
         {
             foreach (NetworkIdentity ni in dupes)
             {
-                Debug.LogFormat("NetworkIdentityManager: Forcing new sceneId on {0}, {1}", ni.sceneId, ni.gameObject.GetHierarchyPath());
+                if (LogFilter.Debug)
+                    Debug.LogFormat("[NetworkIdentityManager] Forcing new sceneId on {0}, {1}", ni.sceneId, ni.gameObject.GetHierarchyPath());
                 ni.FindAvailableSceneId(true);
                 this.Add(ni);
             }
@@ -59,8 +62,8 @@ namespace Mirror
         private void OnSceneLoaded(string path, OpenSceneMode mode)
         {
             sceneOpened = false;
-            Debug.LogFormat("NetworkIdentityManager: OnSceneLoaded {0}", path);
-            Debug.Log("NetworkIdentityManager: Clearing lookup table");
+            if (LogFilter.Debug)
+                Debug.LogFormat("[NetworkIdentityManager] OnSceneLoaded {0}", path);
             this.Clear();
         }
 
@@ -74,7 +77,9 @@ namespace Mirror
             if (lookup.ContainsKey(networkIdentity.sceneId))
             {
                 // Dupe
-                Debug.LogFormat("[NetworkIdentityManager] Needs Refreshed({0}, {1})", networkIdentity.sceneId, networkIdentity.gameObject.GetHierarchyPath());
+                if (LogFilter.Debug)
+                    Debug.LogFormat("[NetworkIdentityManager] Needs Refreshed({0}, {1})", networkIdentity.sceneId, networkIdentity.gameObject.GetHierarchyPath());
+
                 dupes.Add(networkIdentity);
 
                 if (sceneOpened)
@@ -84,7 +89,8 @@ namespace Mirror
             }
             else
             {
-                Debug.LogFormat("[NetworkIdentityManager] Add({0}, {1})", networkIdentity.sceneId, networkIdentity.gameObject.GetHierarchyPath());
+                if (LogFilter.Debug)
+                    Debug.LogFormat("[NetworkIdentityManager] Add({0}, {1})", networkIdentity.sceneId, networkIdentity.gameObject.GetHierarchyPath());
                 lookup.Add(networkIdentity.sceneId, networkIdentity);
             }
         }

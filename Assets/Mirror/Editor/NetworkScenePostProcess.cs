@@ -47,7 +47,8 @@ namespace Mirror
                     continue;
 
                 uint newId = ((uint)identity.gameObject.scene.buildIndex * NetworkIdentity.OffsetPerScene) + identity.sceneId;
-                Debug.LogFormat("[NetworkScenePostProcess] SceneId: {0} => {1} Path: {2}",  identity.sceneId, newId, identity.gameObject.GetHierarchyPath());
+                if (LogFilter.Debug)
+                    Debug.LogFormat("[NetworkScenePostProcess] SceneId: {0} => {1} Path: {2}",  identity.sceneId, newId, identity.gameObject.GetHierarchyPath());
                 identity.ForceSceneId(newId);
 
                 // disable it AFTER assigning the sceneId.
