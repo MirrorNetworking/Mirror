@@ -277,12 +277,13 @@ namespace Mirror
         // this is the only way for scene file duplication to not contain
         // duplicate sceneIds as it seems.
         // -> sceneId before: 0x00AABBCCDD
-        // -> then we put buildIndex into the 0x00 part
+        // -> then we clear the left most byte, so that our 'OR' uses 0x00
+        // -> then we OR buildIndex into the 0x00 part
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
         public void SetSceneIdSceneIndexByteInternal()
         {
             byte buildIndex = (byte)gameObject.scene.buildIndex;
-            m_SceneId |= (uint)(buildIndex << 24);
+            m_SceneId = (m_SceneId & 0x00FFFFFF) | (uint)(buildIndex << 24);
             Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index byte(" + buildIndex.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
