@@ -82,13 +82,6 @@ namespace Mirror
             networkSceneName = offlineScene;
 
             InitializeSingleton();
-
-            // headless mode? then start the server
-            // (tick rate is applied in StartServer!)
-            if (IsHeadless() && startOnHeadless)
-            {
-                StartServer();
-            }
         }
 
         // headless mode detection
@@ -137,6 +130,19 @@ namespace Mirror
             else if (s_Address != "")
             {
                 networkAddress = s_Address;
+            }
+        }
+
+        public virtual void Start()
+        {
+            // headless mode? then start the server
+            // can't do this in Awake because Awake is for initialization.
+            // some transports might not be ready until Start.
+            //
+            // (tick rate is applied in StartServer!)
+            if (IsHeadless() && startOnHeadless)
+            {
+                StartServer();
             }
         }
 
