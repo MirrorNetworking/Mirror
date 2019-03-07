@@ -225,6 +225,9 @@ namespace Mirror
         // * generated sceneIds absolutely need to set scene dirty and force the
         //   user to resave.
         //   => Undo.RecordObject does that perfectly.
+        // * sceneIds should never be generated temporarily for unopened scenes
+        //   when building, otherwise editor and build get out of sync
+        //   => BuildPipeline.isBuildingPlayer check solves that
         void AssignSceneID()
         {
             // we only ever assign sceneIds at edit time, never at runtime.
@@ -239,6 +242,16 @@ namespace Mirror
             bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
             {
+                // if a scene was never opened and we are building it, then a
+                // sceneId would be assigned to build but not saved in editor,
+                // resulting in them getting out of sync.
+                // => don't ever assign temporary ids. they always need to be
+                //    permanent
+                // => throw an exception to cancel the build and let the user
+                //    know how to fix it!
+                if (BuildPipeline.isBuildingPlayer)
+                    throw new Exception("Scene " + gameObject.scene.path + " needs to be opened and resaved before building, because the scene object " + name + " has no valid sceneId yet.");
+
                 // if we generate the sceneId then we MUST be sure to set dirty
                 // in order to save the scene object properly. otherwise it
                 // would be regenerated every time we reopen the scene, and
