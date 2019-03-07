@@ -32,19 +32,18 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // check if the sceneId was set properly
-                // it might not if the scene wasn't opened with new sceneId
-                // Mirror version yet.
-                // => show error for each object where this applies.
-                //    the user should get lots of errors to notice it!
-                // => throwing an exception would only show it for one object
-                //    because this function would return afterwards.
+                // valid scene id? then set build index byte
+                //   otherwise it might be an unopened scene that still has null
+                //   sceneIds. builds are interrupted if they contain 0 sceneIds,
+                //   but it's still possible that we call LoadScene in Editor
+                //   for a previously unopened scene.
+                //   => throwing an exception would only show it for one object
+                //      because this function would return afterwards.
                 if (identity.sceneId != 0)
                 {
-                    // set scene id build index byte
                     identity.SetSceneIdSceneIndexByteInternal();
                 }
-                else Debug.LogError(identity.name + "'s sceneId wasn't generated yet. This can happen if a scene was last saved with an older version of Mirror. Please open the scene " + identity.gameObject.scene.name + " and click on the " + identity.name + " object in the Hierarchy once, so that OnValidate is called and the sceneId is set. Afterwards resave the scene.");
+                else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
 
                 // disable it
                 // note: NetworkIdentity.OnDisable adds itself to the
