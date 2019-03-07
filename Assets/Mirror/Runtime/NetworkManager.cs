@@ -84,9 +84,9 @@ namespace Mirror
             InitializeSingleton();
 
             // headless mode? then start the server
+            // (tick rate is applied in StartServer!)
             if (IsHeadless() && startOnHeadless)
             {
-                Application.targetFrameRate = 60;
                 StartServer();
             }
         }
