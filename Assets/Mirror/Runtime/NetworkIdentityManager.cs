@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -60,8 +61,7 @@ namespace Mirror
             sceneOpened = false;
             Debug.LogFormat("NetworkIdentityManager: OnSceneLoaded {0}", path);
             Debug.Log("NetworkIdentityManager: Clearing lookup table");
-            lookup.Clear();
-            dupes.Clear();
+            this.Clear();
         }
 
         public bool DoesSceneIdExists(uint sceneId)
@@ -87,6 +87,12 @@ namespace Mirror
                 Debug.LogFormat("[NetworkIdentityManager] Add({0}, {1})", networkIdentity.sceneId, networkIdentity.gameObject.GetHierarchyPath());
                 lookup.Add(networkIdentity.sceneId, networkIdentity);
             }
+        }
+
+        public void Clear()
+        {
+            lookup.Clear();
+            dupes.Clear();
         }
     }
 }

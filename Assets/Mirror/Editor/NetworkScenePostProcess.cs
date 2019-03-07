@@ -9,142 +9,10 @@ namespace Mirror
 {
     public class NetworkScenePostProcess : MonoBehaviour
     {
-        // persistent sceneId assignment to fix readstring bug that occurs when restarting the editor and
-        // connecting to a build again. sceneids were then different because FindObjectsOfType's order
-        // is not guranteed to be the same.
-        // -> we need something unique and persistent, aka always the same when pressing play/building the first time
-        // -> Unity has no built in unique id for GameObjects in the scene
-
-        // helper function to figure out a unique, persistent scene id for a GameObject in the hierarchy
-        // -> Unity's instanceId is unique but not persistent
-        // -> hashing the whole GameObject is not enough either since a duplicate would have the same hash
-        // -> we definitely need the transform sibling index in the hierarchy
-        // -> so we might as well use just that
-        // -> transforms have children too so we need a list of sibling indices like 0->3->5
-        public static List<int> SiblingPathFor(Transform t)
-        {
-            List<int> result = new List<int>();
-            while (t != null)
-            {
-                result.Add(t.GetSiblingIndex());
-                t = t.parent;
-            }
-
-            result.Reverse(); // parent to child instead of child to parent order
-            return result;
-        }
-
-        // we need to compare by using the whole sibling list
-        // comparing the string won't work work because:
-        //  "1->2"
-        //  "20->2"
-        // would compare '1' vs '2', then '-' vs '0'
-        //
-        // tests:
-        //   CompareSiblingPaths(new List<int>(){0}, new List<int>(){0}) => 0
-        //   CompareSiblingPaths(new List<int>(){0}, new List<int>(){1}) => -1
-        //   CompareSiblingPaths(new List<int>(){1}, new List<int>(){0}) => 1
-        //   CompareSiblingPaths(new List<int>(){0,1}, new List<int>(){0,2}) => -1
-        //   CompareSiblingPaths(new List<int>(){0,2}, new List<int>(){0,1}) => 1
-        //   CompareSiblingPaths(new List<int>(){1}, new List<int>(){0,1}) => 1
-        //   CompareSiblingPaths(new List<int>(){1}, new List<int>(){2,1}) => -1
-        public static int CompareSiblingPaths(List<int> left, List<int> right)
-        {
-            // compare [0], remove it, compare next, etc.
-            while (left.Count > 0 && right.Count > 0)
-            {
-                if (left[0] < right[0])
-                {
-                    return -1;
-                }
-                else if (left[0] > right[0])
-                {
-                    return 1;
-                }
-                else
-                {
-                    // equal, so they are both children of the same transform
-                    // -> which also means that they both must have one more
-                    //    entry, so we can remove both without checking size
-                    left.RemoveAt(0);
-                    right.RemoveAt(0);
-                }
-            }
-
-            // equal if both were empty or both had the same entry without any
-            // more children (should never happen in practice)
-            return 0;
-        }
-
-        public static int CompareNetworkIdentitySiblingPaths(NetworkIdentity left, NetworkIdentity right)
-        {
-            return CompareSiblingPaths(SiblingPathFor(left.transform), SiblingPathFor(right.transform));
-        }
-
-        // we might have inactive scenes in the Editor's build settings, which
-        // aren't actually included in builds.
-        // so we have to only count the active ones when in Editor, otherwise
-        // editor and build sceneIds might get out of sync.
-        public static int GetSceneCount()
-        {
-#if UNITY_EDITOR
-            return EditorBuildSettings.scenes.Count(scene => scene.enabled);
-#else
-            return SceneManager.sceneCountInBuildSettings;
-#endif
-        }
-
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
-            // vis2k: MISMATCHING SCENEID BUG FIX
-            // problem:
-            //   * FindObjectsOfType order is not guaranteed. restarting the
-            //     editor results in a different order
-            //   * connecting to a build again would cause Mirror to deserialize
-            //     the wrong objects, causing all kinds of weird errors like
-            //     'ReadString out of range'
-            //
-            // solution:
-            //   sort by sibling-index path, e.g. [0,1,2] vs [1]
-            //   this is the only deterministic way to sort a list of objects in
-            //   the scene.
-            //   -> it's the same result every single time, even after restarts
-            //
-            // note: there is a reason why we 'sort by' sibling path instead of
-            //   using it as sceneId directly. networkmanager etc. use Dont-
-            //   DestroyOnLoad, which changes the hierarchy:
-            //
-            //     World:
-            //       NetworkManager
-            //       Player
-            //
-            //     ..becomes..
-            //
-            //     World:
-            //       Player
-            //     DontDestroyOnLoad:
-            //       NetworkManager
-            //
-            //   so the player's siblingindex would be decreased by one.
-            //   -> this is a problem because when building, OnPostProcessScene
-            //      is called before any dontdestroyonload happens, but when
-            //      entering play mode, it's called after
-            //   -> hence sceneids would differ by one
-            //
-            //   => but if we only SORT it, then it doesn't matter if one
-            //      inbetween disappeared. as long as no NetworkIdentity used
-            //      DontDestroyOnLoad.
-            //
-            // note: assigning a GUID in NetworkIdentity.OnValidate would be way
-            //   cooler, but OnValidate isn't called for other unopened scenes
-            //   when building or pressing play, so the bug would still happen
-            //   there.
-            //
-            // note: this can still fail if DontDestroyOnLoad is called for a
-            // NetworkIdentity - but no one should ever do that anyway.
             List<NetworkIdentity> identities = FindObjectsOfType<NetworkIdentity>().ToList();
-            identities.Sort(CompareNetworkIdentitySiblingPaths);
 
             // sceneId assignments need to work with additive scene loading, so
             // it can't always start at 1,2,3,4,..., otherwise there will be
@@ -178,8 +46,7 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                uint offset = (uint)identity.gameObject.scene.buildIndex * NetworkIdentity.OffsetPerScene;
-                uint newId = offset + identity.sceneId;
+                uint newId = ((uint)identity.gameObject.scene.buildIndex * NetworkIdentity.OffsetPerScene) + identity.sceneId;
                 Debug.LogFormat("[NetworkScenePostProcess] SceneId: {0} => {1} Path: {2}",  identity.sceneId, newId, identity.gameObject.GetHierarchyPath());
                 identity.ForceSceneId(newId);
 
@@ -210,6 +77,9 @@ namespace Mirror
                     }
                 }
             }
+
+            // We do this here to ensure that none of the build scene ID's contaminate the scene when it opens afterwards
+            NetworkIdentityManager.Instance.Clear();
         }
     }
 }
