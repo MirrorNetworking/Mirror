@@ -254,7 +254,7 @@ public class CustomManager : NetworkManager {
 -   **Run In Background**  
     Use this property to control whether the networked game runs when the window it is running in is not focused. Tick the checkbox if you want it to run; untick it if you want the game to stop running when the window is not focused. This checkbox is ticked by default. You need to enable this property if you want to run multiple instances of a program on the same machine, such as when testing using localhost. You should disable it when deploying to mobile platforms. When enabled, it sets Application.runInBackground to true when the Network Manager starts up. You can also set this property from the Unity menu: Edit \> Project Settings, then select the Player category, and navigate to the Resolution and Presentation panel.
 -   **Start On Headless**  
-    If this box is checked (property is true) _and_ device that runs the program has no graphic device, program will start in server mode on `Awake`.
+    If this box is checked (property is true) _and_ computer that runs the program has no graphic device, program will start in server mode.
 -   **Show Debug Messages**  
     Use this property to control the amount of information Mirror outputs to the console window. 
 -   **Offline Scene**  
@@ -263,7 +263,7 @@ public class CustomManager : NetworkManager {
     If you assign a Scene to this field, the Network Manager automatically switches to the specified Scene when a network session starts - for example, when the client connects to a server, or when the server starts listening for connections.
 -   **Network Info**  
 	-   **Transport**  
-        A link to Component derived from `Transport` class. TelepathyTransport is created and linked there by default.
+        A link to a Component derived from `Transport` class. TelepathyTransport is created and linked there by default.
     -   **Network Address**  
         The network address currently in use. For clients, this is the address of the server that is connected to. For servers, this is the local address. This is set to ‘localhost’ by default.
 	-	**Max Connections**
