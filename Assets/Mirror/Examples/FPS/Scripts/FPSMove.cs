@@ -7,19 +7,6 @@ namespace Mirror.Examples.FPS
         public CharacterController controller;
         public float speed = 300;
         public float rotationSpeed = 400;
-        public Transform head;
-        float pitch;
-
-        void Start()
-        {
-            // Turn on camera for local player
-            if (hasAuthority)
-            {
-                head.gameObject.SetActive(true);
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        }
 
         void Update()
         {
@@ -27,15 +14,11 @@ namespace Mirror.Examples.FPS
             if (!isLocalPlayer) return;
 
             // rotate
-            transform.Rotate(0, Input.GetAxis("Mouse X") * rotationSpeed * Time.deltaTime, 0);
-
-            pitch -= Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
-            pitch = Mathf.Clamp(pitch, -90f, 90f);
-            head.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            transform.Rotate(0, Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime, 0);
 
             // move
-            Vector3 move = transform.forward * Input.GetAxisRaw("Vertical") + transform.right * Input.GetAxisRaw("Horizontal");
-            controller.SimpleMove(move.normalized * speed * Time.deltaTime);
+            Vector3 forward = transform.TransformDirection(Vector3.forward);
+            controller.SimpleMove(forward * Input.GetAxis("Vertical") * speed * Time.deltaTime);
         }
     }
 }

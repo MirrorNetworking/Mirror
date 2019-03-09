@@ -39,7 +39,6 @@ namespace Mirror.Examples.FPS
         void CmdRespawn()
         {
             RpcRespawn();
-            ResetHealth();
             SetDead(false);
         }
 
