@@ -12,8 +12,6 @@ namespace MirrorTest
         }
 
         [Command]
-        public void CmdCantHaveParamAbstract(AbstractClass monkeys)
-        {
-        }
+        public void CmdCantHaveParamAbstract(AbstractClass monkeys) {}
     }
 }

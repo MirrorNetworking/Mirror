@@ -7,8 +7,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [ClientRpc]
-        public void RpcCantHaveParamOptional(int monkeys = 12)
-        {
-        }
+        public void RpcCantHaveParamOptional(int monkeys = 12) {}
     }
 }

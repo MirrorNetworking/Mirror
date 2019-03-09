@@ -142,7 +142,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        // mark / check type as processed //////////////////////////////////////
+        #region mark / check type as processed
         public const string ProcessedFunctionName = "MirrorProcessed";
 
         // by adding an empty MirrorProcessed() function
@@ -161,7 +161,7 @@ namespace Mirror.Weaver
                 td.Methods.Add(versionMethod);
             }
         }
-        ////////////////////////////////////////////////////////////////////////
+        #endregion
 
         void GenerateConstants()
         {

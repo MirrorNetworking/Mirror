@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        private void CmdThatIsTotallyValid()
-        {
-        }
+        private void CmdThatIsTotallyValid() {}
     }
 }

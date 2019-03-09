@@ -13,10 +13,10 @@ using AOT;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Websocket
 {
     // this is the client implementation used by browsers
-    public class Client 
+    public class Client
     {
         private static int idGenerator = 0;
         private static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
@@ -69,10 +69,10 @@ namespace Mirror
         #region Javascript native functions
         [DllImport("__Internal")]
         private static extern int SocketCreate(
-            string url, 
-            int id, 
-            Action<int> onpen, 
-            Action<int, IntPtr, int> ondata, 
+            string url,
+            int id,
+            Action<int> onpen,
+            Action<int, IntPtr, int> ondata,
             Action<int> onclose);
 
         [DllImport("__Internal")]

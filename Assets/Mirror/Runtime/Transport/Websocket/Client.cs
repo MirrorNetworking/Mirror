@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 using Ninja.WebSockets;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Websocket
 {
 
-    public class Client 
+    public class Client
     {
         public event Action Connected;
         public event Action<byte[]> ReceivedData;
@@ -25,7 +25,7 @@ namespace Mirror
         CancellationTokenSource cancellation;
 
         public bool NoDelay = true;
-               
+
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
@@ -114,7 +114,7 @@ namespace Mirror
         }
 
         // a message might come splitted in multiple frames
-        // collect all frames 
+        // collect all frames
         private async Task<byte[]> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)
         {
             int count = result.Count;

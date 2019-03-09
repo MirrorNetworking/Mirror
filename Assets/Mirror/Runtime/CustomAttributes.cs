@@ -49,30 +49,20 @@ namespace Mirror
 
     ///<summary>Only allows code to be run on the server, and generates a warning if a client tries to run it.</summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerAttribute : Attribute
-    {
-    }
+    public class ServerAttribute : Attribute {}
 
     ///<summary>Only allows code to be run on the server, and does not generate a warning if a client tries to run it.</summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerCallbackAttribute : Attribute
-    {
-    }
+    public class ServerCallbackAttribute : Attribute {}
 
     ///<summary>Only allows code to be run on clients, and generates a warning if the server tries to run it.</summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ClientAttribute : Attribute
-    {
-    }
+    public class ClientAttribute : Attribute {}
 
     ///<summary>Only allows code to be run on clients, and does not generate a warning if the server tries to run it.</summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ClientCallbackAttribute : Attribute
-    {
-    }
+    public class ClientCallbackAttribute : Attribute {}
 
     // For Scene property Drawer
-    public class SceneAttribute : PropertyAttribute
-    {
-    }
+    public class SceneAttribute : PropertyAttribute {}
 }

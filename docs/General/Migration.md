@@ -187,17 +187,17 @@ public override void OnServerAddPlayer(NetworkConnection conn, short playerContr
 }
 ```
 
-In your newly Mirror-capable NetworkManager, if you are using the OnServerAddPlayer override, remove the "playerControllerId" parameter from your override and the base call:
+In your newly Mirror-capable NetworkManager, if you are using the `OnServerAddPlayer` override, remove the "playerControllerId" parameter from your override and the base call, and change the `NetworkReader` into `AddPlayerMessage`:
 
 ```cs
-public override void OnServerAddPlayer(NetworkConnection conn, NetworkReader extraMessageReader)
+public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
 {
-    base.OnServerAddPlayer(conn, extraMessageReader);
+    base.OnServerAddPlayer(conn, extraMessage);
     // your code
 }
 ```
 
-Note that in both UNet and Mirror the parameter "extraMessageReader" is optional.
+Note that in UNet the parameter "extraMessageReader" is optional, but in Mirror it is required.
 
 ### 10. Pick your transport
 

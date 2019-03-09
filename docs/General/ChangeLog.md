@@ -10,6 +10,7 @@
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed
 - Added: Unit tests for Weaver
 - Fixed: Garbage allocations removed from a lot of things (more work to do, we know)
+- Fixed: NetworkProximityChecker now uses OverlapSphereNonAlloc and OverlapCircleNonAlloc
 - Fixed: SyncVar hook not firing when clients joined
 - Fixed: NetworkManager no longer assumes it's on Scene(0) in Build Settings
 - Fixed: NetworkAnimator no longer lmited to 6 variables

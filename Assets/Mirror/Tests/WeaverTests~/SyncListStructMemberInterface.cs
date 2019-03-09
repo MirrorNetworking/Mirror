@@ -15,7 +15,7 @@ namespace MirrorTest
             public IPotato potato;
         }
 
-        class MyStructClass : SyncListSTRUCT<MyStruct> { };
+        class MyStructClass : SyncListSTRUCT<MyStruct> {};
 
         MyStructClass harpseals;
     }

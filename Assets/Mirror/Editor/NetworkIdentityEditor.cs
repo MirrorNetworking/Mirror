@@ -11,9 +11,9 @@ namespace Mirror
         SerializedProperty m_ServerOnlyProperty;
         SerializedProperty m_LocalPlayerAuthorityProperty;
 
-        GUIContent m_ServerOnlyLabel;
-        GUIContent m_LocalPlayerAuthorityLabel;
-        GUIContent m_SpawnLabel;
+        GUIContent m_ServerOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
+        GUIContent m_LocalPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
+        GUIContent m_SpawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
 
         NetworkIdentity m_NetworkIdentity;
         bool m_Initialized;
@@ -30,10 +30,6 @@ namespace Mirror
 
             m_ServerOnlyProperty = serializedObject.FindProperty("m_ServerOnly");
             m_LocalPlayerAuthorityProperty = serializedObject.FindProperty("m_LocalPlayerAuthority");
-
-            m_ServerOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
-            m_LocalPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
-            m_SpawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
         }
 
         public override void OnInspectorGUI()

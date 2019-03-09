@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        public void CmdCantHaveGeneric<T>()
-        {
-        }
+        public void CmdCantHaveGeneric<T>() {}
     }
 }

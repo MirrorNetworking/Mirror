@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,11 +10,11 @@ namespace Ninja.WebSockets.Exceptions
     public class ServerListenerSocketException : Exception
     {
         public ServerListenerSocketException() : base()
-        {            
+        {
         }
 
         public ServerListenerSocketException(string message) : base(message)
-        {            
+        {
         }
 
         public ServerListenerSocketException(string message, Exception inner) : base(message, inner)

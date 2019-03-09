@@ -20,7 +20,7 @@ namespace MirrorTest
             MyGenericStruct<MyPODStruct> potato;
         }
 
-        class MyStructClass : SyncListSTRUCT<MyGenericStruct<float>> { };
+        class MyStructClass : SyncListSTRUCT<MyGenericStruct<float>> {};
 
         MyStructClass harpseals;
     }

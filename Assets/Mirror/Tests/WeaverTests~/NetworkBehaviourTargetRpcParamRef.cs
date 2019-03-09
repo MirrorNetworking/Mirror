@@ -7,8 +7,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        public void TargetRpcCantHaveParamRef(NetworkConnection monkeyCon, ref int monkeys)
-        {
-        }
+        public void TargetRpcCantHaveParamRef(NetworkConnection monkeyCon, ref int monkeys) {}
     }
 }

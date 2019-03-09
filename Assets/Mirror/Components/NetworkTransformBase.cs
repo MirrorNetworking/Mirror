@@ -28,7 +28,7 @@ namespace Mirror
         // to save bandwidth in the first place.
         // -> can still be modified in the Inspector while the game is running,
         //    but would cause errors immediately and be pretty obvious.
-        [Tooltip("Compresses 16 Byte Quaternion into None=12, Some=6, Much=3, Lots=2 Byte")]
+        [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
         public enum Compression { None, Much, Lots }; // easily understandable and funny
 
@@ -139,7 +139,6 @@ namespace Mirror
                 temp.rotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
             }
 
-            // timestamp
             temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time

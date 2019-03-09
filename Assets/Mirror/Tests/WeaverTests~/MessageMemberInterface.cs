@@ -5,7 +5,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    interface SuperCoolInterface { }
+    interface SuperCoolInterface {}
 
     class PrefabClone : MessageBase
     {

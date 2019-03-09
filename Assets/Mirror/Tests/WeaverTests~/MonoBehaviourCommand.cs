@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : MonoBehaviour
     {
         [Command]
-        void CmdThisCantBeOutsideNetworkBehaviour()
-        {
-        }
+        void CmdThisCantBeOutsideNetworkBehaviour() {}
     }
 }

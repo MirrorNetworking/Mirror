@@ -8,8 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : MonoBehaviour
     {
         [TargetRpc]
-        void TargetThisCantBeOutsideNetworkBehaviour(NetworkConnection nc)
-        {
-        }
+        void TargetThisCantBeOutsideNetworkBehaviour(NetworkConnection nc) {}
     }
 }

@@ -8,13 +8,9 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        public void CmdCantHaveSameName(int abc)
-        {
-        }
+        public void CmdCantHaveSameName(int abc) {}
 
         [Command]
-        public void CmdCantHaveSameName(int abc, int def)
-        {
-        }
+        public void CmdCantHaveSameName(int abc, int def) {}
     }
 }

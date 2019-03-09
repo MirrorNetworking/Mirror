@@ -32,19 +32,19 @@ namespace Mirror
             ((MemoryStream)writer.BaseStream).SetLength(value);
         }
 
-        public void Write(byte value)  { writer.Write(value); }
-        public void Write(sbyte value) { writer.Write(value); }
-        public void Write(char value) { writer.Write(value); }
-        public void Write(bool value) { writer.Write(value); }
-        public void Write(short value) { writer.Write(value); }
-        public void Write(ushort value) { writer.Write(value); }
-        public void Write(int value) { writer.Write(value); }
-        public void Write(uint value) { writer.Write(value); }
-        public void Write(long value) { writer.Write(value); }
-        public void Write(ulong value) { writer.Write(value); }
-        public void Write(float value) { writer.Write(value); }
-        public void Write(double value) { writer.Write(value); }
-        public void Write(decimal value) { writer.Write(value); }
+        public void Write(byte value) => writer.Write(value);
+        public void Write(sbyte value) => writer.Write(value);
+        public void Write(char value) => writer.Write(value);
+        public void Write(bool value) => writer.Write(value);
+        public void Write(short value) => writer.Write(value);
+        public void Write(ushort value) => writer.Write(value);
+        public void Write(int value) => writer.Write(value);
+        public void Write(uint value) => writer.Write(value);
+        public void Write(long value) => writer.Write(value);
+        public void Write(ulong value) => writer.Write(value);
+        public void Write(float value) => writer.Write(value);
+        public void Write(double value) => writer.Write(value);
+        public void Write(decimal value) => writer.Write(value);
 
         public void Write(string value)
         {

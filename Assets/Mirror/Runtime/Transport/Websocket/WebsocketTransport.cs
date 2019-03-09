@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Mirror
+namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
@@ -76,7 +76,7 @@ namespace Mirror
 
         public override void ServerStart()
         {
-            
+
             if (Secure)
             {
                 server._secure = Secure;

@@ -5,13 +5,16 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [RequireComponent(typeof(Animator))]
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkAnimator")]
     public class NetworkAnimator : NetworkBehaviour
     {
         // configuration
         [SerializeField] Animator m_Animator;
         [SerializeField] uint m_ParameterSendBits;
+        // Note: not an object[] array because otherwise initialization is real annoying
+        int[] lastIntParameters;
+        float[] lastFloatParameters;
+        bool[] lastBoolParameters;
 
         // properties
         public Animator animator
@@ -134,9 +137,10 @@ namespace Mirror
                 m_SendTimer = Time.time + syncInterval;
 
                 NetworkWriter writer = new NetworkWriter();
-                WriteParameters(writer, true);
-
-                SendAnimationParametersMessage(writer.ToArray());
+                if (WriteParameters(writer, true))
+                {
+                    SendAnimationParametersMessage(writer.ToArray());
+                }
             }
         }
 
@@ -193,12 +197,16 @@ namespace Mirror
             m_Animator.SetTrigger(hash);
         }
 
-        void WriteParameters(NetworkWriter writer, bool autoSend)
+        bool WriteParameters(NetworkWriter writer, bool autoSend)
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
+            if (lastIntParameters == null) lastIntParameters = new int[parameters.Length];
+            if (lastFloatParameters == null) lastFloatParameters = new float[parameters.Length];
+            if (lastBoolParameters == null) lastBoolParameters = new bool[parameters.Length];
 
+            bool didWork = false;
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
@@ -207,17 +215,36 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    writer.WritePackedUInt32((uint)m_Animator.GetInteger(par.nameHash));
+                    int newIntValue = m_Animator.GetInteger(par.nameHash);
+                    if (newIntValue != lastIntParameters[i])
+                    {
+                        writer.WritePackedUInt32((uint) newIntValue);
+                        didWork = true;
+                        lastIntParameters[i] = newIntValue;
+                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    writer.Write(m_Animator.GetFloat(par.nameHash));
+                    float newFloatValue = m_Animator.GetFloat(par.nameHash);
+                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) < 0.001f)
+                    {
+                        writer.Write(newFloatValue);
+                        didWork = true;
+                        lastFloatParameters[i] = newFloatValue;
+                    }
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    writer.Write(m_Animator.GetBool(par.nameHash));
+                    bool newBoolValue = m_Animator.GetBool(par.nameHash);
+                    if (newBoolValue != lastBoolParameters[i])
+                    {
+                        writer.Write(newBoolValue);
+                        didWork = true;
+                        lastBoolParameters[i] = newBoolValue;
+                    }
                 }
             }
+            return didWork;
         }
 
         void ReadParameters(NetworkReader reader, bool autoSend)
@@ -234,8 +261,8 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newValue);
+                    int newIntValue = (int)reader.ReadPackedUInt32();
+                    m_Animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
@@ -305,12 +332,11 @@ namespace Mirror
             }
         }
 
-        // ------------------ server message handlers -------------------
-
+        #region server message handlers
         [Command]
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
-            if (LogFilter.Debug) { Debug.Log("OnAnimationMessage for netId=" + netId); }
+            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
             HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
@@ -332,8 +358,9 @@ namespace Mirror
             HandleAnimTriggerMsg(hash);
             RpcOnAnimationTriggerClientMessage(hash);
         }
+        #endregion
 
-        // ------------------ client message handlers -------------------
+        #region client message handlers
         [ClientRpc]
         void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
         {
@@ -352,5 +379,6 @@ namespace Mirror
         {
             HandleAnimTriggerMsg(hash);
         }
+        #endregion
     }
 }

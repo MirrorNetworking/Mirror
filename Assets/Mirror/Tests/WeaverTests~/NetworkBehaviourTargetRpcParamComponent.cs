@@ -12,8 +12,6 @@ namespace MirrorTest
         }
 
         [TargetRpc]
-        public void TargetRpcCantHaveParamComponent(NetworkConnection monkeyCon, ComponentClass monkeyComp)
-        {
-        }
+        public void TargetRpcCantHaveParamComponent(NetworkConnection monkeyCon, ComponentClass monkeyComp) {}
     }
 }
