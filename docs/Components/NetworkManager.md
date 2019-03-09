@@ -59,10 +59,10 @@ If you have only one Network Manager, you need to register to it all prefabs whi
 The Network Manager spawns player GameObjects using its implementation of NetworkManager.OnServerAddPlayer. If you want to customize the way player GameObjects are created, you can override that virtual function. This code shows an example of the default implementation:
 
 ```cs
-public virtual void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
 {
     var player = (GameObject)GameObject.Instantiate(playerPrefab, playerSpawnPos, Quaternion.identity);
-    NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+    NetworkServer.AddPlayerForConnection(conn, player);
 }
 ```
 
@@ -134,11 +134,11 @@ public class CustomManager : NetworkManager {
         Debug.Log("Client is set to the ready state (ready to receive state updates): " + conn);
     }
 
-    public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+    public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
     {
-        var player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+        GameObject player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
 
-        NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+        NetworkServer.AddPlayerForConnection(conn, player);
 
         Debug.Log("Client has requested to get his player added to the game");
     }
