@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -216,7 +215,7 @@ namespace Mirror
                 m_Info = new List<NetworkIdentityInfo>
                 {
                     GetAssetId(),
-                    GetString("Scene ID", m_Identity.sceneId.ToString())
+                    GetString("Scene ID", m_Identity.sceneId.ToString("X"))
                 };
 
                 if (!Application.isPlaying)

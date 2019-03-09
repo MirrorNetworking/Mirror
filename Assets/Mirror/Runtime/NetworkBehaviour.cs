@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
-using System.Linq;
 
 namespace Mirror
 {
@@ -17,13 +16,13 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
 
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-        public bool isServer => netIdentity.isServer; 
-        public bool isClient => netIdentity.isClient; 
-        public bool isLocalPlayer => netIdentity.isLocalPlayer; 
+        public bool isServer => netIdentity.isServer;
+        public bool isClient => netIdentity.isClient;
+        public bool isLocalPlayer => netIdentity.isLocalPlayer;
         public bool isServerOnly => isServer && !isClient;
         public bool isClientOnly => isClient && !isServer;
         public bool hasAuthority => netIdentity.hasAuthority;
-        public uint netId => netIdentity.netId; 
+        public uint netId => netIdentity.netId;
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
         protected ulong syncVarDirtyBits { get; private set; }
@@ -70,11 +69,18 @@ namespace Mirror
             m_SyncObjects.Add(syncObject);
         }
 
-        // ----------------------------- Commands --------------------------------
-
+        #region Commands
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            // NOTE: we could remove this later to allow calling Cmds on Server
+            //       to avoid Wrapper functions. a lot of people requested this.
+            if (!NetworkClient.active)
+            {
+                Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
+                return;
+            }
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
@@ -97,20 +103,26 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            ClientScene.readyConnection.Send((short)MsgType.Command, message, channelId);
+            ClientScene.readyConnection.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(cmdHash, UNetInvokeType.Command, reader);
+            return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
         }
+        #endregion
 
-        // ----------------------------- Client RPCs --------------------------------
-
+        #region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -127,12 +139,24 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.Rpc, message, channelId);
+            NetworkServer.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
+            // this was in Weaver before
+            if (!NetworkServer.active)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
+                return;
+            }
+            // this was in Weaver before
+            if (conn is ULocalConnectionToServer)
+            {
+                Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
+                return;
+            }
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -149,17 +173,17 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            conn.Send((short)MsgType.Rpc, message, channelId);
+            conn.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(rpcHash, UNetInvokeType.ClientRpc, reader);
+            return InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
+        #endregion
 
-        // ----------------------------- Sync Events --------------------------------
-
+        #region Sync Events
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
@@ -178,22 +202,22 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            NetworkServer.SendToReady(netIdentity, (short)MsgType.SyncEvent, message, channelId);
+            NetworkServer.SendToReady(netIdentity,message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
-            return InvokeHandlerDelegate(eventHash, UNetInvokeType.SyncEvent, reader);
+            return InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader);
         }
+        #endregion
 
-        // ----------------------------- Code Gen Path Helpers  --------------------------------
-
+        #region Code Gen Path Helpers
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
         protected class Invoker
         {
-            public UNetInvokeType invokeType;
+            public MirrorInvokeType invokeType;
             public Type invokeClass;
             public CmdDelegate invokeFunction;
         }
@@ -202,7 +226,7 @@ namespace Mirror
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected static void RegisterDelegate(Type invokeClass, string cmdName, UNetInvokeType invokerType, CmdDelegate func)
+        protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
             int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
@@ -225,28 +249,28 @@ namespace Mirror
                 invokeFunction = func
             };
             s_CmdHandlerDelegates[cmdHash] = invoker;
-            if (LogFilter.Debug) { Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName()); }
+            if (LogFilter.Debug) Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, cmdName, UNetInvokeType.Command, func);
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, rpcName, UNetInvokeType.ClientRpc, func);
+            RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterEventDelegate(Type invokeClass, string eventName, CmdDelegate func)
         {
-            RegisterDelegate(invokeClass, eventName, UNetInvokeType.SyncEvent, func);
+            RegisterDelegate(invokeClass, eventName, MirrorInvokeType.SyncEvent, func);
         }
 
-        static bool GetInvokerForHash(int cmdHash, UNetInvokeType invokeType, out Invoker invoker)
+        static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
             if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
                 invoker != null &&
@@ -258,12 +282,12 @@ namespace Mirror
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
-            if (LogFilter.Debug) { Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found"); }
+            if (LogFilter.Debug) Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found");
             return false;
         }
 
         // InvokeCmd/Rpc/SyncEventDelegate can all use the same function here
-        internal bool InvokeHandlerDelegate(int cmdHash, UNetInvokeType invokeType, NetworkReader reader)
+        internal bool InvokeHandlerDelegate(int cmdHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (GetInvokerForHash(cmdHash, invokeType, out Invoker invoker) &&
                 invoker.invokeClass.IsInstanceOfType(this))
@@ -273,9 +297,9 @@ namespace Mirror
             }
             return false;
         }
+        #endregion
 
-        // ----------------------------- Helpers  --------------------------------
-
+        #region Helpers
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -300,7 +324,7 @@ namespace Mirror
             // netId changed?
             if (newNetId != netIdField)
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
                 SetDirtyBit(dirtyBit);
                 gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
                 netIdField = newNetId;
@@ -345,7 +369,7 @@ namespace Mirror
             // netId changed?
             if (newNetId != netIdField)
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
                 SetDirtyBit(dirtyBit);
                 netIdField = newNetId;
                 identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
@@ -376,11 +400,12 @@ namespace Mirror
             if ((value == null && fieldValue != null) ||
                 (value != null && !value.Equals(fieldValue)))
             {
-                if (LogFilter.Debug) { Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value); }
+                if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
                 SetDirtyBit(dirtyBit);
                 fieldValue = value;
             }
         }
+        #endregion
 
         // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
@@ -532,9 +557,7 @@ namespace Mirror
             return false;
         }
 
-        public virtual void OnSetLocalVisibility(bool vis)
-        {
-        }
+        public virtual void OnSetLocalVisibility(bool vis) {}
 
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {

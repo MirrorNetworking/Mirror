@@ -13,7 +13,7 @@ namespace Mirror
         [NonSerialized] bool m_Initialized;
 
         SerializedProperty  m_AnimatorProperty;
-        GUIContent m_AnimatorLabel;
+        GUIContent m_AnimatorLabel = new GUIContent("Animator", "The Animator component to synchronize.");
 
         void Init()
         {
@@ -24,7 +24,6 @@ namespace Mirror
             m_AnimSync = target as NetworkAnimator;
 
             m_AnimatorProperty = serializedObject.FindProperty("m_Animator");
-            m_AnimatorLabel = new GUIContent("Animator", "The Animator component to synchronize.");
         }
 
         public override void OnInspectorGUI()
@@ -63,7 +62,7 @@ namespace Mirror
                     }
 
                     bool oldSend = m_AnimSync.GetParameterAutoSend(i);
-                    bool send = EditorGUILayout.Toggle(p.name, oldSend);
+                    bool send = EditorGUILayout.Toggle("Sync " + p.name, oldSend);
                     if (send != oldSend)
                     {
                         m_AnimSync.SetParameterAutoSend(i, send);

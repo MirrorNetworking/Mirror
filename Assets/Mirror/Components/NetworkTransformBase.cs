@@ -16,7 +16,6 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -29,7 +28,7 @@ namespace Mirror
         // to save bandwidth in the first place.
         // -> can still be modified in the Inspector while the game is running,
         //    but would cause errors immediately and be pretty obvious.
-        [Tooltip("Compresses 16 Byte Quaternion into None=12, Some=6, Much=3, Lots=2 Byte")]
+        [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
         public enum Compression { None, Much, Lots }; // easily understandable and funny
 
@@ -77,14 +76,14 @@ namespace Mirror
             else if (compressRotation == Compression.Much)
             {
                 // write 3 byte. scaling [0,360] to [0,255]
-                writer.Write(Utils.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.Write(Utils.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
-                writer.Write(Utils.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
+                writer.Write(FloatBytePacker.ScaleFloatToByte(euler.x, 0, 360, byte.MinValue, byte.MaxValue));
+                writer.Write(FloatBytePacker.ScaleFloatToByte(euler.y, 0, 360, byte.MinValue, byte.MaxValue));
+                writer.Write(FloatBytePacker.ScaleFloatToByte(euler.z, 0, 360, byte.MinValue, byte.MaxValue));
             }
             else if (compressRotation == Compression.Lots)
             {
                 // write 2 byte, 5 bits for each float
-                writer.Write(Utils.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
+                writer.Write(FloatBytePacker.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
             }
         }
 
@@ -128,19 +127,18 @@ namespace Mirror
             else if (compressRotation == Compression.Much)
             {
                 // read 3 byte. scaling [0,255] to [0,360]
-                float x = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float y = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                float z = Utils.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                float x = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                float y = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
+                float z = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
                 temp.rotation = Quaternion.Euler(x, y, z);
             }
             else if (compressRotation == Compression.Lots)
             {
                 // read 2 byte, 5 bits per float
-                float[] xyz = Utils.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
+                float[] xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
                 temp.rotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
             }
 
-            // timestamp
             temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
@@ -153,10 +151,10 @@ namespace Mirror
             if (start == null)
             {
                 start = new DataPoint{
-                    timeStamp=Time.time - syncInterval,
-                    position=targetComponent.transform.position,
-                    rotation=targetComponent.transform.rotation,
-                    movementSpeed=temp.movementSpeed
+                    timeStamp = Time.time - syncInterval,
+                    position = targetComponent.transform.position,
+                    rotation = targetComponent.transform.rotation,
+                    movementSpeed = temp.movementSpeed
                 };
             }
             // -> second or nth data point? then update previous, but:
@@ -298,10 +296,16 @@ namespace Mirror
             bool rotated = lastRotation != targetComponent.transform.rotation;
 
             // save last for next frame to compare
-            lastPosition = targetComponent.transform.position;
-            lastRotation = targetComponent.transform.rotation;
-
-            return moved || rotated;
+            // (only if change was detected. otherwise slow moving objects might
+            //  never sync because of C#'s float comparison tolerance. see also:
+            //  https://github.com/vis2k/Mirror/pull/428)
+            bool change = moved || rotated;
+            if (change)
+            {
+                lastPosition = targetComponent.transform.position;
+                lastRotation = targetComponent.transform.rotation;
+            }
+            return change;
         }
 
         // set position carefully depending on the target component

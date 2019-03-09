@@ -1,14 +1,15 @@
 # Network Messages
 
-In addition to “high-level” Commands and RPC calls, you can also send raw network messages.
+For the most part we recommend the high level [Commands and RPC](RemoteActions.md) calls and [SyncVar](../StateSync.md), but you can also send low level network messages.  This can be useful if you want clients to send messages that are not tied to gameobjects, such as logging, analytics or profiling information.
 
-There is a class called MessageBase that you can extend to make serializable network message classes. This class has Serialize and Deserialize functions that take writer and reader objects. You can implement these functions yourself, or you can rely on code-generated implementations that are automatically created by the networking  
-system. The base class looks like this:
+There is a class called MessageBase that you can extend to make serializable network message classes. This class has Serialize and Deserialize functions that take writer and reader objects. You can implement these functions yourself, but we recommend you let Mirror generate them for you.
 
-```
+The base class looks like this:
+
+```cs
 public abstract class MessageBase
 {
-    // De-serialize the contents of the reader into this message
+    // Deserialize the contents of the reader into this message
     public virtual void Deserialize(NetworkReader reader) {}
 
     // Serialize the contents of this message into the writer
@@ -16,60 +17,19 @@ public abstract class MessageBase
 }
 ```
 
-Message classes can contain members that are basic types, structs, and arrays, including most of the common Unity Engine types (such as Vector3). They cannot contain members that are complex classes or generic containers. Remember that if you want to rely on the code-generated implementations, you must make sure your types are publicly visible.
+The auto generated Serialize/Deserialize can efficiently deal with basic types, structs, arrays and common Unity value types such as Color, Vector3, Quaternion. Make your members public. If you need class members or complex containers such as List and Dictionary, you must implement the Serialize and Deserialize methods yourself.
 
-There are built-in message classes for common types of network messages:
-
--   EmptyMessage
--   StringMessage
--   IntegerMessage
-
-To send a message, use the `Send()` method on the NetworkClient, NetworkServer, and NetworkConnection classes which work the same way. It takes a message ID, and a message object that is derived from MessageBase. The code below demonstrates how to send and handle a message using one of the built-in message classes:
-
-```
-using UnityEngine;
-using Mirror;
-
-public class Begin : NetworkBehaviour
-{
-    const short MyBeginMsg = 1002;
-
-    NetworkClient m_client;
-
-    public void SendReadyToBeginMessage(int myId)
-    {
-        var msg = new IntegerMessage(myId);
-        m_client.Send(MyBeginMsg, msg);
-    }
-
-    public void Init(NetworkClient client)
-    {
-        m_client = client;
-        NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
-    }
-
-    void OnServerReadyToBeginMessage(NetworkMessage netMsg)
-    {
-        var beginMessage = netMsg.ReadMessage<IntegerMessage>();
-        Debug.Log("received OnServerReadyToBeginMessage " + beginMessage.value);
-    }
-}
-```
+To send a message, use the `Send()` method on the NetworkClient, NetworkServer, and NetworkConnection classes which work the same way. It takes a message object that is derived from MessageBase. The code below demonstrates how to send and handle a message:
 
 To declare a custom network message class and use it:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
 public class Scores : MonoBehaviour
 {
     NetworkClient myClient;
-
-    public class MyMsgType
-    {
-        public static short Score = MsgType.Highest + 1;
-    };
 
     public class ScoreMessage : MessageBase
     {
@@ -80,32 +40,27 @@ public class Scores : MonoBehaviour
 
     public void SendScore(int score, Vector3 scorePos, int lives)
     {
-        ScoreMessage msg = new ScoreMessage();
-        msg.score = score;
-        msg.scorePos = scorePos;
-        msg.lives = lives;
-
-        NetworkServer.SendToAll(MyMsgType.Score, msg);
+        ScoreMessage msg = new ScoreMessage() 
+        {
+            score = score,
+            scorePos = scorePos,
+            lives = lives
+        };
+        
+        NetworkServer.SendToAll(msg);
     }
 
     // Create a client and connect to the server port
     public void SetupClient()
     {
         myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.RegisterHandler(MyMsgType.Score, OnScore);
+        myClient.RegisterHandler<ScoreMessage>(OnScore);
         myClient.Connect("127.0.0.1", 4444);
     }
 
-    public void OnScore(NetworkMessage netMsg)
+    public void OnScore(ScoreMessage msg)
     {
-        ScoreMessage msg = netMsg.ReadMessage<ScoreMessage>();
         Debug.Log("OnScoreMessage " + msg.score);
-    }
-
-    public void OnConnected(NetworkMessage netMsg)
-    {
-        Debug.Log("Connected to server");
     }
 }
 ```
@@ -118,7 +73,7 @@ There is also an ErrorMessage class that is derived from `MessageBase`. This cla
 
 The errorCode in the ErrorMessage class corresponds to the Networking.NetworkError enumeration.
 
-```
+```cs
 class MyClient
 {
     NetworkClient client;
@@ -126,12 +81,11 @@ class MyClient
     void Start()
     {
         client = new NetworkClient();
-        client.RegisterHandler(MsgType.Error, OnError);
+        client.RegisterHandler<ErrorMessage>(OnError);
     }
     
-    void OnError(NetworkMessage netMsg)
+    void OnError(ErrorMessage errorMsg)
     {
-        var errorMsg = netMsg.ReadMessage<ErrorMessage>();
         Debug.Log("Error:" + errorMsg.errorCode);
     }
 }

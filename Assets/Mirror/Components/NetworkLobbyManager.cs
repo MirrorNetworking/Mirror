@@ -39,7 +39,7 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
-            // always <= maxConnections 
+            // always <= maxConnections
             minPlayers = Mathf.Min(minPlayers, maxConnections);
 
             // always >= 0
@@ -195,7 +195,7 @@ namespace Mirror
             OnLobbyServerDisconnect(conn);
         }
 
-        public override void OnServerAddPlayer(NetworkConnection conn)
+        public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             if (SceneManager.GetActiveScene().name != LobbyScene) return;
 
@@ -203,7 +203,7 @@ namespace Mirror
 
             allPlayersReady = false;
 
-            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager:OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager.OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
 
             GameObject newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
             if (newLobbyGameObject == null)
@@ -400,17 +400,17 @@ namespace Mirror
 
         #region lobby server virtuals
 
-        public virtual void OnLobbyStartHost() { }
+        public virtual void OnLobbyStartHost() {}
 
-        public virtual void OnLobbyStopHost() { }
+        public virtual void OnLobbyStopHost() {}
 
-        public virtual void OnLobbyStartServer() { }
+        public virtual void OnLobbyStartServer() {}
 
-        public virtual void OnLobbyServerConnect(NetworkConnection conn) { }
+        public virtual void OnLobbyServerConnect(NetworkConnection conn) {}
 
-        public virtual void OnLobbyServerDisconnect(NetworkConnection conn) { }
+        public virtual void OnLobbyServerDisconnect(NetworkConnection conn) {}
 
-        public virtual void OnLobbyServerSceneChanged(string sceneName) { }
+        public virtual void OnLobbyServerSceneChanged(string sceneName) {}
 
         public virtual GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn)
         {
@@ -438,22 +438,22 @@ namespace Mirror
 
         #region lobby client virtuals
 
-        public virtual void OnLobbyClientEnter() { }
+        public virtual void OnLobbyClientEnter() {}
 
-        public virtual void OnLobbyClientExit() { }
+        public virtual void OnLobbyClientExit() {}
 
-        public virtual void OnLobbyClientConnect(NetworkConnection conn) { }
+        public virtual void OnLobbyClientConnect(NetworkConnection conn) {}
 
-        public virtual void OnLobbyClientDisconnect(NetworkConnection conn) { }
+        public virtual void OnLobbyClientDisconnect(NetworkConnection conn) {}
 
-        public virtual void OnLobbyStartClient(NetworkClient lobbyClient) { }
+        public virtual void OnLobbyStartClient(NetworkClient lobbyClient) {}
 
-        public virtual void OnLobbyStopClient() { }
+        public virtual void OnLobbyStopClient() {}
 
-        public virtual void OnLobbyClientSceneChanged(NetworkConnection conn) { }
+        public virtual void OnLobbyClientSceneChanged(NetworkConnection conn) {}
 
         // for users to handle adding a player failed on the server
-        public virtual void OnLobbyClientAddPlayerFailed() { }
+        public virtual void OnLobbyClientAddPlayerFailed() {}
 
         #endregion
 

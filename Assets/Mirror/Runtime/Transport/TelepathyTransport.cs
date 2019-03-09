@@ -1,5 +1,4 @@
-﻿// wraps Telepathy for use as HLAPI TransportLayer
-using System;
+// wraps Telepathy for use as HLAPI TransportLayer
 using UnityEngine;
 namespace Mirror
 {
@@ -75,8 +74,8 @@ namespace Mirror
             // note: we need to check enabled in case we set it to false
             // when LateUpdate already started.
             // (https://github.com/vis2k/Mirror/pull/379)
-            while (enabled && ProcessClientMessage()) { }
-            while (enabled && ProcessServerMessage()) { }
+            while (enabled && ProcessClientMessage()) {}
+            while (enabled && ProcessServerMessage()) {}
         }
 
         // server

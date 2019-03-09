@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -46,7 +45,7 @@ namespace Mirror
     // TODO rename back to SyncListStruct after 2019.1!
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
-        protected override void SerializeItem(NetworkWriter writer, T item) { }
+        protected override void SerializeItem(NetworkWriter writer, T item) {}
         protected override T DeserializeItem(NetworkReader reader) => new T();
         public T GetItem(int i) => base[i];
     }

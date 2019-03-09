@@ -32,19 +32,19 @@ namespace Mirror
             ((MemoryStream)writer.BaseStream).SetLength(value);
         }
 
-        public void Write(byte value)  { writer.Write(value); }
-        public void Write(sbyte value) { writer.Write(value); }
-        public void Write(char value) { writer.Write(value); }
-        public void Write(bool value) { writer.Write(value); }
-        public void Write(short value) { writer.Write(value); }
-        public void Write(ushort value) { writer.Write(value); }
-        public void Write(int value) { writer.Write(value); }
-        public void Write(uint value) { writer.Write(value); }
-        public void Write(long value) { writer.Write(value); }
-        public void Write(ulong value) { writer.Write(value); }
-        public void Write(float value) { writer.Write(value); }
-        public void Write(double value) { writer.Write(value); }
-        public void Write(decimal value) { writer.Write(value); }
+        public void Write(byte value) => writer.Write(value);
+        public void Write(sbyte value) => writer.Write(value);
+        public void Write(char value) => writer.Write(value);
+        public void Write(bool value) => writer.Write(value);
+        public void Write(short value) => writer.Write(value);
+        public void Write(ushort value) => writer.Write(value);
+        public void Write(int value) => writer.Write(value);
+        public void Write(uint value) => writer.Write(value);
+        public void Write(long value) => writer.Write(value);
+        public void Write(ulong value) => writer.Write(value);
+        public void Write(float value) => writer.Write(value);
+        public void Write(double value) => writer.Write(value);
+        public void Write(decimal value) => writer.Write(value);
 
         public void Write(string value)
         {
@@ -95,14 +95,14 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
-        public void WritePackedUInt32(UInt32 value)
+        public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
             // same exact thing bit by bit
             WritePackedUInt64(value);
         }
 
-        public void WritePackedUInt64(UInt64 value)
+        public void WritePackedUInt64(ulong value)
         {
             if (value <= 240)
             {

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace Mirror.Examples.NetworkLobby
@@ -26,7 +26,7 @@ namespace Mirror.Examples.NetworkLobby
             showStartButton is a local bool that's needed because OnLobbyServerPlayersReady is only fired when
             all players are ready, but if a player cancels their ready state there's no callback to set it back to false
             Therefore, allPlayersReady is used in combination with showStartButton to show/hide the Start button correctly.
-            Setting showStartButton false when the button is pressed hides it in the game scene since NetworkLobbyManager 
+            Setting showStartButton false when the button is pressed hides it in the game scene since NetworkLobbyManager
             is set as DontDestroyOnLoad = true.
         */
 
