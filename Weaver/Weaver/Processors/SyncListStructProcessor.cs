@@ -12,8 +12,7 @@ namespace Mirror.Weaver
             GenericInstanceType gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count == 0)
             {
-                Weaver.WeavingFailed = true;
-                Log.Error("SyncListStructProcessor no generic args");
+                Weaver.Error("SyncListStructProcessor no generic args");
                 return;
             }
             TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[0]);
@@ -57,8 +56,7 @@ namespace Mirror.Weaver
 
             if (itemType.IsGenericInstance)
             {
-                Weaver.WeavingFailed = true;
-                Log.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Struct passed into SyncListStruct<T> can't have generic parameters");
+                Weaver.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Struct passed into SyncListStruct<T> can't have generic parameters");
                 return null;
             }
 
@@ -72,15 +70,13 @@ namespace Mirror.Weaver
 
                 if (ft.HasGenericParameters)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot have generic parameters.");
+                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot have generic parameters.");
                     return null;
                 }
 
                 if (ft.IsInterface)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot be an interface.");
+                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member cannot be an interface.");
                     return null;
                 }
 
@@ -94,8 +90,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("GenerateSerialization for " + td.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member variables must be basic types.");
+                    Weaver.Error("GenerateSerialization for " + td.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }
@@ -149,8 +144,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("GenerateDeserialization for " + td.Name + " unknown type [" + ft + "]. [SyncListStruct] member variables must be basic types.");
+                    Weaver.Error("GenerateDeserialization for " + td.Name + " unknown type [" + ft + "]. [SyncListStruct] member variables must be basic types.");
                     return null;
                 }
             }

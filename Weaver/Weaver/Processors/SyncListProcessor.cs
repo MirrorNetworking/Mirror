@@ -35,8 +35,7 @@ namespace Mirror.Weaver
             }
             catch (Exception)
             {
-                Weaver.WeavingFailed = true;
-                Log.Error("Missing parameter-less constructor for:" + fd.FieldType.Name);
+                Weaver.Error("Missing parameter-less constructor for:" + fd.FieldType.Name);
                 return;
             }
 

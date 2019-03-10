@@ -31,20 +31,17 @@ namespace Mirror.Weaver
                                     {
                                         if (m.Parameters[0].ParameterType != syncVar.FieldType)
                                         {
-                                            Log.Error("SyncVar Hook function " + hookFunctionName + " has wrong type signature for " + td.Name);
-                                            Weaver.WeavingFailed = true;
+                                            Weaver.Error("SyncVar Hook function " + hookFunctionName + " has wrong type signature for " + td.Name);
                                             return false;
                                         }
                                         foundMethod = m;
                                         return true;
                                     }
-                                    Log.Error("SyncVar Hook function " + hookFunctionName + " must have one argument " + td.Name);
-                                    Weaver.WeavingFailed = true;
+                                    Weaver.Error("SyncVar Hook function " + hookFunctionName + " must have one argument " + td.Name);
                                     return false;
                                 }
                             }
-                            Log.Error("SyncVar Hook function " + hookFunctionName + " not found for " + td.Name);
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar Hook function " + hookFunctionName + " not found for " + td.Name);
                             return false;
                         }
                     }
@@ -256,36 +253,31 @@ namespace Mirror.Weaver
 
                         if (resolvedField.IsDerivedFrom(Weaver.NetworkBehaviourType))
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot be derived from NetworkBehaviour.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be derived from NetworkBehaviour.");
                             return;
                         }
 
                         if (resolvedField.IsDerivedFrom(Weaver.ScriptableObjectType))
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot be derived from ScriptableObject.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be derived from ScriptableObject.");
                             return;
                         }
 
                         if ((fd.Attributes & FieldAttributes.Static) != 0)
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot be static.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be static.");
                             return;
                         }
 
                         if (resolvedField.HasGenericParameters)
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot have generic parameters.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot have generic parameters.");
                             return;
                         }
 
                         if (resolvedField.IsInterface)
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot be an interface.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be an interface.");
                             return;
                         }
 
@@ -298,15 +290,13 @@ namespace Mirror.Weaver
                             fieldModuleName != "netstandard.dll" // handle built-in types when weaving new C#7 compiler assemblies
                             )
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] from " + resolvedField.Module.ToString() + " cannot be a different module.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] from " + resolvedField.Module.ToString() + " cannot be a different module.");
                             return;
                         }
 
                         if (fd.FieldType.IsArray)
                         {
-                            Log.Error("SyncVar [" + fd.FullName + "] cannot be an array. Use a SyncList instead.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be an array. Use a SyncList instead.");
                             return;
                         }
 
@@ -324,8 +314,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == k_SyncVarLimit)
                         {
-                            Log.Error("Script class [" + td.FullName + "] has too many SyncVars (" + k_SyncVarLimit + "). (This could include base classes)");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + k_SyncVarLimit + "). (This could include base classes)");
                             return;
                         }
                         break;
@@ -334,8 +323,7 @@ namespace Mirror.Weaver
 
                 if (fd.FieldType.FullName.Contains("Mirror.SyncListStruct"))
                 {
-                    Log.Error("SyncListStruct member variable [" + fd.FullName + "] must use a dervied class, like \"class MySyncList : SyncListStruct<MyStruct> {}\".");
-                    Weaver.WeavingFailed = true;
+                    Weaver.Error("SyncListStruct member variable [" + fd.FullName + "] must use a dervied class, like \"class MySyncList : SyncListStruct<MyStruct> {}\".");
                     return;
                 }
 
@@ -343,8 +331,7 @@ namespace Mirror.Weaver
                 {
                     if (fd.IsStatic)
                     {
-                        Log.Error("SyncList [" + td.FullName + ":" + fd.FullName + "] cannot be a static");
-                        Weaver.WeavingFailed = true;
+                        Weaver.Error("SyncList [" + td.FullName + ":" + fd.FullName + "] cannot be a static");
                         return;
                     }
 
