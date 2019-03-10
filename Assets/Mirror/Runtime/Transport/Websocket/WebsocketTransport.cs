@@ -53,7 +53,7 @@ namespace Mirror.Websocket
         }
 
         // client
-        public override bool ClientConnected() { return client.IsConnected; }
+        public override bool ClientConnected() => client.IsConnected;
 
         public override void ClientConnect(string host)
         {
@@ -69,10 +69,10 @@ namespace Mirror.Websocket
 
         public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
 
-        public override void ClientDisconnect() { client.Disconnect(); }
+        public override void ClientDisconnect() => client.Disconnect();
 
         // server
-        public override bool ServerActive() { return server.Active; }
+        public override bool ServerActive() => server.Active;
 
         public override void ServerStart()
         {
@@ -106,7 +106,7 @@ namespace Mirror.Websocket
         {
             return server.GetClientAddress(connectionId);
         }
-        public override void ServerStop() { server.Stop(); }
+        public override void ServerStop() => server.Stop();
 
         // common
         public override void Shutdown()
