@@ -15,6 +15,9 @@ namespace Mirror
 
     public abstract class Transport : MonoBehaviour
     {
+        // Some assets only work with Unreliable, they can use this to check if transport is supported
+        public abstract bool SupportsUnreliable { get; }
+
         // static Transport which receives all network events
         // this is usually set by NetworkManager, but doesn't have to be.
         public static Transport activeTransport;
