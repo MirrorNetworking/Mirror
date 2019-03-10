@@ -360,7 +360,7 @@ namespace Mirror
             {
                 if (dontDestroyOnLoad)
                 {
-                    // Move the NetwprkManager from the virtual DontDestroyOnLoad scene to the Game scene.
+                    // Move the NetworkManager from the virtual DontDestroyOnLoad scene to the Game scene.
                     // This let's it be destroyed when client changes to the Offline scene.
                     SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
                 }
