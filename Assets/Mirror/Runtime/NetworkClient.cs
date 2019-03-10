@@ -91,7 +91,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        protected void OnDataReceived(byte[] data)
+        protected void OnDataReceived(ArraySegment<byte> data)
         {
             if (connection != null)
             {

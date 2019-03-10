@@ -119,7 +119,7 @@ namespace Mirror
         {
             if (clientId == -1) return false;
 
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(clientId, out int connectionId, out int channel, clientReceiveBuffer, clientReceiveBuffer.Length, out int  receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -141,8 +141,7 @@ namespace Mirror
                     OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(clientReceiveBuffer, data, receivedSize);
+                    ArraySegment<byte> data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
                     OnClientDataReceived.Invoke(data);
                     break;
                 case NetworkEventType.DisconnectEvent:
@@ -233,8 +232,7 @@ namespace Mirror
                     OnServerConnected.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(serverReceiveBuffer, data, receivedSize);
+                    ArraySegment<byte> data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
                     OnServerDataReceived.Invoke(connectionId, data);
                     break;
                 case NetworkEventType.DisconnectEvent:

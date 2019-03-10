@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -40,7 +41,7 @@ namespace Mirror
             while (packetQueue.Count > 0)
             {
                 byte[] packet = packetQueue.Dequeue();
-                OnDataReceived(packet);
+                OnDataReceived(new ArraySegment<byte>(packet));
             }
         }
 

@@ -419,7 +419,7 @@ namespace Mirror
             conn.Dispose();
         }
 
-        static void OnDataReceived(int connectionId, byte[] data)
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
@@ -437,7 +437,7 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        static void OnData(NetworkConnection conn, byte[] data)
+        static void OnData(NetworkConnection conn, ArraySegment<byte> data)
         {
             conn.TransportReceive(data);
         }
