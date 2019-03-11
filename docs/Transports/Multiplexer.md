@@ -19,3 +19,5 @@ Please note that Telepathy and WebsocketTransport cannot listen to the same port
 If you build your game as a webgl game,  the TelepathyTransport will be skipped and your client will use the websocket transport.   If you build your game as a mobile or desktop app,  it will choose TelepathyTransport. The server will happily accept connections from both.
 
 Here is what the configuration should look like:
+
+![Multiplex Example](MultiplexSample.png)
