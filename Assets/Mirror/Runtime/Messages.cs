@@ -14,15 +14,12 @@ namespace Mirror
         public virtual void Serialize(NetworkWriter writer) {}
     }
 
-    // ---------- General Typed Messages -------------------
-
+    #region General Typed Messages
     public class StringMessage : MessageBase
     {
         public string value;
 
-        public StringMessage()
-        {
-        }
+        public StringMessage() {}
 
         public StringMessage(string v)
         {
@@ -44,9 +41,7 @@ namespace Mirror
     {
         public byte value;
 
-        public ByteMessage()
-        {
-        }
+        public ByteMessage() {}
 
         public ByteMessage(byte v)
         {
@@ -68,9 +63,7 @@ namespace Mirror
     {
         public byte[] value;
 
-        public BytesMessage()
-        {
-        }
+        public BytesMessage() {}
 
         public BytesMessage(byte[] v)
         {
@@ -92,9 +85,7 @@ namespace Mirror
     {
         public int value;
 
-        public IntegerMessage()
-        {
-        }
+        public IntegerMessage() {}
 
         public IntegerMessage(int v)
         {
@@ -116,9 +107,7 @@ namespace Mirror
     {
         public double value;
 
-        public DoubleMessage()
-        {
-        }
+        public DoubleMessage() {}
 
         public DoubleMessage(double v)
         {
@@ -138,17 +127,13 @@ namespace Mirror
 
     public class EmptyMessage : MessageBase
     {
-        public override void Deserialize(NetworkReader reader)
-        {
-        }
+        public override void Deserialize(NetworkReader reader) {}
 
-        public override void Serialize(NetworkWriter writer)
-        {
-        }
+        public override void Serialize(NetworkWriter writer) {}
     }
+    #endregion
 
-    // ---------- Public System Messages -------------------
-
+    #region Public System Messages
     public class ErrorMessage : ByteMessage {}
 
     public class ReadyMessage : EmptyMessage {}
@@ -159,8 +144,19 @@ namespace Mirror
 
     public class RemovePlayerMessage : EmptyMessage {}
 
-    // ---------- System Messages requried for code gen path -------------------
+    public class DisconnectMessage : EmptyMessage {}
 
+    public class ConnectMessage : EmptyMessage {}
+
+    public class SceneMessage : StringMessage
+    {
+        public SceneMessage(string value) : base(value) {}
+
+        public SceneMessage() {}
+    }
+    #endregion
+
+    #region System Messages requried for code gen path
     // remote calls like Rpc/Cmd/SyncEvent all use the same message type
     class RemoteCallMessage : MessageBase
     {
@@ -191,9 +187,9 @@ namespace Mirror
     class RpcMessage : RemoteCallMessage {}
 
     class SyncEventMessage : RemoteCallMessage {}
+    #endregion
 
-    // ---------- Internal System Messages -------------------
-
+    #region Internal System Messages
     class SpawnPrefabMessage : MessageBase
     {
         public uint netId;
@@ -267,6 +263,21 @@ namespace Mirror
         }
     }
 
+    class ObjectHideMessage : MessageBase
+    {
+        public uint netId;
+
+        public override void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+        }
+    }
+
     class OwnerMessage : MessageBase
     {
         public uint netId;
@@ -322,13 +333,9 @@ namespace Mirror
     // to calculate RTT and synchronize time
     class NetworkPingMessage : DoubleMessage
     {
-        public NetworkPingMessage()
-        {
-        }
+        public NetworkPingMessage() {}
 
-        public NetworkPingMessage(double value) : base(value)
-        {
-        }
+        public NetworkPingMessage(double value) : base(value) {}
     }
 
     // The server responds with this message
@@ -350,4 +357,5 @@ namespace Mirror
             writer.Write(serverTime);
         }
     }
+    #endregion
 }

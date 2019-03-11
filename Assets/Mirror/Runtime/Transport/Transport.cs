@@ -1,4 +1,4 @@
-﻿// abstract transport layer component
+// abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
 using UnityEngine;
@@ -49,12 +49,20 @@ namespace Mirror
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
+
+        [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
+        public virtual bool GetConnectionInfo(int connectionId, out string address)
+        {
+            address = ServerGetClientAddress(connectionId);
+            return true;
+        }
+
         public abstract string ServerGetClientAddress(int connectionId);
         public abstract void ServerStop();
 
         // common
         public abstract void Shutdown();
-        public abstract int GetMaxPacketSize(int channelId=Channels.DefaultReliable);
+        public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
 
         // block Update() to force Transports to use LateUpdate to avoid race
         // conditions. messages should be processed after all the game state

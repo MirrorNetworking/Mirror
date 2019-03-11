@@ -26,6 +26,8 @@
       url: "/Concepts/IDs"
     - title: "Clients and Servers"
       url: "/Concepts/ClientsServers"
+    - title: "Authentication"
+      url: "/Concepts/Authentication"
     - title: "Conversion"
       url: "/Concepts/Conversion"
     - title: "Debugging"

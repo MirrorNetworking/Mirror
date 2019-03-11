@@ -10,13 +10,13 @@ namespace Mirror
 
         public NetworkReader(byte[] buffer)
         {
-            reader = new BinaryReader(new MemoryStream(buffer));
+            reader = new BinaryReader(new MemoryStream(buffer, false));
         }
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
-        public int Length => (int)reader.BaseStream.Length; 
+        public int Length => (int)reader.BaseStream.Length;
 
         public byte ReadByte() => reader.ReadByte();
         public sbyte ReadSByte() => reader.ReadSByte();
@@ -210,7 +210,7 @@ namespace Mirror
                 return identity.transform;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadTransform netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -227,7 +227,7 @@ namespace Mirror
                 return identity.gameObject;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadGameObject netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -244,7 +244,7 @@ namespace Mirror
                 return identity;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
 

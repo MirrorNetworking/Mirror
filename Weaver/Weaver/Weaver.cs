@@ -43,7 +43,7 @@ namespace Mirror.Weaver
         public static ModuleDefinition CorLibModule { get; private set; }
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
-        public static bool WeavingFailed { get; set; }
+        public static bool WeavingFailed { get; private set; }
         public static bool GenerateLogErrors { get; set; }
 
         // private properties
@@ -61,8 +61,6 @@ namespace Mirror.Weaver
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
         public static TypeReference NetworkConnectionType;
-        public static TypeReference ULocalConnectionToServerType;
-        public static TypeReference ULocalConnectionToClientType;
 
         public static TypeReference MessageBaseType;
         public static TypeReference SyncListStructType;
@@ -186,6 +184,14 @@ namespace Mirror.Weaver
             Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
         }
 
+        // display weaver error
+        // and mark process as failed
+        public static void Error(string message)
+        {
+            Log.Error(message);
+            WeavingFailed = true;
+        }
+
         public static int GetSyncVarStart(string className)
         {
             return WeaveLists.numSyncVars.ContainsKey(className)
@@ -202,8 +208,7 @@ namespace Mirror.Weaver
         {
             if (RecursionCount++ > MaxRecursionCount)
             {
-                Log.Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                WeavingFailed = true;
+                Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 return null;
             }
 
@@ -219,7 +224,7 @@ namespace Mirror.Weaver
             if (variable.IsByReference)
             {
                 // error??
-                Log.Error("GetWriteFunc variable.IsByReference error.");
+                Error("GetWriteFunc variable.IsByReference error.");
                 return null;
             }
 
@@ -277,14 +282,14 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
-                Log.Error("GetReadFunc unsupported type " + variable.FullName);
+                Error("GetReadFunc unsupported type " + variable.FullName);
                 return null;
             }
 
             if (variable.IsByReference)
             {
                 // error??
-                Log.Error("GetReadFunc variable.IsByReference error.");
+                Error("GetReadFunc variable.IsByReference error.");
                 return null;
             }
 
@@ -536,15 +541,13 @@ namespace Mirror.Weaver
 
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot have generic parameters.");
+                    Weaver.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot have generic parameters.");
                     return null;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot be an interface.");
+                    Weaver.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot be an interface.");
                     return null;
                 }
 
@@ -559,8 +562,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("WriteReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    WeavingFailed = true;
+                    Weaver.Error("WriteReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
                     return null;
                 }
             }
@@ -576,8 +578,7 @@ namespace Mirror.Weaver
         {
             if (RecursionCount++ > MaxRecursionCount)
             {
-                Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                WeavingFailed = true;
+                Weaver.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 return null;
             }
 
@@ -650,8 +651,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    WeavingFailed = true;
+                    Weaver.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
                     return null;
                 }
 
@@ -1123,12 +1123,6 @@ namespace Mirror.Weaver
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
-            ULocalConnectionToServerType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToServer");
-            ULocalConnectionToServerType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToServerType);
-
-            ULocalConnectionToClientType = NetAssembly.MainModule.GetType("Mirror.ULocalConnectionToClient");
-            ULocalConnectionToClientType = CurrentAssembly.MainModule.ImportReference(ULocalConnectionToClientType);
-
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
             SyncListStructType = NetAssembly.MainModule.GetType("Mirror.SyncListSTRUCT`1");
 
@@ -1255,11 +1249,10 @@ namespace Mirror.Weaver
             string assembly = CurrentAssembly.MainModule.Name;
             if (variable.Module.Name != assembly)
             {
-                Log.Error("parameter [" + variable.Name +
+                Weaver.Error("parameter [" + variable.Name +
                     "] is of the type [" +
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
-                WeavingFailed = true;
                 return false;
             }
             return true;
@@ -1431,7 +1424,7 @@ namespace Mirror.Weaver
                         {
                             if (CurrentAssembly.MainModule.SymbolReader != null)
                                 CurrentAssembly.MainModule.SymbolReader.Dispose();
-                            WeavingFailed = true;
+                            Weaver.Error(ex.Message);
                             throw ex;
                         }
                     }
@@ -1474,30 +1467,6 @@ namespace Mirror.Weaver
                 //Console.WriteLine ("Output:" + dest);
 
                 WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
-
-                // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
-                // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
-                // However it's much more simple to just write mdb file.
-                // System.NullReferenceException: Object reference not set to an instance of an object
-                //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
-                //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
-                if (writeParams.SymbolWriterProvider is PdbWriterProvider)
-                {
-                    writeParams.SymbolWriterProvider = new MdbWriterProvider();
-                    // old pdb file is out of date so delete it. symbols will be stored in mdb
-                    string pdb = Path.ChangeExtension(assName, ".pdb");
-
-                    try
-                    {
-                        File.Delete(pdb);
-                    }
-                    catch (Exception ex)
-                    {
-                        // workaround until Unity fixes C#7 compiler compability with the UNET weaver
-                        UnityEngine.Debug.LogWarning(string.Format("Unable to delete file {0}: {1}", pdb, ex.Message));
-                    }
-                }
-
                 CurrentAssembly.Write(dest, writeParams);
             }
 

@@ -15,8 +15,7 @@ namespace Mirror.Weaver
             //Console.WriteLine("ResolveMethod " + t.ToString () + " " + name);
             if (tr == null)
             {
-                Log.Error("Type missing for " + name);
-                Weaver.WeavingFailed = true;
+                Weaver.Error("Type missing for " + name);
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -26,15 +25,14 @@ namespace Mirror.Weaver
                     return scriptDef.MainModule.ImportReference(methodRef);
                 }
             }
-            Log.Error("ResolveMethod failed " + tr.Name + "::" + name + " " + tr.Resolve());
+            Weaver.Error("ResolveMethod failed " + tr.Name + "::" + name + " " + tr.Resolve());
 
             // why did it fail!?
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
             {
-                Log.Error("Method " + methodRef.Name);
+                Weaver.Error("Method " + methodRef.Name);
             }
 
-            Weaver.WeavingFailed = true;
             return null;
         }
 
@@ -43,8 +41,7 @@ namespace Mirror.Weaver
         {
             if (tr == null)
             {
-                Log.Error("Type missing for " + name);
-                Weaver.WeavingFailed = true;
+                Weaver.Error("Type missing for " + name);
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -74,8 +71,7 @@ namespace Mirror.Weaver
                     }
                 }
             }
-            Log.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
-            Weaver.WeavingFailed = true;
+            Weaver.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
             return null;
         }
 
@@ -121,8 +117,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Log.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
-            Weaver.WeavingFailed = true;
+            Weaver.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
             return null;
         }
 
