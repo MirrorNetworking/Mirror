@@ -79,5 +79,13 @@ namespace Mirror
         //            ShoulderRotation.LateUpdate, resulting in projectile
         //            spawns at the point before shoulder rotation.
         public void Update() {}
+        
+        //We want the last enabled transport
+        //for example to have steam transport and local telepathy transport
+        //and change in hot
+        public virtual void OnEnable()
+        {
+            Transport.activeTransport = this;
+        }
     }
 }
