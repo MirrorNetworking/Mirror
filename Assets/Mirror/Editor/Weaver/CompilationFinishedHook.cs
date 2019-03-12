@@ -117,6 +117,7 @@ namespace Mirror.Weaver
             HashSet<string> dependencyPaths = GetDependencyDirectories(dependencies);
 
             // is Mirror in any of the dependencies?
+            // TODO don't use contains
             bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
 
             bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
