@@ -61,6 +61,7 @@ namespace Mirror.Weaver
                 return;
             }
 
+            // find Mirror.dll
             string mirrorRuntimeDll = FindMirrorRuntime();
             if (string.IsNullOrEmpty(mirrorRuntimeDll))
             {
@@ -76,6 +77,7 @@ namespace Mirror.Weaver
                 return;
             }
 
+            // find UnityEngine.CoreModule.dll
             string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
             if (string.IsNullOrEmpty(unityEngineCoreModuleDLL))
             {
