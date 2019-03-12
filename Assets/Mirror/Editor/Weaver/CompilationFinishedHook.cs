@@ -78,7 +78,7 @@ namespace Mirror.Weaver
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesUnet = false;
             bool foundThisAssembly = false;
-            HashSet<string> depenencyPaths = new HashSet<string>();
+            HashSet<string> dependencyPaths = new HashSet<string>();
             foreach (var assembly in assemblies)
             {
                 // Find the assembly currently being compiled from domain assembly list and check if it's using unet
@@ -90,7 +90,7 @@ namespace Mirror.Weaver
                         // Since this assembly is already loaded in the domain this is a no-op and retuns the
                         // already loaded assembly
                         var location = Assembly.Load(dependency).Location;
-                        depenencyPaths.Add(Path.GetDirectoryName(location));
+                        dependencyPaths.Add(Path.GetDirectoryName(location));
                         if (dependency.Name.Contains(k_HlapiRuntimeAssemblyName))
                         {
                             usesUnet = true;
@@ -126,7 +126,7 @@ namespace Mirror.Weaver
                     try
                     {
                         if (!assembly.IsDynamic)
-                            depenencyPaths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
+                            dependencyPaths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
                     }
                     catch (FileNotFoundException) { }
                 }
@@ -151,7 +151,7 @@ namespace Mirror.Weaver
             }
 
             Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " unetassembly=" + mirrorRuntimeDll);
-            bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, depenencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
+            bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
             Debug.Log("Weaver result: " + result);
         }
     }
