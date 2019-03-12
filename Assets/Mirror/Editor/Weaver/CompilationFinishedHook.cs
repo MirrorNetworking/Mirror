@@ -32,6 +32,33 @@ namespace Mirror.Weaver
             return "";
         }
 
+        // get all dependencies of the target assembly
+        static List<AssemblyName> GetDependencies(Assembly[] assemblies, string targetAssemblyPath)
+        {
+            List<AssemblyName> dependencies = new List<AssemblyName>();
+
+            foreach (Assembly assembly in assemblies)
+            {
+                // Find the assembly currently being compiled from domain assembly
+                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssemblyPath))
+                {
+                    dependencies.AddRange(assembly.GetReferencedAssemblies());
+                }
+            }
+
+            return dependencies;
+        }
+
+        // get all dependency directories
+        static HashSet<string> GetDependencyDirectories(List<AssemblyName> dependencies)
+        {
+            // Since this assembly is already loaded in the domain this is a
+            // no-op and returns the already loaded assembly
+            return new HashSet<string>(
+                dependencies.Select(dependency => Path.GetDirectoryName(Assembly.Load(dependency).Location))
+            );
+        }
+
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
         {
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -86,27 +113,11 @@ namespace Mirror.Weaver
             }
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            List<AssemblyName> dependencies = GetDependencies(assemblies, assemblyPath);
+            HashSet<string> dependencyPaths = GetDependencyDirectories(dependencies);
 
-            bool usesMirror = false;
-            HashSet<string> dependencyPaths = new HashSet<string>();
-            foreach (Assembly assembly in assemblies)
-            {
-                // Find the assembly currently being compiled from domain assembly list and check if it's using Mirror
-                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath))
-                {
-                    foreach (AssemblyName dependency in assembly.GetReferencedAssemblies())
-                    {
-                        // Since this assembly is already loaded in the domain this is a no-op and returns the
-                        // already loaded assembly
-                        string location = Assembly.Load(dependency).Location;
-                        dependencyPaths.Add(Path.GetDirectoryName(location));
-                        if (dependency.Name.Contains(k_HlapiRuntimeAssemblyName))
-                        {
-                            usesMirror = true;
-                        }
-                    }
-                }
-            }
+            // is Mirror in any of the dependencies?
+            bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
 
             bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
             if (!foundThisAssembly)
