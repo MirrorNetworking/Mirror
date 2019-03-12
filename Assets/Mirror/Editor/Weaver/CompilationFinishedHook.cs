@@ -70,9 +70,8 @@ namespace Mirror.Weaver
                 return;
             }
 
-            string scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
             string unityEngine = "";
-            string outputDirectory = scriptAssembliesPath;
+            string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesMirror = false;
