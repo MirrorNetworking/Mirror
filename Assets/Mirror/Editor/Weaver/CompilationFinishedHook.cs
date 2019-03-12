@@ -31,21 +31,20 @@ namespace Mirror.Weaver
             return "";
         }
 
+        static bool CompilerMessagesContainError(CompilerMessage[] messages)
+        {
+            return messages.Any(msg => msg.type == CompilerMessageType.Error);
+        }
+
         static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)
         {
             const string k_HlapiRuntimeAssemblyName = "Mirror";
 
             // Do nothing if there were compile errors on the target
-            if (messages.Length > 0)
+            if (CompilerMessagesContainError(messages))
             {
-                foreach (var msg in messages)
-                {
-                    if (msg.type == CompilerMessageType.Error)
-                    {
-                        Debug.Log("Weaver: stop because compile errors on target");
-                        return;
-                    }
-                }
+                Debug.Log("Weaver: stop because compile errors on target");
+                return;
             }
 
             // Should not run on the editor only assemblies
