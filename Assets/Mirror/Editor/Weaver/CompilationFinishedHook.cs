@@ -77,7 +77,7 @@ namespace Mirror.Weaver
             string assemblyPath = targetAssembly;
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            bool usesUnet = false;
+            bool usesMirror = false;
             bool foundThisAssembly = false;
             HashSet<string> dependencyPaths = new HashSet<string>();
             foreach (Assembly assembly in assemblies)
@@ -94,7 +94,7 @@ namespace Mirror.Weaver
                         dependencyPaths.Add(Path.GetDirectoryName(location));
                         if (dependency.Name.Contains(k_HlapiRuntimeAssemblyName))
                         {
-                            usesUnet = true;
+                            usesMirror = true;
                         }
                     }
                 }
@@ -131,10 +131,10 @@ namespace Mirror.Weaver
                     }
                     catch (FileNotFoundException) { }
                 }
-                usesUnet = true;
+                usesMirror = true;
             }
 
-            if (!usesUnet)
+            if (!usesMirror)
             {
                 return;
             }
