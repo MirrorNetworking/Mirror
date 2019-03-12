@@ -76,14 +76,14 @@ namespace Mirror.Weaver
                 return;
             }
 
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
             string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
             if (string.IsNullOrEmpty(unityEngineCoreModuleDLL))
             {
                 Debug.LogError("Failed to find UnityEngine assembly");
                 return;
             }
+
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             bool usesMirror = false;
             bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
