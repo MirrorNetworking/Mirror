@@ -37,7 +37,7 @@ namespace Mirror.Weaver
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
         }
 
-        static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)
+        static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
             const string k_HlapiRuntimeAssemblyName = "Mirror";
 
@@ -49,13 +49,13 @@ namespace Mirror.Weaver
             }
 
             // Should not run on the editor only assemblies
-            if (targetAssembly.Contains("-Editor") || targetAssembly.Contains(".Editor"))
+            if (assemblyPath.Contains("-Editor") || assemblyPath.Contains(".Editor"))
             {
                 return;
             }
 
             // Should not run on own assembly
-            if (targetAssembly.Contains(k_HlapiRuntimeAssemblyName))
+            if (assemblyPath.Contains(k_HlapiRuntimeAssemblyName))
             {
                 return;
             }
@@ -70,10 +70,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            string scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
+            string scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
             string unityEngine = "";
             string outputDirectory = scriptAssembliesPath;
-            string assemblyPath = targetAssembly;
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesMirror = false;
@@ -82,7 +81,7 @@ namespace Mirror.Weaver
             foreach (Assembly assembly in assemblies)
             {
                 // Find the assembly currently being compiled from domain assembly list and check if it's using Mirror
-                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssembly))
+                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath))
                 {
                     foundThisAssembly = true;
                     foreach (AssemblyName dependency in assembly.GetReferencedAssemblies())
