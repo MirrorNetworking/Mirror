@@ -95,6 +95,8 @@ namespace Mirror
             else if (CheckSendRate())
             {
                 uint dirtyBits = GetDirtyBits();
+                // Don't bother sending a packet if its empty
+                if (dirtyBits == 0) return;
                 SendAnimationParametersMessage(dirtyBits, WriteParametersArray(dirtyBits));
             }
         }
