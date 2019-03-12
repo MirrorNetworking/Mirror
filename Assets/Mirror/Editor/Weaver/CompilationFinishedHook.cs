@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             HashSet<string> dependencyPaths = new HashSet<string>();
             foreach (Assembly assembly in assemblies)
             {
-                // Find the assembly currently being compiled from domain assembly list and check if it's using unet
+                // Find the assembly currently being compiled from domain assembly list and check if it's using Mirror
                 if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssembly))
                 {
                     foundThisAssembly = true;
