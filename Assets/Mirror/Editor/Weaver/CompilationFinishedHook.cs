@@ -130,7 +130,8 @@ namespace Mirror.Weaver
                 // get all dependencies for the target assembly
                 AssemblyName[] dependencies = targetAssembly.GetReferencedAssemblies();
 
-                // is Mirror in any of the dependencies?
+                // does the target assembly depend on Mirror at all?
+                // otherwise there is nothing to weave anyway.
                 // TODO don't use contains
                 bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
                 if (!usesMirror)
