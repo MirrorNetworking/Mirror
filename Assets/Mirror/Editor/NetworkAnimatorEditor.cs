@@ -55,7 +55,7 @@ namespace Mirror
 
                 foreach (AnimatorControllerParameter p in controller.parameters)
                 {
-                    if (i >= 32)
+                    if (i >= 64)
                     {
                         showWarning = true;
                         break;
@@ -73,7 +73,7 @@ namespace Mirror
 
                 if (showWarning)
                 {
-                    EditorGUILayout.HelpBox("NetworkAnimator can only select between the first 32 parameters in a mecanim controller", MessageType.Warning);
+                    EditorGUILayout.HelpBox("NetworkAnimator can only select between the first 64 parameters in a mecanim controller", MessageType.Warning);
                 }
 
                 EditorGUI.indentLevel -= 1;
