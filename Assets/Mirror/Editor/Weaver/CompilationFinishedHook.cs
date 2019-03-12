@@ -76,7 +76,7 @@ namespace Mirror.Weaver
             string outputDirectory = scriptAssembliesPath;
             string assemblyPath = targetAssembly;
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesMirror = false;
             bool foundThisAssembly = false;
             HashSet<string> dependencyPaths = new HashSet<string>();
