@@ -131,7 +131,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
+            // construct full path to Project/Library/ScriptAssemblies
+            string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
+            string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
 
             Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngineCoreModuleDLL + " mirrorRuntimeDll=" + mirrorRuntimeDll);
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
