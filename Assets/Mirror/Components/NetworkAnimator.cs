@@ -10,7 +10,7 @@ namespace Mirror
     {
         // configuration
         [SerializeField] Animator m_Animator;
-        [SerializeField] uint m_ParameterSendBits;
+        [SerializeField] ulong m_ParameterSendBits;
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
         float[] lastFloatParameters;
@@ -31,15 +31,15 @@ namespace Mirror
         {
             if (value)
             {
-                m_ParameterSendBits |= 1u << index;
+                m_ParameterSendBits |= 1ul << index;
             }
             else
             {
-                m_ParameterSendBits &= ~(1u << index);
+                m_ParameterSendBits &= ~(1ul << index);
             }
         }
 
-        public bool GetParameterAutoSend(int index) => (m_ParameterSendBits & (1u << index)) != 0;
+        public bool GetParameterAutoSend(int index) => (m_ParameterSendBits & (1ul << index)) != 0;
 
         public void ResetParameterOptions() => m_ParameterSendBits = 0;
 
@@ -86,12 +86,12 @@ namespace Mirror
             if (CheckAnimStateChanged(out int stateHash, out float normalizedTime))
             {
                 // GetDirtyBits() here, not outside the if, because it updates the lastParameter values.
-                uint dirtyBits = GetDirtyBits();
+                ulong dirtyBits = GetDirtyBits();
                 SendAnimationMessage(stateHash, normalizedTime, dirtyBits, WriteParametersArray(dirtyBits));
             }
             else if (CheckSendRate())
             {
-                uint dirtyBits = GetDirtyBits();
+                ulong dirtyBits = GetDirtyBits();
                 // Don't bother sending a packet if its empty
                 if (dirtyBits == 0) return;
                 SendAnimationParametersMessage(dirtyBits, WriteParametersArray(dirtyBits));
@@ -137,7 +137,7 @@ namespace Mirror
 
         void ResetSendTime() => m_SendTimer = Time.time + syncInterval;
 
-        void SendAnimationMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
+        void SendAnimationMessage(int stateHash, float normalizedTime, ulong dirtyBits, byte[] parameters)
         {
             ResetSendTime();
             if (isServer)
@@ -150,7 +150,7 @@ namespace Mirror
             }
         }
 
-        void SendAnimationParametersMessage(uint dirtyBits, byte[] parameters)
+        void SendAnimationParametersMessage(ulong dirtyBits, byte[] parameters)
         {
             ResetSendTime();
             if (isServer)
@@ -163,7 +163,7 @@ namespace Mirror
             }
         }
 
-        internal void HandleAnimMsg(int stateHash, float normalizedTime, uint dirtyBits, NetworkReader reader)
+        internal void HandleAnimMsg(int stateHash, float normalizedTime, ulong dirtyBits, NetworkReader reader)
         {
             if (hasAuthority) return;
 
@@ -178,7 +178,7 @@ namespace Mirror
             ReadParameters(dirtyBits, reader);
         }
 
-        internal void HandleAnimParamsMsg(uint dirtyBits, NetworkReader reader)
+        internal void HandleAnimParamsMsg(ulong dirtyBits, NetworkReader reader)
         {
             if (hasAuthority) return;
 
@@ -192,7 +192,7 @@ namespace Mirror
 
         uint GetDirtyBits()
         {
-            uint dirtyBits = 0;
+            ulong dirtyBits = 0;
             for (int i = 0; i < parameters.Length; i++)
             {
                 bool parameterDirty = false;
@@ -215,7 +215,7 @@ namespace Mirror
                     parameterDirty = newBoolValue != lastBoolParameters[i];
                     lastBoolParameters[i] = newBoolValue;
                 }
-                if (parameterDirty) dirtyBits |= 1u << i;
+                if (parameterDirty) dirtyBits |= 1ul << i;
             }
             // Mask the dirty bits by the user specified parameters to send.
             return dirtyBits & m_ParameterSendBits;
@@ -228,11 +228,11 @@ namespace Mirror
             return writer.ToArray();
         }
 
-        void WriteParameters(uint dirtyBits, NetworkWriter writer)
+        void WriteParameters(ulong dirtyBits, NetworkWriter writer)
         {
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0) continue;
+                if ((dirtyBits & (1ul << i)) == 0) continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
@@ -250,11 +250,11 @@ namespace Mirror
             }
         }
 
-        void ReadParameters(uint dirtyBits, NetworkReader reader)
+        void ReadParameters(ulong dirtyBits, NetworkReader reader)
         {
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0) continue;
+                if ((dirtyBits & (1ul << i)) == 0) continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
@@ -319,7 +319,7 @@ namespace Mirror
 
         #region server message handlers
         [Command]
-        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
+        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, ulong dirtyBits, byte[] parameters)
         {
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
@@ -329,7 +329,7 @@ namespace Mirror
         }
 
         [Command]
-        void CmdOnAnimationParametersServerMessage(uint dirtyBits, byte[] parameters)
+        void CmdOnAnimationParametersServerMessage(ulong dirtyBits, byte[] parameters)
         {
             // handle and broadcast
             HandleAnimParamsMsg(dirtyBits, new NetworkReader(parameters));
@@ -347,13 +347,13 @@ namespace Mirror
 
         #region client message handlers
         [ClientRpc]
-        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
+        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, ulong dirtyBits, byte[] parameters)
         {
             HandleAnimMsg(stateHash, normalizedTime, dirtyBits, new NetworkReader(parameters));
         }
 
         [ClientRpc]
-        void RpcOnAnimationParametersClientMessage(uint dirtyBits, byte[] parameters)
+        void RpcOnAnimationParametersClientMessage(ulong dirtyBits, byte[] parameters)
         {
             HandleAnimParamsMsg(dirtyBits, new NetworkReader(parameters));
         }
