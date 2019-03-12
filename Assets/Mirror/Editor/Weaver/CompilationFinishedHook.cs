@@ -53,7 +53,7 @@ namespace Mirror.Weaver
                 // file won't exist. in that case, do nothing.
                 if (!File.Exists(assemblyPath))
                 {
-                    Console.WriteLine("Weaving skipped because assembly doesnt exist: " + assemblyPath);
+                    Debug.LogError("Weaving skipped because assembly doesnt exist: " + assemblyPath);
                     return;
                 }
 
@@ -86,7 +86,7 @@ namespace Mirror.Weaver
                 if (!buildingForEditor)
                 {
                     //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
-                    Console.WriteLine("Weaving: " + assemblyPath);
+                    Debug.Log("Weaving: " + assemblyPath);
                     // assemblyResolver: unity uses this by default:
                     //   ICompilationExtension compilationExtension = GetCompilationExtension();
                     //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
@@ -95,7 +95,7 @@ namespace Mirror.Weaver
                     if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
                     {
                         WeaveFailed = false;
-                        Console.WriteLine("Weaving succeeded for: " + assemblyPath);
+                        Debug.Log("Weaving succeeded for: " + assemblyPath);
                     }
                     else
                     {
