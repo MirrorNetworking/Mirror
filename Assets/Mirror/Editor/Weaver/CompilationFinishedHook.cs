@@ -32,25 +32,8 @@ namespace Mirror.Weaver
             return "";
         }
 
-        // get all dependencies of the target assembly
-        static List<AssemblyName> GetDependencies(Assembly[] assemblies, string targetAssemblyPath)
-        {
-            List<AssemblyName> dependencies = new List<AssemblyName>();
-
-            foreach (Assembly assembly in assemblies)
-            {
-                // Find the assembly currently being compiled from domain assembly
-                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssemblyPath))
-                {
-                    dependencies.AddRange(assembly.GetReferencedAssemblies());
-                }
-            }
-
-            return dependencies;
-        }
-
         // get all dependency directories
-        static HashSet<string> GetDependencyDirectories(List<AssemblyName> dependencies)
+        static HashSet<string> GetDependencyDirectories(AssemblyName[] dependencies)
         {
             // Since this assembly is already loaded in the domain this is a
             // no-op and returns the already loaded assembly
@@ -112,16 +95,28 @@ namespace Mirror.Weaver
                 return;
             }
 
+            // find all assemblies and the currently compiling assembly
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            Assembly thisAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
-            List<AssemblyName> dependencies = GetDependencies(assemblies, assemblyPath);
-            HashSet<string> dependencyPaths = GetDependencyDirectories(dependencies);
+            Assembly targetAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
 
-            // is Mirror in any of the dependencies?
-            // TODO don't use contains
-            bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
+            // prepare variables
+            bool usesMirror;
+            HashSet<string> dependencyPaths = new HashSet<string>();
 
-            if (thisAssembly == null)
+            // found this assembly in assemblies?
+            if (targetAssembly != null)
+            {
+                // get all dependencies for the target assembly
+                AssemblyName[] dependencies = targetAssembly.GetReferencedAssemblies();
+
+                // get all the paths
+                dependencyPaths = GetDependencyDirectories(dependencies);
+
+                // is Mirror in any of the dependencies?
+                // TODO don't use contains
+                usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
+            }
+            else
             {
                 // Target assembly not found in current domain, trying to load it to check references
                 // will lead to trouble in the build pipeline, so lets assume it should go to weaver.
