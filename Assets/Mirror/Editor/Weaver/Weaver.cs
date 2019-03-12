@@ -1388,90 +1388,109 @@ namespace Mirror.Weaver
         static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
             ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath);
-            CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams);
 
-            SetupTargetTypes();
-            SetupReadFunctions();
-            SetupWriteFunctions();
-
-            ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
-            Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
-
-            // Process each NetworkBehaviour
-            bool didWork = false;
-
-            // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
-            for (int pass = 0; pass < 2; pass++)
+            string pdbToDelete = null;
+            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams))
             {
-                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-                foreach (TypeDefinition td in moduleDefinition.Types)
+                SetupTargetTypes();
+                SetupReadFunctions();
+                SetupWriteFunctions();
+
+                ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
+                Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
+
+                // Process each NetworkBehaviour
+                bool didWork = false;
+
+                // We need to do 2 passes, because SyncListStructs might be referenced from other modules, so we must make sure we generate them first.
+                for (int pass = 0; pass < 2; pass++)
                 {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
+                    System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                    foreach (TypeDefinition td in moduleDefinition.Types)
                     {
-                        try
+                        if (td.IsClass && td.BaseType.CanBeResolved())
                         {
-                            if (pass == 0)
+                            try
                             {
-                                didWork |= CheckSyncListStruct(td);
+                                if (pass == 0)
+                                {
+                                    didWork |= CheckSyncListStruct(td);
+                                }
+                                else
+                                {
+                                    didWork |= CheckNetworkBehaviour(td);
+                                    didWork |= CheckMessageBase(td);
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                didWork |= CheckNetworkBehaviour(td);
-                                didWork |= CheckMessageBase(td);
+                                if (CurrentAssembly.MainModule.SymbolReader != null)
+                                    CurrentAssembly.MainModule.SymbolReader.Dispose();
+                                Weaver.Error(ex.Message);
+                                throw ex;
                             }
                         }
-                        catch (Exception ex)
+
+                        if (WeavingFailed)
                         {
                             if (CurrentAssembly.MainModule.SymbolReader != null)
                                 CurrentAssembly.MainModule.SymbolReader.Dispose();
-                            Weaver.Error(ex.Message);
-                            throw ex;
+                            return false;
                         }
                     }
+                    watch.Stop();
+                    Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
+                }
 
-                    if (WeavingFailed)
+                if (didWork)
+                {
+                    // this must be done for ALL code, not just NetworkBehaviours
+                    try
                     {
+                        ProcessPropertySites();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("ProcessPropertySites exception: " + e);
                         if (CurrentAssembly.MainModule.SymbolReader != null)
                             CurrentAssembly.MainModule.SymbolReader.Dispose();
                         return false;
                     }
+
+                    if (WeavingFailed)
+                    {
+                        //Log.Error("Failed phase II.");
+                        if (CurrentAssembly.MainModule.SymbolReader != null)
+                            CurrentAssembly.MainModule.SymbolReader.Dispose();
+                        return false;
+                    }
+
+                    string dest = Helpers.DestinationFileFor(outputDir, assName);
+                    //Console.WriteLine ("Output:" + dest);
+
+                    WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
+                    CurrentAssembly.Write(dest, writeParams);
+
+                    // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
+                    // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
+                    // However it's much more simple to just write mdb file.
+                    // System.NullReferenceException: Object reference not set to an instance of an object
+                    //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
+                    //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
+                    if (writeParams.SymbolWriterProvider is PdbWriterProvider)
+                    {
+                        writeParams.SymbolWriterProvider = new MdbWriterProvider();
+                        // old pdb file is out of date so delete it. symbols will be stored in mdb
+                        pdbToDelete = Path.ChangeExtension(assName, ".pdb");
+                    }
                 }
-                watch.Stop();
-                Console.WriteLine("Pass: " + pass + " took " + watch.ElapsedMilliseconds + " milliseconds");
+
+                if (CurrentAssembly.MainModule.SymbolReader != null)
+                    CurrentAssembly.MainModule.SymbolReader.Dispose();
             }
 
-            if (didWork)
-            {
-                // this must be done for ALL code, not just NetworkBehaviours
-                try
-                {
-                    ProcessPropertySites();
-                }
-                catch (Exception e)
-                {
-                    Log.Error("ProcessPropertySites exception: " + e);
-                    if (CurrentAssembly.MainModule.SymbolReader != null)
-                        CurrentAssembly.MainModule.SymbolReader.Dispose();
-                    return false;
-                }
-
-                if (WeavingFailed)
-                {
-                    //Log.Error("Failed phase II.");
-                    if (CurrentAssembly.MainModule.SymbolReader != null)
-                        CurrentAssembly.MainModule.SymbolReader.Dispose();
-                    return false;
-                }
-
-                string dest = Helpers.DestinationFileFor(outputDir, assName);
-                //Console.WriteLine ("Output:" + dest);
-
-                WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
-                CurrentAssembly.Write(dest, writeParams);
-            }
-
-            if (CurrentAssembly.MainModule.SymbolReader != null)
-                CurrentAssembly.MainModule.SymbolReader.Dispose();
+            if (pdbToDelete != null)
+                File.Delete(pdbToDelete);
 
             return true;
         }
