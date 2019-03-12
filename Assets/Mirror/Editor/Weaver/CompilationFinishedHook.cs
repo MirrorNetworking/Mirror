@@ -101,10 +101,6 @@ namespace Mirror.Weaver
                     {
                         unityEngine = assembly.Location;
                     }
-                    /*if (assembly.Location.Contains(k_HlapiRuntimeAssemblyName))
-                    {
-                        unetAssemblyPath = assembly.Location;
-                    }*/
                 }
                 catch (NotSupportedException)
                 {
