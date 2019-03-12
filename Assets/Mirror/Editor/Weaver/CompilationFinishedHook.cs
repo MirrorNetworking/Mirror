@@ -108,9 +108,6 @@ namespace Mirror.Weaver
                 // get all dependencies for the target assembly
                 AssemblyName[] dependencies = targetAssembly.GetReferencedAssemblies();
 
-                // get all the paths
-                dependencyPaths = GetDependencyDirectories(dependencies);
-
                 // is Mirror in any of the dependencies?
                 // TODO don't use contains
                 bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
@@ -118,6 +115,9 @@ namespace Mirror.Weaver
                 {
                     return;
                 }
+
+                // get all the directories
+                dependencyPaths = GetDependencyDirectories(dependencies);
             }
             else
             {
