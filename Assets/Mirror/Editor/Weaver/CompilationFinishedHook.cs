@@ -54,8 +54,9 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // Should not run on own assembly
-            if (assemblyPath.Contains(k_HlapiRuntimeAssemblyName))
+            // don't weave mirror files
+            string assemblyName = Path.GetFileName(assemblyPath);
+            if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
             {
                 return;
             }
