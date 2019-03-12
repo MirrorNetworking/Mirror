@@ -133,8 +133,7 @@ namespace Mirror.Weaver
 
                 // does the target assembly depend on Mirror at all?
                 // otherwise there is nothing to weave anyway.
-                // TODO don't use contains
-                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(MirrorRuntimeAssemblyName));
+                bool usesMirror = dependencies.Any(dependency => dependency.Name == MirrorRuntimeAssemblyName);
                 if (!usesMirror)
                 {
                     return;
