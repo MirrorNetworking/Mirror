@@ -17,7 +17,8 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-        // properties
+#if UNITY_EDITOR
+        // Editor-only, this should never be changed at runtime.
         public Animator animator
         {
             get => m_Animator;
@@ -26,15 +27,6 @@ namespace Mirror
                 m_Animator = value;
                 ResetParameterOptions();
             }
-        }
-
-        void Awake()
-        {
-            // cache parameter array because the accessor allocates a new array every time
-            parameters = m_Animator.parameters;
-            lastIntParameters = new int[parameters.Length];
-            lastFloatParameters = new float[parameters.Length];
-            lastBoolParameters = new bool[parameters.Length];
         }
 
         public void SetParameterAutoSend(int index, bool value)
@@ -52,6 +44,21 @@ namespace Mirror
         public bool GetParameterAutoSend(int index)
         {
             return (m_ParameterSendBits & (uint)(1 << index)) != 0;
+        }
+
+        public void ResetParameterOptions()
+        {
+            m_ParameterSendBits = 0;
+        }
+#endif
+
+        void Awake()
+        {
+            // cache parameter array because the accessor allocates a new array every time
+            parameters = m_Animator.parameters;
+            lastIntParameters = new int[parameters.Length];
+            lastFloatParameters = new float[parameters.Length];
+            lastBoolParameters = new bool[parameters.Length];
         }
 
         int m_AnimationHash;
@@ -79,11 +86,6 @@ namespace Mirror
 
                 return hasAuthority;
             }
-        }
-
-        public void ResetParameterOptions()
-        {
-            m_ParameterSendBits = 0;
         }
 
         void FixedUpdate()
