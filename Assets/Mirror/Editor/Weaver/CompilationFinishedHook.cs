@@ -83,6 +83,11 @@ namespace Mirror.Weaver
             }
 
             string mirrorRuntimeDll = FindMirrorRuntime();
+            if (string.IsNullOrEmpty(mirrorRuntimeDll))
+            {
+                Debug.LogError("Failed to find Mirror runtime assembly");
+                return;
+            }
             if (!File.Exists(mirrorRuntimeDll))
             {
                 // this is normal, it happens with any assembly that is built before mirror
@@ -146,13 +151,6 @@ namespace Mirror.Weaver
 
             if (!usesMirror)
             {
-                return;
-            }
-
-
-            if (string.IsNullOrEmpty(mirrorRuntimeDll))
-            {
-                Debug.LogError("Failed to find Mirror runtime assembly");
                 return;
             }
 
