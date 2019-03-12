@@ -78,8 +78,8 @@ namespace Mirror.Weaver
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            string unityEngine = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-            if (string.IsNullOrEmpty(unityEngine))
+            string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
+            if (string.IsNullOrEmpty(unityEngineCoreModuleDLL))
             {
                 Debug.LogError("Failed to find UnityEngine assembly");
                 return;
@@ -133,8 +133,8 @@ namespace Mirror.Weaver
 
             string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
-            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " mirrorRuntimeDll=" + mirrorRuntimeDll);
-            if (Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
+            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngineCoreModuleDLL + " mirrorRuntimeDll=" + mirrorRuntimeDll);
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
             {
                 Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
