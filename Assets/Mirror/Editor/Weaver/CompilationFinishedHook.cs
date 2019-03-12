@@ -113,6 +113,7 @@ namespace Mirror.Weaver
             }
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            Assembly thisAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
             List<AssemblyName> dependencies = GetDependencies(assemblies, assemblyPath);
             HashSet<string> dependencyPaths = GetDependencyDirectories(dependencies);
 
@@ -120,8 +121,7 @@ namespace Mirror.Weaver
             // TODO don't use contains
             bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
 
-            bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
-            if (!foundThisAssembly)
+            if (thisAssembly == null)
             {
                 // Target assembly not found in current domain, trying to load it to check references
                 // will lead to trouble in the build pipeline, so lets assume it should go to weaver.
