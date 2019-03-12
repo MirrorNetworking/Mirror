@@ -1,138 +1,27 @@
-// https://docs.unity3d.com/Manual/RunningEditorCodeOnLaunch.html
+using System;
+using System.Collections.Generic;
 using System.IO;
-using Mono.Cecil;
-using UnityEngine;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Compilation;
-using System;
-using System.Linq;
+using UnityEngine;
+using Assembly = System.Reflection.Assembly;
 
 namespace Mirror.Weaver
 {
-    // InitializeOnLoad is needed for Unity to call the static constructor on load
-    [InitializeOnLoad]
-    public class CompilationFinishedHook
+    internal class ComplilationFinishedHook
     {
-        public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
-        public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
-        public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
-
-        public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
-        public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
-
-        // debug message handler that also calls OnMessageMethod delegate
-        static void HandleMessage(string msg)
+        [InitializeOnLoadMethod]
+        static void OnInitializeOnLoad()
         {
-            if (UnityLogEnabled) Debug.Log(msg);
-            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
-        }
-
-        // warning message handler that also calls OnWarningMethod delegate
-        static void HandleWarning(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogWarning(msg);
-            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
-        }
-
-        // error message handler that also calls OnErrorMethod delegate
-        static void HandleError(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogError(msg);
-            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
-        }
-
-        static CompilationFinishedHook()
-        {
-            // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp.dll/
-            // assemblyPath: Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
-            CompilationPipeline.assemblyCompilationFinished += (assemblyPath, messages) =>
-            {
-                // if user scripts can't be compiled because of errors,
-                // assemblyCompilationFinished is still called but assemblyPath
-                // file won't exist. in that case, do nothing.
-                if (!File.Exists(assemblyPath))
-                {
-                    Debug.LogError("Weaving skipped because assembly doesnt exist: " + assemblyPath);
-                    return;
-                }
-
-                string assemblyName = Path.GetFileName(assemblyPath);
-
-                if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
-                {
-                    // don't weave mirror files
-                    return;
-                }
-
-                // UnityEngineCoreModule.DLL path:
-                string unityEngineCoreModuleDLL = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
-
-                // outputDirectory is the directory of assemblyPath
-                string outputDirectory = Path.GetDirectoryName(assemblyPath);
-
-                string mirrorRuntimeDll = FindMirrorRuntime();
-                if (!File.Exists(mirrorRuntimeDll))
-                {
-                    // this is normal, it happens with any assembly that is built before mirror
-                    // such as unity packages or your own assemblies
-                    // those don't need to be weaved
-                    // if any assembly depends on mirror, then it will be built after
-                    return;
-                }
-
-                // unity calls it for Library/ScriptAssemblies/Assembly-CSharp-Editor.dll too, but we don't want to (and can't) weave this one
-                bool buildingForEditor = assemblyPath.EndsWith("Editor.dll");
-                if (!buildingForEditor)
-                {
-                    //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
-                    Debug.Log("Weaving: " + assemblyPath);
-                    // assemblyResolver: unity uses this by default:
-                    //   ICompilationExtension compilationExtension = GetCompilationExtension();
-                    //   IAssemblyResolver assemblyResolver = compilationExtension.GetAssemblyResolver(editor, file, null);
-                    // but Weaver creates it's own if null, which is this one:
-                    IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-                    if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new string[] { assemblyPath }, GetExtraAssemblyPaths(assemblyPath), assemblyResolver, HandleWarning, HandleError))
-                    {
-                        WeaveFailed = false;
-                        Debug.Log("Weaving succeeded for: " + assemblyPath);
-                    }
-                    else
-                    {
-                        WeaveFailed = true;
-                        if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
-                    }
-                }
-            };
-        }
-
-        // Weaver needs the path for all the extra DLLs like UnityEngine.UI.
-        // otherwise if a script that is being weaved (like a NetworkBehaviour)
-        // uses UnityEngine.UI, then the Weaver won't be able to resolve it and
-        // throw an error.
-        // (the paths can be found by logging the extraAssemblyPaths in the
-        //  original Weaver.Program.Process function.)
-        static string[] GetExtraAssemblyPaths(string assemblyPath)
-        {
-            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
-
-            foreach (Assembly assembly in assemblies)
-            {
-                if (assembly.outputPath == assemblyPath)
-                {
-                    return assembly.compiledAssemblyReferences.Select(Path.GetDirectoryName).ToArray();
-                }
-            }
-
-            if (UnityLogEnabled) Debug.LogWarning("Unable to find configuration for assembly " + assemblyPath);
-            return new string[] { };
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
         }
 
         static string FindMirrorRuntime()
         {
-            Assembly[] assemblies = CompilationPipeline.GetAssemblies();
+            UnityEditor.Compilation.Assembly[] assemblies = CompilationPipeline.GetAssemblies();
 
-            foreach (Assembly assembly in assemblies)
+            foreach (UnityEditor.Compilation.Assembly assembly in assemblies)
             {
                 if (assembly.name == "Mirror")
                 {
@@ -140,6 +29,131 @@ namespace Mirror.Weaver
                 }
             }
             return "";
+        }
+
+        static void OnCompilationFinished(string targetAssembly, CompilerMessage[] messages)
+        {
+            const string k_HlapiRuntimeAssemblyName = "Mirror";
+
+            // Do nothing if there were compile errors on the target
+            if (messages.Length > 0)
+            {
+                foreach (var msg in messages)
+                {
+                    if (msg.type == CompilerMessageType.Error)
+                    {
+                        Debug.Log("Weaver: stop because compile errors on target");
+                        return;
+                    }
+                }
+            }
+
+            // Should not run on the editor only assemblies
+            if (targetAssembly.Contains("-Editor") || targetAssembly.Contains(".Editor"))
+            {
+                return;
+            }
+
+            // Should not run on own assembly
+            if (targetAssembly.Contains(k_HlapiRuntimeAssemblyName))
+            {
+                return;
+            }
+
+            var scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
+
+            string mirrorRuntimeDll = FindMirrorRuntime();
+            if (!File.Exists(mirrorRuntimeDll))
+            {
+                // this is normal, it happens with any assembly that is built before mirror
+                // such as unity packages or your own assemblies
+                // those don't need to be weaved
+                // if any assembly depends on mirror, then it will be built after
+                return;
+            }
+
+            string unityEngine = "";
+            var outputDirectory = scriptAssembliesPath;
+            var assemblyPath = targetAssembly;
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            bool usesUnet = false;
+            bool foundThisAssembly = false;
+            HashSet<string> depenencyPaths = new HashSet<string>();
+            foreach (var assembly in assemblies)
+            {
+                // Find the assembly currently being compiled from domain assembly list and check if it's using unet
+                if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssembly))
+                {
+                    foundThisAssembly = true;
+                    foreach (var dependency in assembly.GetReferencedAssemblies())
+                    {
+                        // Since this assembly is already loaded in the domain this is a no-op and retuns the
+                        // already loaded assembly
+                        var location = Assembly.Load(dependency).Location;
+                        depenencyPaths.Add(Path.GetDirectoryName(location));
+                        if (dependency.Name.Contains(k_HlapiRuntimeAssemblyName))
+                        {
+                            usesUnet = true;
+                        }
+                    }
+                }
+                try
+                {
+                    if (assembly.Location.Contains("UnityEngine.CoreModule"))
+                    {
+                        unityEngine = assembly.Location;
+                    }
+                    /*if (assembly.Location.Contains(k_HlapiRuntimeAssemblyName))
+                    {
+                        unetAssemblyPath = assembly.Location;
+                    }*/
+                }
+                catch (NotSupportedException)
+                {
+                    // in memory assembly, can't get location
+                }
+            }
+
+            if (!foundThisAssembly)
+            {
+                // Target assembly not found in current domain, trying to load it to check references
+                // will lead to trouble in the build pipeline, so lets assume it should go to weaver.
+                // Add all assemblies in current domain to dependency list since there could be a
+                // dependency lurking there (there might be generated assemblies so ignore file not found exceptions).
+                // (can happen in runtime test framework on editor platform and when doing full library reimport)
+                foreach (var assembly in assemblies)
+                {
+                    try
+                    {
+                        if (!assembly.IsDynamic)
+                            depenencyPaths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
+                    }
+                    catch (FileNotFoundException) { }
+                }
+                usesUnet = true;
+            }
+
+            if (!usesUnet)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(unityEngine))
+            {
+                Debug.LogError("Failed to find UnityEngine assembly");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(mirrorRuntimeDll))
+            {
+                Debug.LogError("Failed to find Mirror runtime assembly");
+                return;
+            }
+
+            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " unetassembly=" + mirrorRuntimeDll);
+            bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, depenencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
+            Debug.Log("Weaver result: " + result);
         }
     }
 }
