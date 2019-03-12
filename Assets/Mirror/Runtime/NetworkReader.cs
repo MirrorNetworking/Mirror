@@ -7,7 +7,6 @@ namespace Mirror
 {
     public class NetworkReader
     {
-        // preallocate an Encoding, this saves a per packet 64B allocation
         static readonly UTF8Encoding encoding = new UTF8Encoding(false);
 
         readonly BinaryReader reader;
