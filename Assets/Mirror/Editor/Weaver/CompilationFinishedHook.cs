@@ -13,6 +13,7 @@ namespace Mirror.Weaver
     internal class ComplilationFinishedHook
     {
         const string MirrorRuntimeAssemblyName = "Mirror";
+        const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
