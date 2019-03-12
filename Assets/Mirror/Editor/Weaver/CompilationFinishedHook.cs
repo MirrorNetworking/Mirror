@@ -59,7 +59,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            var scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
 
             string mirrorRuntimeDll = FindMirrorRuntime();
             if (!File.Exists(mirrorRuntimeDll))
@@ -71,6 +70,7 @@ namespace Mirror.Weaver
                 return;
             }
 
+            var scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
             string unityEngine = "";
             var outputDirectory = scriptAssembliesPath;
             var assemblyPath = targetAssembly;
