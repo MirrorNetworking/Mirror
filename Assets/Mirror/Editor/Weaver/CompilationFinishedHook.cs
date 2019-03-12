@@ -49,12 +49,16 @@ namespace Mirror.Weaver
 
             foreach (Assembly assembly in assemblies)
             {
-                try
+                if (!assembly.IsDynamic)
                 {
-                    if (!assembly.IsDynamic)
-                        paths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
+                    // need to check if file exists to avoid potential
+                    // FileNotFoundException in Assembly.Load
+                    string assemblyName = assembly.GetName().Name;
+                    if (File.Exists(assemblyName))
+                    {
+                        paths.Add(Path.GetDirectoryName(Assembly.Load(assemblyName).Location));
+                    }
                 }
-                catch (FileNotFoundException) { }
             }
 
             return paths;
