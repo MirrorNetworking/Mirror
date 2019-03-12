@@ -155,8 +155,14 @@ namespace Mirror.Weaver
             string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
             Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " mirrorRuntimeDll=" + mirrorRuntimeDll);
-            bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
-            Debug.Log("Weaver result: " + result);
+            if (Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
+            {
+                Debug.Log("Weaving succeeded for: " + assemblyPath);
+            }
+            else
+            {
+                Debug.LogError("Weaving failed for: " + assemblyPath);
+            }
         }
     }
 }
