@@ -1,16 +1,20 @@
 using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
 {
     public class NetworkReader
     {
+        // preallocate an Encoding, this saves a per packet 64B allocation
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false);
+
         readonly BinaryReader reader;
 
         public NetworkReader(byte[] buffer)
         {
-            reader = new BinaryReader(new MemoryStream(buffer, false));
+            reader = new BinaryReader(new MemoryStream(buffer, false), encoding);
         }
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
