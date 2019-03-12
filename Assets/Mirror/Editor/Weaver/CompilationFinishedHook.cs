@@ -60,7 +60,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-
             string mirrorRuntimeDll = FindMirrorRuntime();
             if (!File.Exists(mirrorRuntimeDll))
             {
