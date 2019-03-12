@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -70,26 +71,26 @@ namespace Mirror.Weaver
                 return;
             }
 
-            var scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
+            string scriptAssembliesPath = Application.dataPath + "/../" + Path.GetDirectoryName(targetAssembly);
             string unityEngine = "";
-            var outputDirectory = scriptAssembliesPath;
-            var assemblyPath = targetAssembly;
+            string outputDirectory = scriptAssembliesPath;
+            string assemblyPath = targetAssembly;
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesUnet = false;
             bool foundThisAssembly = false;
             HashSet<string> dependencyPaths = new HashSet<string>();
-            foreach (var assembly in assemblies)
+            foreach (Assembly assembly in assemblies)
             {
                 // Find the assembly currently being compiled from domain assembly list and check if it's using unet
                 if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(targetAssembly))
                 {
                     foundThisAssembly = true;
-                    foreach (var dependency in assembly.GetReferencedAssemblies())
+                    foreach (AssemblyName dependency in assembly.GetReferencedAssemblies())
                     {
                         // Since this assembly is already loaded in the domain this is a no-op and retuns the
                         // already loaded assembly
-                        var location = Assembly.Load(dependency).Location;
+                        string location = Assembly.Load(dependency).Location;
                         dependencyPaths.Add(Path.GetDirectoryName(location));
                         if (dependency.Name.Contains(k_HlapiRuntimeAssemblyName))
                         {
@@ -121,7 +122,7 @@ namespace Mirror.Weaver
                 // Add all assemblies in current domain to dependency list since there could be a
                 // dependency lurking there (there might be generated assemblies so ignore file not found exceptions).
                 // (can happen in runtime test framework on editor platform and when doing full library reimport)
-                foreach (var assembly in assemblies)
+                foreach (Assembly assembly in assemblies)
                 {
                     try
                     {
