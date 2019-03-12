@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEditor.Compilation;
 
-/*using Mirror.Weaver;
+using Mirror.Weaver;
 
 namespace Mirror
 {
@@ -828,4 +828,3 @@ namespace Mirror
         #endregion
     }
 }
-*/
