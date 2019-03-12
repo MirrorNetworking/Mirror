@@ -12,7 +12,7 @@ namespace Mirror.Weaver
 {
     internal class ComplilationFinishedHook
     {
-        const string MirrorAssemblyName = "Mirror";
+        const string MirrorRuntimeAssemblyName = "Mirror";
 
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
@@ -26,7 +26,7 @@ namespace Mirror.Weaver
 
             foreach (UnityEditor.Compilation.Assembly assembly in assemblies)
             {
-                if (assembly.name == MirrorAssemblyName)
+                if (assembly.name == MirrorRuntimeAssemblyName)
                 {
                     return assembly.outputPath;
                 }
@@ -133,7 +133,7 @@ namespace Mirror.Weaver
                 // does the target assembly depend on Mirror at all?
                 // otherwise there is nothing to weave anyway.
                 // TODO don't use contains
-                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(MirrorAssemblyName));
+                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(MirrorRuntimeAssemblyName));
                 if (!usesMirror)
                 {
                     return;
