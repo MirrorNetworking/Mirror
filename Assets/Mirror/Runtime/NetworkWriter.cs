@@ -8,7 +8,7 @@ namespace Mirror
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter
     {
-        static readonly UTF8Encoding encoding = new UTF8Encoding(false);
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
