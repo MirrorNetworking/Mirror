@@ -15,6 +15,35 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
+        public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
+        public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
+        public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
+
+        public static bool WeaverEnabled { get; set; } // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
+        public static bool UnityLogEnabled = true; // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        public static bool WeaveFailed { get; private set; } // holds the result status of our latest Weave operation
+
+        // debug message handler that also calls OnMessageMethod delegate
+        static void HandleMessage(string msg)
+        {
+            if (UnityLogEnabled) Debug.Log(msg);
+            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
+        }
+
+        // warning message handler that also calls OnWarningMethod delegate
+        static void HandleWarning(string msg)
+        {
+            if (UnityLogEnabled) Debug.LogWarning(msg);
+            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
+        }
+
+        // error message handler that also calls OnErrorMethod delegate
+        static void HandleError(string msg)
+        {
+            if (UnityLogEnabled) Debug.LogError(msg);
+            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
+        }
+
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
@@ -156,14 +185,16 @@ namespace Mirror.Weaver
             string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
             string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
 
-            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngineCoreModuleDLL + " mirrorRuntimeDll=" + mirrorRuntimeDll);
+            //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
             {
+                WeaveFailed = false;
                 Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {
-                Debug.LogError("Weaving failed for: " + assemblyPath);
+                WeaveFailed = true;
+                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
     }
