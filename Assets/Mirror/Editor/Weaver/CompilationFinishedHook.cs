@@ -95,7 +95,14 @@ namespace Mirror.Weaver
             string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
             string unityEngine = FindUnityEngineRuntime(assemblies);
+            if (string.IsNullOrEmpty(unityEngine))
+            {
+                Debug.LogError("Failed to find UnityEngine assembly");
+                return;
+            }
+
             bool usesMirror = false;
             bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
             HashSet<string> dependencyPaths = new HashSet<string>();
@@ -142,11 +149,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (string.IsNullOrEmpty(unityEngine))
-            {
-                Debug.LogError("Failed to find UnityEngine assembly");
-                return;
-            }
 
             if (string.IsNullOrEmpty(mirrorRuntimeDll))
             {
