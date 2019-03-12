@@ -76,14 +76,13 @@ namespace Mirror.Weaver
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool usesMirror = false;
-            bool foundThisAssembly = false;
+            bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
             HashSet<string> dependencyPaths = new HashSet<string>();
             foreach (Assembly assembly in assemblies)
             {
                 // Find the assembly currently being compiled from domain assembly list and check if it's using Mirror
                 if (assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath))
                 {
-                    foundThisAssembly = true;
                     foreach (AssemblyName dependency in assembly.GetReferencedAssemblies())
                     {
                         // Since this assembly is already loaded in the domain this is a no-op and returns the
