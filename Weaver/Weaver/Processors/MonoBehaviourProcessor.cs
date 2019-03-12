@@ -20,15 +20,13 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncVarType.FullName)
                     {
-                        Log.Error("Script " + td.FullName + " uses [SyncVar] " + fd.Name + " but is not a NetworkBehaviour.");
-                        Weaver.WeavingFailed = true;
+                        Weaver.Error("Script " + td.FullName + " uses [SyncVar] " + fd.Name + " but is not a NetworkBehaviour.");
                     }
                 }
 
                 if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
                 {
-                    Log.Error(string.Format("Script {0} defines field {1} with type {2}, but it's not a NetworkBehaviour", td.FullName, fd.Name, Helpers.PrettyPrintType(fd.FieldType)));
-                    Weaver.WeavingFailed = true;
+                    Weaver.Error(string.Format("Script {0} defines field {1} with type {2}, but it's not a NetworkBehaviour", td.FullName, fd.Name, Helpers.PrettyPrintType(fd.FieldType)));
                 }
             }
         }
@@ -42,20 +40,17 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
-                        Log.Error("Script " + td.FullName + " uses [Command] " + md.Name + " but is not a NetworkBehaviour.");
-                        Weaver.WeavingFailed = true;
+                        Weaver.Error("Script " + td.FullName + " uses [Command] " + md.Name + " but is not a NetworkBehaviour.");
                     }
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
                     {
-                        Log.Error("Script " + td.FullName + " uses [ClientRpc] " + md.Name + " but is not a NetworkBehaviour.");
-                        Weaver.WeavingFailed = true;
+                        Weaver.Error("Script " + td.FullName + " uses [ClientRpc] " + md.Name + " but is not a NetworkBehaviour.");
                     }
 
                     if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
                     {
-                        Log.Error("Script " + td.FullName + " uses [TargetRpc] " + md.Name + " but is not a NetworkBehaviour.");
-                        Weaver.WeavingFailed = true;
+                        Weaver.Error("Script " + td.FullName + " uses [TargetRpc] " + md.Name + " but is not a NetworkBehaviour.");
                     }
 
                     string attributeName = ca.Constructor.DeclaringType.ToString();
@@ -63,20 +58,16 @@ namespace Mirror.Weaver
                     switch (attributeName)
                     {
                         case "Mirror.ServerAttribute":
-                            Log.Error("Script " + td.FullName + " uses the attribute [Server] on the method " + md.Name + " but is not a NetworkBehaviour.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("Script " + td.FullName + " uses the attribute [Server] on the method " + md.Name + " but is not a NetworkBehaviour.");
                             break;
                         case "Mirror.ServerCallbackAttribute":
-                            Log.Error("Script " + td.FullName + " uses the attribute [ServerCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("Script " + td.FullName + " uses the attribute [ServerCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
                             break;
                         case "Mirror.ClientAttribute":
-                            Log.Error("Script " + td.FullName + " uses the attribute [Client] on the method " + md.Name + " but is not a NetworkBehaviour.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("Script " + td.FullName + " uses the attribute [Client] on the method " + md.Name + " but is not a NetworkBehaviour.");
                             break;
                         case "Mirror.ClientCallbackAttribute":
-                            Log.Error("Script " + td.FullName + " uses the attribute [ClientCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
-                            Weaver.WeavingFailed = true;
+                            Weaver.Error("Script " + td.FullName + " uses the attribute [ClientCallback] on the method " + md.Name + " but is not a NetworkBehaviour.");
                             break;
                     }
                 }

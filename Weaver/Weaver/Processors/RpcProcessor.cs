@@ -91,15 +91,13 @@ namespace Mirror.Weaver
         {
             if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
             {
-                Log.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
-                Weaver.WeavingFailed = true;
+                Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Log.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
-                Weaver.WeavingFailed = true;
+                Weaver.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
                 return false;
             }
 

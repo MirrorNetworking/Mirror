@@ -43,7 +43,7 @@ namespace Mirror.Weaver
         public static ModuleDefinition CorLibModule { get; private set; }
         public static AssemblyDefinition UnityAssembly { get; private set; }
         public static AssemblyDefinition NetAssembly { get; private set; }
-        public static bool WeavingFailed { get; set; }
+        public static bool WeavingFailed { get; private set; }
         public static bool GenerateLogErrors { get; set; }
 
         // private properties
@@ -184,6 +184,14 @@ namespace Mirror.Weaver
             Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
         }
 
+        // display weaver error
+        // and mark process as failed
+        public static void Error(string message)
+        {
+            Log.Error(message);
+            WeavingFailed = true;
+        }
+
         public static int GetSyncVarStart(string className)
         {
             return WeaveLists.numSyncVars.ContainsKey(className)
@@ -200,8 +208,7 @@ namespace Mirror.Weaver
         {
             if (RecursionCount++ > MaxRecursionCount)
             {
-                Log.Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                WeavingFailed = true;
+                Error("GetWriteFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 return null;
             }
 
@@ -217,7 +224,7 @@ namespace Mirror.Weaver
             if (variable.IsByReference)
             {
                 // error??
-                Log.Error("GetWriteFunc variable.IsByReference error.");
+                Error("GetWriteFunc variable.IsByReference error.");
                 return null;
             }
 
@@ -275,14 +282,14 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
-                Log.Error("GetReadFunc unsupported type " + variable.FullName);
+                Error("GetReadFunc unsupported type " + variable.FullName);
                 return null;
             }
 
             if (variable.IsByReference)
             {
                 // error??
-                Log.Error("GetReadFunc variable.IsByReference error.");
+                Error("GetReadFunc variable.IsByReference error.");
                 return null;
             }
 
@@ -534,15 +541,13 @@ namespace Mirror.Weaver
 
                 if (field.FieldType.Resolve().HasGenericParameters)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot have generic parameters.");
+                    Weaver.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot have generic parameters.");
                     return null;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.WeavingFailed = true;
-                    Log.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot be an interface.");
+                    Weaver.Error("WriteReadFunc for " + field.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. Cannot be an interface.");
                     return null;
                 }
 
@@ -557,8 +562,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("WriteReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    WeavingFailed = true;
+                    Weaver.Error("WriteReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
                     return null;
                 }
             }
@@ -574,8 +578,7 @@ namespace Mirror.Weaver
         {
             if (RecursionCount++ > MaxRecursionCount)
             {
-                Log.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                WeavingFailed = true;
+                Weaver.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
                 return null;
             }
 
@@ -648,8 +651,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Log.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
-                    WeavingFailed = true;
+                    Weaver.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
                     return null;
                 }
 
@@ -1247,11 +1249,10 @@ namespace Mirror.Weaver
             string assembly = CurrentAssembly.MainModule.Name;
             if (variable.Module.Name != assembly)
             {
-                Log.Error("parameter [" + variable.Name +
+                Weaver.Error("parameter [" + variable.Name +
                     "] is of the type [" +
                     variable.FullName +
                     "] is not a valid type, please make sure to use a valid type.");
-                WeavingFailed = true;
                 return false;
             }
             return true;
@@ -1423,7 +1424,7 @@ namespace Mirror.Weaver
                         {
                             if (CurrentAssembly.MainModule.SymbolReader != null)
                                 CurrentAssembly.MainModule.SymbolReader.Dispose();
-                            WeavingFailed = true;
+                            Weaver.Error(ex.Message);
                             throw ex;
                         }
                     }
