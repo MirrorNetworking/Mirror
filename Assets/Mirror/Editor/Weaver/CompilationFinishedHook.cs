@@ -85,7 +85,7 @@ namespace Mirror.Weaver
                     foundThisAssembly = true;
                     foreach (AssemblyName dependency in assembly.GetReferencedAssemblies())
                     {
-                        // Since this assembly is already loaded in the domain this is a no-op and retuns the
+                        // Since this assembly is already loaded in the domain this is a no-op and returns the
                         // already loaded assembly
                         string location = Assembly.Load(dependency).Location;
                         dependencyPaths.Add(Path.GetDirectoryName(location));
