@@ -32,27 +32,6 @@ namespace Mirror.Weaver
             return "";
         }
 
-        // TODO try our previous way:
-        // UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath()
-        static string FindUnityEngineRuntime(Assembly[] assemblies)
-        {
-            foreach (Assembly assembly in assemblies)
-            {
-                try
-                {
-                    if (assembly.Location.Contains("UnityEngine.CoreModule"))
-                    {
-                        return assembly.Location;
-                    }
-                }
-                catch (NotSupportedException)
-                {
-                    // in memory assembly, can't get location
-                }
-            }
-            return "";
-        }
-
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
         {
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -99,7 +78,7 @@ namespace Mirror.Weaver
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-            string unityEngine = FindUnityEngineRuntime(assemblies);
+            string unityEngine = UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath();
             if (string.IsNullOrEmpty(unityEngine))
             {
                 Debug.LogError("Failed to find UnityEngine assembly");
