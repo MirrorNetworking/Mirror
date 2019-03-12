@@ -186,7 +186,7 @@ namespace Mirror.Weaver
             string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
 
             //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); }))
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
                 WeaveFailed = false;
                 Debug.Log("Weaving succeeded for: " + assemblyPath);
