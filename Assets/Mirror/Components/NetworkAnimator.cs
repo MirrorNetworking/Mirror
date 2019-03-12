@@ -15,6 +15,7 @@ namespace Mirror
         int[] lastIntParameters;
         float[] lastFloatParameters;
         bool[] lastBoolParameters;
+        AnimatorControllerParameter[] parameters;
 
         // properties
         public Animator animator
@@ -27,11 +28,20 @@ namespace Mirror
             }
         }
 
+        void Awake()
+        {
+            // cache parameter array because the accessor allocates a new array every time
+            parameters = m_Animator.parameters;
+            lastIntParameters = new int[parameters.Length];
+            lastFloatParameters = new float[parameters.Length];
+            lastBoolParameters = new bool[parameters.Length];
+        }
+
         public void SetParameterAutoSend(int index, bool value)
         {
             if (value)
             {
-                m_ParameterSendBits |=  (uint)(1 << index);
+                m_ParameterSendBits |= (uint)(1 << index);
             }
             else
             {
@@ -73,26 +83,24 @@ namespace Mirror
 
         public void ResetParameterOptions()
         {
-            Debug.Log("ResetParameterOptions");
             m_ParameterSendBits = 0;
         }
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed)
-                return;
+            if (!sendMessagesAllowed) return;
 
-            CheckSendRate();
-
-            if (!CheckAnimStateChanged(out int stateHash, out float normalizedTime))
+            if (CheckAnimStateChanged(out int stateHash, out float normalizedTime))
             {
-                return;
+                // GetDirtyBits() here, not outside the if, because it updates the lastParameter values.
+                uint dirtyBits = GetDirtyBits();
+                SendAnimationMessage(stateHash, normalizedTime, dirtyBits, WriteParametersArray(dirtyBits));
             }
-
-            NetworkWriter writer = new NetworkWriter();
-            WriteParameters(writer, false);
-
-            SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
+            else if (CheckSendRate())
+            {
+                uint dirtyBits = GetDirtyBits();
+                SendAnimationParametersMessage(dirtyBits, WriteParametersArray(dirtyBits));
+            }
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
@@ -130,48 +138,45 @@ namespace Mirror
             return false;
         }
 
-        void CheckSendRate()
+        bool CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time)
-            {
-                m_SendTimer = Time.time + syncInterval;
-
-                NetworkWriter writer = new NetworkWriter();
-                if (WriteParameters(writer, true))
-                {
-                    SendAnimationParametersMessage(writer.ToArray());
-                }
-            }
+            return sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time;
         }
 
-        void SendAnimationMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void ResetSendTime()
         {
+            m_SendTimer = Time.time + syncInterval;
+        }
+
+        void SendAnimationMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
+        {
+            ResetSendTime();
             if (isServer)
             {
-                RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
+                RpcOnAnimationClientMessage(stateHash, normalizedTime, dirtyBits, parameters);
             }
             else if (ClientScene.readyConnection != null)
             {
-                CmdOnAnimationServerMessage(stateHash, normalizedTime, parameters);
+                CmdOnAnimationServerMessage(stateHash, normalizedTime, dirtyBits, parameters);
             }
         }
 
-        void SendAnimationParametersMessage(byte[] parameters)
+        void SendAnimationParametersMessage(uint dirtyBits, byte[] parameters)
         {
+            ResetSendTime();
             if (isServer)
             {
-                RpcOnAnimationParametersClientMessage(parameters);
+                RpcOnAnimationParametersClientMessage(dirtyBits, parameters);
             }
             else if (ClientScene.readyConnection != null)
             {
-                CmdOnAnimationParametersServerMessage(parameters);
+                CmdOnAnimationParametersServerMessage(dirtyBits, parameters);
             }
         }
 
-        internal void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
+        internal void HandleAnimMsg(int stateHash, float normalizedTime, uint dirtyBits, NetworkReader reader)
         {
-            if (hasAuthority)
-                return;
+            if (hasAuthority) return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
             // NOTE: this plays "animations", not transitions, so any transitions will be skipped.
@@ -181,15 +186,14 @@ namespace Mirror
                 m_Animator.Play(stateHash, 0, normalizedTime);
             }
 
-            ReadParameters(reader, false);
+            ReadParameters(dirtyBits, reader);
         }
 
-        internal void HandleAnimParamsMsg(NetworkReader reader)
+        internal void HandleAnimParamsMsg(uint dirtyBits, NetworkReader reader)
         {
-            if (hasAuthority)
-                return;
+            if (hasAuthority) return;
 
-            ReadParameters(reader, true);
+            ReadParameters(dirtyBits, reader);
         }
 
         internal void HandleAnimTriggerMsg(int hash)
@@ -197,96 +201,84 @@ namespace Mirror
             m_Animator.SetTrigger(hash);
         }
 
-        bool WriteParameters(NetworkWriter writer, bool autoSend)
+        uint GetDirtyBits()
         {
-            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
-            // a new parameter array every time it is accessed so we should avoid doing it in a loop
-            AnimatorControllerParameter[] parameters = m_Animator.parameters;
-            if (lastIntParameters == null) lastIntParameters = new int[parameters.Length];
-            if (lastFloatParameters == null) lastFloatParameters = new float[parameters.Length];
-            if (lastBoolParameters == null) lastBoolParameters = new bool[parameters.Length];
-
             uint dirtyBits = 0;
-            // Save the position in the writer where to insert the dirty bits
-            int dirtyBitsPosition = writer.Position;
-            // Reserve the space for the bits
-            writer.Write(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (autoSend && !GetParameterAutoSend(i))
-                    continue;
-
+                bool parameterDirty = false;
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = m_Animator.GetInteger(par.nameHash);
-                    if (newIntValue != lastIntParameters[i])
-                    {
-                        writer.WritePackedUInt32((uint) newIntValue);
-                        dirtyBits |= 1u << i;
-                        lastIntParameters[i] = newIntValue;
-                    }
+                    parameterDirty = newIntValue != lastIntParameters[i];
+                    lastIntParameters[i] = newIntValue;
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = m_Animator.GetFloat(par.nameHash);
-                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) < 0.001f)
-                    {
-                        writer.Write(newFloatValue);
-                        dirtyBits |= 1u << i;
-                        lastFloatParameters[i] = newFloatValue;
-                    }
+                    parameterDirty = newFloatValue != lastFloatParameters[i];
+                    lastFloatParameters[i] = newFloatValue;
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = m_Animator.GetBool(par.nameHash);
-                    if (newBoolValue != lastBoolParameters[i])
-                    {
-                        writer.Write(newBoolValue);
-                        dirtyBits |= 1u << i;
-                        lastBoolParameters[i] = newBoolValue;
-                    }
+                    parameterDirty = newBoolValue != lastBoolParameters[i];
+                    lastBoolParameters[i] = newBoolValue;
                 }
+                if (parameterDirty) dirtyBits |= 1u << i;
             }
-            // Save the position we were at to return to after writing dirtyBits
-            int messageEndPosition = writer.Position;
-            // Write the dirty bits into the reserved position
-            writer.Position = dirtyBitsPosition;
-            writer.Write(dirtyBits);
-            // Return to the end position, so that serialization includes parameter data.
-            writer.Position = messageEndPosition;
-            return dirtyBits != 0;
+            // Mask the dirty bits by the user specified parameters to send.
+            return dirtyBits & m_ParameterSendBits;
         }
 
-        void ReadParameters(NetworkReader reader, bool autoSend)
+        byte[] WriteParametersArray(uint dirtyBits)
         {
-            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
-            // a new parameter array every time it is accessed so we should avoid doing it in a loop
-            AnimatorControllerParameter[] parameters = m_Animator.parameters;
+            NetworkWriter writer = new NetworkWriter();
+            WriteParameters(dirtyBits, writer);
+            return writer.ToArray();
+        }
 
-            uint dirtyBits = reader.ReadUInt32();
+        void WriteParameters(uint dirtyBits, NetworkWriter writer)
+        {
             for (int i = 0; i < parameters.Length; i++)
             {
-                if (autoSend && !GetParameterAutoSend(i))
-                    continue;
-                if ((dirtyBits & (1 << i)) == 0)
-                    continue;
+                if ((dirtyBits & (1 << i)) == 0) continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = (int)reader.ReadPackedUInt32();
-                    m_Animator.SetInteger(par.nameHash, newIntValue);
+                    writer.WritePackedUInt32((uint) m_Animator.GetInteger(par.nameHash));
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    float newFloatValue = reader.ReadSingle();
-                    m_Animator.SetFloat(par.nameHash, newFloatValue);
+                    writer.Write(m_Animator.GetFloat(par.nameHash));
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    bool newBoolValue = reader.ReadBoolean();
-                    m_Animator.SetBool(par.nameHash, newBoolValue);
+                    writer.Write(m_Animator.GetBool(par.nameHash));
+                }
+            }
+        }
+
+        void ReadParameters(uint dirtyBits, NetworkReader reader)
+        {
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if ((dirtyBits & (1 << i)) == 0) continue;
+
+                AnimatorControllerParameter par = parameters[i];
+                if (par.type == AnimatorControllerParameterType.Int)
+                {
+                    m_Animator.SetInteger(par.nameHash, (int)reader.ReadPackedUInt32());
+                }
+                else if (par.type == AnimatorControllerParameterType.Float)
+                {
+                    m_Animator.SetFloat(par.nameHash, reader.ReadSingle());
+                }
+                else if (par.type == AnimatorControllerParameterType.Bool)
+                {
+                    m_Animator.SetBool(par.nameHash, reader.ReadBoolean());
                 }
             }
         }
@@ -307,7 +299,7 @@ namespace Mirror
                     writer.Write(st.fullPathHash);
                     writer.Write(st.normalizedTime);
                 }
-                WriteParameters(writer, false);
+                WriteParameters(m_ParameterSendBits, writer);
                 return true;
             }
             return false;
@@ -319,7 +311,7 @@ namespace Mirror
             {
                 int stateHash = reader.ReadInt32();
                 float normalizedTime = reader.ReadSingle();
-                ReadParameters(reader, false);
+                ReadParameters(m_ParameterSendBits, reader);
                 m_Animator.Play(stateHash, 0, normalizedTime);
             }
         }
@@ -348,21 +340,21 @@ namespace Mirror
 
         #region server message handlers
         [Command]
-        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
         {
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
-            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
-            RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
+            HandleAnimMsg(stateHash, normalizedTime, dirtyBits, new NetworkReader(parameters));
+            RpcOnAnimationClientMessage(stateHash, normalizedTime, dirtyBits, parameters);
         }
 
         [Command]
-        void CmdOnAnimationParametersServerMessage(byte[] parameters)
+        void CmdOnAnimationParametersServerMessage(uint dirtyBits, byte[] parameters)
         {
             // handle and broadcast
-            HandleAnimParamsMsg(new NetworkReader(parameters));
-            RpcOnAnimationParametersClientMessage(parameters);
+            HandleAnimParamsMsg(dirtyBits, new NetworkReader(parameters));
+            RpcOnAnimationParametersClientMessage(dirtyBits, parameters);
         }
 
         [Command]
@@ -376,15 +368,15 @@ namespace Mirror
 
         #region client message handlers
         [ClientRpc]
-        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
         {
-            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
+            HandleAnimMsg(stateHash, normalizedTime, dirtyBits, new NetworkReader(parameters));
         }
 
         [ClientRpc]
-        void RpcOnAnimationParametersClientMessage(byte[] parameters)
+        void RpcOnAnimationParametersClientMessage(uint dirtyBits, byte[] parameters)
         {
-            HandleAnimParamsMsg(new NetworkReader(parameters));
+            HandleAnimParamsMsg(dirtyBits, new NetworkReader(parameters));
         }
 
         // server sends this to one client
