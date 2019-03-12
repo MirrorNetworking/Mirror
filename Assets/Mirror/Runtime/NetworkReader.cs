@@ -7,7 +7,7 @@ namespace Mirror
 {
     public class NetworkReader
     {
-        static readonly UTF8Encoding encoding = new UTF8Encoding(false);
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         readonly BinaryReader reader;
 
