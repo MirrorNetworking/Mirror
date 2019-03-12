@@ -32,6 +32,25 @@ namespace Mirror.Weaver
             return "";
         }
 
+        static string FindUnityEngineRuntime(Assembly[] assemblies)
+        {
+            foreach (Assembly assembly in assemblies)
+            {
+                try
+                {
+                    if (assembly.Location.Contains("UnityEngine.CoreModule"))
+                    {
+                        return assembly.Location;
+                    }
+                }
+                catch (NotSupportedException)
+                {
+                    // in memory assembly, can't get location
+                }
+            }
+            return "";
+        }
+
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
         {
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -71,10 +90,10 @@ namespace Mirror.Weaver
                 return;
             }
 
-            string unityEngine = "";
             string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            string unityEngine = FindUnityEngineRuntime(assemblies);
             bool usesMirror = false;
             bool foundThisAssembly = assemblies.Any(assembly => assembly.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
             HashSet<string> dependencyPaths = new HashSet<string>();
@@ -94,17 +113,6 @@ namespace Mirror.Weaver
                             usesMirror = true;
                         }
                     }
-                }
-                try
-                {
-                    if (assembly.Location.Contains("UnityEngine.CoreModule"))
-                    {
-                        unityEngine = assembly.Location;
-                    }
-                }
-                catch (NotSupportedException)
-                {
-                    // in memory assembly, can't get location
                 }
             }
 
