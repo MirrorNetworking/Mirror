@@ -151,7 +151,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " unetassembly=" + mirrorRuntimeDll);
+            Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " mirrorRuntimeDll=" + mirrorRuntimeDll);
             bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
             Debug.Log("Weaver result: " + result);
         }
