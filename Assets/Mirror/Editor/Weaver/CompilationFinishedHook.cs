@@ -13,7 +13,7 @@ namespace Mirror.Weaver
     internal class ComplilationFinishedHook
     {
         const string MirrorAssemblyName = "Mirror";
-        
+
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
@@ -26,7 +26,7 @@ namespace Mirror.Weaver
 
             foreach (UnityEditor.Compilation.Assembly assembly in assemblies)
             {
-                if (assembly.name == "Mirror")
+                if (assembly.name == MirrorAssemblyName)
                 {
                     return assembly.outputPath;
                 }
