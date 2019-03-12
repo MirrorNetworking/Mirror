@@ -32,6 +32,8 @@ namespace Mirror.Weaver
             return "";
         }
 
+        // TODO try our previous way:
+        // UnityEditorInternal.InternalEditorUtility.GetEngineCoreModuleAssemblyPath()
         static string FindUnityEngineRuntime(Assembly[] assemblies)
         {
             foreach (Assembly assembly in assemblies)
