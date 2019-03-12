@@ -88,7 +88,7 @@ namespace Mirror.Weaver
 
             // don't weave mirror files
             string assemblyName = Path.GetFileName(assemblyPath);
-            if (assemblyName == "Telepathy.dll" || assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+            if (assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
             {
                 return;
             }
