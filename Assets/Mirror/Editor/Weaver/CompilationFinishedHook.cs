@@ -100,7 +100,6 @@ namespace Mirror.Weaver
             Assembly targetAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
 
             // prepare variables
-            bool usesMirror;
             HashSet<string> dependencyPaths = new HashSet<string>();
 
             // found this assembly in assemblies?
@@ -114,7 +113,11 @@ namespace Mirror.Weaver
 
                 // is Mirror in any of the dependencies?
                 // TODO don't use contains
-                usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
+                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
+                if (!usesMirror)
+                {
+                    return;
+                }
             }
             else
             {
@@ -132,13 +135,8 @@ namespace Mirror.Weaver
                     }
                     catch (FileNotFoundException) { }
                 }
-                usesMirror = true;
             }
 
-            if (!usesMirror)
-            {
-                return;
-            }
 
             // construct full path to Project/Library/ScriptAssemblies
             string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
