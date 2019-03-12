@@ -137,7 +137,6 @@ namespace Mirror.Weaver
                 }
             }
 
-
             // construct full path to Project/Library/ScriptAssemblies
             string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
             string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
