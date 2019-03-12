@@ -10,7 +10,7 @@ using Assembly = System.Reflection.Assembly;
 
 namespace Mirror.Weaver
 {
-    internal class ComplilationFinishedHook
+    public class ComplilationFinishedHook
     {
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
