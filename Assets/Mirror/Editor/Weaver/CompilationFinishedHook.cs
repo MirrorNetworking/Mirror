@@ -42,6 +42,24 @@ namespace Mirror.Weaver
             );
         }
 
+        // get all non-dynamic assembly directories
+        static HashSet<string> GetNonDynamicAssemblyDirectories(Assembly[] assemblies)
+        {
+            HashSet<string> paths = new HashSet<string>();
+
+            foreach (Assembly assembly in assemblies)
+            {
+                try
+                {
+                    if (!assembly.IsDynamic)
+                        paths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
+                }
+                catch (FileNotFoundException) { }
+            }
+
+            return paths;
+        }
+
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
         {
             return messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -126,15 +144,7 @@ namespace Mirror.Weaver
                 // Add all assemblies in current domain to dependency list since there could be a
                 // dependency lurking there (there might be generated assemblies so ignore file not found exceptions).
                 // (can happen in runtime test framework on editor platform and when doing full library reimport)
-                foreach (Assembly assembly in assemblies)
-                {
-                    try
-                    {
-                        if (!assembly.IsDynamic)
-                            dependencyPaths.Add(Path.GetDirectoryName(Assembly.Load(assembly.GetName().Name).Location));
-                    }
-                    catch (FileNotFoundException) { }
-                }
+                dependencyPaths = GetNonDynamicAssemblyDirectories(assemblies);
             }
 
             // construct full path to Project/Library/ScriptAssemblies
