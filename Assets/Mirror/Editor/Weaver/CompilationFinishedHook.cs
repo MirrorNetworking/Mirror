@@ -12,6 +12,8 @@ namespace Mirror.Weaver
 {
     internal class ComplilationFinishedHook
     {
+        const string MirrorAssemblyName = "Mirror";
+        
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
@@ -71,8 +73,6 @@ namespace Mirror.Weaver
 
         static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
-            const string k_HlapiRuntimeAssemblyName = "Mirror";
-
             // Do nothing if there were compile errors on the target
             if (CompilerMessagesContainError(messages))
             {
@@ -133,7 +133,7 @@ namespace Mirror.Weaver
                 // does the target assembly depend on Mirror at all?
                 // otherwise there is nothing to weave anyway.
                 // TODO don't use contains
-                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(k_HlapiRuntimeAssemblyName));
+                bool usesMirror = dependencies.Any(dependency => dependency.Name.Contains(MirrorAssemblyName));
                 if (!usesMirror)
                 {
                     return;
