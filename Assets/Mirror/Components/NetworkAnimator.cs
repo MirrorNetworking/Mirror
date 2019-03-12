@@ -81,7 +81,7 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed) return;
+            if (!sendMessagesAllowed || !CheckSendRate()) return;
 
             if (CheckAnimStateChanged(out int stateHash, out float normalizedTime))
             {
@@ -89,7 +89,7 @@ namespace Mirror
                 ulong dirtyBits = GetDirtyBits();
                 SendAnimationMessage(stateHash, normalizedTime, dirtyBits, WriteParametersArray(dirtyBits));
             }
-            else if (CheckSendRate())
+            else
             {
                 ulong dirtyBits = GetDirtyBits();
                 // Don't bother sending a packet if its empty
