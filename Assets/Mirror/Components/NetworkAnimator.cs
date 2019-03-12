@@ -33,23 +33,17 @@ namespace Mirror
         {
             if (value)
             {
-                m_ParameterSendBits |= (uint)(1 << index);
+                m_ParameterSendBits |= 1u << index;
             }
             else
             {
-                m_ParameterSendBits &= (uint)(~(1 << index));
+                m_ParameterSendBits &= ~(1u << index);
             }
         }
 
-        public bool GetParameterAutoSend(int index)
-        {
-            return (m_ParameterSendBits & (uint)(1 << index)) != 0;
-        }
+        public bool GetParameterAutoSend(int index) => (m_ParameterSendBits & (1u << index)) != 0;
 
-        public void ResetParameterOptions()
-        {
-            m_ParameterSendBits = 0;
-        }
+        public void ResetParameterOptions() => m_ParameterSendBits = 0;
 #endif
 
         void Awake()
@@ -77,7 +71,7 @@ namespace Mirror
                     // This is a special case where we have localPlayerAuthority set
                     // on a NetworkIdentity but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
-                    //
+
                     // So we check here for a clientAuthorityOwner and if it is null we will
                     // let the server send animation data until we receive an owner.
                     if (netIdentity != null && netIdentity.clientAuthorityOwner == null)
@@ -140,15 +134,9 @@ namespace Mirror
             return false;
         }
 
-        bool CheckSendRate()
-        {
-            return sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time;
-        }
+        bool CheckSendRate() => sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time;
 
-        void ResetSendTime()
-        {
-            m_SendTimer = Time.time + syncInterval;
-        }
+        void ResetSendTime() => m_SendTimer = Time.time + syncInterval;
 
         void SendAnimationMessage(int stateHash, float normalizedTime, uint dirtyBits, byte[] parameters)
         {
@@ -289,18 +277,11 @@ namespace Mirror
         {
             if (forceAll)
             {
-                if (m_Animator.IsInTransition(0))
-                {
-                    AnimatorStateInfo st = m_Animator.GetNextAnimatorStateInfo(0);
-                    writer.Write(st.fullPathHash);
-                    writer.Write(st.normalizedTime);
-                }
-                else
-                {
-                    AnimatorStateInfo st = m_Animator.GetCurrentAnimatorStateInfo(0);
-                    writer.Write(st.fullPathHash);
-                    writer.Write(st.normalizedTime);
-                }
+                AnimatorStateInfo st;
+                if (m_Animator.IsInTransition(0)) st = m_Animator.GetNextAnimatorStateInfo(0);
+                else st = m_Animator.GetCurrentAnimatorStateInfo(0);
+                writer.Write(st.fullPathHash);
+                writer.Write(st.normalizedTime);
                 WriteParameters(m_ParameterSendBits, writer);
                 return true;
             }
@@ -318,10 +299,7 @@ namespace Mirror
             }
         }
 
-        public void SetTrigger(string triggerName)
-        {
-            SetTrigger(Animator.StringToHash(triggerName));
-        }
+        public void SetTrigger(string triggerName) => SetTrigger(Animator.StringToHash(triggerName));
 
         public void SetTrigger(int hash)
         {
