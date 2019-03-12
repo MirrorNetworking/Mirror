@@ -97,8 +97,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
-
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             string unityEngine = FindUnityEngineRuntime(assemblies);
@@ -153,6 +151,8 @@ namespace Mirror.Weaver
             {
                 return;
             }
+
+            string outputDirectory = Application.dataPath + "/../" + Path.GetDirectoryName(assemblyPath);
 
             Debug.Log("Weaving: " + assemblyPath + " unityengine=" + unityEngine + " mirrorRuntimeDll=" + mirrorRuntimeDll);
             bool result = Program.Process(unityEngine, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), (value) => { Debug.LogWarning(value); }, (value) => { Debug.LogError(value); });
