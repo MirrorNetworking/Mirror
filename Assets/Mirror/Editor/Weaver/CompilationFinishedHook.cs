@@ -88,8 +88,8 @@ namespace Mirror.Weaver
             }
 
             // don't weave mirror files
-            string assemblyName = Path.GetFileName(assemblyPath);
-            if (assemblyName == "Mirror.dll" || assemblyName == "Mirror.Weaver.dll")
+            string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName)
             {
                 return;
             }
