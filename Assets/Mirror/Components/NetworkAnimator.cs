@@ -17,8 +17,6 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-#if UNITY_EDITOR
-        // Editor-only, this should never be changed at runtime.
         public Animator animator
         {
             get => m_Animator;
@@ -44,7 +42,6 @@ namespace Mirror
         public bool GetParameterAutoSend(int index) => (m_ParameterSendBits & (1u << index)) != 0;
 
         public void ResetParameterOptions() => m_ParameterSendBits = 0;
-#endif
 
         void Awake()
         {
