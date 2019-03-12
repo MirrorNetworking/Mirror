@@ -190,7 +190,7 @@ namespace Mirror
             m_Animator.SetTrigger(hash);
         }
 
-        uint GetDirtyBits()
+        ulong GetDirtyBits()
         {
             ulong dirtyBits = 0;
             for (int i = 0; i < parameters.Length; i++)
@@ -221,7 +221,7 @@ namespace Mirror
             return dirtyBits & m_ParameterSendBits;
         }
 
-        byte[] WriteParametersArray(uint dirtyBits)
+        byte[] WriteParametersArray(ulong dirtyBits)
         {
             NetworkWriter writer = new NetworkWriter();
             WriteParameters(dirtyBits, writer);
