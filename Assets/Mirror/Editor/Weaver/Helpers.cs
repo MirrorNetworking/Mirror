@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
-            ReaderParameters parameters = new ReaderParameters();
+            ReaderParameters parameters = new ReaderParameters() {ReadWrite = true};
             if (assemblyResolver == null)
                 assemblyResolver = new DefaultAssemblyResolver();
             AddSearchDirectoryHelper helper = new AddSearchDirectoryHelper(assemblyResolver);
