@@ -6,7 +6,7 @@
 - Fixed: NetworkAnimator bandwidth abuse
 - Fixed: NetworkAnimator float sync bug
 - Fixed: Persistent SceneID's for Networked objects
-- Changed: Documentation for [Transports](../Transports) Transports
+- Changed: Documentation for [Transports](../Transports)
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
