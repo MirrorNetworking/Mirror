@@ -284,7 +284,13 @@ namespace Mirror
         public void SetSceneIdSceneIndexByteInternal()
         {
             // get build index
-            byte buildIndex = (byte)gameObject.scene.buildIndex;
+            // -> if the scene is not in build settings, then a build would
+            //    have buildIndex '-1', but pressing Play in the Editor would
+            //    have a buildIndex '0', which would always get sceneIds out of
+            //    sync if we didn't add the scene to build settings.
+            // -> let's always use at least '0', which is what unity Editor does
+            //    internally as it seems.
+            byte buildIndex = (byte)Mathf.Max(gameObject.scene.buildIndex, 0);
 
             // OR into scene id
             m_SceneId = (m_SceneId & 0x00FFFFFF) | (uint)(buildIndex << 24);
