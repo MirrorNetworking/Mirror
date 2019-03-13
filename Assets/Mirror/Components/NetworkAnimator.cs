@@ -230,7 +230,7 @@ namespace Mirror
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = m_Animator.GetFloat(par.nameHash);
-                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) < 0.001f)
+                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f)
                     {
                         writer.Write(newFloatValue);
                         dirtyBits |= 1u << i;
