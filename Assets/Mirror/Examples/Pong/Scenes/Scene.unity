@@ -384,6 +384,11 @@ PrefabInstance:
       propertyPath: m_Simulated
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114290021321007948, guid: 5f7a7f34494ed40268eff49dbf9168bf,
+        type: 3}
+      propertyPath: m_SceneId
+      value: 14060562
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
 --- !u!1 &1346799726
