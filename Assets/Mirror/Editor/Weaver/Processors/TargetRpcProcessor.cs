@@ -145,12 +145,6 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (md.Parameters.Count < 1)
-            {
-                Weaver.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] must have a NetworkConnection as the first parameter");
-                return false;
-            }
-
             // validate
             return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Target Rpc");
         }
