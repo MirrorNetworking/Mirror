@@ -7,6 +7,9 @@ namespace Mirror
 {
     public class NetworkReader
     {
+        // cache encoding instead of creating it with BinaryWriter each time
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         readonly BinaryReader reader;
