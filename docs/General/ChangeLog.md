@@ -1,11 +1,26 @@
 # Change Log
 
+## Version 1.6 -- Work In Progress
+
+- Fixed: Websockets transport moved to Mirror.Websocket namespace
+- Fixed: NetworkAnimator bandwidth abuse
+- Fixed: NetworkAnimator float sync bug
+- Fixed: Persistent SceneID's for Networked objects
+- Changed: Documentation for [Transports](../Transports) Transports
+- Changed: Weaver is now full source...FINALLY!
+- Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
+- Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
+- Changed: Removed Message ID's for all messages - See [Network Messages](../Concepts/Communications/NetworkMessages) for details  
+    - Message IDs are now generated automatically based on the message name.  
+    - Previously you would call Send(MyMessage.MsgId, message), now you call Send(message)
+- Removed: Documentation for Groove Transport - use Websockets Transport instead
+
 ## Version 1.5 -- 2019-Mar-01
 
 - Added: **Migration Tool** to (mostly) automate conversion from UNet
 - Added: Full support for WebSockets and WebSocketsSecure to replace UNet LLAPI
 - Added: Transport Multiplexer - allows the use of multiple concurrent transports
-- Added: Lobby Manager and Lobby Player with example game
+- Added: NetworkLobbyManager and NetworkLobbyPlayer with example game
 - Added: Configurable Server Tickrate in NetworkManager
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed
 - Added: Unit tests for Weaver
@@ -15,12 +30,12 @@
 - Fixed: NetworkManager no longer assumes it's on Scene(0) in Build Settings
 - Fixed: NetworkAnimator no longer lmited to 6 variables
 - Fixed: TelepathyTransport delivering messages when disabled
+- Changed: Minimum Unity version: **2018.3.6**
 - Removed: SceneAttribute.cs (merged to CustomAttributes.cs)
 - Removed: NetworkClient.allClients (Use NetworkClient.singleton instead)
 - Removed: NetworkServer.hostId and NetworkConnection.hostId (holdovers from LLAPI)
 - Removed: NetworkConnection.isConnected (NetworkConnection is always connected)
 - Removed: Transport.GetConnectionInfo (Use ServerGetClientAddress instead)
-- Changed: Minimum Unity version: **2018.3.6**
 
 
 ## Version 1.4 -- 2019-Feb-01
