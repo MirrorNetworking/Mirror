@@ -46,13 +46,13 @@ namespace Mirror
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
             localPlayer = identity;
-            if (readyConnection == null)
+            if (readyConnection != null)
             {
-                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
+                readyConnection.SetPlayerController(identity);
             }
             else
             {
-                readyConnection.SetPlayerController(identity);
+                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
         }
 
