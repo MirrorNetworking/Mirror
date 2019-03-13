@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -282,8 +283,13 @@ namespace Mirror
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
         public void SetSceneIdSceneIndexByteInternal()
         {
+            // get build index
             byte buildIndex = (byte)gameObject.scene.buildIndex;
+
+            // OR into scene id
             m_SceneId = (m_SceneId & 0x00FFFFFF) | (uint)(buildIndex << 24);
+
+            // log it. this is incredibly useful to debug sceneId issues.
             Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index byte(" + buildIndex.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
