@@ -8,6 +8,13 @@ namespace Mirror.Weaver
     {
         const string k_TargetRpcPrefix = "InvokeTargetRpc";
 
+        // helper functions to check if the method has a NetworkConnection parameter
+        public static bool HasNetworkConnectionParameter(MethodDefinition md)
+        {
+            return md.Parameters.Count > 0 &&
+                   md.Parameters[0].ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
+        }
+
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
             MethodDefinition rpc = new MethodDefinition(RpcProcessor.k_RpcPrefix + md.Name, MethodAttributes.Family |
@@ -114,13 +121,6 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             return rpc;
-        }
-
-        // helper functions to check if the method has a NetworkConnection parameter
-        public static bool HasNetworkConnectionParameter(MethodDefinition md)
-        {
-            return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
         }
 
         public static bool ProcessMethodsValidateTargetRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
