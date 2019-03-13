@@ -83,6 +83,7 @@ We can always use more test coverage.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
 * **Use the same coding style as the one used in this project**.
+* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possbile, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
 * **Welcome suggestions from the maintainers to improve your pull request**.
 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
