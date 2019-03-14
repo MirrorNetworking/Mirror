@@ -21,7 +21,7 @@ Servers open a TCP port and wait for connections.  Clients send an initial messa
 
 These are great features that make it very easy for programmers to work with TCP, but they come at a cost:  Latency.  
 
-Suppose an object is moving from point a to b to c.  The server sends 3 messages: move to a, b, c. Suppose b gets lost (wify drops a lot of packages for example) and c arrives fine. We could skip b and move towards c instead,  but we can't because the operating system won't give us c until b is retransmited.
+Suppose an object is moving from point a to b to c.  The server sends 3 messages: move to a, b, c. Suppose b gets lost (wifi drops a lot of packets for example) and c arrives fine. We could skip b and move towards c instead,  but we can't because the operating system won't give us c until b is retransmited.
 
 For this reason, AAA studios consistently prefer UDP for fast paced action games.
 
