@@ -82,14 +82,16 @@ namespace Mirror
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
 
-            // paul:  we may be connecting or connected,  either way, we need to disconnect
-            // transport should not do anything if it is not connecting/connected
-            Transport.activeTransport.ClientDisconnect();
-
             // server? then disconnect that client
             if (Transport.activeTransport.ServerActive())
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
+            }
+            else
+            {
+                // paul:  we may be connecting or connected,  either way, we need to disconnect
+                // transport should not do anything if it is not connecting/connected
+                Transport.activeTransport.ClientDisconnect();
             }
 
             // remove observers
