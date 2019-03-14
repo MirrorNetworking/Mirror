@@ -60,5 +60,5 @@ That's why we made Telepathy and Mirror. **Life is short. We just need the damn 
 
 We acknowledge not everyone will agree with our reasoning. Rather than push our views on users, we made Mirror transport independent. A few months later, Unity did the same thing. You can easily swap out the transport for one of the several RUDP implementations simply by dragging it into your NetworkManager gameobject. Pick whatever works best for you. We recommend you profile your game and collect real world numbers before you make a final decision.
 
-After we made Mirror transport independent,  the community stepped up and several RUDP transports have been adapted to work with Mirror.  While the default is Telepathy (simple "just works"  TCP transport), you can choose any of [these](../Transports) transports or even write your own.
+After we made Mirror transport independent,  the community stepped up integrated several RUDP transports with Mirror.  While the default is Telepathy (simple "just works" TCP transport) you can choose among several [transports](../Transports) or even write your own.
 
