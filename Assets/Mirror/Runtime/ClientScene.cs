@@ -179,7 +179,7 @@ namespace Mirror
                 spawnableObjects.Remove(sceneId);
                 return identity;
             }
-            Debug.LogWarning("Could not find scene object with sceneid:" + sceneId);
+            Debug.LogWarning("Could not find scene object with sceneid:" + sceneId.ToString("X"));
             return null;
         }
 
