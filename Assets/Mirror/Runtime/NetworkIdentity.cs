@@ -43,7 +43,7 @@ namespace Mirror
         public Dictionary<int, NetworkConnection> observers;
 
         public uint netId { get; internal set; }
-        public uint sceneId => m_SceneId;
+        public ulong sceneId => m_SceneId;
         public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
         public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
         public NetworkConnection clientAuthorityOwner { get; internal set; }
@@ -89,11 +89,12 @@ namespace Mirror
             }
         }
 
-        // persistent scene id
-        [SerializeField] uint m_SceneId = 0;
+        // persistent scene id <sceneHash/32,sceneId/32>
+        // (see AssignSceneID comments)
+        [SerializeField] ulong m_SceneId = 0;
 
         // keep track of all sceneIds to detect scene duplicates
-        static Dictionary<uint, NetworkIdentity> sceneIds = new Dictionary<uint, NetworkIdentity>();
+        static Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -261,10 +262,10 @@ namespace Mirror
                 // -> we need to call it before changing.
                 Undo.RecordObject(this, "Generated SceneId");
 
-                // generate random sceneId
-                // range: 3 bytes to fill 0x00FFFFFF
+                // generate random sceneId part (0x00000000FFFFFFFF)
                 // -> exclude '0' because that's for unassigned sceneIDs
-                m_SceneId = (uint)UnityEngine.Random.Range(1, 0xFFFFFF);
+                // TODO use 0,uint.max later. Random.Range only has int version.
+                m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
                 Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
             }
 
@@ -274,29 +275,30 @@ namespace Mirror
             sceneIds[m_SceneId] = this;
         }
 
-        // copy scene build index into sceneId for scene objects.
+        // copy scene path hash into sceneId for scene objects.
         // this is the only way for scene file duplication to not contain
         // duplicate sceneIds as it seems.
-        // -> sceneId before: 0x00AABBCCDD
-        // -> then we clear the left most byte, so that our 'OR' uses 0x00
-        // -> then we OR buildIndex into the 0x00 part
+        // -> sceneId before: 0x00000000AABBCCDD
+        // -> then we clear the left 4 bytes, so that our 'OR' uses 0x00000000
+        // -> then we OR the hash into the 0x00000000 part
+        // -> buildIndex is not enough, because Editor and Build have different
+        //    build indices if there are disabled scenes in build settings, and
+        //    if no scene is in build settings then Editor and Build have
+        //    different indices too (Editor=0, Build=-1)
         // => ONLY USE THIS FROM POSTPROCESSSCENE!
-        public void SetSceneIdSceneIndexByteInternal()
+        public void SetSceneIdSceneHashPartInternal()
         {
-            // get build index
-            // -> if the scene is not in build settings, then a build would
-            //    have buildIndex '-1', but pressing Play in the Editor would
-            //    have a buildIndex '0', which would always get sceneIds out of
-            //    sync if we didn't add the scene to build settings.
-            // -> let's always use at least '0', which is what unity Editor does
-            //    internally as it seems.
-            byte buildIndex = (byte)Mathf.Max(gameObject.scene.buildIndex, 0);
+            // get deterministic scene hash
+            uint pathHash = (uint)gameObject.scene.path.GetStableHashCode();
+
+            // shift hash from 0x000000FFFFFFFF to 0xFFFFFFFF00000000
+            ulong shiftedHash = (ulong)pathHash << 32;
 
             // OR into scene id
-            m_SceneId = (m_SceneId & 0x00FFFFFF) | (uint)(buildIndex << 24);
+            m_SceneId = (m_SceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index byte(" + buildIndex.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()

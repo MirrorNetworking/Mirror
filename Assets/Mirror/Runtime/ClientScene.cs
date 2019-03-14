@@ -19,7 +19,7 @@ namespace Mirror
 
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
         // scene id to NetworkIdentity
-        public static Dictionary<uint, NetworkIdentity> spawnableObjects;
+        public static Dictionary<ulong, NetworkIdentity> spawnableObjects;
 
         // spawn handlers
         internal static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
@@ -172,7 +172,7 @@ namespace Mirror
                                .ToDictionary(identity => identity.sceneId, identity => identity);
         }
 
-        internal static NetworkIdentity SpawnSceneObject(uint sceneId)
+        internal static NetworkIdentity SpawnSceneObject(ulong sceneId)
         {
             if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
             {
@@ -441,7 +441,7 @@ namespace Mirror
             {
                 Debug.LogError("Spawn scene object not found for " + msg.sceneId + " SpawnableObjects.Count=" + spawnableObjects.Count);
                 // dump the whole spawnable objects dict for easier debugging
-                foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawnableObjects)
+                foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
                     Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 return;
             }

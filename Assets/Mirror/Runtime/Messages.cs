@@ -220,7 +220,7 @@ namespace Mirror
     class SpawnSceneObjectMessage : MessageBase
     {
         public uint netId;
-        public uint sceneId;
+        public ulong sceneId;
         public Vector3 position;
         public Quaternion rotation;
         public byte[] payload;
@@ -228,7 +228,7 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            sceneId = reader.ReadPackedUInt32();
+            sceneId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             payload = reader.ReadBytesAndSize();
@@ -237,7 +237,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.WritePackedUInt32(sceneId);
+            writer.Write(sceneId);
             writer.Write(position);
             writer.Write(rotation);
             writer.WriteBytesAndSize(payload);
