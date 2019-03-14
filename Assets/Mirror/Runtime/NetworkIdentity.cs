@@ -268,7 +268,6 @@ namespace Mirror
                 Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
             }
 
-
             // add to sceneIds dict no matter what
             // -> even if we didn't generate anything new, because we still need
             //    existing sceneIds in there to check duplicates
