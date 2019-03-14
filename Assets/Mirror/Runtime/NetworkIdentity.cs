@@ -263,7 +263,8 @@ namespace Mirror
 
                 // generate random sceneId
                 // range: 3 bytes to fill 0x00FFFFFF
-                m_SceneId = (uint)UnityEngine.Random.Range(0, 0xFFFFFF);
+                // -> exclude '0' because that's for unassigned sceneIDs
+                m_SceneId = (uint)UnityEngine.Random.Range(1, 0xFFFFFF);
                 Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
             }
 
