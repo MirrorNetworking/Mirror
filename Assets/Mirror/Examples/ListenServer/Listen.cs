@@ -34,7 +34,13 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("GUI")]
-        public Rect window = new Rect(10, 120, 400, 400);
+        public Rect window = new Rect(10, 120, 500, 400);
+        public int titleWidth = 220;
+        public int playersWidth = 60;
+        public int ipWidth = 80;
+        public int portWidth = 50;
+        public int joinWidth = 50;
+        Vector2 scrollPosition;
 
         List<ServerInfo> list = new List<ServerInfo>(){new ServerInfo("127.0.0.1", 1337, "deathmatch", 1, 2)};
 
@@ -99,13 +105,33 @@ namespace Mirror.Examples.Listen
                 if (clientToListenConnection.Connected && list.Count == 0)
                     GUILayout.Label("Scanning...");
 
+
+                // scroll area
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+
                 // server table header
-                GUILayout.BeginHorizontal();
-                GUILayout.Box("Server");
-                GUILayout.Box("Players");
-                GUILayout.Box("IP");
-                GUILayout.Box("Port");
+                GUILayout.BeginHorizontal("box");
+                GUILayout.Box("Server", GUILayout.Width(titleWidth));
+                GUILayout.Box("Players", GUILayout.Width(playersWidth));
+                GUILayout.Box("IP", GUILayout.Width(ipWidth));
+                GUILayout.Box("Port", GUILayout.Width(portWidth));
+                GUILayout.Box("Action", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
+
+                // entries
+                foreach (ServerInfo server in list)
+                {
+                    GUILayout.BeginHorizontal("box");
+                    GUILayout.Box(server.title, GUILayout.Width(titleWidth));
+                    GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
+                    GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
+                    GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
+                    GUI.enabled = server.players < server.capacity;
+                    GUILayout.Button("Join", GUILayout.Width(joinWidth));
+                    GUI.enabled = true;
+                    GUILayout.EndHorizontal();
+                }
+                GUILayout.EndScrollView();
 
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
