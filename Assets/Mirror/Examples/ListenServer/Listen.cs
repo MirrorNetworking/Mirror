@@ -93,6 +93,9 @@ namespace Mirror.Examples.Listen
                 if (!clientToListenConnection.Connected)
                     GUILayout.Label("Connecting...");
 
+                if (clientToListenConnection.Connected && list.Count == 0)
+                    GUILayout.Label("Scanning...");
+
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
             }
