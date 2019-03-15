@@ -74,6 +74,12 @@ namespace Mirror.Examples.Listen
 
         void Tick()
         {
+            TickGameServer();
+            TickClient();
+        }
+
+        void TickGameServer()
+        {
             // send server data to listen
             if (UseGameServerToListen())
             {
@@ -95,13 +101,19 @@ namespace Mirror.Examples.Listen
             {
                 gameServerToListenConnection.Disconnect();
             }
+        }
 
+        void TickClient()
+        {
             // receive client data from listen
             if (UseClientToListen())
             {
                 // connected yet?
                 if (clientToListenConnection.Connected)
                 {
+                    // receive latest game server info
+
+
                     // ping again if previous ping finished
                     foreach (ServerInfo server in list)
                     {
