@@ -24,11 +24,6 @@ namespace Mirror.Examples.Listen
         Telepathy.Client gameServerToListenConnection = new Telepathy.Client();
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
-        // game server to listen server connection
-
-        // client to listen server connection
-        // (only active while receiving game server lists)
-
         [Header("GUI")]
         public Rect window = new Rect(5, 150, 400, 400);
 
