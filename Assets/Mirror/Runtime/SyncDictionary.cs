@@ -273,19 +273,7 @@ namespace Mirror
             }
         }
 
-        public bool TryGetValue(B key, out T value)
-        {
-            if (m_Objects.ContainsKey(key))
-            {
-                value = m_Objects[key];
-                return true;
-            }
-            else
-            {
-                value = default;
-                return false;
-            }
-        }
+        public bool TryGetValue(B key, out T value) => m_Objects.TryGetValue(key, out value);
 
         public void Add(B key, T value)
         {
