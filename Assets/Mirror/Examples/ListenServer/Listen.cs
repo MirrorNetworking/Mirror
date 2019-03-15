@@ -1,6 +1,7 @@
 ﻿// add this component to the NetworkManager
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror.Examples.Listen
@@ -107,10 +108,11 @@ namespace Mirror.Examples.Listen
         void ParseMessage(byte[] bytes)
         {
             // use binary reader because our NetworkReader uses custom string reading with bools
-            BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false));
+            BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
             ushort ipLength = reader.ReadUInt16();
             string ip = new string(reader.ReadChars(ipLength));
-            Debug.Log("PARSED: ipLength=" + ipLength + " ip=" + ip);
+            ushort port = reader.ReadUInt16();
+            Debug.Log("PARSED: ip=" + ip + " port=" + port);
 
             // TODO read content
 
