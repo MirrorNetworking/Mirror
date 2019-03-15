@@ -41,16 +41,28 @@ namespace Mirror.Examples.Listen
             InvokeRepeating(nameof(Tick), 0, 1);
         }
 
+        // should we use the client to listen connection?
+        bool UseClientToListen()
+        {
+            return !NetworkManager.IsHeadless() && !NetworkServer.active && !NetworkClient.active;
+        }
+
+        // should we use the game server to listen connection?
+        bool UseGameServerToListen()
+        {
+            return NetworkServer.active;
+        }
+
         void Tick()
         {
             // send server data to listen
-            if (NetworkServer.active)
+            if (UseGameServerToListen())
             {
                 // TODO
             }
 
             // receive client data from listen
-            if (!NetworkManager.IsHeadless() && !NetworkServer.active && !NetworkClient.active)
+            if (UseClientToListen())
             {
                 // connected yet?
                 if (clientToListenConnection.Connected)
@@ -70,7 +82,7 @@ namespace Mirror.Examples.Listen
         void OnGUI()
         {
             // TODO show listen data on client
-            if (!NetworkManager.IsHeadless() && !NetworkServer.active && !NetworkClient.active)
+            if (UseClientToListen())
             {
                 GUILayout.BeginArea(window);
                 GUILayout.BeginVertical("box");
