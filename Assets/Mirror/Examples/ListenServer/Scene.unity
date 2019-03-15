@@ -351,9 +351,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69f796b44735c414783d66f47b150c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  listenServerIp: 127.0.0.1
+  gameServerToListenPort: 8887
+  clientToListenPort: 8888
   window:
     serializedVersion: 2
-    x: 5
-    y: 150
+    x: 10
+    y: 120
     width: 400
     height: 400
