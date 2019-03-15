@@ -136,7 +136,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
                     GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
-                    GUI.enabled = server.players < server.capacity;
+                    GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
                     GUILayout.EndHorizontal();
