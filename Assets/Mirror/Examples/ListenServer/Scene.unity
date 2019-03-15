@@ -362,7 +362,6 @@ MonoBehaviour:
     height: 400
   titleWidth: 220
   playersWidth: 60
-  ipWidth: 80
-  portWidth: 50
+  addressWidth: 130
   latencyWidth: 60
   joinWidth: 50

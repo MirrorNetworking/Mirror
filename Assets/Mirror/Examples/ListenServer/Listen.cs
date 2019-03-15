@@ -41,8 +41,7 @@ namespace Mirror.Examples.Listen
         public Rect window = new Rect(10, 120, 570, 400);
         public int titleWidth = 220;
         public int playersWidth = 60;
-        public int ipWidth = 80;
-        public int portWidth = 50;
+        public int addressWidth = 130;
         public int latencyWidth = 60;
         public int joinWidth = 50;
         Vector2 scrollPosition;
@@ -142,8 +141,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.Box("<b>Server</b>", GUILayout.Width(titleWidth));
                 GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
                 GUILayout.Box("<b>Latency</b>", GUILayout.Width(latencyWidth));
-                GUILayout.Box("<b>IP</b>", GUILayout.Width(ipWidth));
-                GUILayout.Box("<b>Port</b>", GUILayout.Width(portWidth));
+                GUILayout.Box("<b>Address</b>", GUILayout.Width(addressWidth));
                 GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
 
@@ -154,8 +152,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
-                    GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
-                    GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
+                    GUILayout.Box(server.ip + ":" + server.port, GUILayout.Width(addressWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
