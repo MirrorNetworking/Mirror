@@ -141,9 +141,9 @@ namespace Mirror.Examples.Listen
                 GUILayout.BeginHorizontal("box");
                 GUILayout.Box("<b>Server</b>", GUILayout.Width(titleWidth));
                 GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
+                GUILayout.Box("<b>Latency</b>", GUILayout.Width(latencyWidth));
                 GUILayout.Box("<b>IP</b>", GUILayout.Width(ipWidth));
                 GUILayout.Box("<b>Port</b>", GUILayout.Width(portWidth));
-                GUILayout.Box("<b>Latency</b>", GUILayout.Width(latencyWidth));
                 GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
 
@@ -153,9 +153,9 @@ namespace Mirror.Examples.Listen
                     GUILayout.BeginHorizontal("box");
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
+                    GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
                     GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
                     GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
-                    GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
