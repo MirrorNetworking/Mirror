@@ -358,11 +358,11 @@ MonoBehaviour:
     serializedVersion: 2
     x: 10
     y: 120
-    width: 560
+    width: 570
     height: 400
   titleWidth: 220
   playersWidth: 60
   ipWidth: 80
   portWidth: 50
-  pingWidth: 50
+  latencyWidth: 60
   joinWidth: 50

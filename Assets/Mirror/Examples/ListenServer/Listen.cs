@@ -38,12 +38,12 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("GUI")]
-        public Rect window = new Rect(10, 120, 560, 400);
+        public Rect window = new Rect(10, 120, 570, 400);
         public int titleWidth = 220;
         public int playersWidth = 60;
         public int ipWidth = 80;
         public int portWidth = 50;
-        public int latencyWidth = 50;
+        public int latencyWidth = 60;
         public int joinWidth = 50;
         Vector2 scrollPosition;
 
