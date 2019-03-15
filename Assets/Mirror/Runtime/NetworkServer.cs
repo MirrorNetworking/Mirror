@@ -958,6 +958,7 @@ namespace Mirror
                     assetId = identity.assetId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
+                    scale = identity.transform.localScale,
 
                     // serialize all components with initialState = true
                     payload = identity.OnSerializeAllSafely(true)
@@ -983,6 +984,7 @@ namespace Mirror
                     sceneId = identity.sceneId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
+                    scale = identity.transform.localScale,
 
                     // include synch data
                     payload = identity.OnSerializeAllSafely(true)
