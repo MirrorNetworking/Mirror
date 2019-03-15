@@ -108,6 +108,8 @@ namespace Mirror.Examples.Listen
         void ParseMessage(byte[] bytes)
         {
             // use binary reader because our NetworkReader uses custom string reading with bools
+            // => we don't use ReadString here because the listen server doesn't
+            //    know C#'s '7-bit-length + utf8' encoding for strings
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
             ushort ipLength = reader.ReadUInt16();
             string ip = new string(reader.ReadChars(ipLength));
