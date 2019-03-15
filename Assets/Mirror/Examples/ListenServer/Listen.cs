@@ -33,6 +33,7 @@ namespace Mirror.Examples.Listen
         public string listenServerIp = "127.0.0.1";
         public ushort gameServerToListenPort = 8887;
         public ushort clientToListenPort = 8888;
+        public string gameServerTitle = "Deathmatch";
 
         Telepathy.Client gameServerToListenConnection = new Telepathy.Client();
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
@@ -52,7 +53,7 @@ namespace Mirror.Examples.Listen
         {
             // add example entry
             // (can't do it in list constructor because Ping can't be created there yet)
-            list.Add(new ServerInfo("127.0.0.1", 1337, "deathmatch", 1, 2));
+            list.Add(new ServerInfo("127.0.0.1", 1337, "Deathmatch", 1, 2));
 
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
@@ -76,7 +77,18 @@ namespace Mirror.Examples.Listen
             // send server data to listen
             if (UseGameServerToListen())
             {
-                // TODO
+                // connected yet?
+                if (gameServerToListenConnection.Connected)
+                {
+
+                }
+                // otherwise try to connect
+                // (we may have just started the game)
+                else if (!gameServerToListenConnection.Connecting)
+                {
+                    Debug.Log("Establishing game server to listen connection...");
+                    gameServerToListenConnection.Connect(listenServerIp, gameServerToListenPort);
+                }
             }
             // shouldn't use game server, but still using it?
             else if (gameServerToListenConnection.Connected)
