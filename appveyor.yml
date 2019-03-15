@@ -38,4 +38,3 @@ before_deploy:
 
 deploy_script:
   - semantic-release
-  
