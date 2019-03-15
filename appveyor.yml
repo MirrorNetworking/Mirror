@@ -26,6 +26,7 @@ build_script:
   - bundle exec jekyll build
   - ruby checksite.rb
   - cd ..
+  - echo $GITHUB_TOKEN
 
 artifacts:
   - path: Assets
