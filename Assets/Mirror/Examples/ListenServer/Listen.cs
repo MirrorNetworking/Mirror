@@ -11,6 +11,15 @@ namespace Mirror.Examples.Listen
         public string title;
         public ushort players;
         public ushort capacity;
+
+        public ServerInfo(string ip, ushort port, string title, ushort players, ushort capacity)
+        {
+            this.ip = ip;
+            this.port = port;
+            this.title = title;
+            this.players = players;
+            this.capacity = capacity;
+        }
     }
 
     [RequireComponent(typeof(NetworkManager))]
@@ -25,9 +34,9 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("GUI")]
-        public Rect window = new Rect(5, 150, 400, 400);
+        public Rect window = new Rect(10, 120, 400, 400);
 
-        List<ServerInfo> list = new List<ServerInfo>();
+        List<ServerInfo> list = new List<ServerInfo>(){new ServerInfo("127.0.0.1", 1337, "deathmatch", 1, 2)};
 
         void Start()
         {
@@ -89,6 +98,14 @@ namespace Mirror.Examples.Listen
 
                 if (clientToListenConnection.Connected && list.Count == 0)
                     GUILayout.Label("Scanning...");
+
+                // server table header
+                GUILayout.BeginHorizontal("box");
+                GUILayout.Box("Server");
+                GUILayout.Box("Players");
+                GUILayout.Box("IP");
+                GUILayout.Box("Port");
+                GUILayout.EndHorizontal();
 
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
