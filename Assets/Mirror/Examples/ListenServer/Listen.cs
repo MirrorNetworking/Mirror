@@ -100,7 +100,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Label("Scanning...");
 
                 // server table header
-                GUILayout.BeginHorizontal("box");
+                GUILayout.BeginHorizontal();
                 GUILayout.Box("Server");
                 GUILayout.Box("Players");
                 GUILayout.Box("IP");
