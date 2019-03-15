@@ -67,7 +67,6 @@ namespace Mirror.Examples.Listen
                 // connected yet?
                 if (clientToListenConnection.Connected)
                 {
-                    Debug.Log("Client to listen connection active...");
                 }
                 // otherwise try to connect
                 // (we may have just joined the menu/disconnect from game server)
@@ -81,7 +80,7 @@ namespace Mirror.Examples.Listen
 
         void OnGUI()
         {
-            // TODO show listen data on client
+            // show listen data on client
             if (UseClientToListen())
             {
                 GUILayout.BeginArea(window);
