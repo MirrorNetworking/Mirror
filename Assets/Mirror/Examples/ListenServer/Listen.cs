@@ -1,5 +1,6 @@
 ﻿// add this component to the NetworkManager
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace Mirror.Examples.Listen
@@ -103,6 +104,19 @@ namespace Mirror.Examples.Listen
             }
         }
 
+        void ParseMessage(byte[] bytes)
+        {
+            // use binary reader because our NetworkReader uses custom string reading with bools
+            BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false));
+            ushort ipLength = reader.ReadUInt16();
+            string ip = new string(reader.ReadChars(ipLength));
+            Debug.Log("PARSED: ipLength=" + ipLength + " ip=" + ip);
+
+            // TODO read content
+
+            // TODO update or add. what's the unique id? ip+port combination probably
+        }
+
         void TickClient()
         {
             // receive client data from listen
@@ -112,7 +126,12 @@ namespace Mirror.Examples.Listen
                 if (clientToListenConnection.Connected)
                 {
                     // receive latest game server info
-
+                    while (clientToListenConnection.GetNextMessage(out Telepathy.Message message))
+                    {
+                        // data message?
+                        if (message.eventType == Telepathy.EventType.Data)
+                            ParseMessage(message.data);
+                    }
 
                     // ping again if previous ping finished
                     foreach (ServerInfo server in list)
