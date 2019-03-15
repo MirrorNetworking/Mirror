@@ -49,13 +49,15 @@ namespace Mirror.Examples.Listen
         public int joinWidth = 50;
         Vector2 scrollPosition;
 
-        List<ServerInfo> list = new List<ServerInfo>();
+        // all the servers, stored as dict with unique ip:port key so we can
+        // update them more easily
+        Dictionary<KeyValuePair<string, ushort>, ServerInfo> list = new Dictionary<KeyValuePair<string, ushort>, ServerInfo>();
 
         void Start()
         {
             // add example entry
             // (can't do it in list constructor because Ping can't be created there yet)
-            list.Add(new ServerInfo("127.0.0.1", 1337, "Deathmatch", 1, 2));
+            //list.Add(new ServerInfo("127.0.0.1", 1337, "Deathmatch", 1, 2));
 
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
@@ -120,7 +122,26 @@ namespace Mirror.Examples.Listen
             ushort capacity = reader.ReadUInt16();
             Debug.Log("PARSED: ip=" + ip + " port=" + port + " title=" + title + " players=" + players + " capacity= " + capacity);
 
-            // TODO update or add. what's the unique id? ip+port combination probably
+            // build key
+            KeyValuePair<string, ushort> key = new KeyValuePair<string, ushort>(ip, port);
+
+            // find existing or create new one
+            ServerInfo server;
+            if (list.TryGetValue(key, out server))
+            {
+                // refresh
+                server.title = title;
+                server.players = players;
+                server.capacity = capacity;
+            }
+            else
+            {
+                // create
+                server = new ServerInfo(ip, port, title, players, capacity);
+            }
+
+            // save
+            list[key] = server;
         }
 
         void TickClient()
@@ -140,7 +161,7 @@ namespace Mirror.Examples.Listen
                     }
 
                     // ping again if previous ping finished
-                    foreach (ServerInfo server in list)
+                    foreach (ServerInfo server in list.Values)
                     {
                         if (server.ping.isDone)
                         {
@@ -196,7 +217,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.EndHorizontal();
 
                 // entries
-                foreach (ServerInfo server in list)
+                foreach (ServerInfo server in list.Values)
                 {
                     GUILayout.BeginHorizontal("box");
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
