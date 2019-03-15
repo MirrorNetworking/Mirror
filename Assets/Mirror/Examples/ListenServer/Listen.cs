@@ -112,9 +112,11 @@ namespace Mirror.Examples.Listen
             ushort ipLength = reader.ReadUInt16();
             string ip = new string(reader.ReadChars(ipLength));
             ushort port = reader.ReadUInt16();
-            Debug.Log("PARSED: ip=" + ip + " port=" + port);
-
-            // TODO read content
+            ushort titleLength = reader.ReadUInt16();
+            string title = new string(reader.ReadChars(titleLength));
+            ushort players = reader.ReadUInt16();
+            ushort capacity = reader.ReadUInt16();
+            Debug.Log("PARSED: ip=" + ip + " port=" + port + " title=" + title + " players=" + players + " capacity= " + capacity);
 
             // TODO update or add. what's the unique id? ip+port combination probably
         }
