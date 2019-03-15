@@ -124,6 +124,7 @@ namespace Mirror.Examples.Listen
             else if (clientToListenConnection.Connected)
             {
                 clientToListenConnection.Disconnect();
+                list.Clear();
             }
         }
 
