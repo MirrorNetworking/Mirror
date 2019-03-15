@@ -4,13 +4,14 @@ using UnityEngine;
 
 namespace Mirror.Examples.Listen
 {
-    public struct ServerInfo
+    public class ServerInfo
     {
         public string ip;
         public ushort port;
         public string title;
         public ushort players;
         public ushort capacity;
+        public Ping ping;
 
         public ServerInfo(string ip, ushort port, string title, ushort players, ushort capacity)
         {
@@ -19,6 +20,7 @@ namespace Mirror.Examples.Listen
             this.title = title;
             this.players = players;
             this.capacity = capacity;
+            ping = new Ping(ip);
         }
     }
 
@@ -34,18 +36,23 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("GUI")]
-        public Rect window = new Rect(10, 120, 500, 400);
+        public Rect window = new Rect(10, 120, 560, 400);
         public int titleWidth = 220;
         public int playersWidth = 60;
         public int ipWidth = 80;
         public int portWidth = 50;
+        public int pingWidth = 50;
         public int joinWidth = 50;
         Vector2 scrollPosition;
 
-        List<ServerInfo> list = new List<ServerInfo>(){new ServerInfo("127.0.0.1", 1337, "deathmatch", 1, 2)};
+        List<ServerInfo> list = new List<ServerInfo>();
 
         void Start()
         {
+            // add example entry
+            // (can't do it in list constructor because Ping can't be created there yet)
+            list.Add(new ServerInfo("127.0.0.1", 1337, "deathmatch", 1, 2));
+
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
             InvokeRepeating(nameof(Tick), 0, 1);
@@ -125,6 +132,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
                 GUILayout.Box("<b>IP</b>", GUILayout.Width(ipWidth));
                 GUILayout.Box("<b>Port</b>", GUILayout.Width(portWidth));
+                GUILayout.Box("<b>Ping</b>", GUILayout.Width(pingWidth));
                 GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
 
@@ -136,6 +144,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
                     GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
+                    GUILayout.Box(server.ping.isDone ? server.ping.time + "ms" : "...", GUILayout.Width(pingWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
