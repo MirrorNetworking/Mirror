@@ -97,5 +97,14 @@ namespace Mirror.Examples.Listen
                 GUILayout.EndArea();
             }
         }
+
+        // disconnect everything when pressing Stop in the Editor
+        void OnApplicationQuit()
+        {
+            if (gameServerToListenConnection.Connected)
+                gameServerToListenConnection.Disconnect();
+            if (clientToListenConnection.Connected)
+                clientToListenConnection.Disconnect();
+        }
     }
 }
