@@ -4,14 +4,6 @@ using System.ComponentModel;
 
 namespace Mirror
 {
-    public class SyncDictionaryIntString : SyncDictionary<int, string>
-    {
-        protected override void SerializeKey(NetworkWriter writer, int item) => writer.Write(item);
-        protected override void SerializeItem(NetworkWriter writer, string item) => writer.Write(item);
-        protected override int DeserializeKey(NetworkReader reader) => reader.ReadInt32();
-        protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
-    }
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncDictionary<B,T> : IDictionary<B,T>, SyncObject
     {
