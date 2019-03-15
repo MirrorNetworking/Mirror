@@ -70,6 +70,11 @@ namespace Mirror.Examples.Listen
             {
                 // TODO
             }
+            // shouldn't use game server, but still using it?
+            else if (gameServerToListenConnection.Connected)
+            {
+                gameServerToListenConnection.Disconnect();
+            }
 
             // receive client data from listen
             if (UseClientToListen())
@@ -85,6 +90,11 @@ namespace Mirror.Examples.Listen
                     Debug.Log("Establishing client to listen connection...");
                     clientToListenConnection.Connect(listenServerIp, clientToListenPort);
                 }
+            }
+            // shouldn't use client, but still using it? (e.g. after joining)
+            else if (clientToListenConnection.Connected)
+            {
+                clientToListenConnection.Disconnect();
             }
         }
 
