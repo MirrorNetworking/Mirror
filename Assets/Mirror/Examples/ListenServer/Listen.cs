@@ -11,6 +11,8 @@ namespace Mirror.Examples.Listen
         public string title;
         public ushort players;
         public ushort capacity;
+
+        public int lastLatency = -1;
         public Ping ping;
 
         public ServerInfo(string ip, ushort port, string title, ushort players, ushort capacity)
@@ -41,7 +43,7 @@ namespace Mirror.Examples.Listen
         public int playersWidth = 60;
         public int ipWidth = 80;
         public int portWidth = 50;
-        public int pingWidth = 50;
+        public int latencyWidth = 50;
         public int joinWidth = 50;
         Vector2 scrollPosition;
 
@@ -89,6 +91,15 @@ namespace Mirror.Examples.Listen
                 // connected yet?
                 if (clientToListenConnection.Connected)
                 {
+                    // ping again if previous ping finished
+                    foreach (ServerInfo server in list)
+                    {
+                        if (server.ping.isDone)
+                        {
+                            server.lastLatency = server.ping.time;
+                            server.ping = new Ping(server.ip);
+                        }
+                    }
                 }
                 // otherwise try to connect
                 // (we may have just joined the menu/disconnect from game server)
@@ -132,7 +143,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
                 GUILayout.Box("<b>IP</b>", GUILayout.Width(ipWidth));
                 GUILayout.Box("<b>Port</b>", GUILayout.Width(portWidth));
-                GUILayout.Box("<b>Ping</b>", GUILayout.Width(pingWidth));
+                GUILayout.Box("<b>Latency</b>", GUILayout.Width(latencyWidth));
                 GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
 
@@ -144,7 +155,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.ip, GUILayout.Width(ipWidth));
                     GUILayout.Box(server.port.ToString(), GUILayout.Width(portWidth));
-                    GUILayout.Box(server.ping.isDone ? server.ping.time + "ms" : "...", GUILayout.Width(pingWidth));
+                    GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
