@@ -1,0 +1,331 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+
+namespace Mirror
+{
+    public class SyncDictionaryIntString : SyncDictionary<int, string>
+    {
+        protected override void SerializeKey(NetworkWriter writer, int item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, string item) => writer.Write(item);
+        protected override int DeserializeKey(NetworkReader reader) => reader.ReadInt32();
+        protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public abstract class SyncDictionary<B,T> : IDictionary<B,T>, SyncObject
+    {
+        public delegate void SyncDictionaryChanged(Operation op, B key, T item);
+
+        readonly Dictionary<B,T> m_Objects = new Dictionary<B,T>();
+
+        public int Count => m_Objects.Count;
+        public bool IsReadOnly { get; private set; }
+        public event SyncDictionaryChanged Callback;
+
+        public enum Operation : byte
+        {
+            OP_ADD,
+            OP_CLEAR,
+            OP_REMOVE,
+            OP_SET,
+            OP_DIRTY
+        }
+
+        struct Change
+        {
+            internal Operation operation;
+            internal B key;
+            internal T item;
+        }
+
+        readonly List<Change> Changes = new List<Change>();
+        // how many changes we need to ignore
+        // this is needed because when we initialize the list,
+        // we might later receive changes that have already been applied
+        // so we need to skip them
+        int changesAhead = 0;
+
+        protected abstract void SerializeKey(NetworkWriter writer, B item);
+        protected abstract void SerializeItem(NetworkWriter writer, T item);
+        protected abstract B DeserializeKey(NetworkReader reader);
+        protected abstract T DeserializeItem(NetworkReader reader);
+
+        public bool IsDirty => Changes.Count > 0;
+
+        public ICollection<B> Keys => m_Objects.Keys;
+
+        public ICollection<T> Values => m_Objects.Values;
+
+        // throw away all the changes
+        // this should be called after a successfull sync
+        public void Flush() => Changes.Clear();
+
+        void AddOperation(Operation op, B key, T item)
+        {
+            if (IsReadOnly)
+            {
+                throw new System.InvalidOperationException("Synclists can only be modified at the server");
+            }
+
+            Change change = new Change
+            {
+                operation = op,
+                key = key,
+                item = item
+            };
+
+            Changes.Add(change);
+
+            Callback?.Invoke(op, key, item);
+        }
+
+        void AddOperation(Operation op, B key) => AddOperation(op, key, default);
+
+        public void OnSerializeAll(NetworkWriter writer)
+        {
+            // if init,  write the full list content
+            writer.Write(m_Objects.Count);
+
+            foreach (KeyValuePair<B, T> syncItem in m_Objects)
+            {
+                SerializeKey(writer, syncItem.Key);
+                SerializeItem(writer, syncItem.Value);
+            }
+
+            // all changes have been applied already
+            // thus the client will need to skip all the pending changes
+            // or they would be applied again.
+            // So we write how many changes are pending
+            writer.Write(Changes.Count);
+        }
+
+        public void OnSerializeDelta(NetworkWriter writer)
+        {
+            // write all the queued up changes
+            writer.Write(Changes.Count);
+
+            for (int i = 0; i < Changes.Count; i++)
+            {
+                Change change = Changes[i];
+                writer.Write((byte)change.operation);
+
+                switch (change.operation)
+                {
+                    case Operation.OP_ADD:
+                        SerializeKey(writer, change.key);
+                        SerializeItem(writer, change.item);
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        break;
+
+                    case Operation.OP_REMOVE:
+                        SerializeKey(writer, change.key);
+                        break;
+
+                    case Operation.OP_SET:
+                    case Operation.OP_DIRTY:
+                        SerializeKey(writer, change.key);
+                        SerializeItem(writer, change.item);
+                        break;
+                }
+            }
+        }
+
+        public void OnDeserializeAll(NetworkReader reader)
+        {
+            // This list can now only be modified by synchronization
+            IsReadOnly = true;
+
+            // if init,  write the full list content
+            int count = reader.ReadInt32();
+
+            m_Objects.Clear();
+            Changes.Clear();
+
+            for (int i = 0; i < count; i++)
+            {
+                B key = DeserializeKey(reader);
+                T obj = DeserializeItem(reader);
+                m_Objects.Add(key, obj);
+            }
+
+            // We will need to skip all these changes
+            // the next time the list is synchronized
+            // because they have already been applied
+            changesAhead = reader.ReadInt32();
+        }
+
+        public void OnDeserializeDelta(NetworkReader reader)
+        {
+            // This list can now only be modified by synchronization
+            IsReadOnly = true;
+
+            int changesCount = reader.ReadInt32();
+
+            for (int i = 0; i < changesCount; i++)
+            {
+                Operation operation = (Operation)reader.ReadByte();
+
+                // apply the operation only if it is a new change
+                // that we have not applied yet
+                bool apply = changesAhead == 0;
+                B key = default;
+                T item = default;
+
+                switch (operation)
+                {
+                    case Operation.OP_ADD:
+                        key = DeserializeKey(reader);
+                        item = DeserializeItem(reader);
+                        if (apply)
+                        {
+                            m_Objects.Add(key, item);
+                        }
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        if (apply)
+                        {
+                            m_Objects.Clear();
+                        }
+                        break;
+
+                    case Operation.OP_REMOVE:
+                        key = DeserializeKey(reader);
+                        if (apply)
+                        {
+                            m_Objects.Remove(key);
+                        }
+                        break;
+
+                    case Operation.OP_SET:
+                    case Operation.OP_DIRTY:
+                        key = DeserializeKey(reader);
+                        item = DeserializeItem(reader);
+                        if (apply)
+                        {
+                            m_Objects[key] = item;
+                        }
+                        break;
+                }
+
+                if (apply)
+                {
+                    Callback?.Invoke(operation, key, item);
+                }
+                // we just skipped this change
+                else
+                {
+                    changesAhead--;
+                }
+            }
+        }
+
+
+        public void Clear()
+        {
+            m_Objects.Clear();
+            AddOperation(Operation.OP_CLEAR, default);
+        }
+
+        public bool ContainsKey(B key) => m_Objects.ContainsKey(key);
+
+        public bool Remove(B key)
+        {
+            bool result = m_Objects.Remove(key);
+            if (result)
+            {
+                AddOperation(Operation.OP_REMOVE, key);
+            }
+            return result;
+        }
+
+        public void Dirty(B index)
+        {
+            AddOperation(Operation.OP_DIRTY, index, m_Objects[index]);
+        }
+
+        public T this[B i]
+        {
+            get { return m_Objects[i]; }
+            set
+            {
+                bool changed = false;
+                if (m_Objects[i] == null)
+                {
+                    if (value == null)
+                        return;
+                    else
+                        changed = true;
+                }
+                else
+                {
+                    changed = !m_Objects[i].Equals(value);
+                }
+
+                m_Objects[i] = value;
+                if (changed)
+                {
+                    AddOperation(Operation.OP_SET, i, value);
+                }
+            }
+        }
+
+        public bool TryGetValue(B key, out T value)
+        {
+            if (m_Objects.ContainsKey(key))
+            {
+                value = m_Objects[key];
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
+        }
+
+        public void Add(B key, T value)
+        {
+            m_Objects.Add(key, value);
+            AddOperation(Operation.OP_ADD, key, value);
+        }
+
+        public void Add(KeyValuePair<B, T> item)
+        {
+            m_Objects.Add(item.Key, item.Value);
+            AddOperation(Operation.OP_ADD, item.Key, item.Value);
+        }
+
+        public bool Contains(KeyValuePair<B, T> item)
+        {
+            return m_Objects.ContainsKey(item.Key) && m_Objects.ContainsValue(item.Value);
+        }
+
+        public void CopyTo(KeyValuePair<B, T>[] array, int arrayIndex)
+        {
+            int i = 0;
+            foreach (KeyValuePair<B, T> item in m_Objects)
+            {
+                array[i] = item;
+                i++;
+            }
+        }
+
+        public bool Remove(KeyValuePair<B, T> item)
+        {
+            bool result = m_Objects.Remove(item.Key);
+            if (result)
+            {
+                AddOperation(Operation.OP_REMOVE, item.Key);
+            }
+            return result;
+        }
+
+        public IEnumerator<KeyValuePair<B, T>> GetEnumerator() => ((IDictionary<B, T>)m_Objects).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<B, T>)m_Objects).GetEnumerator();
+    }
+}
