@@ -121,11 +121,11 @@ namespace Mirror.Examples.Listen
 
                 // server table header
                 GUILayout.BeginHorizontal("box");
-                GUILayout.Box("Server", GUILayout.Width(titleWidth));
-                GUILayout.Box("Players", GUILayout.Width(playersWidth));
-                GUILayout.Box("IP", GUILayout.Width(ipWidth));
-                GUILayout.Box("Port", GUILayout.Width(portWidth));
-                GUILayout.Box("Action", GUILayout.Width(joinWidth));
+                GUILayout.Box("<b>Server</b>", GUILayout.Width(titleWidth));
+                GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
+                GUILayout.Box("<b>IP</b>", GUILayout.Width(ipWidth));
+                GUILayout.Box("<b>Port</b>", GUILayout.Width(portWidth));
+                GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
                 GUILayout.EndHorizontal();
 
                 // entries
