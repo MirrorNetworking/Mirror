@@ -90,7 +90,8 @@ namespace Mirror.Examples.Listen
                 // header
                 GUILayout.Label("Gameserver List:");
 
-
+                if (!clientToListenConnection.Connected)
+                    GUILayout.Label("Connecting...");
 
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
