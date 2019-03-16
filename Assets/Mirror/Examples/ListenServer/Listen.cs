@@ -83,6 +83,25 @@ namespace Mirror.Examples.Listen
             TickClient();
         }
 
+        // send server status to list server
+        void SendStatus()
+        {
+            BinaryWriter writer = new BinaryWriter(new MemoryStream());
+
+            // create message
+            // NOTE: you can send anything that you want, as long as you also
+            //       receive it in ParseMessage
+            char[] titleChars = gameServerTitle.ToCharArray();
+            writer.Write((ushort)titleChars.Length);
+            writer.Write(titleChars);
+            writer.Write((ushort)NetworkServer.connections.Count);
+            writer.Write((ushort)NetworkManager.singleton.maxConnections);
+
+            // send it
+            writer.Flush();
+            gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+        }
+
         void TickGameServer()
         {
             // send server data to listen
@@ -91,7 +110,7 @@ namespace Mirror.Examples.Listen
                 // connected yet?
                 if (gameServerToListenConnection.Connected)
                 {
-
+                    SendStatus();
                 }
                 // otherwise try to connect
                 // (we may have just started the game)
