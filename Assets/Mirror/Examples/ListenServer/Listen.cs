@@ -58,6 +58,12 @@ namespace Mirror.Examples.Listen
 
         void Start()
         {
+            // examples
+            //list["127.0.0.1"] = new ServerStatus("127.0.0.1", "Deathmatch", 3, 10);
+            //list["192.168.0.1"] = new ServerStatus("192.168.0.1", "Free for all", 7, 10);
+            //list["172.217.22.3"] = new ServerStatus("172.217.22.3", "5vs5", 10, 10);
+            //list["172.217.16.142"] = new ServerStatus("172.217.16.142", "Hide & Seek Mod", 0, 10);
+
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
             // -> calling it more than 1/second would also cause significantly
