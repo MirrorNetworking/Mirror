@@ -229,7 +229,11 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
                     GUILayout.Box(server.ip, GUILayout.Width(addressWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
-                    GUILayout.Button("Join", GUILayout.Width(joinWidth));
+                    if (GUILayout.Button("Join", GUILayout.Width(joinWidth)))
+                    {
+                        NetworkManager.singleton.networkAddress = server.ip;
+                        NetworkManager.singleton.StartClient();
+                    }
                     GUI.enabled = true;
                     GUILayout.EndHorizontal();
                 }
