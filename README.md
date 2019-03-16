@@ -25,12 +25,9 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 
 ## Documentation
 Check out our [Documentation](https://vis2k.github.io/Mirror/).
+If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
-The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
-
-_Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
-
-## Usage Guide
+## Installation
 
 **If you are coming from a current UNET implementation or are seeking the stable version:**
 
@@ -41,10 +38,7 @@ Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/conte
 *Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
 
 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
-2. Decompress the zip file in Assets
-
-## Migration Guide
-If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
+2. Decompress the zip file in your Assets folder
 
 ## Example Projects
 Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
