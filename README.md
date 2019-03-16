@@ -48,8 +48,8 @@ Mirror supports many different low level networking transports:
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
 * https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
-## Donations
-Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
+## Donations & Priority Support
+Please support [Mirror on Patreon](https://www.patreon.com/MirrorTelepathy). Priority support included!
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
