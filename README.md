@@ -29,17 +29,9 @@ Check out our [Documentation](https://vis2k.github.io/Mirror/).
 If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
+We recommend to download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!
 
-**If you are coming from a current UNET implementation or are seeking the stable version:**
-
-Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
-
-**Alternatively, you can install new releases manually:**
-
-*Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
-
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
-2. Decompress the zip file in your Assets folder
+The Asset Store version is updated monthly and considered stable. For the latest improvements, consider the [Mirror Download](https://github.com/vis2k/Mirror/releases) directly from this repository instead. Afterwards extract it in your project's Assets folder.
 
 ## Examples
 We included several smaller example projects in Mirror.
