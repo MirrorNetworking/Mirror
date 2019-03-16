@@ -199,7 +199,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.BeginVertical("box");
 
                 // header
-                GUILayout.Label("<b>Servers</b>");
+                GUILayout.Label("<b>Join Server</b>");
 
                 if (!clientToListenConnection.Connected)
                     GUILayout.Label("Connecting...");
