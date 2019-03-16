@@ -244,23 +244,18 @@ namespace Mirror
             get { return m_Objects[i]; }
             set
             {
-                bool changed = false;
-                if (m_Objects[i] == null)
+                bool existing = TryGetValue(i, out var val);
+                if (existing)
                 {
                     if (value == null)
+                    {
                         return;
+                    }
                     else
-                        changed = true;
-                }
-                else
-                {
-                    changed = !m_Objects[i].Equals(value);
-                }
-
-                m_Objects[i] = value;
-                if (changed)
-                {
-                    AddOperation(Operation.OP_SET, i, value);
+                    {
+                        m_Objects[i] = value;
+                        AddOperation(Operation.OP_SET, i, value);
+                    }
                 }
             }
         }
