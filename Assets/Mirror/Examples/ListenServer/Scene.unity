@@ -344,7 +344,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 10
     y: 10
-    width: 570
+    width: 560
     height: 400
   titleWidth: 220
   playersWidth: 60

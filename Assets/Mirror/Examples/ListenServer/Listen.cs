@@ -42,7 +42,7 @@ namespace Mirror.Examples.Listen
 
         [Header("GUI")]
         public bool showOnGUI;
-        public Rect window = new Rect(10, 120, 570, 400);
+        public Rect window = new Rect(10, 120, 560, 400);
         public int titleWidth = 220;
         public int playersWidth = 60;
         public int addressWidth = 130;
