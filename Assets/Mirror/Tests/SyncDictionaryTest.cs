@@ -69,5 +69,43 @@ namespace Mirror.Tests
             Assert.That(clientSyncDictionary.ContainsKey(4), Is.EqualTo(true));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
         }
+
+        [Test]
+        public void TestClear()
+        {
+            serverSyncDictionary.Clear();
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(serverSyncDictionary, Is.EquivalentTo(new SyncDictionaryIntString()));
+        }
+
+        [Test]
+        public void TestSet()
+        {
+            serverSyncDictionary[1] = "yay";
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary[1], Is.EqualTo("yay"));
+        }
+
+        [Test]
+        public void TestRemove()
+        {
+            serverSyncDictionary.Remove(1);
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.ContainsKey(1), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void TestMultSync()
+        {
+            serverSyncDictionary.Add(10, "1");
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            // add some delta and see if it applies
+            serverSyncDictionary.Add(11, "2");
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.ContainsKey(10), Is.EqualTo(true));
+            Assert.That(clientSyncDictionary[10], Is.EqualTo("1"));
+            Assert.That(clientSyncDictionary.ContainsKey(11), Is.EqualTo(true));
+            Assert.That(clientSyncDictionary[11], Is.EqualTo("2"));
+        }
     }
 }
