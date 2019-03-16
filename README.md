@@ -25,6 +25,7 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 
 ## Documentation
 Check out our [Documentation](https://vis2k.github.io/Mirror/).
+
 If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
