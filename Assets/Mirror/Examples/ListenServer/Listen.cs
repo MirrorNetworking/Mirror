@@ -58,10 +58,6 @@ namespace Mirror.Examples.Listen
 
         void Start()
         {
-            // add example entry
-            // (can't do it in list constructor because Ping can't be created there yet)
-            //list.Add(new ServerInfo("127.0.0.1", 1337, "Deathmatch", 1, 2));
-
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
             InvokeRepeating(nameof(Tick), 0, 1);
