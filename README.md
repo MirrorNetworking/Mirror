@@ -64,4 +64,4 @@ If you would like to contribute, feel free to [submit pull requests](https://vis
 
 We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
 
-We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New features will be considered very carefully. 
+We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New features will be considered very carefully.
