@@ -1,8 +1,10 @@
 ﻿// add this component to the NetworkManager
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Mirror.Examples.Listen
 {
@@ -40,7 +42,7 @@ namespace Mirror.Examples.Listen
         Telepathy.Client gameServerToListenConnection = new Telepathy.Client();
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
-        [Header("GUI")]
+        [Header("OnGUI")]
         public bool showOnGUI;
         public int windowWidth = 560;
         public int windowHeight = 400;
@@ -50,6 +52,11 @@ namespace Mirror.Examples.Listen
         public int latencyWidth = 60;
         public int joinWidth = 50;
         Vector2 scrollPosition;
+
+        [Header("UI")]
+        public GameObject panel;
+        public Transform content;
+        public UIServerStatusSlot slotPrefab;
 
         // all the servers, stored as dict with unique ip key so we can
         // update them more easily
@@ -210,6 +217,9 @@ namespace Mirror.Examples.Listen
                 clientToListenConnection.Disconnect();
                 list.Clear();
             }
+
+            // refresh UI afterwards
+            OnUI();
         }
 
         void OnGUI()
@@ -276,6 +286,44 @@ namespace Mirror.Examples.Listen
                 GUILayout.EndVertical();
 
                 GUILayout.EndArea();
+            }
+        }
+
+        // instantiate/remove enough prefabs to match amount
+        public static void BalancePrefabs(GameObject prefab, int amount, Transform parent)
+        {
+            // instantiate until amount
+            for (int i = parent.childCount; i < amount; ++i)
+            {
+                GameObject go = GameObject.Instantiate(prefab);
+                go.transform.SetParent(parent, false);
+            }
+
+            // delete everything that's too much
+            // (backwards loop because Destroy changes childCount)
+            for (int i = parent.childCount-1; i >= amount; --i)
+                GameObject.Destroy(parent.GetChild(i).gameObject);
+        }
+
+        void OnUI()
+        {
+            // instantiate/destroy enough slots
+            BalancePrefabs(slotPrefab.gameObject, list.Count, content);
+
+            // refresh all members
+            for (int i = 0; i < list.Values.Count; ++i)
+            {
+                UIServerStatusSlot slot = content.GetChild(i).GetComponent<UIServerStatusSlot>();
+                ServerStatus server = list.Values.ToList()[i];
+                slot.titleText.text = server.title;
+                slot.playersText.text = server.players + "/" + server.capacity;
+                slot.latencyText.text = server.lastLatency != -1 ? server.lastLatency.ToString() : "...";
+                slot.addressText.text = server.ip;
+                slot.joinButton.onClick.RemoveAllListeners();
+                slot.joinButton.onClick.AddListener(() => {
+                    NetworkManager.singleton.networkAddress = server.ip;
+                    NetworkManager.singleton.StartClient();
+                });
             }
         }
 
