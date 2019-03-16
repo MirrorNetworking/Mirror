@@ -39,9 +39,14 @@ We included several smaller example projects in Mirror.
 For a fully polished, complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
 ## Community Transports
-If you don't want to use Telepathy or UNET's LLAPI as low level transport, then check out:
-* https://github.com/FizzCube/SteamNetNetworkTransport (SteamNetwork)
+Mirror supports many different low level networking transports:
+
+* (built in) https://github.com/vis2k/Telepathy (Telepathy)
+* (built in) Websockets
+* (built in) Unity's LLAPI
+* https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
+* https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
 ## Donations
 Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
