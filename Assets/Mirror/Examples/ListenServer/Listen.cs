@@ -42,7 +42,8 @@ namespace Mirror.Examples.Listen
 
         [Header("GUI")]
         public bool showOnGUI;
-        public Rect window = new Rect(10, 120, 560, 400);
+        public int windowWidth = 560;
+        public int windowHeight = 400;
         public int titleWidth = 220;
         public int playersWidth = 60;
         public int addressWidth = 130;
@@ -195,7 +196,7 @@ namespace Mirror.Examples.Listen
             // show listen data on client
             if (UseClientToListen())
             {
-                GUILayout.BeginArea(window);
+                GUILayout.BeginArea(new Rect(Screen.width/2f - windowWidth/2f, Screen.height/2f - windowHeight/2f, windowWidth, windowHeight));
                 GUILayout.BeginVertical("box");
 
                 // header
