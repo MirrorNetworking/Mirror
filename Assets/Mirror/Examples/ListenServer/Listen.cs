@@ -9,7 +9,7 @@ namespace Mirror.Examples.Listen
     public class ServerInfo
     {
         public string ip;
-        public ushort port;
+        //public ushort port; // <- not all transports use a port. assume default port. feel free to also send a port if needed.
         public string title;
         public ushort players;
         public ushort capacity;
@@ -17,10 +17,10 @@ namespace Mirror.Examples.Listen
         public int lastLatency = -1;
         public Ping ping;
 
-        public ServerInfo(string ip, ushort port, string title, ushort players, ushort capacity)
+        public ServerInfo(string ip, /*ushort port,*/ string title, ushort players, ushort capacity)
         {
             this.ip = ip;
-            this.port = port;
+            //this.port = port;
             this.title = title;
             this.players = players;
             this.capacity = capacity;
@@ -49,9 +49,10 @@ namespace Mirror.Examples.Listen
         public int joinWidth = 50;
         Vector2 scrollPosition;
 
-        // all the servers, stored as dict with unique ip:port key so we can
+        // all the servers, stored as dict with unique ip key so we can
         // update them more easily
-        Dictionary<KeyValuePair<string, ushort>, ServerInfo> list = new Dictionary<KeyValuePair<string, ushort>, ServerInfo>();
+        // (use "ip:port" if port is needed)
+        Dictionary<string, ServerInfo> list = new Dictionary<string, ServerInfo>();
 
         void Start()
         {
@@ -115,15 +116,15 @@ namespace Mirror.Examples.Listen
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
             ushort ipLength = reader.ReadUInt16();
             string ip = new string(reader.ReadChars(ipLength));
-            ushort port = reader.ReadUInt16();
+            //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
             ushort titleLength = reader.ReadUInt16();
             string title = new string(reader.ReadChars(titleLength));
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
-            Debug.Log("PARSED: ip=" + ip + " port=" + port + " title=" + title + " players=" + players + " capacity= " + capacity);
+            Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " title=" + title + " players=" + players + " capacity= " + capacity);
 
             // build key
-            KeyValuePair<string, ushort> key = new KeyValuePair<string, ushort>(ip, port);
+            string key = ip/* + ":" + port*/;
 
             // find existing or create new one
             ServerInfo server;
@@ -137,7 +138,7 @@ namespace Mirror.Examples.Listen
             else
             {
                 // create
-                server = new ServerInfo(ip, port, title, players, capacity);
+                server = new ServerInfo(ip, /*port,*/ title, players, capacity);
             }
 
             // save
@@ -223,7 +224,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
-                    GUILayout.Box(server.ip + ":" + server.port, GUILayout.Width(addressWidth));
+                    GUILayout.Box(server.ip);
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
