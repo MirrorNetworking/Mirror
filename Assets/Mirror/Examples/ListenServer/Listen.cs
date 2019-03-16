@@ -60,6 +60,8 @@ namespace Mirror.Examples.Listen
         {
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
+            // -> calling it more than 1/second would also cause significantly
+            //    more broadcasts in the list server.
             InvokeRepeating(nameof(Tick), 0, 1);
         }
 
