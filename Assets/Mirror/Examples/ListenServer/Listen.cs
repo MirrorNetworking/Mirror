@@ -226,7 +226,7 @@ namespace Mirror.Examples.Listen
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
                     GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
                     GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
-                    GUILayout.Box(server.ip);
+                    GUILayout.Box(server.ip, GUILayout.Width(addressWidth));
                     GUI.enabled = server.players < server.capacity && !NetworkClient.active;
                     GUILayout.Button("Join", GUILayout.Width(joinWidth));
                     GUI.enabled = true;
