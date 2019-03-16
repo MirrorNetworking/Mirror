@@ -107,5 +107,37 @@ namespace Mirror.Tests
             Assert.That(clientSyncDictionary.ContainsKey(11), Is.EqualTo(true));
             Assert.That(clientSyncDictionary[11], Is.EqualTo("2"));
         }
+
+        [Test]
+        public void CallbackTest()
+        {
+            bool called = false;
+            clientSyncDictionary.Callback += (op, index, item) =>
+            {
+                called = true;
+
+                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_ADD));
+                Assert.That(index, Is.EqualTo(3));
+                Assert.That(item, Is.EqualTo("yay"));
+            };
+            serverSyncDictionary.Add(3, "yay");
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void CallbackRemoveTest()
+        {
+            bool called = false;
+            clientSyncDictionary.Callback += (op, key, item) =>
+            {
+                called = true;
+                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_REMOVE));
+                Assert.That(item, Is.EqualTo("World"));
+            };
+            serverSyncDictionary.Remove(1);
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(called, Is.True);
+        }
     }
 }

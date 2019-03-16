@@ -72,8 +72,6 @@ namespace Mirror
             Callback?.Invoke(op, key, item);
         }
 
-        void AddOperation(Operation op, B key) => AddOperation(op, key, default);
-
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
@@ -114,6 +112,7 @@ namespace Mirror
 
                     case Operation.OP_REMOVE:
                         SerializeKey(writer, change.key);
+                        SerializeItem(writer, change.item);
                         break;
 
                     case Operation.OP_SET:
@@ -186,6 +185,7 @@ namespace Mirror
 
                     case Operation.OP_REMOVE:
                         key = DeserializeKey(reader);
+                        item = DeserializeItem(reader);
                         if (apply)
                         {
                             m_Objects.Remove(key);
@@ -219,19 +219,27 @@ namespace Mirror
         public void Clear()
         {
             m_Objects.Clear();
-            AddOperation(Operation.OP_CLEAR, default);
+            AddOperation(Operation.OP_CLEAR, default, default);
         }
 
         public bool ContainsKey(B key) => m_Objects.ContainsKey(key);
 
         public bool Remove(B key)
         {
-            bool result = m_Objects.Remove(key);
-            if (result)
+            if (m_Objects.ContainsKey(key))
             {
-                AddOperation(Operation.OP_REMOVE, key);
+                T item = m_Objects[key];
+                bool result = m_Objects.Remove(key);
+                if (result)
+                {
+                    AddOperation(Operation.OP_REMOVE, key, item);
+                }
+                return result;
             }
-            return result;
+            else
+            {
+                return false;
+            }
         }
 
         public void Dirty(B index)
@@ -294,7 +302,7 @@ namespace Mirror
             bool result = m_Objects.Remove(item.Key);
             if (result)
             {
-                AddOperation(Operation.OP_REMOVE, item.Key);
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
             }
             return result;
         }
