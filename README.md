@@ -56,9 +56,15 @@ Please support [Mirror on Patreon](https://www.patreon.com/MirrorTelepathy). Pri
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
-## Contributing
-If you would like to contribute, feel free to [submit pull requests](https://vis2k.github.io/Mirror/General/Contributions) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
+## The Mirror Mantra
+“Would you tell me, please, which way I ought to go from here?”
+“That depends a good deal on where you want to get to," said the Cat.
+"I don’t much care where—“ said Alice.
+“Then it doesn’t matter which way you go,” said the Cat.
+&nbsp;&nbsp;&nbsp;&nbsp;_Lewis Carroll, Alice in Wonderland_
 
-We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
+As indie developers, our #1 goal for Mirror is **Ease of Use**.
 
-We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New features will be considered very carefully.
+If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still in production.
+
+Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and only be merged if they are the most simple solution to the given problem.
