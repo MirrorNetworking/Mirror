@@ -61,7 +61,7 @@ Please support [Mirror on Patreon](https://www.patreon.com/MirrorTelepathy). Pri
 > _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
 > _"I don’t much care where—“_ said Alice.<br/>
 > _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-Lewis Carroll, _Alice in Wonderland_
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Alice in Wonderland (Lewis Carroll)
 
 As Indie Developers,  **our #1 goal** for Mirror is **Ease of Use**.
 
