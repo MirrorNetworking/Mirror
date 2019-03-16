@@ -71,3 +71,65 @@ public class MyScript : NetworkBehaviour
     }
 }
 ```
+
+## SyncDictionaries
+
+SyncDictionaries contain a list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can get the value, which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you add something on the server, the change is propagated to all clients and the Callback is called.
+
+In the current version of SyncDictionaries, structs are not weaved automatically like they are in a SyncListSTRUCT. You must write serialization code for them. An example is provided below.
+
+```cs
+public class ExamplePlayer : NetworkBehaviour
+{
+    public class SyncDictionaryIntPlayer : SyncDictionary<int, PlayerData>
+    {
+        protected override void SerializeKey(NetworkWriter writer, int item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, PlayerData item)
+        {
+            writer.Write(item.Health);
+            writer.Write(item.Speed);
+            writer.Write(item.Position);
+        }
+
+        protected override int DeserializeKey(NetworkReader reader) => reader.ReadInt32();
+        protected override PlayerData DeserializeItem(NetworkReader reader)
+        {
+            return new PlayerData
+            {
+                Health = reader.ReadInt32(),
+                Speed = reader.ReadSingle(),
+                Position = reader.ReadVector3()
+            };
+        }
+    }
+
+    public struct PlayerData
+    {
+        public int Health;
+        public float Speed;
+        public Vector3 Position;
+    }
+
+    public SyncDictionaryIntPlayer Players;
+
+    private void Start()
+    {
+        if (isLocalPlayer)
+        {
+            Players.Callback += PlayersChanged;
+            CmdRegisterPlayer();
+        }
+    }
+
+    [Command]
+    public void CmdRegisterPlayer()
+    {
+        Players.Add(connectionToClient.connectionId, new PlayerData { Health = 100, Speed = 5f, Position = Vector3.zero });
+    }
+
+    private void PlayersChanged(SyncDictionary<int, PlayerData>.Operation op, int key, PlayerData item)
+    {
+        Debug.Log(op + " - " + key);
+    }
+}
+```
