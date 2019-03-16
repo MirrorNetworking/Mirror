@@ -343,7 +343,7 @@ MonoBehaviour:
   window:
     serializedVersion: 2
     x: 10
-    y: 120
+    y: 10
     width: 570
     height: 400
   titleWidth: 220
