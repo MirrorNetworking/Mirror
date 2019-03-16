@@ -235,6 +235,20 @@ namespace Mirror.Examples.Listen
                 GUILayout.EndScrollView();
 
                 GUILayout.EndVertical();
+
+                // bottom panel to start host/server
+                GUILayout.BeginVertical("box");
+                GUILayout.Label("Start my own server:");
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Server & Play"))
+                {
+                }
+                if (GUILayout.Button("Server Only"))
+                {
+                }
+                GUILayout.EndHorizontal();
+                GUILayout.EndVertical();
+
                 GUILayout.EndArea();
             }
         }
