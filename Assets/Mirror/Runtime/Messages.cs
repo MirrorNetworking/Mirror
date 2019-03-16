@@ -196,6 +196,7 @@ namespace Mirror
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
+        public Vector3 scale;
         public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
@@ -204,6 +205,7 @@ namespace Mirror
             assetId = reader.ReadGuid();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
+            scale = reader.ReadVector3();
             payload = reader.ReadBytesAndSize();
         }
 
@@ -213,6 +215,7 @@ namespace Mirror
             writer.Write(assetId);
             writer.Write(position);
             writer.Write(rotation);
+            writer.Write(scale);
             writer.WriteBytesAndSize(payload);
         }
     }
@@ -223,6 +226,7 @@ namespace Mirror
         public ulong sceneId;
         public Vector3 position;
         public Quaternion rotation;
+        public Vector3 scale;
         public byte[] payload;
 
         public override void Deserialize(NetworkReader reader)
@@ -231,6 +235,7 @@ namespace Mirror
             sceneId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
+            scale = reader.ReadVector3();
             payload = reader.ReadBytesAndSize();
         }
 
@@ -240,6 +245,7 @@ namespace Mirror
             writer.Write(sceneId);
             writer.Write(position);
             writer.Write(rotation);
+            writer.Write(scale);
             writer.WriteBytesAndSize(payload);
         }
     }
