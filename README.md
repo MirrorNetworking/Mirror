@@ -38,7 +38,7 @@ We included several smaller example projects in Mirror.
 
 For a fully polished, complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
-## Community Transports
+## Transports
 Mirror supports many different low level networking transports:
 
 * (built in) https://github.com/vis2k/Telepathy (Telepathy)
