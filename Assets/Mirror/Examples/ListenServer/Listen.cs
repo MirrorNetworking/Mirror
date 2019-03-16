@@ -41,6 +41,7 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("GUI")]
+        public bool showOnGUI;
         public Rect window = new Rect(10, 120, 570, 400);
         public int titleWidth = 220;
         public int playersWidth = 60;
@@ -189,6 +190,8 @@ namespace Mirror.Examples.Listen
 
         void OnGUI()
         {
+            if (!showOnGUI) return;
+
             // show listen data on client
             if (UseClientToListen())
             {

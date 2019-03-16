@@ -354,6 +354,8 @@ MonoBehaviour:
   listenServerIp: 127.0.0.1
   gameServerToListenPort: 8887
   clientToListenPort: 8888
+  gameServerTitle: Deathmatch
+  showOnGUI: 1
   window:
     serializedVersion: 2
     x: 10
