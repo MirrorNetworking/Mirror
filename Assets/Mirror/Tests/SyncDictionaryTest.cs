@@ -87,6 +87,25 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestConsecutiveSet()
+        {
+            serverSyncDictionary[1] = "yay";
+            serverSyncDictionary[1] = "world";
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary[1], Is.EqualTo("world"));
+        }
+
+        [Test]
+        public void TestNullSet()
+        {
+            serverSyncDictionary[1] = null;
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.ContainsKey(1), Is.EqualTo(true));
+            // Just like SyncList, SyncDictionary should not accept a null value.
+            Assert.That(clientSyncDictionary[1], Is.EqualTo("World"));
+        }
+
+        [Test]
         public void TestRemove()
         {
             serverSyncDictionary.Remove(1);
@@ -138,6 +157,57 @@ namespace Mirror.Tests
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void CountTest()
+        {
+            Assert.That(serverSyncDictionary.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ReadOnlyTest()
+        {
+            Assert.That(serverSyncDictionary.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void DirtyTest()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+
+            // nothing to send
+            Assert.That(serverList.IsDirty, Is.False);
+
+            // something has changed
+            serverList.Add(15, "yay");
+            Assert.That(serverList.IsDirty, Is.True);
+            SerializeDeltaTo(serverList, clientList);
+
+            // data has been flushed,  should go back to clear
+            Assert.That(serverList.IsDirty, Is.False);
+        }
+
+        [Test]
+        public void ReadonlyTest()
+        {
+            SyncDictionaryIntString serverList = new SyncDictionaryIntString();
+            SyncDictionaryIntString clientList = new SyncDictionaryIntString();
+
+            // data has been flushed,  should go back to clear
+            Assert.That(clientList.IsReadOnly, Is.False);
+
+            serverList.Add(20, "yay");
+            serverList.Add(30, "hello");
+            serverList.Add(35, "world");
+            SerializeDeltaTo(serverList, clientList);
+
+            // client list should now lock itself,  trying to modify it
+            // should produce an InvalidOperationException
+            Assert.That(clientList.IsReadOnly, Is.True);
+            Assert.Throws<InvalidOperationException>(() => { clientList.Add(50, "fail"); });
+
         }
     }
 }
