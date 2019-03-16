@@ -57,10 +57,10 @@ Please support [Mirror on Patreon](https://www.patreon.com/MirrorTelepathy). Pri
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
 ## The Mirror Mantra
-_“Would you tell me, please, which way I ought to go from here?”_<br/>
-_“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
-_"I don’t much care where—“_ said Alice.<br/>
-_“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
+> _“Would you tell me, please, which way I ought to go from here?”_<br/>
+> _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
+> _"I don’t much care where—“_ said Alice.<br/>
+> _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-Lewis Carroll, _Alice in Wonderland_
 
 As Indie Developers,  **our #1 goal** for Mirror is **Ease of Use**.
