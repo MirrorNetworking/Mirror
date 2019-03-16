@@ -3,7 +3,7 @@
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
 [![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://vis2k.github.io/Mirror/)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
-[![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorTelepathy)
+[![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorNetworking)
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
@@ -49,7 +49,7 @@ Mirror supports many different low level networking transports:
 * https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
 ## Donations & Priority Support
-Please support [Mirror on Patreon](https://www.patreon.com/MirrorTelepathy). Priority support included!
+Please support [Mirror on Patreon](https://www.patreon.com/MirrorNetworking). Priority support included!
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
