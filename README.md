@@ -63,7 +63,7 @@ _"I don’t much care where—“_ said Alice.<br/>
 _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-Lewis Carroll, _Alice in Wonderland_
 
-As indie developers, our #1 goal for Mirror is **Ease of Use**.
+As Indie Developers,  **our #1 goal for Mirror is Ease of Use**.
 
 If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still in production.
 
