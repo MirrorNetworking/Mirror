@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Listen
 {
-    public class ServerInfo
+    public class ServerStatus
     {
         public string ip;
         //public ushort port; // <- not all transports use a port. assume default port. feel free to also send a port if needed.
@@ -17,7 +17,7 @@ namespace Mirror.Examples.Listen
         public int lastLatency = -1;
         public Ping ping;
 
-        public ServerInfo(string ip, /*ushort port,*/ string title, ushort players, ushort capacity)
+        public ServerStatus(string ip, /*ushort port,*/ string title, ushort players, ushort capacity)
         {
             this.ip = ip;
             //this.port = port;
@@ -54,7 +54,7 @@ namespace Mirror.Examples.Listen
         // all the servers, stored as dict with unique ip key so we can
         // update them more easily
         // (use "ip:port" if port is needed)
-        Dictionary<string, ServerInfo> list = new Dictionary<string, ServerInfo>();
+        Dictionary<string, ServerStatus> list = new Dictionary<string, ServerStatus>();
 
         void Start()
         {
@@ -125,7 +125,7 @@ namespace Mirror.Examples.Listen
             string key = ip/* + ":" + port*/;
 
             // find existing or create new one
-            ServerInfo server;
+            ServerStatus server;
             if (list.TryGetValue(key, out server))
             {
                 // refresh
@@ -136,7 +136,7 @@ namespace Mirror.Examples.Listen
             else
             {
                 // create
-                server = new ServerInfo(ip, /*port,*/ title, players, capacity);
+                server = new ServerStatus(ip, /*port,*/ title, players, capacity);
             }
 
             // save
@@ -160,7 +160,7 @@ namespace Mirror.Examples.Listen
                     }
 
                     // ping again if previous ping finished
-                    foreach (ServerInfo server in list.Values)
+                    foreach (ServerStatus server in list.Values)
                     {
                         if (server.ping.isDone)
                         {
@@ -217,7 +217,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.EndHorizontal();
 
                 // entries
-                foreach (ServerInfo server in list.Values)
+                foreach (ServerStatus server in list.Values)
                 {
                     GUILayout.BeginHorizontal("box");
                     GUILayout.Box(server.title, GUILayout.Width(titleWidth));
