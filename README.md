@@ -41,10 +41,10 @@ Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/conte
 1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
 2. Decompress the zip file in your Assets folder
 
-## Example Projects
-Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
+## Examples
+We included several smaller example projects in Mirror.
 
-For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
+For a fully polished, complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
 ## Community Transports
 If you don't want to use Telepathy or UNET's LLAPI as low level transport, then check out:
