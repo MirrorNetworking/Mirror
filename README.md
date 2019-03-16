@@ -31,7 +31,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ## Installation
 We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!
 
-For the latest improvements [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
+For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
 
 ## Examples
 We included several smaller example projects in Mirror.
