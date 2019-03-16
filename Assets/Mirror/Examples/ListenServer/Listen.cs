@@ -199,7 +199,7 @@ namespace Mirror.Examples.Listen
                 GUILayout.BeginVertical("box");
 
                 // header
-                GUILayout.Label("Gameserver List:");
+                GUILayout.Label("<b>Servers</b>");
 
                 if (!clientToListenConnection.Connected)
                     GUILayout.Label("Connecting...");
@@ -238,7 +238,7 @@ namespace Mirror.Examples.Listen
 
                 // bottom panel to start host/server
                 GUILayout.BeginVertical("box");
-                GUILayout.Label("Start my own server:");
+                GUILayout.Label("<b>Start Server</b>");
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Server & Play"))
                 {
