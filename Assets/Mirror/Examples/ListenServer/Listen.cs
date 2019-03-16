@@ -207,7 +207,6 @@ namespace Mirror.Examples.Listen
                 if (clientToListenConnection.Connected && list.Count == 0)
                     GUILayout.Label("Scanning...");
 
-
                 // scroll area
                 scrollPosition = GUILayout.BeginScrollView(scrollPosition);
 
