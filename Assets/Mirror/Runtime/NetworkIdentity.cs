@@ -894,12 +894,12 @@ namespace Mirror
         {
             if (!isServer)
             {
-                Debug.LogError("AssignClientAuthority can only be call on the server for spawned objects.");
+                Debug.LogError("AssignClientAuthority can only be called on the server for spawned objects.");
                 return false;
             }
             if (!localPlayerAuthority)
             {
-                Debug.LogError("AssignClientAuthority can only be used for NetworkIdentity component with LocalPlayerAuthority set.");
+                Debug.LogError("AssignClientAuthority can only be used for NetworkIdentity components with LocalPlayerAuthority set.");
                 return false;
             }
 
