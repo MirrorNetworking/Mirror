@@ -65,6 +65,6 @@ _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
 
 As Indie Developers,  **our #1 goal** for Mirror is **Ease of Use**.
 
-If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still in production.
+If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still running.
 
 Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and only be merged if they are the most simple solution to the given problem.
