@@ -42,7 +42,7 @@ For a fully polished, complete project example, consider [uMMORPG](https://www.a
 Mirror supports many different low level networking transports:
 
 * (built in) https://github.com/vis2k/Telepathy (Telepathy)
-* (built in) Websockets
+* (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
 * (built in) Unity's LLAPI
 * https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
