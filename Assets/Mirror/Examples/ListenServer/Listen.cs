@@ -241,11 +241,9 @@ namespace Mirror.Examples.Listen
                 GUILayout.Label("<b>Start Server</b>");
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Server & Play"))
-                {
-                }
+                    NetworkManager.singleton.StartHost();
                 if (GUILayout.Button("Server Only"))
-                {
-                }
+                    NetworkManager.singleton.StartServer();
                 GUILayout.EndHorizontal();
                 GUILayout.EndVertical();
 
