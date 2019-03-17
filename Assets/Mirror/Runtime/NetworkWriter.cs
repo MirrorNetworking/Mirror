@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -7,8 +8,13 @@ namespace Mirror
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter
     {
+        // cache encoding instead of creating it with BinaryWriter each time
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream());
+        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here

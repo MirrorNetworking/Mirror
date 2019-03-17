@@ -10,9 +10,24 @@ namespace Mirror.Examples.Pong
         {
             // only simulate ball physics on server
             GetComponent<Rigidbody2D>().simulated = true;
+        }
 
-            // Initial Velocity
-            GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
+        [ServerCallback]
+        void Update()
+        {
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+            // if less than two players then reset ball
+            if (NetworkManager.singleton.numPlayers < 2)
+            {
+                rb.velocity = Vector2.zero;
+                transform.position = Vector2.zero;
+            }
+            // if two players joined, then enable velocity if not done yet
+            else if (NetworkManager.singleton.numPlayers == 2 && rb.velocity == Vector2.zero)
+            {
+                rb.velocity = Vector2.right * speed;
+            }
         }
 
         float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
