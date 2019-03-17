@@ -358,13 +358,6 @@ namespace Mirror
             ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                if (dontDestroyOnLoad)
-                {
-                    // Move the NetworkManager from the virtual DontDestroyOnLoad scene to the Game scene.
-                    // This let's it be destroyed when client changes to the Offline scene.
-                    SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-                }
-
                 // Must pass true or offlineScene will not be loaded
                 ClientChangeScene(offlineScene, true);
             }
