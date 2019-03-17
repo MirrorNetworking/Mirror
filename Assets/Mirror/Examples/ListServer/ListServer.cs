@@ -319,7 +319,7 @@ namespace Mirror.Examples.Listen
                 slot.playersText.text = server.players + "/" + server.capacity;
                 slot.latencyText.text = server.lastLatency != -1 ? server.lastLatency.ToString() : "...";
                 slot.addressText.text = server.ip;
-                slot.joinButton.interactable = server.players < server.capacity && !NetworkClient.active;
+                slot.joinButton.gameObject.SetActive(server.players < server.capacity && !NetworkClient.active);
                 slot.joinButton.onClick.RemoveAllListeners();
                 slot.joinButton.onClick.AddListener(() => {
                     NetworkManager.singleton.networkAddress = server.ip;
