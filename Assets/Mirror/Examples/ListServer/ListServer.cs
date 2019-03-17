@@ -309,8 +309,8 @@ namespace Mirror.Examples.Listen
 
         void OnUI()
         {
-            // only show while not connected
-            if (UseClientToListen())
+            // only show while client not connected and server not started
+            if (!NetworkManager.singleton.isNetworkActive)
             {
                 panel.SetActive(true);
 
