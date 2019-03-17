@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2240606817507776182}
   - component: {fileID: 114250499875391520}
   - component: {fileID: 6900008319038825817}
+  - component: {fileID: 5194388907919410155}
   - component: {fileID: 114654712548978148}
   m_Layer: 0
   m_Name: Tank
@@ -34,6 +35,7 @@ Transform:
   m_Children:
   - {fileID: 7831918942946891954}
   - {fileID: 6564220120147636086}
+  - {fileID: 5718089106632469514}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -108,6 +110,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 0
+--- !u!135 &5194388907919410155
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916082411674582}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0.25, z: 0}
 --- !u!114 &114654712548978148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,6 +140,9 @@ MonoBehaviour:
   animator: {fileID: 2240606817507776182}
   rotationSpeed: 80
   shootKey: 32
+  projectilePrefab: {fileID: 5890560936853567077, guid: b7dd46dbf38c643f09e206f9fa4be008,
+    type: 3}
+  projectileMount: {fileID: 5718089106632469514}
 --- !u!1 &4426914200102054949
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,6 +212,36 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!1 &4730779867780281009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5718089106632469514}
+  m_Layer: 0
+  m_Name: ProjectileMount
+  m_TagString: Untagged
+  m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5718089106632469514
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4730779867780281009}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.412, z: 0.936}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4492442352427800}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &7831918942947279416
 PrefabInstance:
   m_ObjectHideFlags: 0
