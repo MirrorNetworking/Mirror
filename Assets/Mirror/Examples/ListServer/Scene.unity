@@ -2038,7 +2038,7 @@ MonoBehaviour:
   addressWidth: 130
   latencyWidth: 60
   joinWidth: 50
-  panel: {fileID: 776519260}
+  panel: {fileID: 719699535}
   content: {fileID: 583153859}
   slotPrefab: {fileID: 114611570997501482, guid: 611330311f6094567ad2f8012b470129,
     type: 3}
