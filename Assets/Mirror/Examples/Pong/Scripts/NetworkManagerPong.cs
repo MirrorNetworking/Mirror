@@ -8,11 +8,31 @@ public class NetworkManagerPong : NetworkManager
 {
     public Transform leftRacketSpawn;
     public Transform rightRacketSpawn;
+    public GameObject ballPrefab;
+    public GameObject ball;
 
     public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
     {
+        // add player at correct spawn position
         Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
         GameObject player = Instantiate(playerPrefab, start.position, start.rotation);
         NetworkServer.AddPlayerForConnection(conn, player);
+
+        // spawn ball if two players
+        if (numPlayers == 2)
+        {
+            ball = Instantiate(ballPrefab);
+            NetworkServer.Spawn(ball);
+        }
+    }
+
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        // destroy ball
+        if (ball != null)
+            NetworkServer.Destroy(ball);
+
+        // call base functionality (actually destroys the player)
+        base.OnServerDisconnect(conn);
     }
 }
