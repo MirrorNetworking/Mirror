@@ -918,7 +918,7 @@ namespace Mirror
             if (identity.serverOnly)
                 return;
 
-            if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId + " netid=" + identity.netId); // for easier debugging
+            if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
@@ -929,6 +929,7 @@ namespace Mirror
                     assetId = identity.assetId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
+                    scale = identity.transform.localScale,
 
                     // serialize all components with initialState = true
                     payload = identity.OnSerializeAllSafely(true)
@@ -954,6 +955,7 @@ namespace Mirror
                     sceneId = identity.sceneId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
+                    scale = identity.transform.localScale,
 
                     // include synch data
                     payload = identity.OnSerializeAllSafely(true)
@@ -1186,7 +1188,7 @@ namespace Mirror
             {
                 if (ValidateSceneObject(identity))
                 {
-                    if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId + " name:" + identity.gameObject.name);
+                    if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.Reset();
                     identity.gameObject.SetActive(true);
                 }

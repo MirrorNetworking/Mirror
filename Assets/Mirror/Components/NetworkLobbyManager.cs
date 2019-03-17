@@ -10,7 +10,7 @@ namespace Mirror
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyManager")]
     public class NetworkLobbyManager : NetworkManager
     {
-        struct PendingPlayer
+        public struct PendingPlayer
         {
             public NetworkConnection conn;
             public GameObject lobbyPlayer;
@@ -29,8 +29,8 @@ namespace Mirror
         public string GameplayScene;
 
         // runtime data
-        [FormerlySerializedAs("m_PendingPlayers")] List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
-        List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
+        [FormerlySerializedAs("m_PendingPlayers")] public List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
+        public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
 
         public bool allPlayersReady;
 
@@ -193,6 +193,12 @@ namespace Mirror
 
             base.OnServerDisconnect(conn);
             OnLobbyServerDisconnect(conn);
+        }
+
+        [System.Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public override void OnServerAddPlayer(NetworkConnection conn)
+        {
+            OnServerAddPlayer(conn, null);
         }
 
         public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)

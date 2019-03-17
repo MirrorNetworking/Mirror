@@ -704,12 +704,24 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
+        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
+        {
+            OnServerAddPlayerInternal(conn);
+        }
+
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         /// <param name="extraMessageReader">The message.  You can get extraMessage.value for the byte[] passed by the client</param>
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        {
+            OnServerAddPlayerInternal(conn);
+        }
+
+        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             OnServerAddPlayerInternal(conn);
         }
