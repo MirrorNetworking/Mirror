@@ -307,25 +307,32 @@ namespace Mirror.Examples.Listen
 
         void OnUI()
         {
-            // instantiate/destroy enough slots
-            BalancePrefabs(slotPrefab.gameObject, list.Count, content);
-
-            // refresh all members
-            for (int i = 0; i < list.Values.Count; ++i)
+            // only show while not connected
+            if (UseClientToListen())
             {
-                UIServerStatusSlot slot = content.GetChild(i).GetComponent<UIServerStatusSlot>();
-                ServerStatus server = list.Values.ToList()[i];
-                slot.titleText.text = server.title;
-                slot.playersText.text = server.players + "/" + server.capacity;
-                slot.latencyText.text = server.lastLatency != -1 ? server.lastLatency.ToString() : "...";
-                slot.addressText.text = server.ip;
-                slot.joinButton.gameObject.SetActive(server.players < server.capacity && !NetworkClient.active);
-                slot.joinButton.onClick.RemoveAllListeners();
-                slot.joinButton.onClick.AddListener(() => {
-                    NetworkManager.singleton.networkAddress = server.ip;
-                    NetworkManager.singleton.StartClient();
-                });
+                panel.SetActive(true);
+
+                // instantiate/destroy enough slots
+                BalancePrefabs(slotPrefab.gameObject, list.Count, content);
+
+                // refresh all members
+                for (int i = 0; i < list.Values.Count; ++i)
+                {
+                    UIServerStatusSlot slot = content.GetChild(i).GetComponent<UIServerStatusSlot>();
+                    ServerStatus server = list.Values.ToList()[i];
+                    slot.titleText.text = server.title;
+                    slot.playersText.text = server.players + "/" + server.capacity;
+                    slot.latencyText.text = server.lastLatency != -1 ? server.lastLatency.ToString() : "...";
+                    slot.addressText.text = server.ip;
+                    slot.joinButton.gameObject.SetActive(server.players < server.capacity && !NetworkClient.active);
+                    slot.joinButton.onClick.RemoveAllListeners();
+                    slot.joinButton.onClick.AddListener(() => {
+                        NetworkManager.singleton.networkAddress = server.ip;
+                        NetworkManager.singleton.StartClient();
+                    });
+                }
             }
+            else panel.SetActive(false);
         }
 
         // disconnect everything when pressing Stop in the Editor
