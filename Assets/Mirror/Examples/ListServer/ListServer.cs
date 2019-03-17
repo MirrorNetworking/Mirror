@@ -57,6 +57,8 @@ namespace Mirror.Examples.Listen
         public GameObject panel;
         public Transform content;
         public UIServerStatusSlot slotPrefab;
+        public Button serverAndPlayButton;
+        public Button serverOnlyButton;
 
         // all the servers, stored as dict with unique ip key so we can
         // update them more easily
@@ -331,6 +333,17 @@ namespace Mirror.Examples.Listen
                         NetworkManager.singleton.StartClient();
                     });
                 }
+
+                // server buttons
+                serverAndPlayButton.onClick.RemoveAllListeners();
+                serverAndPlayButton.onClick.AddListener(() => {
+                    NetworkManager.singleton.StartHost();
+                });
+
+                serverOnlyButton.onClick.RemoveAllListeners();
+                serverOnlyButton.onClick.AddListener(() => {
+                    NetworkManager.singleton.StartServer();
+                });
             }
             else panel.SetActive(false);
         }

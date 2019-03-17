@@ -1190,18 +1190,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 993261496}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1886246552}
-        m_MethodName: StopServer
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &993261496
@@ -1319,18 +1308,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1004751480}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1886246552}
-        m_MethodName: StopHost
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1004751480
@@ -2042,6 +2020,8 @@ MonoBehaviour:
   content: {fileID: 583153859}
   slotPrefab: {fileID: 114611570997501482, guid: 611330311f6094567ad2f8012b470129,
     type: 3}
+  serverAndPlayButton: {fileID: 1004751479}
+  serverOnlyButton: {fileID: 993261495}
 --- !u!1 &1918165880
 GameObject:
   m_ObjectHideFlags: 0
