@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 1.6 -- In Progress
+## Version 1.6 -- 2019-Mar-14
 
 - Fixed: Websockets transport moved to Mirror.Websocket namespace
 - Fixed: NetworkAnimator bandwidth abuse

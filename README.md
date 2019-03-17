@@ -3,14 +3,14 @@
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
 [![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://vis2k.github.io/Mirror/)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
-[![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorTelepathy)
+[![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorNetworking)
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
-Mirror is built [and tested](https://docs.google.com/document/d/e/2PACX-1vQqf_iqOLlBRTUqqyor_OUx_rHlYx-SYvZWMvHGuLIuRuxJ-qX3s8JzrrBB5vxDdGfl-HhYZW3g5lLW/pub#h.h4wha2mpetsc) for **MMO Scale** Networking by the developers of [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212), [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015) and [Cubica](https://cubica.net).
+Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212), [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015) and [Cubica](https://cubica.net).
 
 Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://ummorpg.net/showcase/), period.
 
@@ -26,47 +26,45 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 ## Documentation
 Check out our [Documentation](https://vis2k.github.io/Mirror/).
 
-The main difference is that you have to use `using Mirror;` instead of `using UnityEngine.Networking;` at the top of your scripts.
+If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
 
-_Oh, and you won't have to worry about channels, low level networking, [packet loss](https://forum.unity.com/threads/unet-deprecation-thread.543501/page-3#post-3597869), [lack of support](https://forum.unity.com/threads/is-hlapi-dead.517436/) or [bugs](https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients) ever again. Mirror just works._
+## Installation
+We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!
 
-## Usage Guide
+For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
 
-**If you are coming from a current UNET implementation or are seeking the stable version:**
+## Examples
+We included several smaller example projects in Mirror.
 
-Import mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321) into your project.
+For a fully polished, complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
 
-**Alternatively, you can install new releases manually:**
+## Transports
+Mirror supports many different low level networking transports:
 
-*Note: New releases are bleeding edge and may come with undiscovered bugs. Use at your own risk!*
-
-1. [Download Mirror](https://github.com/vis2k/Mirror/releases) (for Unity 2018.2.20 or 2018.3.x).
-2. Decompress the zip file in Assets
-
-## Migration Guide
-If you are still using UNET and want to switch to Mirror, you should check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
-
-## Example Projects
-Download Mirror from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321), we have several small example projects included.
-
-For a fully polished complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
-
-## Community Transports
-If you don't want to use Telepathy or UNET's LLAPI as low level transport, then check out:
-* https://github.com/FizzCube/SteamNetNetworkTransport (SteamNetwork)
+* (built in) https://github.com/vis2k/Telepathy (Telepathy)
+* (built in) Unity's LLAPI
+* (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
+* https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
+* https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
-## Donations
-Mirror is developed by volunteers. If you like what we are doing, consider leaving [a small donation](https://www.patreon.com/MirrorTelepathy).
+## Donations & Priority Support
+Please support [Mirror on Patreon](https://www.patreon.com/MirrorNetworking). Priority support included!
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
 * [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
 
-## Contributing
-If you would like to contribute, feel free to [submit pull requests](https://vis2k.github.io/Mirror/General/Contributions) and visit our [Discord Server](https://discordapp.com/invite/N9QVxbM).
+## The Mirror Mantra
+> _“Would you tell me, please, which way I ought to go from here?”_<br/>
+> _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
+> _"I don’t much care where—“_ said Alice.<br/>
+> _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Alice in Wonderland _(Lewis Carroll)_
 
-We follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle, so make sure that your Pull Requests contain no magic.
+As Indie Developers,  **our #1 goal** for Mirror is **Ease of Use**.
 
-We need Mirror to be MMO Scale. Bug fixes are always highly appreciated. New features will be considered very carefully. 
+If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still running.
+
+Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and will only be merged if they are the most simple solution to the given problem.
