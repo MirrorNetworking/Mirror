@@ -255,15 +255,8 @@ namespace Mirror
                 bool existing = TryGetValue(i, out var val);
                 if (existing)
                 {
-                    if (value == null)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        m_Objects[i] = value;
-                        AddOperation(Operation.OP_SET, i, value);
-                    }
+                    m_Objects[i] = value;
+                    AddOperation(Operation.OP_SET, i, value);
                 }
             }
         }

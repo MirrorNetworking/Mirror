@@ -102,7 +102,7 @@ namespace Mirror.Tests
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(1));
             // Just like SyncList, SyncDictionary should not accept a null value.
-            Assert.That(clientSyncDictionary[1], Is.EqualTo("World"));
+            Assert.That(clientSyncDictionary[1], Is.Null);
         }
 
         [Test]
