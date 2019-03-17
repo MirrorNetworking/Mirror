@@ -86,11 +86,10 @@ namespace Mirror
             if (Transport.activeTransport.ServerActive())
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
-            }
+            }            
+            // not server and not host mode? then disconnect client
             else
             {
-                // paul:  we may be connecting or connected,  either way, we need to disconnect
-                // transport should not do anything if it is not connecting/connected
                 Transport.activeTransport.ClientDisconnect();
             }
 
