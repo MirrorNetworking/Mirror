@@ -1,12 +1,12 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Mirror.Examples.Movement
 {
     public class Move : NetworkBehaviour
     {
-        public CharacterController controller;
-        public float speed = 300;
-        public float rotationSpeed = 400;
+        public NavMeshAgent agent;
+        public float rotationSpeed = 100;
 
         void Update()
         {
@@ -18,7 +18,7 @@ namespace Mirror.Examples.Movement
 
             // move
             Vector3 forward = transform.TransformDirection(Vector3.forward);
-            controller.SimpleMove(forward * Input.GetAxis("Vertical") * speed * Time.deltaTime);
+            agent.velocity = forward * Input.GetAxis("Vertical") * agent.speed;
         }
     }
 }
