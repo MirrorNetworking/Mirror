@@ -123,7 +123,7 @@ namespace Mirror.Tests
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(10), Is.EqualTo(true));
             Assert.That(clientSyncDictionary[10], Is.EqualTo("1"));
-            Assert.That(clientSyncDictionary.ContainsKey(11), Is.EqualTo(true));
+            Assert.That(clientSyncDictionary.ContainsKey(11));
             Assert.That(clientSyncDictionary[11], Is.EqualTo("2"));
         }
 
