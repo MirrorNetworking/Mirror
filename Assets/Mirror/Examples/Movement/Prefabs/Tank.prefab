@@ -10,11 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4492442352427800}
   - component: {fileID: 114118589361100106}
+  - component: {fileID: 2240606817507776182}
   - component: {fileID: 114250499875391520}
   - component: {fileID: 6900008319038825817}
   - component: {fileID: 114654712548978148}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Tank
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51,6 +52,25 @@ MonoBehaviour:
   m_LocalPlayerAuthority: 1
   m_AssetId: 6f43bf5488a7443d19ab2a83c6b91f35
   m_SceneId: 0
+--- !u!95 &2240606817507776182
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1916082411674582}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
+  m_Controller: {fileID: 9100000, guid: a7211483bbd794b6d85ed88576e7d85c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &114250499875391520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101,6 +121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0.1
   agent: {fileID: 6900008319038825817}
+  animator: {fileID: 2240606817507776182}
   rotationSpeed: 80
 --- !u!1001 &7831918942947279416
 PrefabInstance:
