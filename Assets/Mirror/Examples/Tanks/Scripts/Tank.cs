@@ -3,12 +3,19 @@ using UnityEngine.AI;
 
 namespace Mirror.Examples.Movement
 {
-    public class Move : NetworkBehaviour
+    public class Tank : NetworkBehaviour
     {
+        [Header("Components")]
         public NavMeshAgent agent;
         public Animator animator;
+
+        [Header("Movement")]
         public float rotationSpeed = 100;
+
+        [Header("Firing")]
         public KeyCode shootKey = KeyCode.Space;
+        public GameObject projectilePrefab;
+        public Transform projectileMount;
 
         void Update()
         {
@@ -28,8 +35,24 @@ namespace Mirror.Examples.Movement
             // shoot
             if (Input.GetKeyDown(shootKey))
             {
-                animator.SetTrigger("Shoot");
+                CmdFire();
             }
+        }
+
+        // this is called on the server
+        [Command]
+        void CmdFire()
+        {
+            GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
+            NetworkServer.Spawn(projectile);
+            RpcOnFire();
+        }
+
+        // this is called on the tank that fired for all observers
+        [ClientRpc]
+        void RpcOnFire()
+        {
+            animator.SetTrigger("Shoot");
         }
     }
 }
