@@ -301,6 +301,7 @@ namespace Mirror
             {
                 NetworkConnection conn = kvp.Value;
                 conn.Disconnect();
+                // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
                     OnDisconnected(conn);
                 conn.Dispose();
