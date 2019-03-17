@@ -31,7 +31,7 @@ namespace Mirror.Examples.Listen
     }
 
     [RequireComponent(typeof(NetworkManager))]
-    public class Listen : MonoBehaviour
+    public class ListServer : MonoBehaviour
     {
         [Header("Listen Server Connection")]
         public string listenServerIp = "127.0.0.1";
