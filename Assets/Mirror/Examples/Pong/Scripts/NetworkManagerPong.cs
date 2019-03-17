@@ -9,7 +9,7 @@ public class NetworkManagerPong : NetworkManager
     public Transform leftRacketSpawn;
     public Transform rightRacketSpawn;
     public GameObject ballPrefab;
-    public GameObject ball;
+    GameObject ball;
 
     public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
     {
