@@ -267,9 +267,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
+    m_Left: 4
+    m_Right: 2
+    m_Top: 1
     m_Bottom: 0
   m_ChildAlignment: 0
   m_Spacing: 0
