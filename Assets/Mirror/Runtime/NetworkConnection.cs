@@ -83,7 +83,7 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
 
             // server? then disconnect that client
-            if (Transport.activeTransport.ServerActive())
+            if (Transport.activeTransport.ServerActive() && connectionId != 0)
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
             }            
