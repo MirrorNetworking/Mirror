@@ -2008,7 +2008,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69f796b44735c414783d66f47b150c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  listenServerIp: 127.0.0.1
+  listenServerIp: 35.243.149.104
   gameServerToListenPort: 8887
   clientToListenPort: 8888
   gameServerTitle: Deathmatch
