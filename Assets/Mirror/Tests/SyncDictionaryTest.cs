@@ -110,7 +110,7 @@ namespace Mirror.Tests
         {
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(clientSyncDictionary.ContainsKey(1), Is.EqualTo(false));
+            Assert.That(clientSyncDictionary.ContainsKey(1), Is.False);
         }
 
         [Test]
