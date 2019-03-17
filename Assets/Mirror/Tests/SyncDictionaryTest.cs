@@ -121,7 +121,7 @@ namespace Mirror.Tests
             // add some delta and see if it applies
             serverSyncDictionary.Add(11, "2");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(clientSyncDictionary.ContainsKey(10), Is.EqualTo(true));
+            Assert.That(clientSyncDictionary.ContainsKey(10));
             Assert.That(clientSyncDictionary[10], Is.EqualTo("1"));
             Assert.That(clientSyncDictionary.ContainsKey(11));
             Assert.That(clientSyncDictionary[11], Is.EqualTo("2"));
