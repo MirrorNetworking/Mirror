@@ -42,17 +42,6 @@ namespace Mirror.Examples.Listen
         Telepathy.Client gameServerToListenConnection = new Telepathy.Client();
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
-        [Header("OnGUI")]
-        public bool showOnGUI;
-        public int windowWidth = 560;
-        public int windowHeight = 400;
-        public int titleWidth = 220;
-        public int playersWidth = 60;
-        public int addressWidth = 130;
-        public int latencyWidth = 60;
-        public int joinWidth = 50;
-        Vector2 scrollPosition;
-
         [Header("UI")]
         public GameObject panel;
         public Transform content;
@@ -222,73 +211,6 @@ namespace Mirror.Examples.Listen
 
             // refresh UI afterwards
             OnUI();
-        }
-
-        void OnGUI()
-        {
-            if (!showOnGUI) return;
-
-            // show listen data on client
-            if (UseClientToListen())
-            {
-                GUILayout.BeginArea(new Rect(Screen.width/2f - windowWidth/2f, Screen.height/2f - windowHeight/2f, windowWidth, windowHeight));
-                GUILayout.BeginVertical("box");
-
-                // header
-                GUILayout.Label("<b>Join Server</b>");
-
-                if (!clientToListenConnection.Connected)
-                    GUILayout.Label("Connecting...");
-
-                if (clientToListenConnection.Connected && list.Count == 0)
-                    GUILayout.Label("Scanning...");
-
-                // scroll area
-                scrollPosition = GUILayout.BeginScrollView(scrollPosition);
-
-                // server table header
-                GUILayout.BeginHorizontal("box");
-                GUILayout.Box("<b>Server</b>", GUILayout.Width(titleWidth));
-                GUILayout.Box("<b>Players</b>", GUILayout.Width(playersWidth));
-                GUILayout.Box("<b>Latency</b>", GUILayout.Width(latencyWidth));
-                GUILayout.Box("<b>Address</b>", GUILayout.Width(addressWidth));
-                GUILayout.Box("<b>Action</b>", GUILayout.Width(joinWidth));
-                GUILayout.EndHorizontal();
-
-                // entries
-                foreach (ServerStatus server in list.Values)
-                {
-                    GUILayout.BeginHorizontal("box");
-                    GUILayout.Box(server.title, GUILayout.Width(titleWidth));
-                    GUILayout.Box(server.players + "/" + server.capacity, GUILayout.Width(playersWidth));
-                    GUILayout.Box(server.lastLatency != -1 ? server.lastLatency.ToString() : "...", GUILayout.Width(latencyWidth));
-                    GUILayout.Box(server.ip, GUILayout.Width(addressWidth));
-                    GUI.enabled = server.players < server.capacity && !NetworkClient.active;
-                    if (GUILayout.Button("Join", GUILayout.Width(joinWidth)))
-                    {
-                        NetworkManager.singleton.networkAddress = server.ip;
-                        NetworkManager.singleton.StartClient();
-                    }
-                    GUI.enabled = true;
-                    GUILayout.EndHorizontal();
-                }
-                GUILayout.EndScrollView();
-
-                GUILayout.EndVertical();
-
-                // bottom panel to start host/server
-                GUILayout.BeginVertical("box");
-                GUILayout.Label("<b>Start Server</b>");
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Server & Play"))
-                    NetworkManager.singleton.StartHost();
-                if (GUILayout.Button("Server Only"))
-                    NetworkManager.singleton.StartServer();
-                GUILayout.EndHorizontal();
-                GUILayout.EndVertical();
-
-                GUILayout.EndArea();
-            }
         }
 
         // instantiate/remove enough prefabs to match amount
