@@ -43,11 +43,15 @@ namespace Mirror.Examples.Listen
         Telepathy.Client clientToListenConnection = new Telepathy.Client();
 
         [Header("UI")]
-        public GameObject panel;
+        public GameObject mainPanel;
         public Transform content;
         public UIServerStatusSlot slotPrefab;
         public Button serverAndPlayButton;
         public Button serverOnlyButton;
+        public GameObject connectingPanel;
+        public Text connectingText;
+        public Button connectingCancelButton;
+        int connectingDots = 0;
 
         // all the servers, stored as dict with unique ip key so we can
         // update them more easily
@@ -57,10 +61,10 @@ namespace Mirror.Examples.Listen
         void Start()
         {
             // examples
-            //list["127.0.0.1"] = new ServerStatus("127.0.0.1", "Deathmatch", 3, 10);
-            //list["192.168.0.1"] = new ServerStatus("192.168.0.1", "Free for all", 7, 10);
-            //list["172.217.22.3"] = new ServerStatus("172.217.22.3", "5vs5", 10, 10);
-            //list["172.217.16.142"] = new ServerStatus("172.217.16.142", "Hide & Seek Mod", 0, 10);
+            list["127.0.0.1"] = new ServerStatus("127.0.0.1", "Deathmatch", 3, 10);
+            list["192.168.0.1"] = new ServerStatus("192.168.0.1", "Free for all", 7, 10);
+            list["172.217.22.3"] = new ServerStatus("172.217.22.3", "5vs5", 10, 10);
+            list["172.217.16.142"] = new ServerStatus("172.217.16.142", "Hide & Seek Mod", 0, 10);
 
             // Update once a second. no need to try to reconnect or read data
             // in each Update call
@@ -69,10 +73,13 @@ namespace Mirror.Examples.Listen
             InvokeRepeating(nameof(Tick), 0, 1);
         }
 
+        bool IsConnecting() => NetworkClient.active && !ClientScene.ready;
+        bool FullyConnected() => NetworkClient.active && ClientScene.ready;
+
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.IsHeadless() && !NetworkServer.active && !NetworkClient.active;
+            return !NetworkManager.IsHeadless() && !NetworkServer.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
@@ -232,9 +239,9 @@ namespace Mirror.Examples.Listen
         void OnUI()
         {
             // only show while client not connected and server not started
-            if (!NetworkManager.singleton.isNetworkActive)
+            if (!NetworkManager.singleton.isNetworkActive || IsConnecting())
             {
-                panel.SetActive(true);
+                mainPanel.SetActive(true);
 
                 // instantiate/destroy enough slots
                 BalancePrefabs(slotPrefab.gameObject, list.Count, content);
@@ -248,7 +255,8 @@ namespace Mirror.Examples.Listen
                     slot.playersText.text = server.players + "/" + server.capacity;
                     slot.latencyText.text = server.lastLatency != -1 ? server.lastLatency.ToString() : "...";
                     slot.addressText.text = server.ip;
-                    slot.joinButton.gameObject.SetActive(server.players < server.capacity && !NetworkClient.active);
+                    slot.joinButton.interactable = !IsConnecting();
+                    slot.joinButton.gameObject.SetActive(server.players < server.capacity);
                     slot.joinButton.onClick.RemoveAllListeners();
                     slot.joinButton.onClick.AddListener(() => {
                         NetworkManager.singleton.networkAddress = server.ip;
@@ -257,17 +265,34 @@ namespace Mirror.Examples.Listen
                 }
 
                 // server buttons
+                serverAndPlayButton.interactable = !IsConnecting();
                 serverAndPlayButton.onClick.RemoveAllListeners();
                 serverAndPlayButton.onClick.AddListener(() => {
                     NetworkManager.singleton.StartHost();
                 });
 
+                serverOnlyButton.interactable = !IsConnecting();
                 serverOnlyButton.onClick.RemoveAllListeners();
                 serverOnlyButton.onClick.AddListener(() => {
                     NetworkManager.singleton.StartServer();
                 });
             }
-            else panel.SetActive(false);
+            else mainPanel.SetActive(false);
+
+            // show connecting panel while connecting
+            if (IsConnecting())
+            {
+                connectingPanel.SetActive(true);
+
+                // . => .. => ... => ....
+                connectingDots = ((connectingDots + 1) % 4);
+                connectingText.text = "Connecting" + new string('.', connectingDots);
+
+                // cancel button
+                connectingCancelButton.onClick.RemoveAllListeners();
+                connectingCancelButton.onClick.AddListener(NetworkManager.singleton.StopClient);
+            }
+            else connectingPanel.SetActive(false);
         }
 
         // disconnect everything when pressing Stop in the Editor
