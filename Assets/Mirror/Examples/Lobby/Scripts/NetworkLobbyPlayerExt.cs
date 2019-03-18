@@ -18,7 +18,7 @@ namespace Mirror.Examples.NetworkLobby
                 A similar technique would be used if a full canvas layout UI existed and we wanted to show
                 something more visual for each player in that layout, such as a name, avatar, etc.
 
-                Note: LobbyPAlayer prefab will be marked DontDestroyOnLoad and carried forward to the game scene.
+                Note: LobbyPlayer prefab will be marked DontDestroyOnLoad and carried forward to the game scene.
                       Because of this, NetworkLobbyManager must automatically set the parent to null
                       in ServerChangeScene and OnClientChangeScene.
             */

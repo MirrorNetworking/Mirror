@@ -206,7 +206,11 @@ namespace Mirror
             if (lastFloatParameters == null) lastFloatParameters = new float[parameters.Length];
             if (lastBoolParameters == null) lastBoolParameters = new bool[parameters.Length];
 
-            bool didWork = false;
+            uint dirtyBits = 0;
+            // Save the position in the writer where to insert the dirty bits
+            int dirtyBitsPosition = writer.Position;
+            // Reserve the space for the bits
+            writer.Write(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
@@ -219,17 +223,17 @@ namespace Mirror
                     if (newIntValue != lastIntParameters[i])
                     {
                         writer.WritePackedUInt32((uint) newIntValue);
-                        didWork = true;
+                        dirtyBits |= 1u << i;
                         lastIntParameters[i] = newIntValue;
                     }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = m_Animator.GetFloat(par.nameHash);
-                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) < 0.001f)
+                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f)
                     {
                         writer.Write(newFloatValue);
-                        didWork = true;
+                        dirtyBits |= 1u << i;
                         lastFloatParameters[i] = newFloatValue;
                     }
                 }
@@ -239,12 +243,19 @@ namespace Mirror
                     if (newBoolValue != lastBoolParameters[i])
                     {
                         writer.Write(newBoolValue);
-                        didWork = true;
+                        dirtyBits |= 1u << i;
                         lastBoolParameters[i] = newBoolValue;
                     }
                 }
             }
-            return didWork;
+            // Save the position we were at to return to after writing dirtyBits
+            int messageEndPosition = writer.Position;
+            // Write the dirty bits into the reserved position
+            writer.Position = dirtyBitsPosition;
+            writer.Write(dirtyBits);
+            // Return to the end position, so that serialization includes parameter data.
+            writer.Position = messageEndPosition;
+            return dirtyBits != 0;
         }
 
         void ReadParameters(NetworkReader reader, bool autoSend)
@@ -253,9 +264,12 @@ namespace Mirror
             // a new parameter array every time it is accessed so we should avoid doing it in a loop
             AnimatorControllerParameter[] parameters = m_Animator.parameters;
 
+            uint dirtyBits = reader.ReadUInt32();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if (autoSend && !GetParameterAutoSend(i))
+                    continue;
+                if ((dirtyBits & (1 << i)) == 0)
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];

@@ -70,7 +70,7 @@ namespace Mirror.Examples.NetworkLobby
         {
             if (!isLocalPlayer || characterController == null) return;
 
-            transform.Rotate(0f, turn * Time.deltaTime, 0f);
+            transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 
             direction = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0f, vert), 1f) * moveSpeed));
             characterController.SimpleMove(direction * Time.fixedDeltaTime);

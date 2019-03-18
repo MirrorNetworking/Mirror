@@ -7,6 +7,8 @@ ENET is a solid reliable UDP C++ network library that is mature and stable. Ther
 
 Ignorance at the time of this article is at version 1.0.9.1 and fully supports Unity 2017.4 LTS. A version for Unity 2018 LTS with async support is planned and should arrive in 2019. *Ignorance was also designed to address that ugly TCP vs UDP war that many developers fought in.*
 
+![The Ignorance Transport component in the Inspector window](IgnoranceTransport.PNG)
+
 ## Why would I want to use reliable UDP over TCP?
 - if you have realtime communications that you need speed over reliability (VoIP...)
 - if you need a data hose for your game (a first person shooter, racing game, etc)
