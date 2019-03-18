@@ -426,14 +426,6 @@ namespace Mirror
         }
 
         [Test]
-        public void NetworkBehaviourTargetRpcParamNetworkConnectionNotFirst()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* first parameter must be a NetworkConnection"));
-        }
-
-        [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
@@ -658,14 +650,6 @@ namespace Mirror
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* must have a NetworkConnection as the first parameter"));
-        }
-
-        [Test]
-        public void TargetRpcNetworkConnectionNotFirst()
-        {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* first parameter must be a NetworkConnection"));
         }
         #endregion
 
