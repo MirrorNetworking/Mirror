@@ -510,7 +510,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Mirror ListServer
+  m_Text: Mirror ListServer Demo
 --- !u!222 &177548785
 CanvasRenderer:
   m_ObjectHideFlags: 0
