@@ -82,8 +82,8 @@ namespace Mirror
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
 
-            // server? then disconnect that client
-            if (Transport.activeTransport.ServerActive())
+            // server? then disconnect that client (not for host local player though)
+            if (Transport.activeTransport.ServerActive() && connectionId != 0)
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
             }            
