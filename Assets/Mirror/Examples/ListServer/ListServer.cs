@@ -34,7 +34,7 @@ namespace Mirror.Examples.Listen
     public class ListServer : MonoBehaviour
     {
         [Header("Listen Server Connection")]
-        public string listenServerIp = "127.0.0.1";
+        public string listServerIp = "127.0.0.1";
         public ushort gameServerToListenPort = 8887;
         public ushort clientToListenPort = 8888;
         public string gameServerTitle = "Deathmatch";
@@ -128,7 +128,7 @@ namespace Mirror.Examples.Listen
                 else if (!gameServerToListenConnection.Connecting)
                 {
                     Debug.Log("Establishing game server to listen connection...");
-                    gameServerToListenConnection.Connect(listenServerIp, gameServerToListenPort);
+                    gameServerToListenConnection.Connect(listServerIp, gameServerToListenPort);
                 }
             }
             // shouldn't use game server, but still using it?
@@ -206,7 +206,7 @@ namespace Mirror.Examples.Listen
                 else if (!clientToListenConnection.Connecting)
                 {
                     Debug.Log("Establishing client to listen connection...");
-                    clientToListenConnection.Connect(listenServerIp, clientToListenPort);
+                    clientToListenConnection.Connect(listServerIp, clientToListenPort);
                 }
             }
             // shouldn't use client, but still using it? (e.g. after joining)
