@@ -29,9 +29,6 @@ plugins:
   - jekyll-feed
   - jekyll-sitemap
 
-links:
-  - github: vis2k/Mirror
-
 # A list of the pages to display in the navigation bar
 header_pages:
 
