@@ -63,7 +63,7 @@ namespace Mirror.Weaver
         public static TypeReference NetworkConnectionType;
 
         public static TypeReference MessageBaseType;
-        public static TypeReference SyncListStructType;
+        public static TypeReference SyncListType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static TypeReference NetworkClientType;
@@ -1124,7 +1124,7 @@ namespace Mirror.Weaver
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
-            SyncListStructType = NetAssembly.MainModule.GetType("Mirror.SyncListSTRUCT`1");
+            SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
 
@@ -1347,7 +1347,7 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool CheckSyncListStruct(TypeDefinition td)
+        static bool CheckSyncList(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -1358,9 +1358,9 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.StartsWith(SyncListStructType.FullName))
+                if (parent.FullName.StartsWith(SyncListType.FullName))
                 {
-                    SyncListStructProcessor.Process(td);
+                    SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
@@ -1379,7 +1379,7 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= CheckSyncListStruct(embedded);
+                didWork |= CheckSyncList(embedded);
             }
 
             return didWork;
@@ -1414,7 +1414,7 @@ namespace Mirror.Weaver
                             {
                                 if (pass == 0)
                                 {
-                                    didWork |= CheckSyncListStruct(td);
+                                    didWork |= CheckSyncList(td);
                                 }
                                 else
                                 {
