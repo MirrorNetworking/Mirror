@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class SyncListProcessor
+    public static class SyncListInitializer
     {
         // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
         public static void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
