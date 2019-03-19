@@ -1,5 +1,15 @@
 # Change Log
 
+## Version 1.7 -- In Progress
+
+- Added: Semantic Versioning
+- Added: SyncDictionary...SyncHashSet coming soon™
+- Fixed: Host should not call Disconnect on transports
+- Fixed: Pong example updated
+- Changed: Movement example replaced with Tank example
+- Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
+- Removed: SyncListSTRUCT - Use SyncList instead.
+
 ## Version 1.6 -- 2019-Mar-14
 
 - Fixed: Websockets transport moved to Mirror.Websocket namespace
