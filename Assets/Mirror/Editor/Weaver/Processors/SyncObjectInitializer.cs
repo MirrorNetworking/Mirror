@@ -5,7 +5,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class SyncObjectProcessor
+    public static class SyncObjectInitializer
     {
         public static bool ImplementsSyncObject(TypeReference typeRef)
         {
