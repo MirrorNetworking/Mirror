@@ -5,8 +5,8 @@
 - Added: Semantic Versioning
 - Added: SyncDictionary...SyncHashSet coming soon™
 - Fixed: Host should not call Disconnect on transports
-- Fixed: Pong example updated
 - Fixed: Offline scene switching now works via `StopClient()`
+- Fixed: Pong example updated
 - Changed: Movement example replaced with Tank example
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
