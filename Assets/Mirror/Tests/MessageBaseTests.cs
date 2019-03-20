@@ -2,32 +2,31 @@ using NUnit.Framework;
 
 namespace Mirror
 {
-    struct TestMessage
-        : IMessageBase
+    struct TestMessage : IMessageBase
     {
-        public int I;
-        public string S;
-        public double D;
+        public int IntValue;
+        public string StringValue;
+        public double DoubleValue;
 
         public TestMessage(int i, string s, double d)
         {
-            I = i;
-            S = s;
-            D = d;
+            IntValue = i;
+            StringValue = s;
+            DoubleValue = d;
         }
 
         public void Deserialize(NetworkReader reader)
         {
-            I = reader.ReadInt32();
-            S = reader.ReadString();
-            D = reader.ReadDouble();
+            IntValue = reader.ReadInt32();
+            StringValue = reader.ReadString();
+            DoubleValue = reader.ReadDouble();
         }
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.Write(I);
-            writer.Write(S);
-            writer.Write(D);
+            writer.Write(IntValue);
+            writer.Write(StringValue);
+            writer.Write(DoubleValue);
         }
     }
 
@@ -46,7 +45,7 @@ namespace Mirror
             var t = new TestMessage();
             t.Deserialize(r);
 
-            Assert.AreEqual(1, t.I);
+            Assert.AreEqual(1, t.IntValue);
         }
     }
 }
