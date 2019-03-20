@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Mirror;
+using UnityEngine;
 
 namespace Mirror.Examples.Pong
 {
@@ -15,7 +14,7 @@ namespace Mirror.Examples.Pong
             if (!isLocalPlayer) return;
 
             float vertical = Input.GetAxisRaw("Vertical");
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, vertical) * speed;
+            GetComponent<Rigidbody2D>().velocity = new Vector2(0, vertical) * speed * Time.fixedDeltaTime;
         }
     }
 }

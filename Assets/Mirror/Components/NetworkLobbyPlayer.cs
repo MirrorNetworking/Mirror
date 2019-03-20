@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -62,11 +61,11 @@ namespace Mirror
 
         #region lobby client virtuals
 
-        public virtual void OnClientEnterLobby() { }
+        public virtual void OnClientEnterLobby() {}
 
-        public virtual void OnClientExitLobby() { }
+        public virtual void OnClientExitLobby() {}
 
-        public virtual void OnClientReady(bool readyState) { }
+        public virtual void OnClientReady(bool readyState) {}
 
         #endregion
 
@@ -88,7 +87,7 @@ namespace Mirror
 
                 GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
 
-                GUILayout.Label(String.Format("Player [{0}]", Index + 1));
+                GUILayout.Label($"Player [{Index + 1}]");
 
                 if (ReadyToBegin)
                     GUILayout.Label("Ready");

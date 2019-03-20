@@ -1,22 +1,28 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
 {
     public class NetworkReader
     {
+        // cache encoding instead of creating it with BinaryWriter each time
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+
         readonly BinaryReader reader;
 
         public NetworkReader(byte[] buffer)
         {
-            reader = new BinaryReader(new MemoryStream(buffer));
+            reader = new BinaryReader(new MemoryStream(buffer, false), encoding);
         }
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
-        public int Length => (int)reader.BaseStream.Length; 
+        public int Length => (int)reader.BaseStream.Length;
 
         public byte ReadByte() => reader.ReadByte();
         public sbyte ReadSByte() => reader.ReadSByte();
@@ -53,17 +59,17 @@ namespace Mirror
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
-        public UInt32 ReadPackedUInt32()
+        public uint ReadPackedUInt32()
         {
-            UInt64 value = ReadPackedUInt64();
-            if (value > UInt32.MaxValue)
+            ulong value = ReadPackedUInt64();
+            if (value > uint.MaxValue)
             {
                 throw new IndexOutOfRangeException("ReadPackedUInt32() failure, value too large");
             }
-            return (UInt32)value;
+            return (uint)value;
         }
 
-        public UInt64 ReadPackedUInt64()
+        public ulong ReadPackedUInt64()
         {
             byte a0 = ReadByte();
             if (a0 < 241)
@@ -74,49 +80,49 @@ namespace Mirror
             byte a1 = ReadByte();
             if (a0 >= 241 && a0 <= 248)
             {
-                return 240 + 256 * (a0 - ((UInt64)241)) + a1;
+                return 240 + 256 * (a0 - ((ulong)241)) + a1;
             }
 
             byte a2 = ReadByte();
             if (a0 == 249)
             {
-                return 2288 + (((UInt64)256) * a1) + a2;
+                return 2288 + (((ulong)256) * a1) + a2;
             }
 
             byte a3 = ReadByte();
             if (a0 == 250)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16);
             }
 
             byte a4 = ReadByte();
             if (a0 == 251)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24);
             }
 
             byte a5 = ReadByte();
             if (a0 == 252)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32);
             }
 
             byte a6 = ReadByte();
             if (a0 == 253)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40);
             }
 
             byte a7 = ReadByte();
             if (a0 == 254)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40) + (((UInt64)a7) << 48);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48);
             }
 
             byte a8 = ReadByte();
             if (a0 == 255)
             {
-                return a1 + (((UInt64)a2) << 8) + (((UInt64)a3) << 16) + (((UInt64)a4) << 24) + (((UInt64)a5) << 32) + (((UInt64)a6) << 40) + (((UInt64)a7) << 48)  + (((UInt64)a8) << 56);
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48)  + (((ulong)a8) << 56);
             }
 
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
@@ -210,7 +216,7 @@ namespace Mirror
                 return identity.transform;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadTransform netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadTransform netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -227,7 +233,7 @@ namespace Mirror
                 return identity.gameObject;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadGameObject netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadGameObject netId:" + netId + " not found in spawned");
             return null;
         }
 
@@ -244,7 +250,7 @@ namespace Mirror
                 return identity;
             }
 
-            if (LogFilter.Debug) { Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned"); }
+            if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
 

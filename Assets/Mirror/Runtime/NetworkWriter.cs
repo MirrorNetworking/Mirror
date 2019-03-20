@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -7,41 +8,49 @@ namespace Mirror
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter
     {
+        // cache encoding instead of creating it with BinaryWriter each time
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
+        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream());
+        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
 
-        // MemoryStream.ToArray() ignores .Position, but HLAPI's .ToArray() expects only the valid data until .Position.
-        // .ToArray() is often used for payloads or sends, we don't unnecessary old data in there (bandwidth etc.)
-        //   Example:
-        //     HLAPI writes 10 bytes, sends them
-        //     HLAPI sets .Position = 0
-        //     HLAPI writes 5 bytes, sends them
-        //     => .ToArray() would return 10 bytes because of the first write, which is exactly what we don't want.
+        // MemoryStream has 3 values: Position, Length and Capacity.
+        // Position is used to indicate where we are writing
+        // Length is how much data we have written
+        // capacity is how much memory we have allocated
+        // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
             writer.Flush();
-            byte[] slice = new byte[Position];
-            Array.Copy(((MemoryStream)writer.BaseStream).ToArray(), slice, Position);
-            return slice;
+            return ((MemoryStream)writer.BaseStream).ToArray();
         }
 
-        public void Write(byte value)  { writer.Write(value); }
-        public void Write(sbyte value) { writer.Write(value); }
-        public void Write(char value) { writer.Write(value); }
-        public void Write(bool value) { writer.Write(value); }
-        public void Write(short value) { writer.Write(value); }
-        public void Write(ushort value) { writer.Write(value); }
-        public void Write(int value) { writer.Write(value); }
-        public void Write(uint value) { writer.Write(value); }
-        public void Write(long value) { writer.Write(value); }
-        public void Write(ulong value) { writer.Write(value); }
-        public void Write(float value) { writer.Write(value); }
-        public void Write(double value) { writer.Write(value); }
-        public void Write(decimal value) { writer.Write(value); }
+        // reset both the position and length of the stream,  but leaves the capacity the same
+        // so that we can reuse this writer without extra allocations
+        public void SetLength(long value)
+        {
+            ((MemoryStream)writer.BaseStream).SetLength(value);
+        }
+
+        public void Write(byte value) => writer.Write(value);
+        public void Write(sbyte value) => writer.Write(value);
+        public void Write(char value) => writer.Write(value);
+        public void Write(bool value) => writer.Write(value);
+        public void Write(short value) => writer.Write(value);
+        public void Write(ushort value) => writer.Write(value);
+        public void Write(int value) => writer.Write(value);
+        public void Write(uint value) => writer.Write(value);
+        public void Write(long value) => writer.Write(value);
+        public void Write(ulong value) => writer.Write(value);
+        public void Write(float value) => writer.Write(value);
+        public void Write(double value) => writer.Write(value);
+        public void Write(decimal value) => writer.Write(value);
 
         public void Write(string value)
         {
@@ -92,14 +101,14 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
-        public void WritePackedUInt32(UInt32 value)
+        public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
             // same exact thing bit by bit
             WritePackedUInt64(value);
         }
 
-        public void WritePackedUInt64(UInt64 value)
+        public void WritePackedUInt64(ulong value)
         {
             if (value <= 240)
             {

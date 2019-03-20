@@ -83,6 +83,7 @@ We can always use more test coverage.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
 * **Use the same coding style as the one used in this project**.
+* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possbile, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
 * **Welcome suggestions from the maintainers to improve your pull request**.
 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
@@ -119,9 +120,12 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
     Fields and methods in a class are private by default, no need to use the private keyword there.
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
 
-**One Python Way**
+**The Python Way**
+
 Unlike Python, C# has different ways to do the same thing, which causes endless discussions and pull requests to change from one way to the other. Let's always use the most simple, most obvious way:
   * **type** vs. **var**: always use 'int x' instead of 'var x'. Less guess work. Less magic. If we **always** use the proper type then we have to waste no brain cycles on unnecessary decision making.
   * **if** vs. **switch**: any if statement could be converted to switch and back. Again, let's not have endless discussions and use if unless _switch_ makes overwhelmingly much sense. Python doesn't have switch either, they don't have those discussions and pull requests over there.
- 
+  * **int** vs. **Int32**: use int instead of Int32, double instead of Double, string instead of String and so on. We won't convert all ints to Int32, so it makes most sense to never use Int32 anywhere and avoid time wasting discussions.
+  * **Empty Class Bodies ({} vs. { })**: please use 'class MyMessage : EmptyMessage {}' instead of 'class MyMessage : EmptyMessage { }'. For the same reason that we use no white space inbetween parameterless function defintions like void Start() vs. void Start( ).
+
 Thanks.

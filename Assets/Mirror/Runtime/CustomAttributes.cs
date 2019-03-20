@@ -41,22 +41,17 @@ namespace Mirror
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerAttribute : Attribute
-    {
-    }
+    public class ServerAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServerCallbackAttribute : Attribute
-    {
-    }
+    public class ServerCallbackAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class ClientAttribute : Attribute
-    {
-    }
+    public class ClientAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class ClientCallbackAttribute : Attribute
-    {
-    }
+    public class ClientCallbackAttribute : Attribute {}
+
+    // For Scene property Drawer
+    public class SceneAttribute : PropertyAttribute {}
 }

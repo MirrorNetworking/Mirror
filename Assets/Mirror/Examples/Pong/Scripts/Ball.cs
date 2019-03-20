@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using Mirror;
+using UnityEngine;
 
 namespace Mirror.Examples.Pong
 {
@@ -11,8 +10,6 @@ namespace Mirror.Examples.Pong
         {
             // only simulate ball physics on server
             GetComponent<Rigidbody2D>().simulated = true;
-
-            // Initial Velocity
             GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
         }
 

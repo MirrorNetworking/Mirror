@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -7,7 +6,7 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnection
     {
-        public LocalClient localClient { get; }
+        public LocalClient localClient;
 
         public ULocalConnectionToClient(LocalClient localClient) : base ("localClient")
         {
@@ -16,7 +15,7 @@ namespace Mirror
 
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
-            localClient.InvokeBytesOnClient(bytes);
+            localClient.packetQueue.Enqueue(bytes);
             return true;
         }
     }
@@ -25,18 +24,20 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnection
     {
-        public ULocalConnectionToServer() : base("localServer")
-        {
-        }
+        public ULocalConnectionToServer() : base("localServer") {}
 
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {
-                Debug.LogError("LocalConnection:SendBytes cannot send zero bytes");
+                Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
                 return false;
             }
-            return NetworkServer.InvokeBytes(this, bytes);
+
+            // handle the server's message directly
+            // TODO any way to do this without NetworkServer.localConnection?
+            NetworkServer.localConnection.TransportReceive(bytes);
+            return true;
         }
     }
 }
