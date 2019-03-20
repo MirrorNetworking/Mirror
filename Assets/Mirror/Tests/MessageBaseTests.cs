@@ -36,7 +36,7 @@ namespace Mirror
         [Test]
         public void Roundtrip()
         {
-            var w = new NetworkWriter();
+            NetworkWriter w = new NetworkWriter();
             w.Write(new TestMessage(1, "2", 3.3));
 
             var arr = w.ToArray();
