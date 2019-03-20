@@ -397,7 +397,8 @@ namespace Mirror
             ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                ClientChangeScene(offlineScene, false);
+                // Must pass true or offlineScene will not be loaded
+                ClientChangeScene(offlineScene, true);
             }
             CleanupNetworkIdentities();
         }

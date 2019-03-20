@@ -24,7 +24,7 @@ namespace Mirror.Weaver
                     }
                 }
 
-                if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
+                if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                 {
                     Weaver.Error(string.Format("Script {0} defines field {1} with type {2}, but it's not a NetworkBehaviour", td.FullName, fd.Name, Helpers.PrettyPrintType(fd.FieldType)));
                 }
