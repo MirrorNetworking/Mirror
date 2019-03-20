@@ -4,6 +4,7 @@
 
 - Added: Semantic Versioning
 - Added: SyncDictionary...SyncHashSet coming soon™
+- Added: NoRotation to NetworkTransform
 - Fixed: Host should not call Disconnect on transports
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
