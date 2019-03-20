@@ -10,6 +10,7 @@ namespace Mirror
     public class LLAPITransport : Transport
     {
         public ushort port = 7777;
+        public override int PortNumber { get { return port; } }
 
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
         public bool useWebsockets;

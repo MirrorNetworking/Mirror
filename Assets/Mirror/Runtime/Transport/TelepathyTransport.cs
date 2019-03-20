@@ -6,6 +6,7 @@ namespace Mirror
     public class TelepathyTransport : Transport
     {
         public ushort port = 7777;
+        public override int PortNumber { get { return port; } }
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;

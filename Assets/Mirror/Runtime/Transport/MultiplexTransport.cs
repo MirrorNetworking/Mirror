@@ -8,6 +8,8 @@ namespace Mirror
     // a transport that can listen to multiple underlying transport at the same time
     public class MultiplexTransport : Transport
     {
+        public override int PortNumber { get { return transports.Length > 0 && transports[0] != null ? transports[0].PortNumber : 0; } }
+
         public Transport[] transports;
 
         public void Awake()
