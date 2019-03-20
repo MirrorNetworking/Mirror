@@ -32,7 +32,7 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // valid scene id? then set build index byte
+                // valid scene id? then set scene path part
                 //   otherwise it might be an unopened scene that still has null
                 //   sceneIds. builds are interrupted if they contain 0 sceneIds,
                 //   but it's still possible that we call LoadScene in Editor
@@ -41,7 +41,7 @@ namespace Mirror
                 //      because this function would return afterwards.
                 if (identity.sceneId != 0)
                 {
-                    identity.SetSceneIdSceneIndexByteInternal();
+                    identity.SetSceneIdSceneHashPartInternal();
                 }
                 else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
 

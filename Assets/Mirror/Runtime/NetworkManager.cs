@@ -375,7 +375,8 @@ namespace Mirror
             ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                ClientChangeScene(offlineScene, false);
+                // Must pass true or offlineScene will not be loaded
+                ClientChangeScene(offlineScene, true);
             }
             CleanupNetworkIdentities();
         }
@@ -650,7 +651,19 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
+        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
+        {
+            OnServerAddPlayerInternal(conn);
+        }
+
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        {
+            OnServerAddPlayerInternal(conn);
+        }
+
+        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             OnServerAddPlayerInternal(conn);
         }

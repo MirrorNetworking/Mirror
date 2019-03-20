@@ -1,3 +1,0 @@
-Repository: https://github.com/Unity-Technologies/cecil.git
-Branch: * unity-master
-Commit: b28d33c7da63de8162b41338f4d408b77a59f4c9
