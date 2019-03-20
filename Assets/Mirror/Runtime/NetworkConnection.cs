@@ -134,7 +134,7 @@ namespace Mirror
             return SendBytes(message, channelId);
         }
 
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
+        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
         {
             // pack message and send
             byte[] message = MessagePacker.Pack(msg);
@@ -143,7 +143,7 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes( byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
 
@@ -219,7 +219,7 @@ namespace Mirror
             return false;
         }
 
-        public bool InvokeHandler<T>(T msg) where T : MessageBase
+        public bool InvokeHandler<T>(T msg) where T : IMessageBase
         {
             int msgType = MessagePacker.GetId<T>();
             byte[] data = MessagePacker.Pack(msg);
