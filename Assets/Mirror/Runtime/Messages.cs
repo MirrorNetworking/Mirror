@@ -10,8 +10,7 @@ namespace Mirror
         void Serialize(NetworkWriter writer);
     }
 
-    public abstract class MessageBase
-        : IMessageBase
+    public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
         public virtual void Deserialize(NetworkReader reader) {}
