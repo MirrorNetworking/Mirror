@@ -1,47 +1,158 @@
-// SyncList code
-using System;
-using System.Linq;
+// this class generates OnSerialize/OnDeserialize for SyncLists
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class SyncListProcessor
+    static class SyncListProcessor
     {
-        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
-        public static void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
+        public static void Process(TypeDefinition td)
         {
-            // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (var ins in ctorWorker.Body.Instructions)
+            // find item type
+            GenericInstanceType gt = (GenericInstanceType)td.BaseType;
+            if (gt.GenericArguments.Count == 0)
             {
-                if (ins.OpCode.Code == Code.Stfld)
-                {
-                    var field = (FieldDefinition)ins.Operand;
-                    if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
-                    {
-                        // Already initialized by the user in the field definition, e.g:
-                        // public SyncListInt Foo = new SyncListInt();
-                        return;
-                    }
-                }
+                Weaver.Error("SyncListProcessor no generic args");
+                return;
             }
+            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[0]);
 
-            // Not initialized by the user in the field definition, e.g:
-            // public SyncListInt Foo;
-            MethodReference listCtor;
-            try
+            Weaver.DLog(td, "SyncListProcessor Start item:" + itemType.FullName);
+
+            Weaver.ResetRecursionCount();
+            MethodReference writeItemFunc = GenerateSerialization(td, itemType);
+            if (Weaver.WeavingFailed)
             {
-                listCtor = Weaver.CurrentAssembly.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
-            }
-            catch (Exception)
-            {
-                Weaver.Error("Missing parameter-less constructor for:" + fd.FieldType.Name);
                 return;
             }
 
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, listCtor));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Stfld, fd));
+            MethodReference readItemFunc = GenerateDeserialization(td, itemType);
+
+            if (readItemFunc == null || writeItemFunc == null)
+                return;
+
+            Weaver.DLog(td, "SyncListProcessor Done");
+        }
+
+        // serialization of individual element
+        static MethodReference GenerateSerialization(TypeDefinition td, TypeReference itemType)
+        {
+            Weaver.DLog(td, "  GenerateSerialization");
+            foreach (var m in td.Methods)
+            {
+                if (m.Name == "SerializeItem")
+                    return m;
+            }
+
+            MethodDefinition serializeFunc = new MethodDefinition("SerializeItem", MethodAttributes.Public |
+                    MethodAttributes.Virtual |
+                    MethodAttributes.Public |
+                    MethodAttributes.HideBySig,
+                    Weaver.voidType);
+
+            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            serializeFunc.Parameters.Add(new ParameterDefinition("item", ParameterAttributes.None, itemType));
+            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+
+            if (itemType.IsGenericInstance)
+            {
+                Weaver.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Struct passed into SyncList<T> can't have generic parameters");
+                return null;
+            }
+
+            foreach (FieldDefinition field in itemType.Resolve().Fields)
+            {
+                if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
+                    continue;
+
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
+
+                if (ft.HasGenericParameters)
+                {
+                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncList] member cannot have generic parameters.");
+                    return null;
+                }
+
+                if (ft.IsInterface)
+                {
+                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + ft + "/" + ft.FullName + "]. [SyncList] member cannot be an interface.");
+                    return null;
+                }
+
+                MethodReference writeFunc = Weaver.GetWriteFunc(field.FieldType);
+                if (writeFunc != null)
+                {
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, importedField));
+                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
+                }
+                else
+                {
+                    Weaver.Error("GenerateSerialization for " + td.Name + " unknown type [" + ft + "/" + ft.FullName + "]. [SyncList] member variables must be basic types.");
+                    return null;
+                }
+            }
+            serWorker.Append(serWorker.Create(OpCodes.Ret));
+
+            td.Methods.Add(serializeFunc);
+            return serializeFunc;
+        }
+
+        static MethodReference GenerateDeserialization(TypeDefinition td, TypeReference itemType)
+        {
+            Weaver.DLog(td, "  GenerateDeserialization");
+            foreach (var m in td.Methods)
+            {
+                if (m.Name == "DeserializeItem")
+                    return m;
+            }
+
+            MethodDefinition serializeFunc = new MethodDefinition("DeserializeItem", MethodAttributes.Public |
+                    MethodAttributes.Virtual |
+                    MethodAttributes.Public |
+                    MethodAttributes.HideBySig,
+                    itemType);
+
+            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+
+            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+
+            serWorker.Body.InitLocals = true;
+            serWorker.Body.Variables.Add(new VariableDefinition(itemType));
+
+            // init item instance
+            serWorker.Append(serWorker.Create(OpCodes.Ldloca, 0));
+            serWorker.Append(serWorker.Create(OpCodes.Initobj, itemType));
+
+            foreach (FieldDefinition field in itemType.Resolve().Fields)
+            {
+                if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
+                    continue;
+
+                FieldReference importedField = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                TypeDefinition ft = importedField.FieldType.Resolve();
+
+                MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
+                if (readerFunc != null)
+                {
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloca, 0));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                    serWorker.Append(serWorker.Create(OpCodes.Call, readerFunc));
+                    serWorker.Append(serWorker.Create(OpCodes.Stfld, importedField));
+                }
+                else
+                {
+                    Weaver.Error("GenerateDeserialization for " + td.Name + " unknown type [" + ft + "]. [SyncList] member variables must be basic types.");
+                    return null;
+                }
+            }
+            serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
+            serWorker.Append(serWorker.Create(OpCodes.Ret));
+
+            td.Methods.Add(serializeFunc);
+            return serializeFunc;
         }
     }
 }

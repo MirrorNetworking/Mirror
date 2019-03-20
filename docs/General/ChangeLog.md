@@ -1,5 +1,17 @@
 # Change Log
 
+## Version 1.7 -- In Progress
+
+- Added: Semantic Versioning
+- Added: SyncDictionary...SyncHashSet coming soon™
+- Added: NoRotation to NetworkTransform
+- Fixed: Host should not call Disconnect on transports
+- Fixed: Offline scene switching now works via `StopClient()`
+- Fixed: Pong example updated
+- Changed: Movement example replaced with Tank example
+- Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
+- Removed: SyncListSTRUCT - Use SyncList instead.
+
 ## Version 1.6 -- 2019-Mar-14
 
 - Fixed: Websockets transport moved to Mirror.Websocket namespace
