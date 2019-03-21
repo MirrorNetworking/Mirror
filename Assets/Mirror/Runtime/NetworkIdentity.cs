@@ -810,9 +810,8 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
+                    foreach (NetworkConnection conn in NetworkServer.connections.Values)
                     {
-                        NetworkConnection conn = kvp.Value;
                         if (conn.isReady)
                             AddObserver(conn);
                     }
