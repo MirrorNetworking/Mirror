@@ -5,6 +5,7 @@
 - Added: Semantic Versioning
 - Added: SyncDictionary...SyncHashSet coming soon™
 - Added: NoRotation to NetworkTransform
+- Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
 - Fixed: Host should not call Disconnect on transports
 - Fixed: NetworkLobbyPlayer.OnClientReady works now
