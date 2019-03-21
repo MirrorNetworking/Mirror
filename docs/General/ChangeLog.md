@@ -5,7 +5,9 @@
 - Added: Semantic Versioning
 - Added: SyncDictionary...SyncHashSet coming soon™
 - Added: NoRotation to NetworkTransform
+- Added: Generic `IMessageBase` to allow struct message types
 - Fixed: Host should not call Disconnect on transports
+- Fixed: NetworkLobbyPlayer.OnClientReady works now
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
 - Changed: Movement example replaced with Tank example
