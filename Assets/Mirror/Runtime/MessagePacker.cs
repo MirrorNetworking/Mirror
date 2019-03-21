@@ -19,7 +19,7 @@ namespace Mirror
         // avoid large amounts of allocations.
         static NetworkWriter packWriter = new NetworkWriter();
 
-        public static int GetId<T>() where T : MessageBase
+        public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions
             //  - keeps the message size small because it gets varinted
@@ -46,7 +46,7 @@ namespace Mirror
         }
 
         // pack message before sending
-        public static byte[] Pack<T>(T message) where T : MessageBase
+        public static byte[] Pack<T>(T message) where T : IMessageBase
         {
             // reset cached writer length and position
             packWriter.SetLength(0);
@@ -63,7 +63,7 @@ namespace Mirror
         }
 
         // unpack a message we received
-        public static T Unpack<T>(byte[] data) where T : MessageBase, new()
+        public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
             NetworkReader reader = new NetworkReader(data);
 

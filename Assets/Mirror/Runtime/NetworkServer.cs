@@ -189,7 +189,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: MessageBase
+        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -225,7 +225,7 @@ namespace Mirror
             return result;
         }
 
-        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : MessageBase
+        public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
@@ -264,7 +264,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T: MessageBase
+        public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
@@ -494,7 +494,7 @@ namespace Mirror
             RegisterHandler((int)msgType, handler);
         }
 
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: MessageBase, new()
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
@@ -520,7 +520,7 @@ namespace Mirror
             UnregisterHandler((int)msgType);
         }
 
-        public static void UnregisterHandler<T>() where T:MessageBase
+        public static void UnregisterHandler<T>() where T : IMessageBase
         {
             int msgType = MessagePacker.GetId<T>();
             handlers.Remove(msgType);
@@ -542,7 +542,7 @@ namespace Mirror
             Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
-        public static void SendToClient<T>(int connectionId, T msg) where T : MessageBase
+        public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
             NetworkConnection conn;
             if (connections.TryGetValue(connectionId, out conn))
@@ -568,7 +568,7 @@ namespace Mirror
         }
 
         // send this message to the player only
-        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T: MessageBase
+        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T: IMessageBase
         {
             if (identity != null)
             {
