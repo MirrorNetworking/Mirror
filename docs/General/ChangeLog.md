@@ -9,8 +9,10 @@
 - Added: Generic `IMessageBase` to allow struct message types
 - Fixed: Host should not call Disconnect on transports
 - Fixed: NetworkLobbyPlayer.OnClientReady works now
+- Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
+- Changed: TargetRpc NetworkConnection paramater is now optional...the calling clients' NetworkConnection is default
 - Changed: Movement example replaced with Tank example
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
