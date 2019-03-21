@@ -69,7 +69,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        private void InitializeTransportHandlers()
+        void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
