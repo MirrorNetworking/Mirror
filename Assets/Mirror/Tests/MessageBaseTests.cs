@@ -39,10 +39,10 @@ namespace Mirror
             NetworkWriter w = new NetworkWriter();
             w.Write(new TestMessage(1, "2", 3.3));
 
-            var arr = w.ToArray();
+            byte[] arr = w.ToArray();
 
-            var r = new NetworkReader(arr);
-            var t = new TestMessage();
+            NetworkReader r = new NetworkReader(arr);
+            TestMessage t = new TestMessage();
             t.Deserialize(r);
 
             Assert.AreEqual(1, t.IntValue);
