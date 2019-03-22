@@ -29,8 +29,8 @@ namespace Mirror.Examples.FPS
             head.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
             // move
-            Vector3 forward = transform.TransformDirection(Vector3.forward);
-            controller.SimpleMove(forward * Input.GetAxis("Vertical") * speed * Time.deltaTime);
+            Vector3 move = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
+            controller.SimpleMove(move * speed * Time.deltaTime);
         }
     }
 }
