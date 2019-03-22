@@ -331,9 +331,6 @@ namespace Mirror
         public static void ShutdownAll()
         {
             singleton?.Shutdown();
-            singleton = null;
-            active = false;
-            ClientScene.Shutdown();
         }
     }
 }
