@@ -5,11 +5,11 @@ using System.ComponentModel;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncDictionary<B,T> : IDictionary<B,T>, SyncObject
+    public abstract class SyncDictionary<B, T> : IDictionary<B, T>, SyncObject
     {
         public delegate void SyncDictionaryChanged(Operation op, B key, T item);
 
-        readonly Dictionary<B,T> m_Objects = new Dictionary<B,T>();
+        readonly Dictionary<B, T> m_Objects = new Dictionary<B, T>();
 
         public int Count => m_Objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -38,10 +38,10 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        protected abstract void SerializeKey(NetworkWriter writer, B item);
-        protected abstract void SerializeItem(NetworkWriter writer, T item);
-        protected abstract B DeserializeKey(NetworkReader reader);
-        protected abstract T DeserializeItem(NetworkReader reader);
+        protected virtual void SerializeKey(NetworkWriter writer, B item) { }
+        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
+        protected virtual B DeserializeKey(NetworkReader reader) => default(B);
+        protected virtual T DeserializeItem(NetworkReader reader) => default(T);
 
         public bool IsDirty => Changes.Count > 0;
 
