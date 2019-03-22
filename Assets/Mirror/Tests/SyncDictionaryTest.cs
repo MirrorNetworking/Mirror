@@ -81,6 +81,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestBareSet()
+        {
+            serverSyncDictionary[4] = "yay";
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
+        }
+
+        [Test]
         public void TestConsecutiveSet()
         {
             serverSyncDictionary[1] = "yay";
