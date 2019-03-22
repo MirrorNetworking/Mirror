@@ -205,7 +205,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayer);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
@@ -554,13 +554,6 @@ namespace Mirror
             OnServerReady(conn);
         }
 
-        internal void OnServerAddPlayerMessageInternal(NetworkConnection conn, AddPlayerMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal");
-
-            OnServerAddPlayer(conn, msg);
-        }
-
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
@@ -654,22 +647,19 @@ namespace Mirror
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
         {
-            OnServerAddPlayerInternal(conn);
-        }
-
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
+
             if (playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");

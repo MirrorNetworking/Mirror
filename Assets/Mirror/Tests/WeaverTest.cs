@@ -263,6 +263,13 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Missing parameter-less constructor"));
         }
+
+        [Test]
+        public void SyncListByteValid() {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
+        }
+        
         #endregion
 
         #region SyncListStruct tests
@@ -278,32 +285,32 @@ namespace Mirror
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Struct passed into SyncList<T> can't have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: GenerateSerialization for MyGenericStruct<Single> failed. Can't have generic parameters"));
         }
 
         [Test]
         public void SyncListStructMemberGeneric()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("member cannot have generic parameters"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: WriteReadFunc for potato [MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>/MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>]. Cannot have generic parameters."));
         }
 
         [Test]
         public void SyncListStructMemberInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("member cannot be an interface"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo( "Mirror.Weaver error: WriteReadFunc for potato [MirrorTest.MirrorTestPlayer/IPotato/MirrorTest.MirrorTestPlayer/IPotato]. Cannot be an interface."));
         }
 
         [Test]
         public void SyncListStructMemberBasicType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
             Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
-            Assert.That(m_weaverErrors[1], Does.Match("member variables must be basic types"));
+            Assert.That(m_weaverErrors[1], Does.Match("Mirror.Weaver error: WriteReadFunc for nonbasicpotato type System.Object no supported"));
         }
         #endregion
 
