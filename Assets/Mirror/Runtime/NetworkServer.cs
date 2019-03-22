@@ -801,11 +801,6 @@ namespace Mirror
 
                 foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
-                    if (identity == null)
-                    {
-                        Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity).");
-                        continue;
-                    }
                     if (!identity.gameObject.activeSelf)
                     {
                         continue;
