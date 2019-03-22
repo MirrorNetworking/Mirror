@@ -603,6 +603,62 @@ namespace Mirror
             return AddPlayerForConnection(conn, player);
         }
 
+        static void SpawnObserversForConnection(NetworkConnection conn)
+        {
+            // Setup spawned objects for local player
+            if (conn is ULocalConnectionToClient)
+            {
+                if (LogFilter.Debug) Debug.Log("NetworkServer Ready handling ULocalConnectionToClient");
+
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+                {
+                    // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
+                    // in the above SetLocalPlayer call
+                    if (identity.gameObject != null)
+                    {
+                        bool visible = identity.OnCheckObserver(conn);
+                        if (visible)
+                        {
+                            identity.AddObserver(conn);
+                        }
+                        if (!identity.isClient)
+                        {
+                            if (LogFilter.Debug) Debug.Log("LocalClient.SetSpawnObject calling OnStartClient");
+                            identity.OnStartClient();
+                        }
+                    }
+                }
+            }
+            // add connection to each nearby NetworkIdentity's observers, which
+            // internally sends a spawn message for each one to the connection.
+            else
+            {
+                if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
+
+                // let connection know that we are about to start spawning...
+                conn.Send(new ObjectSpawnStartedMessage());
+
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+                {
+                    if (identity.gameObject.activeSelf)
+                    {
+                        if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
+
+                        bool visible = identity.OnCheckObserver(conn);
+                        if (visible)
+                        {
+                            identity.AddObserver(conn);
+                        }
+                    }
+                }
+
+                // let connection know that we finished spawning, so it can call
+                // OnStartClient on each one (only after all were spawned, which
+                // is how Unity's Start() function works too)
+                conn.Send(new ObjectSpawnFinishedMessage());
+            }
+        }
+
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
@@ -764,58 +820,8 @@ namespace Mirror
                 if (LogFilter.Debug) Debug.LogWarning("Ready with no player object");
             }
 
-            // Setup spawned objects for local player
-            if (conn is ULocalConnectionToClient)
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkServer Ready handling ULocalConnectionToClient");
-
-                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-                {
-                    // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
-                    // in the above SetLocalPlayer call
-                    if (identity.gameObject != null)
-                    {
-                        bool visible = identity.OnCheckObserver(conn);
-                        if (visible)
-                        {
-                            identity.AddObserver(conn);
-                        }
-                        if (!identity.isClient)
-                        {
-                            if (LogFilter.Debug) Debug.Log("LocalClient.SetSpawnObject calling OnStartClient");
-                            identity.OnStartClient();
-                        }
-                    }
-                }
-            }
-            // add connection to each nearby NetworkIdentity's observers, which
-            // internally sends a spawn message for each one to the connection.
-            else
-            {
-                if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
-
-                // let connection know that we are about to start spawning...
-                conn.Send(new ObjectSpawnStartedMessage());
-
-                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-                {
-                    if (identity.gameObject.activeSelf)
-                    {
-                        if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
-
-                        bool visible = identity.OnCheckObserver(conn);
-                        if (visible)
-                        {
-                            identity.AddObserver(conn);
-                        }
-                    }
-                }
-
-                // let connection know that we finished spawning, so it can call
-                // OnStartClient on each one (only after all were spawned, which
-                // is how Unity's Start() function works too)
-                conn.Send(new ObjectSpawnFinishedMessage());
-            }
+            // spawn observers for this connection
+            SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
