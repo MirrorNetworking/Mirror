@@ -754,13 +754,13 @@ namespace Mirror
                 return;
             }
 
+            conn.isReady = true;
+
             if (conn.playerController == null)
             {
                 // this is now allowed
                 if (LogFilter.Debug) Debug.LogWarning("Ready with no player object");
             }
-
-            conn.isReady = true;
 
             if (conn is ULocalConnectionToClient)
             {
