@@ -748,12 +748,14 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId);
 
+            // do nothing if ready was set before
             if (conn.isReady)
             {
                 if (LogFilter.Debug) Debug.Log("SetClientReady conn " + conn.connectionId + " already ready");
                 return;
             }
 
+            // set ready
             conn.isReady = true;
 
             if (conn.playerController == null)
