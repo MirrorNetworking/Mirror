@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 526232651786084117}
   - component: {fileID: 7159349497443346554}
   - component: {fileID: 5382833444541224779}
+  - component: {fileID: 8716683845982632902}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -160,6 +161,7 @@ MonoBehaviour:
   controller: {fileID: 8163443822698765025}
   speed: 300
   rotationSpeed: 400
+  head: {fileID: 8305458506936331300}
 --- !u!114 &5382833444541224779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,9 +175,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 0
+  m_LocalPlayerAuthority: 1
   m_AssetId: 5623d7357a6ff4accb9eb42264bee62b
   m_SceneId: 0
+--- !u!114 &8716683845982632902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6260970020314450963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncInterval: 0.1
+  compressRotation: 1
 --- !u!1 &8305458506936331304
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,7 +210,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8305458506936331300
 Transform:
   m_ObjectHideFlags: 0
