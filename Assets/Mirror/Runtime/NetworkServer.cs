@@ -801,17 +801,15 @@ namespace Mirror
 
                 foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
-                    if (!identity.gameObject.activeSelf)
+                    if (identity.gameObject.activeSelf)
                     {
-                        continue;
-                    }
+                        if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
 
-                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
-
-                    bool visible = identity.OnCheckObserver(conn);
-                    if (visible)
-                    {
-                        identity.AddObserver(conn);
+                        bool visible = identity.OnCheckObserver(conn);
+                        if (visible)
+                        {
+                            identity.AddObserver(conn);
+                        }
                     }
                 }
 
