@@ -77,6 +77,7 @@ namespace Mirror.Tests
         {
             serverSyncDictionary[1] = "yay";
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.ContainsKey(1));
             Assert.That(clientSyncDictionary[1], Is.EqualTo("yay"));
         }
 
@@ -85,7 +86,17 @@ namespace Mirror.Tests
         {
             serverSyncDictionary[4] = "yay";
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.ContainsKey(4));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
+        }
+
+        [Test]
+        public void TestBareSetNull()
+        {
+            serverSyncDictionary[4] = null;
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary[4], Is.Null);
+            Assert.That(clientSyncDictionary.ContainsKey(4));
         }
 
         [Test]
@@ -103,7 +114,6 @@ namespace Mirror.Tests
             serverSyncDictionary[1] = null;
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
             Assert.That(clientSyncDictionary.ContainsKey(1));
-            // Just like SyncList, SyncDictionary should not accept a null value.
             Assert.That(clientSyncDictionary[1], Is.Null);
         }
 
