@@ -7,13 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncDictionaryTest
     {
-        public class SyncDictionaryIntString : SyncDictionary<int, string>
-        {
-            protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
-            protected override int DeserializeKey(NetworkReader reader) => reader.ReadInt32();
-            protected override void SerializeItem(NetworkWriter writer, string item) => writer.Write(item);
-            protected override void SerializeKey(NetworkWriter writer, int item) => writer.Write(item);
-        }
+        public class SyncDictionaryIntString : SyncDictionary<int, string> { }
 
         SyncDictionaryIntString serverSyncDictionary;
         SyncDictionaryIntString clientSyncDictionary;

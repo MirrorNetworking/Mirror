@@ -258,6 +258,11 @@ namespace Mirror
                     m_Objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
+                else
+                {
+                    m_Objects[i] = value;
+                    AddOperation(Operation.OP_ADD, i, value);
+                }
             }
         }
 
