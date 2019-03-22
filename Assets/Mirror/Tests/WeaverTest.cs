@@ -285,7 +285,7 @@ namespace Mirror
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Struct passed into SyncList<T> can't have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: GenerateSerialization for MyGenericStruct<Single> failed. Can't have generic parameters"));
         }
 
         [Test]
