@@ -29,7 +29,7 @@
 - Changed: Documentation for [Transports](../Transports)
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
-    - Please refer to the code sample [here](https://vis2k.github.io/Mirror/Concepts/Authentication) to see how to update your code.
+    - Please refer to the code sample [here](../Concepts/Authentication) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
 - Changed: Removed Message ID's for all messages - See [Network Messages](../Concepts/Communications/NetworkMessages) for details  
     - Message IDs are now generated automatically based on the message name.  
