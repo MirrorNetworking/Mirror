@@ -600,15 +600,10 @@ namespace Mirror
             {
                 identity.assetId = assetId;
             }
-            return InternalAddPlayerForConnection(conn, player);
+            return AddPlayerForConnection(conn, player);
         }
 
         public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
-        {
-            return InternalAddPlayerForConnection(conn, player);
-        }
-
-        internal static bool InternalAddPlayerForConnection(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
