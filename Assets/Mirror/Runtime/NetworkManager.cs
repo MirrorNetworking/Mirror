@@ -205,7 +205,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayer);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
@@ -552,13 +552,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
-        }
-
-        internal void OnServerAddPlayerMessageInternal(NetworkConnection conn, AddPlayerMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal");
-
-            OnServerAddPlayer(conn, msg);
         }
 
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
