@@ -762,7 +762,7 @@ namespace Mirror
 
             conn.isReady = true;
 
-            if (conn is ULocalConnectionToClient localConnection)
+            if (conn is ULocalConnectionToClient)
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer Ready handling ULocalConnectionToClient");
 
