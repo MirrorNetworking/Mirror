@@ -1,6 +1,6 @@
 # SyncDictionary
 
-SyncDictionaries contain an unordered list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can retrieve the "value", which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you make a change on the server, the change is propagated to all clients and the Callback is called.
+A SyncDictionary is an associative array containing an unordered list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can retrieve the "value", which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you make a change on the server, the change is propagated to all clients and the Callback is called.
 
 ## Simple Example
 
@@ -19,7 +19,7 @@ public class ExamplePlayer : NetworkBehaviour
         public Vector3 Position;
     }
 
-    public SyncDictionaryIntPlayer Players;
+    public SyncDictionaryIntPlayer Players = new SyncDictionaryIntPlayer();
 
     private void Start()
     {
