@@ -14,11 +14,11 @@
 - Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
-- Changed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
 - Changed: TargetRpc NetworkConnection paramater is now optional...the calling client's NetworkConnection is default
 - Changed: Movement example replaced with Tank example
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
+- Removed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
 
 ## Version 1.6 -- 2019-Mar-14
 
