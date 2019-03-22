@@ -263,6 +263,13 @@ namespace Mirror
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
             Assert.That(m_weaverErrors[0], Does.Match("Missing parameter-less constructor"));
         }
+
+        [Test]
+        public void SyncListByteValid() {
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
+        }
+        
         #endregion
 
         #region SyncListStruct tests
