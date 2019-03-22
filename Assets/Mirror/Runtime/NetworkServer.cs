@@ -764,13 +764,11 @@ namespace Mirror
                 if (LogFilter.Debug) Debug.LogWarning("Ready with no player object");
             }
 
+            // Setup spawned objects for local player
             if (conn is ULocalConnectionToClient)
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer Ready handling ULocalConnectionToClient");
 
-                // Setup spawned objects for local player
-                // Only handle the local objects for the first player (no need to redo it when doing more local players)
-                // and don't handle player objects here, they were done above
                 foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
                     // Need to call OnStartClient directly here, as it's already been added to the local object dictionary
