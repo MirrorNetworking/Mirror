@@ -7,6 +7,7 @@ namespace Mirror.Examples.FPS
         public float damagePerShot = 10f;
         public float range = 100f;
         public float pushStrength = 1000f;
+        public float upStrength = 600f;
         void Update()
         {
             if (!isLocalPlayer) return;
@@ -26,7 +27,8 @@ namespace Mirror.Examples.FPS
                 hit.collider.GetComponent<Health>()?.DealDamage(damagePerShot);
 
                 // Push it if it has a rigidbody
-                hit.collider.GetComponent<Rigidbody>()?.AddForceAtPosition(transform.forward * pushStrength, hit.point);
+                Vector3 force = transform.forward * pushStrength + Vector3.up * upStrength;
+                hit.collider.GetComponent<Rigidbody>()?.AddForceAtPosition(force, hit.point);
             }
         }
     }
