@@ -658,6 +658,8 @@ namespace Mirror
 
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
+
             if (playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
