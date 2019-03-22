@@ -320,7 +320,7 @@ namespace Mirror
             singleton?.Update();
         }
 
-        public void Shutdown()
+        public static void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             singleton = null;
@@ -328,9 +328,10 @@ namespace Mirror
             ClientScene.Shutdown();
         }
 
+        [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
         public static void ShutdownAll()
         {
-            singleton?.Shutdown();
+            Shutdown();
         }
     }
 }

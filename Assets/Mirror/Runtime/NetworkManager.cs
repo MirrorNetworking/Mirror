@@ -368,7 +368,7 @@ namespace Mirror
             {
                 // only shutdown this client, not ALL clients.
                 client.Disconnect();
-                client.Shutdown();
+                NetworkClient.Shutdown();
                 client = null;
             }
 
