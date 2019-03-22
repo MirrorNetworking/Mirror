@@ -790,9 +790,10 @@ namespace Mirror
                     }
                 }
             }
+            // add connection to each nearby NetworkIdentity's observers, which
+            // internally sends a spawn message for each one to the connection.
             else
             {
-                // Spawn/update all current server objects
                 if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
 
                 conn.Send(new ObjectSpawnStartedMessage());
