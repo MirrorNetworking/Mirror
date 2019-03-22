@@ -789,36 +789,37 @@ namespace Mirror
                         }
                     }
                 }
-                return;
             }
-
-            // Spawn/update all current server objects
-            if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
-
-            conn.Send(new ObjectSpawnStartedMessage());
-
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            else
             {
-                if (identity == null)
+                // Spawn/update all current server objects
+                if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
+
+                conn.Send(new ObjectSpawnStartedMessage());
+
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
                 {
-                    Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity).");
-                    continue;
-                }
-                if (!identity.gameObject.activeSelf)
-                {
-                    continue;
+                    if (identity == null)
+                    {
+                        Debug.LogWarning("Invalid object found in server local object list (null NetworkIdentity).");
+                        continue;
+                    }
+                    if (!identity.gameObject.activeSelf)
+                    {
+                        continue;
+                    }
+
+                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
+
+                    bool visible = identity.OnCheckObserver(conn);
+                    if (visible)
+                    {
+                        identity.AddObserver(conn);
+                    }
                 }
 
-                if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
-
-                bool visible = identity.OnCheckObserver(conn);
-                if (visible)
-                {
-                    identity.AddObserver(conn);
-                }
+                conn.Send(new ObjectSpawnFinishedMessage());
             }
-
-            conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
