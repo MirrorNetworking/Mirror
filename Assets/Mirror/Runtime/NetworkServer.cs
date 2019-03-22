@@ -69,7 +69,6 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected.AddListener(OnConnected);
             Transport.activeTransport.OnServerDataReceived.AddListener(OnDataReceived);
             Transport.activeTransport.OnServerError.AddListener(OnError);
-
         }
 
         internal static void RegisterMessageHandlers()

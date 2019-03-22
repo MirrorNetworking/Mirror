@@ -7,7 +7,9 @@
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
+- Fixed: SyncLists now work correctly for primitives and structs
 - Fixed: Host should not call Disconnect on transports
+- Fixed: Observers are now properly rebuilt when client joins and `OnRebuildObservers` / `OnCheckObserver` is overridden
 - Fixed: NetworkLobbyPlayer.OnClientReady works now
 - Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
@@ -16,6 +18,7 @@
 - Changed: Movement example replaced with Tank example
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
+- Removed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
 
 ## Version 1.6 -- 2019-Mar-14
 
