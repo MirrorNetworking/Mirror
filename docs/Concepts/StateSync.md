@@ -74,7 +74,9 @@ public class MyScript : NetworkBehaviour
 
 ## SyncDictionaries
 
-SyncDictionaries contain a list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can get the value, which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you add something on the server, the change is propagated to all clients and the Callback is called.
+SyncDictionaries contain an unordered list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can retrieve the "value", which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you make a change on the server, the change is propagated to all clients and the Callback is called.
+
+### Simple Example
 
 ```cs
 using UnityEngine;
