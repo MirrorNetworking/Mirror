@@ -647,21 +647,16 @@ namespace Mirror
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
         {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            OnServerAddPlayerInternal(conn);
-        }
-
-        void OnServerAddPlayerInternal(NetworkConnection conn)
         {
             if (playerPrefab == null)
             {
