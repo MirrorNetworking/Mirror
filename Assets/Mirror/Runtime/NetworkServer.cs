@@ -684,6 +684,11 @@ namespace Mirror
             // set ready if not set yet
             SetClientReady(conn);
 
+            // add connection to observers AFTER the playerController was set.
+            // by definition, there is nothing to observe if there is no player
+            // controller.
+            SpawnObserversForConnection(conn);
+
             if (SetupLocalPlayerForConnection(conn, identity))
             {
                 return true;
@@ -805,24 +810,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId);
 
-            // do nothing if ready was set before
-            if (conn.isReady)
-            {
-                if (LogFilter.Debug) Debug.Log("SetClientReady conn " + conn.connectionId + " already ready");
-                return;
-            }
-
             // set ready
             conn.isReady = true;
-
-            if (conn.playerController == null)
-            {
-                // this is now allowed
-                if (LogFilter.Debug) Debug.LogWarning("Ready with no player object");
-            }
-
-            // spawn observers for this connection
-            SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
