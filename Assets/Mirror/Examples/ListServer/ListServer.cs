@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Mirror.Examples.Listen
+namespace Mirror.Examples.ListServer
 {
     public class ServerStatus
     {
