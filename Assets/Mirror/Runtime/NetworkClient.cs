@@ -325,6 +325,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             singleton = null;
             active = false;
+            ClientScene.Shutdown();
         }
 
         public static void ShutdownAll()
