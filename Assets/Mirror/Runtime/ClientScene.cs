@@ -307,9 +307,8 @@ namespace Mirror
 
         public static void DestroyAllClientObjects()
         {
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                NetworkIdentity identity = kvp.Value;
                 if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
