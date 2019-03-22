@@ -120,6 +120,10 @@
       url: "/Classes/Attributes"
     - title: "SyncLists"
       url: "/Classes/SyncLists"
+    - title: "SyncDictionary"
+      url: "/Classes/SyncDictionary"
+    - title: "SyncHashSet"
+      url: "/Classes/SyncHashSet"
 - title: "Events"
   children: 
     - title: "Application Events"
