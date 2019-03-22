@@ -17,3 +17,7 @@ Here we will maintain a list of assets known to be compatible with Mirror.  If y
 ## [Noble Connect Free](https://assetstore.unity.com/packages/tools/network/noble-connect-free-141599)
 
 ![Noble Connect Free](NobleConnectFree.jpg)
+
+## [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
+
+![Dissonance](Dissonance.jpg)
