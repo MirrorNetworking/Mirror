@@ -59,11 +59,7 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            if (newObserver.playerController != null)
-            {
-                return Vector3.Distance(newObserver.playerController.transform.position, transform.position) < visRange;
-            }
-            return false;
+            return Vector3.Distance(newObserver.playerController.transform.position, transform.position) < visRange;
         }
 
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
