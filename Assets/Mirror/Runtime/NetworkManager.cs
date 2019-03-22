@@ -650,13 +650,13 @@ namespace Mirror
             OnServerAddPlayerInternal(conn);
         }
 
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             OnServerAddPlayerInternal(conn);
         }
 
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             OnServerAddPlayerInternal(conn);
         }
