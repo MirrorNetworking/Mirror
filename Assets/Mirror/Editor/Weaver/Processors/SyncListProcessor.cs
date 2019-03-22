@@ -8,25 +8,30 @@ namespace Mirror.Weaver
     {
         public static void Process(TypeDefinition td)
         {
+            Process(td, 0, "SerializeItem", "DeserializeItem");
+        }
+
+        public static void Process(TypeDefinition td, int genericArgument, string serializeMethod, string deserializeMethod)
+        {
             // find item type
             GenericInstanceType gt = (GenericInstanceType)td.BaseType;
-            if (gt.GenericArguments.Count == 0)
+            if (gt.GenericArguments.Count <= genericArgument)
             {
                 Weaver.Error("SyncListProcessor no generic args");
                 return;
             }
-            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[0]);
+            TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[genericArgument]);
 
             Weaver.DLog(td, "SyncListProcessor Start item:" + itemType.FullName);
 
             Weaver.ResetRecursionCount();
-            MethodReference writeItemFunc = GenerateSerialization(td, itemType);
+            MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
             if (Weaver.WeavingFailed)
             {
                 return;
             }
 
-            MethodReference readItemFunc = GenerateDeserialization(td, itemType);
+            MethodReference readItemFunc = GenerateDeserialization(deserializeMethod, td, itemType);
 
             if (readItemFunc == null || writeItemFunc == null)
                 return;
@@ -35,16 +40,16 @@ namespace Mirror.Weaver
         }
 
         // serialization of individual element
-        static MethodReference GenerateSerialization(TypeDefinition td, TypeReference itemType)
+        static MethodReference GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
             foreach (var m in td.Methods)
             {
-                if (m.Name == "SerializeItem")
+                if (m.Name == methodName)
                     return m;
             }
 
-            MethodDefinition serializeFunc = new MethodDefinition("SerializeItem", MethodAttributes.Public |
+            MethodDefinition serializeFunc = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
                     MethodAttributes.HideBySig,
@@ -78,16 +83,16 @@ namespace Mirror.Weaver
             return serializeFunc;
         }
 
-        static MethodReference GenerateDeserialization(TypeDefinition td, TypeReference itemType)
+        static MethodReference GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
             foreach (var m in td.Methods)
             {
-                if (m.Name == "DeserializeItem")
+                if (m.Name == methodName)
                     return m;
             }
 
-            MethodDefinition deserializeFunction = new MethodDefinition("DeserializeItem", MethodAttributes.Public |
+            MethodDefinition deserializeFunction = new MethodDefinition(methodName, MethodAttributes.Public |
                     MethodAttributes.Virtual |
                     MethodAttributes.Public |
                     MethodAttributes.HideBySig,
