@@ -637,7 +637,7 @@ namespace Mirror
                 return true;
             }
 
-            if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
+            if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
             FinishPlayerForConnection(conn, identity, player);
             if (identity.localPlayerAuthority)
