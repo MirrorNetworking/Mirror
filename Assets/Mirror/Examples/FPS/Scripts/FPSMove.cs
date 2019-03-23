@@ -13,7 +13,12 @@ namespace Mirror.Examples.FPS
         void Start()
         {
             // Turn on camera for local player
-            if (hasAuthority) head.gameObject.SetActive(true);
+            if (hasAuthority)
+            {
+                head.gameObject.SetActive(true);
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
         }
 
         void Update()
