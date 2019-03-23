@@ -40,8 +40,8 @@ namespace Mirror
 
         protected virtual void SerializeKey(NetworkWriter writer, B item) {}
         protected virtual void SerializeItem(NetworkWriter writer, T item) {}
-        protected virtual B DeserializeKey(NetworkReader reader) => default(B);
-        protected virtual T DeserializeItem(NetworkReader reader) => default(T);
+        protected virtual B DeserializeKey(NetworkReader reader) => default;
+        protected virtual T DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => Changes.Count > 0;
 
@@ -219,20 +219,12 @@ namespace Mirror
 
         public bool Remove(B key)
         {
-            if (m_Objects.ContainsKey(key))
+            if (m_Objects.TryGetValue(key, out T item) && m_Objects.Remove(key))
             {
-                T item = m_Objects[key];
-                bool result = m_Objects.Remove(key);
-                if (result)
-                {
-                    AddOperation(Operation.OP_REMOVE, key, item);
-                }
-                return result;
+                AddOperation(Operation.OP_REMOVE, key, item);
+                return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public void Dirty(B index)
@@ -245,7 +237,7 @@ namespace Mirror
             get => m_Objects[i];
             set
             {
-                bool existing = TryGetValue(i, out var val);
+                bool existing = TryGetValue(i, out T val);
                 if (existing)
                 {
                     m_Objects[i] = value;
