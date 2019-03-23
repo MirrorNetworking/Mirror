@@ -10,6 +10,9 @@ namespace Mirror
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
+        [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
+        public int MaxMessageSize = 16 * 1024;
+
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
 
@@ -22,7 +25,9 @@ namespace Mirror
 
             // configure
             client.NoDelay = NoDelay;
+            client.MaxMessageSize = MaxMessageSize;
             server.NoDelay = NoDelay;
+            server.MaxMessageSize = MaxMessageSize;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
