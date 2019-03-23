@@ -9,7 +9,7 @@ namespace Mirror
     {
         public delegate void SyncDictionaryChanged(Operation op, B key, T item);
 
-        readonly Dictionary<B, T> m_Objects = new Dictionary<B, T>();
+        readonly Dictionary<B, T> m_Objects;
 
         public int Count => m_Objects.Count;
         public bool IsReadOnly { get; private set; }
