@@ -1711,7 +1711,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '* List Servers for your own Project will be available soon!'
+  m_Text: '* Host your own List Server with: mirror-networking.com/list-server'
 --- !u!222 &777480157
 CanvasRenderer:
   m_ObjectHideFlags: 0
