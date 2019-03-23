@@ -7,7 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncDictionaryTest
     {
-        public class SyncDictionaryIntString : SyncDictionary<int, string> { }
+        public class SyncDictionaryIntString : SyncDictionary<int, string> {}
 
         SyncDictionaryIntString serverSyncDictionary;
         SyncDictionaryIntString clientSyncDictionary;
@@ -218,7 +218,7 @@ namespace Mirror.Tests
             // client list should now lock itself,  trying to modify it
             // should produce an InvalidOperationException
             Assert.That(clientList.IsReadOnly, Is.True);
-            Assert.Throws<InvalidOperationException>(() => { clientList.Add(50, "fail"); });
+            Assert.Throws<InvalidOperationException>(() => clientList.Add(50, "fail"));
 
         }
     }

@@ -259,7 +259,7 @@ namespace Mirror
 
         public T this[B i]
         {
-            get { return m_Objects[i]; }
+            get => m_Objects[i];
             set
             {
                 bool existing = TryGetValue(i, out var val);
