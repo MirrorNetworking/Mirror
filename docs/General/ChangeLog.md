@@ -7,6 +7,7 @@
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
+- Added: List Server example
 - Fixed: SyncLists now work correctly for primitives and structs
 - Fixed: Host should not call Disconnect on transports
 - Fixed: Observers are now properly rebuilt when client joins and `OnRebuildObservers` / `OnCheckObserver` is overridden
