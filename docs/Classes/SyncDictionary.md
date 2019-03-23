@@ -2,15 +2,15 @@
 
 A `SyncDictionary` is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
 
-* Basic type (byte, int, float, string, UInt64, etc)
-* Built-in Unity math type (Vector3, Quaternion, etc)
-* NetworkIdentity
-* GameObject with a NetworkIdentity component attached.
-* Structure with any of the above
+- Basic type (byte, int, float, string, UInt64, etc)
+- Built-in Unity math type (Vector3, Quaternion, etc)
+- NetworkIdentity
+- GameObject with a NetworkIdentity component attached.
+- Struct with any of the above
 
 SyncDictionaries work much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
 
-To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
+To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
 
 ## Simple Example
 
@@ -38,7 +38,7 @@ public class ExamplePlayer : NetworkBehaviour
         Equipment.Add("feet", new Item { name = "Sneakers", hitPoints=3, durability=40 });
         Equipment.Add("hands", new Item { name = "Sword", hitPoints=30, durability=15 });
     }
-    
+
     private void OnStartClient()
     {
         // Equipment is already populated with anything the server set up

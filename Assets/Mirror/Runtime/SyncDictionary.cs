@@ -53,6 +53,16 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => Changes.Clear();
 
+        public SyncDictionary()
+        {
+            m_Objects = new Dictionary<B, T>();
+        }
+
+        public SyncDictionary(IEqualityComparer<B> eq)
+        {
+            m_Objects = new Dictionary<B, T>(eq);
+        }
+
         void AddOperation(Operation op, B key, T item)
         {
             if (IsReadOnly)

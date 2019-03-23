@@ -74,7 +74,17 @@ public class MyScript : NetworkBehaviour
 
 ## SyncDictionaries
 
-A SyncDictionary is an associative array containing an unordered list of items, each with two fields: a "key" and a "value". Using the "key", like an int or string identifier, you can retrieve the "value", which could be a name in string form, a struct of player data, or some JSON about a match. SyncDictionaries work much like SyncLists--when you make a change on the server, the change is propagated to all clients and the Callback is called.
+A `SyncDictionary` is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
+
+- Basic type (byte, int, float, string, UInt64, etc)
+- Built-in Unity math type (Vector3, Quaternion, etc)
+- NetworkIdentity
+- GameObject with a NetworkIdentity component attached.
+- Struct with any of the above
+
+SyncDictionaries work much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
+
+To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
 
 ### Simple Example
 
@@ -84,34 +94,35 @@ using Mirror;
 
 public class ExamplePlayer : NetworkBehaviour
 {
-    public class SyncDictionaryIntPlayer : SyncDictionary<int, PlayerData> { }
+    public class SyncDictionaryStringItem : SyncDictionary<string, Item> { }
 
-    public struct PlayerData
+    public struct Item
     {
-        public int Health;
-        public float Speed;
-        public Vector3 Position;
+        public string name;
+        public int hitPoints;
+        public int durability;
     }
 
-    public SyncDictionaryIntPlayer Players = new SyncDictionaryIntPlayer();
+    public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 
-    private void Start()
+    public void OnStartServer()
     {
-        if (isLocalPlayer)
-        {
-            Players.Callback += PlayersChanged;
-            CmdRegisterPlayer();
-        }
+        Equipment.Add("head", new Item { name = "Helmet", hitPoints=10, durability=20 });
+        Equipment.Add("body", new Item { name = "Epic Armor", hitPoints=50, durability=50 });        
+        Equipment.Add("feet", new Item { name = "Sneakers", hitPoints=3, durability=40 });
+        Equipment.Add("hands", new Item { name = "Sword", hitPoints=30, durability=15 });
     }
 
-    [Command]
-    public void CmdRegisterPlayer()
+    private void OnStartClient()
     {
-        Players.Add(connectionToClient.connectionId, new PlayerData { Health = 100, Speed = 5f, Position = Vector3.zero });
+        // Equipment is already populated with anything the server set up
+        // but we can subscribe to the callback in case it is updated later on
+        Equipment.Callback += OnEquipmentChange;
     }
 
-    private void PlayersChanged(SyncDictionaryIntPlayer.Operation op, int key, PlayerData item)
+    private void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
     {
+        // equipment changed,  perhaps update the gameobject
         Debug.Log(op + " - " + key);
     }
 }
