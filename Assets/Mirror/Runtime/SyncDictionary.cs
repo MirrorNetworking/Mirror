@@ -38,8 +38,8 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        protected virtual void SerializeKey(NetworkWriter writer, B item) { }
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
+        protected virtual void SerializeKey(NetworkWriter writer, B item) {}
+        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
         protected virtual B DeserializeKey(NetworkReader reader) => default(B);
         protected virtual T DeserializeItem(NetworkReader reader) => default(T);
 
@@ -85,7 +85,7 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.Write(m_Objects.Count);
+            writer.WritePackedUInt32((uint)m_Objects.Count);
 
             foreach (KeyValuePair<B, T> syncItem in m_Objects)
             {
@@ -97,13 +97,13 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.Write(Changes.Count);
+            writer.WritePackedUInt32((uint)Changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.Write(Changes.Count);
+            writer.WritePackedUInt32((uint)Changes.Count);
 
             for (int i = 0; i < Changes.Count; i++)
             {
@@ -113,22 +113,13 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
-                        SerializeKey(writer, change.key);
-                        SerializeItem(writer, change.item);
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        break;
-
                     case Operation.OP_REMOVE:
-                        SerializeKey(writer, change.key);
-                        SerializeItem(writer, change.item);
-                        break;
-
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
                         SerializeKey(writer, change.key);
                         SerializeItem(writer, change.item);
+                        break;
+                    case Operation.OP_CLEAR:
                         break;
                 }
             }
@@ -140,7 +131,7 @@ namespace Mirror
             IsReadOnly = true;
 
             // if init,  write the full list content
-            int count = reader.ReadInt32();
+            int count = (int)reader.ReadPackedUInt32();
 
             m_Objects.Clear();
             Changes.Clear();
@@ -155,7 +146,7 @@ namespace Mirror
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
-            changesAhead = reader.ReadInt32();
+            changesAhead = (int)reader.ReadPackedUInt32();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -163,7 +154,7 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = reader.ReadInt32();
+            int changesCount = (int)reader.ReadPackedUInt32();
 
             for (int i = 0; i < changesCount; i++)
             {
@@ -178,11 +169,13 @@ namespace Mirror
                 switch (operation)
                 {
                     case Operation.OP_ADD:
+                    case Operation.OP_SET:
+                    case Operation.OP_DIRTY:
                         key = DeserializeKey(reader);
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects.Add(key, item);
+                            m_Objects[key] = item;
                         }
                         break;
 
@@ -199,16 +192,6 @@ namespace Mirror
                         if (apply)
                         {
                             m_Objects.Remove(key);
-                        }
-                        break;
-
-                    case Operation.OP_SET:
-                    case Operation.OP_DIRTY:
-                        key = DeserializeKey(reader);
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            m_Objects[key] = item;
                         }
                         break;
                 }
@@ -292,7 +275,7 @@ namespace Mirror
 
         public bool Contains(KeyValuePair<B, T> item)
         {
-            return m_Objects.ContainsKey(item.Key) && m_Objects.ContainsValue(item.Value);
+            return TryGetValue(item.Key, out T val) && EqualityComparer<T>.Default.Equals(val, item.Value);
         }
 
         public void CopyTo(KeyValuePair<B, T>[] array, int arrayIndex)

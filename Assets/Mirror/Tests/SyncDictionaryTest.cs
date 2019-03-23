@@ -140,6 +140,15 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestContains()
+        {
+            Assert.That(!clientSyncDictionary.Contains(new KeyValuePair<int, string>(2, "Hello")));
+            serverSyncDictionary[2] = "Hello";
+            SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
+            Assert.That(clientSyncDictionary.Contains(new KeyValuePair<int, string>(2, "Hello")));
+        }
+
+        [Test]
         public void CallbackTest()
         {
             bool called = false;
