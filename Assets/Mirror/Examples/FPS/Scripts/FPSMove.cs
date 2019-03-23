@@ -35,7 +35,7 @@ namespace Mirror.Examples.FPS
 
             // move
             Vector3 move = transform.forward * Input.GetAxis("Vertical") + transform.right * Input.GetAxis("Horizontal");
-            controller.SimpleMove(move * speed * Time.deltaTime);
+            controller.SimpleMove(move.normalized * speed * Time.deltaTime);
         }
     }
 }
