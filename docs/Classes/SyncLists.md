@@ -1,28 +1,26 @@
 # SyncLists Overview
 
-There are some very important optimizations when it comes to bandwidth done in Mirror.
+`SyncLists` are array based lists similar to C# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
-## Channels
-
-There was a bug in HLAPI that caused syncvar to be sent to every channel when they changed. If you had 10 channels, then all the variables would be sent 10 times during the same frame, all as different packages.
-
-## SyncLists
-
-HLAPI SyncLists sent a message for every change immediately. They did not respect the SyncInterval. If you add 10 items to a list, it means sending 10 messages.
-
-In Mirror SyncList were redesigned. The lists queue up their changes, and the changes are sent as part of the syncvar synchronization. If you add 10 items, then only 1 message is sent with all changes according to the next SyncInterval.
-
-In HLAPI,  if you wanted a list of structs,  you needed to use `SyncListStruct<MyStructure>`,  we changed it to just `SyncList<MyStructure>`
-
-We also raised the limit from 32 SyncVars to 64 per NetworkBehavior.
-
-A SyncList can only be of the following type
+A SyncList can contain items of the following types:
 
 -   Basic type (byte, int, float, string, UInt64, etc)
 -   Built-in Unity math type (Vector3, Quaternion, etc)
 -   NetworkIdentity
 -   GameObject with a NetworkIdentity component attached.
 -   Structure with any of the above
+
+## Differences with HLAPI
+
+HLAPI also supports SyncLists,  but we have made redesigned them to better suit our needs. Some of the key differences include:
+
+* In HLAPI, SyncLists were synchornized immediatelly when they changed.  If you add 10 elements, that means 10 separate messages.   Mirror synchronizes synclists with the syncvars. The 10 elements and other syncvars are batched together into a single message.   Mirror also respects the sync interval when synchronizing lists.
+
+* In HLAPI if you want a list of structs,  you have to use `SyncListStruct<MyStructure>`,  we changed it to just `SyncList<MyStructure>`
+
+* In HLAPI the Callback is a delegate.  In Mirror we changed it to an event, so that you can add many subscribers. 
+
+* In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
 
 ## Usage
 
