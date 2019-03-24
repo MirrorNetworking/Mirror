@@ -31,7 +31,7 @@ namespace Mirror
             {
                 packetQueue.Enqueue(MessagePacker.Pack(new DisconnectMessage()));
             }
-            NetworkServer.RemoveLocalClient();
+            NetworkServer.RemoveLocalConnection();
         }
 
         internal override void Update()
