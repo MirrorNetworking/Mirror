@@ -298,18 +298,18 @@ namespace Mirror
         }
 
         [Obsolete("Use UnregisterHandler<T> instead")]
-        public void UnregisterHandler(int msgType)
+        public static void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
 
         [Obsolete("Use UnregisterHandler<T> instead")]
-        public void UnregisterHandler(MsgType msgType)
+        public static void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((int)msgType);
         }
 
-        public void UnregisterHandler<T>() where T : IMessageBase
+        public static void UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
             int msgType = MessagePacker.GetId<T>();
