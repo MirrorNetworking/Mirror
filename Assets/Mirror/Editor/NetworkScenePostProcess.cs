@@ -32,45 +32,47 @@ namespace Mirror
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // valid scene id? then set scene path part
+                // valid scene id?
                 //   otherwise it might be an unopened scene that still has null
                 //   sceneIds. builds are interrupted if they contain 0 sceneIds,
                 //   but it's still possible that we call LoadScene in Editor
                 //   for a previously unopened scene.
-                //   => throwing an exception would only show it for one object
-                //      because this function would return afterwards.
+                //   (and only do SetActive if this was actually a scene object)
                 if (identity.sceneId != 0)
                 {
+                    // set scene hash
                     identity.SetSceneIdSceneHashPartInternal();
-                }
-                else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
 
-                // disable it
-                // note: NetworkIdentity.OnDisable adds itself to the
-                //       spawnableObjects dictionary (only if sceneId != 0)
-                identity.gameObject.SetActive(false);
+                    // disable it
+                    // note: NetworkIdentity.OnDisable adds itself to the
+                    //       spawnableObjects dictionary (only if sceneId != 0)
+                    identity.gameObject.SetActive(false);
 
-                // safety check for prefabs with more than one NetworkIdentity
-#if UNITY_2018_2_OR_NEWER
-                GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
-#else
-                GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-#endif
-                if (prefabGO)
-                {
-#if UNITY_2018_3_OR_NEWER
-                    GameObject prefabRootGO = prefabGO.transform.root.gameObject;
-#else
-                    GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-#endif
-                    if (prefabRootGO)
+                    // safety check for prefabs with more than one NetworkIdentity
+    #if UNITY_2018_2_OR_NEWER
+                    GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
+    #else
+                    GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
+    #endif
+                    if (prefabGO)
                     {
-                        if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
+    #if UNITY_2018_3_OR_NEWER
+                        GameObject prefabRootGO = prefabGO.transform.root.gameObject;
+    #else
+                        GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+    #endif
+                        if (prefabRootGO)
                         {
-                            Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
+                            if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
+                            {
+                                Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
+                            }
                         }
                     }
                 }
+                // throwing an exception would only show it for one object
+                // because this function would return afterwards.
+                else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
             }
         }
     }
