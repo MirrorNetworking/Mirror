@@ -6,14 +6,13 @@ namespace Mirror
 {
     public static class NetworkServer
     {
-        static ULocalConnectionToClient s_LocalConnection;
         static bool s_Initialized;
         static int s_MaxConnections;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConection now!
-        public static NetworkConnection localConnection => s_LocalConnection;
+        public static NetworkConnection localConnection { get; private set; }
 
         // <connectionId, NetworkConnection>
         public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
@@ -118,27 +117,27 @@ namespace Mirror
         // called by LocalClient to add itself. dont call directly.
         internal static int AddLocalClient(LocalClient localClient)
         {
-            if (s_LocalConnection != null)
+            if (localConnection != null)
             {
                 Debug.LogError("Local Connection already exists");
                 return -1;
             }
 
-            s_LocalConnection = new ULocalConnectionToClient(localClient)
+            localConnection = new ULocalConnectionToClient(localClient)
             {
                 connectionId = 0
             };
-            OnConnected(s_LocalConnection);
+            OnConnected(localConnection);
             return 0;
         }
 
         internal static void RemoveLocalClient()
         {
-            if (s_LocalConnection != null)
+            if (localConnection != null)
             {
-                s_LocalConnection.Disconnect();
-                s_LocalConnection.Dispose();
-                s_LocalConnection = null;
+                localConnection.Disconnect();
+                localConnection.Dispose();
+                localConnection = null;
             }
             localClientActive = false;
             RemoveConnection(0);
@@ -288,7 +287,7 @@ namespace Mirror
         public static void DisconnectAll()
         {
             DisconnectAllConnections();
-            s_LocalConnection = null;
+            localConnection = null;
 
             active = false;
             localClientActive = false;
