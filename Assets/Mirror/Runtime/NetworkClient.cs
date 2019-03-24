@@ -46,7 +46,7 @@ namespace Mirror
             singleton = this;
         }
 
-        internal void SetHandlers(NetworkConnection conn)
+        internal static void SetHandlers(NetworkConnection conn)
         {
             conn.SetHandlers(handlers);
         }
