@@ -357,6 +357,12 @@ namespace Mirror
 
         void OnDestroy()
         {
+            // remove from sceneIds
+            // -> remove with (0xFFFFFFFFFFFFFFFF) and without (0x00000000FFFFFFFF)
+            //    sceneHash to be 100% safe.
+            sceneIds.Remove(sceneId);
+            sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
+
             if (m_IsServer && NetworkServer.active)
             {
                 NetworkServer.Destroy(gameObject);
