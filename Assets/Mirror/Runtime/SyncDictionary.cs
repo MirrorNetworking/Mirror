@@ -5,11 +5,11 @@ using System.ComponentModel;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncDictionary<B, T> : IDictionary<B, T>, SyncObject
+    public abstract class SyncDictionary<K, V> : IDictionary<K, V>, SyncObject
     {
-        public delegate void SyncDictionaryChanged(Operation op, B key, T item);
+        public delegate void SyncDictionaryChanged(Operation op, K key, V item);
 
-        readonly Dictionary<B, T> m_Objects;
+        readonly Dictionary<K, V> m_Objects;
 
         public int Count => m_Objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -27,8 +27,8 @@ namespace Mirror
         struct Change
         {
             internal Operation operation;
-            internal B key;
-            internal T item;
+            internal K key;
+            internal V item;
         }
 
         readonly List<Change> Changes = new List<Change>();
@@ -38,16 +38,16 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        protected virtual void SerializeKey(NetworkWriter writer, B item) {}
-        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
-        protected virtual B DeserializeKey(NetworkReader reader) => default;
-        protected virtual T DeserializeItem(NetworkReader reader) => default;
+        protected virtual void SerializeKey(NetworkWriter writer, K item) {}
+        protected virtual void SerializeItem(NetworkWriter writer, V item) {}
+        protected virtual K DeserializeKey(NetworkReader reader) => default;
+        protected virtual V DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => Changes.Count > 0;
 
-        public ICollection<B> Keys => m_Objects.Keys;
+        public ICollection<K> Keys => m_Objects.Keys;
 
-        public ICollection<T> Values => m_Objects.Values;
+        public ICollection<V> Values => m_Objects.Values;
 
         // throw away all the changes
         // this should be called after a successfull sync
@@ -55,19 +55,19 @@ namespace Mirror
 
         public SyncDictionary()
         {
-            m_Objects = new Dictionary<B, T>();
+            m_Objects = new Dictionary<K, V>();
         }
 
-        public SyncDictionary(IEqualityComparer<B> eq)
+        public SyncDictionary(IEqualityComparer<K> eq)
         {
-            m_Objects = new Dictionary<B, T>(eq);
+            m_Objects = new Dictionary<K, V>(eq);
         }
 
-        void AddOperation(Operation op, B key, T item)
+        void AddOperation(Operation op, K key, V item)
         {
             if (IsReadOnly)
             {
-                throw new System.InvalidOperationException("Synclists can only be modified at the server");
+                throw new System.InvalidOperationException("SyncDictionaries can only be modified by the server");
             }
 
             Change change = new Change
@@ -87,7 +87,7 @@ namespace Mirror
             // if init,  write the full list content
             writer.WritePackedUInt32((uint)m_Objects.Count);
 
-            foreach (KeyValuePair<B, T> syncItem in m_Objects)
+            foreach (KeyValuePair<K, V> syncItem in m_Objects)
             {
                 SerializeKey(writer, syncItem.Key);
                 SerializeItem(writer, syncItem.Value);
@@ -138,8 +138,8 @@ namespace Mirror
 
             for (int i = 0; i < count; i++)
             {
-                B key = DeserializeKey(reader);
-                T obj = DeserializeItem(reader);
+                K key = DeserializeKey(reader);
+                V obj = DeserializeItem(reader);
                 m_Objects.Add(key, obj);
             }
 
@@ -163,8 +163,8 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                B key = default;
-                T item = default;
+                K key = default;
+                V item = default;
 
                 switch (operation)
                 {
@@ -208,18 +208,17 @@ namespace Mirror
             }
         }
 
-
         public void Clear()
         {
             m_Objects.Clear();
             AddOperation(Operation.OP_CLEAR, default, default);
         }
 
-        public bool ContainsKey(B key) => m_Objects.ContainsKey(key);
+        public bool ContainsKey(K key) => m_Objects.ContainsKey(key);
 
-        public bool Remove(B key)
+        public bool Remove(K key)
         {
-            if (m_Objects.TryGetValue(key, out T item) && m_Objects.Remove(key))
+            if (m_Objects.TryGetValue(key, out V item) && m_Objects.Remove(key))
             {
                 AddOperation(Operation.OP_REMOVE, key, item);
                 return true;
@@ -227,17 +226,17 @@ namespace Mirror
             return false;
         }
 
-        public void Dirty(B index)
+        public void Dirty(K index)
         {
             AddOperation(Operation.OP_DIRTY, index, m_Objects[index]);
         }
 
-        public T this[B i]
+        public V this[K i]
         {
             get => m_Objects[i];
             set
             {
-                bool existing = TryGetValue(i, out T val);
+                bool existing = TryGetValue(i, out V val);
                 if (existing)
                 {
                     m_Objects[i] = value;
@@ -251,36 +250,36 @@ namespace Mirror
             }
         }
 
-        public bool TryGetValue(B key, out T value) => m_Objects.TryGetValue(key, out value);
+        public bool TryGetValue(K key, out V value) => m_Objects.TryGetValue(key, out value);
 
-        public void Add(B key, T value)
+        public void Add(K key, V value)
         {
             m_Objects.Add(key, value);
             AddOperation(Operation.OP_ADD, key, value);
         }
 
-        public void Add(KeyValuePair<B, T> item)
+        public void Add(KeyValuePair<K, V> item)
         {
             m_Objects.Add(item.Key, item.Value);
             AddOperation(Operation.OP_ADD, item.Key, item.Value);
         }
 
-        public bool Contains(KeyValuePair<B, T> item)
+        public bool Contains(KeyValuePair<K, V> item)
         {
-            return TryGetValue(item.Key, out T val) && EqualityComparer<T>.Default.Equals(val, item.Value);
+            return TryGetValue(item.Key, out V val) && EqualityComparer<V>.Default.Equals(val, item.Value);
         }
 
-        public void CopyTo(KeyValuePair<B, T>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<K, V>[] array, int arrayIndex)
         {
             int i = 0;
-            foreach (KeyValuePair<B, T> item in m_Objects)
+            foreach (KeyValuePair<K, V> item in m_Objects)
             {
                 array[i] = item;
                 i++;
             }
         }
 
-        public bool Remove(KeyValuePair<B, T> item)
+        public bool Remove(KeyValuePair<K, V> item)
         {
             bool result = m_Objects.Remove(item.Key);
             if (result)
@@ -290,8 +289,8 @@ namespace Mirror
             return result;
         }
 
-        public IEnumerator<KeyValuePair<B, T>> GetEnumerator() => ((IDictionary<B, T>)m_Objects).GetEnumerator();
+        public IEnumerator<KeyValuePair<K, V>> GetEnumerator() => ((IDictionary<K, V>)m_Objects).GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<B, T>)m_Objects).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<K, V>)m_Objects).GetEnumerator();
     }
 }
