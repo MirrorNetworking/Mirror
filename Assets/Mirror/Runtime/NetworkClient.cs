@@ -272,7 +272,7 @@ namespace Mirror
         {
             if (handlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + msgType);
+                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler.ToString() + " - " + msgType);
             }
             handlers[msgType] = handler;
         }
@@ -288,7 +288,7 @@ namespace Mirror
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + msgType);
+                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler.ToString() + " - " + msgType);
             }
             handlers[msgType] = (networkMessage) =>
             {
