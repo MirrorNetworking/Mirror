@@ -26,8 +26,8 @@ namespace Mirror
             if (!showGUI)
                 return;
 
-            bool noConnection = (manager.client == null || manager.client.connection == null ||
-                                 manager.client.connection.connectionId == -1);
+            bool noConnection = (manager.client == null || NetworkClient.connection == null ||
+                                 NetworkClient.connection.connectionId == -1);
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
             if (!manager.IsClientConnected() && !NetworkServer.active)
@@ -91,7 +91,7 @@ namespace Mirror
             {
                 if (GUILayout.Button("Client Ready"))
                 {
-                    ClientScene.Ready(manager.client.connection);
+                    ClientScene.Ready(NetworkClient.connection);
 
                     if (ClientScene.localPlayer == null)
                     {

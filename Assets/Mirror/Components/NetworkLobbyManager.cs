@@ -375,7 +375,7 @@ namespace Mirror
 
             if (SceneManager.GetActiveScene().name == LobbyScene && newSceneName == GameplayScene && dontDestroyOnLoad && IsClientConnected() && client != null)
             {
-                GameObject lobbyPlayer = client?.connection?.playerController?.gameObject;
+                GameObject lobbyPlayer = NetworkClient.connection?.playerController?.gameObject;
                 if (lobbyPlayer != null)
                 {
                     lobbyPlayer.transform.SetParent(null);

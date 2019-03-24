@@ -511,7 +511,7 @@ namespace Mirror
             if (IsClientConnected() && client != null)
             {
                 RegisterClientMessages(client);
-                OnClientSceneChanged(client.connection);
+                OnClientSceneChanged(NetworkClient.connection);
             }
         }
 

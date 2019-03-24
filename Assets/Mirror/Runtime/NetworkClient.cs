@@ -22,7 +22,7 @@ namespace Mirror
 
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
-        public NetworkConnection connection { get; protected set; }
+        public static NetworkConnection connection { get; protected set; }
 
         internal static ConnectState connectState = ConnectState.None;
 
