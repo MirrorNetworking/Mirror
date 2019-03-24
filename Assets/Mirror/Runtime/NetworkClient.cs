@@ -78,7 +78,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError.AddListener(OnError);
         }
 
-        void OnError(Exception exception)
+        static void OnError(Exception exception)
         {
             Debug.LogException(exception);
         }
