@@ -153,11 +153,25 @@ namespace Mirror
 
     public class ConnectMessage : EmptyMessage {}
 
-    public class SceneMessage : StringMessage
+    public class SceneMessage : MessageBase
     {
-        public SceneMessage(string value) : base(value) {}
+        public string scene;
+        public LoadSceneMode sceneMode;
+        public LocalPhysicsMode physicsMode;
 
-        public SceneMessage() {}
+        public override void Deserialize(NetworkReader reader)
+        {
+            scene = reader.ReadString();
+            sceneMode = reader.ReadByte();
+            physicsMode = reader.ReadByte();
+        }
+
+        public override void Serialize(NetworkWriter writer)
+        {
+            writer.Write(scene);
+            writer.Write(sceneMode);
+            writer.Write(physicsMode);
+        }
     }
     #endregion
 
