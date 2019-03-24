@@ -686,6 +686,8 @@ namespace Mirror
             // add connection to observers AFTER the playerController was set.
             // by definition, there is nothing to observe if there is no player
             // controller.
+            //
+            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
             SpawnObserversForConnection(conn);
 
             if (SetupLocalPlayerForConnection(conn, identity))
@@ -776,6 +778,13 @@ namespace Mirror
             playerNetworkIdentity.connectionToClient = conn;
 
             //NOTE: DONT set connection ready.
+
+            // add connection to observers AFTER the playerController was set.
+            // by definition, there is nothing to observe if there is no player
+            // controller.
+            //
+            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
+            SpawnObserversForConnection(conn);
 
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer setup local");
 
