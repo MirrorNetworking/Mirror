@@ -486,16 +486,12 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
 
-            if(sceneMode == LoadSceneMode.Additive)
+            s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
             {
-
-            }
-            else
-            {
-                s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-                networkSceneName = newSceneName;
-            }
-            
+                loadSceneMode = sceneMode,
+                localPhysicsMode = physicsMode,
+            });
+            networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
         void FinishLoadScene()
