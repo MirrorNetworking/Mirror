@@ -298,7 +298,7 @@ namespace Mirror
             return true;
         }
 
-        internal void RegisterClientMessages(NetworkClient client)
+        internal void RegisterClientMessages()
         {
             NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
             NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
@@ -331,7 +331,7 @@ namespace Mirror
 
             client = new NetworkClient();
 
-            RegisterClientMessages(client);
+            RegisterClientMessages();
 
             if (string.IsNullOrEmpty(networkAddress))
             {
@@ -364,7 +364,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
             networkAddress = "localhost";
             client = ClientScene.ConnectLocalServer();
-            RegisterClientMessages(client);
+            RegisterClientMessages();
             return client;
         }
 
@@ -510,7 +510,7 @@ namespace Mirror
 
             if (IsClientConnected() && client != null)
             {
-                RegisterClientMessages(client);
+                RegisterClientMessages();
                 OnClientSceneChanged(NetworkClient.connection);
             }
         }
