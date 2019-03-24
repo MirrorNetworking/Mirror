@@ -505,7 +505,6 @@ namespace Mirror
             return true;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // random number that is unlikely to appear in a regular data stream
         const byte Barrier = 171;
 
