@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum ConnectState
+    {
+        None,
+        Connecting,
+        Connected,
+        Disconnected
+    }
+
     public class NetworkClient
     {
         // the client (can be a regular NetworkClient or a LocalClient)
@@ -16,14 +24,7 @@ namespace Mirror
 
         public NetworkConnection connection { get; protected set; }
 
-        protected enum ConnectState
-        {
-            None,
-            Connecting,
-            Connected,
-            Disconnected
-        }
-        protected ConnectState connectState = ConnectState.None;
+        internal static ConnectState connectState = ConnectState.None;
 
         public string serverIp { get; private set; } = "";
 
