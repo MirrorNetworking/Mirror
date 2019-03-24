@@ -155,20 +155,20 @@ namespace Mirror
 
     public class SceneMessage : MessageBase
     {
-        public string scene;
-        public LoadSceneMode sceneMode;
-        public LocalPhysicsMode physicsMode;
+        public string sceneName;
+        public byte sceneMode; // Single = 0, Additive = 1
+        public byte physicsMode; // None = 0, Physics3D = 1, Physics2D = 2
 
         public override void Deserialize(NetworkReader reader)
         {
-            scene = reader.ReadString();
+            sceneName = reader.ReadString();
             sceneMode = reader.ReadByte();
             physicsMode = reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(scene);
+            writer.Write(sceneName);
             writer.Write(sceneMode);
             writer.Write(physicsMode);
         }
