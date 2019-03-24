@@ -300,11 +300,11 @@ namespace Mirror
 
         internal void RegisterClientMessages(NetworkClient client)
         {
-            client.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
-            client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
-            client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
-            client.RegisterHandler<SceneMessage>(OnClientSceneInternal);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
+            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
+            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
+            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal);
 
             if (playerPrefab != null)
             {

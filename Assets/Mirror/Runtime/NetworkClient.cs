@@ -269,7 +269,7 @@ namespace Mirror
         }
 
         [Obsolete("Use RegisterHandler<T> instead")]
-        public void RegisterHandler(int msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
             {
@@ -279,12 +279,12 @@ namespace Mirror
         }
 
         [Obsolete("Use RegisterHandler<T> instead")]
-        public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);
         }
 
-        public void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new()
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
