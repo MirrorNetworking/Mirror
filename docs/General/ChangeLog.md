@@ -3,13 +3,23 @@
 ## Version 1.7 -- In Progress
 
 - Added: Semantic Versioning
-- Added: SyncDictionary...SyncHashSet coming soon™
+- Added: [SyncDictionary](../Classes/SyncDictionary) ... [SyncHashSet](../Classes/SyncHashSet) coming soon™
+- Added: NoRotation to NetworkTransform
+- Added: Scale is now included in spawn payload along with position and rotation
+- Added: Generic `IMessageBase` to allow struct message types
+- Added: List Server example
+- Fixed: SyncLists now work correctly for primitives and structs
 - Fixed: Host should not call Disconnect on transports
+- Fixed: Observers are now properly rebuilt when client joins and `OnRebuildObservers` / `OnCheckObserver` is overridden
+- Fixed: NetworkLobbyPlayer.OnClientReady works now
+- Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
+- Changed: TargetRpc NetworkConnection paramater is now optional...the calling client's NetworkConnection is default
 - Changed: Movement example replaced with Tank example
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
+- Removed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
 
 ## Version 1.6 -- 2019-Mar-14
 
@@ -20,6 +30,7 @@
 - Changed: Documentation for [Transports](../Transports)
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
+    - Please refer to the code sample [here](../Concepts/Authentication) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
 - Changed: Removed Message ID's for all messages - See [Network Messages](../Concepts/Communications/NetworkMessages) for details  
     - Message IDs are now generated automatically based on the message name.  

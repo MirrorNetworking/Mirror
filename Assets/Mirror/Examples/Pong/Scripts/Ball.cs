@@ -6,11 +6,12 @@ namespace Mirror.Examples.Pong
     {
         public float speed = 30;
 
-        public override void OnStartServer()
+        public void Start()
         {
             // only simulate ball physics on server
-            GetComponent<Rigidbody2D>().simulated = true;
-            GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
+            GetComponent<Rigidbody2D>().simulated = isServer;
+            if (isServer)
+                GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
         }
 
         float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)

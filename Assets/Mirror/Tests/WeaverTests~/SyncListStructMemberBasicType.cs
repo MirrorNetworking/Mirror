@@ -16,7 +16,7 @@ namespace MirrorTest
             public object nonbasicpotato;
         }
 
-        class MyStructClass : SyncListSTRUCT<MyStruct>
+        class MyStructClass : SyncList<MyStruct>
         {
             int potatoCount;
             public MyStructClass(int numberOfPotatoes)

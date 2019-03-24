@@ -75,13 +75,16 @@ namespace Mirror
         // virtual so that inheriting classes' Awake() can call base.Awake() too
         public virtual void Awake()
         {
-            Debug.Log("Thank you for using Mirror! https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/");
+            Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
             networkSceneName = offlineScene;
 
             InitializeSingleton();
+
+            // setup OnSceneLoaded callback
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         // headless mode detection
@@ -146,6 +149,33 @@ namespace Mirror
             }
         }
 
+        // support additive scene loads:
+        //   NetworkScenePostProcess disables all scene objects on load, and
+        //   * NetworkServer.SpawnObjects enables them again on the server when
+        //     calling OnStartServer
+        //   * ClientScene.PrepareToSpawnSceneObjects enables them again on the
+        //     client after the server sends ObjectSpawnStartedMessage to client
+        //     in SpawnObserversForConnection. this is only called when the
+        //     client joins, so we need to rebuild scene objects manually again
+        // TODO merge this with FinishLoadScene()?
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (mode == LoadSceneMode.Additive)
+            {
+                if (NetworkServer.active)
+                {
+                    // TODO only respawn the server objects from that scene later!
+                    NetworkServer.SpawnObjects();
+                    Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
+                }
+                if (NetworkClient.active)
+                {
+                    ClientScene.PrepareToSpawnSceneObjects();
+                    Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
+                }
+            }
+        }
+
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
         // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
         // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
@@ -205,9 +235,23 @@ namespace Mirror
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerMessageInternal);
+            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayer);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
+        }
+
+        public virtual void ConfigureServerFrameRate()
+        {
+            // set a fixed tick rate instead of updating as often as possible
+            // * if not in Editor (it doesn't work in the Editor)
+            // * if not in Host mode
+#if !UNITY_EDITOR
+            if (!NetworkClient.active)
+            {
+                Application.targetFrameRate = serverTickRate;
+                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+            }
+#endif
         }
 
         /// <summary>
@@ -221,16 +265,7 @@ namespace Mirror
             if (runInBackground)
                 Application.runInBackground = true;
 
-            // set a fixed tick rate instead of updating as often as possible
-            // * if not in Editor (it doesn't work in the Editor)
-            // * if not in Host mode
-#if !UNITY_EDITOR
-            if (!NetworkClient.active)
-            {
-                Application.targetFrameRate = serverTickRate;
-                Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
-            }
-#endif
+            ConfigureServerFrameRate();
 
             if (!NetworkServer.Listen(maxConnections))
             {
@@ -390,7 +425,7 @@ namespace Mirror
             {
                 // only shutdown this client, not ALL clients.
                 client.Disconnect();
-                client.Shutdown();
+                NetworkClient.Shutdown();
                 client = null;
             }
 
@@ -595,13 +630,6 @@ namespace Mirror
             OnServerReady(conn);
         }
 
-        internal void OnServerAddPlayerMessageInternal(NetworkConnection conn, AddPlayerMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayerMessageInternal");
-
-            OnServerAddPlayer(conn, msg);
-        }
-
         internal void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
@@ -708,27 +736,19 @@ namespace Mirror
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
         {
-            OnServerAddPlayerInternal(conn);
-        }
-
-        /// <summary>
-        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        /// <param name="extraMessageReader">The message.  You can get extraMessage.value for the byte[] passed by the client</param>
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
         [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
-            OnServerAddPlayerInternal(conn);
+            OnServerAddPlayer(conn, null);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
+
             if (playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");

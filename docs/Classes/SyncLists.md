@@ -1,58 +1,122 @@
 # SyncLists Overview
 
-There are some very important optimizations when it comes to bandwidth done in Mirror.
+`SyncLists` are array based lists similar to C# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
-## Channels
-
-There was a bug in HLAPI that caused syncvar to be sent to every channel when they changed. If you had 10 channels, then all the variables would be sent 10 times during the same frame, all as different packages.
-
-## SyncLists
-
-HLAPI SyncLists sent a message for every change immediately. They did not respect the SyncInterval. If you add 10 items to a list, it means sending 10 messages.
-
-In Mirror SyncList were redesigned. The lists queue up their changes, and the changes are sent as part of the syncvar synchronization. If you add 10 items, then only 1 message is sent with all changes according to the next SyncInterval.
-
-We also raised the limit from 32 SyncVars to 64 per NetworkBehavior.
-
-A SyncList can only be of the following type
+A SyncList can contain items of the following types:
 
 -   Basic type (byte, int, float, string, UInt64, etc)
 -   Built-in Unity math type (Vector3, Quaternion, etc)
 -   NetworkIdentity
 -   GameObject with a NetworkIdentity component attached.
+-   Structure with any of the above
+
+## Differences with HLAPI
+
+HLAPI also supports SyncLists,  but we have made redesigned them to better suit our needs. Some of the key differences include:
+
+* In HLAPI, SyncLists were synchornized immediatelly when they changed.  If you add 10 elements, that means 10 separate messages.   Mirror synchronizes synclists with the syncvars. The 10 elements and other syncvars are batched together into a single message.   Mirror also respects the sync interval when synchronizing lists.
+
+* In HLAPI if you want a list of structs,  you have to use `SyncListStruct<MyStructure>`,  we changed it to just `SyncList<MyStructure>`
+
+* In HLAPI the Callback is a delegate.  In Mirror we changed it to an event, so that you can add many subscribers. 
+
+* In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
 
 ## Usage
 
-Don't modify them in Awake, use OnStartServer or Start. SyncListStructs use Structs. C\# structs are value types, just like int, float, Vector3 etc. You can't do synclist.value = newvalue; You have to copy the element, assign the new value, assign the new element to the synclist. You can use a callback hook like this:
+Create a class that derives from SyncList<T> for your specific type.  This is necesary because Mirror will add methods to that class with the weaver.  Then add a SyncList field to your NetworkBehaviour class.   For example:
 
 ```cs
-// In this example we are using String
-// This can also be used for any custom data type 
-SyncListString myStringList;
-SyncListItem myItemList;
-
-// this will add the delegates on both server and client.
-// Use OnStartClient instead if you just want the client to act upon updates
-void Start()
-{
-    myStringList.Callback += MyStringCallback;
-    myItemList.Callback += MyItemCallback;
-}
-
-void MyStringCallback(SyncListString.Operation op, int index, String item)
-{
-    // Callback functionality here
-}
-
-void MyItemCallback(SyncListItem.Operation op, int index, Item item)
-{
-    // Callback functionality here
-}
 
 public struct Item
 {
-    // Define struct
+    public string name;
+    public int amount;
+    public Color32 color;
 }
 
-public class SyncListItem : SyncListSTRUCT<Item> { }
+class SyncListItem : SyncList<Item> {}
+
+class Player : NetworkBehaviour {
+
+    SyncListItem inventory;
+
+    public int coins = 100;
+
+    [Command]
+    public void CmdPurchase(string itemName)
+    {
+        if (coins > 10)
+        {
+            coins -= 10;
+            Item item = new Item 
+            {
+                name = "Sword",
+                amount = 3,
+                color = new Color32(125,125,125);
+            };
+
+            // during next synchronization,  all clients will see the item
+            inventory.Add(item)
+        }
+    }
+
+}
+```
+
+There are some ready made SyncLists you can use:
+* `SyncListString`
+* `SyncListFloat`
+* `SyncListInt`
+* `SyncListUInt`
+* `SyncListBool`
+
+You can also detect when a synclist changes in the client or server.  This is useful for refreshing your character when you add equipment or determining when you need to update your database.  Subscribe to the Callback event typically during `Start`,  `OnClientStart` or `OnServerStart` for that.   Note that by the time you subscribe,  the list will already be initialized,  so you will not get a call for the initial data, only updates.
+
+```cs
+class Player : NetworkBehaviour {
+
+    SyncListItem inventory;
+
+    // this will add the delegates on both server and client.
+    // Use OnStartClient instead if you just want the client to act upon updates
+    void Start()
+    {
+        myStringList.Callback += OnInventoryUpdated;
+    }
+
+    void OnInventoryUpdated(SyncListItem.Operation op, int index, Item item)
+    {
+        switch (op) 
+        {
+            case SyncListItem.Operation.OP_ADD:
+                // index is where it got added in the list
+                // item is the new item
+                break;
+            case SyncListItem.Operation.OP_CLEAR:
+                // list got cleared
+                break;
+            case SyncListItem.Operation.OP_INSERT:
+                // index is where it got added in the list
+                // item is the new item
+                break;
+            case SyncListItem.Operation.OP_REMOVE:
+                // index is where it got removed in the list
+                // item is the item that was removed
+                break;
+            case SyncListItem.Operation.OP_REMOVEAT:
+                // index is where it got removed in the list
+                // item is the item that was removed
+                break;
+            case SyncListItem.Operation.OP_SET:
+                // index is the index of the item that was updated
+                // item is the previous item
+                break;
+            case SyncListItem.Operation.OP_SET:
+                // index is the index of the item that was updated
+                // item is the previous item
+                break;
+        }
+    }
+}
 ```

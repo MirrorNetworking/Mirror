@@ -1,0 +1,55 @@
+# SyncDictionary
+
+A `SyncDictionary` is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
+
+- Basic type (byte, int, float, string, UInt64, etc)
+- Built-in Unity math type (Vector3, Quaternion, etc)
+- NetworkIdentity
+- GameObject with a NetworkIdentity component attached.
+- Struct with any of the above
+
+SyncDictionaries work much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
+
+To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
+
+## Simple Example
+
+```cs
+using UnityEngine;
+using Mirror;
+
+public class ExamplePlayer : NetworkBehaviour
+{
+    public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
+
+    public struct Item
+    {
+        public string name;
+        public int hitPoints;
+        public int durability;
+    }
+
+    public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
+
+    public void OnStartServer()
+    {
+        Equipment.Add("head", new Item { name = "Helmet", hitPoints = 10, durability = 20 });
+        Equipment.Add("body", new Item { name = "Epic Armor", hitPoints = 50, durability = 50 });
+        Equipment.Add("feet", new Item { name = "Sneakers", hitPoints = 3, durability = 40 });
+        Equipment.Add("hands", new Item { name = "Sword", hitPoints = 30, durability = 15 });
+    }
+
+    private void OnStartClient()
+    {
+        // Equipment is already populated with anything the server set up
+        // but we can subscribe to the callback in case it is updated later on
+        Equipment.Callback += OnEquipmentChange;
+    }
+
+    private void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
+    {
+        // equipment changed,  perhaps update the gameobject
+        Debug.Log(op + " - " + key);
+    }
+}
+```
