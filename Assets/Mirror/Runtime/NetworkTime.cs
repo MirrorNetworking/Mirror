@@ -50,12 +50,12 @@ namespace Mirror
             return new NetworkPingMessage(LocalTime());
         }
 
-        internal static void UpdateClient(NetworkClient networkClient)
+        internal static void UpdateClient()
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
                 NetworkPingMessage pingMessage = GetPing();
-                networkClient.Send(pingMessage);
+                NetworkClient.Send(pingMessage);
                 lastPingTime = Time.time;
             }
         }
