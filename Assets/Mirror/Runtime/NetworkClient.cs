@@ -92,7 +92,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        protected void OnDataReceived(byte[] data)
+        internal static void OnDataReceived(byte[] data)
         {
             if (connection != null)
             {
