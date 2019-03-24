@@ -236,17 +236,15 @@ namespace Mirror
             get => m_Objects[i];
             set
             {
-                bool existing = TryGetValue(i, out V val);
-                if (existing)
+                if (TryGetValue(i, out V val))
                 {
-                    m_Objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
                 else
                 {
-                    m_Objects[i] = value;
                     AddOperation(Operation.OP_ADD, i, value);
                 }
+                m_Objects[i] = value;
             }
         }
 
@@ -258,11 +256,7 @@ namespace Mirror
             AddOperation(Operation.OP_ADD, key, value);
         }
 
-        public void Add(KeyValuePair<K, V> item)
-        {
-            m_Objects.Add(item.Key, item.Value);
-            AddOperation(Operation.OP_ADD, item.Key, item.Value);
-        }
+        public void Add(KeyValuePair<K, V> item) => Add(item.Key, item.Value);
 
         public bool Contains(KeyValuePair<K, V> item)
         {
@@ -271,8 +265,21 @@ namespace Mirror
 
         public void CopyTo(KeyValuePair<K, V>[] array, int arrayIndex)
         {
-            int i = 0;
-            foreach (KeyValuePair<K, V> item in m_Objects)
+            if (array == null)
+            {
+                throw new System.ArgumentNullException("Array Is Null");
+            }
+            if (arrayIndex < 0 || arrayIndex > array.Length)
+            {
+                throw new System.ArgumentOutOfRangeException("Array Index Out of Range");
+            }
+            if (array.Length - arrayIndex < Count)
+            {
+                throw new System.ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
+            }
+
+            int i = arrayIndex;
+            foreach (KeyValuePair<K,V> item in m_Objects)
             {
                 array[i] = item;
                 i++;

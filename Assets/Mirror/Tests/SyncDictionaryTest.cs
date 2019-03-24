@@ -12,7 +12,7 @@ namespace Mirror.Tests
         SyncDictionaryIntString serverSyncDictionary;
         SyncDictionaryIntString clientSyncDictionary;
 
-        private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
+        private void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
@@ -228,7 +228,6 @@ namespace Mirror.Tests
             // should produce an InvalidOperationException
             Assert.That(clientList.IsReadOnly, Is.True);
             Assert.Throws<InvalidOperationException>(() => clientList.Add(50, "fail"));
-
         }
     }
 }

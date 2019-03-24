@@ -20,7 +20,7 @@ using Mirror;
 
 public class ExamplePlayer : NetworkBehaviour
 {
-    public class SyncDictionaryStringItem : SyncDictionary<string, Item> { }
+    public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
 
     public struct Item
     {
@@ -33,10 +33,10 @@ public class ExamplePlayer : NetworkBehaviour
 
     public void OnStartServer()
     {
-        Equipment.Add("head", new Item { name = "Helmet", hitPoints=10, durability=20 });
-        Equipment.Add("body", new Item { name = "Epic Armor", hitPoints=50, durability=50 });        
-        Equipment.Add("feet", new Item { name = "Sneakers", hitPoints=3, durability=40 });
-        Equipment.Add("hands", new Item { name = "Sword", hitPoints=30, durability=15 });
+        Equipment.Add("head", new Item { name = "Helmet", hitPoints = 10, durability = 20 });
+        Equipment.Add("body", new Item { name = "Epic Armor", hitPoints = 50, durability = 50 });
+        Equipment.Add("feet", new Item { name = "Sneakers", hitPoints = 3, durability = 40 });
+        Equipment.Add("hands", new Item { name = "Sword", hitPoints = 30, durability = 15 });
     }
 
     private void OnStartClient()
