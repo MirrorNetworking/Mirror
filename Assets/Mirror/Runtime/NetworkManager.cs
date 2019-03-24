@@ -210,13 +210,8 @@ namespace Mirror
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
 
-        public bool StartServer()
+        public virtual void ConfigureServerFramerate()
         {
-            InitializeSingleton();
-
-            if (runInBackground)
-                Application.runInBackground = true;
-
             // set a fixed tick rate instead of updating as often as possible
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
@@ -227,6 +222,16 @@ namespace Mirror
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
+        }
+
+        public bool StartServer()
+        {
+            InitializeSingleton();
+
+            if (runInBackground)
+                Application.runInBackground = true;
+
+            ConfigureServerFramerate();
 
             if (!NetworkServer.Listen(maxConnections))
             {
