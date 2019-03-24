@@ -15,6 +15,7 @@ namespace Mirror
         int[] lastIntParameters;
         float[] lastFloatParameters;
         bool[] lastBoolParameters;
+        AnimatorControllerParameter[] parameters;
 
         int m_AnimationHash;
         int m_TransitionHash;
@@ -41,6 +42,16 @@ namespace Mirror
 
                 return hasAuthority;
             }
+        }
+
+        void Awake()
+        {
+            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
+            // a new parameter array every time it is accessed so we should avoid doing it in a loop
+            parameters = animator.parameters;
+            lastIntParameters = new int[parameters.Length];
+            lastFloatParameters = new float[parameters.Length];
+            lastBoolParameters = new bool[parameters.Length];
         }
 
         void FixedUpdate()
@@ -165,13 +176,6 @@ namespace Mirror
 
         bool WriteParameters(NetworkWriter writer, bool autoSend)
         {
-            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
-            // a new parameter array every time it is accessed so we should avoid doing it in a loop
-            AnimatorControllerParameter[] parameters = animator.parameters;
-            if (lastIntParameters == null) lastIntParameters = new int[parameters.Length];
-            if (lastFloatParameters == null) lastFloatParameters = new float[parameters.Length];
-            if (lastBoolParameters == null) lastBoolParameters = new bool[parameters.Length];
-
             uint dirtyBits = 0;
             // Save the position in the writer where to insert the dirty bits
             int dirtyBitsPosition = writer.Position;
@@ -223,10 +227,6 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader, bool autoSend)
         {
-            // store the animator parameters in a variable - the "Animator.parameters" getter allocates
-            // a new parameter array every time it is accessed so we should avoid doing it in a loop
-            AnimatorControllerParameter[] parameters = animator.parameters;
-
             uint dirtyBits = reader.ReadUInt32();
             for (int i = 0; i < parameters.Length; i++)
             {
