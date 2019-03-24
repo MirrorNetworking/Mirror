@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -156,21 +157,21 @@ namespace Mirror
     public class SceneMessage : MessageBase
     {
         public string sceneName;
-        public byte sceneMode; // Single = 0, Additive = 1
-        public byte physicsMode; // None = 0, Physics3D = 1, Physics2D = 2
+        public LoadSceneMode sceneMode; // Single = 0, Additive = 1
+        public LocalPhysicsMode physicsMode; // None = 0, Physics3D = 1, Physics2D = 2
 
         public override void Deserialize(NetworkReader reader)
         {
             sceneName = reader.ReadString();
-            sceneMode = reader.ReadByte();
-            physicsMode = reader.ReadByte();
+            sceneMode = (LoadSceneMode)reader.ReadInt32();
+            physicsMode = (LocalPhysicsMode)reader.ReadInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(sceneName);
-            writer.Write(sceneMode);
-            writer.Write(physicsMode);
+            writer.Write((int)sceneMode);
+            writer.Write((int)physicsMode);
         }
     }
     #endregion
