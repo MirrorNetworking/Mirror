@@ -158,7 +158,7 @@ namespace Mirror
             return false;
         }
 
-        public bool Send<T>(T message) where T : IMessageBase
+        public static bool Send<T>(T message) where T : IMessageBase
         {
             if (connection != null)
             {
