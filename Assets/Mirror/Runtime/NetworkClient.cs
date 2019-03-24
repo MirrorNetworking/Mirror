@@ -83,7 +83,7 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        void OnDisconnected()
+        static void OnDisconnected()
         {
             connectState = ConnectState.Disconnected;
 
