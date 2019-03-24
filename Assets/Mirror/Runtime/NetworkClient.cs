@@ -234,7 +234,7 @@ namespace Mirror
             return (float)NetworkTime.rtt;
         }
 
-        internal void RegisterSystemHandlers(bool localClient)
+        internal static void RegisterSystemHandlers(bool localClient)
         {
             // local client / regular client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
