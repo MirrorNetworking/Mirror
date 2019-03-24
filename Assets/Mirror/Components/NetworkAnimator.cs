@@ -174,54 +174,71 @@ namespace Mirror
             animator.SetTrigger(hash);
         }
 
-        bool WriteParameters(NetworkWriter writer, bool autoSend)
+        uint NextDirtyBits()
         {
             uint dirtyBits = 0;
-            // Save the position in the writer where to insert the dirty bits
-            int dirtyBitsPosition = writer.Position;
-            // Reserve the space for the bits
-            writer.Write(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 AnimatorControllerParameter par = parameters[i];
+                bool changed = false;
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    if (newIntValue != lastIntParameters[i])
+                    changed = newIntValue != lastIntParameters[i];
+                    if (changed)
                     {
-                        writer.WritePackedUInt32((uint) newIntValue);
-                        dirtyBits |= 1u << i;
                         lastIntParameters[i] = newIntValue;
                     }
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
-                    if (Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f)
+                    changed = Mathf.Abs(newFloatValue - lastFloatParameters[i]) > 0.001f;
+                    if (changed)
                     {
-                        writer.Write(newFloatValue);
-                        dirtyBits |= 1u << i;
                         lastFloatParameters[i] = newFloatValue;
                     }
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
-                    if (newBoolValue != lastBoolParameters[i])
+                    changed = newBoolValue != lastBoolParameters[i];
+                    if (changed)
                     {
-                        writer.Write(newBoolValue);
-                        dirtyBits |= 1u << i;
                         lastBoolParameters[i] = newBoolValue;
                     }
                 }
+                if (changed) dirtyBits |= 1u << i;
             }
-            // Save the position we were at to return to after writing dirtyBits
-            int messageEndPosition = writer.Position;
-            // Write the dirty bits into the reserved position
-            writer.Position = dirtyBitsPosition;
+            return dirtyBits;
+        }
+
+        bool WriteParameters(NetworkWriter writer, bool autoSend)
+        {
+            uint dirtyBits = NextDirtyBits();
             writer.Write(dirtyBits);
-            // Return to the end position, so that serialization includes parameter data.
-            writer.Position = messageEndPosition;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if ((dirtyBits & (1 << i)) == 0)
+                    continue;
+
+                AnimatorControllerParameter par = parameters[i];
+                if (par.type == AnimatorControllerParameterType.Int)
+                {
+                    int newIntValue = animator.GetInteger(par.nameHash);
+                    writer.WritePackedUInt32((uint)newIntValue);
+                }
+                else if (par.type == AnimatorControllerParameterType.Float)
+                {
+                    float newFloatValue = animator.GetFloat(par.nameHash);
+                    writer.Write(newFloatValue);
+                }
+                else if (par.type == AnimatorControllerParameterType.Bool)
+                {
+                    bool newBoolValue = animator.GetBool(par.nameHash);
+                    writer.Write(newBoolValue);
+                }
+            }
             return dirtyBits != 0;
         }
 
