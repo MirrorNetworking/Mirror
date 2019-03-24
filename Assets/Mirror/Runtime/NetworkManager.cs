@@ -210,7 +210,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
 
-        public virtual void ConfigureServerFramerate()
+        public virtual void ConfigureServerFrameRate()
         {
             // set a fixed tick rate instead of updating as often as possible
             // * if not in Editor (it doesn't work in the Editor)
@@ -231,7 +231,7 @@ namespace Mirror
             if (runInBackground)
                 Application.runInBackground = true;
 
-            ConfigureServerFramerate();
+            ConfigureServerFrameRate();
 
             if (!NetworkServer.Listen(maxConnections))
             {
