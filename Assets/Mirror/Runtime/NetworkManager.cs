@@ -546,7 +546,7 @@ namespace Mirror
 
         public bool IsClientConnected()
         {
-            return client != null && client.isConnected;
+            return client != null && NetworkClient.isConnected;
         }
 
         // this is the only way to clear the singleton, so another instance can be created.

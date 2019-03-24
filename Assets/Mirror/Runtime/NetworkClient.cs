@@ -32,7 +32,7 @@ namespace Mirror
         // (= while the network is active)
         public static bool active { get; protected set; }
 
-        public bool isConnected => connectState == ConnectState.Connected;
+        public static bool isConnected => connectState == ConnectState.Connected;
 
         public NetworkClient()
         {

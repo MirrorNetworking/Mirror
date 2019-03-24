@@ -392,7 +392,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name == LobbyScene)
             {
-                if (client.isConnected)
+                if (NetworkClient.isConnected)
                     CallOnClientEnterLobby();
             }
             else
