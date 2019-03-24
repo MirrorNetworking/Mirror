@@ -29,10 +29,12 @@ namespace Mirror
                 {
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
                 }
+
+                // don't do anything if this object was already spawned
                 if (identity.isClient || identity.isServer)
                     continue;
 
-                // valid scene id?
+                // valid scene object?
                 //   otherwise it might be an unopened scene that still has null
                 //   sceneIds. builds are interrupted if they contain 0 sceneIds,
                 //   but it's still possible that we call LoadScene in Editor
