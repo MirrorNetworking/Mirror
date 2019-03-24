@@ -12,9 +12,17 @@ namespace Mirror
 
         internal void InternalConnectLocalServer()
         {
-            connection = new ULocalConnectionToServer();
+            // create local connection to server
+            connection = new ULocalConnectionToServer()
+            {
+                // local player always has connectionId == 0
+                connectionId = 0
+            };
             SetHandlers(connection);
-            connection.connectionId = NetworkServer.AddLocalClient(this);
+
+            // create server connection to local client
+            NetworkServer.AddLocalClient(this);
+
             connectState = ConnectState.Connected;
 
             active = true;
