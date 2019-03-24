@@ -418,6 +418,11 @@ namespace Mirror
 
         public virtual void ServerChangeScene(string newSceneName)
         {
+            ServerChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        public virtual void ServerChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        {
             if (string.IsNullOrEmpty(newSceneName))
             {
                 Debug.LogError("ServerChangeScene empty scene name");
@@ -430,7 +435,7 @@ namespace Mirror
 
             s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
-            SceneMessage msg = new SceneMessage(networkSceneName);
+            SceneMessage msg = new SceneMessage() { sceneName = newSceneName};
             NetworkServer.SendToAll(msg);
 
             s_StartPositionIndex = 0;
@@ -446,6 +451,11 @@ namespace Mirror
         }
 
         internal void ClientChangeScene(string newSceneName, bool forceReload)
+        {
+            ClientChangeScene(networkSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -476,8 +486,16 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
 
-            s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-            networkSceneName = newSceneName;
+            if(sceneMode == LoadSceneMode.Additive)
+            {
+
+            }
+            else
+            {
+                s_LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+                networkSceneName = newSceneName;
+            }
+            
         }
 
         void FinishLoadScene()
@@ -570,7 +588,7 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage(networkSceneName);
+                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName};
                 conn.Send(msg);
             }
 
@@ -651,7 +669,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            string newSceneName = msg.value;
+            string newSceneName = msg.sceneName;
 
             if (IsClientConnected() && !NetworkServer.active)
             {
