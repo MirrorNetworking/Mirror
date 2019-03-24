@@ -3,9 +3,14 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // This can't be an interface because users don't need to implement the
-    // serialization functions, we'll code generate it for them when they omit it.
-    public abstract class MessageBase
+    public interface IMessageBase
+    {
+        void Deserialize(NetworkReader reader);
+
+        void Serialize(NetworkWriter writer);
+    }
+
+    public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
         public virtual void Deserialize(NetworkReader reader) {}

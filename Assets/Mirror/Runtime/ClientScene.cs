@@ -11,7 +11,7 @@ namespace Mirror
     {
         static bool s_IsSpawnFinished;
 
-        static List<uint> s_PendingOwnerNetIds = new List<uint>();
+        static HashSet<uint> s_PendingOwnerNetIds = new HashSet<uint>();
 
         public static NetworkIdentity localPlayer { get; private set; }
         public static bool ready { get; internal set; }
@@ -307,9 +307,8 @@ namespace Mirror
 
         public static void DestroyAllClientObjects()
         {
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                NetworkIdentity identity = kvp.Value;
                 if (identity != null && identity.gameObject != null)
                 {
                     if (!InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
@@ -622,28 +621,23 @@ namespace Mirror
 
         static void CheckForOwner(NetworkIdentity identity)
         {
-            for (int i = 0; i < s_PendingOwnerNetIds.Count; i++)
+            if (s_PendingOwnerNetIds.Contains(identity.netId))
             {
-                uint pendingOwnerNetId = s_PendingOwnerNetIds[i];
-                if (pendingOwnerNetId == identity.netId)
+                // found owner, turn into a local player
+
+                // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
+                identity.connectionToServer = readyConnection;
+                identity.SetLocalPlayer();
+
+                if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
+                if (readyConnection.connectionId < 0)
                 {
-                    // found owner, turn into a local player
-
-                    // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                    identity.connectionToServer = readyConnection;
-                    identity.SetLocalPlayer();
-
-                    if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-                    if (readyConnection.connectionId < 0)
-                    {
-                        Debug.LogError("Owner message received on a local client.");
-                        return;
-                    }
-                    InternalAddPlayer(identity);
-
-                    s_PendingOwnerNetIds.RemoveAt(i);
-                    break;
+                    Debug.LogError("Owner message received on a local client.");
+                    return;
                 }
+                InternalAddPlayer(identity);
+
+                s_PendingOwnerNetIds.Remove(identity.netId);
             }
         }
     }

@@ -150,6 +150,34 @@ namespace Mirror
             observers?.Remove(conn.connectionId);
         }
 
+        void Awake()
+        {
+            // detect runtime sceneId duplicates, e.g. if a user tries to
+            // Instantiate a sceneId object at runtime. if we don't detect it,
+            // then the client won't know which of the two objects to use for a
+            // SpawnSceneObject message, and it's likely going to be the wrong
+            // object.
+            //
+            // This might happen if for example we have a Dungeon GameObject
+            // which contains a Skeleton monster as child, and when a player
+            // runs into the Dungeon we create a Dungeon Instance of that
+            // Dungeon, which would duplicate a scene object.
+            //
+            // see also: https://github.com/vis2k/Mirror/issues/384
+            if (Application.isPlaying && sceneId != 0)
+            {
+                if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
+                {
+                    Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    sceneIds[sceneId] = this;
+                }
+            }
+        }
+
         void OnValidate()
         {
 #if UNITY_EDITOR
@@ -773,9 +801,8 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
+                    foreach (NetworkConnection conn in NetworkServer.connections.Values)
                     {
-                        NetworkConnection conn = kvp.Value;
                         if (conn.isReady)
                             AddObserver(conn);
                     }

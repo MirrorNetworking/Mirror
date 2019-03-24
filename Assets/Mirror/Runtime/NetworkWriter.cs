@@ -331,7 +331,7 @@ namespace Mirror
             }
         }
 
-        public void Write(MessageBase msg)
+        public void Write<T>(T msg) where T : IMessageBase
         {
             msg.Serialize(this);
         }
