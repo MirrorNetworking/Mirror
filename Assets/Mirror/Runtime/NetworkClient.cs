@@ -26,7 +26,7 @@ namespace Mirror
 
         internal static ConnectState connectState = ConnectState.None;
 
-        public string serverIp { get; private set; } = "";
+        public static string serverIp { get; private set; } = "";
 
         // active is true while a client is connecting/connected
         // (= while the network is active)
