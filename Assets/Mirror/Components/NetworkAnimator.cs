@@ -174,7 +174,7 @@ namespace Mirror
             animator.SetTrigger(hash);
         }
 
-        uint GetDirtyBits()
+        uint NextDirtyBits()
         {
             uint dirtyBits = 0;
             for (int i = 0; i < parameters.Length; i++)
@@ -206,7 +206,7 @@ namespace Mirror
 
         bool WriteParameters(NetworkWriter writer, bool autoSend)
         {
-            uint dirtyBits = GetDirtyBits();
+            uint dirtyBits = NextDirtyBits();
             writer.Write(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
