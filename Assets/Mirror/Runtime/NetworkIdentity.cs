@@ -548,11 +548,11 @@ namespace Mirror
                 }
             }
 
-            byte[] bytes = writer.ToArray();
+            byte[] bytes = onSerializeWriter.ToArray();
 
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > NetworkManager.singleton.transport.GetMaxPacketSize())
+            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize())
             {
                 Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId);
             }
