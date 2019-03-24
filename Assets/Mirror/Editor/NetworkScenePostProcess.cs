@@ -30,51 +30,53 @@ namespace Mirror
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
                 }
 
-                // don't do anything if this object was already spawned
-                if (identity.isClient || identity.isServer)
-                    continue;
-
-                // valid scene object?
-                //   otherwise it might be an unopened scene that still has null
-                //   sceneIds. builds are interrupted if they contain 0 sceneIds,
-                //   but it's still possible that we call LoadScene in Editor
-                //   for a previously unopened scene.
-                //   (and only do SetActive if this was actually a scene object)
-                if (identity.sceneId != 0)
+                // not spawned before?
+                //  OnPostProcessScene is called after additive scene loads too,
+                //  and we don't want to set main scene's objects inactive again
+                if (!identity.isClient && !identity.isServer)
                 {
-                    // set scene hash
-                    identity.SetSceneIdSceneHashPartInternal();
-
-                    // disable it
-                    // note: NetworkIdentity.OnDisable adds itself to the
-                    //       spawnableObjects dictionary (only if sceneId != 0)
-                    identity.gameObject.SetActive(false);
-
-                    // safety check for prefabs with more than one NetworkIdentity
-    #if UNITY_2018_2_OR_NEWER
-                    GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
-    #else
-                    GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-    #endif
-                    if (prefabGO)
+                    // valid scene object?
+                    //   otherwise it might be an unopened scene that still has null
+                    //   sceneIds. builds are interrupted if they contain 0 sceneIds,
+                    //   but it's still possible that we call LoadScene in Editor
+                    //   for a previously unopened scene.
+                    //   (and only do SetActive if this was actually a scene object)
+                    if (identity.sceneId != 0)
                     {
-    #if UNITY_2018_3_OR_NEWER
-                        GameObject prefabRootGO = prefabGO.transform.root.gameObject;
-    #else
-                        GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-    #endif
-                        if (prefabRootGO)
+                        // set scene hash
+                        identity.SetSceneIdSceneHashPartInternal();
+
+                        // disable it
+                        // note: NetworkIdentity.OnDisable adds itself to the
+                        //       spawnableObjects dictionary (only if sceneId != 0)
+                        identity.gameObject.SetActive(false);
+
+                        // safety check for prefabs with more than one NetworkIdentity
+        #if UNITY_2018_2_OR_NEWER
+                        GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
+        #else
+                        GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
+        #endif
+                        if (prefabGO)
                         {
-                            if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
+        #if UNITY_2018_3_OR_NEWER
+                            GameObject prefabRootGO = prefabGO.transform.root.gameObject;
+        #else
+                            GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
+        #endif
+                            if (prefabRootGO)
                             {
-                                Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
+                                if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
+                                {
+                                    Debug.LogWarningFormat("Prefab '{0}' has several NetworkIdentity components attached to itself or its children, this is not supported.", prefabRootGO.name);
+                                }
                             }
                         }
                     }
+                    // throwing an exception would only show it for one object
+                    // because this function would return afterwards.
+                    else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
                 }
-                // throwing an exception would only show it for one object
-                // because this function would return afterwards.
-                else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
             }
         }
     }
