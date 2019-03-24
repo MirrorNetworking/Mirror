@@ -21,7 +21,12 @@ namespace Mirror
             SetHandlers(connection);
 
             // create server connection to local client
-            NetworkServer.AddLocalClient(this);
+            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient(this)
+            {
+                // local player always has connectionId == 0
+                connectionId = 0
+            };
+            NetworkServer.SetLocalConnection(connectionToClient);
 
             connectState = ConnectState.Connected;
 

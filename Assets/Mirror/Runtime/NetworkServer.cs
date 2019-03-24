@@ -115,20 +115,16 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. dont call directly.
-        internal static int AddLocalClient(LocalClient localClient)
+        internal static void SetLocalConnection(ULocalConnectionToClient conn)
         {
             if (localConnection != null)
             {
                 Debug.LogError("Local Connection already exists");
-                return -1;
+                return;
             }
 
-            localConnection = new ULocalConnectionToClient(localClient)
-            {
-                connectionId = 0
-            };
+            localConnection = conn;
             OnConnected(localConnection);
-            return 0;
         }
 
         internal static void RemoveLocalConnection()
