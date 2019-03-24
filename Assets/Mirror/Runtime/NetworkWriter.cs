@@ -214,6 +214,19 @@ namespace Mirror
             Write(value.w);
         }
 
+        public void Write(Vector2Int value)
+        {
+            WritePackedUInt32((uint)value.x);
+            WritePackedUInt32((uint)value.y);
+        }
+
+        public void Write(Vector3Int value)
+        {
+            WritePackedUInt32((uint)value.x);
+            WritePackedUInt32((uint)value.y);
+            WritePackedUInt32((uint)value.z);
+        }
+
         public void Write(Color value)
         {
             Write(value.r);

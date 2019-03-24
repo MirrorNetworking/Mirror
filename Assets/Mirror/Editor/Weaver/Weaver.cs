@@ -139,6 +139,8 @@ namespace Mirror.Weaver
         public static TypeReference vector2Type;
         public static TypeReference vector3Type;
         public static TypeReference vector4Type;
+        public static TypeReference vector2IntType;
+        public static TypeReference vector3IntType;
         public static TypeReference colorType;
         public static TypeReference color32Type;
         public static TypeReference quaternionType;
@@ -1014,6 +1016,8 @@ namespace Mirror.Weaver
             vector2Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector2");
             vector3Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector3");
             vector4Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector4");
+            vector2IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector2Int");
+            vector3IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector3Int");
             colorType = UnityAssembly.MainModule.GetType("UnityEngine.Color");
             color32Type = UnityAssembly.MainModule.GetType("UnityEngine.Color32");
             quaternionType = UnityAssembly.MainModule.GetType("UnityEngine.Quaternion");
@@ -1187,6 +1191,8 @@ namespace Mirror.Weaver
                 { vector2Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2") },
                 { vector3Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3") },
                 { vector4Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector4") },
+                { vector2IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2Int") },
+                { vector3IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3Int") },
                 { colorType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor") },
                 { color32Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor32") },
                 { quaternionType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadQuaternion") },
@@ -1223,6 +1229,8 @@ namespace Mirror.Weaver
                 { vector2Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2Type) },
                 { vector3Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3Type) },
                 { vector4Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector4Type) },
+                { vector2IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2IntType) },
+                { vector3IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3IntType) },
                 { colorType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", colorType) },
                 { color32Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", color32Type) },
                 { quaternionType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", quaternionType) },
