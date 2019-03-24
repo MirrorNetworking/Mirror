@@ -143,7 +143,7 @@ namespace Mirror
         }
 
         [Obsolete("Use SendMessage<T> instead with no message id instead")]
-        public bool Send(short msgType, MessageBase msg)
+        public static bool Send(short msgType, MessageBase msg)
         {
             if (connection != null)
             {
