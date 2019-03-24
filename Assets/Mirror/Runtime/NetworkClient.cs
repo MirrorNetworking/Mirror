@@ -101,7 +101,7 @@ namespace Mirror
             else Debug.LogError("Skipped Data message handling because m_Connection is null.");
         }
 
-        void OnConnected()
+        static void OnConnected()
         {
             if (connection != null)
             {
