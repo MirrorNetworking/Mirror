@@ -320,7 +320,7 @@ namespace Mirror
             }
         }
 
-        public NetworkClient StartClient()
+        public void StartClient()
         {
             InitializeSingleton();
 
@@ -336,7 +336,7 @@ namespace Mirror
             if (string.IsNullOrEmpty(networkAddress))
             {
                 Debug.LogError("Must set the Network Address field in the manager");
-                return null;
+                return;
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
@@ -344,19 +344,16 @@ namespace Mirror
 
             OnStartClient(client);
             s_Address = networkAddress;
-            return client;
         }
 
-        public virtual NetworkClient StartHost()
+        public virtual void StartHost()
         {
             OnStartHost();
             if (StartServer())
             {
                 NetworkClient localClient = ConnectLocalClient();
                 OnStartClient(localClient);
-                return localClient;
             }
-            return null;
         }
 
         NetworkClient ConnectLocalClient()
