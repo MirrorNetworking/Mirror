@@ -52,6 +52,8 @@ namespace Mirror
             }
             dontListen = false;
             active = false;
+
+            NetworkIdentity.ResetNextNetworkId();
         }
 
         static void Initialize()

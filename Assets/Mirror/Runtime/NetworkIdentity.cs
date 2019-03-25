@@ -127,6 +127,7 @@ namespace Mirror
 
         static uint s_NextNetworkId = 1;
         internal static uint GetNextNetworkId() => s_NextNetworkId++;
+        public static void ResetNextNetworkId() => s_NextNetworkId = 1;
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
