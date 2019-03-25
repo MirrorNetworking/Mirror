@@ -12,8 +12,15 @@ namespace Mirror
         Disconnected
     }
 
-    public static class NetworkClient
+    // TODO make fully static after removing obsoleted singleton!
+    public class NetworkClient
     {
+        [Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
+        public static NetworkClient singleton = new NetworkClient();
+
+        [Obsolete("Use NetworkClient.singleton instead. There is always exactly one client.")]
+        public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
+
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         public static NetworkConnection connection { get; internal set; }

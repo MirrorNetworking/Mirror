@@ -61,6 +61,8 @@ namespace Mirror
         public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
+        [Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
+        public NetworkClient client => NetworkClient.singleton;
         static int s_StartPositionIndex;
 
         public static NetworkManager singleton;
@@ -791,6 +793,8 @@ namespace Mirror
 
         public virtual void OnStartHost() {}
         public virtual void OnStartServer() {}
+        [Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
+        public virtual void OnStartClient(NetworkClient client) {}
         public virtual void OnStartClient() {}
         public virtual void OnStopServer() {}
         public virtual void OnStopClient() {}
