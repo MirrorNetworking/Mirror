@@ -216,7 +216,7 @@ namespace Mirror
         bool WriteParameters(NetworkWriter writer)
         {
             uint dirtyBits = NextDirtyBits();
-            writer.Write(dirtyBits);
+            writer.WritePackedUInt32(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1 << i)) == 0)
@@ -244,7 +244,7 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
-            uint dirtyBits = reader.ReadUInt32();
+            uint dirtyBits = reader.ReadPackedUInt32();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1 << i)) == 0)
