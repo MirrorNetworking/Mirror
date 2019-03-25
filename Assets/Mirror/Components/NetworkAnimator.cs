@@ -67,7 +67,7 @@ namespace Mirror
             }
 
             NetworkWriter writer = new NetworkWriter();
-            WriteParameters(writer, false);
+            WriteParameters(writer);
 
             SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
         }
@@ -114,7 +114,7 @@ namespace Mirror
                 m_SendTimer = Time.time + syncInterval;
 
                 NetworkWriter writer = new NetworkWriter();
-                if (WriteParameters(writer, true))
+                if (WriteParameters(writer))
                 {
                     SendAnimationParametersMessage(writer.ToArray());
                 }
@@ -158,7 +158,7 @@ namespace Mirror
                 animator.Play(stateHash, 0, normalizedTime);
             }
 
-            ReadParameters(reader, false);
+            ReadParameters(reader);
         }
 
         internal void HandleAnimParamsMsg(NetworkReader reader)
@@ -166,7 +166,7 @@ namespace Mirror
             if (hasAuthority)
                 return;
 
-            ReadParameters(reader, true);
+            ReadParameters(reader);
         }
 
         internal void HandleAnimTriggerMsg(int hash)
@@ -213,7 +213,7 @@ namespace Mirror
             return dirtyBits;
         }
 
-        bool WriteParameters(NetworkWriter writer, bool autoSend)
+        bool WriteParameters(NetworkWriter writer)
         {
             uint dirtyBits = NextDirtyBits();
             writer.Write(dirtyBits);
@@ -242,7 +242,7 @@ namespace Mirror
             return dirtyBits != 0;
         }
 
-        void ReadParameters(NetworkReader reader, bool autoSend)
+        void ReadParameters(NetworkReader reader)
         {
             uint dirtyBits = reader.ReadUInt32();
             for (int i = 0; i < parameters.Length; i++)
@@ -285,7 +285,7 @@ namespace Mirror
                     writer.Write(st.fullPathHash);
                     writer.Write(st.normalizedTime);
                 }
-                WriteParameters(writer, false);
+                WriteParameters(writer);
                 return true;
             }
             return false;
@@ -297,7 +297,7 @@ namespace Mirror
             {
                 int stateHash = reader.ReadInt32();
                 float normalizedTime = reader.ReadSingle();
-                ReadParameters(reader, false);
+                ReadParameters(reader);
                 animator.Play(stateHash, 0, normalizedTime);
             }
         }
