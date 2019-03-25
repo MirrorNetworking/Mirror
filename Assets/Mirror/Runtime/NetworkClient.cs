@@ -82,6 +82,12 @@ namespace Mirror
         // connect host mode
         internal static void ConnectLocalServer()
         {
+            if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
+            active = true;
+            RegisterSystemHandlers(true);
+
+            connectState = ConnectState.Connected;
+
             // create local connection to server
             connection = new ULocalConnectionToServer();
             SetHandlers(connection);
@@ -89,11 +95,6 @@ namespace Mirror
             // create server connection to local client
             ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
             NetworkServer.SetLocalConnection(connectionToClient);
-
-            connectState = ConnectState.Connected;
-
-            active = true;
-            RegisterSystemHandlers(true);
 
             localClientPacketQueue.Enqueue(MessagePacker.Pack(new ConnectMessage()));
         }
