@@ -286,7 +286,7 @@ namespace Mirror
             isNetworkActive = true;
 
             // Only change scene if the requested online scene is not blank, and is not already loaded
-            string loadedSceneName = SceneManager.GetSceneAt(0).name;
+            string loadedSceneName = SceneManager.GetActiveScene().name;
             if (!string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene)
             {
                 ServerChangeScene(onlineScene);
