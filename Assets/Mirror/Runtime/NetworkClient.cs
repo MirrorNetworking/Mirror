@@ -325,7 +325,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             singleton = null;
             active = false;
-            ClientScene.Shutdown();
         }
 
         [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
