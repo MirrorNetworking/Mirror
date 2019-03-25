@@ -340,7 +340,7 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            client.Connect(networkAddress);
+            NetworkClient.Connect(networkAddress);
 
             OnStartClient(client);
             s_Address = networkAddress;

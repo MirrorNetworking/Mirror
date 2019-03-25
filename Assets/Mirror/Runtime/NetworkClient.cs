@@ -51,7 +51,7 @@ namespace Mirror
             conn.SetHandlers(handlers);
         }
 
-        public void Connect(string ip)
+        public static void Connect(string ip)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + ip);
 
