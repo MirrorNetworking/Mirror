@@ -133,7 +133,7 @@ namespace Mirror
             active = false;
         }
 
-        void RemoveTransportHandlers()
+        static void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
             Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
