@@ -34,6 +34,14 @@ namespace Mirror
 
         public static bool isConnected => connectState == ConnectState.Connected;
 
+        // NetworkClient can connect to local server in host mode too
+        public static bool isLocalClient => connection != null && connection is ULocalConnectionToServer;
+
+        // local client in host mode might call Cmds/Rpcs during Update, but we
+        // want to apply them in LateUpdate like all other Transport messages
+        // to avoid race conditions. keep packets in Queue until LateUpdate.
+        internal static Queue<byte[]> localClientPacketQueue = new Queue<byte[]>();
+
         public NetworkClient()
         {
             if (LogFilter.Debug) Debug.Log("Client created version " + Version.Current);
@@ -51,6 +59,7 @@ namespace Mirror
             conn.SetHandlers(handlers);
         }
 
+        // connect remote
         public static void Connect(string ip)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + ip);
@@ -68,6 +77,41 @@ namespace Mirror
             // setup all the handlers
             connection = new NetworkConnection(serverIp, 0);
             connection.SetHandlers(handlers);
+        }
+
+        // connect host mode
+        internal static void ConnectLocalServer()
+        {
+            // create local connection to server
+            connection = new ULocalConnectionToServer();
+            SetHandlers(connection);
+
+            // create server connection to local client
+            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            NetworkServer.SetLocalConnection(connectionToClient);
+
+            connectState = ConnectState.Connected;
+
+            active = true;
+            RegisterSystemHandlers(true);
+
+            localClientPacketQueue.Enqueue(MessagePacker.Pack(new ConnectMessage()));
+        }
+
+        // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
+        internal static void AddLocalPlayer(NetworkIdentity localPlayer)
+        {
+            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + connection.connectionId);
+            connection.isReady = true;
+            connection.SetPlayerController(localPlayer);
+            if (localPlayer != null)
+            {
+                localPlayer.isClient = true;
+                NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
+                localPlayer.connectionToServer = connection;
+            }
+            // there is no SystemOwnerMessage for local client. add to ClientScene here instead
+            ClientScene.InternalAddPlayer(localPlayer);
         }
 
         static void InitializeTransportHandlers()
@@ -117,20 +161,33 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
         }
 
-        public virtual void Disconnect()
+        public static void Disconnect()
         {
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
-            if (connection != null)
-            {
-                connection.Disconnect();
-                connection.Dispose();
-                connection = null;
-                RemoveTransportHandlers();
-            }
 
-            // the client's network is not active anymore.
-            active = false;
+            // local or remote connection?
+            if (isLocalClient)
+            {
+                if (isConnected)
+                {
+                    localClientPacketQueue.Enqueue(MessagePacker.Pack(new DisconnectMessage()));
+                }
+                NetworkServer.RemoveLocalConnection();
+            }
+            else
+            {
+                if (connection != null)
+                {
+                    connection.Disconnect();
+                    connection.Dispose();
+                    connection = null;
+                    RemoveTransportHandlers();
+                }
+
+                // the client's network is not active anymore.
+                active = false;
+            }
         }
 
         static void RemoveTransportHandlers()
@@ -173,12 +230,25 @@ namespace Mirror
             return false;
         }
 
-        internal virtual void Update()
+        internal static void Update()
         {
-            // only update things while connected
-            if (active && connectState == ConnectState.Connected)
+            // local or remote connection?
+            if (isLocalClient)
             {
-                NetworkTime.UpdateClient();
+                // process internal messages so they are applied at the correct time
+                while (localClientPacketQueue.Count > 0)
+                {
+                    byte[] packet = localClientPacketQueue.Dequeue();
+                    OnDataReceived(packet);
+                }
+            }
+            else
+            {
+                // only update things while connected
+                if (active && connectState == ConnectState.Connected)
+                {
+                    NetworkTime.UpdateClient();
+                }
             }
         }
 
@@ -314,11 +384,6 @@ namespace Mirror
             // use int to minimize collisions
             int msgType = MessagePacker.GetId<T>();
             handlers.Remove(msgType);
-        }
-
-        internal static void UpdateClient()
-        {
-            singleton?.Update();
         }
 
         public static void Shutdown()

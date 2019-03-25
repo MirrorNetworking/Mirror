@@ -138,14 +138,6 @@ namespace Mirror
             return false;
         }
 
-        public static NetworkClient ConnectLocalServer()
-        {
-            LocalClient newClient = new LocalClient();
-            NetworkServer.ActivateLocalClientScene();
-            newClient.InternalConnectLocalServer();
-            return newClient;
-        }
-
         internal static void HandleClientDisconnect(NetworkConnection conn)
         {
             if (readyConnection == conn && ready)

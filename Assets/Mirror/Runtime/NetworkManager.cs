@@ -187,7 +187,7 @@ namespace Mirror
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
-            NetworkClient.UpdateClient();
+            NetworkClient.Update();
             UpdateScene();
         }
 
@@ -360,7 +360,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
             networkAddress = "localhost";
-            client = ClientScene.ConnectLocalServer();
+            NetworkServer.ActivateLocalClientScene();
+            NetworkClient.ConnectLocalServer();
             RegisterClientMessages();
             return client;
         }
@@ -398,8 +399,8 @@ namespace Mirror
             isNetworkActive = false;
             if (client != null)
             {
-                // only shutdown this client, not ALL clients.
-                client.Disconnect();
+                // shutdown client
+                NetworkClient.Disconnect();
                 NetworkClient.Shutdown();
                 client = null;
             }

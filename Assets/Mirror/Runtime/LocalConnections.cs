@@ -6,19 +6,15 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnection
     {
-        public LocalClient localClient;
-
-        public ULocalConnectionToClient(LocalClient localClient) : base ("localClient")
+        public ULocalConnectionToClient() : base ("localClient")
         {
-            this.localClient = localClient;
-
             // local player always has connectionId == 0
             connectionId = 0;
         }
 
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
-            localClient.packetQueue.Enqueue(bytes);
+            NetworkClient.localClientPacketQueue.Enqueue(bytes);
             return true;
         }
     }
