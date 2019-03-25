@@ -314,7 +314,7 @@ namespace Mirror
         {
             if (hasAuthority && localPlayerAuthority)
             {
-                if (NetworkClient.singleton != null && ClientScene.readyConnection != null)
+                if (ClientScene.readyConnection != null)
                 {
                     CmdOnAnimationTriggerServerMessage(hash);
                 }

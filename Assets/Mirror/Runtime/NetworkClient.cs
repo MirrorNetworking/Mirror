@@ -12,25 +12,19 @@ namespace Mirror
         Disconnected
     }
 
-    public class NetworkClient
+    public static class NetworkClient
     {
-        // the client (can be a regular NetworkClient or a LocalClient)
-        public static NetworkClient singleton;
-
-        [Obsolete("Use NetworkClient.singleton instead. There is always exactly one client.")]
-        public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
-
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
-        public static NetworkConnection connection { get; protected set; }
+        public static NetworkConnection connection { get; internal set; }
 
         internal static ConnectState connectState = ConnectState.None;
 
-        public static string serverIp { get; private set; } = "";
+        public static string serverIp { get; internal set; } = "";
 
         // active is true while a client is connecting/connected
         // (= while the network is active)
-        public static bool active { get; protected set; }
+        public static bool active { get; internal set; }
 
         public static bool isConnected => connectState == ConnectState.Connected;
 
@@ -41,18 +35,6 @@ namespace Mirror
         // want to apply them in LateUpdate like all other Transport messages
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal static Queue<byte[]> localClientPacketQueue = new Queue<byte[]>();
-
-        public NetworkClient()
-        {
-            if (LogFilter.Debug) Debug.Log("Client created version " + Version.Current);
-
-            if (singleton != null)
-            {
-                Debug.LogError("NetworkClient: can only create one!");
-                return;
-            }
-            singleton = this;
-        }
 
         internal static void SetHandlers(NetworkConnection conn)
         {
@@ -390,7 +372,6 @@ namespace Mirror
         public static void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
-            singleton = null;
             active = false;
         }
 
