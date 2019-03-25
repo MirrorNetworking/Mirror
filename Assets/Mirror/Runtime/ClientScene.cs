@@ -25,6 +25,8 @@ namespace Mirror
         internal static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
         internal static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
+        // this is never called, and if we do call it in NetworkClient.Shutdown
+        // then the client's player object won't be removed after disconnecting!
         internal static void Shutdown()
         {
             NetworkIdentity.spawned.Clear();
