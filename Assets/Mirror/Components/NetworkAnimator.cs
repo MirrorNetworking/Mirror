@@ -145,7 +145,7 @@ namespace Mirror
             }
         }
 
-        internal void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
+        void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -161,7 +161,7 @@ namespace Mirror
             ReadParameters(reader);
         }
 
-        internal void HandleAnimParamsMsg(NetworkReader reader)
+        void HandleAnimParamsMsg(NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -169,7 +169,7 @@ namespace Mirror
             ReadParameters(reader);
         }
 
-        internal void HandleAnimTriggerMsg(int hash)
+        void HandleAnimTriggerMsg(int hash)
         {
             animator.SetTrigger(hash);
         }
