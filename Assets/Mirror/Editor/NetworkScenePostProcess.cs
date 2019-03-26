@@ -2,16 +2,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
-//using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
     public class NetworkScenePostProcess : MonoBehaviour
     {
-        // helper function to check if a NetworkIdentity is in the active scene
-        //static bool InActiveScene(NetworkIdentity identity) =>
-        //    identity.gameObject.scene == SceneManager.GetActiveScene();
-
         [PostProcessScene]
         public static void OnPostProcessScene()
         {
