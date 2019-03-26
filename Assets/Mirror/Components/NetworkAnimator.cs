@@ -208,7 +208,10 @@ namespace Mirror
                         lastBoolParameters[i] = newBoolValue;
                     }
                 }
-                if (changed) dirtyBits |= 1ul << i;
+                if (changed)
+                {
+                    dirtyBits |= 1ul << i;
+                }
             }
             return dirtyBits;
         }
