@@ -721,7 +721,7 @@ namespace Mirror
                 SendSpawnMessage(identity, null);
 
                 // Set up local player instance on the client instance and update local object map
-                localConnection.localClient.AddLocalPlayer(identity);
+                NetworkClient.AddLocalPlayer(identity);
                 identity.SetClientOwner(conn);
 
                 // Trigger OnAuthority

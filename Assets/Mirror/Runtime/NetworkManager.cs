@@ -61,7 +61,8 @@ namespace Mirror
         public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
-        public NetworkClient client;
+        [Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
+        public NetworkClient client => NetworkClient.singleton;
         static int s_StartPositionIndex;
 
         public static NetworkManager singleton;
@@ -187,7 +188,7 @@ namespace Mirror
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
-            NetworkClient.UpdateClient();
+            NetworkClient.Update();
             UpdateScene();
         }
 
@@ -298,13 +299,13 @@ namespace Mirror
             return true;
         }
 
-        internal void RegisterClientMessages(NetworkClient client)
+        internal void RegisterClientMessages()
         {
-            client.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
-            client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
-            client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            client.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
-            client.RegisterHandler<SceneMessage>(OnClientSceneInternal);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
+            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
+            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
+            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal);
 
             if (playerPrefab != null)
             {
@@ -320,7 +321,7 @@ namespace Mirror
             }
         }
 
-        public NetworkClient StartClient()
+        public void StartClient()
         {
             InitializeSingleton();
 
@@ -329,43 +330,38 @@ namespace Mirror
 
             isNetworkActive = true;
 
-            client = new NetworkClient();
-
-            RegisterClientMessages(client);
+            RegisterClientMessages();
 
             if (string.IsNullOrEmpty(networkAddress))
             {
                 Debug.LogError("Must set the Network Address field in the manager");
-                return null;
+                return;
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            client.Connect(networkAddress);
+            NetworkClient.Connect(networkAddress);
 
-            OnStartClient(client);
+            OnStartClient();
             s_Address = networkAddress;
-            return client;
         }
 
-        public virtual NetworkClient StartHost()
+        public virtual void StartHost()
         {
             OnStartHost();
             if (StartServer())
             {
-                NetworkClient localClient = ConnectLocalClient();
-                OnStartClient(localClient);
-                return localClient;
+                ConnectLocalClient();
+                OnStartClient();
             }
-            return null;
         }
 
-        NetworkClient ConnectLocalClient()
+        void ConnectLocalClient()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
             networkAddress = "localhost";
-            client = ClientScene.ConnectLocalServer();
-            RegisterClientMessages(client);
-            return client;
+            NetworkServer.ActivateLocalClientScene();
+            NetworkClient.ConnectLocalServer();
+            RegisterClientMessages();
         }
 
         public void StopHost()
@@ -399,13 +395,10 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
             isNetworkActive = false;
-            if (client != null)
-            {
-                // only shutdown this client, not ALL clients.
-                client.Disconnect();
-                NetworkClient.Shutdown();
-                client = null;
-            }
+
+            // shutdown client
+            NetworkClient.Disconnect();
+            NetworkClient.Shutdown();
 
             ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(offlineScene))
@@ -467,11 +460,8 @@ namespace Mirror
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
             // (client may be null after StopClient etc.)
-            if (client != null)
-            {
-                if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
-                Transport.activeTransport.enabled = false;
-            }
+            if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
+            Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
@@ -484,22 +474,15 @@ namespace Mirror
         {
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
-            if (client != null)
-            {
-                // process queued messages that we received while loading the scene
-                if (LogFilter.Debug) Debug.Log("FinishLoadScene: resuming handlers after scene was loading.");
-                Transport.activeTransport.enabled = true;
+            // process queued messages that we received while loading the scene
+            if (LogFilter.Debug) Debug.Log("FinishLoadScene: resuming handlers after scene was loading.");
+            Transport.activeTransport.enabled = true;
 
-                if (s_ClientReadyConnection != null)
-                {
-                    clientLoadedScene = true;
-                    OnClientConnect(s_ClientReadyConnection);
-                    s_ClientReadyConnection = null;
-                }
-            }
-            else
+            if (s_ClientReadyConnection != null)
             {
-                if (LogFilter.Debug) Debug.Log("FinishLoadScene client is null");
+                clientLoadedScene = true;
+                OnClientConnect(s_ClientReadyConnection);
+                s_ClientReadyConnection = null;
             }
 
             if (NetworkServer.active)
@@ -508,10 +491,10 @@ namespace Mirror
                 OnServerSceneChanged(networkSceneName);
             }
 
-            if (IsClientConnected() && client != null)
+            if (IsClientConnected())
             {
-                RegisterClientMessages(client);
-                OnClientSceneChanged(client.connection);
+                RegisterClientMessages();
+                OnClientSceneChanged(NetworkClient.connection);
             }
         }
 
@@ -546,7 +529,7 @@ namespace Mirror
 
         public bool IsClientConnected()
         {
-            return client != null && client.isConnected;
+            return NetworkClient.isConnected;
         }
 
         // this is the only way to clear the singleton, so another instance can be created.
@@ -810,7 +793,9 @@ namespace Mirror
 
         public virtual void OnStartHost() {}
         public virtual void OnStartServer() {}
+        [Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
         public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStartClient() {}
         public virtual void OnStopServer() {}
         public virtual void OnStopClient() {}
         public virtual void OnStopHost() {}

@@ -26,13 +26,10 @@ namespace Mirror
             if (!showGUI)
                 return;
 
-            bool noConnection = (manager.client == null || manager.client.connection == null ||
-                                 manager.client.connection.connectionId == -1);
-
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
             if (!manager.IsClientConnected() && !NetworkServer.active)
             {
-                if (noConnection)
+                if (!NetworkClient.active)
                 {
                     // LAN Host
                     if (Application.platform != RuntimePlatform.WebGLPlayer)
@@ -91,7 +88,7 @@ namespace Mirror
             {
                 if (GUILayout.Button("Client Ready"))
                 {
-                    ClientScene.Ready(manager.client.connection);
+                    ClientScene.Ready(NetworkClient.connection);
 
                     if (ClientScene.localPlayer == null)
                     {
