@@ -373,7 +373,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene from {0} to {1}", SceneManager.GetActiveScene().name, newSceneName);
 
-            if (SceneManager.GetActiveScene().name == LobbyScene && newSceneName == GameplayScene && dontDestroyOnLoad && IsClientConnected())
+            if (SceneManager.GetActiveScene().name == LobbyScene && newSceneName == GameplayScene && dontDestroyOnLoad && NetworkClient.isConnected)
             {
                 GameObject lobbyPlayer = NetworkClient.connection?.playerController?.gameObject;
                 if (lobbyPlayer != null)
@@ -385,7 +385,7 @@ namespace Mirror
                     Debug.LogWarningFormat("OnClientChangeScene: lobbyPlayer is null");
             }
             else
-               if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene {0} {1}", dontDestroyOnLoad, IsClientConnected());
+               if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene {0} {1}", dontDestroyOnLoad, NetworkClient.isConnected);
         }
 
         public override void OnClientSceneChanged(NetworkConnection conn)
