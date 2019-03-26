@@ -120,6 +120,8 @@
       url: "/Classes/NetworkBehavior"
     - title: "Attributes"
       url: "/Classes/Attributes"
+    - title: "SyncVar Hooks"
+      url: "/Classes/SyncVarHook"
     - title: "SyncLists"
       url: "/Classes/SyncLists"
     - title: "SyncDictionary"
