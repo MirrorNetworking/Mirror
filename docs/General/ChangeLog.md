@@ -7,16 +7,23 @@
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
+- Added: Weaver now supports Vector2Int and Vector3Int
 - Added: List Server example
 - Fixed: SyncLists now work correctly for primitives and structs
+- Fixed: SyncVar Hooks now will update the local property value after the hook is called  
+  - You no longer need to have a line of code in your hook method to manualy update the local property.
 - Fixed: Host should not call Disconnect on transports
+- Fixed: NetworkAnimimator now supports up to 64 animator parameters
+- Fixed: NetworkManager `StartServer` no longer assumes scene zero is the default scene...uses `GetActiveScene` now
+- Fixed: NetworkServer `Shutdown` now resets `netId` to zero
 - Fixed: Observers are now properly rebuilt when client joins and `OnRebuildObservers` / `OnCheckObserver` is overridden
-- Fixed: NetworkLobbyPlayer.OnClientReady works now
+- Fixed: NetworkLobbyPlayer `OnClientReady` works now
 - Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
 - Changed: TargetRpc NetworkConnection paramater is now optional...the calling client's NetworkConnection is default
 - Changed: Movement example replaced with Tank example
+- Changed: NetworkClient functions are all static now, so the singleton is gone.  Use NetworkClient directly.
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
 - Removed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
