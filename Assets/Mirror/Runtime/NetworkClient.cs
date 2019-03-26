@@ -36,7 +36,7 @@ namespace Mirror
         public static bool isConnected => connectState == ConnectState.Connected;
 
         // NetworkClient can connect to local server in host mode too
-        public static bool isLocalClient => connection != null && connection is ULocalConnectionToServer;
+        public static bool isLocalClient => connection is ULocalConnectionToServer;
 
         // local client in host mode might call Cmds/Rpcs during Update, but we
         // want to apply them in LateUpdate like all other Transport messages
