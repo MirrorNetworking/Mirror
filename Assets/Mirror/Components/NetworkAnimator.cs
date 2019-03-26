@@ -174,9 +174,9 @@ namespace Mirror
             animator.SetTrigger(hash);
         }
 
-        uint NextDirtyBits()
+        ulong NextDirtyBits()
         {
-            uint dirtyBits = 0;
+            ulong dirtyBits = 0;
             for (int i = 0; i < parameters.Length; i++)
             {
                 AnimatorControllerParameter par = parameters[i];
@@ -208,18 +208,18 @@ namespace Mirror
                         lastBoolParameters[i] = newBoolValue;
                     }
                 }
-                if (changed) dirtyBits |= 1u << i;
+                if (changed) dirtyBits |= 1ul << i;
             }
             return dirtyBits;
         }
 
         bool WriteParameters(NetworkWriter writer)
         {
-            uint dirtyBits = NextDirtyBits();
-            writer.WritePackedUInt32(dirtyBits);
+            ulong dirtyBits = NextDirtyBits();
+            writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0)
+                if ((dirtyBits & (1ul << i)) == 0)
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
@@ -244,10 +244,10 @@ namespace Mirror
 
         void ReadParameters(NetworkReader reader)
         {
-            uint dirtyBits = reader.ReadPackedUInt32();
+            ulong dirtyBits = reader.ReadPackedUInt64();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0)
+                if ((dirtyBits & (1ul << i)) == 0)
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
