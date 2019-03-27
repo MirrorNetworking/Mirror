@@ -444,7 +444,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStartAuthority()
+        void OnStartAuthority()
         {
             if (m_NetworkBehaviours == null)
             {
@@ -465,7 +465,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStopAuthority()
+        void OnStopAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -517,7 +517,7 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
         //    -> it will be impossible to read too many or too few bytes in OnDeserialize
         //    -> we can properly track down errors
-        internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
@@ -611,7 +611,7 @@ namespace Mirror
             return dirtyComponentsMask;
         }
 
-        internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
+        void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes
             int contentSize = reader.ReadInt32();
@@ -640,7 +640,7 @@ namespace Mirror
             }
         }
 
-        internal void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
+        void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
         {
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
@@ -670,7 +670,7 @@ namespace Mirror
         }
 
         // helper function to handle SyncEvent/Command/Rpc
-        internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
+        void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (gameObject == null)
             {
@@ -789,7 +789,7 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
-        internal void RemoveObserver(NetworkConnection conn)
+        void RemoveObserver(NetworkConnection conn)
         {
             if (observers == null)
                 return;
