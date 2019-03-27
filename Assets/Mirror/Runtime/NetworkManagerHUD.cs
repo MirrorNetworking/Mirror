@@ -27,7 +27,7 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
-            if (!manager.IsClientConnected() && !NetworkServer.active)
+            if (!NetworkClient.isConnected && !NetworkServer.active)
             {
                 if (!NetworkClient.active)
                 {
@@ -77,14 +77,14 @@ namespace Mirror
                 {
                     GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
                 }
-                if (manager.IsClientConnected())
+                if (NetworkClient.isConnected)
                 {
                     GUILayout.Label("Client: address=" + manager.networkAddress);
                 }
             }
 
             // client ready
-            if (manager.IsClientConnected() && !ClientScene.ready)
+            if (NetworkClient.isConnected && !ClientScene.ready)
             {
                 if (GUILayout.Button("Client Ready"))
                 {
@@ -98,7 +98,7 @@ namespace Mirror
             }
 
             // stop
-            if (NetworkServer.active || manager.IsClientConnected())
+            if (NetworkServer.active || NetworkClient.isConnected)
             {
                 if (GUILayout.Button("Stop"))
                 {

@@ -491,7 +491,7 @@ namespace Mirror
                 OnServerSceneChanged(networkSceneName);
             }
 
-            if (IsClientConnected())
+            if (NetworkClient.isConnected)
             {
                 RegisterClientMessages();
                 OnClientSceneChanged(NetworkClient.connection);
@@ -527,11 +527,11 @@ namespace Mirror
             startPositions.Remove(start);
         }
 
+        [Obsolete("Use NetworkClient.isConnected instead")]
         public bool IsClientConnected()
         {
             return NetworkClient.isConnected;
         }
-
         // this is the only way to clear the singleton, so another instance can be created.
         public static void Shutdown()
         {
@@ -636,7 +636,7 @@ namespace Mirror
 
             string newSceneName = msg.value;
 
-            if (IsClientConnected() && !NetworkServer.active)
+            if (NetworkClient.isConnected && !NetworkServer.active)
             {
                 ClientChangeScene(newSceneName, true);
             }
