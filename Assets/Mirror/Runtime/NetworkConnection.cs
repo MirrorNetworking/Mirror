@@ -86,14 +86,13 @@ namespace Mirror
             if (Transport.activeTransport.ServerActive() && connectionId != 0)
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
-            }            
+            }
             // not server and not host mode? then disconnect client
             else
             {
                 Transport.activeTransport.ClientDisconnect();
             }
 
-            // remove observers
             RemoveObservers();
         }
 
