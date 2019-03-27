@@ -10,7 +10,7 @@
       '@semantic-release/release-notes-generator', 
       ["@semantic-release/github", {
       "assets": [
-        {"path": "Mirror.unitypackage", "label": "Unity package distribution"}
+        {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
       ]
     }],
     ]
