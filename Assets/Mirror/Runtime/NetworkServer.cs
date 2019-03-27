@@ -421,7 +421,7 @@ namespace Mirror
             }
         }
 
-        private static void OnError(int connectionId, Exception exception)
+        static void OnError(int connectionId, Exception exception)
         {
             // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);

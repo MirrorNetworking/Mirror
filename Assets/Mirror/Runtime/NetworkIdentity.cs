@@ -595,7 +595,7 @@ namespace Mirror
             return onSerializeWriter.ToArray();
         }
 
-        private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;

@@ -28,8 +28,8 @@ namespace Mirror
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
 
         // the true offset guaranteed to be in this range
-        private static double offsetMin = double.MinValue;
-        private static double offsetMax = double.MaxValue;
+        static double offsetMin = double.MinValue;
+        static double offsetMax = double.MaxValue;
 
         // returns the clock time _in this system_
         static double LocalTime()
