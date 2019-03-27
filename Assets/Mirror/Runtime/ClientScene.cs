@@ -9,9 +9,9 @@ namespace Mirror
 {
     public static class ClientScene
     {
-        static bool s_IsSpawnFinished;
+        static bool isSpawnFinished;
 
-        static HashSet<uint> s_PendingOwnerNetIds = new HashSet<uint>();
+        static HashSet<uint> pendingOwnerNetIds = new HashSet<uint>();
 
         public static NetworkIdentity localPlayer { get; private set; }
         public static bool ready { get; internal set; }
@@ -31,11 +31,11 @@ namespace Mirror
         {
             NetworkIdentity.spawned.Clear();
             ClearSpawners();
-            s_PendingOwnerNetIds.Clear();
+            pendingOwnerNetIds.Clear();
             spawnableObjects = null;
             readyConnection = null;
             ready = false;
-            s_IsSpawnFinished = false;
+            isSpawnFinished = false;
 
             Transport.activeTransport.ClientDisconnect();
         }
@@ -351,7 +351,7 @@ namespace Mirror
             NetworkIdentity.spawned[netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
-            if (s_IsSpawnFinished)
+            if (isSpawnFinished)
             {
                 identity.isClient = true;
                 identity.OnStartClient();
@@ -450,7 +450,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("SpawnStarted");
 
             PrepareToSpawnSceneObjects();
-            s_IsSpawnFinished = false;
+            isSpawnFinished = false;
         }
 
         internal static void OnObjectSpawnFinished(NetworkConnection conn, ObjectSpawnFinishedMessage msg)
@@ -468,7 +468,7 @@ namespace Mirror
                     CheckForOwner(identity);
                 }
             }
-            s_IsSpawnFinished = true;
+            isSpawnFinished = true;
         }
 
         internal static void OnObjectHide(NetworkConnection conn, ObjectHideMessage msg)
@@ -609,13 +609,13 @@ namespace Mirror
             }
             else
             {
-                s_PendingOwnerNetIds.Add(msg.netId);
+                pendingOwnerNetIds.Add(msg.netId);
             }
         }
 
         static void CheckForOwner(NetworkIdentity identity)
         {
-            if (s_PendingOwnerNetIds.Contains(identity.netId))
+            if (pendingOwnerNetIds.Contains(identity.netId))
             {
                 // found owner, turn into a local player
 
@@ -631,7 +631,7 @@ namespace Mirror
                 }
                 InternalAddPlayer(identity);
 
-                s_PendingOwnerNetIds.Remove(identity.netId);
+                pendingOwnerNetIds.Remove(identity.netId);
             }
         }
     }
