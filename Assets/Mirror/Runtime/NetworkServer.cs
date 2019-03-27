@@ -413,7 +413,7 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
-                OnData(conn, data);
+                conn.TransportReceive(data);
             }
             else
             {
@@ -425,11 +425,6 @@ namespace Mirror
         {
             // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);
-        }
-
-        static void OnData(NetworkConnection conn, byte[] data)
-        {
-            conn.TransportReceive(data);
         }
 
         static void GenerateConnectError(byte error)
