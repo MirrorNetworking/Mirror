@@ -61,7 +61,7 @@ namespace Mirror
     public static partial class ClientScene
     {
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
+        [Obsolete("Use NetworkIdentity.spawned.TryGetValue() instead. See code in this method for example.")]
         public static GameObject FindLocalObject(uint netId)
         {
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
