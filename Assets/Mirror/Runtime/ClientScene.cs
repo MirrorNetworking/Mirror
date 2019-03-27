@@ -147,7 +147,7 @@ namespace Mirror
             }
         }
 
-        internal static bool ConsiderForSpawning(NetworkIdentity identity)
+        static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
             return !identity.gameObject.activeSelf &&
@@ -166,7 +166,7 @@ namespace Mirror
                                .ToDictionary(identity => identity.sceneId, identity => identity);
         }
 
-        internal static NetworkIdentity SpawnSceneObject(ulong sceneId)
+        static NetworkIdentity SpawnSceneObject(ulong sceneId)
         {
             if (spawnableObjects.TryGetValue(sceneId, out NetworkIdentity identity))
             {
@@ -178,7 +178,7 @@ namespace Mirror
         }
 
         // spawn handlers and prefabs
-        internal static bool GetPrefab(Guid assetId, out GameObject prefab)
+        static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
             return assetId != Guid.Empty &&
@@ -289,7 +289,7 @@ namespace Mirror
             unspawnHandlers.Clear();
         }
 
-        internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
+        static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
         {
             if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
             {
