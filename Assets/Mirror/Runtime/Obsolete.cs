@@ -206,20 +206,6 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
         public virtual void OnStartClient(NetworkClient client) { }
     }
