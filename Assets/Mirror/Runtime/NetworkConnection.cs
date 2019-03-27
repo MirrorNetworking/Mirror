@@ -14,7 +14,7 @@ namespace Mirror
         public bool isReady;
         public string address;
         public float lastMessageTime;
-        public NetworkIdentity playerController { get; private set; }
+        public NetworkIdentity playerController;
         public HashSet<uint> clientOwnedObjects;
         public bool logNetworkMessages;
 
@@ -116,11 +116,13 @@ namespace Mirror
             m_MessageHandlers.Remove(msgType);
         }
 
+        [Obsolete("Set connection.playerController directly instead.")]
         internal void SetPlayerController(NetworkIdentity player)
         {
             playerController = player;
         }
 
+        [Obsolete("Set connection.playerController = null; directly instead.")]
         internal void RemovePlayerController()
         {
             playerController = null;
