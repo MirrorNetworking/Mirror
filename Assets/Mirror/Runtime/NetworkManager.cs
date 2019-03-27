@@ -795,7 +795,13 @@ namespace Mirror
         public virtual void OnStartServer() {}
         [Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
         public virtual void OnStartClient(NetworkClient client) {}
-        public virtual void OnStartClient() {}
+        public virtual void OnStartClient()
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            OnStartClient(NetworkClient.singleton);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
         public virtual void OnStopServer() {}
         public virtual void OnStopClient() {}
         public virtual void OnStopHost() {}
