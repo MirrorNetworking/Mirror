@@ -789,15 +789,6 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
-        void RemoveObserver(NetworkConnection conn)
-        {
-            if (observers == null)
-                return;
-
-            observers.Remove(conn.connectionId);
-            conn.RemoveFromVisList(this, false);
-        }
-
         public void RebuildObservers(bool initialize)
         {
             if (observers == null)
