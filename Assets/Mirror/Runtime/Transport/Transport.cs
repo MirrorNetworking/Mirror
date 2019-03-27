@@ -13,7 +13,7 @@ namespace Mirror
     [Serializable] public class UnityEventIntByteArray : UnityEvent<int, byte[]> {}
     [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> {}
 
-    public abstract class Transport : MonoBehaviour
+    public abstract partial class Transport : MonoBehaviour
     {
         // static Transport which receives all network events
         // this is usually set by NetworkManager, but doesn't have to be.
@@ -49,13 +49,6 @@ namespace Mirror
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
-
-        [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
-        public virtual bool GetConnectionInfo(int connectionId, out string address)
-        {
-            address = ServerGetClientAddress(connectionId);
-            return true;
-        }
 
         public abstract string ServerGetClientAddress(int connectionId);
         public abstract void ServerStop();

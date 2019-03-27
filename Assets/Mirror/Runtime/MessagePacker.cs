@@ -13,7 +13,7 @@ namespace Mirror
     //    using 2 bytes for shorts.
     // -> this reduces bandwidth by 10% if average message size is 20 bytes
     //    (probably even shorter)
-    public static class MessagePacker
+    public static partial class MessagePacker
     {
         // PackMessage is in hot path. caching the writer is really worth it to
         // avoid large amounts of allocations.
@@ -25,24 +25,6 @@ namespace Mirror
             //  - keeps the message size small because it gets varinted
             //  - in case of collisions,  Mirror will display an error
             return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
-        }
-
-        // pack message before sending
-        // -> pass writer instead of byte[] so we can reuse it
-        [Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(int msgType, MessageBase msg)
-        {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
-
-            // write message type
-            packWriter.Write((short)msgType);
-
-            // serialize message into writer
-            msg.Serialize(packWriter);
-
-            // return byte[]
-            return packWriter.ToArray();
         }
 
         // pack message before sending

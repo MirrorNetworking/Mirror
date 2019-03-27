@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace Mirror
 {
-    public static class ClientScene
+    public static partial class ClientScene
     {
         static bool isSpawnFinished;
 
@@ -320,16 +320,6 @@ namespace Mirror
                 }
             }
             NetworkIdentity.spawned.Clear();
-        }
-
-        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
         }
 
         static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, byte[] payload, uint netId)

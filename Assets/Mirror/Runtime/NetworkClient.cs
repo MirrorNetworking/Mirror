@@ -13,14 +13,8 @@ namespace Mirror
     }
 
     // TODO make fully static after removing obsoleted singleton!
-    public class NetworkClient
+    public partial class NetworkClient
     {
-        [Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
-        public static NetworkClient singleton = new NetworkClient();
-
-        [Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
-        public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
-
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         public static NetworkConnection connection { get; internal set; }
@@ -187,22 +181,6 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
-        [Obsolete("Use SendMessage<T> instead with no message id instead")]
-        public static bool Send(short msgType, MessageBase msg)
-        {
-            if (connection != null)
-            {
-                if (connectState != ConnectState.Connected)
-                {
-                    Debug.LogError("NetworkClient Send when not connected to a server");
-                    return false;
-                }
-                return connection.Send(msgType, msg);
-            }
-            Debug.LogError("NetworkClient Send with no connection");
-            return false;
-        }
-
         public static bool Send<T>(T message) where T : IMessageBase
         {
             if (connection != null)
@@ -286,12 +264,6 @@ namespace Mirror
         }
         */
 
-        [Obsolete("Use NetworkTime.rtt instead")]
-        public static float GetRTT()
-        {
-            return (float)NetworkTime.rtt;
-        }
-
         internal static void RegisterSystemHandlers(bool localClient)
         {
             // local client / regular client react to some messages differently.
@@ -326,22 +298,6 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler.ToString() + " - " + msgType);
-            }
-            handlers[msgType] = handler;
-        }
-
-        [Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
@@ -355,18 +311,6 @@ namespace Mirror
             };
         }
 
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        [Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
-        }
-
         public static void UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
@@ -378,12 +322,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             active = false;
-        }
-
-        [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
-        public static void ShutdownAll()
-        {
-            Shutdown();
         }
     }
 }

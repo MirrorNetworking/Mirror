@@ -16,7 +16,7 @@ namespace Mirror
 
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManager")]
-    public class NetworkManager : MonoBehaviour
+    public partial class NetworkManager : MonoBehaviour
     {
 
         // configuration
@@ -61,8 +61,6 @@ namespace Mirror
         public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
-        [Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
-        public NetworkClient client => NetworkClient.singleton;
         static int s_StartPositionIndex;
 
         public static NetworkManager singleton;
@@ -527,11 +525,6 @@ namespace Mirror
             startPositions.Remove(start);
         }
 
-        [Obsolete("Use NetworkClient.isConnected instead")]
-        public bool IsClientConnected()
-        {
-            return NetworkClient.isConnected;
-        }
         // this is the only way to clear the singleton, so another instance can be created.
         public static void Shutdown()
         {
@@ -662,18 +655,6 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
@@ -793,8 +774,6 @@ namespace Mirror
 
         public virtual void OnStartHost() {}
         public virtual void OnStartServer() {}
-        [Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) {}
         public virtual void OnStartClient() {}
         public virtual void OnStopServer() {}
         public virtual void OnStopClient() {}
