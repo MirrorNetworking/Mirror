@@ -672,7 +672,7 @@ namespace Mirror
                 return false;
             }
 
-            conn.SetPlayerController(identity);
+            conn.playerController = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = conn;
@@ -769,7 +769,7 @@ namespace Mirror
                 conn.playerController.clientAuthorityOwner = null;
             }
 
-            conn.SetPlayerController(playerNetworkIdentity);
+            conn.playerController = playerNetworkIdentity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             playerNetworkIdentity.connectionToClient = conn;
@@ -874,7 +874,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 Destroy(conn.playerController.gameObject);
-                conn.RemovePlayerController();
+                conn.playerController = null;
             }
             else
             {
@@ -1014,9 +1014,8 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 DestroyObject(conn.playerController, true);
+                conn.playerController = null;
             }
-
-            conn.RemovePlayerController();
         }
 
         public static void Spawn(GameObject obj)

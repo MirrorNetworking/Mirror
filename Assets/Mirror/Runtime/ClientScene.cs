@@ -50,7 +50,7 @@ namespace Mirror
             localPlayer = identity;
             if (readyConnection != null)
             {
-                readyConnection.SetPlayerController(identity);
+                readyConnection.playerController = identity;
             }
             else
             {
@@ -108,7 +108,7 @@ namespace Mirror
 
                 Object.Destroy(readyConnection.playerController.gameObject);
 
-                readyConnection.RemovePlayerController();
+                readyConnection.playerController = null;
                 localPlayer = null;
 
                 return true;

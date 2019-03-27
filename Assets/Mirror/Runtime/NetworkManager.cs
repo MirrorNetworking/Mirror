@@ -579,7 +579,7 @@ namespace Mirror
             if (conn.playerController != null)
             {
                 OnServerRemovePlayer(conn, conn.playerController);
-                conn.RemovePlayerController();
+                conn.playerController = null;
             }
         }
 
