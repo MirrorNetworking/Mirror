@@ -19,7 +19,7 @@ namespace Mirror
         public static NetworkClient singleton = new NetworkClient();
 
         [Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
-        public static List<NetworkClient> allClients => new List<NetworkClient>(singleton);
+        public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
 
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
