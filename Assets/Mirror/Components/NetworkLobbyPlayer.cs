@@ -10,11 +10,13 @@ namespace Mirror
     {
         public bool ShowLobbyGUI = true;
 
-        [SyncVar]
+        [SyncVar(hook=nameof(ReadyStateChanged))]
         public bool ReadyToBegin;
 
         [SyncVar]
         public int Index;
+
+        #region Unity Callbacks
 
         /// <summary>
         /// Do not use Start - Override OnStartrHost / OnStartClient instead!
@@ -34,15 +36,9 @@ namespace Mirror
             SceneManager.sceneLoaded -= ClientLoadedScene;
         }
 
-        public virtual void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
-        {
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby != null && SceneManager.GetActiveScene().name == lobby.LobbyScene)
-                return;
+        #endregion
 
-            if (this != null && isLocalPlayer)
-                CmdSendLevelLoaded();
-        }
+        #region Commands
 
         [Command]
         public void CmdChangeReadyState(bool ReadyState)
@@ -59,7 +55,18 @@ namespace Mirror
             lobby?.PlayerLoadedScene(GetComponent<NetworkIdentity>().connectionToClient);
         }
 
-        #region lobby client virtuals
+        #endregion
+
+        #region SyncVar Hooks
+
+        private void ReadyStateChanged(bool NewReadyState)
+        {
+            OnClientReady(ReadyToBegin);
+        }
+
+        #endregion
+
+        #region Lobby Client Virtuals
 
         public virtual void OnClientEnterLobby() {}
 
@@ -67,9 +74,19 @@ namespace Mirror
 
         public virtual void OnClientReady(bool readyState) {}
 
+        public virtual void ClientLoadedScene(Scene arg0, LoadSceneMode arg1)
+        {
+            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
+            if (lobby != null && SceneManager.GetActiveScene().name == lobby.LobbyScene)
+                return;
+
+            if (this != null && isLocalPlayer)
+                CmdSendLevelLoaded();
+        }
+
         #endregion
 
-        #region optional UI
+        #region Optional UI
 
         public virtual void OnGUI()
         {

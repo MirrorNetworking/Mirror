@@ -8,6 +8,10 @@
         ]
       }],
       '@semantic-release/release-notes-generator', 
-      '@semantic-release/github'
+      ["@semantic-release/github", {
+      "assets": [
+        {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
+      ]
+    }],
     ]
 }

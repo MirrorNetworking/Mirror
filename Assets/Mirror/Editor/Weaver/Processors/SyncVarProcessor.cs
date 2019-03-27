@@ -110,19 +110,6 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
-            // this
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-
-            // new value to set
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-
-            // reference to field to set
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
-
-            // dirty bit
-            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
-
             MethodDefinition hookFunctionMethod;
             CheckForHookFunction(td, fd, out hookFunctionMethod);
 
@@ -153,6 +140,20 @@ namespace Mirror.Weaver
 
                 setWorker.Append(label);
             }
+
+            // this
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+
+            // new value to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
+
+            // reference to field to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
+
+            // dirty bit
+            setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
+
 
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {

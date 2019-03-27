@@ -30,7 +30,7 @@ namespace Mirror
         //    but would cause errors immediately and be pretty obvious.
         [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
-        public enum Compression { None, Much, Lots }; // easily understandable and funny
+        public enum Compression { None, Much, Lots , NoRotation }; // easily understandable and funny
 
         // server
         Vector3 lastPosition;
@@ -312,7 +312,10 @@ namespace Mirror
         void ApplyPositionAndRotation(Vector3 position, Quaternion rotation)
         {
             targetComponent.transform.position = position;
-            targetComponent.transform.rotation = rotation;
+            if (Compression.NoRotation != compressRotation)
+            {
+                targetComponent.transform.rotation = rotation;
+            }
         }
 
         void Update()

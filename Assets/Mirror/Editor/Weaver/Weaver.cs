@@ -63,7 +63,8 @@ namespace Mirror.Weaver
         public static TypeReference NetworkConnectionType;
 
         public static TypeReference MessageBaseType;
-        public static TypeReference SyncListStructType;
+        public static TypeReference SyncListType;
+        public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
         public static TypeReference NetworkClientType;
@@ -138,6 +139,8 @@ namespace Mirror.Weaver
         public static TypeReference vector2Type;
         public static TypeReference vector3Type;
         public static TypeReference vector4Type;
+        public static TypeReference vector2IntType;
+        public static TypeReference vector3IntType;
         public static TypeReference colorType;
         public static TypeReference color32Type;
         public static TypeReference quaternionType;
@@ -1013,6 +1016,8 @@ namespace Mirror.Weaver
             vector2Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector2");
             vector3Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector3");
             vector4Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector4");
+            vector2IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector2Int");
+            vector3IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector3Int");
             colorType = UnityAssembly.MainModule.GetType("UnityEngine.Color");
             color32Type = UnityAssembly.MainModule.GetType("UnityEngine.Color32");
             quaternionType = UnityAssembly.MainModule.GetType("UnityEngine.Quaternion");
@@ -1124,7 +1129,8 @@ namespace Mirror.Weaver
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
-            SyncListStructType = NetAssembly.MainModule.GetType("Mirror.SyncListSTRUCT`1");
+            SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
+            SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
 
@@ -1176,15 +1182,17 @@ namespace Mirror.Weaver
                 { uint64Type.FullName, NetworkReaderReadPacked64 },
                 { int32Type.FullName, NetworkReaderReadPacked32 },
                 { uint32Type.FullName, NetworkReaderReadPacked32 },
-                { int16Type.FullName, NetworkReaderReadPacked32 },
-                { uint16Type.FullName, NetworkReaderReadPacked32 },
-                { byteType.FullName, NetworkReaderReadPacked32 },
-                { sbyteType.FullName, NetworkReaderReadPacked32 },
-                { charType.FullName, NetworkReaderReadPacked32 },
+                { int16Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadInt16") },
+                { uint16Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16") },
+                { byteType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadByte") },
+                { sbyteType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadSByte") },
+                { charType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadChar") },
                 { decimalType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadDecimal") },
                 { vector2Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2") },
                 { vector3Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3") },
                 { vector4Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector4") },
+                { vector2IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector2Int") },
+                { vector3IntType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadVector3Int") },
                 { colorType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor") },
                 { color32Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadColor32") },
                 { quaternionType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadQuaternion") },
@@ -1212,15 +1220,17 @@ namespace Mirror.Weaver
                 { uint64Type.FullName, NetworkWriterWritePacked64 },
                 { int32Type.FullName, NetworkWriterWritePacked32 },
                 { uint32Type.FullName, NetworkWriterWritePacked32 },
-                { int16Type.FullName, NetworkWriterWritePacked32 },
-                { uint16Type.FullName, NetworkWriterWritePacked32 },
-                { byteType.FullName, NetworkWriterWritePacked32 },
-                { sbyteType.FullName, NetworkWriterWritePacked32 },
-                { charType.FullName, NetworkWriterWritePacked32 },
+                { int16Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type) },
+                { uint16Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type) },
+                { byteType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", byteType) },
+                { sbyteType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", sbyteType) },
+                { charType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", charType) },
                 { decimalType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", decimalType) },
                 { vector2Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2Type) },
                 { vector3Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3Type) },
                 { vector4Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector4Type) },
+                { vector2IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector2IntType) },
+                { vector3IntType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", vector3IntType) },
                 { colorType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", colorType) },
                 { color32Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", color32Type) },
                 { quaternionType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", quaternionType) },
@@ -1347,7 +1357,7 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool CheckSyncListStruct(TypeDefinition td)
+        static bool CheckSyncList(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -1358,9 +1368,15 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.StartsWith(SyncListStructType.FullName))
+                if (parent.FullName.StartsWith(SyncListType.FullName))
                 {
-                    SyncListStructProcessor.Process(td);
+                    SyncListProcessor.Process(td);
+                    didWork = true;
+                    break;
+                }
+                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName))
+                {
+                    SyncDictionaryProcessor.Process(td);
                     didWork = true;
                     break;
                 }
@@ -1379,7 +1395,7 @@ namespace Mirror.Weaver
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                didWork |= CheckSyncListStruct(embedded);
+                didWork |= CheckSyncList(embedded);
             }
 
             return didWork;
@@ -1414,7 +1430,7 @@ namespace Mirror.Weaver
                             {
                                 if (pass == 0)
                                 {
-                                    didWork |= CheckSyncListStruct(td);
+                                    didWork |= CheckSyncList(td);
                                 }
                                 else
                                 {

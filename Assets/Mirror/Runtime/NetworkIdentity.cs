@@ -127,6 +127,7 @@ namespace Mirror
 
         static uint s_NextNetworkId = 1;
         internal static uint GetNextNetworkId() => s_NextNetworkId++;
+        public static void ResetNextNetworkId() => s_NextNetworkId = 1;
 
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
         public static ClientAuthorityCallback clientAuthorityCallback;
@@ -148,6 +149,34 @@ namespace Mirror
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
             observers?.Remove(conn.connectionId);
+        }
+
+        void Awake()
+        {
+            // detect runtime sceneId duplicates, e.g. if a user tries to
+            // Instantiate a sceneId object at runtime. if we don't detect it,
+            // then the client won't know which of the two objects to use for a
+            // SpawnSceneObject message, and it's likely going to be the wrong
+            // object.
+            //
+            // This might happen if for example we have a Dungeon GameObject
+            // which contains a Skeleton monster as child, and when a player
+            // runs into the Dungeon we create a Dungeon Instance of that
+            // Dungeon, which would duplicate a scene object.
+            //
+            // see also: https://github.com/vis2k/Mirror/issues/384
+            if (Application.isPlaying && sceneId != 0)
+            {
+                if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
+                {
+                    Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    sceneIds[sceneId] = this;
+                }
+            }
         }
 
         void OnValidate()
@@ -329,6 +358,12 @@ namespace Mirror
 
         void OnDestroy()
         {
+            // remove from sceneIds
+            // -> remove with (0xFFFFFFFFFFFFFFFF) and without (0x00000000FFFFFFFF)
+            //    sceneHash to be 100% safe.
+            sceneIds.Remove(sceneId);
+            sceneIds.Remove(sceneId & 0x00000000FFFFFFFF);
+
             if (m_IsServer && NetworkServer.active)
             {
                 NetworkServer.Destroy(gameObject);
@@ -409,7 +444,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStartAuthority()
+        void OnStartAuthority()
         {
             if (m_NetworkBehaviours == null)
             {
@@ -430,7 +465,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStopAuthority()
+        void OnStopAuthority()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -482,7 +517,7 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
         //    -> it will be impossible to read too many or too few bytes in OnDeserialize
         //    -> we can properly track down errors
-        internal bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
@@ -560,7 +595,7 @@ namespace Mirror
             return onSerializeWriter.ToArray();
         }
 
-        private ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
@@ -576,7 +611,7 @@ namespace Mirror
             return dirtyComponentsMask;
         }
 
-        internal void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
+        void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes
             int contentSize = reader.ReadInt32();
@@ -605,7 +640,7 @@ namespace Mirror
             }
         }
 
-        internal void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
+        void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
         {
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
@@ -635,7 +670,7 @@ namespace Mirror
         }
 
         // helper function to handle SyncEvent/Command/Rpc
-        internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
+        void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader)
         {
             if (gameObject == null)
             {
@@ -754,7 +789,7 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
-        internal void RemoveObserver(NetworkConnection conn)
+        void RemoveObserver(NetworkConnection conn)
         {
             if (observers == null)
                 return;
@@ -782,9 +817,8 @@ namespace Mirror
                 // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
-                    foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
+                    foreach (NetworkConnection conn in NetworkServer.connections.Values)
                     {
-                        NetworkConnection conn = kvp.Value;
                         if (conn.isReady)
                             AddObserver(conn);
                     }

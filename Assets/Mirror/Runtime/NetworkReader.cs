@@ -143,6 +143,16 @@ namespace Mirror
             return new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
         }
 
+        public Vector2Int ReadVector2Int()
+        {
+            return new Vector2Int((int)ReadPackedUInt32(), (int)ReadPackedUInt32());
+        }
+
+        public Vector3Int ReadVector3Int()
+        {
+            return new Vector3Int((int)ReadPackedUInt32(), (int)ReadPackedUInt32(), (int)ReadPackedUInt32());
+        }
+
         public Color ReadColor()
         {
             return new Color(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());

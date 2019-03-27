@@ -1,36 +1,38 @@
 ﻿using UnityEngine;
-using Mirror;
 
-public class Projectile : NetworkBehaviour
+namespace Mirror.Examples.Tanks
 {
-    public float destroyAfter = 5;
-    public Rigidbody rigidBody;
-    public float force = 1000;
-
-    public override void OnStartServer()
+    public class Projectile : NetworkBehaviour
     {
-        Invoke(nameof(DestroySelf), destroyAfter);
-    }
+        public float destroyAfter = 5;
+        public Rigidbody rigidBody;
+        public float force = 1000;
 
-    // set velocity for server and client. this way we don't have to sync the
-    // position, because both the server and the client simulate it.
-    void Start()
-    {
-        rigidBody.AddForce(transform.forward * force);
-    }
+        public override void OnStartServer()
+        {
+            Invoke(nameof(DestroySelf), destroyAfter);
+        }
 
-    // destroy for everyone on the server
-    [Server]
-    void DestroySelf()
-    {
-        NetworkServer.Destroy(gameObject);
-    }
+        // set velocity for server and client. this way we don't have to sync the
+        // position, because both the server and the client simulate it.
+        void Start()
+        {
+            rigidBody.AddForce(transform.forward * force);
+        }
 
-    // ServerCallback because we don't want a warning if OnTriggerEnter is
-    // called on the client
-    [ServerCallback]
-    void OnTriggerEnter(Collider co)
-    {
-        NetworkServer.Destroy(gameObject);
+        // destroy for everyone on the server
+        [Server]
+        void DestroySelf()
+        {
+            NetworkServer.Destroy(gameObject);
+        }
+
+        // ServerCallback because we don't want a warning if OnTriggerEnter is
+        // called on the client
+        [ServerCallback]
+        void OnTriggerEnter(Collider co)
+        {
+            NetworkServer.Destroy(gameObject);
+        }
     }
 }

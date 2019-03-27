@@ -13,9 +13,4 @@ General description of Classes
 -   [Attributes](Attributes)  
 	Networking attributes are added to member functions of NetworkBehaviour scripts, to make them run on either the client or server.
 -   [SyncLists](SyncLists)  
-    SyncLists contain lists of values:
-	-   SyncListString
-	-   SyncListFloat
-	-   SyncListInt
-	-   SyncListUInt
-	-   SyncListBool
+    SyncLists contain lists of values and synchronize data from servers to clients.
