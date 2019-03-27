@@ -6,8 +6,8 @@ namespace Mirror
 {
     public static class NetworkServer
     {
-        static bool s_Initialized;
-        static int s_MaxConnections;
+        static bool initialized;
+        static int maxConnections;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for downwards compatibility because they removed the real localConnections list a while ago)
@@ -30,7 +30,7 @@ namespace Mirror
 
         public static void Shutdown()
         {
-            if (s_Initialized)
+            if (initialized)
             {
                 DisconnectAll();
 
@@ -48,7 +48,7 @@ namespace Mirror
                 Transport.activeTransport.OnServerDataReceived.RemoveListener(OnDataReceived);
                 Transport.activeTransport.OnServerError.RemoveListener(OnError);
 
-                s_Initialized = false;
+                initialized = false;
             }
             dontListen = false;
             active = false;
@@ -58,10 +58,10 @@ namespace Mirror
 
         static void Initialize()
         {
-            if (s_Initialized)
+            if (initialized)
                 return;
 
-            s_Initialized = true;
+            initialized = true;
             if (LogFilter.Debug) Debug.Log("NetworkServer Created version " + Version.Current);
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
@@ -80,10 +80,10 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing);
         }
 
-        public static bool Listen(int maxConnections)
+        public static bool Listen(int maxConns)
         {
             Initialize();
-            s_MaxConnections = maxConnections;
+            maxConnections = maxConns;
 
             // only start server if we want to listen
             if (!dontListen)
@@ -356,7 +356,7 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count < s_MaxConnections)
+            if (connections.Count < maxConnections)
             {
                 // get ip address from connection
                 string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
