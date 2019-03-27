@@ -13,6 +13,7 @@ install:
   - bundle install
   - cd ..
   - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
+  - choco install unitypackager
   
 #build:
 #  project: Mirror/Networking.sln
@@ -27,9 +28,11 @@ build_script:
   - ruby checksite.rb
   - cd ..
 
+after_build:
+  - UnityPackager pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE
+
 artifacts:
-  - path: Assets
-    name: Mirror
+  - path: Mirror.unitypackage
 
 image: Visual Studio 2017
 
