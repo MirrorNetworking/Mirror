@@ -21,7 +21,7 @@ namespace Mirror
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
         [Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
-        public bool isConnected { get; protected set; }
+        public bool isConnected => true;
 
         // this is always 0 for regular connections, -1 for local
         // connections because it's set in the constructor and never reset.
@@ -37,7 +37,6 @@ namespace Mirror
             address = networkAddress;
             connectionId = networkConnectionId;
 #pragma warning disable 618
-            isConnected = true;
             hostId = 0;
 #pragma warning restore 618
         }
@@ -86,14 +85,13 @@ namespace Mirror
             if (Transport.activeTransport.ServerActive() && connectionId != 0)
             {
                 Transport.activeTransport.ServerDisconnect(connectionId);
-            }            
+            }
             // not server and not host mode? then disconnect client
             else
             {
                 Transport.activeTransport.ClientDisconnect();
             }
 
-            // remove observers
             RemoveObservers();
         }
 
