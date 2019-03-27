@@ -117,16 +117,10 @@ namespace Mirror
         }
 
         [Obsolete("Set connection.playerController directly instead.")]
-        internal void SetPlayerController(NetworkIdentity player)
-        {
-            playerController = player;
-        }
+        internal void SetPlayerController(NetworkIdentity player) => playerController = player;
 
         [Obsolete("Set connection.playerController = null; directly instead.")]
-        internal void RemovePlayerController()
-        {
-            playerController = null;
-        }
+        internal void RemovePlayerController() => playerController = null;
 
         [Obsolete("use Send<T> instead")]
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
