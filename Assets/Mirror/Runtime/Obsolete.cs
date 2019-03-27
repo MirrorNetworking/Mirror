@@ -11,7 +11,7 @@ using UnityEngine;
 /// the project.
 /// 
 /// In many cases the methods here are written to directly call their replacements
-/// so you likley can copy that code to your own project to clear the obsolete warnings.
+/// so you likely can copy that code to your own project to clear the obsolete warnings.
 /// 
 /// Those wishing to submit a PR that would obsolete something in a core class must move
 /// the obsoleted property or method to this file with appropriate comments and include
