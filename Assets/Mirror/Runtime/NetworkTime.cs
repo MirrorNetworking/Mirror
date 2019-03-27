@@ -13,7 +13,7 @@ namespace Mirror
         // average out the last few results from Ping
         public static int PingWindowSize = 10;
 
-        internal static double lastPingTime;
+        static double lastPingTime;
 
 
         // Date and time when the application started
@@ -45,16 +45,11 @@ namespace Mirror
             offsetMax = double.MaxValue;
         }
 
-        internal static NetworkPingMessage GetPing()
-        {
-            return new NetworkPingMessage(LocalTime());
-        }
-
         internal static void UpdateClient()
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = GetPing();
+                NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
                 NetworkClient.Send(pingMessage);
                 lastPingTime = Time.time;
             }
