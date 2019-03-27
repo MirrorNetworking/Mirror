@@ -27,7 +27,8 @@ namespace Mirror
 
         internal static ConnectState connectState = ConnectState.None;
 
-        public static string serverIp { get; internal set; } = "";
+        [Obsolete("Use NetworkClient.connection.address instead.")]
+        public static string serverIp => connection.address;
 
         // active is true while a client is connecting/connected
         // (= while the network is active)
@@ -49,22 +50,20 @@ namespace Mirror
         }
 
         // connect remote
-        public static void Connect(string ip)
+        public static void Connect(string address)
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + ip);
+            if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
             active = true;
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
 
-            serverIp = ip;
-
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(ip);
+            Transport.activeTransport.ClientConnect(address);
 
             // setup all the handlers
-            connection = new NetworkConnection(serverIp, 0);
+            connection = new NetworkConnection(address, 0);
             connection.SetHandlers(handlers);
         }
 
