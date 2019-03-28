@@ -774,13 +774,14 @@ namespace Mirror
 
         public virtual void OnStartHost() {}
         public virtual void OnStartServer() {}
+
         public virtual void OnStartClient()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             OnStartClient(NetworkClient.singleton);
 #pragma warning restore CS0618 // Type or member is obsolete
         }
-        
+
         public virtual void OnStopServer() {}
         public virtual void OnStopClient() {}
         public virtual void OnStopHost() {}
