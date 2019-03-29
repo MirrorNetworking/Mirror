@@ -662,18 +662,6 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn, NetworkMessage extraMessage)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
-        [Obsolete("Use OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) instead")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
-        {
-            OnServerAddPlayer(conn, null);
-        }
-
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
