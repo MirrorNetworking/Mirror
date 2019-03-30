@@ -6,17 +6,17 @@ State synchronization is done from the Server to remote clients. The local clien
 
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
 
--   [SyncVars](SyncVars)  
+-   [SyncVars](../Classes/SyncVars)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
--   [SyncEvents](SyncEvent)  
+-   [SyncEvents](../Classes/SyncEvent)  
     SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the GameObject, they trigger Events instead.
--   [SyncLists](SyncLists)  
+-   [SyncLists](../Classes/SyncLists)  
     SyncLists contain lists of values and synchronize data from servers to clients.
--   [SyncDictionary](SyncDictionary)  
+-   [SyncDictionary](../Classes/SyncDictionary)  
     A SyncDictionary is an associative array containing an unordered list of key, value pairs.
--   [SyncHashSet](SyncHashSet)  
+-   [SyncHashSet](../Classes/SyncHashSet)  
     Description Needed
--   [SyncSortedSet](SyncSortedSet)  
+-   [SyncSortedSet](../Classes/SyncSortedSet)  
     Description Needed
 
 ## Advanced State Synchronization
