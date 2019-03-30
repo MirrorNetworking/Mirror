@@ -6,6 +6,8 @@
 - Added: [SyncDictionary](../Classes/SyncDictionary)
 - Added: [SyncHashSet](../Classes/SyncHashSet)
 - Added: [SyncSortedSet](../Classes/SyncSortedSet)
+- Added: Documentation for [SyncVars](../Classes/SyncVars)
+- Added: Documentation for [SyncEvents](../Classes/SyncEvent)
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
