@@ -100,6 +100,13 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt32(int i)
+        {
+            uint zigzagged = (uint)((i >> 31) ^ (i << 1));
+            WritePackedUInt32(zigzagged);
+        }
+
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         public void WritePackedUInt32(uint value)
         {
@@ -216,15 +223,15 @@ namespace Mirror
 
         public void Write(Vector2Int value)
         {
-            WritePackedUInt32((uint)value.x);
-            WritePackedUInt32((uint)value.y);
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
         }
 
         public void Write(Vector3Int value)
         {
-            WritePackedUInt32((uint)value.x);
-            WritePackedUInt32((uint)value.y);
-            WritePackedUInt32((uint)value.z);
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
+            WritePackedInt32(value.z);
         }
 
         public void Write(Color value)

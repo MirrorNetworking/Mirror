@@ -19,8 +19,8 @@ namespace Mirror
 
     public class SyncListInt : SyncList<int>
     {
-        protected override void SerializeItem(NetworkWriter writer, int item) => writer.WritePackedUInt32((uint)item);
-        protected override int DeserializeItem(NetworkReader reader) => (int)reader.ReadPackedUInt32();
+        protected override void SerializeItem(NetworkWriter writer, int item) => writer.WritePackedInt32(item);
+        protected override int DeserializeItem(NetworkReader reader) => reader.ReadPackedInt32();
     }
 
     public class SyncListUInt : SyncList<uint>
