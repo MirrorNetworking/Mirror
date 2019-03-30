@@ -330,7 +330,7 @@ namespace Mirror
 
         public T this[int i]
         {
-            get { return objects[i]; }
+            get => objects[i];
             set
             {
                 bool changed = false;
