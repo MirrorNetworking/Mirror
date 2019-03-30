@@ -44,8 +44,6 @@
       url: "/Concepts/Setup"
     - title: "State Syncronization"
       url: "/Concepts/StateSync"
-    - title: "Advanced State Syncronization"
-      url: "/Concepts/StateSyncAdvanced"
     - title: "Visibility"
       url: "/Concepts/Visibility"
     - title: "Custom Visibility"
