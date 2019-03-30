@@ -341,6 +341,8 @@ namespace Mirror
 
     public abstract class SyncSortedSet<T> : SyncSet<T>
     {
-        protected SyncSortedSet() : base(new SortedSet<T>()) { }
+        protected SyncSortedSet() : base(new SortedSet<T>()) {}
+
+        protected SyncSortedSet(IComparer<T> comparer) : base (new SortedSet<T>(comparer)) {}
     }
 }
