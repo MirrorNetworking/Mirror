@@ -128,6 +128,8 @@
       url: "/Classes/SyncDictionary"
     - title: "SyncHashSet"
       url: "/Classes/SyncHashSet"
+    - title: "SyncSortedSet"
+      url: "/Classes/SyncSortedSet"
 - title: "Events"
   children: 
     - title: "Application Events"
