@@ -31,7 +31,7 @@ namespace Mirror
             internal V item;
         }
 
-        readonly List<Change> Changes = new List<Change>();
+        readonly List<Change> changes = new List<Change>();
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
@@ -43,7 +43,7 @@ namespace Mirror
         protected virtual K DeserializeKey(NetworkReader reader) => default;
         protected virtual V DeserializeItem(NetworkReader reader) => default;
 
-        public bool IsDirty => Changes.Count > 0;
+        public bool IsDirty => changes.Count > 0;
 
         public ICollection<K> Keys => objects.Keys;
 
@@ -51,7 +51,7 @@ namespace Mirror
 
         // throw away all the changes
         // this should be called after a successfull sync
-        public void Flush() => Changes.Clear();
+        public void Flush() => changes.Clear();
 
         public SyncDictionary()
         {
@@ -77,7 +77,7 @@ namespace Mirror
                 item = item
             };
 
-            Changes.Add(change);
+            changes.Add(change);
 
             Callback?.Invoke(op, key, item);
         }
@@ -97,17 +97,17 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WritePackedUInt32((uint)Changes.Count);
+            writer.WritePackedUInt32((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WritePackedUInt32((uint)Changes.Count);
+            writer.WritePackedUInt32((uint)changes.Count);
 
-            for (int i = 0; i < Changes.Count; i++)
+            for (int i = 0; i < changes.Count; i++)
             {
-                Change change = Changes[i];
+                Change change = changes[i];
                 writer.Write((byte)change.operation);
 
                 switch (change.operation)
@@ -134,7 +134,7 @@ namespace Mirror
             int count = (int)reader.ReadPackedUInt32();
 
             objects.Clear();
-            Changes.Clear();
+            changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
