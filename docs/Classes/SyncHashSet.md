@@ -47,8 +47,8 @@ class Player : NetworkBehaviour {
 
     SyncSetBuffs buffs = new SyncSetBuffs();
 
-    // this will add the delegates on both server and client.
-    // Use OnStartClient instead if you just want the client to act upon updates
+    // this will add the delegate on the client.
+    // Use OnStartServer instead if you want it on the server
     public override void OnStartClient()
     {
         buffs.Callback += OnBuffsChanged;
