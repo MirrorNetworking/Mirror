@@ -42,7 +42,7 @@ namespace Mirror
             this.objects = objects;
         }
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
+        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => changes.Count > 0;
