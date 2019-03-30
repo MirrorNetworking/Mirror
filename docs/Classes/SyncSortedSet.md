@@ -61,7 +61,7 @@ class Player : NetworkBehaviour {
         switch (op) 
         {
             case SyncSetBuffs.Operation.OP_ADD:
-                // we added a buff,  draw an icon on the character
+                // we added a buff, draw an icon on the character
                 break;
             case SyncSetBuffs.Operation.OP_CLEAR:
                 // clear all buffs from the character
