@@ -1,3 +1,3 @@
 # SyncSortedSet
 
-Need description and code samples for 
+Need description and code samples for SyncSortedSet
