@@ -261,7 +261,7 @@ namespace Mirror
             }
         }
 
-        private void IntersectWithSet(ISet<T> otherSet)
+        void IntersectWithSet(ISet<T> otherSet)
         {
             List<T> elements = new List<T>(objects);
 
