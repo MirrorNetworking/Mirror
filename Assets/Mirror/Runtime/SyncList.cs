@@ -87,7 +87,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead = 0;
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
+        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
         protected virtual T DeserializeItem(NetworkReader reader) => default(T);
 
         public bool IsDirty => changes.Count > 0;
