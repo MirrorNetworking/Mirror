@@ -15,8 +15,6 @@ A SyncHashSet can contain items of the following types:
 Create a class that derives from SyncHashSet<T> for your specific type.  This is necesary because Mirror will add methods to that class with the weaver.  Then add a SyncHashSet field to your NetworkBehaviour class.   For example:
 
 ```cs
-
-
 class Player : NetworkBehaviour {
 
     class SyncSkillSet : SyncHashSet<string> {}
