@@ -56,9 +56,9 @@ namespace Mirror
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
-        readonly List<T> m_Objects = new List<T>();
+        readonly List<T> objects = new List<T>();
 
-        public int Count => m_Objects.Count;
+        public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
 
@@ -80,21 +80,21 @@ namespace Mirror
             internal T item;
         }
 
-        readonly List<Change> Changes = new List<Change>();
+        readonly List<Change> changes = new List<Change>();
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
         // so we need to skip them
         int changesAhead = 0;
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
-        protected virtual T DeserializeItem(NetworkReader reader) => default(T);
+        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
+        protected virtual T DeserializeItem(NetworkReader reader) => default;
 
-        public bool IsDirty => Changes.Count > 0;
+        public bool IsDirty => changes.Count > 0;
 
         // throw away all the changes
         // this should be called after a successfull sync
-        public void Flush() => Changes.Clear();
+        public void Flush() => changes.Clear();
 
         void AddOperation(Operation op, int itemIndex, T item)
         {
@@ -110,21 +110,21 @@ namespace Mirror
                 item = item
             };
 
-            Changes.Add(change);
+            changes.Add(change);
 
             Callback?.Invoke(op, itemIndex, item);
         }
 
-        void AddOperation(Operation op, int itemIndex) => AddOperation(op, itemIndex, default(T));
+        void AddOperation(Operation op, int itemIndex) => AddOperation(op, itemIndex, default);
 
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.Write(m_Objects.Count);
+            writer.Write(objects.Count);
 
-            for (int i = 0; i < m_Objects.Count; i++)
+            for (int i = 0; i < objects.Count; i++)
             {
-                T obj = m_Objects[i];
+                T obj = objects[i];
                 SerializeItem(writer, obj);
             }
 
@@ -132,17 +132,17 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.Write(Changes.Count);
+            writer.Write(changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.Write(Changes.Count);
+            writer.Write(changes.Count);
 
-            for (int i = 0; i < Changes.Count; i++)
+            for (int i = 0; i < changes.Count; i++)
             {
-                Change change = Changes[i];
+                Change change = changes[i];
                 writer.Write((byte)change.operation);
 
                 switch (change.operation)
@@ -184,13 +184,13 @@ namespace Mirror
             // if init,  write the full list content
             int count = reader.ReadInt32();
 
-            m_Objects.Clear();
-            Changes.Clear();
+            objects.Clear();
+            changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
                 T obj = DeserializeItem(reader);
-                m_Objects.Add(obj);
+                objects.Add(obj);
             }
 
             // We will need to skip all these changes
@@ -214,7 +214,7 @@ namespace Mirror
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
                 int index = 0;
-                T item = default(T);
+                T item = default;
 
                 switch (operation)
                 {
@@ -222,15 +222,15 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            index = m_Objects.Count;
-                            m_Objects.Add(item);
+                            index = objects.Count;
+                            objects.Add(item);
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            m_Objects.Clear();
+                            objects.Clear();
                         }
                         break;
 
@@ -239,7 +239,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects.Insert(index, item);
+                            objects.Insert(index, item);
                         }
                         break;
 
@@ -247,7 +247,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects.Remove(item);
+                            objects.Remove(item);
                         }
                         break;
 
@@ -255,8 +255,8 @@ namespace Mirror
                         index = (int)reader.ReadPackedUInt32();
                         if (apply)
                         {
-                            item = m_Objects[index];
-                            m_Objects.RemoveAt(index);
+                            item = objects[index];
+                            objects.RemoveAt(index);
                         }
                         break;
 
@@ -266,7 +266,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects[index] = item;
+                            objects[index] = item;
                         }
                         break;
                 }
@@ -285,31 +285,31 @@ namespace Mirror
 
         public void Add(T item)
         {
-            m_Objects.Add(item);
-            AddOperation(Operation.OP_ADD, m_Objects.Count - 1, item);
+            objects.Add(item);
+            AddOperation(Operation.OP_ADD, objects.Count - 1, item);
         }
 
         public void Clear()
         {
-            m_Objects.Clear();
+            objects.Clear();
             AddOperation(Operation.OP_CLEAR, 0);
         }
 
-        public bool Contains(T item) => m_Objects.Contains(item);
+        public bool Contains(T item) => objects.Contains(item);
 
-        public void CopyTo(T[] array, int index) => m_Objects.CopyTo(array, index);
+        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
 
-        public int IndexOf(T item) => m_Objects.IndexOf(item);
+        public int IndexOf(T item) => objects.IndexOf(item);
 
         public void Insert(int index, T item)
         {
-            m_Objects.Insert(index, item);
+            objects.Insert(index, item);
             AddOperation(Operation.OP_INSERT, index, item);
         }
 
         public bool Remove(T item)
         {
-            bool result = m_Objects.Remove(item);
+            bool result = objects.Remove(item);
             if (result)
             {
                 AddOperation(Operation.OP_REMOVE, 0, item);
@@ -319,22 +319,22 @@ namespace Mirror
 
         public void RemoveAt(int index)
         {
-            m_Objects.RemoveAt(index);
+            objects.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index);
         }
 
         public void Dirty(int index)
         {
-            AddOperation(Operation.OP_DIRTY, index, m_Objects[index]);
+            AddOperation(Operation.OP_DIRTY, index, objects[index]);
         }
 
         public T this[int i]
         {
-            get { return m_Objects[i]; }
+            get { return objects[i]; }
             set
             {
                 bool changed = false;
-                if (m_Objects[i] == null)
+                if (objects[i] == null)
                 {
                     if (value == null)
                         return;
@@ -343,10 +343,10 @@ namespace Mirror
                 }
                 else
                 {
-                    changed = !m_Objects[i].Equals(value);
+                    changed = !objects[i].Equals(value);
                 }
 
-                m_Objects[i] = value;
+                objects[i] = value;
                 if (changed)
                 {
                     AddOperation(Operation.OP_SET, i, value);
@@ -354,7 +354,7 @@ namespace Mirror
             }
         }
 
-        public IEnumerator<T> GetEnumerator() => m_Objects.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
