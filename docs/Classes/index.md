@@ -21,6 +21,6 @@ General description of Classes
 -   [SyncDictionary](SyncDictionary)  
     A SyncDictionary is an associative array containing an unordered list of key, value pairs.
 -   [SyncHashSet](SyncHashSet)  
-    Description Needed
+    An unordered set of values that do not repeat.
 -   [SyncSortedSet](SyncSortedSet)  
-    Description Needed
+    A sorted set of values tha do not repeat.
