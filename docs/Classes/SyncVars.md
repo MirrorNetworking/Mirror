@@ -24,4 +24,6 @@ SyncVars can be basic types such as integers, strings and floats. They can also 
 
 The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself.
 
+## SyncVar Hooks
+
 The [SyncVar hook](SyncVarHook) attribute can be used to specify a method to be called when the SyncVar changes value on the client.
