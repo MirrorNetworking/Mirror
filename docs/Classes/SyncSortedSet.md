@@ -17,8 +17,6 @@ A SyncSortedSet can contain items of the following types:
 Create a class that derives from SyncSortedSet<T> for your specific type.  This is necesary because Mirror will add methods to that class with the weaver.  Then add a SyncSortedSet field to your NetworkBehaviour class.   For example:
 
 ```cs
-
-
 class Player : NetworkBehaviour {
 
     class SyncSkillSet : SyncSortedSet<string> {}
