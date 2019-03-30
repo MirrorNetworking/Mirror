@@ -274,35 +274,17 @@ namespace Mirror
             }
         }
 
-        public bool IsProperSubsetOf(IEnumerable<T> other)
-        {
-            return objects.IsProperSubsetOf(other);
-        }
+        public bool IsProperSubsetOf(IEnumerable<T> other) => objects.IsProperSubsetOf(other);
 
-        public bool IsProperSupersetOf(IEnumerable<T> other)
-        {
-            return objects.IsProperSupersetOf(other);
-        }
+        public bool IsProperSupersetOf(IEnumerable<T> other) => objects.IsProperSupersetOf(other);
 
-        public bool IsSubsetOf(IEnumerable<T> other)
-        {
-            return objects.IsSubsetOf(other);
-        }
+        public bool IsSubsetOf(IEnumerable<T> other) => objects.IsSubsetOf(other);
 
-        public bool IsSupersetOf(IEnumerable<T> other)
-        {
-            return objects.IsSupersetOf(other);
-        }
+        public bool IsSupersetOf(IEnumerable<T> other) => objects.IsSupersetOf(other);
 
-        public bool Overlaps(IEnumerable<T> other)
-        {
-            return objects.Overlaps(other);
-        }
+        public bool Overlaps(IEnumerable<T> other) => objects.Overlaps(other);
 
-        public bool SetEquals(IEnumerable<T> other)
-        {
-            return objects.SetEquals(other);
-        }
+        public bool SetEquals(IEnumerable<T> other) => objects.SetEquals(other);
 
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
