@@ -69,7 +69,7 @@ namespace Mirror
             Callback?.Invoke(op, item);
         }
 
-        void AddOperation(Operation op) => AddOperation(op, default(T));
+        void AddOperation(Operation op) => AddOperation(op, default);
 
         public void OnSerializeAll(NetworkWriter writer)
         {
