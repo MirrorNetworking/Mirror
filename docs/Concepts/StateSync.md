@@ -15,9 +15,9 @@ Data is not synchronized in the opposite direction - from remote clients to the 
 -   [SyncDictionary](../Classes/SyncDictionary)  
     A SyncDictionary is an associative array containing an unordered list of key, value pairs.
 -   [SyncHashSet](../Classes/SyncHashSet)  
-    Description Needed
+    An unordered set of values that do not repeat.
 -   [SyncSortedSet](../Classes/SyncSortedSet)  
-    Description Needed
+    A sorted set of values tha do not repeat.
 
 ## Advanced State Synchronization
 
