@@ -12,7 +12,7 @@ namespace Mirror.Tests
         SyncSetString serverSyncSet;
         SyncSetString clientSyncSet;
 
-        private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
+        private void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
