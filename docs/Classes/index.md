@@ -15,7 +15,7 @@ General description of Classes
 -   [SyncLists](SyncLists)  
     SyncLists contain lists of values and synchronize data from servers to clients.
 -   [SyncDictionary](SyncDictionary)  
-    Description Needed
+    A SyncDictionary is an associative array containing an unordered list of key, value pairs.
 -   [SyncHashSet](SyncHashSet)  
     Description Needed
 -   [SyncSortedSet](SyncSortedSet)  
