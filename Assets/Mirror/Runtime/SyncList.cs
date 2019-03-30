@@ -88,7 +88,7 @@ namespace Mirror
         int changesAhead = 0;
 
         protected virtual void SerializeItem(NetworkWriter writer, T item) {}
-        protected virtual T DeserializeItem(NetworkReader reader) => default(T);
+        protected virtual T DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => changes.Count > 0;
 
@@ -115,7 +115,7 @@ namespace Mirror
             Callback?.Invoke(op, itemIndex, item);
         }
 
-        void AddOperation(Operation op, int itemIndex) => AddOperation(op, itemIndex, default(T));
+        void AddOperation(Operation op, int itemIndex) => AddOperation(op, itemIndex, default);
 
         public void OnSerializeAll(NetworkWriter writer)
         {
@@ -214,7 +214,7 @@ namespace Mirror
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
                 int index = 0;
-                T item = default(T);
+                T item = default;
 
                 switch (operation)
                 {
