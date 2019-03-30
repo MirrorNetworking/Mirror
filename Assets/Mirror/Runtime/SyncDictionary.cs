@@ -53,12 +53,12 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
-        public SyncDictionary()
+        protected SyncDictionary()
         {
             objects = new Dictionary<K, V>();
         }
 
-        public SyncDictionary(IEqualityComparer<K> eq)
+        protected SyncDictionary(IEqualityComparer<K> eq)
         {
             objects = new Dictionary<K, V>(eq);
         }
