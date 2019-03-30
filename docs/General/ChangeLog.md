@@ -3,7 +3,9 @@
 ## Version 1.7 -- In Progress
 
 - Added: Semantic Versioning
-- Added: [SyncDictionary](../Classes/SyncDictionary) ... [SyncHashSet](../Classes/SyncHashSet) coming soon™
+- Added: [SyncDictionary](../Classes/SyncDictionary)
+- Added: [SyncHashSet](../Classes/SyncHashSet)
+- Added: [SyncSortedSet](../Classes/SyncSortedSet)
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types
