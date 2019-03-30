@@ -64,6 +64,7 @@ namespace Mirror.Weaver
 
         public static TypeReference MessageBaseType;
         public static TypeReference SyncListType;
+        public static TypeReference SyncSetType;
         public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
@@ -1130,6 +1131,7 @@ namespace Mirror.Weaver
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
             SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
+            SyncSetType = NetAssembly.MainModule.GetType("Mirror.SyncSet`1");
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
@@ -1369,6 +1371,12 @@ namespace Mirror.Weaver
             while (parent != null)
             {
                 if (parent.FullName.StartsWith(SyncListType.FullName))
+                {
+                    SyncListProcessor.Process(td);
+                    didWork = true;
+                    break;
+                }
+                else if (parent.FullName.StartsWith(SyncSetType.FullName))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
