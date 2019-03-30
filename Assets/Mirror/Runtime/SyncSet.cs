@@ -35,7 +35,7 @@ namespace Mirror
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
         // so we need to skip them
-        int changesAhead = 0;
+        int changesAhead;
 
         protected SyncSet(ISet<T> objects)
         {
