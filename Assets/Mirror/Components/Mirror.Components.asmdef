@@ -1,5 +1,5 @@
 {
-    "name": "MirrorComponents",
+    "name": "Mirror.Components",
     "references": [
         "Mirror"
     ],
