@@ -10,8 +10,8 @@ namespace Mirror
         static int maxConnections;
 
         // original HLAPI has .localConnections list with only m_LocalConnection in it
-        // (for downwards compatibility because they removed the real localConnections list a while ago)
-        // => removed it for easier code. use .localConection now!
+        // (for backwards compatibility because they removed the real localConnections list a while ago)
+        // => removed it for easier code. use .localConnection now!
         public static NetworkConnection localConnection { get; private set; }
 
         // <connectionId, NetworkConnection>
