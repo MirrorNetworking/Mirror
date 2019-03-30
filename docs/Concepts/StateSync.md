@@ -6,124 +6,172 @@ State synchronization is done from the Server to remote clients. The local clien
 
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
 
-## SyncVars
+-   [SyncVars](SyncVars)  
+    SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
+-   [SyncEvents](SyncEvent)  
+    SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the GameObject, they trigger Events instead.
+-   [SyncLists](SyncLists)  
+    SyncLists contain lists of values and synchronize data from servers to clients.
+-   [SyncDictionary](SyncDictionary)  
+    A SyncDictionary is an associative array containing an unordered list of key, value pairs.
+-   [SyncHashSet](SyncHashSet)  
+    Description Needed
+-   [SyncSortedSet](SyncSortedSet)  
+    Description Needed
 
-SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. When a GameObject is spawned, or a new player joins a game in progress, they are sent the latest state of all SyncVars on networked objects that are visible to them. Use the `SyncVar` custom attribute to specify which variables in your script you want to synchronize, like this:
+## Advanced State Synchronization
+
+In most cases, the use of SyncVars is enough for your game scripts to serialize their state to clients. However in some cases you might require more complex serialization code. This page is only relevant for advanced developers who need customized synchronization solutions that go beyond Mirror’s normal SyncVar feature.
+
+## Custom Serialization Functions
+
+To perform your own custom serialization, you can implement virtual functions on NetworkBehaviour to be used for SyncVar serialization. These functions are:
 
 ```cs
-class Player : NetworkBehaviour
+public virtual bool OnSerialize(NetworkWriter writer, bool initialState);
+```
+
+```cs
+public virtual void OnDeSerialize(NetworkReader reader, bool initialState);
+```
+
+Use the `initialState` flag to differentiate between the first time a GameObject[​](ttps://docs.unity3d.com/Manual/class-GameObject.htmlhttps://docs.unity3d.com/Manual/Glossary.html#GameObject) is serialized and when incremental updates can be sent. The first time a GameObject is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when `initialState` is true; they are only called for incremental updates.
+
+If a class has SyncVars, then implementations of these functions are added automatically to the class, meaning that a class that has SyncVars cannot also have custom serialization functions.
+
+The `OnSerialize` function should return true to indicate that an update should be sent. If it returns true, the dirty bits for that script are set to zero. If it returns false, the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.
+
+## Serialization Flow
+
+GameObjects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these GameObjects is:
+
+On the server:
+
+-   Each `NetworkBehaviour` has a dirty mask. This mask is available inside `OnSerialize` as `syncVarDirtyBits`
+-   Each SyncVar in a `NetworkBehaviour` script is assigned a bit in the dirty mask.
+-   Changing the value of SyncVars causes the bit for that SyncVar to be set in the dirty mask
+-   Alternatively, calling `SetDirtyBit` writes directly to the dirty mask
+-   NetworkIdentity GameObjects are checked on the server as part of it’s update loop
+-   If any `NetworkBehaviours` on a `NetworkIdentity` are dirty, then an `UpdateVars` packet is created for that GameObject
+-   The `UpdateVars` packet is populated by calling `OnSerialize` on each `NetworkBehaviour` on the GameObject
+-   `NetworkBehaviours` that are not dirty write a zero to the packet for their dirty bits
+-   `NetworkBehaviours` that are dirty write their dirty mask, then the values for the SyncVars that have changed
+-   If `OnSerialize` returns true for a `NetworkBehaviour`, the dirty mask is reset for that `NetworkBehaviour` so it does not send again until its value changes.
+-   The `UpdateVars` packet is sent to ready clients that are observing the GameObject
+
+On the client:
+
+-   an `UpdateVars packet` is received for a GameObject
+-   The `OnDeserialize` function is called for each `NetworkBehaviour` script on the GameObject
+-   Each `NetworkBehaviour` script on the GameObject reads a dirty mask.
+-   If the dirty mask for a `NetworkBehaviour` is zero, the `OnDeserialize` function returns without reading any more
+-   If the dirty mask is non-zero value, then the `OnDeserialize` function reads the values for the SyncVars that correspond to the dirty bits that are set
+-   If there are SyncVar hook functions, those are invoked with the value read from the stream.
+
+So for this script:
+
+```cs
+public class data : NetworkBehaviour
 {
     [SyncVar]
-    int health;
+    public int int1 = 66;
 
-    public void TakeDamage(int amount)
-    {
-        if (!isServer)
-            return;
+    [SyncVar]
+    public int int2 = 23487;
 
-        health -= amount;
-    }
+    [SyncVar]
+    public string MyString = "Example string";
 }
 ```
 
-The state of SyncVars is applied to GameObjects on clients before OnStartClient() is called, so the state of the object is always up-to-date inside OnStartClient().
-
-SyncVars can be basic types such as integers, strings and floats. They can also be Unity types such as Vector3 and user-defined structs, but updates for struct SyncVars are sent as monolithic updates, not incremental changes if fields within a struct change. You can have up to 32 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
-
-The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself.
-
-## SyncLists
-
-While SyncVars contain values, SyncLists contain lists of values. SyncList contents are included in initial state updates along with SyncVar states. Since SyncList is a class which synchronises its own contents, SyncLists do not require the SyncVar attribute. The following types of SyncList are available for basic types:
-
--   SyncListString
--   SyncListFloat
--   SyncListInt
--   SyncListUInt
--   SyncListBool
-
-There is also SyncListSTRUCT, which you can use to synchronize lists of your own struct types. When using SyncListSTRUCT, the struct type that you choose to use can contain members of basic types, arrays, and common Unity types. They cannot contain complex classes or generic containers, and only public variables in these structs are serialized.
-
-SyncLists have a SyncListChanged delegate named Callback that allows clients to be notified when the contents of the list change. This delegate is called with the type of operation that occurred, and the index of the item that the operation was for.
+The following code sample demonstrates the generated `OnSerialize` function:
 
 ```cs
-public class MyScript : NetworkBehaviour
+public override bool OnSerialize(NetworkWriter writer, bool forceAll)
 {
-    public struct Buf
+    if (forceAll)
     {
-        public int id;
-        public string name;
-        public float timer;
-    };
-            
-    public class TestBufs : SyncListSTRUCT<Buf> {}
+        // The first time a GameObject is sent to a client, send all the data (and no dirty bits)
+        writer.WritePackedUInt32((uint)this.int1);
+        writer.WritePackedUInt32((uint)this.int2);
+        writer.Write(this.MyString);
+        return true;
+    }
 
-    TestBufs m_bufs = new TestBufs();
-    
-    void BufChanged(Operation op, int itemIndex)
+    bool wroteSyncVar = false;
+    if ((base.get_syncVarDirtyBits() & 1u) != 0u)
     {
-        Debug.Log("buf changed:" + op);
+        if (!wroteSyncVar)
+        {
+            // Write dirty bits if this is the first SyncVar written
+            writer.WritePackedUInt32(base.get_syncVarDirtyBits());
+            wroteSyncVar = true;
+        }
+        writer.WritePackedUInt32((uint)this.int1);
     }
-    
-    void OnStartClient()
+
+    if ((base.get_syncVarDirtyBits() & 2u) != 0u)
     {
-        m_bufs.Callback = BufChanged;
+        if (!wroteSyncVar)
+        {
+            // Write dirty bits if this is the first SyncVar written
+            writer.WritePackedUInt32(base.get_syncVarDirtyBits());
+            wroteSyncVar = true;
+        }
+        writer.WritePackedUInt32((uint)this.int2);
     }
+
+    if ((base.get_syncVarDirtyBits() & 4u) != 0u)
+    {
+        if (!wroteSyncVar)
+        {
+            // Write dirty bits if this is the first SyncVar written
+            writer.WritePackedUInt32(base.get_syncVarDirtyBits());
+            wroteSyncVar = true;
+        }
+        writer.Write(this.MyString);
+    }
+
+    if (!wroteSyncVar)
+    {
+        // Write zero dirty bits if no SyncVars were written
+        writer.WritePackedUInt32(0);
+    }
+    return wroteSyncVar;
 }
 ```
 
-## SyncDictionaries
-
-A `SyncDictionary` is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
-
-- Basic type (byte, int, float, string, UInt64, etc)
-- Built-in Unity math type (Vector3, Quaternion, etc)
-- NetworkIdentity
-- GameObject with a NetworkIdentity component attached.
-- Struct with any of the above
-
-SyncDictionaries work much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
-
-To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
-
-### Simple Example
+The following code sample demonstrates the `OnDeserialize` function:
 
 ```cs
-using UnityEngine;
-using Mirror;
-
-public class ExamplePlayer : NetworkBehaviour
+public override void OnDeserialize(NetworkReader reader, bool initialState)
 {
-    public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
-
-    public struct Item
+    if (initialState)
     {
-        public string name;
-        public int hitPoints;
-        public int durability;
+        this.int1 = (int)reader.ReadPackedUInt32();
+        this.int2 = (int)reader.ReadPackedUInt32();
+        this.MyString = reader.ReadString();
+        return;
     }
 
-    public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
-
-    public void OnStartServer()
+    int num = (int)reader.ReadPackedUInt32();
+    if ((num & 1) != 0)
     {
-        Equipment.Add("head", new Item { name = "Helmet", hitPoints = 10, durability = 20 });
-        Equipment.Add("body", new Item { name = "Epic Armor", hitPoints = 50, durability = 50 });
-        Equipment.Add("feet", new Item { name = "Sneakers", hitPoints = 3, durability = 40 });
-        Equipment.Add("hands", new Item { name = "Sword", hitPoints = 30, durability = 15 });
+        this.int1 = (int)reader.ReadPackedUInt32();
     }
 
-    private void OnStartClient()
+    if ((num & 2) != 0)
     {
-        // Equipment is already populated with anything the server set up
-        // but we can subscribe to the callback in case it is updated later on
-        Equipment.Callback += OnEquipmentChange;
+        this.int2 = (int)reader.ReadPackedUInt32();
     }
 
-    private void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
+    if ((num & 4) != 0)
     {
-        // equipment changed,  perhaps update the gameobject
-        Debug.Log(op + " - " + key);
+        this.MyString = reader.ReadString();
     }
 }
 ```
+
+If a `NetworkBehaviour` has a base class that also has serialization functions, the base class functions should also be called.
+
+Note that the `UpdateVar` packets created for GameObject state updates may be aggregated in buffers before being sent to the client, so a single transport layer packet may contain updates for multiple GameObjects.
