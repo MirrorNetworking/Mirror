@@ -15,10 +15,10 @@ namespace Mirror
     // TODO make fully static after removing obsoleted singleton!
     public class NetworkClient
     {
-        [Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
+        [Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).  Will be removed on 04/30/2019")]
         public static NetworkClient singleton = new NetworkClient();
 
-        [Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
+        [Obsolete("Use NetworkClient directly instead. There is always exactly one client.  Will be removed on 04/30/2019")]
         public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
 
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
@@ -187,7 +187,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
-        [Obsolete("Use SendMessage<T> instead with no message id instead")]
+        [Obsolete("Use SendMessage<T> instead with no message id instead. Will be removed on 04/30/2019")]
         public static bool Send(short msgType, MessageBase msg)
         {
             if (connection != null)
@@ -326,7 +326,7 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        [Obsolete("Use RegisterHandler<T> instead")]
+        [Obsolete("Use RegisterHandler<T> instead. Will be removed on 04/30/2019")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
@@ -336,7 +336,7 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
-        [Obsolete("Use RegisterHandler<T> instead")]
+        [Obsolete("Use RegisterHandler<T> instead. Will be removed on 04/30/2019")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);
@@ -355,13 +355,13 @@ namespace Mirror
             };
         }
 
-        [Obsolete("Use UnregisterHandler<T> instead")]
+        [Obsolete("Use UnregisterHandler<T> instead. Will be removed on 04/30/2019")]
         public static void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
 
-        [Obsolete("Use UnregisterHandler<T> instead")]
+        [Obsolete("Use UnregisterHandler<T> instead. Will be removed on 04/30/2019")]
         public static void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((int)msgType);
@@ -380,7 +380,7 @@ namespace Mirror
             active = false;
         }
 
-        [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
+        [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client. ")]
         public static void ShutdownAll()
         {
             Shutdown();

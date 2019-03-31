@@ -50,7 +50,7 @@ namespace Mirror
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
 
-        [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
+        [Obsolete("Use ServerGetClientAddress(int connectionId) instead. Will be removed on 04/30/2019")]
         public virtual bool GetConnectionInfo(int connectionId, out string address)
         {
             address = ServerGetClientAddress(connectionId);

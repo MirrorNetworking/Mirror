@@ -115,7 +115,7 @@ namespace Mirror
             m_MessageHandlers.Remove(msgType);
         }
 
-        [Obsolete("use Send<T> instead")]
+        [Obsolete("Use Send<T> instead. Will be removed on 04/30/2019")]
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send

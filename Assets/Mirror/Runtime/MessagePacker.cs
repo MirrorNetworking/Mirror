@@ -29,7 +29,7 @@ namespace Mirror
 
         // pack message before sending
         // -> pass writer instead of byte[] so we can reuse it
-        [Obsolete("Use Pack<T> instead")]
+        [Obsolete("Use Pack<T> instead. Will be removed on 04/30/2019")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
             // reset cached writer length and position
