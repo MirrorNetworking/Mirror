@@ -57,6 +57,13 @@ namespace Mirror
             return null;
         }
 
+        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public int ReadPackedInt32()
+        {
+            uint data = ReadPackedUInt32();
+            return (int)((data >> 1) ^ -(data & 1));
+        }
+
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
         public uint ReadPackedUInt32()
@@ -67,6 +74,13 @@ namespace Mirror
                 throw new IndexOutOfRangeException("ReadPackedUInt32() failure, value too large");
             }
             return (uint)value;
+        }
+
+        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public long ReadPackedInt64()
+        {
+            ulong data = ReadPackedUInt64();
+            return ((long)(data >> 1)) ^ -((long)data & 1);
         }
 
         public ulong ReadPackedUInt64()
@@ -145,12 +159,12 @@ namespace Mirror
 
         public Vector2Int ReadVector2Int()
         {
-            return new Vector2Int((int)ReadPackedUInt32(), (int)ReadPackedUInt32());
+            return new Vector2Int(ReadPackedInt32(), ReadPackedInt32());
         }
 
         public Vector3Int ReadVector3Int()
         {
-            return new Vector3Int((int)ReadPackedUInt32(), (int)ReadPackedUInt32(), (int)ReadPackedUInt32());
+            return new Vector3Int(ReadPackedInt32(), ReadPackedInt32(), ReadPackedInt32());
         }
 
         public Color ReadColor()

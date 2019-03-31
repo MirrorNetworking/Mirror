@@ -229,7 +229,7 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    writer.WritePackedUInt32((uint)newIntValue);
+                    writer.WritePackedInt32(newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
@@ -256,7 +256,7 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = (int)reader.ReadPackedUInt32();
+                    int newIntValue = reader.ReadPackedInt32();
                     animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)

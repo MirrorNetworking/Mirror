@@ -372,7 +372,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePacked64));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePackedUInt64));
 
             // generate a writer call for any dirty variable in this class
 
@@ -462,7 +462,7 @@ namespace Mirror.Weaver
 
                 // read id and store in a local variable
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkReaderReadPacked32));
+                serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedUInt32));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
 
                 if (foundMethod != null)
@@ -572,7 +572,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPacked64));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkReaderReadPackedUInt64));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar

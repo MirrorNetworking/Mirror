@@ -99,12 +99,12 @@ namespace Mirror
 
         public override void Deserialize(NetworkReader reader)
         {
-            value = (int)reader.ReadPackedUInt32();
+            value = reader.ReadPackedInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32((uint)value);
+            writer.WritePackedInt32(value);
         }
     }
 
