@@ -115,6 +115,13 @@ namespace Mirror
             WritePackedUInt64(value);
         }
 
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt64(long i)
+        {
+            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
+            WritePackedUInt64(zigzagged);
+        }
+
         public void WritePackedUInt64(ulong value)
         {
             if (value <= 240)

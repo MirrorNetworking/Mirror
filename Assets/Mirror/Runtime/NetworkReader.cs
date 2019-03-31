@@ -76,6 +76,13 @@ namespace Mirror
             return (uint)value;
         }
 
+        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public long ReadPackedInt64()
+        {
+            ulong data = ReadPackedUInt64();
+            return ((long)(data >> 1)) ^ -((long)data & 1);
+        }
+
         public ulong ReadPackedUInt64()
         {
             byte a0 = ReadByte();

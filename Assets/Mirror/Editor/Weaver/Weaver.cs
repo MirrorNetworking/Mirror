@@ -103,11 +103,13 @@ namespace Mirror.Weaver
         public static MethodReference UBehaviourIsServer;
         public static MethodReference NetworkReaderReadPackedUInt32;
         public static MethodReference NetworkReaderReadPackedInt32;
-        public static MethodReference NetworkReaderReadPacked64;
+        public static MethodReference NetworkReaderReadPackedUInt64;
+        public static MethodReference NetworkReaderReadPackedInt64;
         public static MethodReference NetworkReaderReadByte;
         public static MethodReference NetworkWriterWritePackedUInt32;
         public static MethodReference NetworkWriterWritePackedInt32;
-        public static MethodReference NetworkWriterWritePacked64;
+        public static MethodReference NetworkWriterWritePackedUInt64;
+        public static MethodReference NetworkWriterWritePackedInt64;
 
         public static MethodReference NetworkReadUInt16;
         public static MethodReference NetworkWriteUInt16;
@@ -1105,12 +1107,14 @@ namespace Mirror.Weaver
 
             NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
             NetworkReaderReadPackedInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt32");
-            NetworkReaderReadPacked64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
+            NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
+            NetworkReaderReadPackedInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt64");
             NetworkReaderReadByte = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadByte");
 
             NetworkWriterWritePackedUInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt32");
             NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
-            NetworkWriterWritePacked64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
+            NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
+            NetworkWriterWritePackedInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt64");
 
             NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16");
             NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type);
@@ -1184,8 +1188,8 @@ namespace Mirror.Weaver
                 { doubleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadDouble") },
                 { boolType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadBoolean") },
                 { stringType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadString") },
-                { int64Type.FullName, NetworkReaderReadPacked64 },
-                { uint64Type.FullName, NetworkReaderReadPacked64 },
+                { int64Type.FullName, NetworkReaderReadPackedInt64 },
+                { uint64Type.FullName, NetworkReaderReadPackedUInt64 },
                 { int32Type.FullName, NetworkReaderReadPackedInt32 },
                 { uint32Type.FullName, NetworkReaderReadPackedUInt32 },
                 { int16Type.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadInt16") },
@@ -1222,8 +1226,8 @@ namespace Mirror.Weaver
                 { doubleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", doubleType) },
                 { boolType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", boolType) },
                 { stringType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", stringType) },
-                { int64Type.FullName, NetworkWriterWritePacked64 },
-                { uint64Type.FullName, NetworkWriterWritePacked64 },
+                { int64Type.FullName, NetworkWriterWritePackedInt64 },
+                { uint64Type.FullName, NetworkWriterWritePackedUInt64 },
                 { int32Type.FullName, NetworkWriterWritePackedInt32 },
                 { uint32Type.FullName, NetworkWriterWritePackedUInt32 },
                 { int16Type.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type) },
