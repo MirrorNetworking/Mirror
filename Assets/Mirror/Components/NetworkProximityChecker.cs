@@ -26,6 +26,9 @@ namespace Mirror
 
         [Tooltip("Enable to force this object to be hidden from players.")]
         public bool forceHidden;
+        
+        [Tooltip("Always keep local player on his own observer list.")]
+        public bool alwaysKeepLocalPlayerObserver = true;
 
         // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.
         [Tooltip("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
@@ -40,6 +43,8 @@ namespace Mirror
         // -> should be big enough to work in just about all cases
         static Collider[] hitsBuffer3D = new Collider[10000];
         static Collider2D[] hitsBuffer2D = new Collider2D[10000];
+        
+        private NetworkConnection playerNetworkConnection;
 
         void Update()
         {
@@ -76,6 +81,17 @@ namespace Mirror
             // otherwise add everyone in proximity
             else
             {
+                // always add self as observer and continue if desired to always keep local player observer
+                if (alwaysKeepLocalPlayerObserver)
+                {
+                    // ensure player can still see themself
+                    var uv = GetComponent<NetworkIdentity>();
+                    if (uv.connectionToClient != null)
+                    {
+                        playerNetworkConnection = uv.connectionToClient;
+                        observers.Add(playerNetworkConnection);
+                    }
+                }
                 // find players within range
                 switch (checkMethod)
                 {
@@ -94,7 +110,9 @@ namespace Mirror
                             // (if an object has a connectionToClient, it is a player)
                             if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(identity.connectionToClient);
+                                // making sure the local player doesn't add himself twice on the observer list
+                                if (identity.connectionToClient != playerNetworkConnection)
+                                    observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
@@ -115,7 +133,9 @@ namespace Mirror
                             // (if an object has a connectionToClient, it is a player)
                             if (identity != null && identity.connectionToClient != null)
                             {
-                                observers.Add(identity.connectionToClient);
+                                // making sure the local player doesn't add himself twice on the observer list
+                                if (identity.connectionToClient != playerNetworkConnection)
+                                    observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
