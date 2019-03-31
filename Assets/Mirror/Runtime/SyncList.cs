@@ -46,8 +46,6 @@ namespace Mirror
     [Obsolete("Use SyncList<MyStruct> instead")]
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
-        protected override void SerializeItem(NetworkWriter writer, T item) {}
-        protected override T DeserializeItem(NetworkReader reader) => new T();
         public T GetItem(int i) => base[i];
     }
 
