@@ -28,7 +28,7 @@ namespace Mirror
         public bool forceHidden;
         
         [Tooltip("Always keep local player on his own observer list.")]
-        public bool alwaysKeepLocalPlayerObserver = false;
+        public bool alwaysKeepLocalPlayerObserver;
 
         // ~0 means 'Everything'. layers are used anyway, might as well expose them to the user.
         [Tooltip("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
