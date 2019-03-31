@@ -43,8 +43,6 @@ namespace Mirror
         // -> should be big enough to work in just about all cases
         static Collider[] hitsBuffer3D = new Collider[10000];
         static Collider2D[] hitsBuffer2D = new Collider2D[10000];
-        
-        private NetworkConnection playerNetworkConnection;
 
         void Update()
         {
@@ -85,12 +83,8 @@ namespace Mirror
                 if (alwaysKeepLocalPlayerObserver)
                 {
                     // ensure player can still see themself
-                    var uv = GetComponent<NetworkIdentity>();
-                    if (uv.connectionToClient != null)
-                    {
-                        playerNetworkConnection = uv.connectionToClient;
-                        observers.Add(playerNetworkConnection);
-                    }
+                    if (connectionToClient != null)
+                        observers.Add(connectionToClient);
                 }
                 // find players within range
                 switch (checkMethod)
@@ -110,9 +104,7 @@ namespace Mirror
                             // (if an object has a connectionToClient, it is a player)
                             if (identity != null && identity.connectionToClient != null)
                             {
-                                // making sure the local player doesn't add himself twice on the observer list
-                                if (identity.connectionToClient != playerNetworkConnection)
-                                    observers.Add(identity.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
@@ -133,9 +125,7 @@ namespace Mirror
                             // (if an object has a connectionToClient, it is a player)
                             if (identity != null && identity.connectionToClient != null)
                             {
-                                // making sure the local player doesn't add himself twice on the observer list
-                                if (identity.connectionToClient != playerNetworkConnection)
-                                    observers.Add(identity.connectionToClient);
+                                observers.Add(identity.connectionToClient);
                             }
                         }
                         break;
