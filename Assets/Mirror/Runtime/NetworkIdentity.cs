@@ -814,6 +814,15 @@ namespace Mirror
                 result |= comp.OnRebuildObservers(newObservers, initialize);
             }
 
+            // if player connection: ensure player always see himself no matter what.
+            // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
+            //    player might teleport out of the ProximityChecker's cast,
+            //    losing the own connection as observer.
+            if (connectionToClient != null && connectionToClient.isReady)
+            {
+                newObservers.Add(connectionToClient);
+            }
+
             // if no component implemented OnRebuildObservers, then add all
             // connections.
             if (!result)
