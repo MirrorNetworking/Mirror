@@ -805,8 +805,8 @@ namespace Mirror
 
             bool changed = false;
             bool result = false;
-            HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
+            HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
