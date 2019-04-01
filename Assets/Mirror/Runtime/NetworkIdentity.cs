@@ -808,13 +808,16 @@ namespace Mirror
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
             HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
+            // call OnRebuildObservers function in components
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 result |= comp.OnRebuildObservers(newObservers, initialize);
             }
+
+            // if no component implemented OnRebuildObservers, then add all
+            // connections.
             if (!result)
             {
-                // none of the behaviours rebuilt our observers, use built-in rebuild method
                 if (initialize)
                 {
                     foreach (NetworkConnection conn in NetworkServer.connections.Values)
