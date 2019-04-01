@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.Additive
 {
-    public class NetworkManagerExt : NetworkManager
+    public class AdditiveNetworkManager : NetworkManager
     {
         [Scene]
         [Tooltip("Add all sub-scenes to this list")]
@@ -17,7 +17,11 @@ namespace Mirror.Examples.Additive
 
             // load all subscenes on the server only
             foreach (string sceneName in subScenes)
-                StartCoroutine(LoadScene(sceneName));
+            {
+                SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                Debug.LogFormat("Loaded {0}", sceneName);
+            }
+            //StartCoroutine(LoadScene(sceneName));
         }
 
         IEnumerator LoadScene(string sceneName)
