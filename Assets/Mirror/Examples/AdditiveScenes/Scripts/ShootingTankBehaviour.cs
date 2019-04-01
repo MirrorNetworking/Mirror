@@ -30,21 +30,15 @@ namespace Mirror.Examples.Additive
                 transform.rotation = Quaternion.Slerp(transform.rotation, Rotation, turnSpeed);
         }
 
-        NetworkConnection[] networkConnections = new NetworkConnection[] { };
-
         [Server]
         void ShootNearestPlayer()
         {
             GameObject target = null;
             float distance = 100f;
 
-            // Avoid a foreach by copying the observers to an array for iteration
-            System.Array.Resize(ref networkConnections, netIdentity.observers.Count);
-            netIdentity.observers.Values.CopyTo(networkConnections, 0);
-
-            for (int i = 0; i < networkConnections.Length; i++)
+            foreach (NetworkConnection networkConnection in netIdentity.observers.Values)
             {
-                GameObject tempTarget = networkConnections[i].playerController.gameObject;
+                GameObject tempTarget = networkConnection.playerController.gameObject;
                 float tempDistance = Vector3.Distance(tempTarget.transform.position, transform.position);
 
                 if (target == null || distance > tempDistance)

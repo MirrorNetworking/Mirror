@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Mirror.Examples.Additive
 {
@@ -56,20 +56,20 @@ namespace Mirror.Examples.Additive
             }
         }
 
-        float horiz = 0f;
-        float vert = 0f;
+        float horizontal = 0f;
+        float vertical = 0f;
         float turn = 0f;
 
         void Update()
         {
             if (!isLocalPlayer) return;
 
-            horiz = Input.GetAxis("Horizontal");
-            vert = Input.GetAxis("Vertical");
+            horizontal = Input.GetAxis("Horizontal");
+            vertical = Input.GetAxis("Vertical");
 
-            if ((Input.GetKey(KeyCode.Q)) && (turn > -maxTurnSpeed))
+            if (Input.GetKey(KeyCode.Q) && (turn > -maxTurnSpeed))
                 turn -= turnSpeedAccel;
-            else if ((Input.GetKey(KeyCode.E)) && (turn < maxTurnSpeed))
+            else if (Input.GetKey(KeyCode.E) && (turn < maxTurnSpeed))
                 turn += turnSpeedAccel;
             else
             {
@@ -88,7 +88,8 @@ namespace Mirror.Examples.Additive
 
             transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 
-            Vector3 direction = transform.TransformDirection((Vector3.ClampMagnitude(new Vector3(horiz, 0f, vert), 1f) * moveSpeed));
+            Vector3 direction = Vector3.ClampMagnitude(new Vector3(horizontal, 0f, vertical), 1f) * moveSpeed;
+            direction = transform.TransformDirection(direction);
             characterController.SimpleMove(direction * Time.fixedDeltaTime);
         }
     }
