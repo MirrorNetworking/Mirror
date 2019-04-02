@@ -45,7 +45,7 @@ namespace Mirror.Tests
 
             Assert.That(player.IsDirty(), "Setting struct should mark object as dirty");
             player.ClearAllDirtyBits();
-            Assert.That(player.IsDirty(), Is.False, "SetDirtyBit(0) should clear dirty flag");
+            Assert.That(player.IsDirty(), Is.False, "ClearAllDirtyBits() should clear dirty flag");
 
             // clearing the guild should set dirty bit too
             player.guild = default;
