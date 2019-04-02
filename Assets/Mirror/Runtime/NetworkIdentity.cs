@@ -853,7 +853,7 @@ namespace Mirror
 
                 if (!conn.isReady)
                 {
-                    Debug.LogWarning("Observer is not ready for " + gameObject + " " + conn);
+                    if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
                     continue;
                 }
 
