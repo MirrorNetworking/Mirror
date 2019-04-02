@@ -203,6 +203,56 @@ namespace Mirror.Weaver
                 }
             }
 
+            if (instr.OpCode == OpCodes.Ldflda)
+            {
+                // loading a field by reference,  watch out for initobj instruction
+                // see https://github.com/vis2k/Mirror/issues/696
+
+                if (instr.Operand is FieldDefinition opField)
+                {
+                    return ProcessInstructionLoadAddress(td, md, instr, opField, iCount);
+                }
+            }
+
+            return 1;
+        }
+
+        private static int ProcessInstructionLoadAddress(TypeDefinition td, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        {
+            // dont replace property call sites in constructors
+            if (md.Name == ".ctor")
+                return 1;
+
+            // does it set a field that we replaced?
+            if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            {
+                // we have a replacement for this property
+                // is the next instruction a initobj?
+                Instruction nextInstr = md.Body.Instructions[iCount + 1];
+
+
+                if (nextInstr.OpCode == OpCodes.Initobj)
+                {
+                    // we need to replace this code with:
+                    //     var tmp = new MyStruct();
+                    //     this.set_Networkxxxx(tmp);
+                    ILProcessor worker = md.Body.GetILProcessor();
+                    VariableDefinition tmpVariable = new VariableDefinition(opField.FieldType);
+                    md.Body.Variables.Add(tmpVariable);
+
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Initobj, opField.FieldType));
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Ldloc, tmpVariable));
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, replacement));
+
+                    worker.Remove(instr);
+                    worker.Remove(nextInstr);
+                    return 4;
+
+                }
+
+            }
+
             return 1;
         }
 
