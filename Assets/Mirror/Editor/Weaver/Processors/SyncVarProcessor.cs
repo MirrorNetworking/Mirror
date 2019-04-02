@@ -110,8 +110,7 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
-            MethodDefinition hookFunctionMethod;
-            CheckForHookFunction(td, fd, out hookFunctionMethod);
+            CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
 
             if (hookFunctionMethod != null)
             {
