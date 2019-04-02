@@ -27,7 +27,7 @@ namespace Mirror.Tests
     {
 
         [Test]
-        public void TestSettingGuild()
+        public void TestSettingStruct()
         {
 
             GameObject gameObject = new GameObject();
