@@ -7,7 +7,7 @@ namespace Mirror.Weaver
 {
     public static class SyncVarProcessor
     {
-        const int k_SyncVarLimit = 64; // ulong = 64 bytes
+        const int SyncVarLimit = 64; // ulong = 64 bytes
 
         // returns false for error, not for no-hook-exists
         public static bool CheckForHookFunction(TypeDefinition td, FieldDefinition syncVar, out MethodDefinition foundMethod)
@@ -313,9 +313,9 @@ namespace Mirror.Weaver
                         dirtyBitCounter += 1;
                         numSyncVars += 1;
 
-                        if (dirtyBitCounter == k_SyncVarLimit)
+                        if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + k_SyncVarLimit + "). (This could include base classes)");
+                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + SyncVarLimit + "). (This could include base classes)");
                             return;
                         }
                         break;
