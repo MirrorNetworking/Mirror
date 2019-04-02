@@ -85,11 +85,11 @@ namespace Mirror.Weaver
                     }
                 }
 
-                int iCount = 0;
-                foreach (Instruction i in md.Body.Instructions)
+                for (int iCount= 0; iCount < md.Body.Instructions.Count;)
                 {
-                    ProcessInstruction(moduleDef, td, md, i, iCount);
-                    iCount += 1;
+                    Instruction instr = md.Body.Instructions[iCount];
+
+                    iCount += ProcessInstruction(moduleDef, td, md, instr, iCount);
                 }
             }
         }
@@ -175,33 +175,35 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction i, int iCount)
+        static int ProcessInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, int iCount)
         {
-            if (i.OpCode == OpCodes.Call || i.OpCode == OpCodes.Callvirt)
+            if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
             {
-                if (i.Operand is MethodReference opMethod)
+                if (instr.Operand is MethodReference opMethod)
                 {
-                    ProcessInstructionMethod(moduleDef, td, md, i, opMethod, iCount);
+                    ProcessInstructionMethod(moduleDef, td, md, instr, opMethod, iCount);
                 }
             }
 
-            if (i.OpCode == OpCodes.Stfld)
+            if (instr.OpCode == OpCodes.Stfld)
             {
                 // this instruction sets the value of a field. cache the field reference.
-                if (i.Operand is FieldDefinition opField)
+                if (instr.Operand is FieldDefinition opField)
                 {
-                    ProcessInstructionSetterField(td, md, i, opField);
+                    ProcessInstructionSetterField(td, md, instr, opField);
                 }
             }
 
-            if (i.OpCode == OpCodes.Ldfld)
+            if (instr.OpCode == OpCodes.Ldfld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                if (i.Operand is FieldDefinition opField)
+                if (instr.Operand is FieldDefinition opField)
                 {
-                    ProcessInstructionGetterField(td, md, i, opField);
+                    ProcessInstructionGetterField(td, md, instr, opField);
                 }
             }
+
+            return 1;
         }
 
         static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
