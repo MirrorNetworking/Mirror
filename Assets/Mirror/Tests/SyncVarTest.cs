@@ -26,8 +26,6 @@ namespace Mirror.Tests
     public class SyncVarTest
     {
 
-
-
         [Test]
         public void TestSettingGuild()
         {
@@ -36,7 +34,7 @@ namespace Mirror.Tests
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
 
-            Assert.That(!player.IsDirty());
+            Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
 
             MockPlayer.Guild myGuild = new MockPlayer.Guild
             {
@@ -45,7 +43,13 @@ namespace Mirror.Tests
 
             player.guild = myGuild;
 
-            Assert.That(player.IsDirty());
+            Assert.That(player.IsDirty(), "Setting struct should mark object as dirty");
+            player.ClearAllDirtyBits();
+            Assert.That(player.IsDirty(), Is.False, "SetDirtyBit(0) should clear dirty flag");
+
+            // clearing the guild should set dirty bit too
+            player.guild = default;
+            Assert.That(player.IsDirty(), "Clearing struct should mark object as dirty");
         }
 
     }
