@@ -700,8 +700,7 @@ namespace Mirror.Weaver
                         // NOTE: original weaver compared .Name, not just the MethodDefinition,
                         //       that's why we use dict<string,method>.
                         // TODO maybe replaceEvents[md] would work too?
-                        MethodDefinition replacement;
-                        if (WeaveLists.replaceEvents.TryGetValue(opField.Name, out replacement))
+                        if (WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
                         {
                             instr.Operand = replacement;
                             inst.OpCode = OpCodes.Nop;
@@ -716,8 +715,7 @@ namespace Mirror.Weaver
                 // NOTE: original weaver compared .FullName, not just the MethodDefinition,
                 //       that's why we use dict<string,method>.
                 // TODO maybe replaceMethods[md] would work too?
-                MethodDefinition replacement;
-                if (WeaveLists.replaceMethods.TryGetValue(opMethodRef.FullName, out replacement))
+                if (WeaveLists.replaceMethods.TryGetValue(opMethodRef.FullName, out MethodDefinition replacement))
                 {
                     //DLog(td, "    replacing "  + md.Name + ":" + i);
                     instr.Operand = replacement;
@@ -752,8 +750,7 @@ namespace Mirror.Weaver
                 return;
 
             // does it set a field that we replaced?
-            MethodDefinition replacement;
-            if (WeaveLists.replacementSetterProperties.TryGetValue(opField, out replacement))
+            if (WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -771,8 +768,7 @@ namespace Mirror.Weaver
                 return;
 
             // does it set a field that we replaced?
-            MethodDefinition replacement;
-            if (WeaveLists.replacementGetterProperties.TryGetValue(opField, out replacement))
+            if (WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -786,8 +782,7 @@ namespace Mirror.Weaver
         {
             if (i.OpCode == OpCodes.Call || i.OpCode == OpCodes.Callvirt)
             {
-                MethodReference opMethod = i.Operand as MethodReference;
-                if (opMethod != null)
+                if (i.Operand is MethodReference opMethod)
                 {
                     ProcessInstructionMethod(moduleDef, td, md, i, opMethod, iCount);
                 }
@@ -796,8 +791,7 @@ namespace Mirror.Weaver
             if (i.OpCode == OpCodes.Stfld)
             {
                 // this instruction sets the value of a field. cache the field reference.
-                FieldDefinition opField = i.Operand as FieldDefinition;
-                if (opField != null)
+                if (i.Operand is FieldDefinition opField)
                 {
                     ProcessInstructionSetterField(td, md, i, opField);
                 }
@@ -806,8 +800,7 @@ namespace Mirror.Weaver
             if (i.OpCode == OpCodes.Ldfld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                FieldDefinition opField = i.Operand as FieldDefinition;
-                if (opField != null)
+                if (i.Operand is FieldDefinition opField)
                 {
                     ProcessInstructionGetterField(td, md, i, opField);
                 }
