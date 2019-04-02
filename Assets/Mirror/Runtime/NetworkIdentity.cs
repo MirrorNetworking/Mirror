@@ -294,8 +294,24 @@ namespace Mirror
                 // generate random sceneId part (0x00000000FFFFFFFF)
                 // -> exclude '0' because that's for unassigned sceneIDs
                 // TODO use 0,uint.max later. Random.Range only has int version.
-                m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
-                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
+                bool exists = true;
+
+                while (exists)
+                {
+                    // Generate until a number that is not in use is found
+                    m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
+                    sceneIds.TryGetValue(m_SceneId, out existing);
+                    exists = existing != null;
+                }
+
+                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""), this.gameObject);
+
+#if UNITY_EDITOR
+                if (ThisIsAPrefab() || ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
+                {
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+                }
+#endif
             }
 
             // add to sceneIds dict no matter what
