@@ -8,6 +8,7 @@ namespace Mirror.Examples.FPS
         public float speed = 300;
         public float rotationSpeed = 400;
         public Transform head;
+        public Transform camera;
         float pitch;
 
         void Start()
@@ -15,7 +16,7 @@ namespace Mirror.Examples.FPS
             // Turn on camera for local player
             if (hasAuthority)
             {
-                head.gameObject.SetActive(true);
+                camera.gameObject.SetActive(true);
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
