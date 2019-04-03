@@ -6,6 +6,7 @@
 - Added: [SyncDictionary](../Classes/SyncDictionary)
 - Added: [SyncHashSet](../Classes/SyncHashSet)
 - Added: [SyncSortedSet](../Classes/SyncSortedSet)
+- Added: SyncList and SyncDictionary support all IList and IDictionary derived types, respectively
 - Added: Documentation for [SyncVars](../Classes/SyncVars)
 - Added: Documentation for [SyncEvents](../Classes/SyncEvent)
 - Added: NoRotation to NetworkTransform
