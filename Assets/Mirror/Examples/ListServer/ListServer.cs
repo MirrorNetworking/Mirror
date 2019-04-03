@@ -186,9 +186,15 @@ namespace Mirror.Examples.ListServer
                     // receive latest game server info
                     while (clientToListenConnection.GetNextMessage(out Telepathy.Message message))
                     {
+                        // connected?
+                        if (message.eventType == Telepathy.EventType.Connected)
+                            Debug.Log("[List Server] Client connected!");
                         // data message?
-                        if (message.eventType == Telepathy.EventType.Data)
+                        else if (message.eventType == Telepathy.EventType.Data)
                             ParseMessage(message.data);
+                        // disconnected?
+                        else if (message.eventType == Telepathy.EventType.Connected)
+                            Debug.Log("[List Server] Client disconnected.");
                     }
 
                     // ping again if previous ping finished
