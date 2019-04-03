@@ -54,7 +54,7 @@ namespace Mirror
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
-        readonly List<T> objects = new List<T>();
+        readonly IList<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -87,6 +87,17 @@ namespace Mirror
 
         protected virtual void SerializeItem(NetworkWriter writer, T item) {}
         protected virtual T DeserializeItem(NetworkReader reader) => default;
+
+
+        protected SyncList()
+        {
+            objects = new List<T>();
+        }
+
+        protected SyncList(IList<T> objects)
+        {
+            this.objects = objects;
+        }
 
         public bool IsDirty => changes.Count > 0;
 
