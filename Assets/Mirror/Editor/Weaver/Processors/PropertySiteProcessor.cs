@@ -229,7 +229,6 @@ namespace Mirror.Weaver
                 // is the next instruction a initobj?
                 Instruction nextInstr = md.Body.Instructions[iCount + 1];
 
-
                 if (nextInstr.OpCode == OpCodes.Initobj)
                 {
                     // we need to replace this code with:
