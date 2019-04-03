@@ -24,6 +24,7 @@
 - Fixed: Observers are now properly rebuilt when client joins and `OnRebuildObservers` / `OnCheckObserver` is overridden
 - Fixed: NetworkProximityChecker: On rare occasion, player could be excluded from observers rebuild
 - Fixed: NetworkLobbyPlayer `OnClientReady` works now
+- Fixed: NetworkLobbyPlayer Remove button not showing for P1 when Server Only
 - Fixed: NetworkLobbyManager `pendingPlayers` and `lobbySlots` lists are now public for inheritors
 - Fixed: Offline scene switching now works via `StopClient()`
 - Fixed: Pong example updated
