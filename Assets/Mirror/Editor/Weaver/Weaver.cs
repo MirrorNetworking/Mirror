@@ -1118,7 +1118,6 @@ namespace Mirror.Weaver
         {
             ReaderParameters readParams = Helpers.ReaderParameters(assName, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath);
 
-            string pdbToDelete = null;
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams))
             {
                 SetupTargetTypes();
@@ -1199,27 +1198,11 @@ namespace Mirror.Weaver
 
                     WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
                     CurrentAssembly.Write(dest, writeParams);
-
-                    // PdbWriterProvider uses ISymUnmanagedWriter2 COM interface but Mono can't invoke a method on it and crashes (actually it first throws the following exception and then crashes).
-                    // One solution would be to convert UNetWeaver to exe file and run it on .NET on Windows (I have tested that and it works).
-                    // However it's much more simple to just write mdb file.
-                    // System.NullReferenceException: Object reference not set to an instance of an object
-                    //   at(wrapper cominterop - invoke) Mono.Cecil.Pdb.ISymUnmanagedWriter2:DefineDocument(string, System.Guid &, System.Guid &, System.Guid &, Mono.Cecil.Pdb.ISymUnmanagedDocumentWriter &)
-                    //   at Mono.Cecil.Pdb.SymWriter.DefineDocument(System.String url, Guid language, Guid languageVendor, Guid documentType)[0x00000] in < filename unknown >:0
-                    if (writeParams.SymbolWriterProvider is PdbWriterProvider)
-                    {
-                        writeParams.SymbolWriterProvider = new MdbWriterProvider();
-                        // old pdb file is out of date so delete it. symbols will be stored in mdb
-                        pdbToDelete = Path.ChangeExtension(assName, ".pdb");
-                    }
                 }
 
                 if (CurrentAssembly.MainModule.SymbolReader != null)
                     CurrentAssembly.MainModule.SymbolReader.Dispose();
             }
-
-            if (pdbToDelete != null)
-                File.Delete(pdbToDelete);
 
             return true;
         }

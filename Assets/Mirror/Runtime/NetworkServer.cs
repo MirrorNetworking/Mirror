@@ -399,13 +399,6 @@ namespace Mirror
         static void OnDisconnected(NetworkConnection conn)
         {
             conn.InvokeHandler(new DisconnectMessage());
-
-            if (conn.playerController != null)
-            {
-                //NOTE: should there be default behaviour here to destroy the associated player?
-                Debug.LogWarning("Player not destroyed when connection disconnected.");
-            }
-
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
         }
 

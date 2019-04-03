@@ -112,11 +112,20 @@ class Player : NetworkBehaviour {
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;
-            case SyncListItem.Operation.OP_SET:
+            case SyncListItem.Operation.OP_DIRTY:
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;
         }
     }
+}
+```
+
+By default, `SyncList` uses a `List` to store it's data.  If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor.  For example:
+
+```cs
+class SyncListItem : SyncList<Item> 
+{
+    public SyncListItem() : base(new MyIList<Item>()) {}
 }
 ```
