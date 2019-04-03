@@ -120,3 +120,12 @@ class Player : NetworkBehaviour {
     }
 }
 ```
+
+By default, `SyncList` uses a `List` to store it's data.  If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor.  For example:
+
+```cs
+class SyncListItem : SyncList<Item> 
+{
+    public SyncListItem() : base(new MyIList<Item>()) {}
+}
+```
