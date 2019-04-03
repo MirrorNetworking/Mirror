@@ -127,7 +127,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just started the game)
                 else if (!gameServerToListenConnection.Connecting)
                 {
-                    Debug.Log("Establishing game server to listen connection...");
+                    Debug.Log("[List Server] GameServer connecting......");
                     gameServerToListenConnection.Connect(listServerIp, gameServerToListenPort);
                 }
             }
@@ -205,7 +205,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just joined the menu/disconnect from game server)
                 else if (!clientToListenConnection.Connecting)
                 {
-                    Debug.Log("Establishing client to listen connection...");
+                    Debug.Log("[List Server] Client connecting...");
                     clientToListenConnection.Connect(listServerIp, clientToListenPort);
                 }
             }
