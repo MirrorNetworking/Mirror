@@ -112,7 +112,7 @@ class Player : NetworkBehaviour {
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;
-            case SyncListItem.Operation.OP_SET:
+            case SyncListItem.Operation.OP_DIRTY:
                 // index is the index of the item that was updated
                 // item is the previous item
                 break;
