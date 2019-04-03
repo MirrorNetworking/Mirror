@@ -88,7 +88,6 @@ namespace Mirror.Weaver
                 for (int iCount= 0; iCount < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[iCount];
-
                     iCount += ProcessInstruction(moduleDef, td, md, instr, iCount);
                 }
             }
