@@ -185,6 +185,7 @@ namespace Mirror
             visList.Clear();
         }
 
+        [Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
             return InvokeHandler(msgType, null);
