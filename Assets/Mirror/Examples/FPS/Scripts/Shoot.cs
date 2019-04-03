@@ -8,7 +8,7 @@ namespace Mirror.Examples.FPS
         public float range = 100f;
         public float pushStrength = 1000f;
         public float upStrength = 600f;
-        public Transform head;
+        public Transform headTransform;
         void Update()
         {
             if (!isLocalPlayer) return;
@@ -22,13 +22,13 @@ namespace Mirror.Examples.FPS
         void CmdShoot()
         {
             // Find what was shot at
-            if (Physics.Raycast(head.position, head.forward, out RaycastHit hit, range))
+            if (Physics.Raycast(headTransform.position, headTransform.forward, out RaycastHit hit, range))
             {
                 // Deal damage if it has health
                 hit.collider.GetComponent<Health>()?.DealDamage(damagePerShot);
 
                 // Push it if it has a rigidbody
-                Vector3 force = head.forward * pushStrength + Vector3.up * upStrength;
+                Vector3 force = headTransform.forward * pushStrength + Vector3.up * upStrength;
                 hit.collider.GetComponent<Rigidbody>()?.AddForceAtPosition(force, hit.point);
             }
         }

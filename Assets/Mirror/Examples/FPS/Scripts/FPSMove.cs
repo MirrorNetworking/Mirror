@@ -7,8 +7,8 @@ namespace Mirror.Examples.FPS
         public CharacterController controller;
         public float speed = 300;
         public float rotationSpeed = 400;
-        public Transform head;
-        public Transform camera;
+        public Transform headTransform;
+        public Transform cameraTransform;
         float pitch;
 
         void Start()
@@ -16,7 +16,7 @@ namespace Mirror.Examples.FPS
             // Turn on camera for local player
             if (hasAuthority)
             {
-                camera.gameObject.SetActive(true);
+                cameraTransform.gameObject.SetActive(true);
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
             }
@@ -32,7 +32,7 @@ namespace Mirror.Examples.FPS
 
             pitch -= Input.GetAxis("Mouse Y") * rotationSpeed * Time.deltaTime;
             pitch = Mathf.Clamp(pitch, -90f, 90f);
-            head.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            headTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
             // move
             Vector3 move = transform.forward * Input.GetAxisRaw("Vertical") + transform.right * Input.GetAxisRaw("Horizontal");
