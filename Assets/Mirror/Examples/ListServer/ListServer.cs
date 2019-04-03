@@ -232,14 +232,14 @@ namespace Mirror.Examples.ListServer
             // instantiate until amount
             for (int i = parent.childCount; i < amount; ++i)
             {
-                GameObject go = GameObject.Instantiate(prefab);
+                GameObject go = Instantiate(prefab);
                 go.transform.SetParent(parent, false);
             }
 
             // delete everything that's too much
             // (backwards loop because Destroy changes childCount)
             for (int i = parent.childCount-1; i >= amount; --i)
-                GameObject.Destroy(parent.GetChild(i).gameObject);
+                Destroy(parent.GetChild(i).gameObject);
         }
 
         void OnUI()
