@@ -17,9 +17,9 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-        int m_AnimationHash;
-        int m_TransitionHash;
-        float m_SendTimer;
+        int animationHash;
+        int transitionHash;
+        float sendTimer;
 
         bool sendMessagesAllowed
         {
@@ -80,28 +80,28 @@ namespace Mirror
             if (animator.IsInTransition(0))
             {
                 AnimatorTransitionInfo tt = animator.GetAnimatorTransitionInfo(0);
-                if (tt.fullPathHash != m_TransitionHash)
+                if (tt.fullPathHash != transitionHash)
                 {
                     // first time in this transition
-                    m_TransitionHash = tt.fullPathHash;
-                    m_AnimationHash = 0;
+                    transitionHash = tt.fullPathHash;
+                    animationHash = 0;
                     return true;
                 }
                 return false;
             }
 
             AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
-            if (st.fullPathHash != m_AnimationHash)
+            if (st.fullPathHash != animationHash)
             {
                 // first time in this animation state
-                if (m_AnimationHash != 0)
+                if (animationHash != 0)
                 {
                     // came from another animation directly - from Play()
                     stateHash = st.fullPathHash;
                     normalizedTime = st.normalizedTime;
                 }
-                m_TransitionHash = 0;
-                m_AnimationHash = st.fullPathHash;
+                transitionHash = 0;
+                animationHash = st.fullPathHash;
                 return true;
             }
             return false;
@@ -109,9 +109,9 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time)
+            if (sendMessagesAllowed && syncInterval != 0 && sendTimer < Time.time)
             {
-                m_SendTimer = Time.time + syncInterval;
+                sendTimer = Time.time + syncInterval;
 
                 NetworkWriter writer = new NetworkWriter();
                 if (WriteParameters(writer))
