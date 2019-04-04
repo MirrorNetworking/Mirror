@@ -102,8 +102,6 @@ namespace Mirror.Examples.ListServer
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
             // create message
-            // NOTE: you can send anything that you want, as long as you also
-            //       receive it in ParseMessage
             writer.Write((ushort)NetworkServer.connections.Count);
             writer.Write((ushort)NetworkManager.singleton.maxConnections);
             byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
@@ -147,15 +145,12 @@ namespace Mirror.Examples.ListServer
 
         void ParseMessage(byte[] bytes)
         {
-            // use binary reader because our NetworkReader uses custom string reading with bools
-            // => we don't use ReadString here because the listen server doesn't
-            //    know C#'s '7-bit-length + utf8' encoding for strings
+            // note: we don't use ReadString here because the list server
+            //       doesn't know C#'s '7-bit-length + utf8' encoding for strings
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
             byte ipBytesLength = reader.ReadByte();
             byte[] ipBytes = reader.ReadBytes(ipBytesLength);
             string ip = new IPAddress(ipBytes).ToString();
-
-            // OPTIONAL DATA
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
