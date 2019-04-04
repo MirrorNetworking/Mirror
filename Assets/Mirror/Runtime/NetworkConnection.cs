@@ -259,20 +259,13 @@ namespace Mirror
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
-            if (clientOwnedObjects == null)
-            {
-                clientOwnedObjects = new HashSet<uint>();
-            }
+            clientOwnedObjects = clientOwnedObjects ?? new HashSet<uint>();
             clientOwnedObjects.Add(obj.netId);
         }
 
         internal void RemoveOwnedObject(NetworkIdentity obj)
         {
-            if (clientOwnedObjects == null)
-            {
-                return;
-            }
-            clientOwnedObjects.Remove(obj.netId);
+            clientOwnedObjects?.Remove(obj.netId);
         }
     }
 }
