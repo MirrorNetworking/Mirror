@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -145,8 +146,9 @@ namespace Mirror.Examples.ListServer
             // => we don't use ReadString here because the listen server doesn't
             //    know C#'s '7-bit-length + utf8' encoding for strings
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
-            ushort ipLength = reader.ReadUInt16();
-            string ip = new string(reader.ReadChars(ipLength));
+            byte ipBytesLength = reader.ReadByte();
+            byte[] ipBytes = reader.ReadBytes(ipBytesLength);
+            string ip = new IPAddress(ipBytes).ToString();
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
             ushort titleLength = reader.ReadUInt16();
             string title = new string(reader.ReadChars(titleLength));
