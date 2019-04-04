@@ -132,7 +132,7 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateCommand(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length < 3 || md.Name.Substring(0, 3) != "Cmd")
+            if (!md.Name.StartsWith("Cmd"))
             {
                 Weaver.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
                 return false;
