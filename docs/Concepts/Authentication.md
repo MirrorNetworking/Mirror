@@ -72,3 +72,9 @@ class MyGameNetworkManager : NetworkManager {
 }
 
 ```
+
+## Warning
+
+By default Mirror uses Telepathy,  which is not encrypted.  The above code sample works,  but if you want to do authentication through Mirror,  we highly recommend you use a transport that supports encryption. 
+
+If you perform authentication via third party services such as GameLift or Playfab,  then authentication happens in a secure encrypted channel.  The resulting token can be passed safely via telepathy.
