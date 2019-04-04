@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -19,7 +20,13 @@ namespace Mirror
             //    load another scene afterwards, yet the local player is still
             //    in the FindObjectsOfType result with scene=DontDestroyOnLoad
             //    for some reason
-            foreach (NetworkIdentity identity in FindObjectsOfType<NetworkIdentity>().Where(identity => identity.gameObject.scene.name != "DontDestroyOnLoad"))
+            // => OfTypeAll so disabled objects are included too
+            IEnumerable<NetworkIdentity> identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
+                .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
+                                   identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+                                   identity.gameObject.scene.name != "DontDestroyOnLoad");
+
+            foreach (NetworkIdentity identity in identities)
             {
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
