@@ -149,6 +149,8 @@ namespace Mirror.Examples.ListServer
             byte ipBytesLength = reader.ReadByte();
             byte[] ipBytes = reader.ReadBytes(ipBytesLength);
             string ip = new IPAddress(ipBytes).ToString();
+
+            // OPTIONAL DATA
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
             ushort titleLength = reader.ReadUInt16();
             string title = new string(reader.ReadChars(titleLength));
