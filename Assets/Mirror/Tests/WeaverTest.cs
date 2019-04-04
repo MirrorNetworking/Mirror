@@ -269,7 +269,7 @@ namespace Mirror
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(0));
         }
-        
+
         #endregion
 
         #region SyncListStruct tests

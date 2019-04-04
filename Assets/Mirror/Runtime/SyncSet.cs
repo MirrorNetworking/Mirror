@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -235,17 +235,17 @@ namespace Mirror
 
         public void ExceptWith(IEnumerable<T> other)
         {
-            if (other == this) 
+            if (other == this)
             {
                 Clear();
                 return;
             }
 
             // remove every element in other from this
-            foreach (T element in other) 
+            foreach (T element in other)
             {
                 Remove(element);
-            }        
+            }
         }
 
         public void IntersectWith(IEnumerable<T> other)
