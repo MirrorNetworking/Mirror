@@ -104,11 +104,11 @@ namespace Mirror.Examples.ListServer
             // create message
             // NOTE: you can send anything that you want, as long as you also
             //       receive it in ParseMessage
+            writer.Write((ushort)NetworkServer.connections.Count);
+            writer.Write((ushort)NetworkManager.singleton.maxConnections);
             char[] titleChars = gameServerTitle.ToCharArray();
             writer.Write((ushort)titleChars.Length);
             writer.Write(titleChars);
-            writer.Write((ushort)NetworkServer.connections.Count);
-            writer.Write((ushort)NetworkManager.singleton.maxConnections);
 
             // send it
             writer.Flush();
@@ -152,10 +152,10 @@ namespace Mirror.Examples.ListServer
 
             // OPTIONAL DATA
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
-            ushort titleLength = reader.ReadUInt16();
-            string title = new string(reader.ReadChars(titleLength));
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
+            ushort titleLength = reader.ReadUInt16();
+            string title = new string(reader.ReadChars(titleLength));
             //Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " title=" + title + " players=" + players + " capacity= " + capacity);
 
             // build key
