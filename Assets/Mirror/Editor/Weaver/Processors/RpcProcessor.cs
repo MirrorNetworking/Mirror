@@ -89,7 +89,7 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
+            if (md.Name.Length < 3 || md.Name.Substring(0, 3) != "Rpc")
             {
                 Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
                 return false;
