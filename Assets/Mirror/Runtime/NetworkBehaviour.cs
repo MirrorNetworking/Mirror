@@ -227,7 +227,7 @@ namespace Mirror
             public CmdDelegate invokeFunction;
         }
 
-        static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -235,10 +235,10 @@ namespace Mirror
         {
             int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
-                Invoker oldInvoker = s_CmdHandlerDelegates[cmdHash];
+                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
                 if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
                 {
                     // it's all right,  it was the same function
@@ -253,7 +253,7 @@ namespace Mirror
                 invokeClass = invokeClass,
                 invokeFunction = func
             };
-            s_CmdHandlerDelegates[cmdHash] = invoker;
+            cmdHandlerDelegates[cmdHash] = invoker;
             if (LogFilter.Debug) Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
@@ -277,7 +277,7 @@ namespace Mirror
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
                 invoker != null &&
                 invoker.invokeType == invokeType)
             {
