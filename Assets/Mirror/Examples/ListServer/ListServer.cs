@@ -106,9 +106,9 @@ namespace Mirror.Examples.ListServer
             //       receive it in ParseMessage
             writer.Write((ushort)NetworkServer.connections.Count);
             writer.Write((ushort)NetworkManager.singleton.maxConnections);
-            char[] titleChars = gameServerTitle.ToCharArray();
-            writer.Write((ushort)titleChars.Length);
-            writer.Write(titleChars);
+            byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
+            writer.Write((ushort)titleBytes.Length);
+            writer.Write(titleBytes);
             writer.Flush();
 
             // list server only allows up to 128 bytes per message
@@ -160,7 +160,7 @@ namespace Mirror.Examples.ListServer
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
             ushort titleLength = reader.ReadUInt16();
-            string title = new string(reader.ReadChars(titleLength));
+            string title = Encoding.UTF8.GetString(reader.ReadBytes(titleLength));
             //Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " title=" + title + " players=" + players + " capacity= " + capacity);
 
             // build key
