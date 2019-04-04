@@ -109,10 +109,15 @@ namespace Mirror.Examples.ListServer
             char[] titleChars = gameServerTitle.ToCharArray();
             writer.Write((ushort)titleChars.Length);
             writer.Write(titleChars);
-
-            // send it
             writer.Flush();
-            gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+
+            // list server only allows up to 128 bytes per message
+            if (writer.BaseStream.Position <= 128)
+            {
+                // send it
+                gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+            }
+            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void TickGameServer()
