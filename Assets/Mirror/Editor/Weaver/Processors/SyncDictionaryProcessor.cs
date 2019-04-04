@@ -4,7 +4,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    static class SyncDictionaryProcessor 
+    static class SyncDictionaryProcessor
     {
         /// <summary>
         /// Generates serialization methods for synclists

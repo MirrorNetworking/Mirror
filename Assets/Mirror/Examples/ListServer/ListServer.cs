@@ -1,4 +1,4 @@
-﻿// add this component to the NetworkManager
+// add this component to the NetworkManager
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
