@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ namespace Mirror
     {
         public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        Dictionary<int, NetworkMessageDelegate> m_MessageHandlers;
+        Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         public int connectionId = -1;
         public bool isReady;
@@ -98,21 +98,21 @@ namespace Mirror
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
-            m_MessageHandlers = handlers;
+            messageHandlers = handlers;
         }
 
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
-            if (m_MessageHandlers.ContainsKey(msgType))
+            if (messageHandlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
             }
-            m_MessageHandlers[msgType] = handler;
+            messageHandlers[msgType] = handler;
         }
 
         public void UnregisterHandler(short msgType)
         {
-            m_MessageHandlers.Remove(msgType);
+            messageHandlers.Remove(msgType);
         }
 
         [Obsolete("use Send<T> instead")]
@@ -193,7 +193,7 @@ namespace Mirror
 
         public bool InvokeHandler(int msgType, NetworkReader reader)
         {
-            if (m_MessageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+            if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
                 NetworkMessage message = new NetworkMessage
                 {
