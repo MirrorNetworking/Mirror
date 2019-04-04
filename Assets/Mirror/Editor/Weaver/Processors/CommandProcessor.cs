@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public static class CommandProcessor
     {
-        const string k_CmdPrefix = "InvokeCmd";
+        const string CmdPrefix = "InvokeCmd";
 
         /*
             // generates code like:
@@ -72,10 +72,10 @@ namespace Mirror.Weaver
                 return null;
 
             string cmdName = md.Name;
-            int index = cmdName.IndexOf(k_CmdPrefix);
+            int index = cmdName.IndexOf(CmdPrefix);
             if (index > -1)
             {
-                cmdName = cmdName.Substring(k_CmdPrefix.Length);
+                cmdName = cmdName.Substring(CmdPrefix.Length);
             }
 
             // invoke internal send and return
@@ -105,7 +105,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition cmd = new MethodDefinition(k_CmdPrefix + md.Name,
+            MethodDefinition cmd = new MethodDefinition(CmdPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 

@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public static class TargetRpcProcessor
     {
-        const string k_TargetRpcPrefix = "InvokeTargetRpc";
+        const string TargetRpcPrefix = "InvokeTargetRpc";
 
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
@@ -17,7 +17,7 @@ namespace Mirror.Weaver
 
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition rpc = new MethodDefinition(RpcProcessor.k_RpcPrefix + md.Name, MethodAttributes.Family |
+            MethodDefinition rpc = new MethodDefinition(RpcProcessor.RpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
@@ -95,10 +95,10 @@ namespace Mirror.Weaver
                 return null;
 
             var rpcName = md.Name;
-            int index = rpcName.IndexOf(k_TargetRpcPrefix);
+            int index = rpcName.IndexOf(TargetRpcPrefix);
             if (index > -1)
             {
-                rpcName = rpcName.Substring(k_TargetRpcPrefix.Length);
+                rpcName = rpcName.Substring(TargetRpcPrefix.Length);
             }
 
             // invoke SendInternal and return
