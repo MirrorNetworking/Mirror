@@ -31,7 +31,7 @@ namespace Mirror
         [Tooltip("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
         public LayerMask castLayers = ~0;
 
-        float m_VisUpdateTime;
+        float lastUpdateTime;
 
         // OverlapSphereNonAlloc array to avoid allocations.
         // -> static so we don't create one per component
@@ -46,10 +46,10 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
-            if (Time.time - m_VisUpdateTime > visUpdateInterval)
+            if (Time.time - lastUpdateTime > visUpdateInterval)
             {
                 netIdentity.RebuildObservers(false);
-                m_VisUpdateTime = Time.time;
+                lastUpdateTime = Time.time;
             }
         }
 
