@@ -125,7 +125,7 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateTargetRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length < 6 || md.Name.Substring(0, 6) != "Target")
+            if (!md.Name.StartsWith("Target"))
             {
                 Weaver.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
                 return false;
