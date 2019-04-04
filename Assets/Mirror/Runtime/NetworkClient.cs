@@ -43,11 +43,6 @@ namespace Mirror
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal static Queue<byte[]> localClientPacketQueue = new Queue<byte[]>();
 
-        internal static void SetHandlers(NetworkConnection conn)
-        {
-            conn.SetHandlers(handlers);
-        }
-
         // connect remote
         public static void Connect(string address)
         {
@@ -77,7 +72,7 @@ namespace Mirror
 
             // create local connection to server
             connection = new ULocalConnectionToServer();
-            SetHandlers(connection);
+            connection.SetHandlers(handlers);
 
             // create server connection to local client
             ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
