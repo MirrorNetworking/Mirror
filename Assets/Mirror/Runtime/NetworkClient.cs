@@ -296,8 +296,8 @@ namespace Mirror
                 RegisterHandler<NetworkPongMessage>((conn, msg) => {});
                 RegisterHandler<SpawnPrefabMessage>(ClientScene.OnLocalClientSpawnPrefab);
                 RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnLocalClientSpawnSceneObject);
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {}); // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {}); // host mode doesn't need spawning
                 RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
             }
             else
