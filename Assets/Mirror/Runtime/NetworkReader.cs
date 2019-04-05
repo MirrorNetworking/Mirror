@@ -40,7 +40,18 @@ namespace Mirror
 
         public string ReadString()
         {
-            return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
+            try
+            {
+                return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
+            }
+            catch (ArgumentException invalidByteSequence)
+            {
+                // Catch invalid byte sequence exceptions because otherwise
+                // a client can mount a DOS attack on the server by sending
+                // maliciously crafted string messages.
+                Debug.LogError(invalidByteSequence);
+                return null;
+            }
         }
 
         public byte[] ReadBytes(int count) => reader.ReadBytes(count);
