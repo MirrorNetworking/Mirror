@@ -40,94 +40,87 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestReadingLengthWrapAround()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(true);
+            // This is 1.5x int.MaxValue, in the negative range of int.
+            writer.WritePackedUInt32(3221225472);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => reader.ReadBytesAndSize());
+        }
+
+        [Test]
+        public void TestReading0LengthBytesAnsSize()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSize(new byte[]{});
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadBytesAndSize().Length, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TestReading0LengthBytes()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(new byte[]{}, 0, 0);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadBytes(0).Length, Is.EqualTo(0));
+        }
+
+        [Test]
         public void TestReadingTooMuch()
         {
+            void EnsureThrows(Action<NetworkReader> read, byte[] data = null)
+            {
+                Assert.Throws<System.IO.EndOfStreamException>(() => read(new NetworkReader(data ?? new byte[]{})));
+            }
             // Try reading more than there is data to be read from
-            // The reasoning this should not throw is that when you are running an MMO server
-            // you can't expect all your clients to play nice. They can craft any sort of
-            // malicious packet, and NetworkReader has to put up with it and take the beating.
-            // Currently this test fails with System.IO.EndOfStreamException
-            // Ideally NetworkReader should Debug.LogWarning and complain about malformed packets
-            // but still continue humming along just fine.
-            // MMO Servers cannot afford to be DOS'd and brought to their knees by
-            // one salty player with too much computer knowledge.
-            Assert.DoesNotThrow(() => {
-                Action<NetworkReader>[] readFunctions = new Action<NetworkReader>[]{
-                    r => r.ReadByte(),
-                    r => r.ReadSByte(),
-                    r => r.ReadChar(),
-                    r => r.ReadBoolean(),
-                    r => r.ReadInt16(),
-                    r => r.ReadUInt16(),
-                    r => r.ReadInt32(),
-                    r => r.ReadUInt32(),
-                    r => r.ReadInt64(),
-                    r => r.ReadUInt64(),
-                    r => r.ReadDecimal(),
-                    r => r.ReadSingle(),
-                    r => r.ReadDouble(),
-                    r => r.ReadString(),
-                    r => r.ReadBytes(0),
-                    r => r.ReadBytes(1),
-                    r => r.ReadBytes(2),
-                    r => r.ReadBytes(3),
-                    r => r.ReadBytes(4),
-                    r => r.ReadBytes(8),
-                    r => r.ReadBytes(16),
-                    r => r.ReadBytes(32),
-                    r => r.ReadBytes(100),
-                    r => r.ReadBytes(1000),
-                    r => r.ReadBytes(10000),
-                    r => r.ReadBytes(1000000),
-                    r => r.ReadBytes(10000000),
-                    r => r.ReadBytesAndSize(),
-                    r => r.ReadPackedInt32(),
-                    r => r.ReadPackedUInt32(),
-                    r => r.ReadPackedInt64(),
-                    r => r.ReadPackedUInt64(),
-                    r => r.ReadVector2(),
-                    r => r.ReadVector3(),
-                    r => r.ReadVector4(),
-                    r => r.ReadVector2Int(),
-                    r => r.ReadVector3Int(),
-                    r => r.ReadColor(),
-                    r => r.ReadColor32(),
-                    r => r.ReadQuaternion(),
-                    r => r.ReadRect(),
-                    r => r.ReadPlane(),
-                    r => r.ReadRay(),
-                    r => r.ReadMatrix4x4(),
-                    r => r.ReadGuid(),
-                };
-                byte[][] readerData = new byte[][]{
-                    new byte[] {},
-                    new byte[] {0},
-                    new byte[] {255,0},
-                    new byte[] {255,0,2,3,4,5},
-                    new byte[] {255,0,2,3,4,5},
-                    new byte[] {255,255,255,255,255,255},
-                    new byte[] {250,0},
-                    new byte[] {250,0,4,5,6,2},
-                    new byte[] {248,2},
-                    new byte[] {249,2,2,3,4},
-                    new byte[] {1,2,3},
-                    new byte[] {1,2,3,4},
-                    new byte[] {1,2,3,4,5,6,7},
-                    new byte[] {1,2,3,4,5,6,7,8},
-                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15},
-                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16},
-                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31},
-                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32},
-                };
-                foreach (byte[] data in readerData)
-                {
-                    foreach (Action<NetworkReader> readFunction in readFunctions)
-                    {
-                        NetworkReader reader = new NetworkReader(data);
-                        readFunction(reader);
-                    }
-                }
-            });
+            // This should throw EndOfStreamException always
+            EnsureThrows(r => r.ReadByte());
+            EnsureThrows(r => r.ReadSByte());
+            EnsureThrows(r => r.ReadChar());
+            EnsureThrows(r => r.ReadBoolean());
+            EnsureThrows(r => r.ReadInt16());
+            EnsureThrows(r => r.ReadUInt16());
+            EnsureThrows(r => r.ReadInt32());
+            EnsureThrows(r => r.ReadUInt32());
+            EnsureThrows(r => r.ReadInt64());
+            EnsureThrows(r => r.ReadUInt64());
+            EnsureThrows(r => r.ReadDecimal());
+            EnsureThrows(r => r.ReadSingle());
+            EnsureThrows(r => r.ReadDouble());
+            EnsureThrows(r => r.ReadString());
+            EnsureThrows(r => r.ReadBytes(1));
+            EnsureThrows(r => r.ReadBytes(2));
+            EnsureThrows(r => r.ReadBytes(3));
+            EnsureThrows(r => r.ReadBytes(4));
+            EnsureThrows(r => r.ReadBytes(8));
+            EnsureThrows(r => r.ReadBytes(16));
+            EnsureThrows(r => r.ReadBytes(32));
+            EnsureThrows(r => r.ReadBytes(100));
+            EnsureThrows(r => r.ReadBytes(1000));
+            EnsureThrows(r => r.ReadBytes(10000));
+            EnsureThrows(r => r.ReadBytes(1000000));
+            EnsureThrows(r => r.ReadBytes(10000000));
+            EnsureThrows(r => r.ReadBytesAndSize());
+            EnsureThrows(r => r.ReadPackedInt32());
+            EnsureThrows(r => r.ReadPackedUInt32());
+            EnsureThrows(r => r.ReadPackedInt64());
+            EnsureThrows(r => r.ReadPackedUInt64());
+            EnsureThrows(r => r.ReadVector2());
+            EnsureThrows(r => r.ReadVector3());
+            EnsureThrows(r => r.ReadVector4());
+            EnsureThrows(r => r.ReadVector2Int());
+            EnsureThrows(r => r.ReadVector3Int());
+            EnsureThrows(r => r.ReadColor());
+            EnsureThrows(r => r.ReadColor32());
+            EnsureThrows(r => r.ReadQuaternion());
+            EnsureThrows(r => r.ReadRect());
+            EnsureThrows(r => r.ReadPlane());
+            EnsureThrows(r => r.ReadRay());
+            EnsureThrows(r => r.ReadMatrix4x4());
+            EnsureThrows(r => r.ReadGuid());
         }
 
         [Test]
@@ -142,18 +135,15 @@ namespace Mirror.Tests
                 0xFB, 0xFC, 0xFD, 0xFE,
                 0xFF,
             };
-            Assert.DoesNotThrow(() => {
-                foreach (byte invalid in invalidUTF8bytes)
-                {
-                    NetworkWriter writer = new NetworkWriter();
-                    writer.Write("an uncorrupted string");
-                    byte[] data = writer.ToArray();
-                    data[10] = invalid;
-                    NetworkReader reader = new NetworkReader(data);
-                    string result = reader.ReadString();
-                    Assert.That(result, Is.EqualTo(null));
-                }
-            });
+            foreach (byte invalid in invalidUTF8bytes)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write("an uncorrupted string");
+                byte[] data = writer.ToArray();
+                data[10] = invalid;
+                NetworkReader reader = new NetworkReader(data);
+                Assert.Throws<System.Text.DecoderFallbackException>(() => reader.ReadString());
+            }
         }
 
         [Test]

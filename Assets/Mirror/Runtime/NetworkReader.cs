@@ -43,19 +43,24 @@ namespace Mirror
             // note: this will throw an ArgumentException if an invalid utf8
             // string was sent (e.g. in a DOS attack). TransportReceive will
             // handle it.
-            return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
+            return ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
         }
 
-        public byte[] ReadBytes(int count) => reader.ReadBytes(count);
+        public byte[] ReadBytes(int count)
+        {
+            byte[] data = reader.ReadBytes(count);
+            if (data.Length != count) throw new EndOfStreamException("Could not fulfill request to read a byte[] of length " + count);
+            return data;
+        }
 
         public byte[] ReadBytesAndSize()
         {
             // notNull? (see NetworkWriter)
-            bool notNull = reader.ReadBoolean();
+            bool notNull = ReadBoolean();
             if (notNull)
             {
                 uint size = ReadPackedUInt32();
-                return reader.ReadBytes((int)size);
+                return ReadBytes((int)size);
             }
             return null;
         }
@@ -229,7 +234,7 @@ namespace Mirror
 
         public Guid ReadGuid()
         {
-            byte[] bytes = reader.ReadBytes(16);
+            byte[] bytes = ReadBytes(16);
             return new Guid(bytes);
         }
 
