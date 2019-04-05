@@ -40,18 +40,10 @@ namespace Mirror
 
         public string ReadString()
         {
-            try
-            {
-                return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
-            }
-            catch (ArgumentException invalidByteSequence)
-            {
-                // Catch invalid byte sequence exceptions because otherwise
-                // a client can mount a DOS attack on the server by sending
-                // maliciously crafted string messages.
-                Debug.LogWarning("Invalid byte sequence when trying to read string:\n" + invalidByteSequence);
-                return null;
-            }
+            // note: this will throw an ArgumentException if an invalid utf8
+            // string was sent (e.g. in a DOS attack). TransportReceive will
+            // handle it.
+            return reader.ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
         }
 
         public byte[] ReadBytes(int count) => reader.ReadBytes(count);
