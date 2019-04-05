@@ -71,7 +71,7 @@ namespace Mirror
             ulong value = ReadPackedUInt64();
             if (value > uint.MaxValue)
             {
-                throw new IndexOutOfRangeException("ReadPackedUInt32() failure, value too large");
+                Debug.LogWarning("ReadPackedUInt32() failure, value too large: " + value);
             }
             return (uint)value;
         }

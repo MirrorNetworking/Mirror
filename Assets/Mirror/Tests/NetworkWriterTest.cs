@@ -80,6 +80,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestPackedUInt32Failure()
+        {
+            Assert.DoesNotThrow(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedUInt64(1099511627775);
+                writer.WritePackedUInt64(281474976710655);
+                writer.WritePackedUInt64(72057594037927935);
+
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                reader.ReadPackedUInt32();
+                reader.ReadPackedUInt32();
+                reader.ReadPackedUInt32();
+            });
+        }
+
+        [Test]
         public void TestPackedInt32()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -113,6 +129,22 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedInt32(), Is.EqualTo(-16777210));
             Assert.That(reader.ReadPackedInt32(), Is.EqualTo(-16777219));
             Assert.That(reader.ReadPackedInt32(), Is.EqualTo(int.MinValue));
+        }
+
+        [Test]
+        public void TestPackedInt32Failure()
+        {
+            Assert.DoesNotThrow(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedInt64(1099511627775);
+                writer.WritePackedInt64(281474976710655);
+                writer.WritePackedInt64(72057594037927935);
+
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                reader.ReadPackedInt32();
+                reader.ReadPackedInt32();
+                reader.ReadPackedInt32();
+            });
         }
 
         [Test]
