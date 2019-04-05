@@ -735,8 +735,8 @@ namespace Mirror
 
         internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject playerGameObject)
         {
-            NetworkIdentity playerNetworkIdentity = playerGameObject.GetComponent<NetworkIdentity>();
-            if (playerNetworkIdentity == null)
+            NetworkIdentity identity = playerGameObject.GetComponent<NetworkIdentity>();
+            if (identity == null)
             {
                 Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + playerGameObject);
                 return false;
@@ -752,10 +752,10 @@ namespace Mirror
                 conn.playerController.clientAuthorityOwner = null;
             }
 
-            conn.playerController = playerNetworkIdentity;
+            conn.playerController = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            playerNetworkIdentity.connectionToClient = conn;
+            identity.connectionToClient = conn;
 
             //NOTE: DONT set connection ready.
 
@@ -768,17 +768,17 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer setup local");
 
-            if (SetupLocalPlayerForConnection(conn, playerNetworkIdentity))
+            if (SetupLocalPlayerForConnection(conn, identity))
             {
                 return true;
             }
 
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + playerGameObject.GetComponent<NetworkIdentity>().netId + " asset ID " + playerGameObject.GetComponent<NetworkIdentity>().assetId);
 
-            FinishPlayerForConnection(conn, playerNetworkIdentity, playerGameObject);
-            if (playerNetworkIdentity.localPlayerAuthority)
+            FinishPlayerForConnection(conn, identity, playerGameObject);
+            if (identity.localPlayerAuthority)
             {
-                playerNetworkIdentity.SetClientOwner(conn);
+                identity.SetClientOwner(conn);
             }
             return true;
         }
