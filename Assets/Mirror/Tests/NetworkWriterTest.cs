@@ -40,6 +40,32 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestReadingInvalidString()
+        {
+            // These are all bytes which never show up in valid UTF8 encodings.
+            // NetworkReader should gracefully handle maliciously crafted input.
+            byte[] invalidUTF8bytes = new byte[]
+            {
+                0xC0, 0xC1, 0xF5, 0xF6,
+                0xF7, 0xF8, 0xF9, 0xFA,
+                0xFB, 0xFC, 0xFD, 0xFE,
+                0xFF,
+            };
+            Assert.DoesNotThrow(() => {
+                foreach (byte invalid in invalidUTF8bytes)
+                {
+                    NetworkWriter writer = new NetworkWriter();
+                    writer.Write("an uncorrupted string");
+                    byte[] data = writer.ToArray();
+                    data[10] = invalid;
+                    NetworkReader reader = new NetworkReader(data);
+                    string result = reader.ReadString();
+                    Assert.That(result, Is.EqualTo(null));
+                }
+            });
+        }
+
+        [Test]
         public void TestToArray()
         {
             // write 2 bytes

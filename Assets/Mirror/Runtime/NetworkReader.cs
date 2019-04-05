@@ -49,7 +49,7 @@ namespace Mirror
                 // Catch invalid byte sequence exceptions because otherwise
                 // a client can mount a DOS attack on the server by sending
                 // maliciously crafted string messages.
-                Debug.LogError(invalidByteSequence);
+                Debug.LogWarning("Invalid byte sequence when trying to read string:\n" + invalidByteSequence);
                 return null;
             }
         }
