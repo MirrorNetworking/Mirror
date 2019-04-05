@@ -71,6 +71,9 @@ namespace Mirror
             ulong value = ReadPackedUInt64();
             if (value > uint.MaxValue)
             {
+                // show warning, but don't throw an exception to avoid DOS attack where
+                // an attacker might send a packed UInt64 where a packed UInt32 was
+                // expected (https://github.com/vis2k/Mirror/pull/730/)
                 Debug.LogWarning("ReadPackedUInt32() failure, value too large: " + value);
             }
             return (uint)value;
