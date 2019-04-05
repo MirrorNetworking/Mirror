@@ -249,6 +249,89 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestFloats()
+        {
+            float[] weirdFloats = new float[]{
+                0f,
+                -0f,
+                float.Epsilon,
+                -float.Epsilon,
+                float.MaxValue,
+                float.MinValue,
+                float.NaN,
+                -float.NaN,
+                float.PositiveInfinity,
+                float.NegativeInfinity,
+                (float) double.MaxValue,
+                (float) double.MinValue,
+                (float) decimal.MaxValue,
+                (float) decimal.MinValue,
+                (float) Math.PI,
+                (float) Math.E
+            };
+            foreach (float weird in weirdFloats)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(weird);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                float readFloat = reader.ReadSingle();
+                Assert.That(readFloat, Is.EqualTo(weird));
+            }
+        }
+
+        [Test]
+        public void TestDoubles()
+        {
+            double[] weirdDoubles = new double[]{
+                0d,
+                -0d,
+                double.Epsilon,
+                -double.Epsilon,
+                double.MaxValue,
+                double.MinValue,
+                double.NaN,
+                -double.NaN,
+                double.PositiveInfinity,
+                double.NegativeInfinity,
+                float.MaxValue,
+                float.MinValue,
+                (double) decimal.MaxValue,
+                (double) decimal.MinValue,
+                Math.PI,
+                Math.E
+            };
+            foreach (double weird in weirdDoubles)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(weird);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                double readDouble = reader.ReadDouble();
+                Assert.That(readDouble, Is.EqualTo(weird));
+            }
+        }
+
+        [Test]
+        public void TestDecimals()
+        {
+            decimal[] weirdDecimals = new decimal[]{
+                decimal.Zero,
+                -decimal.Zero,
+                decimal.MaxValue,
+                decimal.MinValue,
+                (decimal) Math.PI,
+                (decimal) Math.E
+            };
+            foreach (decimal weird in weirdDecimals)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(weird);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                decimal readDecimal = reader.ReadDecimal();
+                Assert.That(readDecimal, Is.EqualTo(weird));
+            }
+        }
+
+        [Test]
         public void TestWritingAndReading()
         {
             // write all simple types once
@@ -291,7 +374,7 @@ namespace Mirror.Tests
             Assert.That(reader.ReadSingle(), Is.EqualTo(10));
             Assert.That(reader.ReadDouble(), Is.EqualTo(11));
             Assert.That(reader.ReadDecimal(), Is.EqualTo(12));
-            Assert.That(reader.ReadString(), Is.Null); // writing null string should write null in HLAPI Pro ("" in original HLAPI)
+            Assert.That(reader.ReadString(), Is.Null); // writing null string should write null in Mirror ("" in original HLAPI)
             Assert.That(reader.ReadString(), Is.EqualTo(""));
             Assert.That(reader.ReadString(), Is.EqualTo("13"));
 
