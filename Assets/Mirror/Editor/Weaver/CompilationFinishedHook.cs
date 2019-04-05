@@ -185,6 +185,17 @@ namespace Mirror.Weaver
                 dependencyPaths = GetNonDynamicAssemblyDirectories(assemblies);
             }
 
+            // add compiled refs from CompilationPipeline
+            foreach (UnityAssembly unityAsm in _cachedAssemblies)
+            {
+                if (unityAsm.outputPath != assemblyPath) continue;
+
+                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
+                {
+                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                }
+            }
+
             // construct full path to Project/Library/ScriptAssemblies
             string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
             string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
