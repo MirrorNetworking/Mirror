@@ -828,11 +828,6 @@ namespace Mirror
 
         public static void SetClientNotReady(NetworkConnection conn)
         {
-            InternalSetClientNotReady(conn);
-        }
-
-        internal static void InternalSetClientNotReady(NetworkConnection conn)
-        {
             if (conn.isReady)
             {
                 if (LogFilter.Debug) Debug.Log("PlayerNotReady " + conn);
