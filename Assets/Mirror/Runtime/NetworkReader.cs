@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // Note: This class is intended to be extremely pedantic, and
+    // throw exceptions whenever stuff is going slightly wrong.
+    // The exceptions will be handled in NetworkServer/NetworkClient.
     public class NetworkReader
     {
         // cache encoding instead of creating it with BinaryWriter each time
@@ -38,13 +41,9 @@ namespace Mirror
         public float ReadSingle() => reader.ReadSingle();
         public double ReadDouble() => reader.ReadDouble();
 
-        public string ReadString()
-        {
-            // note: this will throw an ArgumentException if an invalid utf8
-            // string was sent (e.g. in a DOS attack). TransportReceive will
-            // handle it.
-            return ReadBoolean() ? reader.ReadString() : null; // null support, see NetworkWriter
-        }
+        // note: this will throw an ArgumentException if an invalid utf8 string is sent
+        // null support, see NetworkWriter
+        public string ReadString() => ReadBoolean() ? reader.ReadString() : null;
 
         public byte[] ReadBytes(int count)
         {
@@ -53,17 +52,9 @@ namespace Mirror
             return data;
         }
 
-        public byte[] ReadBytesAndSize()
-        {
-            // notNull? (see NetworkWriter)
-            bool notNull = ReadBoolean();
-            if (notNull)
-            {
-                uint size = ReadPackedUInt32();
-                return ReadBytes((int)size);
-            }
-            return null;
-        }
+        // Use checked() to force it to throw OverflowException if data is invalid
+        // null support, see NetworkWriter
+        public byte[] ReadBytesAndSize() => ReadBoolean() ? ReadBytes(checked((int)ReadPackedUInt32())) : null;
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public int ReadPackedInt32()
@@ -74,18 +65,8 @@ namespace Mirror
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
-        public uint ReadPackedUInt32()
-        {
-            ulong value = ReadPackedUInt64();
-            if (value > uint.MaxValue)
-            {
-                // show warning, but don't throw an exception to avoid DOS attack where
-                // an attacker might send a packed UInt64 where a packed UInt32 was
-                // expected (https://github.com/vis2k/Mirror/pull/730/)
-                Debug.LogWarning("ReadPackedUInt32() failure, value too large: " + value);
-            }
-            return (uint)value;
-        }
+        // Use checked() to force it to throw OverflowException if data is invalid
+        public uint ReadPackedUInt32() => checked((uint)ReadPackedUInt64());
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public long ReadPackedInt64()
