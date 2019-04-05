@@ -6,7 +6,8 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
-using Assembly = System.Reflection.Assembly;
+using DotNetAssembly = System.Reflection.Assembly;
+using UnityAssembly = UnityEditor.Compilation.Assembly;
 
 namespace Mirror.Weaver
 {
@@ -52,9 +53,9 @@ namespace Mirror.Weaver
 
         static string FindMirrorRuntime()
         {
-            UnityEditor.Compilation.Assembly[] assemblies = CompilationPipeline.GetAssemblies();
+            UnityAssembly[] assemblies = CompilationPipeline.GetAssemblies();
 
-            foreach (UnityEditor.Compilation.Assembly assembly in assemblies)
+            foreach (UnityAssembly assembly in assemblies)
             {
                 if (assembly.name == MirrorRuntimeAssemblyName)
                 {
@@ -70,16 +71,16 @@ namespace Mirror.Weaver
             // Since this assembly is already loaded in the domain this is a
             // no-op and returns the already loaded assembly
             return new HashSet<string>(
-                dependencies.Select(dependency => Path.GetDirectoryName(Assembly.Load(dependency).Location))
+                dependencies.Select(dependency => Path.GetDirectoryName(DotNetAssembly.Load(dependency).Location))
             );
         }
 
         // get all non-dynamic assembly directories
-        static HashSet<string> GetNonDynamicAssemblyDirectories(Assembly[] assemblies)
+        static HashSet<string> GetNonDynamicAssemblyDirectories(DotNetAssembly[] assemblies)
         {
             HashSet<string> paths = new HashSet<string>();
 
-            foreach (Assembly assembly in assemblies)
+            foreach (DotNetAssembly assembly in assemblies)
             {
                 if (!assembly.IsDynamic)
                 {
@@ -88,7 +89,7 @@ namespace Mirror.Weaver
                     string assemblyName = assembly.GetName().Name;
                     if (File.Exists(assemblyName))
                     {
-                        paths.Add(Path.GetDirectoryName(Assembly.Load(assemblyName).Location));
+                        paths.Add(Path.GetDirectoryName(DotNetAssembly.Load(assemblyName).Location));
                     }
                 }
             }
@@ -148,8 +149,8 @@ namespace Mirror.Weaver
             }
 
             // find all assemblies and the currently compiling assembly
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            Assembly targetAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
+            DotNetAssembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            DotNetAssembly targetAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
 
             // prepare variables
             HashSet<string> dependencyPaths = new HashSet<string>();
