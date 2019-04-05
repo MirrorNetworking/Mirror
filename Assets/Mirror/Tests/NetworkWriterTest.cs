@@ -40,6 +40,97 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestReadingTooMuch()
+        {
+            // Try reading more than there is data to be read from
+            // The reasoning this should not throw is that when you are running an MMO server
+            // you can't expect all your clients to play nice. They can craft any sort of
+            // malicious packet, and NetworkReader has to put up with it and take the beating.
+            // Currently this test fails with System.IO.EndOfStreamException
+            // Ideally NetworkReader should Debug.LogWarning and complain about malformed packets
+            // but still continue humming along just fine.
+            // MMO Servers cannot afford to be DOS'd and brought to their knees by
+            // one salty player with too much computer knowledge.
+            Assert.DoesNotThrow(() => {
+                Action<NetworkReader>[] readFunctions = new Action<NetworkReader>[]{
+                    r => r.ReadByte(),
+                    r => r.ReadSByte(),
+                    r => r.ReadChar(),
+                    r => r.ReadBoolean(),
+                    r => r.ReadInt16(),
+                    r => r.ReadUInt16(),
+                    r => r.ReadInt32(),
+                    r => r.ReadUInt32(),
+                    r => r.ReadInt64(),
+                    r => r.ReadUInt64(),
+                    r => r.ReadDecimal(),
+                    r => r.ReadSingle(),
+                    r => r.ReadDouble(),
+                    r => r.ReadString(),
+                    r => r.ReadBytes(0),
+                    r => r.ReadBytes(1),
+                    r => r.ReadBytes(2),
+                    r => r.ReadBytes(3),
+                    r => r.ReadBytes(4),
+                    r => r.ReadBytes(8),
+                    r => r.ReadBytes(16),
+                    r => r.ReadBytes(32),
+                    r => r.ReadBytes(100),
+                    r => r.ReadBytes(1000),
+                    r => r.ReadBytes(10000),
+                    r => r.ReadBytes(1000000),
+                    r => r.ReadBytes(10000000),
+                    r => r.ReadBytesAndSize(),
+                    r => r.ReadPackedInt32(),
+                    r => r.ReadPackedUInt32(),
+                    r => r.ReadPackedInt64(),
+                    r => r.ReadPackedUInt64(),
+                    r => r.ReadVector2(),
+                    r => r.ReadVector3(),
+                    r => r.ReadVector4(),
+                    r => r.ReadVector2Int(),
+                    r => r.ReadVector3Int(),
+                    r => r.ReadColor(),
+                    r => r.ReadColor32(),
+                    r => r.ReadQuaternion(),
+                    r => r.ReadRect(),
+                    r => r.ReadPlane(),
+                    r => r.ReadRay(),
+                    r => r.ReadMatrix4x4(),
+                    r => r.ReadGuid(),
+                };
+                byte[][] readerData = new byte[][]{
+                    new byte[] {},
+                    new byte[] {0},
+                    new byte[] {255,0},
+                    new byte[] {255,0,2,3,4,5},
+                    new byte[] {255,0,2,3,4,5},
+                    new byte[] {255,255,255,255,255,255},
+                    new byte[] {250,0},
+                    new byte[] {250,0,4,5,6,2},
+                    new byte[] {248,2},
+                    new byte[] {249,2,2,3,4},
+                    new byte[] {1,2,3},
+                    new byte[] {1,2,3,4},
+                    new byte[] {1,2,3,4,5,6,7},
+                    new byte[] {1,2,3,4,5,6,7,8},
+                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15},
+                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16},
+                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31},
+                    new byte[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32},
+                };
+                foreach (byte[] data in readerData)
+                {
+                    foreach (Action<NetworkReader> readFunction in readFunctions)
+                    {
+                        NetworkReader reader = new NetworkReader(data);
+                        readFunction(reader);
+                    }
+                }
+            });
+        }
+
+        [Test]
         public void TestReadingInvalidString()
         {
             // These are all bytes which never show up in valid UTF8 encodings.
