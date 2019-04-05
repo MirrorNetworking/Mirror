@@ -820,9 +820,8 @@ namespace Mirror
         // call this to make all the clients not ready, such as when changing levels.
         public static void SetAllClientsNotReady()
         {
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
+            foreach (NetworkConnection conn in connections.Values)
             {
-                NetworkConnection conn = kvp.Value;
                 SetClientNotReady(conn);
             }
         }
