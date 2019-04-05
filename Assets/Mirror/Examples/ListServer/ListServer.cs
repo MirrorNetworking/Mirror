@@ -148,8 +148,9 @@ namespace Mirror.Examples.ListServer
             // note: we don't use ReadString here because the list server
             //       doesn't know C#'s '7-bit-length + utf8' encoding for strings
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
-            ushort ipLength = reader.ReadUInt16();
-            string ip = Encoding.UTF8.GetString(reader.ReadBytes(ipLength));
+            byte ipBytesLength = reader.ReadByte();
+            byte[] ipBytes = reader.ReadBytes(ipBytesLength);
+            string ip = new IPAddress(ipBytes).ToString();
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
