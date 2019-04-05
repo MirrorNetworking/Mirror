@@ -1006,7 +1006,6 @@ namespace Mirror
             clientAuthorityOwner = null;
         }
 
-
         // MirrorUpdate is a hot path. Caching the vars msg is really worth it to
         // avoid large amounts of allocations.
         static UpdateVarsMessage varsMessage = new UpdateVarsMessage();
