@@ -84,6 +84,19 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestReadingLengthWrapAround()
+        {
+            Assert.DoesNotThrow(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(true);
+                // This is 1.5x int.MaxValue, in the negative range of int.
+                writer.WritePackedUInt32(3221225472);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                reader.ReadBytesAndSize();
+            });
+        }
+
+        [Test]
         public void TestUnicodeString()
         {
             string[] weirdUnicode = new string[]{

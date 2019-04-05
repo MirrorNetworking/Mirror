@@ -63,6 +63,11 @@ namespace Mirror
             if (notNull)
             {
                 uint size = ReadPackedUInt32();
+                if (size > int.MaxValue)
+                {
+                    Debug.LogWarning("Size cannot be larger than int.MaxValue. Requested size: " + size);
+                    return null;
+                }
                 return reader.ReadBytes((int)size);
             }
             return null;
