@@ -31,7 +31,7 @@ namespace Mirror
 
         // active is true while a client is connecting/connected
         // (= while the network is active)
-        public static bool active { get; internal set; }
+        public static bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
 
         public static bool isConnected => connectState == ConnectState.Connected;
 
@@ -48,7 +48,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
-            active = true;
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
@@ -65,7 +64,7 @@ namespace Mirror
         internal static void ConnectLocalServer()
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
-            active = true;
+
             RegisterSystemHandlers(true);
 
             connectState = ConnectState.Connected;
@@ -167,9 +166,6 @@ namespace Mirror
                     connection = null;
                     RemoveTransportHandlers();
                 }
-
-                // the client's network is not active anymore.
-                active = false;
             }
         }
 
@@ -372,7 +368,7 @@ namespace Mirror
         public static void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
-            active = false;
+            connectState = ConnectState.None;
         }
 
         [Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
