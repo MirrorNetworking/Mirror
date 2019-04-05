@@ -21,10 +21,14 @@ namespace Mirror
 
         // configuration
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
-        [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
-        public bool startOnHeadless = true;
+        [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;		
+        [Tooltip("Autostart Network Server on Headless mode builds?")]
+		public bool startOnHeadless = true;
+		[Tooltip("Enable this to allow NetworkManager to take control of the server/client tick rate. Disabling allows other scripts to control the tick rate instead.")]
+		public bool limitTickRate = true;
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
+
         [FormerlySerializedAs("m_ShowDebugMessages")] public bool showDebugMessages;
 
         [Scene]
@@ -249,7 +253,8 @@ namespace Mirror
 #if !UNITY_EDITOR
             if (!NetworkClient.active)
             {
-                Application.targetFrameRate = serverTickRate;
+				// If the user wants the server tick rate limited, then take control here.
+                if(limitTickRate) Application.targetFrameRate = serverTickRate;
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
             }
 #endif
