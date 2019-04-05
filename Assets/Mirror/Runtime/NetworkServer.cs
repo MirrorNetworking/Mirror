@@ -293,9 +293,8 @@ namespace Mirror
 
         public static void DisconnectAllConnections()
         {
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
+            foreach (NetworkConnection conn in connections.Values)
             {
-                NetworkConnection conn = kvp.Value;
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
