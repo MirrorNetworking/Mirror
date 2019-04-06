@@ -887,7 +887,7 @@ namespace Mirror
 
         internal static void SpawnObject(GameObject obj)
         {
-            if (!NetworkServer.active)
+            if (!active)
             {
                 Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
                 return;
