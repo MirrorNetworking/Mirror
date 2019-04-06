@@ -107,7 +107,7 @@ namespace Mirror.Weaver
             // find events
             foreach (EventDefinition ed in td.Events)
             {
-                foreach (var ca in ed.CustomAttributes)
+                foreach (CustomAttribute ca in ed.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
                     {
