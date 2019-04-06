@@ -42,7 +42,7 @@ namespace Mirror.Weaver
 
         private static void CheckAssemblies(IEnumerable<string> assemblyPaths)
         {
-            foreach (var assemblyPath in assemblyPaths)
+            foreach (string assemblyPath in assemblyPaths)
                 CheckAssemblyPath(assemblyPath);
         }
 
