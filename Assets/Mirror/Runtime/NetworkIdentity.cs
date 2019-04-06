@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2018_3_OR_NEWER
@@ -19,8 +20,6 @@ namespace Mirror
     public sealed class NetworkIdentity : MonoBehaviour
     {
         // configuration
-        [SerializeField] bool m_ServerOnly;
-        [SerializeField] bool m_LocalPlayerAuthority;
         bool m_IsServer;
         NetworkBehaviour[] networkBehaviours;
 
@@ -44,8 +43,8 @@ namespace Mirror
 
         public uint netId { get; internal set; }
         public ulong sceneId => m_SceneId;
-        public bool serverOnly { get { return m_ServerOnly; } set { m_ServerOnly = value; } }
-        public bool localPlayerAuthority { get { return m_LocalPlayerAuthority; } set { m_LocalPlayerAuthority = value; } }
+        [FormerlySerializedAs("m_ServerOnly")] public bool serverOnly;
+        [FormerlySerializedAs("m_LocalPlayerAuthority")] public bool localPlayerAuthority;
         public NetworkConnection clientAuthorityOwner { get; internal set; }
         public NetworkConnection connectionToServer { get; internal set; }
         public NetworkConnection connectionToClient { get; internal set; }
@@ -182,10 +181,10 @@ namespace Mirror
         void OnValidate()
         {
 #if UNITY_EDITOR
-            if (m_ServerOnly && m_LocalPlayerAuthority)
+            if (serverOnly && localPlayerAuthority)
             {
                 Debug.LogWarning("Disabling Local Player Authority for " + gameObject + " because it is server-only.");
-                m_LocalPlayerAuthority = false;
+                localPlayerAuthority = false;
             }
 
             SetupIDs();
@@ -378,7 +377,7 @@ namespace Mirror
                 return;
             }
             m_IsServer = true;
-            hasAuthority = !m_LocalPlayerAuthority;
+            hasAuthority = !localPlayerAuthority;
 
             observers = new Dictionary<int, NetworkConnection>();
 
