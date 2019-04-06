@@ -669,7 +669,7 @@ namespace Mirror.Weaver
         {
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
-                var p = md.Parameters[i];
+                ParameterDefinition p = md.Parameters[i];
                 if (p.IsOut)
                 {
                     Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have out parameters");
