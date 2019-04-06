@@ -276,7 +276,7 @@ namespace Mirror.Weaver
             ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
-            netBehaviourSubclass.Attributes = netBehaviourSubclass.Attributes & ~TypeAttributes.BeforeFieldInit;
+            netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
         }
 
         /*
