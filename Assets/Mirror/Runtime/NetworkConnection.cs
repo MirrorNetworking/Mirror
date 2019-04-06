@@ -255,10 +255,26 @@ namespace Mirror
                     lastMessageTime = Time.time;
                 }
             }
+            // These can happen if the other side accidentally (or an attacker intentionally) sends invalid data
+            catch (OverflowException exception)
+            {
+                Disconnect(); // Disconnect, this is probably intentional
+                Debug.LogWarning("Closed connection: " + connectionId + ". An invalid integer was encountered while reading. Reason: " + exception);
+            }
+            catch (System.IO.EndOfStreamException exception)
+            {
+                Disconnect(); // Disconnect, this is probably intentional
+                Debug.LogWarning("Closed connection: " + connectionId + ". The end of the message was reached unexpectedly. Reason: " + exception);
+            }
+            catch (System.Text.DecoderFallbackException exception)
+            {
+                Disconnect(); // Disconnect, this is probably intentional
+                Debug.LogWarning("Closed connection: " + connectionId + ". A malformed UTF8 string was encountered. Reason: " + exception);
+            }
             catch (Exception exception)
             {
-                Disconnect();
-                Debug.LogWarning("Closed connection: " + connectionId + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                // Do not disconnect, this is probably accidental
+                Debug.LogWarning("Errored connection: " + connectionId + ". Exception: " + exception);
             }
         }
 
