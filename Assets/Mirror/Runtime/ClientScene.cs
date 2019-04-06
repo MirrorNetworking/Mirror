@@ -30,15 +30,12 @@ namespace Mirror
         // then the client's player object won't be removed after disconnecting!
         internal static void Shutdown()
         {
-            NetworkIdentity.spawned.Clear();
             ClearSpawners();
             pendingOwnerNetIds.Clear();
             spawnableObjects = null;
             readyConnection = null;
             ready = false;
             isSpawnFinished = false;
-
-            Transport.activeTransport.ClientDisconnect();
         }
 
         // this is called from message handler for Owner message
