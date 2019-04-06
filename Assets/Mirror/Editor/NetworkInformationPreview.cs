@@ -61,7 +61,7 @@ namespace Mirror
         }
 
         List<NetworkIdentityInfo> info;
-        List<NetworkBehaviourInfo> m_Behaviours;
+        List<NetworkBehaviourInfo> behavioursInfo;
         NetworkIdentity identity;
         GUIContent title;
         Styles styles = new Styles();
@@ -124,7 +124,7 @@ namespace Mirror
 
             // Show behaviours list in a different way than the name/value pairs above
             float lastY = labelRect.y;
-            if (m_Behaviours != null && m_Behaviours.Count > 0)
+            if (behavioursInfo != null && behavioursInfo.Count > 0)
             {
                 Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize();
                 Rect behaviourRect = new Rect(initialX, labelRect.y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
@@ -133,7 +133,7 @@ namespace Mirror
                 behaviourRect.x += 20; // indent names
                 behaviourRect.y += behaviourRect.height;
 
-                foreach (NetworkBehaviourInfo info in m_Behaviours)
+                foreach (NetworkBehaviourInfo info in behavioursInfo)
                 {
                     if (info.behaviour == null)
                     {
@@ -192,7 +192,7 @@ namespace Mirror
         Vector2 GetMaxBehaviourLabelSize()
         {
             Vector2 maxLabelSize = Vector2.zero;
-            foreach (NetworkBehaviourInfo behaviour in m_Behaviours)
+            foreach (NetworkBehaviourInfo behaviour in behavioursInfo)
             {
                 Vector2 labelSize = styles.labelStyle.CalcSize(behaviour.name);
                 if (maxLabelSize.x < labelSize.x)
@@ -233,7 +233,7 @@ namespace Mirror
                 NetworkBehaviour[] behaviours = gameObject.GetComponents<NetworkBehaviour>();
                 if (behaviours.Length > 0)
                 {
-                    m_Behaviours = new List<NetworkBehaviourInfo>();
+                    behavioursInfo = new List<NetworkBehaviourInfo>();
                     foreach (NetworkBehaviour behaviour in behaviours)
                     {
                         NetworkBehaviourInfo info = new NetworkBehaviourInfo
@@ -241,7 +241,7 @@ namespace Mirror
                             name = new GUIContent(behaviour.GetType().FullName),
                             behaviour = behaviour
                         };
-                        m_Behaviours.Add(info);
+                        behavioursInfo.Add(info);
                     }
                 }
             }
