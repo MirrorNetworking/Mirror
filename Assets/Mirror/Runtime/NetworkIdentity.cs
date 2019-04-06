@@ -51,7 +51,7 @@ namespace Mirror
         public NetworkConnection connectionToClient { get; internal set; }
 
         // all spawned NetworkIdentities by netId. needed on server and client.
-        public static Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+        public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
         public NetworkBehaviour[] NetworkBehaviours => networkBehaviours = networkBehaviours ?? GetComponents<NetworkBehaviour>();
 
