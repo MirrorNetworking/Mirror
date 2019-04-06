@@ -418,7 +418,7 @@ namespace Mirror
 
         void CleanupNetworkIdentities()
         {
-            foreach (NetworkIdentity identity in Resources.FindObjectsOfTypeAll<NetworkIdentity>())
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 identity.MarkForReset();
             }
