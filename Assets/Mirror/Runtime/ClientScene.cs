@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using Guid = System.Guid;
@@ -322,7 +323,7 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
-        [Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
         {
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
