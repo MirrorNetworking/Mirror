@@ -242,20 +242,18 @@ namespace Mirror
             {
                 // unpack message
                 NetworkReader reader = new NetworkReader(buffer);
-                if (MessagePacker.UnpackMessage(reader, out int msgType))
-                {
-                    if (logNetworkMessages)
-                    {
-                        Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-                    }
+                MessagePacker.UnpackMessage(reader, out int msgType);
 
-                    // try to invoke the handler for that message
-                    if (InvokeHandler(msgType, reader))
-                    {
-                        lastMessageTime = Time.time;
-                    }
+                if (logNetworkMessages)
+                {
+                    Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
                 }
-                else Debug.LogError("HandleBytes UnpackMessage failed for: " + BitConverter.ToString(buffer));
+
+                // try to invoke the handler for that message
+                if (InvokeHandler(msgType, reader))
+                {
+                    lastMessageTime = Time.time;
+                }
             }
             catch (Exception exception)
             {
