@@ -10,8 +10,6 @@ namespace Mirror.Weaver
         {
             Weaver.DLog(td, "MessageClassProcessor Start");
 
-            Weaver.ResetRecursionCount();
-
             GenerateSerialization(td);
             if (Weaver.WeavingFailed)
             {
@@ -115,7 +113,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                MethodReference readerFunc = Weaver.GetReadFunc(field.FieldType);
+                MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
                 if (readerFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));

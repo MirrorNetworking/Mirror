@@ -26,7 +26,6 @@ namespace Mirror.Weaver
 
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
-            Weaver.ResetRecursionCount();
             MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
             if (Weaver.WeavingFailed)
             {
@@ -104,7 +103,7 @@ namespace Mirror.Weaver
 
             ILProcessor serWorker = deserializeFunction.Body.GetILProcessor();
 
-            MethodReference readerFunc = Weaver.GetReadFunc(itemType);
+            MethodReference readerFunc = Readers.GetReadFunc(itemType);
             if (readerFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
