@@ -53,7 +53,7 @@ namespace Mirror.Weaver
                     return Weaver.NetworkWriterWriteInt32;
                 }
 
-                newWriterFunc = GenerateWriterFunction(variable, recursionCount);
+                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
             }
 
             if (newWriterFunc == null)
@@ -74,7 +74,7 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
-        static MethodDefinition GenerateWriterFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateStructWriterFunction(TypeReference variable, int recursionCount)
         {
             if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
             {

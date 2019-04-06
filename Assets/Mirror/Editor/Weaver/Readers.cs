@@ -59,7 +59,7 @@ namespace Mirror.Weaver
                     return Weaver.NetworkReaderReadInt32;
                 }
 
-                newReaderFunc = GenerateReadFunction(variable, recursionCount);
+                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
             }
 
             if (newReaderFunc == null)
@@ -163,7 +163,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReadFunction(TypeReference variable, int recursionCount)
+        static MethodDefinition GenerateStructReadFunction(TypeReference variable, int recursionCount)
         {
 
             if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
