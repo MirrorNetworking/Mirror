@@ -65,7 +65,7 @@ namespace Mirror.Weaver
             if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
                 return null;
 
-            var rpcName = md.Name;
+            string rpcName = md.Name;
             int index = rpcName.IndexOf(RpcPrefix);
             if (index > -1)
             {
