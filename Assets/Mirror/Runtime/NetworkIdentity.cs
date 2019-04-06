@@ -730,9 +730,8 @@ namespace Mirror
                 hasAuthority = true;
             }
 
-            for (int i = 0; i < m_NetworkBehaviours.Length; i++)
+            foreach (NetworkBehaviour comp in m_NetworkBehaviours)
             {
-                NetworkBehaviour comp = m_NetworkBehaviours[i];
                 comp.OnStartLocalPlayer();
 
                 if (localPlayerAuthority && !originAuthority)
