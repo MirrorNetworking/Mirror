@@ -38,7 +38,6 @@ namespace Mirror.Weaver
             }
 
             ILProcessor cmdWorker = cmd.Body.GetILProcessor();
-            Instruction label = cmdWorker.Create(OpCodes.Nop);
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
