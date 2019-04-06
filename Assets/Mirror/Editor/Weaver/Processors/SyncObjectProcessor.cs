@@ -45,7 +45,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
@@ -88,7 +88,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
