@@ -58,7 +58,8 @@ namespace Mirror
             // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
             //        should also be null on the client)
             writer.Write(value != null);
-            if (value != null) writer.Write(value);
+            if (value != null) 
+                writer.Write(value);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
