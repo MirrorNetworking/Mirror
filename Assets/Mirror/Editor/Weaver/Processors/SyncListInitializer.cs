@@ -12,11 +12,11 @@ namespace Mirror.Weaver
         public static void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
         {
             // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (var ins in ctorWorker.Body.Instructions)
+            foreach (Instruction ins in ctorWorker.Body.Instructions)
             {
                 if (ins.OpCode.Code == Code.Stfld)
                 {
-                    var field = (FieldDefinition)ins.Operand;
+                    FieldDefinition field = (FieldDefinition)ins.Operand;
                     if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
                     {
                         // Already initialized by the user in the field definition, e.g:
