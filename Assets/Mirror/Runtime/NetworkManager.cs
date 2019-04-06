@@ -539,8 +539,7 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage(networkSceneName);
-                conn.Send(msg);
+                conn.Send(new SceneMessage(networkSceneName));
             }
 
             OnServerConnect(conn);
