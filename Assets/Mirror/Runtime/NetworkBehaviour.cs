@@ -9,7 +9,7 @@ namespace Mirror
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        float m_LastSendTime;
+        float lastSyncTime;
 
         // sync interval for OnSerialize (in seconds)
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
@@ -420,7 +420,7 @@ namespace Mirror
 
         public void ClearAllDirtyBits()
         {
-            m_LastSendTime = Time.time;
+            lastSyncTime = Time.time;
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
@@ -450,7 +450,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime >= syncInterval)
+            if (Time.time - lastSyncTime >= syncInterval)
             {
                 return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
