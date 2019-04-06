@@ -714,12 +714,7 @@ namespace Mirror
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
         {
-            if (initialState && m_NetworkBehaviours == null)
-            {
-                m_NetworkBehaviours = GetComponents<NetworkBehaviour>();
-            }
-
-            OnDeserializeAllSafely(m_NetworkBehaviours, reader, initialState);
+            OnDeserializeAllSafely(NetworkBehaviours, reader, initialState);
         }
 
         internal void SetLocalPlayer()
