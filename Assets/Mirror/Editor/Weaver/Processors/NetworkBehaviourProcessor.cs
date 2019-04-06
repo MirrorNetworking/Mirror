@@ -9,21 +9,21 @@ namespace Mirror.Weaver
 {
     class NetworkBehaviourProcessor
     {
-        readonly List<FieldDefinition> m_SyncVars = new List<FieldDefinition>();
-        readonly List<FieldDefinition> m_SyncObjects = new List<FieldDefinition>();
-        readonly Dictionary<FieldDefinition, FieldDefinition> m_SyncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>(); // <SyncVarField,NetIdField>
-        readonly List<MethodDefinition> m_Cmds = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_Rpcs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_TargetRpcs = new List<MethodDefinition>();
-        readonly List<EventDefinition> m_Events = new List<EventDefinition>();
-        readonly List<MethodDefinition> m_CmdInvocationFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_RpcInvocationFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_TargetRpcInvocationFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_EventInvocationFuncs = new List<MethodDefinition>();
+        readonly List<FieldDefinition> syncVars = new List<FieldDefinition>();
+        readonly List<FieldDefinition> syncObjects = new List<FieldDefinition>();
+        readonly Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>(); // <SyncVarField,NetIdField>
+        readonly List<MethodDefinition> commands = new List<MethodDefinition>();
+        readonly List<MethodDefinition> clientRpcs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> targetRpcs = new List<MethodDefinition>();
+        readonly List<EventDefinition> eventRpcs = new List<EventDefinition>();
+        readonly List<MethodDefinition> commandInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> clientRpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> targetRpcInvocationFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> eventRpcInvocationFuncs = new List<MethodDefinition>();
 
-        readonly List<MethodDefinition> m_CmdCallFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_RpcCallFuncs = new List<MethodDefinition>();
-        readonly List<MethodDefinition> m_TargetRpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> commandCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> clientRpcCallFuncs = new List<MethodDefinition>();
+        readonly List<MethodDefinition> targetRpcCallFuncs = new List<MethodDefinition>();
 
         readonly TypeDefinition netBehaviourSubclass;
 
@@ -42,12 +42,12 @@ namespace Mirror.Weaver
             }
             Weaver.DLog(netBehaviourSubclass, "Process Start");
             MarkAsProcessed(netBehaviourSubclass);
-            SyncVarProcessor.ProcessSyncVars(netBehaviourSubclass, m_SyncVars, m_SyncObjects, m_SyncVarNetIds);
+            SyncVarProcessor.ProcessSyncVars(netBehaviourSubclass, syncVars, syncObjects, syncVarNetIds);
             Weaver.ResetRecursionCount();
 
             ProcessMethods();
 
-            SyncEventProcessor.ProcessEvents(netBehaviourSubclass, m_Events, m_EventInvocationFuncs);
+            SyncEventProcessor.ProcessEvents(netBehaviourSubclass, eventRpcs, eventRpcInvocationFuncs);
             if (Weaver.WeavingFailed)
             {
                 return;
@@ -163,7 +163,7 @@ namespace Mirror.Weaver
 
         void GenerateConstants()
         {
-            if (m_Cmds.Count == 0 && m_Rpcs.Count == 0 && m_TargetRpcs.Count == 0 && m_Events.Count == 0 && m_SyncObjects.Count == 0)
+            if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && eventRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
 
             Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
@@ -240,27 +240,27 @@ namespace Mirror.Weaver
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
-            for (int i = 0; i < m_Cmds.Count; ++i)
+            for (int i = 0; i < commands.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, m_CmdInvocationFuncs[i], m_Cmds[i].Name);
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerCommandDelegateReference, commandInvocationFuncs[i], commands[i].Name);
             }
 
-            for (int i = 0; i < m_Rpcs.Count; ++i)
+            for (int i = 0; i < clientRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_RpcInvocationFuncs[i], m_Rpcs[i].Name);
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcs[i].Name);
             }
 
-            for (int i = 0; i < m_TargetRpcs.Count; ++i)
+            for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, m_TargetRpcInvocationFuncs[i], m_TargetRpcs[i].Name);
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
             }
 
-            for (int i = 0; i < m_Events.Count; ++i)
+            for (int i = 0; i < eventRpcs.Count; ++i)
             {
-                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, m_EventInvocationFuncs[i], m_Events[i].Name);
+                GenerateRegisterCommandDelegate(cctorWorker, Weaver.registerEventDelegateReference, eventRpcInvocationFuncs[i], eventRpcs[i].Name);
             }
 
-            foreach (FieldDefinition fd in m_SyncObjects)
+            foreach (FieldDefinition fd in syncObjects)
             {
                 SyncListInitializer.GenerateSyncListInstanceInitializer(ctorWorker, fd);
                 SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, fd);
@@ -305,7 +305,7 @@ namespace Mirror.Weaver
                     return;
             }
 
-            if (m_SyncVars.Count == 0)
+            if (syncVars.Count == 0)
             {
                 // no synvars,  no need for custom OnSerialize
                 return;
@@ -340,7 +340,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
-            foreach (FieldDefinition syncVar in m_SyncVars)
+            foreach (FieldDefinition syncVar in syncVars)
             {
                 // Generates a writer call for each sync variable
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
@@ -378,7 +378,7 @@ namespace Mirror.Weaver
 
             // start at number of syncvars in parent
             int dirtyBit = Weaver.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
-            foreach (FieldDefinition syncVar in m_SyncVars)
+            foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
@@ -454,7 +454,7 @@ namespace Mirror.Weaver
                 //   OnDeserialize reads to __netId manually so we can use
                 //     lookups in the getter (so it still works if objects
                 //     move in and out of range repeatedly)
-                FieldDefinition netIdField = m_SyncVarNetIds[syncVar];
+                FieldDefinition netIdField = syncVarNetIds[syncVar];
 
                 VariableDefinition tmpValue = new VariableDefinition(Weaver.uint32Type);
                 deserialize.Body.Variables.Add(tmpValue);
@@ -525,7 +525,7 @@ namespace Mirror.Weaver
                     return;
             }
 
-            if (m_SyncVars.Count == 0)
+            if (syncVars.Count == 0)
             {
                 // no synvars,  no need for custom OnDeserialize
                 return;
@@ -558,7 +558,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
             serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
 
-            foreach (FieldDefinition syncVar in m_SyncVars)
+            foreach (FieldDefinition syncVar in syncVars)
             {
                 DeserializeField(syncVar, serWorker, serialize);
             }
@@ -576,7 +576,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             int dirtyBit = Weaver.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName); // start at number of syncvars in parent
-            foreach (FieldDefinition syncVar in m_SyncVars)
+            foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
@@ -744,29 +744,29 @@ namespace Mirror.Weaver
             }
 
             // cmds
-            foreach (MethodDefinition md in m_CmdInvocationFuncs)
+            foreach (MethodDefinition md in commandInvocationFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
-            foreach (MethodDefinition md in m_CmdCallFuncs)
+            foreach (MethodDefinition md in commandCallFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
 
             // rpcs
-            foreach (MethodDefinition md in m_RpcInvocationFuncs)
+            foreach (MethodDefinition md in clientRpcInvocationFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
-            foreach (MethodDefinition md in m_TargetRpcInvocationFuncs)
+            foreach (MethodDefinition md in targetRpcInvocationFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
-            foreach (MethodDefinition md in m_RpcCallFuncs)
+            foreach (MethodDefinition md in clientRpcCallFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
-            foreach (MethodDefinition md in m_TargetRpcCallFuncs)
+            foreach (MethodDefinition md in targetRpcCallFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
             }
@@ -785,18 +785,18 @@ namespace Mirror.Weaver
                 return;
             }
             names.Add(md.Name);
-            m_Rpcs.Add(md);
+            clientRpcs.Add(md);
 
             MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md);
             if (rpcFunc != null)
             {
-                m_RpcInvocationFuncs.Add(rpcFunc);
+                clientRpcInvocationFuncs.Add(rpcFunc);
             }
 
             MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
             if (rpcCallFunc != null)
             {
-                m_RpcCallFuncs.Add(rpcCallFunc);
+                clientRpcCallFuncs.Add(rpcCallFunc);
                 Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
             }
         }
@@ -812,18 +812,18 @@ namespace Mirror.Weaver
                 return;
             }
             names.Add(md.Name);
-            m_TargetRpcs.Add(md);
+            targetRpcs.Add(md);
 
             MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(netBehaviourSubclass, md);
             if (rpcFunc != null)
             {
-                m_TargetRpcInvocationFuncs.Add(rpcFunc);
+                targetRpcInvocationFuncs.Add(rpcFunc);
             }
 
             MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, ca);
             if (rpcCallFunc != null)
             {
-                m_TargetRpcCallFuncs.Add(rpcCallFunc);
+                targetRpcCallFuncs.Add(rpcCallFunc);
                 Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
             }
         }
@@ -840,18 +840,18 @@ namespace Mirror.Weaver
             }
 
             names.Add(md.Name);
-            m_Cmds.Add(md);
+            commands.Add(md);
 
             MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md);
             if (cmdFunc != null)
             {
-                m_CmdInvocationFuncs.Add(cmdFunc);
+                commandInvocationFuncs.Add(cmdFunc);
             }
 
             MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
             if (cmdCallFunc != null)
             {
-                m_CmdCallFuncs.Add(cmdCallFunc);
+                commandCallFuncs.Add(cmdCallFunc);
                 Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
             }
         }
