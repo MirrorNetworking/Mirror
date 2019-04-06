@@ -47,7 +47,7 @@ namespace Mirror.Tests
             // This is 1.5x int.MaxValue, in the negative range of int.
             writer.WritePackedUInt32(3221225472);
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            Assert.Throws<System.ArgumentOutOfRangeException>(() => reader.ReadBytesAndSize());
+            Assert.Throws<System.OverflowException>(() => reader.ReadBytesAndSize());
         }
 
         [Test]
@@ -240,15 +240,22 @@ namespace Mirror.Tests
         [Test]
         public void TestPackedUInt32Failure()
         {
-            Assert.DoesNotThrow(() => {
+            Assert.Throws<System.OverflowException>(() => {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedUInt64(1099511627775);
-                writer.WritePackedUInt64(281474976710655);
-                writer.WritePackedUInt64(72057594037927935);
-
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedUInt32();
+            });
+            Assert.Throws<System.OverflowException>(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedUInt64(281474976710655);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedUInt32();
+            });
+            Assert.Throws<System.OverflowException>(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedUInt64(72057594037927935);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedUInt32();
             });
         }
@@ -292,15 +299,22 @@ namespace Mirror.Tests
         [Test]
         public void TestPackedInt32Failure()
         {
-            Assert.DoesNotThrow(() => {
+            Assert.Throws<System.OverflowException>(() => {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedInt64(1099511627775);
-                writer.WritePackedInt64(281474976710655);
-                writer.WritePackedInt64(72057594037927935);
-
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
+            });
+            Assert.Throws<System.OverflowException>(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedInt64(281474976710655);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
+            });
+            Assert.Throws<System.OverflowException>(() => {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WritePackedInt64(72057594037927935);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
             });
         }
