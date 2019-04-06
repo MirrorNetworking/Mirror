@@ -7,7 +7,7 @@ using UnityEditor.Compilation;
 
 using Mirror.Weaver;
 
-namespace Mirror
+namespace Mirror.Tests
 {
     [TestFixture]
     public class WeaverTest
