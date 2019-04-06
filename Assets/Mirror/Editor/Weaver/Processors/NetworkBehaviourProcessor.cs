@@ -216,7 +216,7 @@ namespace Mirror.Weaver
                 {
                     ctor = md;
 
-                    var ret = ctor.Body.Instructions[ctor.Body.Instructions.Count - 1];
+                    Instruction ret = ctor.Body.Instructions[ctor.Body.Instructions.Count - 1];
                     if (ret.OpCode == OpCodes.Ret)
                     {
                         ctor.Body.Instructions.RemoveAt(ctor.Body.Instructions.Count - 1);
