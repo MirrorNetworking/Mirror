@@ -36,6 +36,7 @@ namespace Mirror
             readyConnection = null;
             ready = false;
             isSpawnFinished = false;
+            DestroyAllClientObjects();
         }
 
         // this is called from message handler for Owner message

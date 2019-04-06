@@ -387,7 +387,6 @@ namespace Mirror
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 
-            ClientScene.DestroyAllClientObjects();
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 // Must pass true or offlineScene will not be loaded
