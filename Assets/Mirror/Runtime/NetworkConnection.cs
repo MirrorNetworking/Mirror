@@ -238,19 +238,27 @@ namespace Mirror
             //
             // let's catch them all and then disconnect that connection to avoid
             // further attacks.
+            // unpack message
+            NetworkReader reader = new NetworkReader(buffer);
+            int messageId;
             try
             {
-                // unpack message
-                NetworkReader reader = new NetworkReader(buffer);
-                MessagePacker.UnpackMessage(reader, out int msgType);
+                MessagePacker.UnpackMessage(reader, out messageId);
+            }
+            catch (System.IO.EndOfStreamException)
+            {
+                Debug.LogError($"TransportReceive UnpackMessage failed for connection: {connectionId}\nContent: {BitConverter.ToString(buffer)}");
+                return;
+            }
 
-                if (logNetworkMessages)
-                {
-                    Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-                }
+            if (logNetworkMessages)
+            {
+                Debug.Log($"TransportReceive connection: {connectionId} MessageID: {messageId}\nContent: {BitConverter.ToString(buffer)}");
+            }
 
-                // try to invoke the handler for that message
-                if (InvokeHandler(msgType, reader))
+            try
+            {
+                if (InvokeHandler(messageId, reader))
                 {
                     lastMessageTime = Time.time;
                 }
@@ -259,22 +267,22 @@ namespace Mirror
             catch (OverflowException exception)
             {
                 Disconnect(); // Disconnect, this is probably intentional
-                Debug.LogWarning("Closed connection: " + connectionId + ". An invalid integer was encountered while reading. Reason: " + exception);
+                Debug.LogWarning($"Closed connection: {connectionId}. An invalid integer was encountered while reading.\nMessageID: {messageId}\nContent: {BitConverter.ToString(buffer)}\nException: {exception}");
             }
             catch (System.IO.EndOfStreamException exception)
             {
                 Disconnect(); // Disconnect, this is probably intentional
-                Debug.LogWarning("Closed connection: " + connectionId + ". The end of the message was reached unexpectedly. Reason: " + exception);
+                Debug.LogWarning($"Closed connection: {connectionId}. The end of the message was reached unexpectedly.\nMessageID: {messageId}\nContent: {BitConverter.ToString(buffer)}\nException: {exception}");
             }
             catch (System.Text.DecoderFallbackException exception)
             {
                 Disconnect(); // Disconnect, this is probably intentional
-                Debug.LogWarning("Closed connection: " + connectionId + ". A malformed UTF8 string was encountered. Reason: " + exception);
+                Debug.LogWarning($"Closed connection: {connectionId}. A malformed UTF8 string was encountered.\nMessageID: {messageId}\nContent: {BitConverter.ToString(buffer)}\nException: {exception}");
             }
             catch (Exception exception)
             {
                 // Do not disconnect, this is probably accidental
-                Debug.LogWarning("Errored connection: " + connectionId + ". Exception: " + exception);
+                Debug.LogWarning($"Errored connection: {connectionId}. \nMessageID: {messageId}\nContent: {BitConverter.ToString(buffer)}\nException: {exception}");
             }
         }
 
