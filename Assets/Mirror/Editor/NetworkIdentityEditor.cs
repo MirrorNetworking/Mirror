@@ -11,9 +11,9 @@ namespace Mirror
         SerializedProperty serverOnlyProperty;
         SerializedProperty localPlayerAuthorityProperty;
 
-        GUIContent serverOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
-        GUIContent localPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
-        GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
+        readonly GUIContent serverOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
+        readonly GUIContent localPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
+        readonly GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
 
         NetworkIdentity networkIdentity;
         bool initialized;
