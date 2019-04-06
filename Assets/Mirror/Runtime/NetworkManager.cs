@@ -163,6 +163,15 @@ namespace Mirror
                     Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
+
+            // finished our async scene load that was in progress?
+            if (singleton != null && loadingSceneAsync != null)
+            {
+                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
+                singleton.FinishLoadScene();
+                loadingSceneAsync.allowSceneActivation = true;
+                loadingSceneAsync = null;
+            }
         }
 
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
@@ -177,7 +186,6 @@ namespace Mirror
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
             NetworkClient.Update();
-            UpdateScene();
         }
 
         // When pressing Stop in the Editor, Unity keeps threads alive until we
@@ -481,17 +489,6 @@ namespace Mirror
             {
                 RegisterClientMessages();
                 OnClientSceneChanged(NetworkClient.connection);
-            }
-        }
-
-        internal static void UpdateScene()
-        {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
-            {
-                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                singleton.FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
             }
         }
 
