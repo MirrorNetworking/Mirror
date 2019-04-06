@@ -88,7 +88,7 @@ namespace Mirror.Weaver
                 for (int iCount= 0; iCount < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[iCount];
-                    iCount += ProcessInstruction(td, md, instr, iCount);
+                    iCount += ProcessInstruction(md, instr, iCount);
                 }
             }
         }
@@ -139,7 +139,7 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar write access with the NetworkXYZ.get property calls
-        static void ProcessInstructionSetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionSetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -157,7 +157,7 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessInstructionGetterField(TypeDefinition td, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessInstructionGetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // dont replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -174,13 +174,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessInstruction(TypeDefinition td, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(MethodDefinition md, Instruction instr, int iCount)
         {
             if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
             {
                 if (instr.Operand is MethodReference opMethod)
                 {
-                    ProcessInstructionMethod(td, md, instr, opMethod, iCount);
+                    ProcessInstructionMethod(md, instr, opMethod, iCount);
                 }
             }
 
@@ -189,7 +189,7 @@ namespace Mirror.Weaver
                 // this instruction sets the value of a field. cache the field reference.
                 if (instr.Operand is FieldDefinition opField)
                 {
-                    ProcessInstructionSetterField(td, md, instr, opField);
+                    ProcessInstructionSetterField(md, instr, opField);
                 }
             }
 
@@ -198,7 +198,7 @@ namespace Mirror.Weaver
                 // this instruction gets the value of a field. cache the field reference.
                 if (instr.Operand is FieldDefinition opField)
                 {
-                    ProcessInstructionGetterField(td, md, instr, opField);
+                    ProcessInstructionGetterField(md, instr, opField);
                 }
             }
 
@@ -209,14 +209,14 @@ namespace Mirror.Weaver
 
                 if (instr.Operand is FieldDefinition opField)
                 {
-                    return ProcessInstructionLoadAddress(td, md, instr, opField, iCount);
+                    return ProcessInstructionLoadAddress(md, instr, opField, iCount);
                 }
             }
 
             return 1;
         }
 
-        private static int ProcessInstructionLoadAddress(TypeDefinition td, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        private static int ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
             // dont replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -254,7 +254,7 @@ namespace Mirror.Weaver
             return 1;
         }
 
-        static void ProcessInstructionMethod(TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
+        static void ProcessInstructionMethod(MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
             //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
             if (opMethodRef.Name == "Invoke")
