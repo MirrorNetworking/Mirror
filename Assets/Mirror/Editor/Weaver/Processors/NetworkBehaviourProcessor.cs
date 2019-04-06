@@ -441,8 +441,7 @@ namespace Mirror.Weaver
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
-            MethodDefinition foundMethod;
-            if (!SyncVarProcessor.CheckForHookFunction(netBehaviourSubclass, syncVar, out foundMethod))
+            if (!SyncVarProcessor.CheckForHookFunction(netBehaviourSubclass, syncVar, out MethodDefinition foundMethod))
             {
                 return;
             }
