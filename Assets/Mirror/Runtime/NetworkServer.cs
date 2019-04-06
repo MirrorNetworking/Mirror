@@ -690,7 +690,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId);
 
-            if (conn is ULocalConnectionToClient localConnection)
+            if (conn is ULocalConnectionToClient)
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient");
 
