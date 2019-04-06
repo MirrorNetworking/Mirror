@@ -157,25 +157,18 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
+                    case Operation.OP_REMOVE:
                         SerializeItem(writer, change.item);
                         break;
 
                     case Operation.OP_CLEAR:
                         break;
 
-                    case Operation.OP_INSERT:
-                        writer.WritePackedUInt32((uint)change.index);
-                        SerializeItem(writer, change.item);
-                        break;
-
-                    case Operation.OP_REMOVE:
-                        SerializeItem(writer, change.item);
-                        break;
-
                     case Operation.OP_REMOVEAT:
                         writer.WritePackedUInt32((uint)change.index);
                         break;
 
+                    case Operation.OP_INSERT:
                     case Operation.OP_SET:
                     case Operation.OP_DIRTY:
                         writer.WritePackedUInt32((uint)change.index);
