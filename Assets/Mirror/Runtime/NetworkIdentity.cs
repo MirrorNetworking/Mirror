@@ -755,9 +755,9 @@ namespace Mirror
         {
             if (observers != null)
             {
-                foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
+                foreach (NetworkConnection conn in observers.Values)
                 {
-                    kvp.Value.RemoveFromVisList(this, true);
+                    conn.RemoveFromVisList(this, true);
                 }
                 observers.Clear();
             }
