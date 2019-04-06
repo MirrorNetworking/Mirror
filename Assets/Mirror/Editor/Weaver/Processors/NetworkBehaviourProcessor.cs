@@ -725,85 +725,19 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
                     {
-                        if (!CommandProcessor.ProcessMethodsValidateCommand(netBehaviourSubclass, md, ca))
-                            return;
-
-                        if (names.Contains(md.Name))
-                        {
-                            Weaver.Error("Duplicate Command name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
-                            return;
-                        }
-                        names.Add(md.Name);
-                        m_Cmds.Add(md);
-
-                        MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md);
-                        if (cmdFunc != null)
-                        {
-                            m_CmdInvocationFuncs.Add(cmdFunc);
-                        }
-
-                        MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
-                        if (cmdCallFunc != null)
-                        {
-                            m_CmdCallFuncs.Add(cmdCallFunc);
-                            Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
-                        }
+                        ProcessCommand(names, md, ca);
                         break;
                     }
 
                     if (ca.AttributeType.FullName == Weaver.TargetRpcType.FullName)
                     {
-                        if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(netBehaviourSubclass, md, ca))
-                            return;
-
-                        if (names.Contains(md.Name))
-                        {
-                            Weaver.Error("Duplicate Target Rpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
-                            return;
-                        }
-                        names.Add(md.Name);
-                        m_TargetRpcs.Add(md);
-
-                        MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(netBehaviourSubclass, md);
-                        if (rpcFunc != null)
-                        {
-                            m_TargetRpcInvocationFuncs.Add(rpcFunc);
-                        }
-
-                        MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, ca);
-                        if (rpcCallFunc != null)
-                        {
-                            m_TargetRpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
-                        }
+                        ProcessTargetRpc(names, md, ca);
                         break;
                     }
 
                     if (ca.AttributeType.FullName == Weaver.ClientRpcType.FullName)
                     {
-                        if (!RpcProcessor.ProcessMethodsValidateRpc(netBehaviourSubclass, md, ca))
-                            return;
-
-                        if (names.Contains(md.Name))
-                        {
-                            Weaver.Error("Duplicate ClientRpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
-                            return;
-                        }
-                        names.Add(md.Name);
-                        m_Rpcs.Add(md);
-
-                        MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md);
-                        if (rpcFunc != null)
-                        {
-                            m_RpcInvocationFuncs.Add(rpcFunc);
-                        }
-
-                        MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
-                        if (rpcCallFunc != null)
-                        {
-                            m_RpcCallFuncs.Add(rpcCallFunc);
-                            Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
-                        }
+                        ProcessClientRpc(names, md, ca);
                         break;
                     }
                 }
@@ -835,6 +769,90 @@ namespace Mirror.Weaver
             foreach (MethodDefinition md in m_TargetRpcCallFuncs)
             {
                 netBehaviourSubclass.Methods.Add(md);
+            }
+        }
+
+        private void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        {
+            if (!RpcProcessor.ProcessMethodsValidateRpc(netBehaviourSubclass, md, ca))
+            {
+                return;
+            }
+
+            if (names.Contains(md.Name))
+            {
+                Weaver.Error("Duplicate ClientRpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                return;
+            }
+            names.Add(md.Name);
+            m_Rpcs.Add(md);
+
+            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md);
+            if (rpcFunc != null)
+            {
+                m_RpcInvocationFuncs.Add(rpcFunc);
+            }
+
+            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
+            if (rpcCallFunc != null)
+            {
+                m_RpcCallFuncs.Add(rpcCallFunc);
+                Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
+            }
+        }
+
+        private void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        {
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(netBehaviourSubclass, md, ca))
+                return;
+
+            if (names.Contains(md.Name))
+            {
+                Weaver.Error("Duplicate Target Rpc name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                return;
+            }
+            names.Add(md.Name);
+            m_TargetRpcs.Add(md);
+
+            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(netBehaviourSubclass, md);
+            if (rpcFunc != null)
+            {
+                m_TargetRpcInvocationFuncs.Add(rpcFunc);
+            }
+
+            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(netBehaviourSubclass, md, ca);
+            if (rpcCallFunc != null)
+            {
+                m_TargetRpcCallFuncs.Add(rpcCallFunc);
+                Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
+            }
+        }
+
+        private void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        {
+            if (!CommandProcessor.ProcessMethodsValidateCommand(netBehaviourSubclass, md, ca))
+                return;
+
+            if (names.Contains(md.Name))
+            {
+                Weaver.Error("Duplicate Command name [" + netBehaviourSubclass.FullName + ":" + md.Name + "]");
+                return;
+            }
+
+            names.Add(md.Name);
+            m_Cmds.Add(md);
+
+            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md);
+            if (cmdFunc != null)
+            {
+                m_CmdInvocationFuncs.Add(cmdFunc);
+            }
+
+            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
+            if (cmdCallFunc != null)
+            {
+                m_CmdCallFuncs.Add(cmdCallFunc);
+                Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
             }
         }
     }
