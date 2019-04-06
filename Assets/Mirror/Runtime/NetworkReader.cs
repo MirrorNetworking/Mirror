@@ -134,64 +134,21 @@ namespace Mirror
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
 
-        public Vector2 ReadVector2()
-        {
-            return new Vector2(ReadSingle(), ReadSingle());
-        }
-
-        public Vector3 ReadVector3()
-        {
-            return new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
-        }
-
-        public Vector4 ReadVector4()
-        {
-            return new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        }
-
-        public Vector2Int ReadVector2Int()
-        {
-            return new Vector2Int(ReadPackedInt32(), ReadPackedInt32());
-        }
-
-        public Vector3Int ReadVector3Int()
-        {
-            return new Vector3Int(ReadPackedInt32(), ReadPackedInt32(), ReadPackedInt32());
-        }
-
-        public Color ReadColor()
-        {
-            return new Color(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        }
-
-        public Color32 ReadColor32()
-        {
-            return new Color32(ReadByte(), ReadByte(), ReadByte(), ReadByte());
-        }
-
-        public Quaternion ReadQuaternion()
-        {
-            return new Quaternion(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        }
-
-        public Rect ReadRect()
-        {
-            return new Rect(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        }
-
-        public Plane ReadPlane()
-        {
-            return new Plane(ReadVector3(), ReadSingle());
-        }
-
-        public Ray ReadRay()
-        {
-            return new Ray(ReadVector3(), ReadVector3());
-        }
+        public Vector2 ReadVector2() => new Vector2(ReadSingle(), ReadSingle());
+        public Vector3 ReadVector3() => new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
+        public Vector4 ReadVector4() => new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        public Vector2Int ReadVector2Int() => new Vector2Int(ReadPackedInt32(), ReadPackedInt32());
+        public Vector3Int ReadVector3Int() => new Vector3Int(ReadPackedInt32(), ReadPackedInt32(), ReadPackedInt32());
+        public Color ReadColor() => new Color(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        public Color32 ReadColor32() => new Color32(ReadByte(), ReadByte(), ReadByte(), ReadByte());
+        public Quaternion ReadQuaternion() => new Quaternion(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        public Rect ReadRect() => new Rect(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        public Plane ReadPlane() => new Plane(ReadVector3(), ReadSingle());
+        public Ray ReadRay() => new Ray(ReadVector3(), ReadVector3());
 
         public Matrix4x4 ReadMatrix4x4()
         {
-            Matrix4x4 m = new Matrix4x4
+            return new Matrix4x4
             {
                 m00 = ReadSingle(),
                 m01 = ReadSingle(),
@@ -210,56 +167,16 @@ namespace Mirror
                 m32 = ReadSingle(),
                 m33 = ReadSingle()
             };
-            return m;
         }
 
-        public Guid ReadGuid()
-        {
-            byte[] bytes = ReadBytes(16);
-            return new Guid(bytes);
-        }
-
-        public Transform ReadTransform()
-        {
-            uint netId = ReadPackedUInt32();
-            if (netId == 0)
-            {
-                return null;
-            }
-
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.transform;
-            }
-
-            if (LogFilter.Debug) Debug.Log("ReadTransform netId:" + netId + " not found in spawned");
-            return null;
-        }
-
-        public GameObject ReadGameObject()
-        {
-            uint netId = ReadPackedUInt32();
-            if (netId == 0)
-            {
-                return null;
-            }
-
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-
-            if (LogFilter.Debug) Debug.Log("ReadGameObject netId:" + netId + " not found in spawned");
-            return null;
-        }
+        public Guid ReadGuid() => new Guid(ReadBytes(16));
+        public Transform ReadTransform() => ReadNetworkIdentity()?.transform;
+        public GameObject ReadGameObject() => ReadNetworkIdentity()?.gameObject;
 
         public NetworkIdentity ReadNetworkIdentity()
         {
             uint netId = ReadPackedUInt32();
-            if (netId == 0)
-            {
-                return null;
-            }
+            if (netId == 0) return null;
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
