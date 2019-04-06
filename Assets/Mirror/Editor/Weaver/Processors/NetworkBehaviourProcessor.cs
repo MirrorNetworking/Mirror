@@ -113,7 +113,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_0));
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition md, string errString, bool skipFirst)
+        public static bool WriteArguments(ILProcessor worker, MethodDefinition md, bool skipFirst)
         {
             // write each argument
             short argNum = 1;

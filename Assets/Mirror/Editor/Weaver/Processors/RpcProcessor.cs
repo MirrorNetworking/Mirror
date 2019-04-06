@@ -63,7 +63,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "RPC", false))
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
                 return null;
 
             var rpcName = md.Name;
