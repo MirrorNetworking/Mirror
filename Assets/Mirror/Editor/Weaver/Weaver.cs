@@ -272,7 +272,7 @@ namespace Mirror.Weaver
             WeaveLists.writeFuncs[name] = newWriterFunc;
             WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
 
-            ConfirmGeneratedCodeClass(CurrentAssembly.MainModule);
+            ConfirmGeneratedCodeClass();
             WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
         }
 
@@ -337,7 +337,7 @@ namespace Mirror.Weaver
             WeaveLists.readFuncs[name] = newReaderFunc;
             WeaveLists.generatedReadFunctions.Add(newReaderFunc);
 
-            ConfirmGeneratedCodeClass(CurrentAssembly.MainModule);
+            ConfirmGeneratedCodeClass();
             WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
@@ -676,7 +676,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static void ConfirmGeneratedCodeClass(ModuleDefinition moduleDef)
+        static void ConfirmGeneratedCodeClass()
         {
             if (WeaveLists.generateContainerClass == null)
             {
