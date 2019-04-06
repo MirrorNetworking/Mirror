@@ -247,8 +247,9 @@ namespace Mirror
             }
             catch (System.IO.EndOfStreamException)
             {
+                Disconnect(); // Disconnect, this is probably intentional
                 Debug.LogError($"TransportReceive UnpackMessage failed for connection: {connectionId}\nContent: {BitConverter.ToString(buffer)}");
-                return;
+                return; // packet is broken, avoid further processing
             }
 
             if (logNetworkMessages)
