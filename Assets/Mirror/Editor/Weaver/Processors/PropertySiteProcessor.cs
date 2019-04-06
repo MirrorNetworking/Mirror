@@ -15,7 +15,7 @@ namespace Mirror.Weaver
             {
                 if (td.IsClass)
                 {
-                    ProcessSiteClass(moduleDef, td);
+                    ProcessSiteClass(td);
                 }
             }
             if (Weaver.WeaveLists.generateContainerClass != null)
@@ -36,21 +36,21 @@ namespace Mirror.Weaver
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 
-        static void ProcessSiteClass(ModuleDefinition moduleDef, TypeDefinition td)
+        static void ProcessSiteClass(TypeDefinition td)
         {
             //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessSiteMethod(moduleDef, td, md);
+                ProcessSiteMethod(td, md);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessSiteClass(moduleDef, nested);
+                ProcessSiteClass(nested);
             }
         }
 
-        static void ProcessSiteMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md)
+        static void ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
@@ -71,16 +71,16 @@ namespace Mirror.Weaver
                     switch (attr.Constructor.DeclaringType.ToString())
                     {
                         case "Mirror.ServerAttribute":
-                            InjectServerGuard(moduleDef, td, md, true);
+                            InjectServerGuard(td, md, true);
                             break;
                         case "Mirror.ServerCallbackAttribute":
-                            InjectServerGuard(moduleDef, td, md, false);
+                            InjectServerGuard(td, md, false);
                             break;
                         case "Mirror.ClientAttribute":
-                            InjectClientGuard(moduleDef, td, md, true);
+                            InjectClientGuard(td, md, true);
                             break;
                         case "Mirror.ClientCallbackAttribute":
-                            InjectClientGuard(moduleDef, td, md, false);
+                            InjectClientGuard(td, md, false);
                             break;
                     }
                 }
@@ -88,12 +88,12 @@ namespace Mirror.Weaver
                 for (int iCount= 0; iCount < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[iCount];
-                    iCount += ProcessInstruction(moduleDef, td, md, instr, iCount);
+                    iCount += ProcessInstruction(td, md, instr, iCount);
                 }
             }
         }
 
-        static void InjectServerGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectServerGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
@@ -115,7 +115,7 @@ namespace Mirror.Weaver
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectClientGuard(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, bool logWarning)
+        static void InjectClientGuard(TypeDefinition td, MethodDefinition md, bool logWarning)
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
@@ -174,13 +174,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessInstruction(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(TypeDefinition td, MethodDefinition md, Instruction instr, int iCount)
         {
             if (instr.OpCode == OpCodes.Call || instr.OpCode == OpCodes.Callvirt)
             {
                 if (instr.Operand is MethodReference opMethod)
                 {
-                    ProcessInstructionMethod(moduleDef, td, md, instr, opMethod, iCount);
+                    ProcessInstructionMethod(td, md, instr, opMethod, iCount);
                 }
             }
 
@@ -254,7 +254,7 @@ namespace Mirror.Weaver
             return 1;
         }
 
-        static void ProcessInstructionMethod(ModuleDefinition moduleDef, TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
+        static void ProcessInstructionMethod(TypeDefinition td, MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
             //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
             if (opMethodRef.Name == "Invoke")
