@@ -43,7 +43,7 @@ namespace Mirror
     // in Unity 2019.1.
     //
     // TODO rename back to SyncListStruct after 2019.1!
-    [Obsolete("Use SyncList<MyStruct> instead")]
+    [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SyncList<MyStruct> instead")]
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
         public T GetItem(int i) => base[i];

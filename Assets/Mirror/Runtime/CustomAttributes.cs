@@ -1,9 +1,10 @@
 using System;
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
 {
-    [Obsolete("Use NetworkBehaviour.syncInterval field instead. Can be modified in the Inspector too.")]
+    [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkBehaviour.syncInterval field instead. Can be modified in the Inspector too.")]
     [AttributeUsage(AttributeTargets.Class)]
     public class NetworkSettingsAttribute : Attribute
     {

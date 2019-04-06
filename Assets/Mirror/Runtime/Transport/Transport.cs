@@ -1,6 +1,7 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -48,7 +49,7 @@ namespace Mirror
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
 
-        [Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
         public virtual bool GetConnectionInfo(int connectionId, out string address)
         {
             address = ServerGetClientAddress(connectionId);
