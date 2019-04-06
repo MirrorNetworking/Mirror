@@ -21,7 +21,7 @@ namespace Mirror.Weaver
         }
     }
 
-    public class Program
+    public static class Program
     {
         public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
