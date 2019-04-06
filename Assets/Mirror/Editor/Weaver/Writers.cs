@@ -18,9 +18,8 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (Weaver.WeaveLists.writeFuncs.ContainsKey(variable.FullName))
+            if (Weaver.WeaveLists.writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
-                MethodReference foundFunc = Weaver.WeaveLists.writeFuncs[variable.FullName];
                 if (foundFunc.Parameters[0].ParameterType.IsArray == variable.IsArray)
                 {
                     return foundFunc;
