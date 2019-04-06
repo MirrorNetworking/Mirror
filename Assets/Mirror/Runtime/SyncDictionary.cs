@@ -241,7 +241,7 @@ namespace Mirror
             get => objects[i];
             set
             {
-                if (TryGetValue(i, out V val))
+                if (ContainsKey(i))
                 {
                     AddOperation(Operation.OP_SET, i, value);
                 }
