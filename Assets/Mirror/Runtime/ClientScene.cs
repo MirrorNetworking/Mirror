@@ -472,6 +472,7 @@ namespace Mirror
         {
             DestroyObject(msg.netId);
         }
+
         internal static void OnObjectDestroy(NetworkConnection conn, ObjectDestroyMessage msg)
         {
             DestroyObject(msg.netId);
