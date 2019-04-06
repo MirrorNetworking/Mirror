@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             return newReaderFunc;
         }
 
-        public static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
+        static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
         {
             Weaver.WeaveLists.readFuncs[name] = newReaderFunc;
             Weaver.WeaveLists.generatedReadFunctions.Add(newReaderFunc);
