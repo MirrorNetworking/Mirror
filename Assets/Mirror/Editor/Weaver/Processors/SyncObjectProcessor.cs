@@ -67,7 +67,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodReference writeFunc = Weaver.GetWriteFunc(itemType);
+            MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));

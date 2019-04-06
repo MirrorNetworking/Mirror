@@ -70,7 +70,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                MethodReference writeFunc = Weaver.GetWriteFunc(field.FieldType);
+                MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
                 if (writeFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));

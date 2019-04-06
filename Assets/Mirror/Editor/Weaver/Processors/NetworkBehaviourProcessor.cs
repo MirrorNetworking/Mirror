@@ -125,7 +125,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = Weaver.GetWriteFunc(pd.ParameterType);
+                MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
                 if (writeFunc == null)
                 {
                     Weaver.Error("WriteArguments for " + md.Name + " type " + pd.ParameterType + " not supported");
@@ -345,7 +345,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
@@ -393,7 +393,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
 
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
