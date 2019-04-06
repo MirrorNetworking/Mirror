@@ -43,7 +43,6 @@ namespace Mirror.Weaver
             Weaver.DLog(netBehaviourSubclass, "Process Start");
             MarkAsProcessed(netBehaviourSubclass);
             SyncVarProcessor.ProcessSyncVars(netBehaviourSubclass, syncVars, syncObjects, syncVarNetIds);
-            Weaver.ResetRecursionCount();
 
             ProcessMethods();
 
@@ -54,7 +53,6 @@ namespace Mirror.Weaver
             }
             GenerateConstants();
 
-            Weaver.ResetRecursionCount();
             GenerateSerialization();
             if (Weaver.WeavingFailed)
             {
@@ -125,7 +123,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = Weaver.GetWriteFunc(pd.ParameterType);
+                MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
                 if (writeFunc == null)
                 {
                     Weaver.Error("WriteArguments for " + md.Name + " type " + pd.ParameterType + " not supported");
@@ -345,7 +343,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
@@ -393,7 +391,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
 
-                MethodReference writeFunc = Weaver.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
@@ -485,7 +483,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                MethodReference readFunc = Weaver.GetReadFunc(syncVar.FieldType);
+                MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
                 if (readFunc == null)
                 {
                     Weaver.Error("GenerateDeSerialization for " + netBehaviourSubclass.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
@@ -612,7 +610,7 @@ namespace Mirror.Weaver
                 {
                     continue;
                 }
-                MethodReference readFunc = Weaver.GetReadFunc(arg.ParameterType); //?
+                MethodReference readFunc = Readers.GetReadFunc(arg.ParameterType); //?
 
                 if (readFunc != null)
                 {
@@ -719,7 +717,6 @@ namespace Mirror.Weaver
             // find command and RPC functions
             foreach (MethodDefinition md in netBehaviourSubclass.Methods)
             {
-                Weaver.ResetRecursionCount();
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.CommandType.FullName)
