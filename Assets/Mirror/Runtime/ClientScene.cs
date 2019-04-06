@@ -87,11 +87,11 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]");
 
-            AddPlayerMessage msg = new AddPlayerMessage()
+            AddPlayerMessage message = new AddPlayerMessage()
             {
                 value = extraData
             };
-            readyConnection.Send(msg);
+            readyConnection.Send(message);
             return true;
         }
 
