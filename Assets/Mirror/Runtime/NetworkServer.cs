@@ -972,11 +972,7 @@ namespace Mirror
 
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // note: conn.playerController/clientOwnedObjects might be null if
-            // the player is still in a lobby and hasn't joined the world yet,
-            // so we need null checks for both of them.
             // => destroy what we can destroy.
-
             HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
             foreach (uint netId in tmp)
             {
