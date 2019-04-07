@@ -970,11 +970,10 @@ namespace Mirror
             }
         }
 
+        // destroy the player and all their possessions
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // => destroy what we can destroy.
-            HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
-            foreach (uint netId in tmp)
+            foreach (uint netId in conn.clientOwnedObjects)
             {
                 if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                 {
@@ -982,6 +981,8 @@ namespace Mirror
                 }
             }
 
+            // note: conn.playerController might be null if
+            // the player is still in a lobby and hasn't joined the world yet
             if (conn.playerController != null)
             {
                 DestroyObject(conn.playerController, true);
