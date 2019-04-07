@@ -282,8 +282,8 @@ namespace Mirror
 
         public void Write(Ray value)
         {
-            Write(value.direction);
             Write(value.origin);
+            Write(value.direction);
         }
 
         public void Write(Matrix4x4 value)
