@@ -106,7 +106,7 @@ namespace Mirror.Weaver
 
             if (newReaderFunc == null)
             {
-                Log.Error("GetReadFunc unable to generate function for:" + variable.FullName);
+                Weaver.Error("GetReadFunc unable to generate function for:" + variable.FullName);
                 return null;
             }
             RegisterReadFunc(variable.FullName, newReaderFunc);
@@ -126,7 +126,7 @@ namespace Mirror.Weaver
         {
             if (!variable.IsArrayType())
             {
-                Log.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
+                Weaver.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
             string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
@@ -251,7 +251,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Log.Error("The class " + variable.Name + " has no default constructor or it's private, aborting.");
+                    Weaver.Error("The class " + variable.Name + " has no default constructor or it's private, aborting.");
                     return null;
                 }
 
