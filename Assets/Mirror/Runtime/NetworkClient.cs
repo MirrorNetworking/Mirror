@@ -125,7 +125,7 @@ namespace Mirror
             {
                 connection.TransportReceive(data);
             }
-            else Debug.LogError("Skipped Data message handling because m_Connection is null.");
+            else Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
         static void OnConnected()
@@ -141,7 +141,7 @@ namespace Mirror
                 NetworkTime.UpdateClient();
                 connection.InvokeHandler(new ConnectMessage());
             }
-            else Debug.LogError("Skipped Connect message handling because m_Connection is null.");
+            else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
         public static void Disconnect()
