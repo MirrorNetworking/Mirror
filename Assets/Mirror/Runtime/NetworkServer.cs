@@ -977,9 +977,14 @@ namespace Mirror
             {
                 if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                 {
+                    // note: clear the owner before destroying, because DestroyObject
+                    // tries to remove this object from the authority owner and fails
+                    // because we are foreach'ing over that collection.
+                    identity.clientAuthorityOwner = null;
                     Destroy(identity.gameObject);
                 }
             }
+            conn.clientOwnedObjects.Clear();
 
             // note: conn.playerController might be null if
             // the player is still in a lobby and hasn't joined the world yet
