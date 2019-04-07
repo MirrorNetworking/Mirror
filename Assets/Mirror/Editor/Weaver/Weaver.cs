@@ -25,7 +25,6 @@ namespace Mirror.Weaver
         public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
 
         public Dictionary<string, MethodReference> readFuncs;
-        public Dictionary<string, MethodReference> writeFuncs;
 
         public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
         public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
@@ -424,7 +423,7 @@ namespace Mirror.Weaver
 
         static void SetupWriteFunctions()
         {
-            WeaveLists.writeFuncs = new Dictionary<string, MethodReference>
+            Writers.writeFuncs = new Dictionary<string, MethodReference>
             {
                 { singleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", singleType) },
                 { doubleType.FullName, Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", doubleType) },

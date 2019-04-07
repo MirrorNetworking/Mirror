@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -10,6 +11,9 @@ namespace Mirror.Weaver
     {
         const int MaxRecursionCount = 128;
 
+        public static Dictionary<string, MethodReference> writeFuncs;
+
+
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (recursionCount > MaxRecursionCount)
@@ -18,7 +22,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (Weaver.WeaveLists.writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
                 if (foundFunc.Parameters[0].ParameterType.IsArray == variable.IsArray)
                 {
@@ -66,7 +70,7 @@ namespace Mirror.Weaver
 
         static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
         {
-            Weaver.WeaveLists.writeFuncs[name] = newWriterFunc;
+            writeFuncs[name] = newWriterFunc;
             Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
 
             Weaver.ConfirmGeneratedCodeClass();
