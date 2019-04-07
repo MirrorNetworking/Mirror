@@ -102,6 +102,7 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.RegisterHandler<T> instead")]
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (messageHandlers.ContainsKey(msgType))
@@ -111,6 +112,7 @@ namespace Mirror
             messageHandlers[msgType] = handler;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.UnregisterHandler<T> instead")]
         public void UnregisterHandler(short msgType)
         {
             messageHandlers.Remove(msgType);
@@ -189,10 +191,13 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
-            return InvokeHandler(msgType, null);
+            return InvokeHandlerInternal(msgType, null);
         }
 
-        public bool InvokeHandler(int msgType, NetworkReader reader)
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
+        public bool InvokeHandler(int msgType, NetworkReader reader) => InvokeHandlerInternal(msgType, reader);
+        // TODO: Rename this back to InvokeHandler once the obsolete above is removed
+        internal bool InvokeHandlerInternal(int msgType, NetworkReader reader)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -214,7 +219,7 @@ namespace Mirror
         {
             int msgType = MessagePacker.GetId<T>();
             byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandler(msgType, new NetworkReader(data));
+            return InvokeHandlerInternal(msgType, new NetworkReader(data));
         }
 
         // handle this message
@@ -250,7 +255,7 @@ namespace Mirror
                 }
 
                 // try to invoke the handler for that message
-                if (InvokeHandler(msgType, reader))
+                if (InvokeHandlerInternal(msgType, reader))
                 {
                     lastMessageTime = Time.time;
                 }
