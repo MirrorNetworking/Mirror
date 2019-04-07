@@ -213,12 +213,6 @@ namespace Mirror.Weaver
             }
         }
 
-
-        static void ProcessPropertySites()
-        {
-            PropertySiteProcessor.ProcessSitesModule(CurrentAssembly.MainModule);
-        }
-
         static bool ProcessNetworkBehaviourType(TypeDefinition td)
         {
             if (!NetworkBehaviourProcessor.WasProcessed(td))
@@ -688,7 +682,7 @@ namespace Mirror.Weaver
                     // this must be done for ALL code, not just NetworkBehaviours
                     try
                     {
-                        ProcessPropertySites();
+                        PropertySiteProcessor.ProcessSitesModule(CurrentAssembly.MainModule);
                     }
                     catch (Exception e)
                     {
