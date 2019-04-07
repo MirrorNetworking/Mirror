@@ -71,17 +71,17 @@ namespace Mirror
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
+                if (m_AssetId == null)
                     SetupIDs();
 #endif
                 // convert string to Guid and use .Empty to avoid exception if
-                // we would use 'new Guid("")'
-                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                // we would use 'new Guid(null)'
+                return m_AssetId == null ? Guid.Empty : new Guid(m_AssetId);
             }
             internal set
             {
                 string newAssetIdString = value.ToString("N");
-                if (string.IsNullOrEmpty(m_AssetId) || m_AssetId == newAssetIdString)
+                if (m_AssetId == null || m_AssetId == newAssetIdString)
                 {
                     m_AssetId = newAssetIdString;
                 }
@@ -352,7 +352,7 @@ namespace Mirror
             else
             {
                 AssignSceneID();
-                m_AssetId = "";
+                m_AssetId = null;
             }
         }
 #endif
