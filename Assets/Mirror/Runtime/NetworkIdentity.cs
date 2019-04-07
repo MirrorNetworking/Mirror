@@ -43,8 +43,10 @@ namespace Mirror
 
         public uint netId { get; internal set; }
         public ulong sceneId => m_SceneId;
-        [FormerlySerializedAs("m_ServerOnly")] public bool serverOnly;
-        [FormerlySerializedAs("m_LocalPlayerAuthority")] public bool localPlayerAuthority;
+        [FormerlySerializedAs("m_ServerOnly")] 
+        public bool serverOnly;
+        [FormerlySerializedAs("m_LocalPlayerAuthority")] 
+        public bool localPlayerAuthority;
         public NetworkConnection clientAuthorityOwner { get; internal set; }
         public NetworkConnection connectionToServer { get; internal set; }
         public NetworkConnection connectionToClient { get; internal set; }
