@@ -24,8 +24,6 @@ namespace Mirror.Weaver
         // [SyncEvent] invoke functions that should be replaced. dict<originalEventName, replacement>
         public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
 
-        public Dictionary<string, MethodReference> readFuncs;
-
         public List<MethodDefinition> generatedReadFunctions = new List<MethodDefinition>();
         public List<MethodDefinition> generatedWriteFunctions = new List<MethodDefinition>();
 
@@ -385,7 +383,7 @@ namespace Mirror.Weaver
 
         static void SetupReadFunctions()
         {
-            WeaveLists.readFuncs = new Dictionary<string, MethodReference>
+            Readers.readFuncs = new Dictionary<string, MethodReference>
             {
                 { singleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadSingle") },
                 { doubleType.FullName, Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadDouble") },

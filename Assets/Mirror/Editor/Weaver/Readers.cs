@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -8,6 +9,7 @@ namespace Mirror.Weaver
     public static class Readers
     {
         const int MaxRecursionCount = 128;
+        public static Dictionary<string, MethodReference> readFuncs;
 
         public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)
         {
@@ -17,7 +19,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            if (Weaver.WeaveLists.readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
                 if (foundFunc.ReturnType.IsArray == variable.IsArray)
                 {
@@ -72,7 +74,7 @@ namespace Mirror.Weaver
 
         static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
         {
-            Weaver.WeaveLists.readFuncs[name] = newReaderFunc;
+            readFuncs[name] = newReaderFunc;
             Weaver.WeaveLists.generatedReadFunctions.Add(newReaderFunc);
 
             Weaver.ConfirmGeneratedCodeClass();
