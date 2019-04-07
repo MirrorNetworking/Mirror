@@ -74,23 +74,16 @@ namespace Mirror
         // (like an inventory with different items etc.)
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
+            uint length = checked((uint)count);
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
             // (writing a size=0 empty array is not the same, the server and client would be out of sync)
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            if (buffer == null)
+            writer.Write(buffer != null); // notNull?
+            if (buffer != null)
             {
-                writer.Write(false); // notNull?
-                return;
+                WritePackedUInt32(length);
+                writer.Write(buffer, offset, count);
             }
-            if (count < 0)
-            {
-                Debug.LogError("NetworkWriter WriteBytesAndSize: size " + count + " cannot be negative");
-                return;
-            }
-
-            writer.Write(true); // notNull?
-            WritePackedUInt32((uint)count);
-            writer.Write(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter

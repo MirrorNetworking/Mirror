@@ -70,6 +70,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingNegativeBytesAndSizeFailure()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            Assert.Throws<OverflowException>(() => writer.WriteBytesAndSize(new byte[0], 0, -1));
+            Assert.That(writer.Position, Is.EqualTo(0));
+            Assert.Throws<OverflowException>(() => writer.WriteBytesAndSize(null, 0, -1));
+            Assert.That(writer.Position, Is.EqualTo(0));
+        }
+
+        [Test]
         public void TestReadingTooMuch()
         {
             void EnsureThrows(Action<NetworkReader> read, byte[] data = null)
