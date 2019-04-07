@@ -277,7 +277,6 @@ namespace Mirror.Weaver
                         // find replaceEvent with matching name
                         // NOTE: original weaver compared .Name, not just the MethodDefinition,
                         //       that's why we use dict<string,method>.
-                        // TODO maybe replaceEvents[md] would work too?
                         if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
                         {
                             instr.Operand = replacement;
@@ -292,7 +291,6 @@ namespace Mirror.Weaver
                 // should it be replaced?
                 // NOTE: original weaver compared .FullName, not just the MethodDefinition,
                 //       that's why we use dict<string,method>.
-                // TODO maybe replaceMethods[md] would work too?
                 if (Weaver.WeaveLists.replaceMethods.TryGetValue(opMethodRef.FullName, out MethodDefinition replacement))
                 {
                     //DLog(td, "    replacing "  + md.Name + ":" + i);
