@@ -7,7 +7,7 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        public HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
