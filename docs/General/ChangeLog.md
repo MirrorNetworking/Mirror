@@ -1,8 +1,8 @@
 # Change Log
 
-## Version 1.7 -- In Progress
+## Version 3.4.9 -- 2019-Apr-6
 
-- Added: Semantic Versioning
+- Added: Semantic Versioning (which is why we jumped from 1.6 to 3.4.9)
 - Added: [SyncDictionary](../Classes/SyncDictionary)
 - Added: [SyncHashSet](../Classes/SyncHashSet)
 - Added: [SyncSortedSet](../Classes/SyncSortedSet)
