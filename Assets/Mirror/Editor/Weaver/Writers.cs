@@ -273,7 +273,5 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
         }
-
-
     }
 }
