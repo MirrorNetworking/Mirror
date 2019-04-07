@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 3.x.x -- In Progress
+
+- Fixed: Lobby Example
+- Fixed: Exceptions in overrides of Network Manager and other components incorrectly silenced.
+
 ## Version 3.4.9 -- 2019-Apr-6
 
 - Added: Semantic Versioning (which is why we jumped from 1.6 to 3.4.9)
