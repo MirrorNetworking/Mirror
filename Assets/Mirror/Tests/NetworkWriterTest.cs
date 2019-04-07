@@ -497,6 +497,110 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestByteEndianness()
+        {
+            byte[] values = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] expected = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (byte value in values)
+            {
+                writer.Write(value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestUShortEndianness()
+        {
+            ushort[] values = new ushort[]{0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
+            byte[] expected = new byte[]{0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (ushort value in values)
+            {
+                writer.Write(value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestUIntEndianness()
+        {
+            uint[] values = new uint[]{0x12345678,0xabcdef09,0xdeadbeef};
+            byte[] expected = new byte[]{0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (uint value in values)
+            {
+                writer.Write(value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestULongEndianness()
+        {
+            ulong[] values = new ulong[]{0x0123456789abcdef,0xdeaded_beef_c0ffee};
+            byte[] expected = new byte[]{0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (ulong value in values)
+            {
+                writer.Write(value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestSbyteEndianness()
+        {
+            byte[] values = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] expected = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (byte value in values)
+            {
+                writer.Write((sbyte) value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestShortEndianness()
+        {
+            ushort[] values = new ushort[]{0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
+            byte[] expected = new byte[]{0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (ushort value in values)
+            {
+                writer.Write((short) value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestIntEndianness()
+        {
+            uint[] values = new uint[]{0x12345678,0xabcdef09,0xdeadbeef};
+            byte[] expected = new byte[]{0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (uint value in values)
+            {
+                writer.Write((int) value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void TestLongEndianness()
+        {
+            ulong[] values = new ulong[]{0x0123456789abcdef,0xdeaded_beef_c0ffee};
+            byte[] expected = new byte[]{0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            NetworkWriter writer = new NetworkWriter();
+            foreach (ulong value in values)
+            {
+                writer.Write((long) value);
+            }
+            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+        }
+
+        [Test]
         public void TestWritingAndReading()
         {
             // write all simple types once
