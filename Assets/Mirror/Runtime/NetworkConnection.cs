@@ -16,7 +16,7 @@ namespace Mirror
         public string address;
         public float lastMessageTime;
         public NetworkIdentity playerController { get; internal set; }
-        public HashSet<uint> clientOwnedObjects;
+        public HashSet<uint> clientOwnedObjects = new HashSet<uint>();
         public bool logNetworkMessages;
 
         // this is always true for regular connections, false for local
@@ -59,17 +59,14 @@ namespace Mirror
 
         protected virtual void Dispose(bool disposing)
         {
-            if (clientOwnedObjects != null)
+            foreach (uint netId in clientOwnedObjects)
             {
-                foreach (uint netId in clientOwnedObjects)
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
                 {
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-                    {
-                        identity.clientAuthorityOwner = null;
-                    }
+                    identity.clientAuthorityOwner = null;
                 }
             }
-            clientOwnedObjects = null;
+            clientOwnedObjects.Clear();
         }
 
         public void Disconnect()
@@ -278,13 +275,12 @@ namespace Mirror
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
-            clientOwnedObjects = clientOwnedObjects ?? new HashSet<uint>();
             clientOwnedObjects.Add(obj.netId);
         }
 
         internal void RemoveOwnedObject(NetworkIdentity obj)
         {
-            clientOwnedObjects?.Remove(obj.netId);
+            clientOwnedObjects.Remove(obj.netId);
         }
     }
 }
