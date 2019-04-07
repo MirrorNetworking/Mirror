@@ -55,4 +55,10 @@ namespace Mirror
 
     // For Scene property Drawer
     public class SceneAttribute : PropertyAttribute {}
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class WriterAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public class ReaderAttribute : Attribute { }
 }
