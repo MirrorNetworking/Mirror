@@ -58,12 +58,6 @@ namespace Mirror
             base.OnValidate();
         }
 
-        public void PlayerLoadedScene(NetworkConnection conn)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnSceneLoadedMessage");
-            SceneLoadedForPlayer(conn, conn.playerController.gameObject);
-        }
-
         internal void ReadyStatusChanged()
         {
             int CurrentPlayers = 0;
@@ -85,11 +79,20 @@ namespace Mirror
                 allPlayersReady = false;
         }
 
-        void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayerGameObject)
+        public override void OnServerReady(NetworkConnection conn)
         {
-            // if not a lobby player.. dont replace it
-            if (lobbyPlayerGameObject.GetComponent<NetworkLobbyPlayer>() == null) return;
+            if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnServerReady");
+            base.OnServerReady(conn);
 
+            GameObject lobbyPlayer = conn?.playerController?.gameObject;
+
+            // if null or not a lobby player, dont replace it
+            if (lobbyPlayer?.GetComponent<NetworkLobbyPlayer>() != null)
+                SceneLoadedForPlayer(conn, lobbyPlayer);
+        }
+
+        void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayer)
+        {
             if (LogFilter.Debug) Debug.LogFormat("NetworkLobby SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
 
             if (SceneManager.GetActiveScene().name == LobbyScene)
@@ -97,7 +100,7 @@ namespace Mirror
                 // cant be ready in lobby, add to ready list
                 PendingPlayer pending;
                 pending.conn = conn;
-                pending.lobbyPlayer = lobbyPlayerGameObject;
+                pending.lobbyPlayer = lobbyPlayer;
                 pendingPlayers.Add(pending);
                 return;
             }
@@ -113,7 +116,7 @@ namespace Mirror
                 gamePlayer.name = playerPrefab.name;
             }
 
-            if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayerGameObject, gamePlayer))
+            if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer))
                 return;
 
             // replace lobby player with game player
@@ -275,9 +278,7 @@ namespace Mirror
             {
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
                 foreach (PendingPlayer pending in pendingPlayers)
-                {
                     SceneLoadedForPlayer(pending.conn, pending.lobbyPlayer);
-                }
 
                 pendingPlayers.Clear();
             }
