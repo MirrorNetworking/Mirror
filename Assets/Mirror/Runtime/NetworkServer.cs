@@ -416,13 +416,13 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
+        /* TODO use or remove
         static void GenerateConnectError(byte error)
         {
             Debug.LogError("Mirror Server Connect Error: " + error);
             GenerateError(null, error);
         }
 
-        /* TODO use or remove
         static void GenerateDataError(NetworkConnection conn, byte error)
         {
             NetworkError dataError = (NetworkError)error;
@@ -436,7 +436,6 @@ namespace Mirror
             Debug.LogError("Mirror Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId);
             GenerateError(conn, error);
         }
-        */
 
         static void GenerateError(NetworkConnection conn, byte error)
         {
@@ -457,6 +456,7 @@ namespace Mirror
                 conn.InvokeHandler(msgId, reader);
             }
         }
+        */
 
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
