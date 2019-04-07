@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -121,6 +122,260 @@ namespace Mirror.Tests
             EnsureThrows(r => r.ReadRay());
             EnsureThrows(r => r.ReadMatrix4x4());
             EnsureThrows(r => r.ReadGuid());
+        }
+
+        [Test]
+        public void TestVector2()
+        {
+            Vector2[] inputs = new Vector2[]{
+                Vector2.right,
+                Vector2.up,
+                Vector2.zero,
+                Vector2.one,
+                Vector2.positiveInfinity,
+                new Vector2(0.1f,3.1f)
+            };
+            foreach (Vector2 input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Vector2 output = reader.ReadVector2();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestVector3()
+        {
+            Vector3[] inputs = new Vector3[]{
+                Vector3.right,
+                Vector3.up,
+                Vector3.zero,
+                Vector3.one,
+                Vector3.positiveInfinity,
+                Vector3.forward,
+                new Vector3(0.1f,3.1f,1.4f)
+            };
+            foreach (Vector3 input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Vector3 output = reader.ReadVector3();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestVector4()
+        {
+            Vector4[] inputs = new Vector4[]{
+                Vector3.right,
+                Vector3.up,
+                Vector4.zero,
+                Vector4.one,
+                Vector4.positiveInfinity,
+                new Vector4(0.1f,3.1f,1.4f,4.9f)
+            };
+            foreach (Vector4 input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Vector4 output = reader.ReadVector4();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestVector2Int()
+        {
+            Vector2Int[] inputs = new Vector2Int[]{
+                Vector2Int.down,
+                Vector2Int.up,
+                Vector2Int.left,
+                Vector2Int.zero,
+                new Vector2Int(-1023,-999999),
+                new Vector2Int(257,12345),
+                new Vector2Int(0x7fffffff,-12345),
+            };
+            foreach (Vector2Int input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Vector2Int output = reader.ReadVector2Int();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestVector3Int()
+        {
+            Vector3Int[] inputs = new Vector3Int[]{
+                Vector3Int.down,
+                Vector3Int.up,
+                Vector3Int.left,
+                Vector3Int.one,
+                Vector3Int.zero,
+                new Vector3Int(-1023,-999999,1392),
+                new Vector3Int(257,12345,-6132),
+                new Vector3Int(0x7fffffff,-12345,-1),
+            };
+            foreach (Vector3Int input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Vector3Int output = reader.ReadVector3Int();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestColor()
+        {
+            Color[] inputs = new Color[]{
+                Color.black,
+                Color.blue,
+                Color.cyan,
+                Color.yellow,
+                Color.magenta,
+                Color.white,
+                new Color(0.401f,0.2f,1.0f,0.123f)
+            };
+            foreach (Color input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Color output = reader.ReadColor();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestColor32()
+        {
+            Color32[] inputs = new Color32[]{
+                Color.black,
+                Color.blue,
+                Color.cyan,
+                Color.yellow,
+                Color.magenta,
+                Color.white,
+                new Color32(0xab,0xcd,0xef,0x12),
+                new Color32(125,126,0,255)
+            };
+            foreach (Color32 input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Color32 output = reader.ReadColor32();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestQuaternion()
+        {
+            Quaternion[] inputs = new Quaternion[]{
+                Quaternion.identity,
+                default,
+                Quaternion.LookRotation(new Vector3(0.3f,0.4f,0.5f)),
+                Quaternion.Euler(45f,56f,Mathf.PI)
+            };
+            foreach (Quaternion input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Quaternion output = reader.ReadQuaternion();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestRect()
+        {
+            Rect[] inputs = new Rect[]{
+                Rect.zero,
+                new Rect(1004.1f,2.001f,4636,400f),
+                new Rect(-100.622f,-200f,300f,975.6f),
+                new Rect(-100f,435,-30.04f,400f),
+                new Rect(55,-200f,-44,-123),
+            };
+            foreach (Rect input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Rect output = reader.ReadRect();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestPlane()
+        {
+            Plane[] inputs = new Plane[]{
+                new Plane(new Vector3(-0.24f,0.34f,0.2f), 120.2f),
+                new Plane(new Vector3(0.133f,0.34f,0.122f), -10.135f),
+                new Plane(new Vector3(0.133f,-0.0f,float.MaxValue), -13.3f),
+                new Plane(new Vector3(0.1f,-0.2f,0.3f), 14.5f),
+            };
+            foreach (Plane input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Plane output = reader.ReadPlane();
+                // note: Plane constructor does math internally, resulting in
+                // floating point precision loss that causes exact comparison
+                // to fail the test. So we test that the difference is small.
+                Assert.That((output.normal - input.normal).magnitude, Is.LessThan(1e-6f));
+                Assert.That(output.distance, Is.EqualTo(input.distance));
+            }
+        }
+
+        [Test]
+        public void TestRay()
+        {
+            Ray[] inputs = new Ray[]{
+                new Ray(Vector3.up,Vector3.down),
+                new Ray(new Vector3(0.1f,0.2f,0.3f), new Vector3(0.4f,0.5f,0.6f)),
+                new Ray(new Vector3(-0.3f,0.5f,0.999f), new Vector3(1f,100.1f,20f)),
+            };
+            foreach (Ray input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Ray output = reader.ReadRay();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestMatrix4x4()
+        {
+            Matrix4x4[] inputs = new Matrix4x4[]{
+                Matrix4x4.identity,
+                Matrix4x4.zero,
+                Matrix4x4.Scale(Vector3.one * 0.12345f),
+                Matrix4x4.LookAt(Vector2.up,Vector3.right,Vector3.forward),
+                Matrix4x4.Rotate(Quaternion.LookRotation(Vector3.one)),
+            };
+            foreach (Matrix4x4 input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.Write(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                Matrix4x4 output = reader.ReadMatrix4x4();
+                Assert.That(output, Is.EqualTo(input));
+            }
         }
 
         [Test]
