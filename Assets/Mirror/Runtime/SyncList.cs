@@ -38,11 +38,6 @@ namespace Mirror
     // Original UNET name is SyncListStruct and original Weaver weavers anything
     // that contains the name 'SyncListStruct', without considering the name-
     // space.
-    //
-    // In other words, we need another name until the original Weaver is removed
-    // in Unity 2019.1.
-    //
-    // TODO rename back to SyncListStruct after 2019.1!
     [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SyncList<MyStruct> instead")]
     public class SyncListSTRUCT<T> : SyncList<T> where T : struct
     {
