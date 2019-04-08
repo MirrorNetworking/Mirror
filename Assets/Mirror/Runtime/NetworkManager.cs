@@ -715,9 +715,9 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
+        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnServerSceneChanged(string sceneName) { }
+        public virtual void OnServerSceneChanged(string sceneName) {}
         #endregion
 
         #region Client System Callbacks
@@ -739,13 +739,13 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) { }
+        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnClientNotReady(NetworkConnection conn) { }
+        public virtual void OnClientNotReady(NetworkConnection conn) {}
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
-        public virtual void OnClientChangeScene(string newSceneName) { }
+        public virtual void OnClientChangeScene(string newSceneName) {}
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
@@ -769,10 +769,10 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost() { }
-        public virtual void OnStartServer() { }
+        public virtual void OnStartHost() {}
+        public virtual void OnStartServer() {}
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) { }
+        public virtual void OnStartClient(NetworkClient client) {}
         public virtual void OnStartClient()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -780,9 +780,9 @@ namespace Mirror
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        public virtual void OnStopServer() { }
-        public virtual void OnStopClient() { }
-        public virtual void OnStopHost() { }
+        public virtual void OnStopServer() {}
+        public virtual void OnStopClient() {}
+        public virtual void OnStopHost() {}
         #endregion
     }
 }
