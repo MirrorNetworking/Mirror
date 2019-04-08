@@ -34,17 +34,17 @@ namespace Mirror
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
         // NetworkIdentity component caching for easier access
-        NetworkIdentity m_netIdentity;
+        NetworkIdentity netIdentityCache;
         public NetworkIdentity netIdentity
         {
             get
             {
-                m_netIdentity = m_netIdentity ?? GetComponent<NetworkIdentity>();
-                if (m_netIdentity == null)
+                netIdentityCache = netIdentityCache ?? GetComponent<NetworkIdentity>();
+                if (netIdentityCache == null)
                 {
                     Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
-                return m_netIdentity;
+                return netIdentityCache;
             }
         }
 
