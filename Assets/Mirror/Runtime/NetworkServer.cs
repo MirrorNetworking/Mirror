@@ -416,48 +416,6 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        /* TODO use or remove
-        static void GenerateConnectError(byte error)
-        {
-            Debug.LogError("Mirror Server Connect Error: " + error);
-            GenerateError(null, error);
-        }
-
-        static void GenerateDataError(NetworkConnection conn, byte error)
-        {
-            NetworkError dataError = (NetworkError)error;
-            Debug.LogError("Mirror Server Data Error: " + dataError);
-            GenerateError(conn, error);
-        }
-
-        static void GenerateDisconnectError(NetworkConnection conn, byte error)
-        {
-            NetworkError disconnectError = (NetworkError)error;
-            Debug.LogError("Mirror Server Disconnect Error: " + disconnectError + " conn:[" + conn + "]:" + conn.connectionId);
-            GenerateError(conn, error);
-        }
-
-        static void GenerateError(NetworkConnection conn, byte error)
-        {
-            int msgId = MessagePacker.GetId<ErrorMessage>();
-            if (handlers.ContainsKey(msgId))
-            {
-                ErrorMessage msg = new ErrorMessage
-                {
-                    value = error
-                };
-
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                // pass a reader (attached to local buffer) to handler
-                NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandler(msgId, reader);
-            }
-        }
-        */
-
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
