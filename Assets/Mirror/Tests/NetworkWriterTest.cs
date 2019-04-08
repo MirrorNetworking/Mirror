@@ -116,7 +116,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestReading0LengthBytesAnsSize()
+        public void TestReading0LengthBytesAndSize()
         {
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSize(new byte[]{});
@@ -474,6 +474,16 @@ namespace Mirror.Tests
                 NetworkReader reader = new NetworkReader(data);
                 Assert.Throws<System.Text.DecoderFallbackException>(() => reader.ReadString());
             }
+        }
+
+        [Test]
+        public void TestReadingTruncatedString()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write("a string longer than 10 bytes");
+            writer.SetLength(10);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.Throws<System.IO.EndOfStreamException>(() => reader.ReadString());
         }
 
         [Test]
