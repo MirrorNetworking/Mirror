@@ -75,6 +75,24 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSetLengthZeroes()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write("I saw");
+            writer.Write(0xA_FADED_DEAD_EEL);
+            writer.Write("and ate it");
+            int position = writer.Position;
+            writer.SetLength(10);
+            // Setting length should set position too
+            Assert.That(writer.Position, Is.EqualTo(10));
+            // lets grow it back and check there's zeroes now.
+            writer.SetLength(position);
+            byte[] data = writer.ToArray();
+            for (int i = position; i < data.Length; i++)
+                Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
+        }
+
+        [Test]
         public void TestReadingLengthWrapAround()
         {
             NetworkWriter writer = new NetworkWriter();
