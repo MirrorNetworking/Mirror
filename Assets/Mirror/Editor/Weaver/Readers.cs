@@ -10,6 +10,7 @@ namespace Mirror.Weaver
     {
         const int MaxRecursionCount = 128;
         static Dictionary<string, MethodReference> readFuncs;
+        static Dictionary<string, MethodReference> customReaders;
 
         public static void Init(AssemblyDefinition CurrentAssembly)
         {
@@ -49,8 +50,72 @@ namespace Mirror.Weaver
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadTransform") },
                 { "System.Byte[]", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSize") },
             };
+
+            customReaders = new Dictionary<string, MethodReference>();
+            RegisterCustomReaders(CurrentAssembly);
         }
 
+        static void RegisterCustomReaders(AssemblyDefinition currentAssembly)
+        {
+            foreach (TypeDefinition td in currentAssembly.MainModule.Types)
+            {
+                if (td.IsClass && td.BaseType.CanBeResolved())
+                {
+                    RegisterCustomReaders(td);
+                }
+            }
+        }
+
+        static void RegisterCustomReaders(TypeDefinition td)
+        {
+            foreach (MethodDefinition md in td.Methods)
+            {
+                foreach (CustomAttribute ca in md.CustomAttributes)
+                {
+                    if (ca.AttributeType.FullName == Weaver.ReaderType.FullName)
+                    {
+                        RegisterCustomReader(md);
+                        break;
+                    }
+                }
+            }
+
+            foreach (TypeDefinition embedded in td.NestedTypes)
+            {
+                RegisterCustomReaders(embedded);
+            }
+        }
+
+        private static void RegisterCustomReader(MethodDefinition md)
+        {
+            if (md.Parameters.Count != 1)
+            {
+                Weaver.Error($"Reader {md.FullName} must receive a NetworkReader");
+                return;
+            }
+
+            ParameterDefinition parameter = md.Parameters[0];
+
+            if (parameter.ParameterType.Resolve().FullName != Weaver.NetworkReaderType.FullName)
+            {
+                Weaver.Error($"Reader {md.FullName} must receive a NetworkReader");
+                return;
+            }
+
+            MethodReturnType returnType = md.MethodReturnType;
+
+            if (customReaders.TryGetValue(returnType.ReturnType.FullName, out MethodReference prevReader))
+            {
+                Weaver.Error(string.Format("Multiple readers found for {0}: {1} and {2} ",
+                    returnType.ReturnType.FullName,
+                    prevReader.FullName,
+                    md.FullName
+                    ));
+                return;
+            }
+            readFuncs[returnType.ReturnType.FullName] = md;
+            customReaders[returnType.ReturnType.FullName] = md;
+        }
 
         public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)
         {

@@ -106,6 +106,7 @@ namespace Mirror.Weaver
         public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
+        public static TypeReference ReaderType;
         public static MethodReference InitSyncObjectReference;
 
         // system types
@@ -250,6 +251,7 @@ namespace Mirror.Weaver
             TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.SyncObject");
+            ReaderType = NetAssembly.MainModule.GetType("Mirror.ReaderAttribute");
         }
 
         static void SetupCorLib()
