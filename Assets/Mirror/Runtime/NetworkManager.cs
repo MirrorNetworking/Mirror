@@ -507,7 +507,7 @@ namespace Mirror
         {
             startPositions.Clear();
             startPositionIndex = 0;
-            foreach (NetworkStartPosition networkStartPosition in FindObjectsOfType<NetworkStartPosition>().OrderBy(m => m.transform.GetSiblingIndex()).ToArray())
+            foreach (NetworkStartPosition networkStartPosition in FindObjectsOfType<NetworkStartPosition>().OrderBy(m => m.transform.GetSiblingIndex()))
                 startPositions.Add(networkStartPosition.transform);
         }
 
