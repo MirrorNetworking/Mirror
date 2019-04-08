@@ -93,6 +93,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSetLengthInitialization()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.SetLength(10);
+            // Setting length should leave position at 0
+            Assert.That(writer.Position, Is.EqualTo(0));
+            byte[] data = writer.ToArray();
+            for (int i = 0; i < data.Length; i++)
+                Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
+        }
+
+        [Test]
         public void TestReadingLengthWrapAround()
         {
             NetworkWriter writer = new NetworkWriter();
