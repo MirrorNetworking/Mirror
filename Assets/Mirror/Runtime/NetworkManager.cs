@@ -693,9 +693,7 @@ namespace Mirror
             startPositions.RemoveAll(t => t == null);
 
             if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
-            {
                 return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
-            }
 
             if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
             {
