@@ -7,10 +7,8 @@ namespace Mirror
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkStartPosition")]
     public class NetworkStartPosition : MonoBehaviour
     {
-        public void Awake()
-        {
-            NetworkManager.RegisterStartPosition(transform);
-        }
+        // NetworkManager.RebuildStartPositions() will collect all objects
+        // in the scene with this component in depth-first hierarchy order
 
         public void OnDestroy()
         {

@@ -45,7 +45,7 @@ namespace Mirror
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
 
-        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
@@ -284,6 +284,9 @@ namespace Mirror
             {
                 NetworkServer.SpawnObjects();
             }
+
+            RebuildStartPositions();
+
             return true;
         }
 
@@ -412,8 +415,7 @@ namespace Mirror
             SceneMessage msg = new SceneMessage(networkSceneName);
             NetworkServer.SendToAll(msg);
 
-            startPositionIndex = 0;
-            startPositions.Clear();
+            RebuildStartPositions();
         }
 
         void CleanupNetworkIdentities()
@@ -499,6 +501,14 @@ namespace Mirror
         public virtual void OnDestroy()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager destroyed");
+        }
+
+        public static void RebuildStartPositions()
+        {
+            startPositions.Clear();
+            startPositionIndex = 0;
+            foreach (NetworkStartPosition networkStartPosition in FindObjectsOfType<NetworkStartPosition>().OrderBy(m => m.transform.GetSiblingIndex()).ToArray())
+                startPositions.Add(networkStartPosition.transform);
         }
 
         public static void RegisterStartPosition(Transform start)
@@ -629,7 +639,7 @@ namespace Mirror
         #endregion
 
         #region Server System Callbacks
-        public virtual void OnServerConnect(NetworkConnection conn) {}
+        public virtual void OnServerConnect(NetworkConnection conn) { }
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
@@ -684,21 +694,16 @@ namespace Mirror
 
             if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
             {
-                // try to spawn at a random start location
-                int index = UnityEngine.Random.Range(0, startPositions.Count);
-                return startPositions[index];
+                return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
             }
+
             if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
             {
-                if (startPositionIndex >= startPositions.Count)
-                {
-                    startPositionIndex = 0;
-                }
-
-                Transform startPos = startPositions[startPositionIndex];
-                startPositionIndex += 1;
+                Transform startPos = startPositions[startPositionIndex % startPositions.Count];
+                startPositionIndex = startPositionIndex < int.MaxValue ? startPositionIndex++ : 0;
                 return startPos;
             }
+
             return null;
         }
 
@@ -710,9 +715,9 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
+        public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnServerSceneChanged(string sceneName) {}
+        public virtual void OnServerSceneChanged(string sceneName) { }
         #endregion
 
         #region Client System Callbacks
@@ -734,13 +739,13 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
+        public virtual void OnClientError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnClientNotReady(NetworkConnection conn) {}
+        public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
-        public virtual void OnClientChangeScene(string newSceneName) {}
+        public virtual void OnClientChangeScene(string newSceneName) { }
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
@@ -764,10 +769,10 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost() {}
-        public virtual void OnStartServer() {}
+        public virtual void OnStartHost() { }
+        public virtual void OnStartServer() { }
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStartClient(NetworkClient client) { }
         public virtual void OnStartClient()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -775,9 +780,9 @@ namespace Mirror
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        public virtual void OnStopServer() {}
-        public virtual void OnStopClient() {}
-        public virtual void OnStopHost() {}
+        public virtual void OnStopServer() { }
+        public virtual void OnStopClient() { }
+        public virtual void OnStopHost() { }
         #endregion
     }
 }
