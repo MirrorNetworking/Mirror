@@ -12,6 +12,7 @@ namespace Mirror.Weaver
         const int MaxRecursionCount = 128;
 
         static Dictionary<string, MethodReference> writeFuncs;
+        static Dictionary<string, MethodReference> customWriters;
 
         public static void Init(AssemblyDefinition CurrentAssembly)
         {
@@ -51,6 +52,73 @@ namespace Mirror.Weaver
                 { Weaver.transformType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.transformType) },
                 { "System.Byte[]", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSize", "System.Byte[]") }
             };
+
+            customWriters = new Dictionary<string, MethodReference>();
+            RegisterCustomWriters(CurrentAssembly);
+        }
+
+        static void RegisterCustomWriters(AssemblyDefinition currentAssembly)
+        {
+            foreach (TypeDefinition td in currentAssembly.MainModule.Types)
+            {
+                if (td.IsClass && td.BaseType.CanBeResolved())
+                {
+                    RegisterCustomWriters(td);
+                }
+            }
+        }
+
+        static void RegisterCustomWriters(TypeDefinition td)
+        {
+            foreach (MethodDefinition md in td.Methods)
+            {
+                foreach (CustomAttribute ca in md.CustomAttributes)
+                {
+                    if (ca.AttributeType.FullName == Weaver.WriterType.FullName)
+                    {
+                        RegisterCustomWriter(md);
+                        break;
+                    }
+                }
+            }
+
+            foreach (TypeDefinition embedded in td.NestedTypes)
+            {
+                RegisterCustomWriters(embedded);
+            }
+        }
+
+        private static void RegisterCustomWriter(MethodDefinition md)
+        {
+            if (md.Parameters.Count != 2)
+            {
+                Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter and your parameter");
+                return;
+            }
+
+            ParameterDefinition writerParameter = md.Parameters[0];
+
+            if (writerParameter.ParameterType.Resolve().FullName != Weaver.NetworkWriterType.FullName)
+            {
+                Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter");
+                return;
+            }
+
+            ParameterDefinition dataParameter = md.Parameters[1];
+
+            TypeReference parameterType = dataParameter.ParameterType;
+
+            if (customWriters.TryGetValue(parameterType.FullName, out MethodReference prevWriter))
+            {
+                Weaver.Error(string.Format("Multiple writers found for {0}: {1} and {2} ",
+                    parameterType.FullName,
+                    prevWriter.FullName,
+                    md.FullName
+                    ));
+                return;
+            }
+            writeFuncs[parameterType.FullName] = md;
+            customWriters[parameterType.FullName] = md;
         }
 
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)

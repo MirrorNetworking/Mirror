@@ -107,6 +107,7 @@ namespace Mirror.Weaver
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
         public static TypeReference ReaderType;
+        public static TypeReference WriterType;
         public static MethodReference InitSyncObjectReference;
 
         // system types
@@ -252,6 +253,7 @@ namespace Mirror.Weaver
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.SyncObject");
             ReaderType = NetAssembly.MainModule.GetType("Mirror.ReaderAttribute");
+            WriterType = NetAssembly.MainModule.GetType("Mirror.WriterAttribute");
         }
 
         static void SetupCorLib()
