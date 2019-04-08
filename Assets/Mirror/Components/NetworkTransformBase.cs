@@ -32,6 +32,8 @@ namespace Mirror
         [SerializeField] Compression compressRotation = Compression.Much;
         public enum Compression { None, Much, Lots , NoRotation }; // easily understandable and funny
 
+        [SerializeField] bool useLocalCoordinates; // Default behavior of UNET NetworkTransformChild = true. AR devs need local positions on everything, so expose bool in inspector for all NetworkTransforms
+
         // server
         Vector3 lastPosition;
         Quaternion lastRotation;
@@ -89,7 +91,7 @@ namespace Mirror
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            SerializeIntoWriter(writer, useLocalCoordinates ? targetComponent.transform.localPosition : targetComponent.transform.position, useLocalCoordinates ? targetComponent.transform.localRotation : targetComponent.transform.rotation, compressRotation);
             return true;
         }
 
@@ -152,8 +154,8 @@ namespace Mirror
             {
                 start = new DataPoint{
                     timeStamp = Time.time - syncInterval,
-                    position = targetComponent.transform.position,
-                    rotation = targetComponent.transform.rotation,
+                    position = useLocalCoordinates ? targetComponent.transform.localPosition : targetComponent.transform.position,
+                    rotation = useLocalCoordinates ? targetComponent.transform.localRotation : targetComponent.transform.rotation,
                     movementSpeed = temp.movementSpeed
                 };
             }
@@ -197,8 +199,8 @@ namespace Mirror
                 // position if we aren't too far away
                 if (Vector3.Distance(targetComponent.transform.position, start.position) < oldDistance + newDistance)
                 {
-                    start.position = targetComponent.transform.position;
-                    start.rotation = targetComponent.transform.rotation;
+                    start.position = useLocalCoordinates ? targetComponent.transform.localPosition : targetComponent.transform.position;
+                    start.rotation = useLocalCoordinates ? targetComponent.transform.localRotation : targetComponent.transform.rotation;
                 }
             }
 
@@ -311,11 +313,24 @@ namespace Mirror
         // set position carefully depending on the target component
         void ApplyPositionAndRotation(Vector3 position, Quaternion rotation)
         {
-            targetComponent.transform.position = position;
-            if (Compression.NoRotation != compressRotation)
+
+
+
+            if (useLocalCoordinates)
             {
-                targetComponent.transform.rotation = rotation;
+                targetComponent.transform.localPosition = position;
+                if (Compression.NoRotation != compressRotation)
+                {
+                    targetComponent.transform.localRotation = rotation;
+                }
+            } else {
+                targetComponent.transform.position = position;
+                if (Compression.NoRotation != compressRotation)
+                {
+                    targetComponent.transform.rotation = rotation;
+                }
             }
+
         }
 
         void Update()
