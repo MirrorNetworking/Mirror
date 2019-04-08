@@ -1,5 +1,9 @@
 // wraps Telepathy for use as HLAPI TransportLayer
+using System;
+using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 namespace Mirror
 {
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
@@ -10,8 +14,18 @@ namespace Mirror
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
+        public int MaxMessageSize
+        {
+            get => serverMaxMessageSize;
+            set => serverMaxMessageSize = clientMaxMessageSize = value;
+        }
+
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
-        public int MaxMessageSize = 16 * 1024;
+        [FormerlySerializedAs("MaxMessageSize")] public int serverMaxMessageSize = 16 * 1024;
+
+        [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker host might send multiple fake packets with 2GB headers, causing the connected clients to run out of memory after allocating multiple large packets.")]
+        [FormerlySerializedAs("MaxMessageSize")] public int clientMaxMessageSize = 16 * 1024;
 
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
@@ -25,9 +39,9 @@ namespace Mirror
 
             // configure
             client.NoDelay = NoDelay;
-            client.MaxMessageSize = MaxMessageSize;
+            client.MaxMessageSize = clientMaxMessageSize;
             server.NoDelay = NoDelay;
-            server.MaxMessageSize = MaxMessageSize;
+            server.MaxMessageSize = serverMaxMessageSize;
 
             // HLAPI's local connection uses hard coded connectionId '0', so we
             // need to make sure that external connections always start at '1'
