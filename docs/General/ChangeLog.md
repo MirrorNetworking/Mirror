@@ -2,8 +2,9 @@
 
 ## Version 3.x.x -- In Progress
 
-- Fixed: Lobby Example
 - Fixed: Exceptions in overrides of Network Manager and other components incorrectly silenced.
+- Fixed: Lobby Example
+- Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses depth-first hierarchy order.
 
 ## Version 3.4.9 -- 2019-Apr-6
 
