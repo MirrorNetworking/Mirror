@@ -41,6 +41,40 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestOverwritingData()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(Matrix4x4.identity);
+            writer.Write(1.23456789m);
+            writer.Position += 10;
+            writer.Write(Vector3.negativeInfinity);
+            writer.Position = 46;
+            // write right at the boundary before SetLength
+            writer.Write(0xfeed_babe_c0ffee);
+            // test that SetLength clears data beyond length
+            writer.SetLength(50);
+            // check that jumping leaves 0s between
+            writer.Position = 100;
+            writer.Write("no worries, m8");
+            writer.Position = 64;
+            writer.Write(true);
+            // check that clipping off the end affect ToArray()'s length
+            writer.SetLength(128);
+            byte[] output = writer.ToArray();
+            byte[] expected = new byte[]{
+                0,0,128,63,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,128,63,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,128,63,0,0,238,
+                255,192,190,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,1,14,110,111,32,119,111,114,114,105,101,
+                115,44,32,109,56,0,0,0,0,0,0,0,0,0,0,0,0
+            };
+            Assert.That(output, Is.EqualTo(expected));
+        }
+
+        [Test]
         public void TestReadingLengthWrapAround()
         {
             NetworkWriter writer = new NetworkWriter();
