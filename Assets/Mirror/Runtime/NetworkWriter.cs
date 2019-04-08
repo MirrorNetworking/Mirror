@@ -125,15 +125,15 @@ namespace Mirror
             }
             if (value <= 2287)
             {
-                Write((byte)((value - 240) / 256 + 241));
-                Write((byte)((value - 240) % 256));
+                Write((byte)(((value - 240) >> 8) + 241));
+                Write((byte)((value - 240) & 0xFF));
                 return;
             }
             if (value <= 67823)
             {
                 Write((byte)249);
-                Write((byte)((value - 2288) / 256));
-                Write((byte)((value - 2288) % 256));
+                Write((byte)((value - 2288) >> 8));
+                Write((byte)((value - 2288) & 0xFF));
                 return;
             }
             if (value <= 16777215)

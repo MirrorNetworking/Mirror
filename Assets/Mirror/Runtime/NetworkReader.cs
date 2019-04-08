@@ -86,13 +86,13 @@ namespace Mirror
             byte a1 = ReadByte();
             if (a0 >= 241 && a0 <= 248)
             {
-                return 240 + 256 * (a0 - ((ulong)241)) + a1;
+                return 240 + ((a0 - (ulong)241) << 8) + a1;
             }
 
             byte a2 = ReadByte();
             if (a0 == 249)
             {
-                return 2288 + (((ulong)256) * a1) + a2;
+                return 2288 + ((ulong)a1 << 8) + a2;
             }
 
             byte a3 = ReadByte();
