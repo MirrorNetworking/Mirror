@@ -3,7 +3,7 @@
 ## Version 3.x.x -- In Progress
 
 - Fixed: Exceptions in overrides of Network Manager and other components incorrectly silenced.
-- Fixed: Lobby Example
+- Fixed: Lobby system sometims would not spawn and swap game player prefabs into the game scene
 - Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses depth-first hierarchy order.
 
 ## Version 3.4.9 -- 2019-Apr-6
