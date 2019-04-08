@@ -481,11 +481,7 @@ namespace Mirror
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
-            handlers[msgType] = networkMessage =>
-            {
-                T message = networkMessage.ReadMessage<T>();
-                handler(networkMessage.conn, message);
-            };
+            handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
