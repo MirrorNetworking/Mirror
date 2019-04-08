@@ -639,7 +639,7 @@ namespace Mirror
         #endregion
 
         #region Server System Callbacks
-        public virtual void OnServerConnect(NetworkConnection conn) { }
+        public virtual void OnServerConnect(NetworkConnection conn) {}
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
