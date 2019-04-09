@@ -342,7 +342,6 @@ namespace Mirror
                     targetComponent.transform.rotation = rotation;
                 }
             }
-
         }
 
         void Update()
@@ -369,8 +368,14 @@ namespace Mirror
                         {
                             // serialize
                             NetworkWriter writer = new NetworkWriter();
-                            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
-
+                            if(useLocalCoordinates)
+                            {
+                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
+                            }
+                            else
+                            {
+                                SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+                            }
                             // send to server
                             CmdClientToServerSync(writer.ToArray());
                         }
