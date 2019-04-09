@@ -7,13 +7,13 @@ namespace Mirror.Tests
     {
         public class MyClass
         {
-            public string name {get; set; }
+            public string Name { get; set; }
         }
 
         [Writer]
         public static void WriteMyClass(NetworkWriter networkWriter, MyClass obj)
         {
-            networkWriter.Write(obj.name);
+            networkWriter.Write(obj.Name);
         }
 
         [Reader]
@@ -21,7 +21,7 @@ namespace Mirror.Tests
         {
             return new MyClass()
             {
-                name = reader.ReadString()
+                Name = reader.ReadString()
             };
         }
 
@@ -35,7 +35,7 @@ namespace Mirror.Tests
         {
             MyClass obj = new MyClass()
             {
-                name = "Hello World"
+                Name = "Hello World"
             };
 
             MyMessage message = new MyMessage()
@@ -47,7 +47,7 @@ namespace Mirror.Tests
 
             MyMessage unpacked = MessagePacker.Unpack<MyMessage>(data);
 
-            Assert.That(unpacked.myobj.name, Is.EqualTo("Hello World"), "Should be able to use user provider reader/writer");
+            Assert.That(unpacked.myobj.Name, Is.EqualTo("Hello World"), "Should be able to use user provider reader/writer");
         }
     }
 }
