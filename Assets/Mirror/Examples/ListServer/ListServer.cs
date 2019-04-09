@@ -81,7 +81,7 @@ namespace Mirror.Examples.ListServer
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.IsHeadless() && !NetworkServer.active && !FullyConnected();
+            return !NetworkManager.isHeadless && !NetworkServer.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
