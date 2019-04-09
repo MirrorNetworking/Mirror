@@ -91,7 +91,11 @@ namespace Mirror
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            SerializeIntoWriter(writer, useLocalCoordinates ? targetComponent.transform.localPosition : targetComponent.transform.position, useLocalCoordinates ? targetComponent.transform.localRotation : targetComponent.transform.rotation, compressRotation);
+        if(useLocalCoordinates){
+                    SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
+        } else {
+                    SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+        }
             return true;
         }
 
