@@ -28,8 +28,8 @@ namespace Mirror
             initialized = true;
             networkIdentity = target as NetworkIdentity;
 
-            serverOnlyProperty = serializedObject.FindProperty("m_ServerOnly");
-            localPlayerAuthorityProperty = serializedObject.FindProperty("m_LocalPlayerAuthority");
+            serverOnlyProperty = serializedObject.FindProperty("serverOnly");
+            localPlayerAuthorityProperty = serializedObject.FindProperty("localPlayerAuthority");
         }
 
         public override void OnInspectorGUI()
