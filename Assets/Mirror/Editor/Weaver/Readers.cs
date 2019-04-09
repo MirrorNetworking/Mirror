@@ -78,7 +78,7 @@ namespace Mirror.Weaver
 
             if (parameterType.Resolve().FullName != Weaver.NetworkReaderType.FullName)
             {
-                Weaver.Error($"Reader {md.FullName} must receive a NetworkReader");
+                Weaver.Error($"Reader {md.FullName} must be static and take one NetworkReader as parameter.");
                 return;
             }
 
