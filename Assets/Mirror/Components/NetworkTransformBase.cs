@@ -91,11 +91,13 @@ namespace Mirror
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-        if(useLocalCoordinates){
-                    SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
-        } else {
-                    SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
-        }
+            if(useLocalCoordinates){
+                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
+            }
+            else
+            {
+                SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            }
             return true;
         }
 
@@ -206,7 +208,9 @@ namespace Mirror
                     if(useLocalCoordinates){
                         start.position = targetComponent.transform.localPosition;
                         start.rotation = targetComponent.transform.localRotation;
-                    } else {
+                    }
+                    else
+                    {
                         start.position = targetComponent.transform.position;
                         start.rotation = targetComponent.transform.rotation;
                     }
@@ -329,7 +333,9 @@ namespace Mirror
                 {
                     targetComponent.transform.localRotation = rotation;
                 }
-            } else {
+            }
+            else
+            {
                 targetComponent.transform.position = position;
                 if (Compression.NoRotation != compressRotation)
                 {
