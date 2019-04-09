@@ -191,13 +191,10 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
-            return InvokeHandlerInternal(msgType, null);
+            return InvokeHandler(msgType, null);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
-        public bool InvokeHandler(int msgType, NetworkReader reader) => InvokeHandlerInternal(msgType, reader);
-        // TODO: Rename this back to InvokeHandler once the obsolete above is removed
-        internal bool InvokeHandlerInternal(int msgType, NetworkReader reader)
+        internal bool InvokeHandler(int msgType, NetworkReader reader)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -219,7 +216,7 @@ namespace Mirror
         {
             int msgType = MessagePacker.GetId<T>();
             byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandlerInternal(msgType, new NetworkReader(data));
+            return InvokeHandler(msgType, new NetworkReader(data));
         }
 
         // handle this message
@@ -255,7 +252,7 @@ namespace Mirror
                 }
 
                 // try to invoke the handler for that message
-                if (InvokeHandlerInternal(msgType, reader))
+                if (InvokeHandler(msgType, reader))
                 {
                     lastMessageTime = Time.time;
                 }

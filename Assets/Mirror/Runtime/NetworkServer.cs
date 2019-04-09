@@ -454,7 +454,7 @@ namespace Mirror
 
                 // pass a reader (attached to local buffer) to handler
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                conn.InvokeHandlerInternal(msgId, reader);
+                conn.InvokeHandler(msgId, reader);
             }
         }
 
