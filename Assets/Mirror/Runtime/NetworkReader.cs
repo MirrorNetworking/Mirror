@@ -27,23 +27,23 @@ namespace Mirror
         public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
         public int Length => (int)reader.BaseStream.Length;
 
-        public byte ReadByte() => reader.ReadByte();
-        public sbyte ReadSByte() => reader.ReadSByte();
-        public char ReadChar() => reader.ReadChar();
-        public bool ReadBoolean() => reader.ReadBoolean();
-        public short ReadInt16() => reader.ReadInt16();
-        public ushort ReadUInt16() => reader.ReadUInt16();
+        [NetworkReader] public byte ReadByte() => reader.ReadByte();
+        [NetworkReader] public sbyte ReadSByte() => reader.ReadSByte();
+        [NetworkReader] public char ReadChar() => reader.ReadChar();
+        [NetworkReader] public bool ReadBoolean() => reader.ReadBoolean();
+        [NetworkReader] public short ReadInt16() => reader.ReadInt16();
+        [NetworkReader] public ushort ReadUInt16() => reader.ReadUInt16();
         public int ReadInt32() => reader.ReadInt32();
         public uint ReadUInt32() => reader.ReadUInt32();
         public long ReadInt64() => reader.ReadInt64();
         public ulong ReadUInt64() => reader.ReadUInt64();
-        public decimal ReadDecimal() => reader.ReadDecimal();
-        public float ReadSingle() => reader.ReadSingle();
-        public double ReadDouble() => reader.ReadDouble();
+        [NetworkReader] public decimal ReadDecimal() => reader.ReadDecimal();
+        [NetworkReader] public float ReadSingle() => reader.ReadSingle();
+        [NetworkReader] public double ReadDouble() => reader.ReadDouble();
 
         // note: this will throw an ArgumentException if an invalid utf8 string is sent
         // null support, see NetworkWriter
-        public string ReadString() => ReadBoolean() ? reader.ReadString() : null;
+        [NetworkReader] public string ReadString() => ReadBoolean() ? reader.ReadString() : null;
 
         public byte[] ReadBytes(int count)
         {
@@ -54,9 +54,11 @@ namespace Mirror
 
         // Use checked() to force it to throw OverflowException if data is invalid
         // null support, see NetworkWriter
-        public byte[] ReadBytesAndSize() => ReadBoolean() ? ReadBytes(checked((int)ReadPackedUInt32())) : null;
+        [NetworkReader] public byte[] ReadBytesAndSize() => 
+            ReadBoolean() ? ReadBytes(checked((int)ReadPackedUInt32())) : null;
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [NetworkReader]
         public int ReadPackedInt32()
         {
             uint data = ReadPackedUInt32();
@@ -66,15 +68,17 @@ namespace Mirror
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         // NOTE: big endian.
         // Use checked() to force it to throw OverflowException if data is invalid
-        public uint ReadPackedUInt32() => checked((uint)ReadPackedUInt64());
+        [NetworkReader] public uint ReadPackedUInt32() => checked((uint)ReadPackedUInt64());
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [NetworkReader]
         public long ReadPackedInt64()
         {
             ulong data = ReadPackedUInt64();
             return ((long)(data >> 1)) ^ -((long)data & 1);
         }
 
+        [NetworkReader]
         public ulong ReadPackedUInt64()
         {
             byte a0 = ReadByte();
@@ -134,18 +138,19 @@ namespace Mirror
             throw new IndexOutOfRangeException("ReadPackedUInt64() failure: " + a0);
         }
 
-        public Vector2 ReadVector2() => new Vector2(ReadSingle(), ReadSingle());
-        public Vector3 ReadVector3() => new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
-        public Vector4 ReadVector4() => new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        public Vector2Int ReadVector2Int() => new Vector2Int(ReadPackedInt32(), ReadPackedInt32());
-        public Vector3Int ReadVector3Int() => new Vector3Int(ReadPackedInt32(), ReadPackedInt32(), ReadPackedInt32());
-        public Color ReadColor() => new Color(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        public Color32 ReadColor32() => new Color32(ReadByte(), ReadByte(), ReadByte(), ReadByte());
-        public Quaternion ReadQuaternion() => new Quaternion(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        public Rect ReadRect() => new Rect(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
-        public Plane ReadPlane() => new Plane(ReadVector3(), ReadSingle());
-        public Ray ReadRay() => new Ray(ReadVector3(), ReadVector3());
+        [NetworkReader] public Vector2 ReadVector2() => new Vector2(ReadSingle(), ReadSingle());
+        [NetworkReader] public Vector3 ReadVector3() => new Vector3(ReadSingle(), ReadSingle(), ReadSingle());
+        [NetworkReader] public Vector4 ReadVector4() => new Vector4(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        [NetworkReader] public Vector2Int ReadVector2Int() => new Vector2Int(ReadPackedInt32(), ReadPackedInt32());
+        [NetworkReader] public Vector3Int ReadVector3Int() => new Vector3Int(ReadPackedInt32(), ReadPackedInt32(), ReadPackedInt32());
+        [NetworkReader] public Color ReadColor() => new Color(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        [NetworkReader] public Color32 ReadColor32() => new Color32(ReadByte(), ReadByte(), ReadByte(), ReadByte());
+        [NetworkReader] public Quaternion ReadQuaternion() => new Quaternion(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        [NetworkReader] public Rect ReadRect() => new Rect(ReadSingle(), ReadSingle(), ReadSingle(), ReadSingle());
+        [NetworkReader] public Plane ReadPlane() => new Plane(ReadVector3(), ReadSingle());
+        [NetworkReader] public Ray ReadRay() => new Ray(ReadVector3(), ReadVector3());
 
+        [NetworkReader]
         public Matrix4x4 ReadMatrix4x4()
         {
             return new Matrix4x4
@@ -169,10 +174,11 @@ namespace Mirror
             };
         }
 
-        public Guid ReadGuid() => new Guid(ReadBytes(16));
-        public Transform ReadTransform() => ReadNetworkIdentity()?.transform;
-        public GameObject ReadGameObject() => ReadNetworkIdentity()?.gameObject;
+        [NetworkReader] public Guid ReadGuid() => new Guid(ReadBytes(16));
+        [NetworkReader] public Transform ReadTransform() => ReadNetworkIdentity()?.transform;
+        [NetworkReader] public GameObject ReadGameObject() => ReadNetworkIdentity()?.gameObject;
 
+        [NetworkReader]
         public NetworkIdentity ReadNetworkIdentity()
         {
             uint netId = ReadPackedUInt32();

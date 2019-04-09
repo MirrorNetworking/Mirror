@@ -106,8 +106,6 @@ namespace Mirror.Weaver
         public static TypeReference TargetRpcType;
         public static TypeReference SyncEventType;
         public static TypeReference SyncObjectType;
-        public static TypeReference ReaderType;
-        public static TypeReference WriterType;
         public static MethodReference InitSyncObjectReference;
 
         // system types
@@ -252,8 +250,6 @@ namespace Mirror.Weaver
             TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.SyncObject");
-            ReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReaderAttribute");
-            WriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterAttribute");
         }
 
         static void SetupCorLib()
@@ -553,8 +549,8 @@ namespace Mirror.Weaver
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, readParams))
             {
                 SetupTargetTypes();
-                Readers.Init(CurrentAssembly);
-                Writers.Init(CurrentAssembly);
+                Readers.Init(NetAssembly, CurrentAssembly);
+                Writers.Init(NetAssembly, CurrentAssembly);
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine("Script Module: {0}", moduleDefinition.Name);

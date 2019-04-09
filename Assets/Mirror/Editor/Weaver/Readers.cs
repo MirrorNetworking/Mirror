@@ -11,67 +11,36 @@ namespace Mirror.Weaver
         const int MaxRecursionCount = 128;
         static Dictionary<string, MethodReference> readFuncs;
         static Dictionary<string, MethodReference> customReaders;
+        static AssemblyDefinition currentAssembly;
 
-        public static void Init(AssemblyDefinition CurrentAssembly)
+        public static void Init(AssemblyDefinition mirrorAssembly, AssemblyDefinition CurrentAssembly)
         {
-            TypeReference networkReaderType = Weaver.NetworkReaderType;
-
-            readFuncs = new Dictionary<string, MethodReference>
-            {
-                { Weaver.singleType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadSingle") },
-                { Weaver.doubleType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadDouble") },
-                { Weaver.boolType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBoolean") },
-                { Weaver.stringType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadString") },
-                { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt64") },
-                { Weaver.uint64Type.FullName, Weaver.NetworkReaderReadPackedUInt64 },
-                { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt32") },
-                { Weaver.uint32Type.FullName, Weaver.NetworkReaderReadPackedUInt32 },
-                { Weaver.int16Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadInt16") },
-                { Weaver.uint16Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadUInt16") },
-                { Weaver.byteType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadByte") },
-                { Weaver.sbyteType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadSByte") },
-                { Weaver.charType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadChar") },
-                { Weaver.decimalType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadDecimal") },
-                { Weaver.vector2Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector2") },
-                { Weaver.vector3Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector3") },
-                { Weaver.vector4Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector4") },
-                { Weaver.vector2IntType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector2Int") },
-                { Weaver.vector3IntType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector3Int") },
-                { Weaver.colorType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadColor") },
-                { Weaver.color32Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadColor32") },
-                { Weaver.quaternionType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadQuaternion") },
-                { Weaver.rectType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadRect") },
-                { Weaver.planeType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPlane") },
-                { Weaver.rayType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadRay") },
-                { Weaver.matrixType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadMatrix4x4") },
-                { Weaver.guidType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadGuid") },
-                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadGameObject") },
-                { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadNetworkIdentity") },
-                { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadTransform") },
-                { "System.Byte[]", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSize") },
-            };
-
+            Readers.currentAssembly = CurrentAssembly;
+            // register built in readers
+            readFuncs = new Dictionary<string, MethodReference>();
             customReaders = new Dictionary<string, MethodReference>();
-            RegisterCustomReaders(CurrentAssembly);
+            RegisterReaders(mirrorAssembly);
+            customReaders = new Dictionary<string, MethodReference>();
+            RegisterReaders(CurrentAssembly);
         }
 
-        static void RegisterCustomReaders(AssemblyDefinition currentAssembly)
+        static void RegisterReaders(AssemblyDefinition currentAssembly)
         {
             foreach (TypeDefinition td in currentAssembly.MainModule.Types)
             {
-                RegisterCustomReaders(td);
+                RegisterReaders(td.Resolve());
             }
         }
 
-        static void RegisterCustomReaders(TypeDefinition td)
+        static void RegisterReaders(TypeDefinition td)
         {
             foreach (MethodDefinition md in td.Methods)
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == Weaver.ReaderType.FullName)
+                    if (ca.AttributeType?.FullName == "Mirror.NetworkReaderAttribute")
                     {
-                        RegisterCustomReader(md);
+                        RegisterReader(md);
                         break;
                     }
                 }
@@ -79,21 +48,35 @@ namespace Mirror.Weaver
 
             foreach (TypeDefinition embedded in td.NestedTypes)
             {
-                RegisterCustomReaders(embedded);
+                RegisterReaders(embedded);
             }
         }
 
-        static void RegisterCustomReader(MethodDefinition md)
+        static void RegisterReader(MethodDefinition md)
         {
-            if (md.Parameters.Count != 1)
+            TypeReference parameterType;
+
+            if (md.IsStatic)
             {
-                Weaver.Error($"Reader {md.FullName} must have exactly one NetworkReader parameter and no others");
-                return;
+                if (md.Parameters.Count != 1)
+                {
+                    Weaver.Error($"Reader {md.FullName} must have exactly one NetworkReader parameter and no others");
+                    return;
+                }
+
+                parameterType = md.Parameters[0].ParameterType;
+            }
+            else
+            {
+                if (md.Parameters.Count != 0)
+                {
+                    Weaver.Error($"Reader {md.FullName} must have exactly one NetworkReader parameter and no others");
+                    return;
+                }
+                parameterType = md.DeclaringType;
             }
 
-            ParameterDefinition parameter = md.Parameters[0];
-
-            if (parameter.ParameterType.Resolve().FullName != Weaver.NetworkReaderType.FullName)
+            if (parameterType.Resolve().FullName != Weaver.NetworkReaderType.FullName)
             {
                 Weaver.Error($"Reader {md.FullName} must receive a NetworkReader");
                 return;
@@ -110,8 +93,9 @@ namespace Mirror.Weaver
                 ));
                 return;
             }
-            readFuncs[returnType.ReturnType.FullName] = md;
-            customReaders[returnType.ReturnType.FullName] = md;
+            MethodReference method = currentAssembly.MainModule.ImportReference(md);
+            readFuncs[returnType.ReturnType.FullName] = method;
+            customReaders[returnType.ReturnType.FullName] = method;
         }
 
         public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)

@@ -13,55 +13,26 @@ namespace Mirror.Weaver
 
         static Dictionary<string, MethodReference> writeFuncs;
         static Dictionary<string, MethodReference> customWriters;
+        static AssemblyDefinition currentAssembly;
 
-        public static void Init(AssemblyDefinition CurrentAssembly)
+
+        public static void Init(AssemblyDefinition mirrorAssembly, AssemblyDefinition currentAssembly)
         {
-            TypeReference networkWriterType = Weaver.NetworkWriterType;
+            Writers.currentAssembly = currentAssembly;
 
-            writeFuncs = new Dictionary<string, MethodReference>
-            {
-                { Weaver.singleType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.singleType) },
-                { Weaver.doubleType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.doubleType) },
-                { Weaver.boolType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.boolType) },
-                { Weaver.stringType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.stringType) },
-                { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt64") },
-                { Weaver.uint64Type.FullName, Weaver.NetworkWriterWritePackedUInt64 },
-                { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt32") },
-                { Weaver.uint32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedUInt32") },
-                { Weaver.int16Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.int16Type) },
-                { Weaver.uint16Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.uint16Type) },
-                { Weaver.byteType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.byteType) },
-                { Weaver.sbyteType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.sbyteType) },
-                { Weaver.charType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.charType) },
-                { Weaver.decimalType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.decimalType) },
-                { Weaver.vector2Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector2Type) },
-                { Weaver.vector3Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector3Type) },
-                { Weaver.vector4Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector4Type) },
-                { Weaver.vector2IntType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector2IntType) },
-                { Weaver.vector3IntType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector3IntType) },
-                { Weaver.colorType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.colorType) },
-                { Weaver.color32Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.color32Type) },
-                { Weaver.quaternionType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.quaternionType) },
-                { Weaver.rectType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.rectType) },
-                { Weaver.planeType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.planeType) },
-                { Weaver.rayType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.rayType) },
-                { Weaver.matrixType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.matrixType) },
-                { Weaver.guidType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.guidType) },
-                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.gameObjectType) },
-                { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.NetworkIdentityType) },
-                { Weaver.transformType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.transformType) },
-                { "System.Byte[]", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSize", "System.Byte[]") }
-            };
-
+            writeFuncs = new Dictionary<string, MethodReference>();
             customWriters = new Dictionary<string, MethodReference>();
-            RegisterCustomWriters(CurrentAssembly);
+            RegisterCustomWriters(mirrorAssembly);
+       
+            customWriters = new Dictionary<string, MethodReference>();
+            RegisterCustomWriters(currentAssembly);
         }
 
         static void RegisterCustomWriters(AssemblyDefinition currentAssembly)
         {
             foreach (TypeDefinition td in currentAssembly.MainModule.Types)
             {
-                RegisterCustomWriters(td);
+                RegisterCustomWriters(td.Resolve());
             }
         }
 
@@ -71,7 +42,7 @@ namespace Mirror.Weaver
             {
                 foreach (CustomAttribute ca in md.CustomAttributes)
                 {
-                    if (ca.AttributeType.FullName == Weaver.WriterType.FullName)
+                    if (ca.AttributeType.FullName == "Mirror.NetworkWriterAttribute")
                     {
                         RegisterCustomWriter(md);
                         break;
@@ -87,35 +58,50 @@ namespace Mirror.Weaver
 
         static void RegisterCustomWriter(MethodDefinition md)
         {
-            if (md.Parameters.Count != 2)
+            TypeReference writerParameterType;
+            TypeReference dataParameterType;
+
+            if (md.IsStatic)
             {
-                Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter and your parameter");
-                return;
+                if (md.Parameters.Count != 2)
+                {
+                    Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter and your parameter");
+                    return;
+                }
+
+                writerParameterType = md.Parameters[0].ParameterType;
+                dataParameterType = md.Parameters[1].ParameterType;
+            }
+            else
+            {
+                if (md.Parameters.Count != 1)
+                {
+                    Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter and your parameter");
+                    return;
+                }
+
+                writerParameterType = md.DeclaringType;
+                dataParameterType = md.Parameters[0].ParameterType;
             }
 
-            ParameterDefinition writerParameter = md.Parameters[0];
-
-            if (writerParameter.ParameterType.Resolve().FullName != Weaver.NetworkWriterType.FullName)
+            if (writerParameterType.Resolve().FullName != Weaver.NetworkWriterType.FullName)
             {
                 Weaver.Error($"Writer {md.FullName} must have a NetworkWriter as the first parameter");
                 return;
             }
 
-            ParameterDefinition dataParameter = md.Parameters[1];
-
-            TypeReference parameterType = dataParameter.ParameterType;
-
-            if (customWriters.TryGetValue(parameterType.FullName, out MethodReference prevWriter))
+            if (customWriters.TryGetValue(dataParameterType.FullName, out MethodReference prevWriter))
             {
                 Weaver.Error(string.Format("Multiple writers found for {0}: {1} and {2} ",
-                    parameterType.FullName,
+                    dataParameterType.FullName,
                     prevWriter.FullName,
                     md.FullName
                 ));
                 return;
             }
-            writeFuncs[parameterType.FullName] = md;
-            customWriters[parameterType.FullName] = md;
+            MethodReference methodReference = currentAssembly.MainModule.ImportReference(md);
+            writeFuncs[dataParameterType.FullName] = methodReference;
+            customWriters[dataParameterType.FullName] = methodReference;
         }
 
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)

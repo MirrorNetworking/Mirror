@@ -38,20 +38,21 @@ namespace Mirror
             ((MemoryStream)writer.BaseStream).SetLength(value);
         }
 
-        public void Write(byte value) => writer.Write(value);
-        public void Write(sbyte value) => writer.Write(value);
-        public void Write(char value) => writer.Write(value);
-        public void Write(bool value) => writer.Write(value);
-        public void Write(short value) => writer.Write(value);
-        public void Write(ushort value) => writer.Write(value);
+        [NetworkWriter] public void Write(byte value) => writer.Write(value);
+        [NetworkWriter] public void Write(sbyte value) => writer.Write(value);
+        [NetworkWriter] public void Write(char value) => writer.Write(value);
+        [NetworkWriter] public void Write(bool value) => writer.Write(value);
+        [NetworkWriter] public void Write(short value) => writer.Write(value);
+        [NetworkWriter] public void Write(ushort value) => writer.Write(value);
         public void Write(int value) => writer.Write(value);
         public void Write(uint value) => writer.Write(value);
         public void Write(long value) => writer.Write(value);
         public void Write(ulong value) => writer.Write(value);
-        public void Write(float value) => writer.Write(value);
-        public void Write(double value) => writer.Write(value);
-        public void Write(decimal value) => writer.Write(value);
+        [NetworkWriter] public void Write(float value) => writer.Write(value);
+        [NetworkWriter] public void Write(double value) => writer.Write(value);
+        [NetworkWriter] public void Write(decimal value) => writer.Write(value);
 
+        [NetworkWriter]
         public void Write(string value)
         {
             // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
@@ -95,6 +96,7 @@ namespace Mirror
 
         // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
+        [NetworkWriter]
         public void WriteBytesAndSize(byte[] buffer)
         {
             // buffer might be null, so we can't use .Length in that case
@@ -102,6 +104,7 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [NetworkWriter]
         public void WritePackedInt32(int i)
         {
             uint zigzagged = (uint)((i >> 31) ^ (i << 1));
@@ -109,6 +112,7 @@ namespace Mirror
         }
 
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
+        [NetworkWriter]
         public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
@@ -117,12 +121,14 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [NetworkWriter]
         public void WritePackedInt64(long i)
         {
             ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
             WritePackedUInt64(zigzagged);
         }
 
+        [NetworkWriter]
         public void WritePackedUInt64(ulong value)
         {
             if (value <= 240)
@@ -208,12 +214,14 @@ namespace Mirror
             }
         }
 
+        [NetworkWriter]
         public void Write(Vector2 value)
         {
             Write(value.x);
             Write(value.y);
         }
 
+        [NetworkWriter]
         public void Write(Vector3 value)
         {
             Write(value.x);
@@ -221,6 +229,7 @@ namespace Mirror
             Write(value.z);
         }
 
+        [NetworkWriter]
         public void Write(Vector4 value)
         {
             Write(value.x);
@@ -229,12 +238,14 @@ namespace Mirror
             Write(value.w);
         }
 
+        [NetworkWriter]
         public void Write(Vector2Int value)
         {
             WritePackedInt32(value.x);
             WritePackedInt32(value.y);
         }
 
+        [NetworkWriter]
         public void Write(Vector3Int value)
         {
             WritePackedInt32(value.x);
@@ -242,6 +253,7 @@ namespace Mirror
             WritePackedInt32(value.z);
         }
 
+        [NetworkWriter]
         public void Write(Color value)
         {
             Write(value.r);
@@ -250,6 +262,7 @@ namespace Mirror
             Write(value.a);
         }
 
+        [NetworkWriter]
         public void Write(Color32 value)
         {
             Write(value.r);
@@ -258,6 +271,7 @@ namespace Mirror
             Write(value.a);
         }
 
+        [NetworkWriter]
         public void Write(Quaternion value)
         {
             Write(value.x);
@@ -266,6 +280,7 @@ namespace Mirror
             Write(value.w);
         }
 
+        [NetworkWriter]
         public void Write(Rect value)
         {
             Write(value.xMin);
@@ -274,18 +289,21 @@ namespace Mirror
             Write(value.height);
         }
 
+        [NetworkWriter]
         public void Write(Plane value)
         {
             Write(value.normal);
             Write(value.distance);
         }
 
+        [NetworkWriter]
         public void Write(Ray value)
         {
             Write(value.direction);
             Write(value.origin);
         }
 
+        [NetworkWriter]
         public void Write(Matrix4x4 value)
         {
             Write(value.m00);
@@ -306,11 +324,13 @@ namespace Mirror
             Write(value.m33);
         }
 
+        [NetworkWriter]
         public void Write(Guid value)
         {
             writer.Write(value.ToByteArray());
         }
 
+        [NetworkWriter]
         public void Write(NetworkIdentity value)
         {
             if (value == null)
@@ -321,6 +341,7 @@ namespace Mirror
             WritePackedUInt32(value.netId);
         }
 
+        [NetworkWriter]
         public void Write(Transform value)
         {
             if (value == null || value.gameObject == null)
@@ -340,6 +361,7 @@ namespace Mirror
             }
         }
 
+        [NetworkWriter]
         public void Write(GameObject value)
         {
             if (value == null)
