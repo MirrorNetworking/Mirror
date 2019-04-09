@@ -91,7 +91,7 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
-        public static MethodReference UBehaviourIsServer;
+        public static MethodReference getBehaviourIsServer;
         public static MethodReference NetworkReaderReadPackedUInt32;
         public static MethodReference NetworkReaderReadPackedUInt64;
         public static MethodReference NetworkWriterWritePackedUInt64;
@@ -325,8 +325,8 @@ namespace Mirror.Weaver
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
             CurrentAssembly.MainModule.ImportReference(transformType);
 
-            TypeReference netViewTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
-            NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(netViewTmp);
+            TypeReference networkIdentityTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
+            NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
@@ -352,11 +352,11 @@ namespace Mirror.Weaver
             // get specialized GetComponent<NetworkIdentity>()
             getComponentReference = Resolvers.ResolveMethodGeneric(ComponentType, CurrentAssembly, "GetComponent", NetworkIdentityType);
 
-            getNetIdReference = Resolvers.ResolveMethod(netViewTmp, CurrentAssembly, "get_netId");
+            getNetIdReference = Resolvers.ResolveMethod(networkIdentityTmp, CurrentAssembly, "get_netId");
 
             gameObjectInequality = Resolvers.ResolveMethod(unityObjectType, CurrentAssembly, "op_Inequality");
 
-            UBehaviourIsServer  = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_isServer");
+            getBehaviourIsServer = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_isServer");
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVar");
             setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "set_syncVarHookGuard");
             getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_syncVarHookGuard");

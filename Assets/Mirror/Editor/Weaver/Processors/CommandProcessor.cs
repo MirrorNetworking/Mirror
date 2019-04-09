@@ -50,7 +50,7 @@ namespace Mirror.Weaver
             // local client check
             Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.UBehaviourIsServer));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getBehaviourIsServer));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Brfalse, localClientLabel));
 
             // call the cmd function directly.
