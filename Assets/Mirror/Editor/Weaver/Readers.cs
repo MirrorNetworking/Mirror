@@ -86,11 +86,11 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void RegisterCustomReader(MethodDefinition md)
+        static void RegisterCustomReader(MethodDefinition md)
         {
             if (md.Parameters.Count != 1)
             {
-                Weaver.Error($"Reader {md.FullName} must receive a NetworkReader");
+                Weaver.Error($"Reader {md.FullName} must have exactly one NetworkReader parameter and no others");
                 return;
             }
 
@@ -110,7 +110,7 @@ namespace Mirror.Weaver
                     returnType.ReturnType.FullName,
                     prevReader.FullName,
                     md.FullName
-                    ));
+                ));
                 return;
             }
             readFuncs[returnType.ReturnType.FullName] = md;

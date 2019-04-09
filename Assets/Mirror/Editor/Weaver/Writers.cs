@@ -88,7 +88,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void RegisterCustomWriter(MethodDefinition md)
+        static void RegisterCustomWriter(MethodDefinition md)
         {
             if (md.Parameters.Count != 2)
             {
@@ -100,7 +100,7 @@ namespace Mirror.Weaver
 
             if (writerParameter.ParameterType.Resolve().FullName != Weaver.NetworkWriterType.FullName)
             {
-                Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter");
+                Weaver.Error($"Writer {md.FullName} must have a NetworkWriter as the first parameter");
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace Mirror.Weaver
                     parameterType.FullName,
                     prevWriter.FullName,
                     md.FullName
-                    ));
+                ));
                 return;
             }
             writeFuncs[parameterType.FullName] = md;
