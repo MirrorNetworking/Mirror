@@ -203,9 +203,14 @@ namespace Mirror
                 // position if we aren't too far away
                 if (Vector3.Distance(targetComponent.transform.position, start.position) < oldDistance + newDistance)
                 {
-                    start.position = useLocalCoordinates ? targetComponent.transform.localPosition : targetComponent.transform.position;
-                    start.rotation = useLocalCoordinates ? targetComponent.transform.localRotation : targetComponent.transform.rotation;
-                }
+                    if(useLocalCoordinates){
+                        start.position = targetComponent.transform.localPosition;
+                        start.rotation = targetComponent.transform.localRotation;
+                    } else {
+                        start.position = targetComponent.transform.position;
+                        start.rotation = targetComponent.transform.rotation;
+                    }
+               }
             }
 
             // set new destination in any case. new data is best data.
