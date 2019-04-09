@@ -70,7 +70,7 @@ namespace Mirror.Weaver
             {
                 if (md.Parameters.Count != 0)
                 {
-                    Weaver.Error($"Reader {md.FullName} must have exactly one NetworkReader parameter and no others");
+                    Weaver.Error($"Reader {md.FullName} must be static and take one NetworkReader as parameter.");
                     return;
                 }
                 parameterType = md.DeclaringType;
