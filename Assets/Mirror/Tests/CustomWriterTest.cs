@@ -47,7 +47,7 @@ namespace Mirror.Tests
 
             MyMessage unpacked = MessagePacker.Unpack<MyMessage>(data);
 
-            Assert.That(unpacked.myobj.Name, Is.EqualTo("Hello World"), "Should be able to use user provider reader/writer");
+            Assert.That(unpacked.myobj.Name, Is.EqualTo("Hello World"), "Should be able to use user provided reader/writer");
         }
     }
 }
