@@ -87,10 +87,7 @@ namespace Mirror
         }
 
         // headless mode detection
-        public static bool IsHeadless()
-        {
-            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
-        }
+        public static bool IsHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
         void InitializeSingleton()
         {
@@ -132,7 +129,7 @@ namespace Mirror
             // some transports might not be ready until Start.
             //
             // (tick rate is applied in StartServer!)
-            if (IsHeadless() && startOnHeadless)
+            if (IsHeadless && startOnHeadless)
             {
                 StartServer();
             }
@@ -235,7 +232,7 @@ namespace Mirror
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
 #if !UNITY_EDITOR
-            if (!NetworkClient.active && IsHeadless())
+            if (!NetworkClient.active && IsHeadless)
             {
                 Application.targetFrameRate = serverTickRate;
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
