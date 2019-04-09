@@ -16,7 +16,7 @@ namespace Mirror
         public string address;
         public float lastMessageTime;
         public NetworkIdentity playerController { get; internal set; }
-        public HashSet<uint> clientOwnedObjects = new HashSet<uint>();
+        public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
         public bool logNetworkMessages;
 
         // this is always true for regular connections, false for local
