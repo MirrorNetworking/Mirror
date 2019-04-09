@@ -86,7 +86,7 @@ namespace Mirror.Weaver
 
             if (writerParameterType.Resolve().FullName != Weaver.NetworkWriterType.FullName)
             {
-                Weaver.Error($"Writer {md.FullName} must have a NetworkWriter as the first parameter");
+                Weaver.Error($"Writer {md.FullName} must be static and have a NetworkWriter as its first parameter, and your type as the second parameter.");
                 return;
             }
 
