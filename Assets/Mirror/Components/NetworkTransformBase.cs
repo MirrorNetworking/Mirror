@@ -313,9 +313,6 @@ namespace Mirror
         // set position carefully depending on the target component
         void ApplyPositionAndRotation(Vector3 position, Quaternion rotation)
         {
-
-
-
             if (useLocalCoordinates)
             {
                 targetComponent.transform.localPosition = position;
