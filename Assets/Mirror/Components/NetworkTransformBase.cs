@@ -32,7 +32,7 @@ namespace Mirror
         [SerializeField] Compression compressRotation = Compression.Much;
         public enum Compression { None, Much, Lots , NoRotation }; // easily understandable and funny
 
-        [SerializeField] bool useLocalCoordinates; // Default behavior of UNET NetworkTransformChild = true. AR devs need local positions on everything, so expose bool in inspector for all NetworkTransforms
+        public bool useLocalCoordinates; // Default behavior of UNET NetworkTransformChild = true. AR devs need local positions on everything, so expose bool in inspector for all NetworkTransforms
 
         // server
         Vector3 lastPosition;
