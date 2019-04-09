@@ -28,7 +28,7 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get; private set; }
         protected bool syncVarHookGuard { get; set; }
 
-        [Obsolete("Use syncObjects instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
         protected List<SyncObject> m_SyncObjects => syncObjects;
         // objects that can synchronize themselves,  such as synclists
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
