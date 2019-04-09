@@ -154,10 +154,7 @@ namespace Mirror
                 return;
             }
             // connection parameter is optional. assign if null.
-            if (conn == null)
-            {
-                conn = connectionToClient;
-            }
+            conn = conn ?? connectionToClient;
             // this was in Weaver before
             if (conn is ULocalConnectionToServer)
             {
