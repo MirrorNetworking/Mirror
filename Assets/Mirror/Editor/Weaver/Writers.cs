@@ -76,7 +76,7 @@ namespace Mirror.Weaver
             {
                 if (md.Parameters.Count != 1)
                 {
-                    Weaver.Error($"Writer {md.FullName} must receive a NetworkWriter and your parameter");
+                    Weaver.Error($"Writer {md.FullName} must be static and have a NetworkWriter as its first parameter, and your type as the second parameter.");
                     return;
                 }
 
