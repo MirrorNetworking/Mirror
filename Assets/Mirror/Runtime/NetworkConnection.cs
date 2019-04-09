@@ -99,6 +99,7 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.RegisterHandler<T> instead")]
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
             if (messageHandlers.ContainsKey(msgType))
@@ -108,6 +109,7 @@ namespace Mirror
             messageHandlers[msgType] = handler;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.UnregisterHandler<T> instead")]
         public void UnregisterHandler(short msgType)
         {
             messageHandlers.Remove(msgType);
@@ -189,7 +191,7 @@ namespace Mirror
             return InvokeHandler(msgType, null);
         }
 
-        public bool InvokeHandler(int msgType, NetworkReader reader)
+        internal bool InvokeHandler(int msgType, NetworkReader reader)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
