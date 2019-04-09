@@ -10,13 +10,13 @@ namespace Mirror.Tests
             public string Name { get; set; }
         }
 
-        [Writer]
+        [NetworkWriter]
         public static void WriteMyClass(NetworkWriter networkWriter, MyClass obj)
         {
             networkWriter.Write(obj.Name);
         }
 
-        [Reader]
+        [NetworkReader]
         public static MyClass ReadMyClass(NetworkReader reader)
         {
             return new MyClass()

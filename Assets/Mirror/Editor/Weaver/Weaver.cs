@@ -252,8 +252,8 @@ namespace Mirror.Weaver
             TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.SyncObject");
-            ReaderType = NetAssembly.MainModule.GetType("Mirror.ReaderAttribute");
-            WriterType = NetAssembly.MainModule.GetType("Mirror.WriterAttribute");
+            ReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReaderAttribute");
+            WriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterAttribute");
         }
 
         static void SetupCorLib()
