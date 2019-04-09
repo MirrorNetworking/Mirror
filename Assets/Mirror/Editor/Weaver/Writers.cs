@@ -61,10 +61,7 @@ namespace Mirror.Weaver
         {
             foreach (TypeDefinition td in currentAssembly.MainModule.Types)
             {
-                if (td.IsClass && td.BaseType.CanBeResolved())
-                {
-                    RegisterCustomWriters(td);
-                }
+                RegisterCustomWriters(td);
             }
         }
 
