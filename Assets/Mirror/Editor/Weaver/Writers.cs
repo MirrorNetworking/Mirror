@@ -90,7 +90,7 @@ namespace Mirror.Weaver
             }
             else if (variable.Resolve().IsEnum)
             {
-                return Weaver.NetworkWriterWriteInt32;
+                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
             }
             else
             {
