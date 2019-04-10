@@ -41,6 +41,58 @@ If a class has SyncVars, then implementations of these functions are added autom
 
 The `OnSerialize` function should return true to indicate that an update should be sent. If it returns true, the dirty bits for that script are set to zero. If it returns false, the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.
 
+## Custom Readers and Writers
+
+Out of the box, mirror knows how to serialize the following data types:
+
+* native C# types ( byte, sbyte, short, ushort, float, double, int, uint, long, ulong)
+* enums
+* strings
+* Unity value types (Vector3, Color, Rect, etc...)
+* GameObjects
+* NetworkIdentity
+* NetworkTransform
+* arrays
+* structs containing any of the above
+* classes containing any of the above with a default constructor.
+
+Any of these types can be using inside SyncLists, SyncDictionary, SyncSet, parameters to Commands, ClientRpc, TargetRpc, EventRpc and SyncVars
+
+Note that some restrictions apply.  Notably:
+* Mirror will not read and write properties,  only fields
+* Mirror will not read and write structures and classes defined in other assemblies
+* Mirror will not read and write MonoBehaviors and NetworkBehaviors
+
+Sometimes you want to have a different behavior, for example you want to serialize values from third party assemblies, you don't want to read/write every single field,  or you want to lookup an existing object by id instead of creating a new one. 
+
+For these cases,  define 2 static methods one for reading and one for writing, add a `[NetworkReader]` and `[NetworkWriter]` attribute.  For example:
+
+```cs
+public partial struct Quest
+{
+    public ScriptableQuest scriptableQuest;
+
+    public int progress;
+    public bool completed;
+    ...
+}
+```
+
+Let's say your scriptableQuest should be looked up in a static dictionary.  Define these methods anywhere in your code:
+
+```cs
+[NetworkWriter]
+public static void WriteQuest(NetworkWriter writer, ScriptableQuest scriptableQuest) {
+     writer.Write(scriptableQuest.Id);
+}
+
+[NetworkReader]
+public static ScriptableQuest ReadQuest(NetworkReader reader) {
+    int id = reader.ReadInt32();
+    return ScriptableQuest.dict[id];
+}
+```
+
 ## Serialization Flow
 
 GameObjects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these GameObjects is:
