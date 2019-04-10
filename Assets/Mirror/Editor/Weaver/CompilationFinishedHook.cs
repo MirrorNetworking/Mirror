@@ -192,7 +192,10 @@ namespace Mirror.Weaver
 
                 foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
                 {
-                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                    // including NetStandard dependencies causes a stack overflow
+                    // in the Weaver: https://github.com/vis2k/Mirror/issues/791
+                    if (!unityAsmRef.Contains("NetStandard"))
+                        dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
                 }
             }
 
