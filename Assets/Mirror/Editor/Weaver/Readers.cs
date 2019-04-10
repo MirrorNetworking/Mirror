@@ -96,7 +96,7 @@ namespace Mirror.Weaver
             }
             else if (td.IsEnum)
             {
-                return Weaver.NetworkReaderReadInt32;
+                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
             }
             else
             {

@@ -83,9 +83,6 @@ namespace Mirror.Weaver
         public static TypeReference CmdDelegateReference;
         public static MethodReference CmdDelegateConstructor;
 
-        public static MethodReference NetworkReaderReadInt32;
-
-        public static MethodReference NetworkWriterWriteInt32;
         public static MethodReference NetworkWriterWriteInt16;
 
         public static MethodReference NetworkServerGetActive;
@@ -307,9 +304,6 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
 
-            NetworkReaderReadInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadInt32");
-
-            NetworkWriterWriteInt32 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int32Type);
             NetworkWriterWriteInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type);
 
             NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
