@@ -98,7 +98,7 @@ namespace Mirror.Weaver
             {
                 if (td.IsEnum)
                 {
-                    return Weaver.NetworkReaderReadInt32;
+                    return Weaver.NetworkReaderReadPackedUInt32;
                 }
 
                 newReaderFunc = GenerateStructReadFunction(variable, recursionCount);

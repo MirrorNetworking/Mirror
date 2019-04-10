@@ -92,7 +92,7 @@ namespace Mirror.Weaver
             {
                 if (variable.Resolve().IsEnum)
                 {
-                    return Weaver.NetworkWriterWriteInt32;
+                    return Weaver.NetworkWriterWritePackedUInt32;
                 }
 
                 newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
