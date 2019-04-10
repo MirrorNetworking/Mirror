@@ -94,13 +94,12 @@ namespace Mirror.Weaver
                 }
                 newReaderFunc = GenerateArrayReadFunc(variable, elementReadFunc);
             }
+            else if (td.IsEnum)
+            {
+                return Weaver.NetworkReaderReadInt32;
+            }
             else
             {
-                if (td.IsEnum)
-                {
-                    return Weaver.NetworkReaderReadInt32;
-                }
-
                 newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
             }
 

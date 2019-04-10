@@ -88,13 +88,12 @@ namespace Mirror.Weaver
                 }
                 newWriterFunc = GenerateArrayWriteFunc(variable, elemenWriteFunc);
             }
+            else if (variable.Resolve().IsEnum)
+            {
+                return Weaver.NetworkWriterWriteInt32;
+            }
             else
             {
-                if (variable.Resolve().IsEnum)
-                {
-                    return Weaver.NetworkWriterWriteInt32;
-                }
-
                 newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
             }
 
