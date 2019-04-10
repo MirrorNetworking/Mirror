@@ -3,6 +3,7 @@
 ## Version 3.x.x -- In Progress
 
 - Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses hierarchy sibling order.
+- Changed: NetworkManager `isHeadless` is a static property now, changed from `IsHeadless()`.
 
 ## Version 3.5.3 -- 2019-Apr-10
 
