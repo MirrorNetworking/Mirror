@@ -605,7 +605,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
-            FinishPlayerForConnection(conn, identity, player);
+            FinishPlayerForConnection(identity, player);
             if (identity.localPlayerAuthority)
             {
                 identity.SetClientOwner(conn);
@@ -645,7 +645,7 @@ namespace Mirror
             return false;
         }
 
-        static void FinishPlayerForConnection(NetworkConnection conn, NetworkIdentity identity, GameObject playerGameObject)
+        static void FinishPlayerForConnection(NetworkIdentity identity, GameObject playerGameObject)
         {
             if (identity.netId == 0)
             {
@@ -653,12 +653,6 @@ namespace Mirror
                 // so dont spawn it again.
                 Spawn(playerGameObject);
             }
-
-            OwnerMessage owner = new OwnerMessage
-            {
-                netId = identity.netId
-            };
-            conn.Send(owner);
         }
 
         internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject player)
@@ -703,7 +697,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
-            FinishPlayerForConnection(conn, identity, player);
+            FinishPlayerForConnection(identity, player);
             if (identity.localPlayerAuthority)
             {
                 identity.SetClientOwner(conn);
@@ -849,6 +843,7 @@ namespace Mirror
                 SpawnPrefabMessage msg = new SpawnPrefabMessage
                 {
                     netId = identity.netId,
+                    owner = conn?.playerController == identity,
                     assetId = identity.assetId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
@@ -875,6 +870,7 @@ namespace Mirror
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
                 {
                     netId = identity.netId,
+                    owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
                     position = identity.transform.position,
                     rotation = identity.transform.rotation,
