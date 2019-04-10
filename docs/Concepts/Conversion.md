@@ -28,7 +28,7 @@ See Player Objects for more information.
 
 For example, this script only processes input for the local player:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
