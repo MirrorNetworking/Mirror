@@ -2,9 +2,14 @@
 
 ## Version 3.x.x -- In Progress
 
+- Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses hierarchy sibling order.
+
+## Version 3.5.3 -- 2019-Apr-10
+
 - Fixed: Exceptions in overrides of Network Manager and other components incorrectly silenced.
 - Fixed: Lobby system sometimes would not spawn and swap game player prefabs into the game scene
-- Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses depth-first hierarchy order.
+- Fixed: Application.targetFrameRate no longer set in host mode
+- Changed: Telepathy: Split MaxMessageSize to allow setting a different value for client and server
 
 ## Version 3.4.9 -- 2019-Apr-6
 
