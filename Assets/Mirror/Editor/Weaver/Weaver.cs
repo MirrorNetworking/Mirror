@@ -580,8 +580,6 @@ namespace Mirror.Weaver
                             }
                             catch (Exception ex)
                             {
-                                if (CurrentAssembly.MainModule.SymbolReader != null)
-                                    CurrentAssembly.MainModule.SymbolReader.Dispose();
                                 Weaver.Error(ex.Message);
                                 throw ex;
                             }
@@ -589,8 +587,6 @@ namespace Mirror.Weaver
 
                         if (WeavingFailed)
                         {
-                            if (CurrentAssembly.MainModule.SymbolReader != null)
-                                CurrentAssembly.MainModule.SymbolReader.Dispose();
                             return false;
                         }
                     }
@@ -608,16 +604,12 @@ namespace Mirror.Weaver
                     catch (Exception e)
                     {
                         Log.Error("ProcessPropertySites exception: " + e);
-                        if (CurrentAssembly.MainModule.SymbolReader != null)
-                            CurrentAssembly.MainModule.SymbolReader.Dispose();
                         return false;
                     }
 
                     if (WeavingFailed)
                     {
                         //Log.Error("Failed phase II.");
-                        if (CurrentAssembly.MainModule.SymbolReader != null)
-                            CurrentAssembly.MainModule.SymbolReader.Dispose();
                         return false;
                     }
 
@@ -627,9 +619,6 @@ namespace Mirror.Weaver
                     WriterParameters writeParams = Helpers.GetWriterParameters(readParams);
                     CurrentAssembly.Write(dest, writeParams);
                 }
-
-                if (CurrentAssembly.MainModule.SymbolReader != null)
-                    CurrentAssembly.MainModule.SymbolReader.Dispose();
             }
 
             return true;
