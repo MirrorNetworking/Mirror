@@ -31,8 +31,7 @@ namespace Mirror.Weaver
             CheckAssemblies(assemblies);
             Log.WarningMethod = printWarning;
             Log.ErrorMethod = printError;
-            IAssemblyResolver assemblyResolver = new DefaultAssemblyResolver();
-            return Weaver.WeaveAssemblies(assemblies, extraAssemblyPaths, assemblyResolver, outputDirectory, unityEngine, netDLL);
+            return Weaver.WeaveAssemblies(assemblies, extraAssemblyPaths, null, outputDirectory, unityEngine, netDLL);
         }
 
         private static void CheckDLLPath(string path)
@@ -55,8 +54,10 @@ namespace Mirror.Weaver
 
         private static void CheckOutputDirectory(string outputDir)
         {
-            if (!Directory.Exists(outputDir))
+            if (outputDir != null && !Directory.Exists(outputDir))
+            {
                 Directory.CreateDirectory(outputDir);
+            }
         }
     }
 }

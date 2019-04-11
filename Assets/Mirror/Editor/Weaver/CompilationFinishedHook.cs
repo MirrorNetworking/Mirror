@@ -200,12 +200,10 @@ namespace Mirror.Weaver
                 }
             }
 
-            // construct full path to Project/Library/ScriptAssemblies
-            string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
-            string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
-
             //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
+
+            // passing null in the outputDirectory param will do an in-place update of the assembly
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
                 WeaveFailed = false;
                 Debug.Log("Weaving succeeded for: " + assemblyPath);
