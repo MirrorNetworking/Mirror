@@ -82,7 +82,7 @@ class Player : NetworkBehaviour {
     // Use OnStartClient instead if you just want the client to act upon updates
     void Start()
     {
-        myStringList.Callback += OnInventoryUpdated;
+        inventory.Callback += OnInventoryUpdated;
     }
 
     void OnInventoryUpdated(SyncListItem.Operation op, int index, Item item)
