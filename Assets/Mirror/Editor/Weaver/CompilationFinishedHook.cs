@@ -194,6 +194,7 @@ namespace Mirror.Weaver
                 {
                     // including NetStandard dependencies causes a stack overflow
                     // in the Weaver: https://github.com/vis2k/Mirror/issues/791
+                    // root issue: https://github.com/jbevain/cecil/issues/573
                     if (!unityAsmRef.Contains("NetStandard"))
                         dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
                 }
