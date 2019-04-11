@@ -262,7 +262,12 @@ namespace Mirror.Weaver
         static TypeReference ImportCorLibType(string fullName)
         {
             TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.First(t => t.FullName == fullName).Resolve(0);
-            return CurrentAssembly.MainModule.ImportReference(type);
+            if (type != null)
+            {
+                return CurrentAssembly.MainModule.ImportReference(type);
+            }
+            Error("Failed to import mscorlib type: " + fullName + " because Resolve failed. (Might happen when trying to Resolve in NetStandard dll, see also: https://github.com/vis2k/Mirror/issues/791)");
+            return null;
         }
 
         static void SetupTargetTypes()
