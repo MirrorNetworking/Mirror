@@ -134,7 +134,7 @@ namespace Mirror.Weaver
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
                 WeaveFailed = false;
-                //Debug.Log("Weaving succeeded for: " + assemblyPath);
+                Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {
