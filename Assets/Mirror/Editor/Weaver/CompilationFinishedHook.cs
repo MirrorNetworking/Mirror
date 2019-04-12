@@ -129,7 +129,7 @@ namespace Mirror.Weaver
                     dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
                 }
             }
-             
+
             // passing null in the outputDirectory param will do an in-place update of the assembly
             if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
