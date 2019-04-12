@@ -14,7 +14,8 @@ namespace Mirror
             HashSet<string> defines = new HashSet<string>(PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup).Split(';'))
             {
                 "MIRROR",
-                "MIRROR_1726_OR_NEWER"
+                "MIRROR_1726_OR_NEWER",
+                "MIRROR_3_0_OR_NEWER"
             };
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", defines));
         }

@@ -13,7 +13,7 @@ namespace Mirror
         // average out the last few results from Ping
         public static int PingWindowSize = 10;
 
-        internal static double lastPingTime;
+        static double lastPingTime;
 
 
         // Date and time when the application started
@@ -30,8 +30,8 @@ namespace Mirror
         private static int lastFrame;
 
         // the true offset guaranteed to be in this range
-        private static double offsetMin = double.MinValue;
-        private static double offsetMax = double.MaxValue;
+        static double offsetMin = double.MinValue;
+        static double offsetMax = double.MaxValue;
 
         // returns the clock time _in this system_
         static double LocalTime()
@@ -47,17 +47,12 @@ namespace Mirror
             offsetMax = double.MaxValue;
         }
 
-        internal static NetworkPingMessage GetPing()
-        {
-            return new NetworkPingMessage(LocalTime());
-        }
-
-        internal static void UpdateClient(NetworkClient networkClient)
+        internal static void UpdateClient()
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = GetPing();
-                networkClient.Send(pingMessage);
+                NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
+                NetworkClient.Send(pingMessage);
                 lastPingTime = Time.time;
             }
         }

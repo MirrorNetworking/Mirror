@@ -1,3 +1,4 @@
+using System;
 using Mono.Cecil;
 
 namespace Mirror.Weaver
@@ -38,6 +39,16 @@ namespace Mirror.Weaver
                 }
             }
             return false;
+        }
+
+        public static TypeReference GetEnumUnderlyingType(this TypeDefinition td)
+        {
+            foreach (FieldDefinition field in td.Fields)
+            {
+                if (!field.IsStatic)
+                    return field.FieldType;
+            }
+            throw new ArgumentException($"Invalid enum {td.FullName}");
         }
 
         public static bool ImplementsInterface(this TypeDefinition td, TypeReference baseInterface)

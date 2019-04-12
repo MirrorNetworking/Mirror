@@ -13,7 +13,7 @@ public class Health : NetworkBehaviour
     public const int m_MaxHealth = 100;
 
     //Detects when a health change happens and calls the appropriate function
-    [SyncVar(hook = "OnChangeHealth")]
+    [SyncVar(hook = nameof(OnChangeHealth))]
     public int m_CurrentHealth = m_MaxHealth;
     public RectTransform healthBar;
 

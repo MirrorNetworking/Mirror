@@ -85,7 +85,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(evtWorker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
+            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), false))
                 return null;
 
             // invoke interal send and return
@@ -107,7 +107,7 @@ namespace Mirror.Weaver
             // find events
             foreach (EventDefinition ed in td.Events)
             {
-                foreach (var ca in ed.CustomAttributes)
+                foreach (CustomAttribute ca in ed.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
                     {

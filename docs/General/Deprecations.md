@@ -9,11 +9,15 @@ As part of the Unity Services, this entire namespace was removed.  It didn't wor
 
 ## Network Discovery
 
-NetworkDiscovery was a UNet component intended for UDP projects.  Since Mirror was built on TCP, it was removed.  Now that all transports are separate components, it would be up to the UDP transport devs to re-implement Discovery at that level.
+NetworkDiscovery was a UNet component intended for UDP projects.  Since Mirror was built on TCP, it was removed.  Now that all [transports](../Transports) are separate components, Discovery has been reimplemented in at least one of them.
 
 ## networkPort in Network Manager
 
 Network Manager's `networkPort` property was removed now that all transports are separate components.  Not all transports use ports, but those that do have a field for it.  See [Transports](../Transports) for more info.
+
+##  Network Server Simple
+
+This was too complex and impractical to maintain for what little it did, and was removed.  There are much easier ways to make a basic listen server, with or without one of our transports.
 
 ## Couch Co-Op
 

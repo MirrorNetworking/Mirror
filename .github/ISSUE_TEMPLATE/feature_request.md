@@ -1,17 +1,17 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when ...
+**Please explain the suggested feature in detail.**
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+**How exactly does this keep you from releasing your game right now?**
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+**Can you suggest a possible solution?**
 
 **Additional context**
 Add any other context or screenshots about the feature request here.

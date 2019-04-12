@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
-using Assembly = System.Reflection.Assembly;
+using UnityAssembly = UnityEditor.Compilation.Assembly;
 
 namespace Mirror.Weaver
 {
-    public class CompilationFinishedHook
+    public static class CompilationFinishedHook
     {
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
@@ -52,9 +51,7 @@ namespace Mirror.Weaver
 
         static string FindMirrorRuntime()
         {
-            UnityEditor.Compilation.Assembly[] assemblies = CompilationPipeline.GetAssemblies();
-
-            foreach (UnityEditor.Compilation.Assembly assembly in assemblies)
+            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (assembly.name == MirrorRuntimeAssemblyName)
                 {
@@ -62,38 +59,6 @@ namespace Mirror.Weaver
                 }
             }
             return "";
-        }
-
-        // get all dependency directories
-        static HashSet<string> GetDependencyDirectories(AssemblyName[] dependencies)
-        {
-            // Since this assembly is already loaded in the domain this is a
-            // no-op and returns the already loaded assembly
-            return new HashSet<string>(
-                dependencies.Select(dependency => Path.GetDirectoryName(Assembly.Load(dependency).Location))
-            );
-        }
-
-        // get all non-dynamic assembly directories
-        static HashSet<string> GetNonDynamicAssemblyDirectories(Assembly[] assemblies)
-        {
-            HashSet<string> paths = new HashSet<string>();
-
-            foreach (Assembly assembly in assemblies)
-            {
-                if (!assembly.IsDynamic)
-                {
-                    // need to check if file exists to avoid potential
-                    // FileNotFoundException in Assembly.Load
-                    string assemblyName = assembly.GetName().Name;
-                    if (File.Exists(assemblyName))
-                    {
-                        paths.Add(Path.GetDirectoryName(Assembly.Load(assemblyName).Location));
-                    }
-                }
-            }
-
-            return paths;
         }
 
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
@@ -147,49 +112,24 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // find all assemblies and the currently compiling assembly
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            Assembly targetAssembly = assemblies.FirstOrDefault(asm => asm.GetName().Name == Path.GetFileNameWithoutExtension(assemblyPath));
-
-            // prepare variables
+            // build directory list for later asm/symbol resolving using CompilationPipeline refs
             HashSet<string> dependencyPaths = new HashSet<string>();
-
-            // found this assembly in assemblies?
-            if (targetAssembly != null)
+            dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
+            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
-                // get all dependencies for the target assembly
-                AssemblyName[] dependencies = targetAssembly.GetReferencedAssemblies();
+                if (unityAsm.outputPath != assemblyPath) continue;
 
-                // does the target assembly depend on Mirror at all?
-                // otherwise there is nothing to weave anyway.
-                bool usesMirror = dependencies.Any(dependency => dependency.Name == MirrorRuntimeAssemblyName);
-                if (!usesMirror)
+                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
                 {
-                    return;
+                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
                 }
-
-                // get all the directories
-                dependencyPaths = GetDependencyDirectories(dependencies);
-            }
-            else
-            {
-                // Target assembly not found in current domain, trying to load it to check references
-                // will lead to trouble in the build pipeline, so lets assume it should go to weaver.
-                // Add all assemblies in current domain to dependency list since there could be a
-                // dependency lurking there (there might be generated assemblies so ignore file not found exceptions).
-                // (can happen in runtime test framework on editor platform and when doing full library reimport)
-                dependencyPaths = GetNonDynamicAssemblyDirectories(assemblies);
             }
 
-            // construct full path to Project/Library/ScriptAssemblies
-            string projectDirectory = Directory.GetParent(Application.dataPath).ToString();
-            string outputDirectory = Path.Combine(projectDirectory, Path.GetDirectoryName(assemblyPath));
-
-            //if (UnityLogEnabled) Debug.Log("Weaving: " + assemblyPath); // uncomment to easily observe weave targets
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, outputDirectory, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
+            // passing null in the outputDirectory param will do an in-place update of the assembly
+            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
             {
                 WeaveFailed = false;
-                Debug.Log("Weaving succeeded for: " + assemblyPath);
+                //Debug.Log("Weaving succeeded for: " + assemblyPath);
             }
             else
             {

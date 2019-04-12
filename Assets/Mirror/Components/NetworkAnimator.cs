@@ -17,9 +17,9 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-        int m_AnimationHash;
-        int m_TransitionHash;
-        float m_SendTimer;
+        int animationHash;
+        int transitionHash;
+        float sendTimer;
 
         bool sendMessagesAllowed
         {
@@ -67,7 +67,7 @@ namespace Mirror
             }
 
             NetworkWriter writer = new NetworkWriter();
-            WriteParameters(writer, false);
+            WriteParameters(writer);
 
             SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
         }
@@ -80,28 +80,28 @@ namespace Mirror
             if (animator.IsInTransition(0))
             {
                 AnimatorTransitionInfo tt = animator.GetAnimatorTransitionInfo(0);
-                if (tt.fullPathHash != m_TransitionHash)
+                if (tt.fullPathHash != transitionHash)
                 {
                     // first time in this transition
-                    m_TransitionHash = tt.fullPathHash;
-                    m_AnimationHash = 0;
+                    transitionHash = tt.fullPathHash;
+                    animationHash = 0;
                     return true;
                 }
                 return false;
             }
 
             AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
-            if (st.fullPathHash != m_AnimationHash)
+            if (st.fullPathHash != animationHash)
             {
                 // first time in this animation state
-                if (m_AnimationHash != 0)
+                if (animationHash != 0)
                 {
                     // came from another animation directly - from Play()
                     stateHash = st.fullPathHash;
                     normalizedTime = st.normalizedTime;
                 }
-                m_TransitionHash = 0;
-                m_AnimationHash = st.fullPathHash;
+                transitionHash = 0;
+                animationHash = st.fullPathHash;
                 return true;
             }
             return false;
@@ -109,12 +109,12 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval != 0 && m_SendTimer < Time.time)
+            if (sendMessagesAllowed && syncInterval != 0 && sendTimer < Time.time)
             {
-                m_SendTimer = Time.time + syncInterval;
+                sendTimer = Time.time + syncInterval;
 
                 NetworkWriter writer = new NetworkWriter();
-                if (WriteParameters(writer, true))
+                if (WriteParameters(writer))
                 {
                     SendAnimationParametersMessage(writer.ToArray());
                 }
@@ -145,7 +145,7 @@ namespace Mirror
             }
         }
 
-        internal void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
+        void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -158,25 +158,25 @@ namespace Mirror
                 animator.Play(stateHash, 0, normalizedTime);
             }
 
-            ReadParameters(reader, false);
+            ReadParameters(reader);
         }
 
-        internal void HandleAnimParamsMsg(NetworkReader reader)
+        void HandleAnimParamsMsg(NetworkReader reader)
         {
             if (hasAuthority)
                 return;
 
-            ReadParameters(reader, true);
+            ReadParameters(reader);
         }
 
-        internal void HandleAnimTriggerMsg(int hash)
+        void HandleAnimTriggerMsg(int hash)
         {
             animator.SetTrigger(hash);
         }
 
-        uint NextDirtyBits()
+        ulong NextDirtyBits()
         {
-            uint dirtyBits = 0;
+            ulong dirtyBits = 0;
             for (int i = 0; i < parameters.Length; i++)
             {
                 AnimatorControllerParameter par = parameters[i];
@@ -208,25 +208,28 @@ namespace Mirror
                         lastBoolParameters[i] = newBoolValue;
                     }
                 }
-                if (changed) dirtyBits |= 1u << i;
+                if (changed)
+                {
+                    dirtyBits |= 1ul << i;
+                }
             }
             return dirtyBits;
         }
 
-        bool WriteParameters(NetworkWriter writer, bool autoSend)
+        bool WriteParameters(NetworkWriter writer)
         {
-            uint dirtyBits = NextDirtyBits();
-            writer.Write(dirtyBits);
+            ulong dirtyBits = NextDirtyBits();
+            writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0)
+                if ((dirtyBits & (1ul << i)) == 0)
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    writer.WritePackedUInt32((uint)newIntValue);
+                    writer.WritePackedInt32(newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
@@ -242,18 +245,18 @@ namespace Mirror
             return dirtyBits != 0;
         }
 
-        void ReadParameters(NetworkReader reader, bool autoSend)
+        void ReadParameters(NetworkReader reader)
         {
-            uint dirtyBits = reader.ReadUInt32();
+            ulong dirtyBits = reader.ReadPackedUInt64();
             for (int i = 0; i < parameters.Length; i++)
             {
-                if ((dirtyBits & (1 << i)) == 0)
+                if ((dirtyBits & (1ul << i)) == 0)
                     continue;
 
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = (int)reader.ReadPackedUInt32();
+                    int newIntValue = reader.ReadPackedInt32();
                     animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
@@ -285,7 +288,7 @@ namespace Mirror
                     writer.Write(st.fullPathHash);
                     writer.Write(st.normalizedTime);
                 }
-                WriteParameters(writer, false);
+                WriteParameters(writer);
                 return true;
             }
             return false;
@@ -297,7 +300,7 @@ namespace Mirror
             {
                 int stateHash = reader.ReadInt32();
                 float normalizedTime = reader.ReadSingle();
-                ReadParameters(reader, false);
+                ReadParameters(reader);
                 animator.Play(stateHash, 0, normalizedTime);
             }
         }
@@ -311,7 +314,7 @@ namespace Mirror
         {
             if (hasAuthority && localPlayerAuthority)
             {
-                if (NetworkClient.singleton != null && ClientScene.readyConnection != null)
+                if (ClientScene.readyConnection != null)
                 {
                     CmdOnAnimationTriggerServerMessage(hash);
                 }

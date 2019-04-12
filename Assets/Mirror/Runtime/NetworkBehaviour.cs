@@ -9,7 +9,7 @@ namespace Mirror
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        float m_LastSendTime;
+        float lastSyncTime;
 
         // sync interval for OnSerialize (in seconds)
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
@@ -38,22 +38,24 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get; private set; }
         protected bool syncVarHookGuard { get; set; }
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
+        protected List<SyncObject> m_SyncObjects => syncObjects;
         // objects that can synchronize themselves,  such as synclists
-        protected readonly List<SyncObject> m_SyncObjects = new List<SyncObject>();
+        protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
         // NetworkIdentity component caching for easier access
-        NetworkIdentity m_netIdentity;
+        NetworkIdentity netIdentityCache;
         ///<summary>The NetworkIdentity attached to this object.</summary>
         public NetworkIdentity netIdentity
         {
             get
             {
-                m_netIdentity = m_netIdentity ?? GetComponent<NetworkIdentity>();
-                if (m_netIdentity == null)
+                netIdentityCache = netIdentityCache ?? GetComponent<NetworkIdentity>();
+                if (netIdentityCache == null)
                 {
                     Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
-                return m_netIdentity;
+                return netIdentityCache;
             }
         }
 
@@ -77,7 +79,7 @@ namespace Mirror
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
         protected void InitSyncObject(SyncObject syncObject)
         {
-            m_SyncObjects.Add(syncObject);
+            syncObjects.Add(syncObject);
         }
 
         #region Commands
@@ -238,7 +240,7 @@ namespace Mirror
             public CmdDelegate invokeFunction;
         }
 
-        static Dictionary<int, Invoker> s_CmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -246,10 +248,10 @@ namespace Mirror
         {
             int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
-            if (s_CmdHandlerDelegates.ContainsKey(cmdHash))
+            if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
-                Invoker oldInvoker = s_CmdHandlerDelegates[cmdHash];
+                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
                 if (oldInvoker.invokeClass == invokeClass && oldInvoker.invokeType == invokerType && oldInvoker.invokeFunction == func)
                 {
                     // it's all right,  it was the same function
@@ -264,7 +266,7 @@ namespace Mirror
                 invokeClass = invokeClass,
                 invokeFunction = func
             };
-            s_CmdHandlerDelegates[cmdHash] = invoker;
+            cmdHandlerDelegates[cmdHash] = invoker;
             if (LogFilter.Debug) Debug.Log("RegisterDelegate hash:" + cmdHash + " invokerType: " + invokerType + " method:" + func.GetMethodName());
         }
 
@@ -288,7 +290,7 @@ namespace Mirror
 
         static bool GetInvokerForHash(int cmdHash, MirrorInvokeType invokeType, out Invoker invoker)
         {
-            if (s_CmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) &&
                 invoker != null &&
                 invoker.invokeType == invokeType)
             {
@@ -431,27 +433,27 @@ namespace Mirror
 
         public void ClearAllDirtyBits()
         {
-            m_LastSendTime = Time.time;
+            lastSyncTime = Time.time;
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
             // note: don't use List.ForEach here, this is a hot path
             // List.ForEach: 432b/frame
             // for: 231b/frame
-            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            for (int i = 0; i < syncObjects.Count; ++i)
             {
-                m_SyncObjects[i].Flush();
+                syncObjects[i].Flush();
             }
         }
 
-        internal bool AnySyncObjectDirty()
+        bool AnySyncObjectDirty()
         {
             // note: don't use Linq here. 1200 networked objects:
             //   Linq: 187KB GC/frame;, 2.66ms time
             //   for: 8KB GC/frame; 1.28ms time
-            for (int i = 0; i < m_SyncObjects.Count; ++i)
+            for (int i = 0; i < syncObjects.Count; ++i)
             {
-                if (m_SyncObjects[i].IsDirty)
+                if (syncObjects[i].IsDirty)
                 {
                     return true;
                 }
@@ -461,7 +463,7 @@ namespace Mirror
 
         internal bool IsDirty()
         {
-            if (Time.time - m_LastSendTime >= syncInterval)
+            if (Time.time - lastSyncTime >= syncInterval)
             {
                 return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
@@ -495,9 +497,9 @@ namespace Mirror
         ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = m_SyncObjects[i];
+                SyncObject syncObject = syncObjects[i];
                 if (syncObject.IsDirty)
                 {
                     dirtyObjects |= 1UL << i;
@@ -509,9 +511,9 @@ namespace Mirror
         public bool SerializeObjectsAll(NetworkWriter writer)
         {
             bool dirty = false;
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = m_SyncObjects[i];
+                SyncObject syncObject = syncObjects[i];
                 syncObject.OnSerializeAll(writer);
                 dirty = true;
             }
@@ -524,9 +526,9 @@ namespace Mirror
             // write the mask
             writer.WritePackedUInt64(DirtyObjectBits());
             // serializable objects, such as synclists
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = m_SyncObjects[i];
+                SyncObject syncObject = syncObjects[i];
                 if (syncObject.IsDirty)
                 {
                     syncObject.OnSerializeDelta(writer);
@@ -538,9 +540,9 @@ namespace Mirror
 
         void DeSerializeObjectsAll(NetworkReader reader)
         {
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = m_SyncObjects[i];
+                SyncObject syncObject = syncObjects[i];
                 syncObject.OnDeserializeAll(reader);
             }
         }
@@ -548,9 +550,9 @@ namespace Mirror
         void DeSerializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadPackedUInt64();
-            for (int i = 0; i < m_SyncObjects.Count; i++)
+            for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = m_SyncObjects[i];
+                SyncObject syncObject = syncObjects[i];
                 if ((dirty & (1UL << i)) != 0)
                 {
                     syncObject.OnDeserializeDelta(reader);
