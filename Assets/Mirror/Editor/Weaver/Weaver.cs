@@ -544,7 +544,7 @@ namespace Mirror.Weaver
         static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, AssemblyResolver = asmResolver }))
+            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
                 asmResolver.AddSearchDirectory(Helpers.UnityEngineDLLDirectoryName());
@@ -624,13 +624,14 @@ namespace Mirror.Weaver
                     }
 
                     // write to outputDir if specified, otherwise perform in-place write
+                    WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
                     if (outputDir != null)
                     {
-                        CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName));
+                        CurrentAssembly.Write(Helpers.DestinationFileFor(outputDir, assName), writeParams);
                     }
                     else
                     {
-                        CurrentAssembly.Write();
+                        CurrentAssembly.Write(writeParams);
                     }
                 }
             }
