@@ -14,8 +14,6 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
-        private static UnityAssembly[] _cachedAssemblies;
-
         public static Action<string> OnWeaverMessage; // delegate for subscription to Weaver debug messages
         public static Action<string> OnWeaverWarning; // delegate for subscription to Weaver warning messages
         public static Action<string> OnWeaverError; // delete for subscription to Weaver error messages
@@ -48,15 +46,12 @@ namespace Mirror.Weaver
         [InitializeOnLoadMethod]
         static void OnInitializeOnLoad()
         {
-            // pipeline assemblies are valid until the next call to OnInitializeOnLoad
-            _cachedAssemblies = CompilationPipeline.GetAssemblies();
-
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
         }
 
         static string FindMirrorRuntime()
         {
-            foreach (UnityAssembly assembly in _cachedAssemblies)
+            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (assembly.name == MirrorRuntimeAssemblyName)
                 {
@@ -120,7 +115,7 @@ namespace Mirror.Weaver
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
             HashSet<string> dependencyPaths = new HashSet<string>();
             dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
-            foreach (UnityAssembly unityAsm in _cachedAssemblies)
+            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.outputPath != assemblyPath) continue;
 
