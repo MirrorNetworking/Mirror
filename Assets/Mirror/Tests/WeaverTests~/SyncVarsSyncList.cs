@@ -15,7 +15,7 @@ namespace MirrorTest
 
     class MirrorTestPlayer : NetworkBehaviour
     {
-        [SyncVar(hook = "OnChangeHealth")]
+        [SyncVar(hook = nameof(OnChangeHealth))]
         int health;
 
         [SyncVar]

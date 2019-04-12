@@ -21,3 +21,7 @@ Here we will maintain a list of assets known to be compatible with Mirror.  If y
 ## [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
 
 ![Dissonance](Dissonance.jpg)
+
+## [RTS Engine](https://assetstore.unity.com/packages/templates/packs/rts-engine-79732)
+
+![RTS Engine](rts-engine.png)

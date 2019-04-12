@@ -1,7 +1,8 @@
-﻿// add this component to the NetworkManager
+// add this component to the NetworkManager
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,6 +46,7 @@ namespace Mirror.Examples.ListServer
         [Header("UI")]
         public GameObject mainPanel;
         public Transform content;
+        public Text statusText;
         public UIServerStatusSlot slotPrefab;
         public Button serverAndPlayButton;
         public Button serverOnlyButton;
@@ -79,7 +81,7 @@ namespace Mirror.Examples.ListServer
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.IsHeadless() && !NetworkServer.active && !FullyConnected();
+            return !NetworkManager.isHeadless && !NetworkServer.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
@@ -100,17 +102,20 @@ namespace Mirror.Examples.ListServer
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
             // create message
-            // NOTE: you can send anything that you want, as long as you also
-            //       receive it in ParseMessage
-            char[] titleChars = gameServerTitle.ToCharArray();
-            writer.Write((ushort)titleChars.Length);
-            writer.Write(titleChars);
             writer.Write((ushort)NetworkServer.connections.Count);
             writer.Write((ushort)NetworkManager.singleton.maxConnections);
-
-            // send it
+            byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
+            writer.Write((ushort)titleBytes.Length);
+            writer.Write(titleBytes);
             writer.Flush();
-            gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+
+            // list server only allows up to 128 bytes per message
+            if (writer.BaseStream.Position <= 128)
+            {
+                // send it
+                gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
+            }
+            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void TickGameServer()
@@ -127,7 +132,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just started the game)
                 else if (!gameServerToListenConnection.Connecting)
                 {
-                    Debug.Log("Establishing game server to listen connection...");
+                    Debug.Log("[List Server] GameServer connecting......");
                     gameServerToListenConnection.Connect(listServerIp, gameServerToListenPort);
                 }
             }
@@ -140,18 +145,18 @@ namespace Mirror.Examples.ListServer
 
         void ParseMessage(byte[] bytes)
         {
-            // use binary reader because our NetworkReader uses custom string reading with bools
-            // => we don't use ReadString here because the listen server doesn't
-            //    know C#'s '7-bit-length + utf8' encoding for strings
+            // note: we don't use ReadString here because the list server
+            //       doesn't know C#'s '7-bit-length + utf8' encoding for strings
             BinaryReader reader = new BinaryReader(new MemoryStream(bytes, false), Encoding.UTF8);
-            ushort ipLength = reader.ReadUInt16();
-            string ip = new string(reader.ReadChars(ipLength));
+            byte ipBytesLength = reader.ReadByte();
+            byte[] ipBytes = reader.ReadBytes(ipBytesLength);
+            string ip = new IPAddress(ipBytes).ToString();
             //ushort port = reader.ReadUInt16(); <- not all Transports use a port. assume default.
-            ushort titleLength = reader.ReadUInt16();
-            string title = new string(reader.ReadChars(titleLength));
             ushort players = reader.ReadUInt16();
             ushort capacity = reader.ReadUInt16();
-            //Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " title=" + title + " players=" + players + " capacity= " + capacity);
+            ushort titleLength = reader.ReadUInt16();
+            string title = Encoding.UTF8.GetString(reader.ReadBytes(titleLength));
+            //Debug.Log("PARSED: ip=" + ip + /*" port=" + port +*/ " players=" + players + " capacity= " + capacity + " title=" + title);
 
             // build key
             string key = ip/* + ":" + port*/;
@@ -186,9 +191,15 @@ namespace Mirror.Examples.ListServer
                     // receive latest game server info
                     while (clientToListenConnection.GetNextMessage(out Telepathy.Message message))
                     {
+                        // connected?
+                        if (message.eventType == Telepathy.EventType.Connected)
+                            Debug.Log("[List Server] Client connected!");
                         // data message?
-                        if (message.eventType == Telepathy.EventType.Data)
+                        else if (message.eventType == Telepathy.EventType.Data)
                             ParseMessage(message.data);
+                        // disconnected?
+                        else if (message.eventType == Telepathy.EventType.Connected)
+                            Debug.Log("[List Server] Client disconnected.");
                     }
 
                     // ping again if previous ping finished
@@ -205,7 +216,7 @@ namespace Mirror.Examples.ListServer
                 // (we may have just joined the menu/disconnect from game server)
                 else if (!clientToListenConnection.Connecting)
                 {
-                    Debug.Log("Establishing client to listen connection...");
+                    Debug.Log("[List Server] Client connecting...");
                     clientToListenConnection.Connect(listServerIp, clientToListenPort);
                 }
             }
@@ -226,14 +237,14 @@ namespace Mirror.Examples.ListServer
             // instantiate until amount
             for (int i = parent.childCount; i < amount; ++i)
             {
-                GameObject go = GameObject.Instantiate(prefab);
+                GameObject go = Instantiate(prefab);
                 go.transform.SetParent(parent, false);
             }
 
             // delete everything that's too much
             // (backwards loop because Destroy changes childCount)
             for (int i = parent.childCount-1; i >= amount; --i)
-                GameObject.Destroy(parent.GetChild(i).gameObject);
+                Destroy(parent.GetChild(i).gameObject);
         }
 
         void OnUI()
@@ -242,6 +253,23 @@ namespace Mirror.Examples.ListServer
             if (!NetworkManager.singleton.isNetworkActive || IsConnecting())
             {
                 mainPanel.SetActive(true);
+
+                // status text
+                if (clientToListenConnection.Connecting)
+                {
+                    //statusText.color = Color.yellow;
+                    statusText.text = "Connecting...";
+                }
+                else if (clientToListenConnection.Connected)
+                {
+                    //statusText.color = Color.green;
+                    statusText.text = "Connected!";
+                }
+                else
+                {
+                    //statusText.color = Color.gray;
+                    statusText.text = "Disconnected";
+                }
 
                 // instantiate/destroy enough slots
                 BalancePrefabs(slotPrefab.gameObject, list.Count, content);

@@ -21,7 +21,7 @@ namespace Mirror.Weaver
         }
     }
 
-    public class Program
+    public static class Program
     {
         public static bool Process(string unityEngine, string netDLL, string outputDirectory, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
@@ -42,7 +42,7 @@ namespace Mirror.Weaver
 
         private static void CheckAssemblies(IEnumerable<string> assemblyPaths)
         {
-            foreach (var assemblyPath in assemblyPaths)
+            foreach (string assemblyPath in assemblyPaths)
                 CheckAssemblyPath(assemblyPath);
         }
 
@@ -54,8 +54,10 @@ namespace Mirror.Weaver
 
         private static void CheckOutputDirectory(string outputDir)
         {
-            if (!Directory.Exists(outputDir))
+            if (outputDir != null && !Directory.Exists(outputDir))
+            {
                 Directory.CreateDirectory(outputDir);
+            }
         }
     }
 }

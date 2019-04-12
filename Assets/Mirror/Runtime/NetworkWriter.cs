@@ -58,7 +58,8 @@ namespace Mirror
             // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
             //        should also be null on the client)
             writer.Write(value != null);
-            if (value != null) writer.Write(value);
+            if (value != null) 
+                writer.Write(value);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
@@ -73,23 +74,16 @@ namespace Mirror
         // (like an inventory with different items etc.)
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
+            uint length = checked((uint)count);
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
             // (writing a size=0 empty array is not the same, the server and client would be out of sync)
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            if (buffer == null)
+            writer.Write(buffer != null); // notNull?
+            if (buffer != null)
             {
-                writer.Write(false); // notNull?
-                return;
+                WritePackedUInt32(length);
+                writer.Write(buffer, offset, count);
             }
-            if (count < 0)
-            {
-                Debug.LogError("NetworkWriter WriteBytesAndSize: size " + count + " cannot be negative");
-                return;
-            }
-
-            writer.Write(true); // notNull?
-            WritePackedUInt32((uint)count);
-            writer.Write(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter
@@ -100,12 +94,26 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt32(int i)
+        {
+            uint zigzagged = (uint)((i >> 31) ^ (i << 1));
+            WritePackedUInt32(zigzagged);
+        }
+
         // http://sqlite.org/src4/doc/trunk/www/varint.wiki
         public void WritePackedUInt32(uint value)
         {
             // for 32 bit values WritePackedUInt64 writes the
             // same exact thing bit by bit
             WritePackedUInt64(value);
+        }
+
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public void WritePackedInt64(long i)
+        {
+            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
+            WritePackedUInt64(zigzagged);
         }
 
         public void WritePackedUInt64(ulong value)
@@ -117,15 +125,15 @@ namespace Mirror
             }
             if (value <= 2287)
             {
-                Write((byte)((value - 240) / 256 + 241));
-                Write((byte)((value - 240) % 256));
+                Write((byte)(((value - 240) >> 8) + 241));
+                Write((byte)((value - 240) & 0xFF));
                 return;
             }
             if (value <= 67823)
             {
                 Write((byte)249);
-                Write((byte)((value - 2288) / 256));
-                Write((byte)((value - 2288) % 256));
+                Write((byte)((value - 2288) >> 8));
+                Write((byte)((value - 2288) & 0xFF));
                 return;
             }
             if (value <= 16777215)
@@ -214,6 +222,19 @@ namespace Mirror
             Write(value.w);
         }
 
+        public void Write(Vector2Int value)
+        {
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
+        }
+
+        public void Write(Vector3Int value)
+        {
+            WritePackedInt32(value.x);
+            WritePackedInt32(value.y);
+            WritePackedInt32(value.z);
+        }
+
         public void Write(Color value)
         {
             Write(value.r);
@@ -254,8 +275,8 @@ namespace Mirror
 
         public void Write(Ray value)
         {
-            Write(value.direction);
             Write(value.origin);
+            Write(value.direction);
         }
 
         public void Write(Matrix4x4 value)

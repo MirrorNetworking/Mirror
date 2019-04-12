@@ -5,13 +5,13 @@ namespace Mirror.Weaver
 {
     public static class RpcProcessor
     {
-        public const string k_RpcPrefix = "InvokeRpc";
+        public const string RpcPrefix = "InvokeRpc";
 
         public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition rpc = new MethodDefinition(k_RpcPrefix + md.Name, MethodAttributes.Family |
-                                                                               MethodAttributes.Static |
-                                                                               MethodAttributes.HideBySig,
+            MethodDefinition rpc = new MethodDefinition(
+                RpcPrefix + md.Name, 
+                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
             ILProcessor rpcWorker = rpc.Body.GetILProcessor();
@@ -56,21 +56,20 @@ namespace Mirror.Weaver
             }
 
             ILProcessor rpcWorker = rpc.Body.GetILProcessor();
-            Instruction label = rpcWorker.Create(OpCodes.Nop);
 
             NetworkBehaviourProcessor.WriteSetupLocals(rpcWorker);
 
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "RPC", false))
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
                 return null;
 
-            var rpcName = md.Name;
-            int index = rpcName.IndexOf(k_RpcPrefix);
+            string rpcName = md.Name;
+            int index = rpcName.IndexOf(RpcPrefix);
             if (index > -1)
             {
-                rpcName = rpcName.Substring(k_RpcPrefix.Length);
+                rpcName = rpcName.Substring(RpcPrefix.Length);
             }
 
             // invoke SendInternal and return
@@ -89,7 +88,7 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            if (md.Name.Length > 2 && md.Name.Substring(0, 3) != "Rpc")
+            if (!md.Name.StartsWith("Rpc"))
             {
                 Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
                 return false;
