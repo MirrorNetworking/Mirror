@@ -615,30 +615,34 @@ namespace Mirror
 
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-            // read header as 4 bytes
+            // read header as 4 bytes and calculate this chunk's start+end
             int contentSize = reader.ReadInt32();
+            int chunkStart = reader.Position;
+            int chunkEnd = reader.Position + contentSize;
 
-            // read content
-            byte[] bytes = reader.ReadBytes(contentSize);
-            if (LogFilter.Debug) Debug.Log("OnDeserializeSafely extracted: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + bytes.Length);
-
-            // call OnDeserialize with a temporary reader, so that the
-            // original one can't be messed with. we also wrap it in a
-            // try-catch block so there's no way to mess up another
-            // component's deserialization
+            // call OnDeserialize and wrap it in a try-catch block so there's no
+            // way to mess up another component's deserialization
             try
             {
-                NetworkReader componentReader = new NetworkReader(bytes);
-                comp.OnDeserialize(componentReader, initialState);
-                if (componentReader.Position != componentReader.Length)
-                {
-                    Debug.LogWarning("OnDeserialize didn't read the full " + bytes.Length + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
-                }
+                if (LogFilter.Debug) Debug.Log("OnDeserializeSafely: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize);
+                comp.OnDeserialize(reader, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + bytes.Length + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + bytes.Length +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e.ToString());
+                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + contentSize +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e);
+            }
+
+            // now the reader should be EXACTLY at 'before + size'.
+            // otherwise the component read too much / too less data.
+            if (reader.Position != chunkEnd)
+            {
+                // warn the user
+                int bytesRead = reader.Position - chunkStart;
+                Debug.LogWarning("OnDeserialize was expected to read " + contentSize + " instead of " + bytesRead + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
+
+                // fix the position, so the following components don't all fail
+                reader.Position = chunkEnd;
             }
         }
 
