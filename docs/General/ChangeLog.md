@@ -2,7 +2,17 @@
 
 ## Version 3.x.x -- In Progress
 
+- Fixed: OnDeserializeSafely now works without allocations
+- Fixed: Weaver not writing symbol files
+
+## Version 3.5.9 -- 2019-Apr-12
+
 - Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses hierarchy sibling order.
+- Fixed: IsLocalPlayer is now reliably accurate in `Start()` by combining OwnerMessage and SpawnPrefabMessage
+- Fixed: Stack overflow issues with Weaver and Cecil
+- Fixed: Corrected assembly paths passed to weaver
+- Fixed: Enum bandwdith reduced in SyncVars, Commands, and Rpcs
+- Fixed: Placeholder files added for removed code files so updating works better
 - Changed: NetworkManager `isHeadless` is a static property now, changed from `IsHeadless()`.
 
 ## Version 3.5.3 -- 2019-Apr-10
@@ -86,7 +96,6 @@
 - Removed: NetworkServer.hostId and NetworkConnection.hostId (holdovers from LLAPI)
 - Removed: NetworkConnection.isConnected (NetworkConnection is always connected)
 - Removed: Transport.GetConnectionInfo (Use ServerGetClientAddress instead)
-
 
 ## Version 1.4 -- 2019-Feb-01
 
