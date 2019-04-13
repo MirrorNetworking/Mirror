@@ -36,7 +36,7 @@ namespace Ninja.WebSockets
 {
     public class HttpHelper
     {
-        private const string HTTP_GET_HEADER_REGEX = @"^GET(.*)HTTP\/1\.1";
+        const string HTTP_GET_HEADER_REGEX = @"^GET(.*)HTTP\/1\.1";
 
         /// <summary>
         /// Calculates a random WebSocket key that can be used to initiate a WebSocket handshake
