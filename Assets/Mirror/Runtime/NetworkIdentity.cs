@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
@@ -270,10 +271,12 @@ namespace Mirror
                 return;
 
             // no valid sceneId yet, or duplicate?
-            NetworkIdentity existing;
-            bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
+            bool duplicate = sceneIds.TryGetValue(m_SceneId, out NetworkIdentity existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
             {
+                // set to 0 in case of a duplicate
+                m_SceneId = 0;
+
                 // if a scene was never opened and we are building it, then a
                 // sceneId would be assigned to build but not saved in editor,
                 // resulting in them getting out of sync.
@@ -293,10 +296,24 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                // -> exclude '0' because that's for unassigned sceneIDs
-                // TODO use 0,uint.max later. Random.Range only has int version.
-                m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
-                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
+                // use Crypto RNG to avoid having time based IDs
+                using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+                {
+                    byte[] bytes = new byte[4];
+                    // exclude '0' because that's for unassigned sceneIDs
+                    // regenerate in case of an existing ID
+                    while (m_SceneId == 0 || sceneIds.ContainsKey(m_SceneId))
+                    {
+                        rng.GetBytes(bytes);
+                        m_SceneId = BitConverter.ToUInt32(bytes, 0);
+                    }
+                }
+                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""), gameObject);
+
+                if (ThisIsAPrefab() || ThisIsASceneObjectWithPrefabParent(out _))
+                {
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(this);
+                }
             }
 
             // add to sceneIds dict no matter what
