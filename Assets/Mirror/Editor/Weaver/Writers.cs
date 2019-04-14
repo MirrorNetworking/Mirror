@@ -92,6 +92,11 @@ namespace Mirror.Weaver
             {
                 return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
             }
+            else if (GetCustomWriter(variable.Resolve(), out MethodReference customWriterFunc))
+            {
+                writeFuncs[variable.FullName] = customWriterFunc;
+                return customWriterFunc;
+            }
             else
             {
                 newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
@@ -104,6 +109,48 @@ namespace Mirror.Weaver
 
             RegisterWriteFunc(variable.FullName, newWriterFunc);
             return newWriterFunc;
+        }
+
+        static bool GetCustomWriter(TypeDefinition td, out MethodReference newWriterFunc)
+        {
+            newWriterFunc = default;
+
+            foreach (MethodDefinition md in td.Methods)
+            {
+
+                if (md.IsStatic &&
+                    md.Name == "OnSerialize")
+                {
+
+                    if (md.Parameters.Count != 2)
+                    {
+                        Weaver.Error($"{md.FullName} should be static and receive NetworkWriter and ${td.FullName}");
+                        return false;
+                    }
+
+                    if (md.Parameters[0].ParameterType.FullName != Weaver.NetworkWriterDef.FullName)
+                    {
+                        Weaver.Error($"{md.FullName} should be static and receive NetworkWriter and ${td.FullName}");
+                        return false;
+                    }
+
+                    if (md.Parameters[1].ParameterType.FullName != td.FullName)
+                    {
+                        Weaver.Error($"{md.FullName} should be static and receive NetworkWriter and ${td.FullName}");
+                        return false;
+                    }
+
+                    if (md.ReturnType.Resolve().FullName != Weaver.voidType.FullName)
+                    {
+                        Weaver.Error($"{md.FullName} should be void static");
+                        return false;
+                    }
+
+                    newWriterFunc = Weaver.CurrentAssembly.MainModule.ImportReference(md);
+                    return true;
+                }
+            }
+            return false;
         }
 
         static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
