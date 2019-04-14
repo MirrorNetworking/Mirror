@@ -57,7 +57,7 @@ namespace Mirror
     public class SceneAttribute : PropertyAttribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class NetworkWriterAttribute : Attribute { }
+    public class NetworkWriterAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
     public class NetworkReaderAttribute : Attribute { }
