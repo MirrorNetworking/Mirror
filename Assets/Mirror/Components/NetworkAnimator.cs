@@ -127,7 +127,7 @@ namespace Mirror
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (NetworkClient.connection != null)
             {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, parameters);
             }
@@ -139,7 +139,7 @@ namespace Mirror
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (NetworkClient.connection != null)
             {
                 CmdOnAnimationParametersServerMessage(parameters);
             }
@@ -314,7 +314,7 @@ namespace Mirror
         {
             if (hasAuthority && localPlayerAuthority)
             {
-                if (ClientScene.readyConnection != null)
+                if (NetworkClient.connection != null)
                 {
                     CmdOnAnimationTriggerServerMessage(hash);
                 }

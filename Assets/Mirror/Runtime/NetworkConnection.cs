@@ -78,7 +78,6 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            ClientScene.HandleClientDisconnect(this);
 
             // server? then disconnect that client (not for host local player though)
             if (Transport.activeTransport.ServerActive() && connectionId != 0)

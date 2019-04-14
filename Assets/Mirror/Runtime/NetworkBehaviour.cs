@@ -90,7 +90,7 @@ namespace Mirror
                 return;
             }
 
-            if (ClientScene.readyConnection == null)
+            if (!ClientScene.ready)
             {
                 Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
@@ -105,7 +105,7 @@ namespace Mirror
                 payload = writer.ToArray()
             };
 
-            ClientScene.readyConnection.Send(message, channelId);
+            NetworkClient.connection.Send(message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

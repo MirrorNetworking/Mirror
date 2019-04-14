@@ -113,9 +113,6 @@ namespace Mirror
         static void OnDisconnected()
         {
             connectState = ConnectState.Disconnected;
-
-            ClientScene.HandleClientDisconnect(connection);
-
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
@@ -147,7 +144,6 @@ namespace Mirror
         public static void Disconnect()
         {
             connectState = ConnectState.Disconnected;
-            ClientScene.HandleClientDisconnect(connection);
 
             // local or remote connection?
             if (isLocalClient)
