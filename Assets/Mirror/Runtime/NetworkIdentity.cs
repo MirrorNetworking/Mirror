@@ -274,6 +274,9 @@ namespace Mirror
             bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
             {
+                // clear in any case, because it might have been a duplicate
+                m_SceneId = 0;
+
                 // if a scene was never opened and we are building it, then a
                 // sceneId would be assigned to build but not saved in editor,
                 // resulting in them getting out of sync.
