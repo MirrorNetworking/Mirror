@@ -295,8 +295,16 @@ namespace Mirror
                 // generate random sceneId part (0x00000000FFFFFFFF)
                 // -> exclude '0' because that's for unassigned sceneIDs
                 // TODO use 0,uint.max later. Random.Range only has int version.
-                m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
-                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
+                uint randomId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
+
+                // only assign if not a duplicate of an existing scene id
+                // (small chance, but possible)
+                duplicate = sceneIds.TryGetValue(randomId, out existing) && existing != null && existing != this;
+                if (!duplicate)
+                {
+                    m_SceneId = randomId;
+                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                }
             }
 
             // add to sceneIds dict no matter what
