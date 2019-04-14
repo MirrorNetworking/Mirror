@@ -218,22 +218,14 @@ namespace Mirror
             return true;
         }
 
-        static uint GetRandomSceneID()
+        static uint GetRandomUInt()
         {
-            // use Crypto RNG to avoid having time based IDs
+            // use Crypto RNG to avoid having time based duplicates
             using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
             {
                 byte[] bytes = new byte[4];
-                uint id = 0;
-                // exclude '0' because that's for unassigned sceneIDs
-                // regenerate in case of an existing ID
-                while (id == 0 || sceneIds.ContainsKey(id))
-                {
-                    rng.GetBytes(bytes);
-                    id = BitConverter.ToUInt32(bytes, 0);
-                }
-
-                return id;
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
             }
         }
 
@@ -315,8 +307,16 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                m_SceneId = GetRandomSceneID();
-                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                uint randomId = GetRandomUInt();
+
+                // only assign if not a duplicate of an existing scene id
+                // (small chance, but possible)
+                duplicate = sceneIds.TryGetValue(randomId, out existing) && existing != null && existing != this;
+                if (!duplicate)
+                {
+                    m_SceneId = randomId;
+                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                }
             }
 
             // add to sceneIds dict no matter what
