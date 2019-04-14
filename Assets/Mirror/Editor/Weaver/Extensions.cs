@@ -65,7 +65,7 @@ namespace Mirror.Weaver
                 try
                 {
                     TypeReference parent = typedef.BaseType;
-                    typedef = parent == null ? null : parent.Resolve();
+                    typedef = parent?.Resolve();
                 }
                 catch (AssemblyResolutionException)
                 {
