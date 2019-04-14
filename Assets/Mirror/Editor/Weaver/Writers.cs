@@ -111,6 +111,20 @@ namespace Mirror.Weaver
             return newWriterFunc;
         }
 
+        /* 
+         * Finds OnSerialize functions provided by the user, and uses them as readers
+         * For example:
+         * 
+         * class ScriptableQuest 
+         * {
+         *     public int Id { get; set; }
+         * 
+         *     public static void OnSerialize(NetworkWriter writer, ScripableQuest quest) 
+         *     {
+         *        writer.Write(quest.Id);
+         *     }
+         * }        
+         */
         static bool GetCustomWriter(TypeDefinition td, out MethodReference newWriterFunc)
         {
             newWriterFunc = default;

@@ -117,6 +117,21 @@ namespace Mirror.Weaver
             return newReaderFunc;
         }
 
+        /* 
+         * Finds OnDeserialize functions provided by the user, and uses them as readers
+         * For example:
+         * 
+         * class ScriptableQuest 
+         * {
+         *     public static Dictionary<int, ScriptableQuest> quests = new Dictionary<int, ScriptableQuest>();
+         * 
+         *     public static ScriptableQuest OnDeserialize(NetworkReader reader) 
+         *     {
+         *        int id = reader.ReadInt32();
+         *        return quests[id];
+         *     }
+         * }        
+         */
         static bool GetCustomReader(TypeDefinition td, out MethodReference newReaderFunc)
         {
             newReaderFunc = default;
@@ -333,3 +348,4 @@ namespace Mirror.Weaver
     }
 
 }
+ 
