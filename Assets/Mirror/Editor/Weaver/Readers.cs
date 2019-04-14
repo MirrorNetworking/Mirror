@@ -123,10 +123,8 @@ namespace Mirror.Weaver
 
             foreach (MethodDefinition md in td.Methods)
             {
-
                 if (md.IsStatic && md.Name == "OnDeserialize")
                 {
-
                     if (md.Parameters.Count != 1)
                     {
                         Weaver.Error($"{md.FullName} should be static and receive only a NetworkReader");

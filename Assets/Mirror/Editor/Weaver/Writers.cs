@@ -117,10 +117,8 @@ namespace Mirror.Weaver
 
             foreach (MethodDefinition md in td.Methods)
             {
-
                 if (md.IsStatic && md.Name == "OnSerialize")
                 {
-
                     if (md.Parameters.Count != 2)
                     {
                         Weaver.Error($"{md.FullName} should be static and receive NetworkWriter and ${td.FullName}");
