@@ -117,15 +117,14 @@ namespace Mirror.Weaver
             return newReaderFunc;
         }
 
-        private static bool GetCustomReader(TypeDefinition td, out MethodReference newReaderFunc)
+        static bool GetCustomReader(TypeDefinition td, out MethodReference newReaderFunc)
         {
             newReaderFunc = default;
 
             foreach (MethodDefinition md in td.Methods)
             {
 
-                if (md.IsStatic && 
-                    md.Name == "OnDeserialize")
+                if (md.IsStatic && md.Name == "OnDeserialize")
                 {
 
                     if (md.Parameters.Count != 1)

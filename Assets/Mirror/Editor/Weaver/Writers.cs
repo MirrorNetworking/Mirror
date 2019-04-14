@@ -118,8 +118,7 @@ namespace Mirror.Weaver
             foreach (MethodDefinition md in td.Methods)
             {
 
-                if (md.IsStatic &&
-                    md.Name == "OnSerialize")
+                if (md.IsStatic && md.Name == "OnSerialize")
                 {
 
                     if (md.Parameters.Count != 2)
