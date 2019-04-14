@@ -17,7 +17,7 @@ namespace Mirror
         public float lastMessageTime;
         public NetworkIdentity playerController { get; internal set; }
         public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
-        public bool logNetworkMessages = true;
+        public bool logNetworkMessages;
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
