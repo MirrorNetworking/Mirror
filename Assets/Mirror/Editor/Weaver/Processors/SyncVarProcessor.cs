@@ -321,12 +321,6 @@ namespace Mirror.Weaver
                     }
                 }
 
-                if (fd.FieldType.FullName.Contains("Mirror.SyncListStruct"))
-                {
-                    Weaver.Error("SyncListStruct member variable [" + fd.FullName + "] must use a dervied class, like \"class MySyncList : SyncListStruct<MyStruct> {}\".");
-                    return;
-                }
-
                 if (fd.FieldType.Resolve().ImplementsInterface(Weaver.SyncObjectType))
                 {
                     if (fd.IsStatic)
