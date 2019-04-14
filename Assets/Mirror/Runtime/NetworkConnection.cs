@@ -17,7 +17,7 @@ namespace Mirror
         public float lastMessageTime;
         public NetworkIdentity playerController { get; internal set; }
         public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
-        public bool logNetworkMessages;
+        public bool logNetworkMessages = true;
 
         // this is always true for regular connections, false for local
         // connections because it's set in the constructor and never reset.
@@ -232,14 +232,8 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
             }
-
-            if (logNetworkMessages)
-            {
-                Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-            }
-
             // try to invoke the handler for that message
-            if (InvokeHandler(msgType, reader))
+            else if (InvokeHandler(msgType, reader))
             {
                 lastMessageTime = Time.time;
             }

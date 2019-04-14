@@ -114,16 +114,22 @@ namespace Mirror
             // let's catch them all and then disconnect that connection to avoid
             // further attacks.
             T message = default;
+            bool succeeded = false;
             try
             {
                 message = networkMessage.ReadMessage<T>();
+                succeeded = true;
             }
             catch (Exception exception)
             {
                 Debug.LogError("Closed connection: " + networkMessage.conn.connectionId + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
                 networkMessage.conn.Disconnect();
             }
-            if (message != default)
+            if (networkMessage.conn.logNetworkMessages)
+            {
+                Debug.Log(typeof(T) + " received on connection " + networkMessage.conn.connectionId + ", handled: " + succeeded + ", size: " + networkMessage.reader.Length);
+            }
+            if (succeeded)
             {
                 handler(networkMessage.conn, message);
             }
