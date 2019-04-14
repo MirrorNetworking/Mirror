@@ -98,7 +98,7 @@ namespace Ninja.WebSockets.Internal
         /// <summary>
         /// Extracts close status and close description information from the web socket frame
         /// </summary>
-        private static WebSocketFrame DecodeCloseFrame(bool isFinBitSet, WebSocketOpCode opCode, int count, ArraySegment<byte> buffer)
+        static WebSocketFrame DecodeCloseFrame(bool isFinBitSet, WebSocketOpCode opCode, int count, ArraySegment<byte> buffer)
         {
             WebSocketCloseStatus closeStatus;
             string closeStatusDescription;
@@ -140,7 +140,7 @@ namespace Ninja.WebSockets.Internal
         /// <summary>
         /// Reads the length of the payload according to the contents of byte2
         /// </summary>
-        private static async Task<uint> ReadLength(byte byte2, ArraySegment<byte> smallBuffer, Stream fromStream, CancellationToken cancellationToken)
+        static async Task<uint> ReadLength(byte byte2, ArraySegment<byte> smallBuffer, Stream fromStream, CancellationToken cancellationToken)
         {
             byte payloadLenFlag = 0x7F;
             uint len = (uint) (byte2 & payloadLenFlag);

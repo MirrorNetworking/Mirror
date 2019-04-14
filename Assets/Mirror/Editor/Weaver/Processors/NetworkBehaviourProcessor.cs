@@ -768,7 +768,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
             if (!RpcProcessor.ProcessMethodsValidateRpc(netBehaviourSubclass, md, ca))
             {
@@ -797,7 +797,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
             if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(netBehaviourSubclass, md, ca))
                 return;
@@ -824,7 +824,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
+        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
             if (!CommandProcessor.ProcessMethodsValidateCommand(netBehaviourSubclass, md, ca))
                 return;

@@ -18,8 +18,8 @@ namespace Mirror.Websocket
     // this is the client implementation used by browsers
     public class Client
     {
-        private static int idGenerator = 0;
-        private static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
+        static int idGenerator = 0;
+        static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
         public bool NoDelay = true;
 
@@ -68,7 +68,7 @@ namespace Mirror.Websocket
 
         #region Javascript native functions
         [DllImport("__Internal")]
-        private static extern int SocketCreate(
+        static extern int SocketCreate(
             string url,
             int id,
             Action<int> onpen,
@@ -76,13 +76,13 @@ namespace Mirror.Websocket
             Action<int> onclose);
 
         [DllImport("__Internal")]
-        private static extern int SocketState(int socketInstance);
+        static extern int SocketState(int socketInstance);
 
         [DllImport("__Internal")]
-        private static extern void SocketSend(int socketInstance, byte[] ptr, int length);
+        static extern void SocketSend(int socketInstance, byte[] ptr, int length);
 
         [DllImport("__Internal")]
-        private static extern void SocketClose(int socketInstance);
+        static extern void SocketClose(int socketInstance);
 
         #endregion
 

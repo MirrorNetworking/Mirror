@@ -31,7 +31,7 @@ namespace Mirror.Tests
             m_weaverWarnings.Add(msg);
         }
 
-        private void BuildAndWeaveTestAssembly(string baseName)
+        void BuildAndWeaveTestAssembly(string baseName)
         {
             WeaverAssembler.OutputFile = baseName + ".dll";
             WeaverAssembler.AddSourceFiles(new string[] { baseName + ".cs" });
