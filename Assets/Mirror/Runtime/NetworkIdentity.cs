@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
@@ -217,6 +218,17 @@ namespace Mirror
             return true;
         }
 
+        static uint GetRandomUInt()
+        {
+            // use Crypto RNG to avoid having time based duplicates
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] bytes = new byte[4];
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+        }
+
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
         //
@@ -295,9 +307,7 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                // -> exclude '0' because that's for unassigned sceneIDs
-                // TODO use 0,uint.max later. Random.Range only has int version.
-                uint randomId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
+                uint randomId = GetRandomUInt();
 
                 // only assign if not a duplicate of an existing scene id
                 // (small chance, but possible)
