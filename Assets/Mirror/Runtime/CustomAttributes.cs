@@ -60,5 +60,5 @@ namespace Mirror
     public class NetworkWriterAttribute : Attribute {}
 
     [AttributeUsage(AttributeTargets.Method)]
-    public class NetworkReaderAttribute : Attribute { }
+    public class NetworkReaderAttribute : Attribute {}
 }
