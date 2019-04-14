@@ -125,6 +125,7 @@ namespace Mirror.Weaver
          * {
          *     public static Dictionary<int, ScriptableQuest> quests = new Dictionary<int, ScriptableQuest>();
          * 
+         *     [NetworkReader]        
          *     public static ScriptableQuest OnDeserialize(NetworkReader reader) 
          *     {
          *        int id = reader.ReadInt32();
@@ -138,7 +139,7 @@ namespace Mirror.Weaver
 
             foreach (MethodDefinition md in td.Methods)
             {
-                if (md.IsStatic && md.Name == "OnDeserialize")
+                if (md.IsStatic && md.HasAttributte("Mirror.NetworkReaderAttribute"))
                 {
                     if (md.Parameters.Count != 1)
                     {

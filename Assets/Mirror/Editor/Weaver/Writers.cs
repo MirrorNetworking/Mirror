@@ -119,6 +119,7 @@ namespace Mirror.Weaver
          * {
          *     public int Id { get; set; }
          * 
+         *     [NetworkWriter]         
          *     public static void OnSerialize(NetworkWriter writer, ScripableQuest quest) 
          *     {
          *        writer.Write(quest.Id);
@@ -131,7 +132,7 @@ namespace Mirror.Weaver
 
             foreach (MethodDefinition md in td.Methods)
             {
-                if (md.IsStatic && md.Name == "OnSerialize")
+                if (md.IsStatic && md.HasAttributte("Mirror.NetworkWriterAttribute"))
                 {
                     if (md.Parameters.Count != 2)
                     {
