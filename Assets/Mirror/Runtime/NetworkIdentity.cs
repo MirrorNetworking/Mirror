@@ -270,8 +270,7 @@ namespace Mirror
                 return;
 
             // no valid sceneId yet, or duplicate?
-            NetworkIdentity existing;
-            bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
+            bool duplicate = sceneIds.TryGetValue(m_SceneId, out NetworkIdentity existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
             {
                 // clear in any case, because it might have been a duplicate
