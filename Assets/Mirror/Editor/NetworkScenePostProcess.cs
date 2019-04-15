@@ -80,7 +80,8 @@ namespace Mirror
                     }
                     // throwing an exception would only show it for one object
                     // because this function would return afterwards.
-                    else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
+                    else Debug.LogError("The scene '" + identity.gameObject.scene.path + "' needs to be opened and resaved, because the scene object '" + identity.name + "' has no valid sceneId yet. " +
+						"If you continue to see this error try making sure that your project Build Settings doesn't contain any deleted/ghost scenes. Otherwise, if you still get this error please open a bug report.");
                 }
             }
         }
