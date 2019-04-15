@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Mono.Cecil;
 
 namespace Mirror.Weaver
@@ -111,6 +112,11 @@ namespace Mirror.Weaver
                 }
             }
             return true;
+        }
+
+        public static bool HasAttributte(this ICustomAttributeProvider attributeProvider, string typeName )
+        {
+            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == typeName);
         }
     }
 }
