@@ -141,7 +141,7 @@ namespace Mirror.Tests
             BuildAssembly(false);
         }
 
-        private static void BuildAssembly(bool wait)
+        static void BuildAssembly(bool wait)
         {
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(OutputDirectory + OutputFile, SourceFiles.ToArray());
             assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();

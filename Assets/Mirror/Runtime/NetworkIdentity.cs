@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
@@ -50,10 +51,10 @@ namespace Mirror
         ///<summary>A unique identifier for networked objects in a scene.</summary>
         public ulong sceneId => m_SceneId;
         ///<summary>A flag to make this object not be spawned on clients.</summary>
-        [FormerlySerializedAs("m_ServerOnly")] 
+        [FormerlySerializedAs("m_ServerOnly")]
         public bool serverOnly;
         ///<summary>True if the object is controlled by the client that owns it.</summary>
-        [FormerlySerializedAs("m_LocalPlayerAuthority")] 
+        [FormerlySerializedAs("m_LocalPlayerAuthority")]
         public bool localPlayerAuthority;
         ///<summary>The client that has authority for this object. This will be null if no client has authority.</summary>
         public NetworkConnection clientAuthorityOwner { get; internal set; }
@@ -229,6 +230,17 @@ namespace Mirror
             return true;
         }
 
+        static uint GetRandomUInt()
+        {
+            // use Crypto RNG to avoid having time based duplicates
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] bytes = new byte[4];
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+        }
+
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
         //
@@ -282,10 +294,12 @@ namespace Mirror
                 return;
 
             // no valid sceneId yet, or duplicate?
-            NetworkIdentity existing;
-            bool duplicate = sceneIds.TryGetValue(m_SceneId, out existing) && existing != null && existing != this;
+            bool duplicate = sceneIds.TryGetValue(m_SceneId, out NetworkIdentity existing) && existing != null && existing != this;
             if (m_SceneId == 0 || duplicate)
             {
+                // clear in any case, because it might have been a duplicate
+                m_SceneId = 0;
+
                 // if a scene was never opened and we are building it, then a
                 // sceneId would be assigned to build but not saved in editor,
                 // resulting in them getting out of sync.
@@ -305,10 +319,16 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                // -> exclude '0' because that's for unassigned sceneIDs
-                // TODO use 0,uint.max later. Random.Range only has int version.
-                m_SceneId = (uint)UnityEngine.Random.Range(1, int.MaxValue);
-                Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X") + (duplicate ? " because duplicated" : ""));
+                uint randomId = GetRandomUInt();
+
+                // only assign if not a duplicate of an existing scene id
+                // (small chance, but possible)
+                duplicate = sceneIds.TryGetValue(randomId, out existing) && existing != null && existing != this;
+                if (!duplicate)
+                {
+                    m_SceneId = randomId;
+                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                }
             }
 
             // add to sceneIds dict no matter what
@@ -882,7 +902,10 @@ namespace Mirror
 
             if (changed)
             {
-                observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
+                observers = 
+                    newObservers.
+                    Where(conn => conn.isReady).
+                    ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 

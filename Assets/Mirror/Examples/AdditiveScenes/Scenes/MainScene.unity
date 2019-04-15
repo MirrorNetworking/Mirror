@@ -44,7 +44,7 @@ RenderSettings:
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 1
+  m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -359,8 +359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ServerOnly: 1
-  m_LocalPlayerAuthority: 0
+  serverOnly: 1
+  localPlayerAuthority: 0
   m_AssetId: 
   m_SceneId: 1834901131
 --- !u!114 &159607913
@@ -1887,7 +1887,8 @@ MonoBehaviour:
     m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   port: 7777
   NoDelay: 1
-  MaxMessageSize: 16384
+  serverMaxMessageSize: 16384
+  clientMaxMessageSize: 16384
 --- !u!114 &1661834281
 MonoBehaviour:
   m_ObjectHideFlags: 0

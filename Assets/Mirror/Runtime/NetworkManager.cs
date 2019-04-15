@@ -826,14 +826,10 @@ namespace Mirror
             // always become ready.
             ClientScene.Ready(conn);
 
-            // vis2k: replaced all this weird code with something more simple
-            if (autoCreatePlayer)
+            if (autoCreatePlayer && ClientScene.localPlayer == null)
             {
                 // add player if existing one is null
-                if (ClientScene.localPlayer == null)
-                {
-                    ClientScene.AddPlayer();
-                }
+                ClientScene.AddPlayer();
             }
         }
         #endregion

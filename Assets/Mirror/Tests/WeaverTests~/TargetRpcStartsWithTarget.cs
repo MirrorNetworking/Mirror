@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        private void DoesntStartWithTarget(NetworkConnection nc) {}
+        void DoesntStartWithTarget(NetworkConnection nc) {}
     }
 }

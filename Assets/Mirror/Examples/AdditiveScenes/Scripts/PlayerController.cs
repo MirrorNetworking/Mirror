@@ -44,7 +44,7 @@ namespace Mirror.Examples.Additive
             GetComponentInChildren<Camera>().enabled = true;
         }
 
-        private void OnDisable()
+        void OnDisable()
         {
             if (isLocalPlayer)
             {
