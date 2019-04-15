@@ -899,7 +899,10 @@ namespace Mirror
 
             if (changed)
             {
-                observers = newObservers.ToDictionary(conn => conn.connectionId, conn => conn);
+                observers = 
+                    newObservers.
+                    Where(conn => conn.isReady).
+                    ToDictionary(conn => conn.connectionId, conn => conn);
             }
         }
 
