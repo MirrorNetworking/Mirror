@@ -227,21 +227,21 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (!MessagePacker.UnpackMessage(reader, out int msgType))
+            if (MessagePacker.UnpackMessage(reader, out int msgType))
+            {
+                // logging
+                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
+
+                // try to invoke the handler for that message
+                if (InvokeHandler(msgType, reader))
+                {
+                    lastMessageTime = Time.time;
+                }
+            }
+            else
             {
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
-            }
-
-            if (logNetworkMessages)
-            {
-                Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-            }
-
-            // try to invoke the handler for that message
-            if (InvokeHandler(msgType, reader))
-            {
-                lastMessageTime = Time.time;
             }
         }
 
