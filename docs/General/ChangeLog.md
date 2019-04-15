@@ -2,8 +2,12 @@
 
 ## Version 3.x.x -- In Progress
 
+- Added: Custom NetworkReader & NetworkWriter for user-defined types
+- Added: NetworkTransform toggle for using local or world coordinates
 - Fixed: OnDeserializeSafely now works without allocations
 - Fixed: Weaver not writing symbol files
+- Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider 
+- Fixed: Scene lighting in Additive example
 
 ## Version 3.5.9 -- 2019-Apr-12
 
