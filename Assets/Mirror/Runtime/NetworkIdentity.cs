@@ -812,16 +812,19 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
+        // Only one thread at a time can use RebuildObservers,  so 
+        // we can recycle the temp observer list for all of them
+        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        static readonly HashSet<NetworkConnection> toRemove = new HashSet<NetworkConnection>();
+
         public void RebuildObservers(bool initialize)
         {
             if (observers == null)
                 return;
 
-            bool changed = false;
             bool result = false;
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
-            HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
+            newObservers.Clear();
             // call OnRebuildObservers function in components
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -838,57 +841,48 @@ namespace Mirror
             }
 
             // if no component implemented OnRebuildObservers, then add all
-            // connections.
+            // connections that are ready
             if (!result)
             {
-                if (initialize)
+                foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
                 {
-                    foreach (NetworkConnection conn in NetworkServer.connections.Values)
-                    {
-                        if (conn.isReady)
-                            AddObserver(conn);
-                    }
-
-                    if (NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
-                    {
-                        AddObserver(NetworkServer.localConnection);
-                    }
+                    if (kvp.Value.isReady)
+                        newObservers.Add(kvp.Value);
                 }
-                return;
             }
 
-            // apply changes from rebuild
+            // special case for host mode
+            /*if (initialize && NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
+            {
+                AddObserver(NetworkServer.localConnection);
+            }*/
+
+            // our list is fully built,  
+            // spawn this object for every new observer
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null)
-                {
+                if (conn == null || !conn.isReady)
                     continue;
-                }
 
-                if (!conn.isReady)
+                if (initialize || !observers.ContainsKey(conn.connectionId))
                 {
-                    if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
-                    continue;
-                }
-
-                if (initialize || !oldObservers.Contains(conn))
-                {
-                    // new observer
-                    conn.AddToVisList(this);
-                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
-                    changed = true;
+                    AddObserver(conn);
                 }
             }
 
-            foreach (NetworkConnection conn in oldObservers)
+            // destroy this object for every observer we no longer have
+            toRemove.Clear();
+            foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
             {
-                if (!newObservers.Contains(conn))
+                if (!kvp.Value.isReady || !newObservers.Contains(kvp.Value))
                 {
-                    // removed observer
-                    conn.RemoveFromVisList(this, false);
-                    if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
-                    changed = true;
+                    toRemove.Add(kvp.Value);
                 }
+            }
+            foreach (NetworkConnection conn in toRemove)
+            {
+                conn.RemoveFromVisList(this, false);
+                observers.Remove(conn.connectionId);
             }
 
             // special case for local client.
@@ -900,13 +894,6 @@ namespace Mirror
                 }
             }
 
-            if (changed)
-            {
-                observers = 
-                    newObservers.
-                    Where(conn => conn.isReady).
-                    ToDictionary(conn => conn.connectionId, conn => conn);
-            }
         }
 
         public bool RemoveClientAuthority(NetworkConnection conn)
