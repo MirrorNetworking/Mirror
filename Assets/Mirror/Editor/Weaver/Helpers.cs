@@ -97,7 +97,7 @@ namespace Mirror.Weaver
             helper.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
             if (extraPaths != null)
             {
-                foreach (var path in extraPaths)
+                foreach (string path in extraPaths)
                     helper.AddSearchDirectory(path);
             }
             parameters.AssemblyResolver = assemblyResolver;
