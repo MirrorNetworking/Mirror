@@ -91,8 +91,7 @@ namespace Ninja.WebSockets
             tcpClient.Client.DualMode = true;
             string uriScheme = uri.Scheme.ToLower();
             bool useSsl = uriScheme == "wss" || uriScheme == "https";
-            IPAddress ipAddress;
-            if (IPAddress.TryParse(host, out ipAddress))
+            if (IPAddress.TryParse(host, out IPAddress ipAddress))
             {
                 Events.Log.ClientConnectingToIpAddress(guid, ipAddress.ToString(), port);
                 await tcpClient.ConnectAsync(ipAddress, port);
