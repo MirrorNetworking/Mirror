@@ -86,7 +86,7 @@ namespace Ninja.WebSockets
             Guid guid = Guid.NewGuid();
             string host = uri.Host;
             int port = uri.Port;
-            var tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
+            TcpClient tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
             tcpClient.NoDelay = options.NoDelay;
             tcpClient.Client.DualMode = true;
             string uriScheme = uri.Scheme.ToLower();

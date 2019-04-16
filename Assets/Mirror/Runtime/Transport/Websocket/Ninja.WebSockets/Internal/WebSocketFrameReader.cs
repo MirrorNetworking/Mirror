@@ -45,7 +45,7 @@ namespace Ninja.WebSockets.Internal
         public static async Task<WebSocketFrame> ReadAsync(Stream fromStream, ArraySegment<byte> intoBuffer, CancellationToken cancellationToken)
         {
             // allocate a small buffer to read small chunks of data from the stream
-            var smallBuffer = new ArraySegment<byte>(new byte[8]);
+            ArraySegment<byte> smallBuffer = new ArraySegment<byte>(new byte[8]);
 
             await BinaryReaderWriter.ReadExactly(2, fromStream, smallBuffer, cancellationToken);
             byte byte1 = smallBuffer.Array[0];

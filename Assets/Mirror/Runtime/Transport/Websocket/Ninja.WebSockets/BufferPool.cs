@@ -139,7 +139,7 @@ namespace Ninja.WebSockets
                         newSize = (int)Math.Pow(2, Math.Ceiling(Math.Log(requiredSize) / Math.Log(2))); ;
                     }
 
-                    var newBuffer = new byte[newSize];
+                    byte[] newBuffer = new byte[newSize];
                     Buffer.BlockCopy(_buffer, 0, newBuffer, 0, position);
                     _ms = new MemoryStream(newBuffer, 0, newBuffer.Length, true, true)
                     {
