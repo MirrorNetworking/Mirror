@@ -48,8 +48,7 @@ namespace Mirror.Tests
         {
             foreach (string asm in refAsms)
             {
-                string asmFullPath;
-                if (FindReferenceAssemblyPath(asm, out asmFullPath))
+                if (FindReferenceAssemblyPath(asm, out string asmFullPath))
                 {
                     ReferenceAssemblies.Add(asmFullPath);
                 }

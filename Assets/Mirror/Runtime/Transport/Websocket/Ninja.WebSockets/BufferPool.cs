@@ -234,8 +234,7 @@ namespace Ninja.WebSockets
         /// </summary>
         public MemoryStream GetBuffer()
         {
-            byte[] buffer;
-            if (!_bufferPoolStack.TryPop(out buffer))
+            if (!_bufferPoolStack.TryPop(out byte[] buffer))
             {
                 buffer = new byte[_bufferSize];
             }

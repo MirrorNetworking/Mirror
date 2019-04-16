@@ -162,8 +162,7 @@ namespace Mirror.Examples.ListServer
             string key = ip/* + ":" + port*/;
 
             // find existing or create new one
-            ServerStatus server;
-            if (list.TryGetValue(key, out server))
+            if (list.TryGetValue(key, out ServerStatus server))
             {
                 // refresh
                 server.title = title;

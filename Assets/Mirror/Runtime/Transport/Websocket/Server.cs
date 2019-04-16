@@ -268,8 +268,7 @@ namespace Mirror.Websocket
         public async void Send(int connectionId, byte[] data)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 try
                 {
@@ -307,8 +306,7 @@ namespace Mirror.Websocket
         public string GetClientAddress(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 return "";
             }
@@ -319,8 +317,7 @@ namespace Mirror.Websocket
         public bool Disconnect(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.
