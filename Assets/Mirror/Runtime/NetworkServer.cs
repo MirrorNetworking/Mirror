@@ -755,7 +755,7 @@ namespace Mirror
                 conn.isReady = false;
                 if (conn.playerController != null)
                 {
-                    NetworkIdentity.RemoveFromObservers(conn);
+                    conn.playerController.RemoveFromObservers();
                 }
 
                 conn.Send(new NotReadyMessage());

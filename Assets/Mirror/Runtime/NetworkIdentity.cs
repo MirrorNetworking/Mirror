@@ -801,13 +801,13 @@ namespace Mirror
         }
 
         // TODO remove. this is from old NetworkConnection visList code
-        internal static void RemoveFromObservers(NetworkConnection conn)
+        internal void RemoveFromObservers()
         {
-            foreach (NetworkIdentity identity in conn.playerController.visList)
+            foreach (NetworkIdentity identity in visList)
             {
-                identity.RemoveObserverInternal(conn);
+                identity.RemoveObserverInternal(connectionToClient);
             }
-            conn.playerController.visList.Clear();
+            visList.Clear();
         }
 
         internal void ClearObservers()

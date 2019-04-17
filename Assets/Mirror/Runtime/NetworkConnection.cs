@@ -95,7 +95,7 @@ namespace Mirror
 
             if (playerController != null)
             {
-                NetworkIdentity.RemoveFromObservers(this);
+                playerController.RemoveFromObservers();
             }
         }
 
