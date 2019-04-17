@@ -899,7 +899,7 @@ namespace Mirror
 
             if (changed)
             {
-                observers = 
+                observers =
                     newObservers.
                     Where(conn => conn.isReady).
                     ToDictionary(conn => conn.connectionId, conn => conn);
