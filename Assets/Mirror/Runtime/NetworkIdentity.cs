@@ -776,6 +776,7 @@ namespace Mirror
             m_IsServer = false;
         }
 
+        ////////////////////////////////////////////////////////////////////////
         // TODO remove. this is from old NetworkConnection visList code
         HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
@@ -809,6 +810,7 @@ namespace Mirror
             }
             visList.Clear();
         }
+        ////////////////////////////////////////////////////////////////////////
 
         internal void ClearObservers()
         {
