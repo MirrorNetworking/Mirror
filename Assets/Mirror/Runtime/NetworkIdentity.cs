@@ -820,8 +820,8 @@ namespace Mirror
                 return;
 
             bool result = false;
-
             newObservers.Clear();
+            
             // call OnRebuildObservers function in components
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
