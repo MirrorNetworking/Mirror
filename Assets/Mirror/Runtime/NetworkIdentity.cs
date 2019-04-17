@@ -809,7 +809,7 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
-        // Only one thread at a time can use RebuildObservers,  so 
+        // Only one object at a time calls RebuildObservers,  so 
         // we can recycle the temp observer list for all of them
         static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
         static readonly HashSet<NetworkConnection> toRemove = new HashSet<NetworkConnection>();
