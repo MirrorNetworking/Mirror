@@ -157,17 +157,6 @@ namespace Mirror
             return $"connectionId: {connectionId} isReady: {isReady}";
         }
 
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
-        {
-            visList.Remove(identity);
-
-            if (!isDestroyed)
-            {
-                // hide identity for this conn
-                NetworkServer.HideForConnection(identity, this);
-            }
-        }
-
         internal void RemoveObservers()
         {
             foreach (NetworkIdentity identity in visList)
