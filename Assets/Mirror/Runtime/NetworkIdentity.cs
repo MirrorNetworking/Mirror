@@ -777,9 +777,12 @@ namespace Mirror
         }
 
         // TODO remove. this is from old NetworkConnection visList code
+        HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+
+        // TODO remove. this is from old NetworkConnection visList code
         internal static void AddToVisList(NetworkConnection conn, NetworkIdentity identity)
         {
-            conn.visList.Add(identity);
+            conn.playerController.visList.Add(identity);
 
             // spawn identity for this conn
             NetworkServer.ShowForConnection(identity, conn);
@@ -788,7 +791,7 @@ namespace Mirror
         // TODO remove. this is from old NetworkConnection visList code
         internal static void RemoveFromVisList(NetworkConnection conn, NetworkIdentity identity, bool isDestroyed)
         {
-            conn.visList.Remove(identity);
+            conn.playerController.visList.Remove(identity);
 
             if (!isDestroyed)
             {
@@ -800,11 +803,11 @@ namespace Mirror
         // TODO remove. this is from old NetworkConnection visList code
         internal static void RemoveFromObservers(NetworkConnection conn)
         {
-            foreach (NetworkIdentity identity in conn.visList)
+            foreach (NetworkIdentity identity in conn.playerController.visList)
             {
                 identity.RemoveObserverInternal(conn);
             }
-            conn.visList.Clear();
+            conn.playerController.visList.Clear();
         }
 
         internal void ClearObservers()

@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using UnityEngine;
 
 namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        [Obsolete("Use playerController.observers instead")]
+        public HashSet<NetworkIdentity> visList => new HashSet<NetworkIdentity>(playerController?.observers.Values.Select(conn => conn.playerController));
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
