@@ -841,7 +841,7 @@ namespace Mirror
             // connections that are ready
             if (!result)
             {
-                foreach ( NetworkConnection conn in NetworkServer.connections.Values)
+                foreach (NetworkConnection conn in NetworkServer.connections.Values)
                 {
                     if (conn.isReady)
                         newObservers.Add(conn);
