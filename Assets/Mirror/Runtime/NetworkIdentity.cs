@@ -797,6 +797,16 @@ namespace Mirror
             }
         }
 
+        // TODO remove. this is from old NetworkConnection visList code
+        internal static void RemoveFromObservers(NetworkConnection conn)
+        {
+            foreach (NetworkIdentity identity in conn.visList)
+            {
+                identity.RemoveObserverInternal(conn);
+            }
+            conn.visList.Clear();
+        }
+
         internal void ClearObservers()
         {
             foreach (NetworkConnection conn in observers.Values)

@@ -91,7 +91,10 @@ namespace Mirror
                 Transport.activeTransport.ClientDisconnect();
             }
 
-            RemoveObservers();
+            if (playerController != null)
+            {
+                NetworkIdentity.RemoveFromObservers(this);
+            }
         }
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
@@ -155,15 +158,6 @@ namespace Mirror
         public override string ToString()
         {
             return $"connectionId: {connectionId} isReady: {isReady}";
-        }
-
-        internal void RemoveObservers()
-        {
-            foreach (NetworkIdentity identity in visList)
-            {
-                identity.RemoveObserverInternal(this);
-            }
-            visList.Clear();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]

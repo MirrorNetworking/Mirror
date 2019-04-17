@@ -753,7 +753,10 @@ namespace Mirror
             {
                 if (LogFilter.Debug) Debug.Log("PlayerNotReady " + conn);
                 conn.isReady = false;
-                conn.RemoveObservers();
+                if (conn.playerController != null)
+                {
+                    NetworkIdentity.RemoveFromObservers(conn);
+                }
 
                 conn.Send(new NotReadyMessage());
             }
