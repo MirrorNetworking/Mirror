@@ -70,7 +70,7 @@ namespace Mirror
 
             EditorGUILayout.Separator();
 
-            if (networkIdentity.observers != null && networkIdentity.observers.Count > 0)
+            if (networkIdentity.observers.Count > 0)
             {
                 showObservers = EditorGUILayout.Foldout(showObservers, "Observers");
                 if (showObservers)
