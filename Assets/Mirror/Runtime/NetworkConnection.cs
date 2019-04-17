@@ -157,14 +157,6 @@ namespace Mirror
             return $"connectionId: {connectionId} isReady: {isReady}";
         }
 
-        internal void AddToVisList(NetworkIdentity identity)
-        {
-            visList.Add(identity);
-
-            // spawn identity for this conn
-            NetworkServer.ShowForConnection(identity, this);
-        }
-
         internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
         {
             visList.Remove(identity);
