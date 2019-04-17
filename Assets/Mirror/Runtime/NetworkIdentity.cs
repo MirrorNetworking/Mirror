@@ -861,7 +861,7 @@ namespace Mirror
                 }
             }
 
-            // destroy this object for every observer we no longer have
+            // find all the connections we need to remove
             toRemove.Clear();
             foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
             {
@@ -870,6 +870,7 @@ namespace Mirror
                     toRemove.Add(kvp.Value);
                 }
             }
+            // remove them
             foreach (NetworkConnection conn in toRemove)
             {
                 conn.RemoveFromVisList(this, false);
