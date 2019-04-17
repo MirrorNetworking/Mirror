@@ -149,7 +149,7 @@ namespace Mirror
                 return false;
             }
 
-            return TransportSend(channelId, bytes, out byte error);
+            return TransportSend(channelId, bytes);
         }
 
         public override string ToString()
@@ -245,9 +245,8 @@ namespace Mirror
             }
         }
 
-        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
+        public virtual bool TransportSend(int channelId, byte[] bytes)
         {
-            error = 0;
             if (Transport.activeTransport.ClientConnected())
             {
                 return Transport.activeTransport.ClientSend(channelId, bytes);

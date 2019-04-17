@@ -96,7 +96,7 @@ namespace Ninja.WebSockets.Internal
                 // the ping pong manager starts a task
                 // but we don't have to keep a reference to it
 #pragma warning disable 0219
-                var pingPongManager = new PingPongManager(guid, this, keepAliveInterval, _internalReadCts.Token);
+                PingPongManager pingPongManager = new PingPongManager(guid, this, keepAliveInterval, _internalReadCts.Token);
 #pragma warning restore 0219
             }
         }
@@ -232,7 +232,7 @@ namespace Ninja.WebSockets.Internal
                         DeflateStream deflateStream = new DeflateStream(temp, CompressionMode.Compress);
                         deflateStream.Write(buffer.Array, buffer.Offset, buffer.Count);
                         deflateStream.Flush();
-                        var compressedBuffer = new ArraySegment<byte>(temp.ToArray());
+                        ArraySegment<byte> compressedBuffer = new ArraySegment<byte>(temp.ToArray());
                         WebSocketFrameWriter.Write(opCode, compressedBuffer, stream, endOfMessage, _isClient);
                         Events.Log.SendingFrame(_guid, opCode, endOfMessage, compressedBuffer.Count, true);
                     }
@@ -495,8 +495,7 @@ namespace Ninja.WebSockets.Internal
             // Avoid calling ToArray on the MemoryStream because it allocates a new byte array on tha heap
             // We avaoid this by attempting to access the internal memory stream buffer
             // This works with supported streams like the recyclable memory stream and writable memory streams
-            ArraySegment<byte> buffer;
-            if (!stream.TryGetBuffer(out  buffer))
+            if (!stream.TryGetBuffer(out ArraySegment<byte> buffer))
             {
                 if (!_tryGetBufferFailureLogged)
                 {
@@ -567,7 +566,7 @@ namespace Ninja.WebSockets.Internal
                     statusDescription = statusDescription + "\r\n\r\n" + ex.ToString();
                 }
 
-                var autoCancel = new CancellationTokenSource(timeSpan);
+                CancellationTokenSource autoCancel = new CancellationTokenSource(timeSpan);
                 await CloseOutputAsync(closeStatus, statusDescription, autoCancel.Token);
             }
             catch (OperationCanceledException)

@@ -53,7 +53,7 @@ namespace Mirror.Websocket
 
             cancellation = new CancellationTokenSource();
 
-            var clientFactory = new WebSocketClientFactory();
+            WebSocketClientFactory clientFactory = new WebSocketClientFactory();
 
             try
             {
@@ -84,7 +84,7 @@ namespace Mirror.Websocket
 
         async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
         {
-            var buffer = new byte[MaxMessageSize];
+            byte[] buffer = new byte[MaxMessageSize];
 
             while (true)
             {

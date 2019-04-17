@@ -203,8 +203,7 @@ namespace Mirror
         {
             if (serverHostId == -1) return false;
 
-            int connectionId = -1;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
