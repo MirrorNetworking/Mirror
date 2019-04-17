@@ -780,12 +780,12 @@ namespace Mirror
         HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         // TODO remove. this is from old NetworkConnection visList code
-        internal static void AddToVisList(NetworkConnection conn, NetworkIdentity identity)
+        internal void AddToVisList(NetworkIdentity identity)
         {
-            conn.playerController.visList.Add(identity);
+            visList.Add(identity);
 
             // spawn identity for this conn
-            NetworkServer.ShowForConnection(identity, conn);
+            NetworkServer.ShowForConnection(identity, connectionToClient);
         }
 
         // TODO remove. this is from old NetworkConnection visList code
@@ -831,7 +831,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
-            AddToVisList(conn, this);
+            if (conn.playerController != null)
+            {
+                conn.playerController.AddToVisList(this);
+            }
         }
 
         public void RebuildObservers(bool initialize)
@@ -893,7 +896,10 @@ namespace Mirror
                 if (initialize || !oldObservers.Contains(conn))
                 {
                     // new observer
-                    AddToVisList(conn, this);
+                    if (conn.playerController != null)
+                    {
+                        conn.playerController.AddToVisList(this);
+                    }
                     if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
