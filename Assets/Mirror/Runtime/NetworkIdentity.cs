@@ -852,12 +852,12 @@ namespace Mirror
             // spawn this object for every new observer
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn == null || !conn.isReady)
-                    continue;
-
-                if (initialize || !observers.ContainsKey(conn.connectionId))
+                if (conn != null && conn.isReady)
                 {
-                    AddObserver(conn);
+                    if (initialize || !observers.ContainsKey(conn.connectionId))
+                    {
+                        AddObserver(conn);
+                    }
                 }
             }
 
