@@ -848,12 +848,6 @@ namespace Mirror
                 }
             }
 
-            // special case for host mode
-            /*if (initialize && NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
-            {
-                AddObserver(NetworkServer.localConnection);
-            }*/
-
             // our list is fully built,  
             // spawn this object for every new observer
             foreach (NetworkConnection conn in newObservers)
