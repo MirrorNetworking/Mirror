@@ -147,12 +147,6 @@ namespace Mirror
             hasAuthority = false;
         }
 
-        // this is used when a connection is destroyed, since the "observers" property is read-only
-        internal void RemoveObserverInternal(NetworkConnection conn)
-        {
-            observers.Remove(conn.connectionId);
-        }
-
         void Awake()
         {
             // detect runtime sceneId duplicates, e.g. if a user tries to
@@ -806,7 +800,7 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in visList)
             {
-                identity.RemoveObserverInternal(connectionToClient);
+                identity.observers.Remove(connectionToClient.connectionId);
             }
             visList.Clear();
         }
