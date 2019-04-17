@@ -789,14 +789,14 @@ namespace Mirror
         }
 
         // TODO remove. this is from old NetworkConnection visList code
-        internal static void RemoveFromVisList(NetworkConnection conn, NetworkIdentity identity, bool isDestroyed)
+        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
         {
-            conn.playerController.visList.Remove(identity);
+            visList.Remove(identity);
 
             if (!isDestroyed)
             {
                 // hide identity for this conn
-                NetworkServer.HideForConnection(identity, conn);
+                NetworkServer.HideForConnection(identity, connectionToClient);
             }
         }
 
@@ -814,7 +814,10 @@ namespace Mirror
         {
             foreach (NetworkConnection conn in observers.Values)
             {
-                RemoveFromVisList(conn, this, true);
+                if (conn.playerController != null)
+                {
+                    conn.playerController.RemoveFromVisList(this, true);
+                }
             }
             observers.Clear();
         }
@@ -910,7 +913,10 @@ namespace Mirror
                 if (!newObservers.Contains(conn))
                 {
                     // removed observer
-                    RemoveFromVisList(conn, this, false);
+                    if (conn.playerController != null)
+                    {
+                        conn.playerController.RemoveFromVisList(this, false);
+                    }
                     if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
