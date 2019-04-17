@@ -8,8 +8,8 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        [Obsolete("Use playerController.observers instead")]
-        public HashSet<NetworkIdentity> visList => new HashSet<NetworkIdentity>(playerController?.observers.Values.Select(conn => conn.playerController));
+        [Obsolete("Use playerController.visList instead (=NetworkConnection.visList")]
+        public HashSet<NetworkIdentity> visList => playerController.visList;
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
