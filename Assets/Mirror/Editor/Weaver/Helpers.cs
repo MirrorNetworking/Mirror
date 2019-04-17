@@ -38,7 +38,7 @@ namespace Mirror.Weaver
         public static string UnityEngineDLLDirectoryName()
         {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-            return directoryName != null ? directoryName.Replace(@"file:\", "") : null;
+            return directoryName?.Replace(@"file:\", "");
         }
 
         public static ISymbolReaderProvider GetSymbolReaderProvider(string inputFile)
@@ -97,7 +97,7 @@ namespace Mirror.Weaver
             helper.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
             if (extraPaths != null)
             {
-                foreach (var path in extraPaths)
+                foreach (string path in extraPaths)
                     helper.AddSearchDirectory(path);
             }
             parameters.AssemblyResolver = assemblyResolver;

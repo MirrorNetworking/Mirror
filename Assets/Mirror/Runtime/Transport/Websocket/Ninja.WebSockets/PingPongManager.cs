@@ -34,13 +34,13 @@ namespace Ninja.WebSockets
     /// </summary>
     public class PingPongManager : IPingPongManager
     {
-        private readonly WebSocketImplementation _webSocket;
-        private readonly Guid _guid;
-        private readonly TimeSpan _keepAliveInterval;
-        private readonly Task _pingTask;
-        private readonly CancellationToken _cancellationToken;
-        private Stopwatch _stopwatch;
-        private long _pingSentTicks;
+        readonly WebSocketImplementation _webSocket;
+        readonly Guid _guid;
+        readonly TimeSpan _keepAliveInterval;
+        readonly Task _pingTask;
+        readonly CancellationToken _cancellationToken;
+        Stopwatch _stopwatch;
+        long _pingSentTicks;
 
         /// <summary>
         /// Raised when a Pong frame is received
@@ -61,7 +61,7 @@ namespace Ninja.WebSockets
         /// if keepAliveInterval is positive</param>
         public PingPongManager(Guid guid, WebSocket webSocket, TimeSpan keepAliveInterval, CancellationToken cancellationToken)
         {
-            var webSocketImpl = webSocket as WebSocketImplementation;
+            WebSocketImplementation webSocketImpl = webSocket as WebSocketImplementation;
             _webSocket = webSocketImpl;
             if (_webSocket == null)
                 throw new InvalidCastException("Cannot cast WebSocket to an instance of WebSocketImplementation. Please use the web socket factories to create a web socket");
@@ -92,7 +92,7 @@ namespace Ninja.WebSockets
             Pong?.Invoke(this, e);
         }
 
-        private async Task PingForever()
+        async Task PingForever()
         {
             Events.Log.PingPongManagerStarted(_guid, (int)_keepAliveInterval.TotalSeconds);
 
@@ -130,7 +130,7 @@ namespace Ninja.WebSockets
             Events.Log.PingPongManagerEnded(_guid);
         }
 
-        private void WebSocketImpl_Pong(object sender, PongEventArgs e)
+        void WebSocketImpl_Pong(object sender, PongEventArgs e)
         {
             _pingSentTicks = 0;
             OnPong(e);

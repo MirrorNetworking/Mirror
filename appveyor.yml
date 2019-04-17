@@ -13,6 +13,7 @@ install:
   - bundle install
   - cd ..
   - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
+  - choco install unitypackager
   
 #build:
 #  project: Mirror/Networking.sln
@@ -27,14 +28,18 @@ build_script:
   - ruby checksite.rb
   - cd ..
 
+after_build:
+  - UnityPackager pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE
+
 artifacts:
+  - path: Mirror.unitypackage
   - path: Assets
     name: Mirror
 
 image: Visual Studio 2017
 
 before_deploy:
-  - npm install -g semantic-release@15
+  - npm install -g semantic-release@15 
 
 deploy_script:
   - semantic-release

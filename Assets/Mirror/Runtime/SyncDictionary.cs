@@ -9,9 +9,9 @@ namespace Mirror
     {
         public delegate void SyncDictionaryChanged(Operation op, K key, V item);
 
-        readonly Dictionary<K, V> m_Objects;
+        readonly IDictionary<K, V> objects;
 
-        public int Count => m_Objects.Count;
+        public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncDictionaryChanged Callback;
 
@@ -31,36 +31,41 @@ namespace Mirror
             internal V item;
         }
 
-        readonly List<Change> Changes = new List<Change>();
+        readonly List<Change> changes = new List<Change>();
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
         // so we need to skip them
-        int changesAhead = 0;
+        int changesAhead;
 
         protected virtual void SerializeKey(NetworkWriter writer, K item) {}
         protected virtual void SerializeItem(NetworkWriter writer, V item) {}
         protected virtual K DeserializeKey(NetworkReader reader) => default;
         protected virtual V DeserializeItem(NetworkReader reader) => default;
 
-        public bool IsDirty => Changes.Count > 0;
+        public bool IsDirty => changes.Count > 0;
 
-        public ICollection<K> Keys => m_Objects.Keys;
+        public ICollection<K> Keys => objects.Keys;
 
-        public ICollection<V> Values => m_Objects.Values;
+        public ICollection<V> Values => objects.Values;
 
         // throw away all the changes
         // this should be called after a successfull sync
-        public void Flush() => Changes.Clear();
+        public void Flush() => changes.Clear();
 
-        public SyncDictionary()
+        protected SyncDictionary()
         {
-            m_Objects = new Dictionary<K, V>();
+            objects = new Dictionary<K, V>();
         }
 
-        public SyncDictionary(IEqualityComparer<K> eq)
+        protected SyncDictionary(IEqualityComparer<K> eq)
         {
-            m_Objects = new Dictionary<K, V>(eq);
+            objects = new Dictionary<K, V>(eq);
+        }
+
+        protected SyncDictionary(IDictionary<K,V> objects)
+        {
+            this.objects = objects;
         }
 
         void AddOperation(Operation op, K key, V item)
@@ -77,7 +82,7 @@ namespace Mirror
                 item = item
             };
 
-            Changes.Add(change);
+            changes.Add(change);
 
             Callback?.Invoke(op, key, item);
         }
@@ -85,9 +90,9 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.WritePackedUInt32((uint)m_Objects.Count);
+            writer.WritePackedUInt32((uint)objects.Count);
 
-            foreach (KeyValuePair<K, V> syncItem in m_Objects)
+            foreach (KeyValuePair<K, V> syncItem in objects)
             {
                 SerializeKey(writer, syncItem.Key);
                 SerializeItem(writer, syncItem.Value);
@@ -97,17 +102,17 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WritePackedUInt32((uint)Changes.Count);
+            writer.WritePackedUInt32((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WritePackedUInt32((uint)Changes.Count);
+            writer.WritePackedUInt32((uint)changes.Count);
 
-            for (int i = 0; i < Changes.Count; i++)
+            for (int i = 0; i < changes.Count; i++)
             {
-                Change change = Changes[i];
+                Change change = changes[i];
                 writer.Write((byte)change.operation);
 
                 switch (change.operation)
@@ -133,14 +138,14 @@ namespace Mirror
             // if init,  write the full list content
             int count = (int)reader.ReadPackedUInt32();
 
-            m_Objects.Clear();
-            Changes.Clear();
+            objects.Clear();
+            changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
                 K key = DeserializeKey(reader);
                 V obj = DeserializeItem(reader);
-                m_Objects.Add(key, obj);
+                objects.Add(key, obj);
             }
 
             // We will need to skip all these changes
@@ -175,14 +180,14 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects[key] = item;
+                            objects[key] = item;
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            m_Objects.Clear();
+                            objects.Clear();
                         }
                         break;
 
@@ -191,7 +196,7 @@ namespace Mirror
                         item = DeserializeItem(reader);
                         if (apply)
                         {
-                            m_Objects.Remove(key);
+                            objects.Remove(key);
                         }
                         break;
                 }
@@ -210,15 +215,15 @@ namespace Mirror
 
         public void Clear()
         {
-            m_Objects.Clear();
+            objects.Clear();
             AddOperation(Operation.OP_CLEAR, default, default);
         }
 
-        public bool ContainsKey(K key) => m_Objects.ContainsKey(key);
+        public bool ContainsKey(K key) => objects.ContainsKey(key);
 
         public bool Remove(K key)
         {
-            if (m_Objects.TryGetValue(key, out V item) && m_Objects.Remove(key))
+            if (objects.TryGetValue(key, out V item) && objects.Remove(key))
             {
                 AddOperation(Operation.OP_REMOVE, key, item);
                 return true;
@@ -228,15 +233,15 @@ namespace Mirror
 
         public void Dirty(K index)
         {
-            AddOperation(Operation.OP_DIRTY, index, m_Objects[index]);
+            AddOperation(Operation.OP_DIRTY, index, objects[index]);
         }
 
         public V this[K i]
         {
-            get => m_Objects[i];
+            get => objects[i];
             set
             {
-                if (TryGetValue(i, out V val))
+                if (ContainsKey(i))
                 {
                     AddOperation(Operation.OP_SET, i, value);
                 }
@@ -244,15 +249,15 @@ namespace Mirror
                 {
                     AddOperation(Operation.OP_ADD, i, value);
                 }
-                m_Objects[i] = value;
+                objects[i] = value;
             }
         }
 
-        public bool TryGetValue(K key, out V value) => m_Objects.TryGetValue(key, out value);
+        public bool TryGetValue(K key, out V value) => objects.TryGetValue(key, out value);
 
         public void Add(K key, V value)
         {
-            m_Objects.Add(key, value);
+            objects.Add(key, value);
             AddOperation(Operation.OP_ADD, key, value);
         }
 
@@ -279,7 +284,7 @@ namespace Mirror
             }
 
             int i = arrayIndex;
-            foreach (KeyValuePair<K,V> item in m_Objects)
+            foreach (KeyValuePair<K,V> item in objects)
             {
                 array[i] = item;
                 i++;
@@ -288,7 +293,7 @@ namespace Mirror
 
         public bool Remove(KeyValuePair<K, V> item)
         {
-            bool result = m_Objects.Remove(item.Key);
+            bool result = objects.Remove(item.Key);
             if (result)
             {
                 AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
@@ -296,8 +301,8 @@ namespace Mirror
             return result;
         }
 
-        public IEnumerator<KeyValuePair<K, V>> GetEnumerator() => ((IDictionary<K, V>)m_Objects).GetEnumerator();
+        public IEnumerator<KeyValuePair<K, V>> GetEnumerator() => ((IDictionary<K, V>)objects).GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<K, V>)m_Objects).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<K, V>)objects).GetEnumerator();
     }
 }

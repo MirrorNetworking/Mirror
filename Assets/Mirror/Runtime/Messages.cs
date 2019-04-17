@@ -100,12 +100,12 @@ namespace Mirror
 
         public override void Deserialize(NetworkReader reader)
         {
-            value = (int)reader.ReadPackedUInt32();
+            value = reader.ReadPackedInt32();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.WritePackedUInt32((uint)value);
+            writer.WritePackedInt32(value);
         }
     }
 
@@ -213,6 +213,7 @@ namespace Mirror
     class SpawnPrefabMessage : MessageBase
     {
         public uint netId;
+        public bool owner;
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
@@ -222,6 +223,7 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
+            owner = reader.ReadBoolean();
             assetId = reader.ReadGuid();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -232,6 +234,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
+            writer.Write(owner);
             writer.Write(assetId);
             writer.Write(position);
             writer.Write(rotation);
@@ -243,6 +246,7 @@ namespace Mirror
     class SpawnSceneObjectMessage : MessageBase
     {
         public uint netId;
+        public bool owner;
         public ulong sceneId;
         public Vector3 position;
         public Quaternion rotation;
@@ -252,6 +256,7 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
+            owner = reader.ReadBoolean();
             sceneId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -262,6 +267,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
+            writer.Write(owner);
             writer.Write(sceneId);
             writer.Write(position);
             writer.Write(rotation);
@@ -290,21 +296,6 @@ namespace Mirror
     }
 
     class ObjectHideMessage : MessageBase
-    {
-        public uint netId;
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-        }
-    }
-
-    class OwnerMessage : MessageBase
     {
         public uint netId;
 

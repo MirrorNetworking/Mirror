@@ -26,7 +26,6 @@ namespace Mirror.Weaver
 
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
-            Weaver.ResetRecursionCount();
             MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
             if (Weaver.WeavingFailed)
             {
@@ -45,7 +44,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
@@ -67,7 +66,7 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodReference writeFunc = Weaver.GetWriteFunc(itemType);
+            MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
@@ -88,7 +87,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
@@ -104,7 +103,7 @@ namespace Mirror.Weaver
 
             ILProcessor serWorker = deserializeFunction.Body.GetILProcessor();
 
-            MethodReference readerFunc = Weaver.GetReadFunc(itemType);
+            MethodReference readerFunc = Readers.GetReadFunc(itemType);
             if (readerFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));

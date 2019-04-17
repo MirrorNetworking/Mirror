@@ -20,7 +20,7 @@ namespace Mirror.Websocket
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
-        private const int MaxMessageSize = 1024 * 256;
+        const int MaxMessageSize = 1024 * 256;
         WebSocket webSocket;
         CancellationTokenSource cancellation;
 
@@ -29,7 +29,7 @@ namespace Mirror.Websocket
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
-        private Uri uri;
+        Uri uri;
 
         public async void Connect(Uri uri)
         {
@@ -53,7 +53,7 @@ namespace Mirror.Websocket
 
             cancellation = new CancellationTokenSource();
 
-            var clientFactory = new WebSocketClientFactory();
+            WebSocketClientFactory clientFactory = new WebSocketClientFactory();
 
             try
             {
@@ -82,9 +82,9 @@ namespace Mirror.Websocket
             }
         }
 
-        private async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
+        async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
         {
-            var buffer = new byte[MaxMessageSize];
+            byte[] buffer = new byte[MaxMessageSize];
 
             while (true)
             {
@@ -115,7 +115,7 @@ namespace Mirror.Websocket
 
         // a message might come splitted in multiple frames
         // collect all frames
-        private async Task<byte[]> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)
+        async Task<byte[]> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)
         {
             int count = result.Count;
 

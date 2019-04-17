@@ -9,7 +9,7 @@ namespace Mirror.Tests
         SyncListString serverSyncList;
         SyncListString clientSyncList;
 
-        private void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
+        void SerializeAllTo<T>(T fromList, T toList) where T: SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
@@ -17,7 +17,7 @@ namespace Mirror.Tests
             toList.OnDeserializeAll(reader);
         }
 
-        private void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
+        void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeDelta(writer);
@@ -92,6 +92,13 @@ namespace Mirror.Tests
             serverSyncList.Remove("World");
             SerializeDeltaTo(serverSyncList, clientSyncList);
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "!" }));
+        }
+
+        [Test]
+        public void TestFindIndex()
+        {
+            int index = serverSyncList.FindIndex(entry => entry == "World");
+            Assert.That(index, Is.EqualTo(1));
         }
 
         [Test]

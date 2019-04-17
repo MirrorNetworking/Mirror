@@ -6,7 +6,7 @@ namespace Mirror.Weaver
 {
     public static class TargetRpcProcessor
     {
-        const string k_TargetRpcPrefix = "InvokeTargetRpc";
+        const string TargetRpcPrefix = "InvokeTargetRpc";
 
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
@@ -17,7 +17,7 @@ namespace Mirror.Weaver
 
         public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition rpc = new MethodDefinition(RpcProcessor.k_RpcPrefix + md.Name, MethodAttributes.Family |
+            MethodDefinition rpc = new MethodDefinition(RpcProcessor.RpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
@@ -91,14 +91,14 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "TargetRPC", hasNetworkConnection))
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, hasNetworkConnection))
                 return null;
 
-            var rpcName = md.Name;
-            int index = rpcName.IndexOf(k_TargetRpcPrefix);
+            string rpcName = md.Name;
+            int index = rpcName.IndexOf(TargetRpcPrefix);
             if (index > -1)
             {
-                rpcName = rpcName.Substring(k_TargetRpcPrefix.Length);
+                rpcName = rpcName.Substring(TargetRpcPrefix.Length);
             }
 
             // invoke SendInternal and return
@@ -125,10 +125,7 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodsValidateTargetRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            const string targetPrefix = "Target";
-            int prefixLen = targetPrefix.Length;
-
-            if (md.Name.Length > prefixLen && md.Name.Substring(0, prefixLen) != targetPrefix)
+            if (!md.Name.StartsWith("Target"))
             {
                 Weaver.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
                 return false;

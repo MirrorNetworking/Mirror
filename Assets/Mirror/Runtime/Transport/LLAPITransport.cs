@@ -1,12 +1,13 @@
 // wraps UNET's LLAPI for use as HLAPI TransportLayer
 using System;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 
 namespace Mirror
 {
-    [Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
+    [EditorBrowsable(EditorBrowsableState.Never), Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
         public ushort port = 7777;
@@ -202,8 +203,7 @@ namespace Mirror
         {
             if (serverHostId == -1) return false;
 
-            int connectionId = -1;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
