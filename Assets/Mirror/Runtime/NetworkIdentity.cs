@@ -885,7 +885,6 @@ namespace Mirror
                     OnSetLocalVisibility(false);
                 }
             }
-
         }
 
         public bool RemoveClientAuthority(NetworkConnection conn)
