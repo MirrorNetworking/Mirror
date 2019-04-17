@@ -841,10 +841,10 @@ namespace Mirror
             // connections that are ready
             if (!result)
             {
-                foreach (KeyValuePair<int, NetworkConnection> kvp in NetworkServer.connections)
+                foreach ( NetworkConnection conn in NetworkServer.connections.Values)
                 {
-                    if (kvp.Value.isReady)
-                        newObservers.Add(kvp.Value);
+                    if (conn.isReady)
+                        newObservers.Add(conn);
                 }
             }
 
@@ -863,11 +863,11 @@ namespace Mirror
 
             // find all the connections we need to remove
             toRemove.Clear();
-            foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
+            foreach (NetworkConnection conn in observers.Values)
             {
-                if (!kvp.Value.isReady || !newObservers.Contains(kvp.Value))
+                if (!conn.isReady || !newObservers.Contains(conn))
                 {
-                    toRemove.Add(kvp.Value);
+                    toRemove.Add(conn);
                 }
             }
             // remove them
