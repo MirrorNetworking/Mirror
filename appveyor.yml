@@ -29,6 +29,8 @@ build_script:
   - cd ..
 
 after_build:
+  - RMDIR /Q /S Assets\Mirror\Tests
+  - del /F /Q Assets\Mirror\Tests.meta
   - UnityPackager pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE
 
 artifacts:
