@@ -8,6 +8,8 @@
 - Fixed: Weaver not writing symbol files
 - Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider 
 - Fixed: Scene lighting in Additive example
+- Fixed: Player Prefab transform details now respected when instantiated in the absence of NetworkStartPosition
+- Removed: Tests folder from Unity package generation (no end-user value)
 
 ## Version 3.5.9 -- 2019-Apr-12
 
