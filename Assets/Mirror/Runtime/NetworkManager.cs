@@ -686,23 +686,23 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        public Transform GetStartPosition()
-        {
-            // first remove any dead transforms
-            startPositions.RemoveAll(t => t == null);
+		public Transform GetStartPosition()
+		{
+			// first remove any dead transforms
+			startPositions.RemoveAll(t => t == null);
 
 			if (startPositions.Count == 0)
 				return null;
 
-			// In the unlikely event we've actually had 2,147,483,647 clients join....
-			if (startPositionIndex == int.MaxValue)
-				startPositionIndex = 0;
-
 			if (playerSpawnMethod == PlayerSpawnMethod.Random)
 				return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
 			else
-				return startPositions[startPositionIndex++ % startPositions.Count];
-        }
+			{
+				Transform startPosition = startPositions[startPositionIndex];
+				startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
+				return startPosition;
+			}
+		}
 
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
