@@ -772,7 +772,7 @@ namespace Mirror
 
         ////////////////////////////////////////////////////////////////////////
         // TODO remove. this is from old NetworkConnection visList code
-        HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         // TODO remove. this is from old NetworkConnection visList code
         internal void AddToVisList(NetworkIdentity identity)
