@@ -39,8 +39,12 @@ namespace Mirror
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
 
+        // observers: all the player connections that we broadcast to
         // <connectionId, NetworkConnection>. always empty on clients.
         public Dictionary<int, NetworkConnection> observers = new Dictionary<int, NetworkConnection>();
+
+        // visList: all objects that broadcast to us
+        public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
         public uint netId { get; internal set; }
         public ulong sceneId => m_SceneId;
@@ -770,11 +774,7 @@ namespace Mirror
             m_IsServer = false;
         }
 
-        ////////////////////////////////////////////////////////////////////////
-        // TODO remove. this is from old NetworkConnection visList code
-        public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
-
-        // TODO remove. this is from old NetworkConnection visList code
+#region VisList
         internal void AddToVisList(NetworkIdentity identity)
         {
             visList.Add(identity);
@@ -783,7 +783,6 @@ namespace Mirror
             NetworkServer.ShowForConnection(identity, connectionToClient);
         }
 
-        // TODO remove. this is from old NetworkConnection visList code
         internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
         {
             visList.Remove(identity);
@@ -795,7 +794,6 @@ namespace Mirror
             }
         }
 
-        // TODO remove. this is from old NetworkConnection visList code
         internal void RemoveFromObservers()
         {
             foreach (NetworkIdentity identity in visList)
@@ -804,7 +802,7 @@ namespace Mirror
             }
             visList.Clear();
         }
-        ////////////////////////////////////////////////////////////////////////
+#endregion VisList
 
         internal void ClearObservers()
         {
