@@ -7,7 +7,7 @@ namespace Mirror
 {
     public class NetworkConnection : IDisposable
     {
-        [Obsolete("Use playerController.visList instead (=NetworkIdentity.visList")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use playerController.visList instead (=NetworkIdentity.visList")]
         public HashSet<NetworkIdentity> visList => playerController.visList;
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
