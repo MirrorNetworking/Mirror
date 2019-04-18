@@ -691,24 +691,17 @@ namespace Mirror
             // first remove any dead transforms
             startPositions.RemoveAll(t => t == null);
 
-            if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
-            {
-                // try to spawn at a random start location
-                int index = UnityEngine.Random.Range(0, startPositions.Count);
-                return startPositions[index];
-            }
-            if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
-            {
-                if (startPositionIndex >= startPositions.Count)
-                {
-                    startPositionIndex = 0;
-                }
+			if (startPositions.Count == 0)
+				return null;
 
-                Transform startPos = startPositions[startPositionIndex];
-                startPositionIndex += 1;
-                return startPos;
-            }
-            return null;
+			// In the unlikely event we've actually had 2,147,483,647 clients join....
+			if (startPositionIndex == int.MaxValue)
+				startPositionIndex = 0;
+
+			if (playerSpawnMethod == PlayerSpawnMethod.Random)
+				return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
+			else
+				return startPositions[startPositionIndex++ % startPositions.Count];
         }
 
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
