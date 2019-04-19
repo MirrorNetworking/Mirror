@@ -1,6 +1,6 @@
 // all the [TargetRpc] code from NetworkBehaviourProcessor in one place
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
