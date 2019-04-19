@@ -76,6 +76,10 @@ namespace Mirror.Websocket
 
         public SslConfiguration _sslConfig;
 
+        private Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
+
+        private bool sendingMessage = false;
+
         public class SslConfiguration
         {
             public System.Security.Cryptography.X509Certificates.X509Certificate2 Certificate;
@@ -272,7 +276,16 @@ namespace Mirror.Websocket
             {
                 try
                 {
-                    await client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, cancellation.Token);
+                    messagesToSend.Enqueue(new ArraySegment<byte>(data));
+                    if (!sendingMessage)
+                    {
+                        sendingMessage = true;
+                        while (messagesToSend.Count > 0)
+                        {
+                            await client.SendAsync(messagesToSend.Dequeue(), WebSocketMessageType.Binary, true, cancellation.Token);
+                        }
+                        sendingMessage = false;
+                    }
                 }
                 catch (ObjectDisposedException) {
                     // connection has been closed,  swallow exception
