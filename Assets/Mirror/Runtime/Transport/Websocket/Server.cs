@@ -277,6 +277,9 @@ namespace Mirror.Websocket
                 try
                 {
                     // workaround for: https://forum.unity.com/threads/unity-2017-1-tls-1-2-still-not-working-with-net-4-6.487415/
+                    // In SslStream, only one SendAsync can be going at a time
+                    // the queue makes it so that if Send is called multiple time, only the first one calls SendAsync
+                    // and the other ones queue up the message
                     messagesToSend.Enqueue(new ArraySegment<byte>(data));
                     if (!sendingMessage)
                     {
