@@ -76,10 +76,6 @@ namespace Mirror.Websocket
 
         public SslConfiguration _sslConfig;
 
-        Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
-
-        bool sendingMessage = false;
-
         public class SslConfiguration
         {
             public System.Security.Cryptography.X509Certificates.X509Certificate2 Certificate;
