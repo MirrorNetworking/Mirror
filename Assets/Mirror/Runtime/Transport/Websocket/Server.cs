@@ -76,7 +76,7 @@ namespace Mirror.Websocket
 
         public SslConfiguration _sslConfig;
 
-        private Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
+        Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
 
         bool sendingMessage = false;
 
