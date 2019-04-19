@@ -276,6 +276,7 @@ namespace Mirror.Websocket
             {
                 try
                 {
+                    // workaround for: https://forum.unity.com/threads/unity-2017-1-tls-1-2-still-not-working-with-net-4-6.487415/
                     messagesToSend.Enqueue(new ArraySegment<byte>(data));
                     if (!sendingMessage)
                     {
