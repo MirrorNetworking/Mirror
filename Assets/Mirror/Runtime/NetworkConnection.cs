@@ -245,6 +245,28 @@ namespace Mirror
             }
         }
 
+        public virtual void TransportReceive(ArraySegment<byte> buffer)
+        {
+            // unpack message
+            NetworkReader reader = new NetworkReader(buffer);
+            if (MessagePacker.UnpackMessage(reader, out int msgType))
+            {
+                // logging
+                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+
+                // try to invoke the handler for that message
+                if (InvokeHandler(msgType, reader))
+                {
+                    lastMessageTime = Time.time;
+                }
+            }
+            else
+            {
+                Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
+                Disconnect();
+            }
+        }
+
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
             if (Transport.activeTransport.ClientConnected())

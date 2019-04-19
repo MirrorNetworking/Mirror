@@ -29,6 +29,7 @@ namespace Mirror
             {
                 transport.OnClientConnected.AddListener(OnClientConnected.Invoke );
                 transport.OnClientDataReceived.AddListener(OnClientDataReceived.Invoke);
+                transport.OnClientDataReceivedNonAlloc.AddListener(OnClientDataReceivedNonAlloc.Invoke);
                 transport.OnClientError.AddListener(OnClientError.Invoke );
                 transport.OnClientDisconnected.AddListener(OnClientDisconnected.Invoke);
             }
@@ -114,6 +115,10 @@ namespace Mirror
                 transport.OnServerDataReceived.AddListener((baseConnectionId, data) =>
                 {
                     OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data);
+                });
+                transport.OnServerDataReceivedNonAlloc.AddListener((baseConnectionId, data) =>
+                {
+                    OnServerDataReceivedNonAlloc.Invoke(FromBaseId(locali, baseConnectionId), data);
                 });
 
                 transport.OnServerError.AddListener((baseConnectionId, error) =>

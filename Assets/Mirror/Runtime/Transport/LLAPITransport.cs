@@ -142,9 +142,7 @@ namespace Mirror
                     OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(clientReceiveBuffer, data, receivedSize);
-                    OnClientDataReceived.Invoke(data);
+                    OnClientDataReceivedNonAlloc.Invoke(new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize));
                     break;
                 case NetworkEventType.DisconnectEvent:
                     OnClientDisconnected.Invoke();
@@ -233,9 +231,7 @@ namespace Mirror
                     OnServerConnected.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(serverReceiveBuffer, data, receivedSize);
-                    OnServerDataReceived.Invoke(connectionId, data);
+                    OnServerDataReceivedNonAlloc.Invoke(connectionId, new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize));
                     break;
                 case NetworkEventType.DisconnectEvent:
                     OnServerDisconnected.Invoke(connectionId);
