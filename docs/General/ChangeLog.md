@@ -4,6 +4,8 @@
 
 - Added: Custom NetworkReader & NetworkWriter for user-defined types
 - Added: NetworkTransform toggle for using local or world coordinates
+- Fixed: Unity 2019.1 compatibility
+- Fixed: Erroneous error indicating prefabs were missing Scene ID's
 - Fixed: OnDeserializeSafely now works without allocations
 - Fixed: Weaver not writing symbol files
 - Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider 
