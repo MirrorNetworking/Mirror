@@ -21,7 +21,6 @@
 // ---------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.WebSockets;
@@ -58,9 +57,7 @@ namespace Ninja.WebSockets.Internal
         const int MAX_PING_PONG_PAYLOAD_LEN = 125;
         WebSocketCloseStatus? _closeStatus;
         string _closeStatusDescription;
-
-        Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
-        bool sendingMessage = false;
+        SemaphoreSlim sendSemaphore = new SemaphoreSlim(1, 1);
 
         public event EventHandler<PongEventArgs> Pong;
 
@@ -226,44 +223,46 @@ namespace Ninja.WebSockets.Internal
             // In SslStream, only one SendAsync can be going at a time
             // if Send is called multiple time, only the first one calls SendAsync,
             // the other ones queue up the message
-            messagesToSend.Enqueue(buffer);
-            if (!sendingMessage)
+            await sendSemaphore.WaitAsync();
+            try
             {
-                sendingMessage = true;
-                while (messagesToSend.Count > 0)
+                await SendAsyncInternal(buffer, messageType, endOfMessage, cancellationToken);
+            }
+            finally
+            {
+                sendSemaphore.Release();
+            }
+        }
+
+        private async Task SendAsyncInternal(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
+        {
+            using (MemoryStream stream = _recycledStreamFactory())
+            {
+                WebSocketOpCode opCode = GetOppCode(messageType);
+
+                if (_usePerMessageDeflate)
                 {
-                    using (MemoryStream stream = _recycledStreamFactory())
+                    // NOTE: Compression is currently work in progress and should NOT be used in this library.
+                    // The code below is very inefficient for small messages. Ideally we would like to have some sort of moving window
+                    // of data to get the best compression. And we don't want to create new buffers which is bad for GC.
+                    using (MemoryStream temp = new MemoryStream())
                     {
-                        WebSocketOpCode opCode = GetOppCode(messageType);
-
-                        if (_usePerMessageDeflate)
-                        {
-                            // NOTE: Compression is currently work in progress and should NOT be used in this library.
-                            // The code below is very inefficient for small messages. Ideally we would like to have some sort of moving window
-                            // of data to get the best compression. And we don't want to create new buffers which is bad for GC.
-                            using (MemoryStream temp = new MemoryStream())
-                            {
-                                DeflateStream deflateStream = new DeflateStream(temp, CompressionMode.Compress);
-                                ArraySegment<byte> currentBuffer = messagesToSend.Dequeue();
-                                deflateStream.Write(currentBuffer.Array, currentBuffer.Offset, currentBuffer.Count);
-                                deflateStream.Flush();
-                                ArraySegment<byte> compressedBuffer = new ArraySegment<byte>(temp.ToArray());
-                                WebSocketFrameWriter.Write(opCode, compressedBuffer, stream, endOfMessage, _isClient);
-                                Events.Log.SendingFrame(_guid, opCode, endOfMessage, compressedBuffer.Count, true);
-                            }
-                        }
-                        else
-                        {
-                            ArraySegment<byte> currentBuffer = messagesToSend.Dequeue();
-                            WebSocketFrameWriter.Write(opCode, currentBuffer, stream, endOfMessage, _isClient);
-                            Events.Log.SendingFrame(_guid, opCode, endOfMessage, currentBuffer.Count, false);
-                        }
-
-                        await WriteStreamToNetwork(stream, cancellationToken);
-                        _isContinuationFrame = !endOfMessage; // TODO: is this correct??
+                        DeflateStream deflateStream = new DeflateStream(temp, CompressionMode.Compress);
+                        deflateStream.Write(buffer.Array, buffer.Offset, buffer.Count);
+                        deflateStream.Flush();
+                        ArraySegment<byte> compressedBuffer = new ArraySegment<byte>(temp.ToArray());
+                        WebSocketFrameWriter.Write(opCode, compressedBuffer, stream, endOfMessage, _isClient);
+                        Events.Log.SendingFrame(_guid, opCode, endOfMessage, compressedBuffer.Count, true);
                     }
                 }
-                sendingMessage = false;
+                else
+                {
+                    WebSocketFrameWriter.Write(opCode, buffer, stream, endOfMessage, _isClient);
+                    Events.Log.SendingFrame(_guid, opCode, endOfMessage, buffer.Count, false);
+                }
+
+                await WriteStreamToNetwork(stream, cancellationToken);
+                _isContinuationFrame = !endOfMessage; // TODO: is this correct??
             }
         }
 
