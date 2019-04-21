@@ -57,6 +57,7 @@ namespace Ninja.WebSockets.Internal
         const int MAX_PING_PONG_PAYLOAD_LEN = 125;
         WebSocketCloseStatus? _closeStatus;
         string _closeStatusDescription;
+        SemaphoreSlim sendSemaphore = new SemaphoreSlim(1, 1);
 
         public event EventHandler<PongEventArgs> Pong;
 
@@ -217,6 +218,23 @@ namespace Ninja.WebSockets.Internal
         /// If it is a multi-part message then false (and true for the last message)</param>
         /// <param name="cancellationToken">the cancellation token</param>
         public override async Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
+        {
+            // workaround for: https://forum.unity.com/threads/unity-2017-1-tls-1-2-still-not-working-with-net-4-6.487415/
+            // In SslStream, only one SendAsync can be going at a time
+            // if Send is called multiple time, only the first one calls SendAsync,
+            // the other ones queue up the message
+            await sendSemaphore.WaitAsync();
+            try
+            {
+                await SendAsyncInternal(buffer, messageType, endOfMessage, cancellationToken);
+            }
+            finally
+            {
+                sendSemaphore.Release();
+            }
+        }
+
+        private async Task SendAsyncInternal(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
         {
             using (MemoryStream stream = _recycledStreamFactory())
             {
