@@ -1,4 +1,11 @@
-// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// Coburn: LLAPI is not available on UWP. There are a lot of compile directives here that we're checking against.
+// Checking all of them may be overkill, but it's better to cover all the possible UWP directives. Sourced from
+// https://docs.unity3d.com/Manual/PlatformDependentCompilation.html
+// TODO: Check if LLAPI is supported on Xbox One?
+
+// LLAPITransport wraps UNET's LLAPI for use as a HLAPI TransportLayer, only if you're not on a UWP platform.
+#if !UNITY_WSA || !UNITY_WSA_10_0 || !UNITY_WINRT || !UNITY_WINRT_10_0
+
 using System;
 using System.ComponentModel;
 using UnityEngine;
@@ -315,3 +322,4 @@ namespace Mirror
         #endregion
     }
 }
+#endif
