@@ -31,7 +31,11 @@ namespace Mirror.Websocket
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
+#if UNITY_WEBGL && !UNITY_EDITOR
+            client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
+#else
             client.ReceivedData += (data) => OnClientDataReceivedNonAlloc.Invoke(data);
+#endif
             client.ReceivedError += (error) => OnClientError.Invoke(error);
 
             // configure
