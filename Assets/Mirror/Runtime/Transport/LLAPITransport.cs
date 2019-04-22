@@ -4,7 +4,7 @@
 // TODO: Check if LLAPI is supported on Xbox One?
 
 // LLAPITransport wraps UNET's LLAPI for use as a HLAPI TransportLayer, only if you're not on a UWP platform.
-#if !UNITY_WSA || !UNITY_WSA_10_0 || !UNITY_WINRT || !UNITY_WINRT_10_0
+#if !(UNITY_WSA || UNITY_WSA_10_0 || UNITY_WINRT || UNITY_WINRT_10_0 || NETFX_CORE)
 
 using System;
 using System.ComponentModel;
