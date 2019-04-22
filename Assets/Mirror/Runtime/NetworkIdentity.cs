@@ -315,7 +315,7 @@ namespace Mirror
                 if (!duplicate)
                 {
                     m_SceneId = randomId;
-                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                    //Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
                 }
             }
 
