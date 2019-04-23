@@ -22,9 +22,11 @@ namespace Mirror.Websocket
         static readonly Dictionary<int, Client> clients = new Dictionary<int, Client>();
 
         public bool NoDelay = true;
+        private static byte[] buffer = new byte[1500];
 
         public event Action Connected;
         public event Action<byte[]> ReceivedData;
+        public event Action<ArraySegment<byte>> ReceivedDataNonAlloc;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
@@ -106,10 +108,19 @@ namespace Mirror.Websocket
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnData(int id, IntPtr ptr, int length)
         {
-            byte[] data = new byte[length];
-            Marshal.Copy(ptr, data, 0, length);
+            if (length < buffer.Length)
+            {
+                Marshal.Copy(ptr, buffer, 0, length);
+                ArraySegment<byte> data = new ArraySegment<byte>(buffer, 0, length);
+                clients[id].ReceivedDataNonAlloc(data);
+            }
+            else
+            {
+                byte[] data = new byte[length];
+                Marshal.Copy(ptr, data, 0, length);
 
-            clients[id].ReceivedData(data);
+                clients[id].ReceivedData(data);
+            }
         }
         #endregion
     }
