@@ -21,6 +21,7 @@
 // ---------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.WebSockets;
@@ -57,7 +58,8 @@ namespace Ninja.WebSockets.Internal
         const int MAX_PING_PONG_PAYLOAD_LEN = 125;
         WebSocketCloseStatus? _closeStatus;
         string _closeStatusDescription;
-        SemaphoreSlim sendSemaphore = new SemaphoreSlim(1, 1);
+        bool sendingMessage = false;
+        Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
 
         public event EventHandler<PongEventArgs> Pong;
 
@@ -223,14 +225,15 @@ namespace Ninja.WebSockets.Internal
             // In SslStream, only one SendAsync can be going at a time
             // if Send is called multiple time, only the first one calls SendAsync,
             // the other ones queue up the message
-            await sendSemaphore.WaitAsync();
-            try
+            messagesToSend.Enqueue(buffer);
+            if (!sendingMessage)
             {
-                await SendAsyncInternal(buffer, messageType, endOfMessage, cancellationToken);
-            }
-            finally
-            {
-                sendSemaphore.Release();
+                sendingMessage = true;
+                while (messagesToSend.Count > 0)
+                {
+                    await SendAsyncInternal(messagesToSend.Dequeue(), messageType, endOfMessage, cancellationToken);
+                }
+                sendingMessage = false;
             }
         }
 
