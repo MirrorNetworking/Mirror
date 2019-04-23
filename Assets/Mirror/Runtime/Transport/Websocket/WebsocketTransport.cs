@@ -33,6 +33,7 @@ namespace Mirror.Websocket
             client.Disconnected += () => OnClientDisconnected.Invoke();
 #if UNITY_WEBGL && !UNITY_EDITOR
             client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
+            client.ReceivedDataNonAlloc += (data) => OnClientDataReceivedNonAlloc.Invoke(data);
 #else
             client.ReceivedData += (data) => OnClientDataReceivedNonAlloc.Invoke(data);
 #endif
