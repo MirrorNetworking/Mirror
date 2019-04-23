@@ -16,7 +16,7 @@ namespace Mirror.Websocket
     public class Client
     {
         public event Action Connected;
-        public event Action<ArraySegment<byte>> ReceivedDataNonAlloc;
+        public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
@@ -104,7 +104,7 @@ namespace Mirror.Websocket
 
                 try
                 {
-                    ReceivedDataNonAlloc?.Invoke(data);
+                    ReceivedData?.Invoke(data);
                 }
                 catch (Exception exception)
                 {
