@@ -40,6 +40,8 @@ namespace Mirror
         public bool hasAuthority { get; private set; }
 
         // <connectionId, NetworkConnection>
+        // null until OnStartServer was called. this is necessary for SendTo...
+        // to work properly in server-only mode.
         public Dictionary<int, NetworkConnection> observers;
 
         public uint netId { get; internal set; }
