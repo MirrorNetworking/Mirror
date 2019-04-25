@@ -170,7 +170,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + msgType);
 
-            if (identity != null)
+            if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
@@ -192,7 +192,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
-            if (identity != null)
+            if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
@@ -244,7 +244,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + msgType);
 
-            if (identity != null)
+            if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
@@ -267,7 +267,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
-            if (identity != null)
+            if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);

@@ -4,7 +4,7 @@
 //       value for null otherwise.
 //       (original FieldType.Resolve returns null if not found too, so
 //        exceptions would be a bit inconsistent here)
-using Mono.Cecil;
+using Mono.CecilX;
 
 namespace Mirror.Weaver
 {

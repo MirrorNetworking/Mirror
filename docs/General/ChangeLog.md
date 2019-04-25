@@ -4,8 +4,13 @@
 
 - Added: Custom NetworkReader & NetworkWriter for user-defined types
 - Added: NetworkTransform toggle for using local or world coordinates
+
+## Version 3.6.5 -- 2019-Apr-23
+
+- Fixed: Unity 2019.1 compatibility
+- Fixed: Erroneous error indicating prefabs were missing Scene ID's
 - Fixed: OnDeserializeSafely now works without allocations
-- Fixed: Weaver not writing symbol files
+- Fixed: Weaver not writing symbol files, preventing breakpoints from working in Visual Studio
 - Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider 
 - Fixed: Scene lighting in Additive example
 - Fixed: Player Prefab transform details now respected when instantiated in the absence of NetworkStartPosition

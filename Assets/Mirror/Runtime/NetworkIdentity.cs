@@ -39,8 +39,10 @@ namespace Mirror
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
 
-        // <connectionId, NetworkConnection>. always empty on clients.
-        public Dictionary<int, NetworkConnection> observers = new Dictionary<int, NetworkConnection>();
+        // <connectionId, NetworkConnection>
+        // null until OnStartServer was called. this is necessary for SendTo...
+        // to work properly in server-only mode.
+        public Dictionary<int, NetworkConnection> observers;
 
         public uint netId { get; internal set; }
         public ulong sceneId => m_SceneId;
@@ -150,7 +152,7 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
-            observers.Remove(conn.connectionId);
+            observers?.Remove(conn.connectionId);
         }
 
         void Awake()
@@ -315,7 +317,7 @@ namespace Mirror
                 if (!duplicate)
                 {
                     m_SceneId = randomId;
-                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                    //Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
                 }
             }
 
@@ -401,7 +403,7 @@ namespace Mirror
             m_IsServer = true;
             hasAuthority = !localPlayerAuthority;
 
-            observers.Clear();
+            observers = new Dictionary<int, NetworkConnection>();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             if (netId == 0)
@@ -778,15 +780,24 @@ namespace Mirror
 
         internal void ClearObservers()
         {
-            foreach (NetworkConnection conn in observers.Values)
+            if (observers != null)
             {
-                conn.RemoveFromVisList(this, true);
+                foreach (NetworkConnection conn in observers.Values)
+                {
+                    conn.RemoveFromVisList(this, true);
+                }
+                observers.Clear();
             }
-            observers.Clear();
         }
 
         internal void AddObserver(NetworkConnection conn)
         {
+            if (observers == null)
+            {
+                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
+                return;
+            }
+
             if (observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
@@ -802,6 +813,9 @@ namespace Mirror
 
         public void RebuildObservers(bool initialize)
         {
+            if (observers == null)
+                return;
+
             bool changed = false;
             bool result = false;
             HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
@@ -1016,7 +1030,7 @@ namespace Mirror
         {
             // SendToReady sends to all observers. no need to serialize if we
             // don't have any.
-            if (observers.Count == 0)
+            if (observers == null || observers.Count == 0)
                 return;
 
             // serialize all the dirty components and send (if any were dirty)

@@ -1,6 +1,6 @@
 // all the [Rpc] code from NetworkBehaviourProcessor in one place
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 namespace Mirror.Weaver
 {
     public static class RpcProcessor
@@ -10,7 +10,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
             MethodDefinition rpc = new MethodDefinition(
-                RpcPrefix + md.Name, 
+                RpcPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
