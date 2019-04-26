@@ -149,7 +149,7 @@ namespace Mirror
                 return false;
             }
 
-            return TransportSend(channelId, bytes, out byte error);
+            return TransportSend(channelId, bytes);
         }
 
         public override string ToString()
@@ -227,27 +227,26 @@ namespace Mirror
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
-            if (!MessagePacker.UnpackMessage(reader, out int msgType))
+            if (MessagePacker.UnpackMessage(reader, out int msgType))
+            {
+                // logging
+                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
+
+                // try to invoke the handler for that message
+                if (InvokeHandler(msgType, reader))
+                {
+                    lastMessageTime = Time.time;
+                }
+            }
+            else
             {
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
             }
-
-            if (logNetworkMessages)
-            {
-                Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
-            }
-
-            // try to invoke the handler for that message
-            if (InvokeHandler(msgType, reader))
-            {
-                lastMessageTime = Time.time;
-            }
         }
 
-        public virtual bool TransportSend(int channelId, byte[] bytes, out byte error)
+        public virtual bool TransportSend(int channelId, byte[] bytes)
         {
-            error = 0;
             if (Transport.activeTransport.ClientConnected())
             {
                 return Transport.activeTransport.ClientSend(channelId, bytes);

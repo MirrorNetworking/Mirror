@@ -478,8 +478,7 @@ namespace Mirror
 
         public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Send(msg);
                 return;

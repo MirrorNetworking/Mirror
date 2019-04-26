@@ -1,7 +1,7 @@
 // all the [SyncVar] code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -319,12 +319,6 @@ namespace Mirror.Weaver
                         }
                         break;
                     }
-                }
-
-                if (fd.FieldType.FullName.Contains("Mirror.SyncListStruct"))
-                {
-                    Weaver.Error("SyncListStruct member variable [" + fd.FullName + "] must use a dervied class, like \"class MySyncList : SyncListStruct<MyStruct> {}\".");
-                    return;
                 }
 
                 if (fd.FieldType.Resolve().ImplementsInterface(Weaver.SyncObjectType))

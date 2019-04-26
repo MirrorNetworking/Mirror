@@ -95,6 +95,13 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestFindIndex()
+        {
+            int index = serverSyncList.FindIndex(entry => entry == "World");
+            Assert.That(index, Is.EqualTo(1));
+        }
+
+        [Test]
         public void TestMultSync()
         {
             serverSyncList.Add("1");

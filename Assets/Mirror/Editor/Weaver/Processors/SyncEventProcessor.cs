@@ -1,7 +1,7 @@
 // all the SyncEvent code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -111,7 +111,7 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
                     {
-                        if (ed.Name.Length > 4 && ed.Name.Substring(0, 5) != "Event")
+                        if (!ed.Name.StartsWith("Event"))
                         {
                             Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
                             return;

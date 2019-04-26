@@ -124,14 +124,14 @@ namespace Mirror.Websocket
                 Stream stream = tcpClient.GetStream();
                 if (_secure)
                 {
-                    var sslStream = new SslStream(stream, false, CertVerificationCallback);
+                    SslStream sslStream = new SslStream(stream, false, CertVerificationCallback);
                     sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
                     stream = sslStream;
                 }
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    var options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 
@@ -268,8 +268,7 @@ namespace Mirror.Websocket
         public async void Send(int connectionId, byte[] data)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 try
                 {
@@ -307,8 +306,7 @@ namespace Mirror.Websocket
         public string GetClientAddress(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 return "";
             }
@@ -319,8 +317,7 @@ namespace Mirror.Websocket
         public bool Disconnect(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.

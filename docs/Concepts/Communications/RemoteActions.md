@@ -13,7 +13,7 @@ Commands are sent from player objects on the client to player objects on the ser
 Commands functions must have the prefix “Cmd”. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
 
 ```cs
-class Player : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     public GameObject bulletPrefab;
 
@@ -54,7 +54,7 @@ ClientRpc calls are sent from objects on the server to objects on clients. They 
 ClientRpc functions must have the prefix “Rpc”. This is a hint when reading code that calls the method - this function is special and is not invoked locally like a normal function.
 
 ```cs
-class Player : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     [SyncVar]
     int health;

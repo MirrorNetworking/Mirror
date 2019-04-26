@@ -86,13 +86,12 @@ namespace Ninja.WebSockets
             Guid guid = Guid.NewGuid();
             string host = uri.Host;
             int port = uri.Port;
-            var tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
+            TcpClient tcpClient = new TcpClient(AddressFamily.InterNetworkV6);
             tcpClient.NoDelay = options.NoDelay;
             tcpClient.Client.DualMode = true;
             string uriScheme = uri.Scheme.ToLower();
             bool useSsl = uriScheme == "wss" || uriScheme == "https";
-            IPAddress ipAddress;
-            if (IPAddress.TryParse(host, out ipAddress))
+            if (IPAddress.TryParse(host, out IPAddress ipAddress))
             {
                 Events.Log.ClientConnectingToIpAddress(guid, ipAddress.ToString(), port);
                 await tcpClient.ConnectAsync(ipAddress, port);
