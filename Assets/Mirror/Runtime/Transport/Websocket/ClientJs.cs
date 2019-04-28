@@ -24,7 +24,7 @@ namespace Mirror.Websocket
         public bool NoDelay = true;
 
         public event Action Connected;
-        public event Action<byte[]> ReceivedData;
+        public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
@@ -109,7 +109,7 @@ namespace Mirror.Websocket
             byte[] data = new byte[length];
             Marshal.Copy(ptr, data, 0, length);
 
-            clients[id].ReceivedData(data);
+            clients[id].ReceivedData(new ArraySegment<byte>(data));
         }
         #endregion
     }
