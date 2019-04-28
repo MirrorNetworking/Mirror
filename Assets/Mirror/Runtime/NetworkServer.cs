@@ -398,7 +398,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
         }
 
-        static void OnDataReceived(int connectionId, byte[] data)
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {

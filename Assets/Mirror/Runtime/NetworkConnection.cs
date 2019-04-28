@@ -223,14 +223,14 @@ namespace Mirror
         //       -> in other words, we always receive 1 message per Receive call, never two.
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        public virtual void TransportReceive(byte[] buffer)
+        public virtual void TransportReceive(ArraySegment<byte> buffer)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer));
+                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
                 if (InvokeHandler(msgType, reader))

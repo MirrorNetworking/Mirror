@@ -16,7 +16,7 @@ namespace Mirror.Websocket
     public class Client
     {
         public event Action Connected;
-        public event Action<byte[]> ReceivedData;
+        public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
@@ -97,9 +97,9 @@ namespace Mirror.Websocket
                     break;
 
                 // we got a text or binary message,  need the full message
-                byte[] data = await ReadFrames(result, webSocket, buffer);
+                ArraySegment<byte> data = await ReadFrames(result, webSocket, buffer);
 
-                if (data == null)
+                if (data.Count == 0)
                     break;
 
                 try
@@ -115,7 +115,7 @@ namespace Mirror.Websocket
 
         // a message might come splitted in multiple frames
         // collect all frames
-        async Task<byte[]> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)
+        async Task<ArraySegment<byte>> ReadFrames(WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer)
         {
             int count = result.Count;
 
@@ -126,14 +126,14 @@ namespace Mirror.Websocket
                     string closeMessage = string.Format("Maximum message size: {0} bytes.", MaxMessageSize);
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
                     ReceivedError?.Invoke(new WebSocketException(WebSocketError.HeaderError));
-                    return null;
+                    return new ArraySegment<byte>();
                 }
 
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, MaxMessageSize - count), CancellationToken.None);
                 count += result.Count;
 
             }
-            return new ArraySegment<byte>(buffer, 0, count).ToArray();
+            return new ArraySegment<byte>(buffer, 0, count);
         }
 
         public void Disconnect()
