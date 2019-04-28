@@ -5,6 +5,10 @@
 - Added: Custom NetworkReader & NetworkWriter for user-defined types
 - Added: NetworkTransform toggle for using local or world coordinates
 
+## Version 3.6.6 -- 2019-Apr-24
+
+- Fixed: Reverted two internal refactor commits that had unintended consequences.
+
 ## Version 3.6.5 -- 2019-Apr-23
 
 - Fixed: Unity 2019.1 compatibility
