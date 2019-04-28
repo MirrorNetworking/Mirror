@@ -417,7 +417,7 @@ namespace Mirror
 
             LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
 
-            LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
 
             SceneMessage msg = new SceneMessage()
             {
