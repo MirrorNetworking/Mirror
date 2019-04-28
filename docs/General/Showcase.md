@@ -45,6 +45,6 @@
 ![Adversator](ShowcaseImages/Adversator.png)
 
 
-## [PopulationOneVR](http://www.populationonevr.com/)
+## [Population:One](http://www.populationonevr.com/)
 
-![PopulationOneVR](ShowcaseImages/PopulationOneVR.jpg)
+![Population:One](ShowcaseImages/PopulationOneVR.jpg)
