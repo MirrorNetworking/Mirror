@@ -66,7 +66,7 @@ namespace Mirror
                         OnClientConnected.Invoke();
                         break;
                     case Telepathy.EventType.Data:
-                        OnClientDataReceived.Invoke(message.data);
+                        OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data));
                         break;
                     case Telepathy.EventType.Disconnected:
                         OnClientDisconnected.Invoke();
@@ -111,7 +111,7 @@ namespace Mirror
                         OnServerConnected.Invoke(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        OnServerDataReceived.Invoke(message.connectionId, message.data);
+                        OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data));
                         break;
                     case Telepathy.EventType.Disconnected:
                         OnServerDisconnected.Invoke(message.connectionId);

@@ -119,7 +119,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        internal static void OnDataReceived(byte[] data)
+        internal static void OnDataReceived(ArraySegment<byte> data)
         {
             if (connection != null)
             {
@@ -219,7 +219,7 @@ namespace Mirror
                 while (localClientPacketQueue.Count > 0)
                 {
                     byte[] packet = localClientPacketQueue.Dequeue();
-                    OnDataReceived(packet);
+                    OnDataReceived(new ArraySegment<byte>(packet));
                 }
             }
             else
