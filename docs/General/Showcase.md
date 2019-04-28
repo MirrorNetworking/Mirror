@@ -37,7 +37,7 @@
 
 ## [SamuTale](https://www.samutale.com/)
 
-![SamuTale](ShowcaseImages/samutale-banner.png)
+![SamuTale](ShowcaseImages/SamuTale.png)
 
 
 ## [Adversator](http://www.adversator.com/)
