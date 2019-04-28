@@ -1,9 +1,8 @@
 # Change Log
 
-## Version 3.x.x -- In Progress
+## Version 3.6.7 -- 2019-Apr-28
 
-- Added: Custom NetworkReader & NetworkWriter for user-defined types
-- Added: NetworkTransform toggle for using local or world coordinates
+- Changed: NetworkReader now uses ArraySegment<byte> to minimize allocations.
 
 ## Version 3.6.6 -- 2019-Apr-24
 
