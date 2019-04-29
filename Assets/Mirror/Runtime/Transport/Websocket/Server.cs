@@ -237,7 +237,7 @@ namespace Mirror.Websocket
 
             while (!result.EndOfMessage)
             {
-                if (count >= _maxMessageSize)
+                if (count > _maxMessageSize)
                 {
                     string closeMessage = $"Message size {count} exceeds maximum message size {_maxMessageSize}";
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
