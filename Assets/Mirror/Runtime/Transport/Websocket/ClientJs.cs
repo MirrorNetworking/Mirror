@@ -109,7 +109,7 @@ namespace Mirror.Websocket
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnData(int id, IntPtr ptr, int length)
         {
-            if (length < buffer.Length)
+            if (length <= buffer.Length)
             {
                 Marshal.Copy(ptr, buffer, 0, length);
                 ArraySegment<byte> data = new ArraySegment<byte>(buffer, 0, length);
