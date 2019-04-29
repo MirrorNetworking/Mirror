@@ -117,7 +117,7 @@ namespace Mirror.Websocket
             }
             else
             {
-                clients[id].ReceivedError(new Exception("Message is larger than specified max message length"));
+                clients[id].ReceivedError(new Exception($"Message size {length} is larger than specified max message length {buffer.Length}"));
             }
         }
         #endregion
