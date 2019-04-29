@@ -40,6 +40,8 @@ namespace Mirror.Websocket
         int m_NativeRef = 0;
         readonly int id;
 
+        static byte[] buffer = new byte[1500];
+
         public Client()
         {
             id = Interlocked.Increment(ref idGenerator);
@@ -106,10 +108,18 @@ namespace Mirror.Websocket
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnData(int id, IntPtr ptr, int length)
         {
-            byte[] data = new byte[length];
-            Marshal.Copy(ptr, data, 0, length);
-
-            clients[id].ReceivedData(new ArraySegment<byte>(data));
+            if (length < buffer.Length)
+            {
+                Marshal.Copy(ptr, buffer, 0, length);
+                ArraySegment<byte> data = new ArraySegment<byte>(buffer, 0, length);
+                clients[id].ReceivedData(data);
+            }
+            else
+            {
+                byte[] data = new byte[length];
+                Marshal.Copy(ptr, data, 0, length);
+                clients[id].ReceivedData(new ArraySegment<byte>(data));
+            }
         }
         #endregion
     }
