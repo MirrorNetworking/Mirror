@@ -7,8 +7,6 @@ In Build Settings, remove all scenes and add all of the scenes from the Examples
 - MainScene
 - SubScene
 
-Open the MainScene and add the SubScene to the Network Gameobject's AdditiveNetworkManager subScenes list
-
 File -> Build and Run
 
 Start up to 3 built instances:  These will all be client players.
