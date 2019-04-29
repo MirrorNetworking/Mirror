@@ -6,7 +6,7 @@ namespace Mirror.Websocket
     public class WebsocketTransport : Transport
     {
 
-        protected Client client = new Client();
+        protected Client client;
         protected Server server = new Server();
 
         public int port = 7778;
@@ -20,6 +20,8 @@ namespace Mirror.Websocket
 
         public string CertificatePassword;
 
+        public int MaxMessageLength = 16384;
+
         public WebsocketTransport()
         {
             // dispatch the events from the server
@@ -27,6 +29,8 @@ namespace Mirror.Websocket
             server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
             server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, data);
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
+
+            client = new Client(MaxMessageLength);
 
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();

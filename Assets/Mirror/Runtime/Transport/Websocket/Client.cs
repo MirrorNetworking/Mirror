@@ -20,7 +20,7 @@ namespace Mirror.Websocket
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
-        const int MaxMessageSize = 1024 * 256;
+        int _maxMessageSize;
         WebSocket webSocket;
         CancellationTokenSource cancellation;
 
@@ -30,6 +30,11 @@ namespace Mirror.Websocket
         public bool IsConnected { get; set; }
 
         Uri uri;
+
+        public Client(int MaxMessageSize)
+        {
+            _maxMessageSize = MaxMessageSize;
+        }
 
         public async void Connect(Uri uri)
         {
@@ -84,7 +89,7 @@ namespace Mirror.Websocket
 
         async Task ReceiveLoop(WebSocket webSocket, CancellationToken token)
         {
-            byte[] buffer = new byte[MaxMessageSize];
+            byte[] buffer = new byte[_maxMessageSize];
 
             while (true)
             {
@@ -121,15 +126,15 @@ namespace Mirror.Websocket
 
             while (!result.EndOfMessage)
             {
-                if (count >= MaxMessageSize)
+                if (count >= _maxMessageSize)
                 {
-                    string closeMessage = string.Format("Maximum message size: {0} bytes.", MaxMessageSize);
+                    string closeMessage = string.Format("Maximum message size: {0} bytes.", _maxMessageSize);
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
                     ReceivedError?.Invoke(new WebSocketException(WebSocketError.HeaderError));
                     return new ArraySegment<byte>();
                 }
 
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, MaxMessageSize - count), CancellationToken.None);
+                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, _maxMessageSize - count), CancellationToken.None);
                 count += result.Count;
 
             }
