@@ -7,7 +7,7 @@ namespace Mirror.Websocket
     {
 
         protected Client client;
-        protected Server server = new Server();
+        protected Server server;
 
         public int port = 7778;
 
@@ -24,6 +24,8 @@ namespace Mirror.Websocket
 
         public WebsocketTransport()
         {
+            server = new Server(MaxMessageLength);
+
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
             server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
