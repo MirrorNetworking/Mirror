@@ -128,7 +128,7 @@ namespace Mirror.Websocket
             {
                 if (count > _maxMessageSize)
                 {
-                    string closeMessage = string.Format("Maximum message size: {0} bytes.", _maxMessageSize);
+                    string closeMessage = $"Message size {count} exceeds maximum message size {_maxMessageSize}";
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
                     ReceivedError?.Invoke(new WebSocketException(WebSocketError.HeaderError));
                     return new ArraySegment<byte>();
