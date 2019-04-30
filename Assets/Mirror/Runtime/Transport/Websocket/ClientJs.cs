@@ -45,7 +45,7 @@ namespace Mirror.Websocket
         public Client(int BufferSize)
         {
             id = Interlocked.Increment(ref idGenerator);
-            buffer = new byte[BufferSize];
+            buffer = buffer ?? new byte[BufferSize];
         }
 
         public void Connect(Uri uri)
