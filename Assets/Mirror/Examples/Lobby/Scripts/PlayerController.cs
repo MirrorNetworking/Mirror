@@ -18,9 +18,6 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar]
         public uint score;
 
-        [SyncVar(hook = nameof(SetColor))]
-        public Color playerColor = Color.black;
-
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
@@ -31,12 +28,25 @@ namespace Mirror.Examples.NetworkLobby
             Camera.main.enabled = false;
         }
 
-        void SetColor(Color color)
-        {
-            GetComponent<Renderer>().material.color = color;
-        }
+        [SyncVar(hook = nameof(SetColor))]
+        public Color playerColor = Color.black;
 
-        float horizontal = 0f;
+		// Unity makes a clone of the material when GetComponent<Renderer>().material is used
+		// Cache it here and Destroy it in OnDestroy to prevent a memory leak
+		Material materialClone;
+
+		void SetColor(Color color)
+		{
+			if (materialClone == null) materialClone = GetComponent<Renderer>().material;
+			materialClone.color = color;
+		}
+
+		private void OnDestroy()
+		{
+			Destroy(materialClone);
+		}
+
+		float horizontal = 0f;
         float vertical = 0f;
         float turn = 0f;
 
