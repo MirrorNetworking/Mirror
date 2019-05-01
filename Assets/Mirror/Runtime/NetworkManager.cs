@@ -76,11 +76,12 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
+            InitializeSingleton();//should prevent networkSceneName override by another NetworkManger which thinks its in offline scene when its in online scene.
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
             networkSceneName = offlineScene;
 
-            InitializeSingleton();
+            
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
