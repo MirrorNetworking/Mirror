@@ -473,7 +473,7 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
 
-            LoadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
             {
                 loadSceneMode = sceneMode,
                 localPhysicsMode = physicsMode,
