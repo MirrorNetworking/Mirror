@@ -40,7 +40,7 @@ namespace Mirror.Websocket
         int m_NativeRef = 0;
         readonly int id;
 
-        static byte[] buffer;
+        byte[] buffer;
 
         public Client(int BufferSize)
         {
@@ -109,6 +109,7 @@ namespace Mirror.Websocket
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnData(int id, IntPtr ptr, int length)
         {
+            byte[] buffer = clients[id].buffer;
             if (length <= buffer.Length)
             {
                 Marshal.Copy(ptr, buffer, 0, length);
