@@ -41,7 +41,7 @@ namespace Mirror
             {
                 if (netIdentityCache == null)
                 {
-                    netIdentityCache = GetComponent<NetworkIdentity>()
+                    netIdentityCache = GetComponent<NetworkIdentity>();
                 }
                 if (netIdentityCache == null)
                 {
