@@ -163,15 +163,15 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             sceneName = reader.ReadString();
-            sceneMode = (LoadSceneMode)reader.ReadInt32();
-            physicsMode = (LocalPhysicsMode)reader.ReadInt32();
+            sceneMode = (LoadSceneMode)reader.ReadByte();
+            physicsMode = (LocalPhysicsMode)reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(sceneName);
-            writer.Write((int)sceneMode);
-            writer.Write((int)physicsMode);
+            writer.Write((byte)sceneMode);
+            writer.Write((byte)physicsMode);
         }
     }
     #endregion
