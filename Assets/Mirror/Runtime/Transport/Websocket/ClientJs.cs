@@ -40,9 +40,12 @@ namespace Mirror.Websocket
         int m_NativeRef = 0;
         readonly int id;
 
-        public Client()
+        byte[] buffer;
+
+        public Client(int BufferSize)
         {
             id = Interlocked.Increment(ref idGenerator);
+            buffer = new byte[BufferSize];
         }
 
         public void Connect(Uri uri)
@@ -106,10 +109,17 @@ namespace Mirror.Websocket
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnData(int id, IntPtr ptr, int length)
         {
-            byte[] data = new byte[length];
-            Marshal.Copy(ptr, data, 0, length);
-
-            clients[id].ReceivedData(new ArraySegment<byte>(data));
+            byte[] buffer = clients[id].buffer;
+            if (length <= buffer.Length)
+            {
+                Marshal.Copy(ptr, buffer, 0, length);
+                ArraySegment<byte> data = new ArraySegment<byte>(buffer, 0, length);
+                clients[id].ReceivedData(data);
+            }
+            else
+            {
+                clients[id].ReceivedError(new Exception($"Message size {length} is larger than specified max message length {buffer.Length}"));
+            }
         }
         #endregion
     }
