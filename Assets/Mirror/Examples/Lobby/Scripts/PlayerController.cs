@@ -110,7 +110,10 @@ namespace Mirror.Examples.NetworkLobby
         public void CmdClaimPrize(GameObject hitObject)
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
-            hitObject?.GetComponent<Reward>().ClaimPrize(gameObject);
+            if (hitObject != null)
+            {
+                hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
+            }
         }
 
         void OnGUI()
