@@ -195,7 +195,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool Send<T>(T message) where T : IMessageBase
+        public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (connection != null)
             {
@@ -204,7 +204,7 @@ namespace Mirror
                     Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
-                return connection.Send(message);
+                return connection.Send(message, channelId);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
