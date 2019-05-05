@@ -38,7 +38,10 @@ namespace Mirror
         {
             ReadyToBegin = ReadyState;
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            lobby?.ReadyStatusChanged();
+            if (lobby != null)
+            {
+                lobby.ReadyStatusChanged();
+            }
         }
 
         #endregion
