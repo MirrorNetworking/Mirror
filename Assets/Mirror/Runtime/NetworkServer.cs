@@ -261,6 +261,10 @@ namespace Mirror
             return false;
         }
 
+        /// SendToReady and SendToObservers should accept Null as the first argument 
+        /// (Here as well as in NetworkConnection/NetworkServer). indicating you want this sent to ALL observers 
+        /// Currently this sends nothing if you pass it null NetworkIdenty, which is not consistent with the origina UNET method.
+        /// There is no way to "SendToAllReady", which is what the null should be the method for.
         public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
@@ -269,7 +273,7 @@ namespace Mirror
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
-
+                            
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
