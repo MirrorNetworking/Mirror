@@ -148,9 +148,10 @@ namespace Mirror
         static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
-            return !identity.gameObject.activeSelf &&
-                   identity.gameObject.hideFlags != HideFlags.NotEditable &&
-                   identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+            GameObject gameObject = identity.gameObject;
+            return !gameObject.activeSelf &&
+                   gameObject.hideFlags != HideFlags.NotEditable &&
+                   gameObject.hideFlags != HideFlags.HideAndDontSave &&
                    identity.sceneId != 0;
         }
 
@@ -336,9 +337,11 @@ namespace Mirror
             {
                 identity.gameObject.SetActive(true);
             }
-            identity.transform.position = position;
-            identity.transform.rotation = rotation;
-            identity.transform.localScale = scale;
+
+            Transform transform = identity.transform;
+            transform.position = position;
+            transform.rotation = rotation;
+            transform.localScale = scale;
             if (payload != null && payload.Length > 0)
             {
                 NetworkReader payloadReader = new NetworkReader(payload);

@@ -89,7 +89,8 @@ namespace Mirror
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+            Transform transform1 = targetComponent.transform;
+            SerializeIntoWriter(writer, transform1.position, transform1.rotation, compressRotation);
             return true;
         }
 
@@ -150,10 +151,11 @@ namespace Mirror
             //    so that we can start interpolation without waiting for next.
             if (start == null)
             {
+                Transform transform1 = targetComponent.transform;
                 start = new DataPoint{
                     timeStamp = Time.time - syncInterval,
-                    position = targetComponent.transform.position,
-                    rotation = targetComponent.transform.rotation,
+                    position = transform1.position,
+                    rotation = transform1.rotation,
                     movementSpeed = temp.movementSpeed
                 };
             }
@@ -197,8 +199,9 @@ namespace Mirror
                 // position if we aren't too far away
                 if (Vector3.Distance(targetComponent.transform.position, start.position) < oldDistance + newDistance)
                 {
-                    start.position = targetComponent.transform.position;
-                    start.rotation = targetComponent.transform.rotation;
+                    Transform transform1 = targetComponent.transform;
+                    start.position = transform1.position;
+                    start.rotation = transform1.rotation;
                 }
             }
 
@@ -292,8 +295,9 @@ namespace Mirror
         bool HasMovedOrRotated()
         {
             // moved or rotated?
-            bool moved = lastPosition != targetComponent.transform.position;
-            bool rotated = lastRotation != targetComponent.transform.rotation;
+            Transform transform1 = targetComponent.transform;
+            bool moved = lastPosition != transform1.position;
+            bool rotated = lastRotation != transform1.rotation;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
@@ -302,8 +306,9 @@ namespace Mirror
             bool change = moved || rotated;
             if (change)
             {
-                lastPosition = targetComponent.transform.position;
-                lastRotation = targetComponent.transform.rotation;
+                Transform transform2 = targetComponent.transform;
+                lastPosition = transform2.position;
+                lastRotation = transform2.rotation;
             }
             return change;
         }
@@ -342,7 +347,8 @@ namespace Mirror
                         {
                             // serialize
                             NetworkWriter writer = new NetworkWriter();
-                            SerializeIntoWriter(writer, targetComponent.transform.position, targetComponent.transform.rotation, compressRotation);
+                            Transform transform1 = targetComponent.transform;
+                            SerializeIntoWriter(writer, transform1.position, transform1.rotation, compressRotation);
 
                             // send to server
                             CmdClientToServerSync(writer.ToArray());

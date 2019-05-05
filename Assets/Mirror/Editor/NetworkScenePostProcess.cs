@@ -23,10 +23,11 @@ namespace Mirror
             // => OfTypeAll so disabled objects are included too
             // => Unity 2019 returns prefabs here too, so filter them out.
             IEnumerable<NetworkIdentity> identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
-                .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
-                                   identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                                   identity.gameObject.scene.name != "DontDestroyOnLoad" &&
-                                   !PrefabUtility.IsPartOfPrefabAsset(identity.gameObject));
+                .Where(identity =>
+                {
+                    GameObject o;
+                    return (o = identity.gameObject).hideFlags != HideFlags.NotEditable && o.hideFlags != HideFlags.HideAndDontSave && o.scene.name != "DontDestroyOnLoad" && !PrefabUtility.IsPartOfPrefabAsset(o);
+                });
 
             foreach (NetworkIdentity identity in identities)
             {

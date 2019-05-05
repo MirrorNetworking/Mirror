@@ -342,7 +342,8 @@ namespace Mirror
         public void SetSceneIdSceneHashPartInternal()
         {
             // get deterministic scene hash
-            uint pathHash = (uint)gameObject.scene.path.GetStableHashCode();
+            GameObject o;
+            uint pathHash = (uint)(o = gameObject).scene.path.GetStableHashCode();
 
             // shift hash from 0x000000FFFFFFFF to 0xFFFFFFFF00000000
             ulong shiftedHash = (ulong)pathHash << 32;
@@ -351,7 +352,7 @@ namespace Mirror
             m_SceneId = (m_SceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            Debug.Log(name + " in scene=" + o.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()

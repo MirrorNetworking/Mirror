@@ -839,14 +839,15 @@ namespace Mirror
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
             {
+                Transform transform = identity.transform;
                 SpawnPrefabMessage msg = new SpawnPrefabMessage
                 {
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     assetId = identity.assetId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
-                    scale = identity.transform.localScale,
+                    position = transform.position,
+                    rotation = transform.rotation,
+                    scale = transform.localScale,
 
                     // serialize all components with initialState = true
                     payload = identity.OnSerializeAllSafely(true)
@@ -866,14 +867,15 @@ namespace Mirror
             // 'identity' is a scene object that should be spawned again
             else
             {
+                Transform transform = identity.transform;
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
                 {
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
-                    scale = identity.transform.localScale,
+                    position = transform.position,
+                    rotation = transform.rotation,
+                    scale = transform.localScale,
 
                     // include synch data
                     payload = identity.OnSerializeAllSafely(true)

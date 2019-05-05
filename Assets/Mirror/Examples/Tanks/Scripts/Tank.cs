@@ -16,6 +16,8 @@ namespace Mirror.Examples.Tanks
         public KeyCode shootKey = KeyCode.Space;
         public GameObject projectilePrefab;
         public Transform projectileMount;
+        private static readonly int Moving = Animator.StringToHash("Moving");
+        private static readonly int Shoot = Animator.StringToHash("Shoot");
 
         void Update()
         {
@@ -30,7 +32,7 @@ namespace Mirror.Examples.Tanks
             float vertical = Input.GetAxis("Vertical");
             Vector3 forward = transform.TransformDirection(Vector3.forward);
             agent.velocity = forward * Mathf.Max(vertical, 0) * agent.speed;
-            animator.SetBool("Moving", agent.velocity != Vector3.zero);
+            animator.SetBool(Moving, agent.velocity != Vector3.zero);
 
             // shoot
             if (Input.GetKeyDown(shootKey))
@@ -52,7 +54,7 @@ namespace Mirror.Examples.Tanks
         [ClientRpc]
         void RpcOnFire()
         {
-            animator.SetTrigger("Shoot");
+            animator.SetTrigger(Shoot);
         }
     }
 }

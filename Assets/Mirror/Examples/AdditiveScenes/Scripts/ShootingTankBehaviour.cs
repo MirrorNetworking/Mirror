@@ -50,8 +50,9 @@ namespace Mirror.Examples.Additive
 
             if (target != null)
             {
-                transform.LookAt(target.transform.position + Vector3.down);
-                Rotation = transform.rotation;
+                Transform transform1;
+                (transform1 = transform).LookAt(target.transform.position + Vector3.down);
+                Rotation = transform1.rotation;
                 networkAnimator.SetTrigger("Fire");
             }
         }

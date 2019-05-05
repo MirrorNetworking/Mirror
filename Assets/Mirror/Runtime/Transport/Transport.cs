@@ -77,6 +77,9 @@ namespace Mirror
         //            e.g. in uSurvival Transport would apply Cmds before
         //            ShoulderRotation.LateUpdate, resulting in projectile
         //            spawns at the point before shoulder rotation.
+        // only in editor so that we don't have empty method in builds
+#if UNITY_EDITOR
         public void Update() {}
+#endif
     }
 }
