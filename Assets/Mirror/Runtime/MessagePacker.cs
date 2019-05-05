@@ -122,11 +122,9 @@ namespace Mirror
             {
                 Debug.LogError("Closed connection: " + networkMessage.conn.connectionId + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
                 networkMessage.conn.Disconnect();
+                return;
             }
-            if (message != default)
-            {
-                handler(networkMessage.conn, message);
-            }
+            handler(networkMessage.conn, message);
         };
     }
 }
