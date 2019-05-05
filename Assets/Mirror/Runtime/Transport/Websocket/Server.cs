@@ -20,7 +20,7 @@ namespace Mirror.Websocket
         public event Action<int> Disconnected;
         public event Action<int, Exception> ReceivedError;
 
-        int _maxMessageSize;
+        const int MaxMessageSize = 256 * 1024;
 
         // listener
         TcpListener listener;
@@ -82,11 +82,6 @@ namespace Mirror.Websocket
             public bool ClientCertificateRequired;
             public System.Security.Authentication.SslProtocols EnabledSslProtocols;
             public bool CheckCertificateRevocation;
-        }
-
-        public Server(int MaxMsgSize)
-        {
-            _maxMessageSize = MaxMsgSize;
         }
 
         public async void Listen(int port)
@@ -183,7 +178,7 @@ namespace Mirror.Websocket
             int connectionId = NextConnectionId();
             clients.Add(connectionId, webSocket);
 
-            byte[] buffer = new byte[_maxMessageSize];
+            byte[] buffer = new byte[MaxMessageSize];
 
             try
             {
@@ -237,15 +232,15 @@ namespace Mirror.Websocket
 
             while (!result.EndOfMessage)
             {
-                if (count > _maxMessageSize)
+                if (count >= MaxMessageSize)
                 {
-                    string closeMessage = $"Message size {count} exceeds maximum message size {_maxMessageSize}";
+                    string closeMessage = string.Format("Maximum message size: {0} bytes.", MaxMessageSize);
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
                     ReceivedError?.Invoke(connectionId, new WebSocketException(WebSocketError.HeaderError));
                     return new ArraySegment<byte>();
                 }
 
-                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, _maxMessageSize - count), CancellationToken.None);
+                result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, MaxMessageSize - count), CancellationToken.None);
                 count += result.Count;
 
             }
