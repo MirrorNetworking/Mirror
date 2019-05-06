@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 3.x.x
+
+- Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
+
 ## Version 3.6.7 -- 2019-Apr-28
 
 - Changed: NetworkReader now uses ArraySegment<byte> to minimize allocations.
