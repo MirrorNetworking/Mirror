@@ -419,7 +419,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " GUID:" + netId);
+            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
