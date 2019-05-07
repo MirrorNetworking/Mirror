@@ -442,7 +442,7 @@ namespace Mirror
 
         void ClientChangeScene(string newSceneName, bool forceReload)
         {
-            ClientChangeScene(networkSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
+            ClientChangeScene(newSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
         }
 
         internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
