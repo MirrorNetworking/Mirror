@@ -651,11 +651,9 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            string newSceneName = msg.sceneName;
-
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(newSceneName, true);
+                ClientChangeScene(msg.sceneName, true, msg.sceneMode, msg.physicsMode);
             }
         }
         #endregion
