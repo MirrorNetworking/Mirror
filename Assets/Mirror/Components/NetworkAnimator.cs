@@ -11,11 +11,16 @@ namespace Mirror
     {
         // configuration
         [FormerlySerializedAs("m_Animator")] public Animator animator;
+		public bool interpolateFloatParameters;
+		[Range(0f, 0.9f)]
+		public float interpolationFactor = 0.7f;
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
         float[] lastFloatParameters;
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
+		// Used when interpolating
+		float[] floatParametersTargets;
 
         int animationHash;
         int transitionHash;
@@ -43,6 +48,16 @@ namespace Mirror
                 return hasAuthority;
             }
         }
+		bool isInterpolating
+		{
+			get
+			{
+				// We are interpolating if we're not the one sending messages and interpolation is enabled
+				return !sendMessagesAllowed && interpolateFloatParameters;
+			}
+		}
+		// Used to re-cache the interpolation targets if necessary
+		bool wasInterpolating;
 
         void Awake()
         {
@@ -52,9 +67,49 @@ namespace Mirror
             lastIntParameters = new int[parameters.Length];
             lastFloatParameters = new float[parameters.Length];
             lastBoolParameters = new bool[parameters.Length];
+			// Initialize and cache interpolation targets
+			floatParametersTargets = new float[parameters.Length];
+			CacheFloatTargets();
+
+			wasInterpolating = isInterpolating;
         }
 
-        void FixedUpdate()
+		void CacheFloatTargets ()
+		{
+			// Update the float targets based on what is currently stored in the animator
+			for (int i = 0; i < parameters.Length; i++)
+            {
+                AnimatorControllerParameter par = parameters[i];
+                if (par.type == AnimatorControllerParameterType.Float)
+                {
+					floatParametersTargets[i] = animator.GetFloat(par.nameHash);
+                }
+            }
+		}
+
+		private void Update ()
+		{
+			if (isInterpolating)
+			{
+				// If we weren't previously interpolating, we need to cache the current float values from the animator before we start to interpolate.
+				// Otherwise, there might be a noticeable jump as the parameters settle in.
+				if (!wasInterpolating)
+					CacheFloatTargets();
+
+				for (int i = 0; i < parameters.Length; i++)
+				{
+					AnimatorControllerParameter par = parameters[i];
+					if (par.type == AnimatorControllerParameterType.Float)
+					{
+						float newFloatValue = Mathf.Lerp(floatParametersTargets[i], animator.GetFloat(par.nameHash), interpolationFactor);
+						animator.SetFloat(par.nameHash, newFloatValue);
+					}
+				}
+			}
+			wasInterpolating = isInterpolating;
+		}
+
+		void FixedUpdate()
         {
             if (!sendMessagesAllowed)
                 return;
@@ -244,7 +299,7 @@ namespace Mirror
             }
             return dirtyBits != 0;
         }
-
+		
         void ReadParameters(NetworkReader reader)
         {
             ulong dirtyBits = reader.ReadPackedUInt64();
@@ -262,7 +317,12 @@ namespace Mirror
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = reader.ReadSingle();
-                    animator.SetFloat(par.nameHash, newFloatValue);
+					// If interpolating, set the target. Otherwise, set the value immediately.
+					if (interpolateFloatParameters)
+						floatParametersTargets[i] = newFloatValue;
+					else
+						animator.SetFloat(par.nameHash, newFloatValue);
+					
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
