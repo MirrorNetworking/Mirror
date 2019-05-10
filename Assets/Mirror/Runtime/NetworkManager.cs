@@ -700,6 +700,12 @@ namespace Mirror
 
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) instead.")]
+        public virtual void OnServerSceneChanged(string sceneName)
+        {
+            OnServerSceneChanged(sceneName, LoadSceneMode.Single);
+        }
+
         public virtual void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) {}
         #endregion
 
