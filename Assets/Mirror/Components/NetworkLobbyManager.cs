@@ -272,7 +272,7 @@ namespace Mirror
             base.ServerChangeScene(sceneName);
         }
 
-        public override void OnServerSceneChanged(string sceneName)
+        public override void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode)
         {
             if (sceneName != LobbyScene)
             {

@@ -83,7 +83,7 @@ namespace Mirror
             InitializeSingleton();
 
             // setup OnSceneLoaded callback
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            SceneManager.sceneLoaded += FinishLoadScene;
         }
 
         // headless mode detection
@@ -141,33 +141,6 @@ namespace Mirror
             }
         }
 
-        // support additive scene loads:
-        //   NetworkScenePostProcess disables all scene objects on load, and
-        //   * NetworkServer.SpawnObjects enables them again on the server when
-        //     calling OnStartServer
-        //   * ClientScene.PrepareToSpawnSceneObjects enables them again on the
-        //     client after the server sends ObjectSpawnStartedMessage to client
-        //     in SpawnObserversForConnection. this is only called when the
-        //     client joins, so we need to rebuild scene objects manually again
-        // TODO merge this with FinishLoadScene()?
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (mode == LoadSceneMode.Additive)
-            {
-                if (NetworkServer.active)
-                {
-                    // TODO only respawn the server objects from that scene later!
-                    NetworkServer.SpawnObjects();
-                    Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
-                }
-                if (NetworkClient.active)
-                {
-                    ClientScene.PrepareToSpawnSceneObjects();
-                    Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
-                }
-            }
-        }
-
         // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
         // if we want TCP then we need to call it manually. probably best from NetworkManager, although this means
         // that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
@@ -180,7 +153,6 @@ namespace Mirror
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
             NetworkClient.Update();
-            UpdateScene();
         }
 
         // When pressing Stop in the Editor, Unity keeps threads alive until we
@@ -459,7 +431,7 @@ namespace Mirror
             {
                 if (!forceReload)
                 {
-                    FinishLoadScene();
+                    FinishLoadScene(SceneManager.GetSceneByName(newSceneName), sceneMode);
                     return;
                 }
             }
@@ -481,7 +453,7 @@ namespace Mirror
             networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
-        void FinishLoadScene()
+        void FinishLoadScene(Scene scene, LoadSceneMode sceneMode)
         {
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
@@ -499,25 +471,16 @@ namespace Mirror
             if (NetworkServer.active)
             {
                 NetworkServer.SpawnObjects();
-                OnServerSceneChanged(networkSceneName);
+                OnServerSceneChanged(scene.name, sceneMode);
             }
 
             if (NetworkClient.isConnected)
-            {
-                RegisterClientMessages();
-                OnClientSceneChanged(NetworkClient.connection);
-            }
-        }
-
-        static void UpdateScene()
-        {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
-            {
-                if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                singleton.FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
-            }
+                {
+                    if (sceneMode == LoadSceneMode.Additive)
+                        ClientScene.PrepareToSpawnSceneObjects();
+                    RegisterClientMessages();
+                    OnClientSceneChanged(NetworkClient.connection);
+                }
         }
 
         // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
@@ -737,7 +700,7 @@ namespace Mirror
 
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnServerSceneChanged(string sceneName) {}
+        public virtual void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) {}
         #endregion
 
         #region Client System Callbacks
