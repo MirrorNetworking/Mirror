@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
 using System.Linq;
-using Mono.Cecil.Pdb;
-using Mono.Cecil.Mdb;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {

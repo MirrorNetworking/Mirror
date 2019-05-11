@@ -298,6 +298,14 @@ namespace Mirror
 
         public int IndexOf(T item) => objects.IndexOf(item);
 
+        public int FindIndex(Predicate<T> match)
+        {
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    return i;
+            return -1;
+        }
+
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);

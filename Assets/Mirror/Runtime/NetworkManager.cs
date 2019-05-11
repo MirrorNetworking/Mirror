@@ -424,6 +424,11 @@ namespace Mirror
         /// <param name="newSceneName">The name of the scene to change to.</param>
         public virtual void ServerChangeScene(string newSceneName)
         {
+            ServerChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        public virtual void ServerChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        {
             if (string.IsNullOrEmpty(newSceneName))
             {
                 Debug.LogError("ServerChangeScene empty scene name");
@@ -434,9 +439,17 @@ namespace Mirror
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+            LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
 
-            SceneMessage msg = new SceneMessage(networkSceneName);
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
+
+            SceneMessage msg = new SceneMessage()
+            {
+                sceneName = newSceneName,
+                sceneMode = loadSceneParameters.loadSceneMode,
+                physicsMode = loadSceneParameters.localPhysicsMode
+            };
+
             NetworkServer.SendToAll(msg);
 
             startPositionIndex = 0;
@@ -452,6 +465,11 @@ namespace Mirror
         }
 
         void ClientChangeScene(string newSceneName, bool forceReload)
+        {
+            ClientChangeScene(newSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -479,8 +497,12 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-            networkSceneName = newSceneName;
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
+            {
+                loadSceneMode = sceneMode,
+                localPhysicsMode = physicsMode,
+            });
+            networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
         void FinishLoadScene()
@@ -588,7 +610,8 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                conn.Send(new SceneMessage(networkSceneName));
+                SceneMessage msg = new SceneMessage() {sceneName = networkSceneName};
+                conn.Send(msg);
             }
 
             OnServerConnect(conn);
@@ -668,11 +691,9 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            string newSceneName = msg.value;
-
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(newSceneName, true);
+                ClientChangeScene(msg.sceneName, true, msg.sceneMode, msg.physicsMode);
             }
         }
         #endregion
@@ -734,7 +755,7 @@ namespace Mirror
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+                : Instantiate(playerPrefab);
 
             NetworkServer.AddPlayerForConnection(conn, player);
         }
@@ -743,30 +764,25 @@ namespace Mirror
         /// This finds a spawn position based on NetworkStartPosition objects in the Scene.
         /// </summary>
         /// <returns>Returns the transform to spawn a player at, or null.</returns>
-        public Transform GetStartPosition()
-        {
-            // first remove any dead transforms
-            startPositions.RemoveAll(t => t == null);
+		public Transform GetStartPosition()
+		{
+			// first remove any dead transforms
+			startPositions.RemoveAll(t => t == null);
 
-            if (playerSpawnMethod == PlayerSpawnMethod.Random && startPositions.Count > 0)
-            {
-                // try to spawn at a random start location
-                int index = UnityEngine.Random.Range(0, startPositions.Count);
-                return startPositions[index];
-            }
-            if (playerSpawnMethod == PlayerSpawnMethod.RoundRobin && startPositions.Count > 0)
-            {
-                if (startPositionIndex >= startPositions.Count)
-                {
-                    startPositionIndex = 0;
-                }
+			if (startPositions.Count == 0)
+				return null;
 
-                Transform startPos = startPositions[startPositionIndex];
-                startPositionIndex += 1;
-                return startPos;
-            }
-            return null;
-        }
+			if (playerSpawnMethod == PlayerSpawnMethod.Random)
+			{
+				return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
+			}
+			else
+			{
+				Transform startPosition = startPositions[startPositionIndex];
+				startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
+				return startPosition;
+			}
+		}
 
         /// <summary>
         /// Called on the server when a client removes a player.

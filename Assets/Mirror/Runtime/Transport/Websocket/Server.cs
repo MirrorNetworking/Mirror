@@ -16,7 +16,7 @@ namespace Mirror.Websocket
     public class Server
     {
         public event Action<int> Connected;
-        public event Action<int, byte[]> ReceivedData;
+        public event Action<int, ArraySegment<byte>> ReceivedData;
         public event Action<int> Disconnected;
         public event Action<int, Exception> ReceivedError;
 
@@ -124,14 +124,14 @@ namespace Mirror.Websocket
                 Stream stream = tcpClient.GetStream();
                 if (_secure)
                 {
-                    var sslStream = new SslStream(stream, false, CertVerificationCallback);
+                    SslStream sslStream = new SslStream(stream, false, CertVerificationCallback);
                     sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
                     stream = sslStream;
                 }
                 WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
                 if (context.IsWebSocketRequest)
                 {
-                    var options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
+                    WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
 
                     WebSocket webSocket = await webSocketServerFactory.AcceptWebSocketAsync(context, options);
 
@@ -196,9 +196,9 @@ namespace Mirror.Websocket
                         break;
                     }
 
-                    byte[] data = await ReadFrames(connectionId, result, webSocket, buffer, token);
+                    ArraySegment<byte> data = await ReadFrames(connectionId, result, webSocket, buffer, token);
 
-                    if (data == null)
+                    if (data.Count == 0)
                         break;
 
                     try
@@ -226,7 +226,7 @@ namespace Mirror.Websocket
 
         // a message might come splitted in multiple frames
         // collect all frames
-        async Task<byte[]> ReadFrames(int connectionId, WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer, CancellationToken token)
+        async Task<ArraySegment<byte>> ReadFrames(int connectionId, WebSocketReceiveResult result, WebSocket webSocket, byte[] buffer, CancellationToken token)
         {
             int count = result.Count;
 
@@ -237,14 +237,14 @@ namespace Mirror.Websocket
                     string closeMessage = string.Format("Maximum message size: {0} bytes.", MaxMessageSize);
                     await webSocket.CloseAsync(WebSocketCloseStatus.MessageTooBig, closeMessage, CancellationToken.None);
                     ReceivedError?.Invoke(connectionId, new WebSocketException(WebSocketError.HeaderError));
-                    return null;
+                    return new ArraySegment<byte>();
                 }
 
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer, count, MaxMessageSize - count), CancellationToken.None);
                 count += result.Count;
 
             }
-            return new ArraySegment<byte>(buffer, 0, count).ToArray();
+            return new ArraySegment<byte>(buffer, 0, count);
         }
 
         public void Stop()
@@ -268,8 +268,7 @@ namespace Mirror.Websocket
         public async void Send(int connectionId, byte[] data)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 try
                 {
@@ -307,8 +306,7 @@ namespace Mirror.Websocket
         public string GetClientAddress(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 return "";
             }
@@ -319,8 +317,7 @@ namespace Mirror.Websocket
         public bool Disconnect(int connectionId)
         {
             // find the connection
-            WebSocket client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.

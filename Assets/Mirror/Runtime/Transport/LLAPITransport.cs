@@ -1,4 +1,11 @@
-// wraps UNET's LLAPI for use as HLAPI TransportLayer
+// Coburn: LLAPI is not available on UWP. There are a lot of compile directives here that we're checking against.
+// Checking all of them may be overkill, but it's better to cover all the possible UWP directives. Sourced from
+// https://docs.unity3d.com/Manual/PlatformDependentCompilation.html
+// TODO: Check if LLAPI is supported on Xbox One?
+
+// LLAPITransport wraps UNET's LLAPI for use as a HLAPI TransportLayer, only if you're not on a UWP platform.
+#if !(UNITY_WSA || UNITY_WSA_10_0 || UNITY_WINRT || UNITY_WINRT_10_0 || NETFX_CORE)
+
 using System;
 using System.ComponentModel;
 using UnityEngine;
@@ -142,8 +149,7 @@ namespace Mirror
                     OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(clientReceiveBuffer, data, receivedSize);
+                    ArraySegment<byte> data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
                     OnClientDataReceived.Invoke(data);
                     break;
                 case NetworkEventType.DisconnectEvent:
@@ -203,8 +209,7 @@ namespace Mirror
         {
             if (serverHostId == -1) return false;
 
-            int connectionId = -1;
-            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
+            NetworkEventType networkEvent = NetworkTransport.ReceiveFromHost(serverHostId, out int connectionId, out int channel, serverReceiveBuffer, serverReceiveBuffer.Length, out int receivedSize, out error);
 
             // note: 'error' is used for extra information, e.g. the reason for
             // a disconnect. we don't necessarily have to throw an error if
@@ -234,8 +239,7 @@ namespace Mirror
                     OnServerConnected.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    byte[] data = new byte[receivedSize];
-                    Array.Copy(serverReceiveBuffer, data, receivedSize);
+                    ArraySegment<byte> data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
                     OnServerDataReceived.Invoke(connectionId, data);
                     break;
                 case NetworkEventType.DisconnectEvent:
@@ -316,3 +320,4 @@ namespace Mirror
         #endregion
     }
 }
+#endif

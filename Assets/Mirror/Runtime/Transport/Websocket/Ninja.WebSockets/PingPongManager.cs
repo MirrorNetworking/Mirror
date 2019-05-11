@@ -61,7 +61,7 @@ namespace Ninja.WebSockets
         /// if keepAliveInterval is positive</param>
         public PingPongManager(Guid guid, WebSocket webSocket, TimeSpan keepAliveInterval, CancellationToken cancellationToken)
         {
-            var webSocketImpl = webSocket as WebSocketImplementation;
+            WebSocketImplementation webSocketImpl = webSocket as WebSocketImplementation;
             _webSocket = webSocketImpl;
             if (_webSocket == null)
                 throw new InvalidCastException("Cannot cast WebSocket to an instance of WebSocketImplementation. Please use the web socket factories to create a web socket");

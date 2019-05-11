@@ -42,8 +42,9 @@ namespace Mirror
         ///<summary>True if this object is the authoritative version of the object. For more info: https://vis2k.github.io/Mirror/Concepts/Authority</summary>
         public bool hasAuthority { get; private set; }
 
-        ///<summary>The list of client NetworkConnections that are able to see this object.
-        ///  connectionId -> NetworkConnection </summary>
+        // <connectionId, NetworkConnection>
+        // null until OnStartServer was called. this is necessary for SendTo...
+        // to work properly in server-only mode.
         public Dictionary<int, NetworkConnection> observers;
 
         ///<summary>A unique identifier for this network object, assigned when spawned.</summary>
@@ -327,7 +328,7 @@ namespace Mirror
                 if (!duplicate)
                 {
                     m_SceneId = randomId;
-                    Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                    //Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
                 }
             }
 
@@ -429,7 +430,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " GUID:" + netId);
+            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)

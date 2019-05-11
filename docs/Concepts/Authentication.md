@@ -49,7 +49,7 @@ class MyGameNetworkManager : NetworkManager {
             password = "Gaba Gaba"
         };
 
-        ClientScene.AddPlayer(connection,   MessagePacker.Pack(msg));
+        ClientScene.AddPlayer(conn, MessagePacker.Pack(msg));
     }
 
     // this gets called in your server when the 

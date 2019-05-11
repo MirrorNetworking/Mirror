@@ -4,7 +4,7 @@
 //       value for null otherwise.
 //       (original FieldType.Resolve returns null if not found too, so
 //        exceptions would be a bit inconsistent here)
-using Mono.Cecil;
+using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
@@ -58,7 +58,7 @@ namespace Mirror.Weaver
         // System.Byte[] arguments need a version with a string
         public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
         {
-            foreach (var methodRef in tr.Resolve().Methods)
+            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
             {
                 if (methodRef.Name == name)
                 {

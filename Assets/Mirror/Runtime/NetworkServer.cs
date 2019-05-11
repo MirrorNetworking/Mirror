@@ -399,7 +399,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
         }
 
-        static void OnDataReceived(int connectionId, byte[] data)
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
@@ -479,8 +479,7 @@ namespace Mirror
 
         public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
-            NetworkConnection conn;
-            if (connections.TryGetValue(connectionId, out conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
                 conn.Send(msg);
                 return;
@@ -551,7 +550,7 @@ namespace Mirror
             {
                 if (identity.gameObject.activeSelf) //TODO this is different // try with far away ones in ummorpg!
                 {
-                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
+                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId);
 
                     bool visible = identity.OnCheckObserver(conn);
                     if (visible)
