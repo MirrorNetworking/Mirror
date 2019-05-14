@@ -58,10 +58,6 @@ namespace Ninja.WebSockets.Internal
         const int MAX_PING_PONG_PAYLOAD_LEN = 125;
         WebSocketCloseStatus? _closeStatus;
         string _closeStatusDescription;
-        bool sendingMessage = false;
-        Queue<ArraySegment<byte>> messagesToSend = new Queue<ArraySegment<byte>>();
-        Queue<ArraySegment<byte>> pongMessagesToSend = new Queue<ArraySegment<byte>>();
-        Queue<ArraySegment<byte>> pingMessagesToSend = new Queue<ArraySegment<byte>>();
 
         public event EventHandler<PongEventArgs> Pong;
 
@@ -167,7 +163,7 @@ namespace Ninja.WebSockets.Internal
                         switch (frame.OpCode)
                         {
                             case WebSocketOpCode.ConnectionClose:
-                                return await RespondToCloseFrame(frame, buffer, linkedCts.Token);
+                                return RespondToCloseFrame(frame, buffer, linkedCts.Token);
                             case WebSocketOpCode.Ping:
                                 ArraySegment<byte> pingPayload = new ArraySegment<byte>(buffer.Array, buffer.Offset, frame.Count);
                                 await SendPongAsync(pingPayload, linkedCts.Token);
@@ -223,24 +219,6 @@ namespace Ninja.WebSockets.Internal
         /// <param name="cancellationToken">the cancellation token</param>
         public override async Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
         {
-            // workaround for: https://forum.unity.com/threads/unity-2017-1-tls-1-2-still-not-working-with-net-4-6.487415/
-            // In SslStream, only one SendAsync can be going at a time
-            // if Send is called multiple time, only the first one calls SendAsync,
-            // the other ones queue up the message
-            messagesToSend.Enqueue(buffer);
-            if (!sendingMessage)
-            {
-                sendingMessage = true;
-                while (messagesToSend.Count > 0)
-                {
-                    await SendAsyncInternal(messagesToSend.Dequeue(), messageType, endOfMessage, cancellationToken);
-                }
-                sendingMessage = false;
-            }
-        }
-
-        private async Task SendAsyncInternal(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
-        {
             using (MemoryStream stream = _recycledStreamFactory())
             {
                 WebSocketOpCode opCode = GetOppCode(messageType);
@@ -266,7 +244,7 @@ namespace Ninja.WebSockets.Internal
                     Events.Log.SendingFrame(_guid, opCode, endOfMessage, buffer.Count, false);
                 }
 
-                await WriteStreamToNetwork(stream, cancellationToken);
+                WriteStreamToNetwork(stream, cancellationToken);
                 _isContinuationFrame = !endOfMessage; // TODO: is this correct??
             }
         }
@@ -275,34 +253,19 @@ namespace Ninja.WebSockets.Internal
         /// Call this automatically from server side each keepAliveInterval period
         /// NOTE: ping payload must be 125 bytes or less
         /// </summary>
-        public async Task SendPingAsync(ArraySegment<byte> payload, CancellationToken cancellationToken)
+        public void SendPingAsync(ArraySegment<byte> payload, CancellationToken cancellationToken)
         {
             if (payload.Count > MAX_PING_PONG_PAYLOAD_LEN)
             {
                 throw new InvalidOperationException($"Cannot send Ping: Max ping message size {MAX_PING_PONG_PAYLOAD_LEN} exceeded: {payload.Count}");
             }
-
-            pingMessagesToSend.Enqueue(payload);
-            if (!sendingMessage)
-            {
-                sendingMessage = true;
-                while (pingMessagesToSend.Count > 0)
-                {
-                    await SendPingAsyncInternal(pingMessagesToSend.Dequeue(), cancellationToken);
-                }
-                sendingMessage = false;
-            }
-        }
-
-        async Task SendPingAsyncInternal(ArraySegment<byte> payload, CancellationToken cancellationToken)
-        {
             if (_state == WebSocketState.Open)
             {
                 using (MemoryStream stream = _recycledStreamFactory())
                 {
                     WebSocketFrameWriter.Write(WebSocketOpCode.Ping, payload, stream, true, _isClient);
                     Events.Log.SendingFrame(_guid, WebSocketOpCode.Ping, true, payload.Count, false);
-                    await WriteStreamToNetwork(stream, cancellationToken);
+                    WriteStreamToNetwork(stream, cancellationToken);
                 }
             }
         }
@@ -329,7 +292,7 @@ namespace Ninja.WebSockets.Internal
                     WebSocketFrameWriter.Write(WebSocketOpCode.ConnectionClose, buffer, stream, true, _isClient);
                     Events.Log.CloseHandshakeStarted(_guid, closeStatus, statusDescription);
                     Events.Log.SendingFrame(_guid, WebSocketOpCode.ConnectionClose, true, buffer.Count, true);
-                    await WriteStreamToNetwork(stream, cancellationToken);
+                    WriteStreamToNetwork(stream, cancellationToken);
                     _state = WebSocketState.CloseSent;
                 }
             }
@@ -354,7 +317,7 @@ namespace Ninja.WebSockets.Internal
                     WebSocketFrameWriter.Write(WebSocketOpCode.ConnectionClose, buffer, stream, true, _isClient);
                     Events.Log.CloseOutputNoHandshake(_guid, closeStatus, statusDescription);
                     Events.Log.SendingFrame(_guid, WebSocketOpCode.ConnectionClose, true, buffer.Count, true);
-                    await WriteStreamToNetwork(stream, cancellationToken);
+                    WriteStreamToNetwork(stream, cancellationToken);
                 }
             }
             else
@@ -448,15 +411,14 @@ namespace Ninja.WebSockets.Internal
 
             try
             {
-                pongMessagesToSend.Enqueue(payload);
-                if (!sendingMessage)
+                if (_state == WebSocketState.Open)
                 {
-                    sendingMessage = true;
-                    while (pongMessagesToSend.Count > 0)
+                    using (MemoryStream stream = _recycledStreamFactory())
                     {
-                        await SendPongAsyncInternal(pongMessagesToSend.Dequeue(), cancellationToken);
+                        WebSocketFrameWriter.Write(WebSocketOpCode.Pong, payload, stream, true, _isClient);
+                        Events.Log.SendingFrame(_guid, WebSocketOpCode.Pong, true, payload.Count, false);
+                        WriteStreamToNetwork(stream, cancellationToken);
                     }
-                    sendingMessage = false;
                 }
             }
             catch (Exception ex)
@@ -466,24 +428,11 @@ namespace Ninja.WebSockets.Internal
             }
         }
 
-        async Task SendPongAsyncInternal(ArraySegment<byte> payload, CancellationToken cancellationToken)
-        {
-            if (_state == WebSocketState.Open)
-            {
-                using (MemoryStream stream = _recycledStreamFactory())
-                {
-                    WebSocketFrameWriter.Write(WebSocketOpCode.Pong, payload, stream, true, _isClient);
-                    Events.Log.SendingFrame(_guid, WebSocketOpCode.Pong, true, payload.Count, false);
-                    await WriteStreamToNetwork(stream, cancellationToken);
-                }
-            }
-        }
-
         /// <summary>
         /// Called when a Close frame is received
         /// Send a response close frame if applicable
         /// </summary>
-        async Task<WebSocketReceiveResult> RespondToCloseFrame(WebSocketFrame frame, ArraySegment<byte> buffer, CancellationToken token)
+        WebSocketReceiveResult RespondToCloseFrame(WebSocketFrame frame, ArraySegment<byte> buffer, CancellationToken token)
         {
             _closeStatus = frame.CloseStatus;
             _closeStatusDescription = frame.CloseStatusDescription;
@@ -506,7 +455,7 @@ namespace Ninja.WebSockets.Internal
                 {
                     WebSocketFrameWriter.Write(WebSocketOpCode.ConnectionClose, closePayload, stream, true, _isClient);
                     Events.Log.SendingFrame(_guid, WebSocketOpCode.ConnectionClose, true, closePayload.Count, false);
-                    await WriteStreamToNetwork(stream, token);
+                    WriteStreamToNetwork(stream, token);
                 }
             }
             else
@@ -567,10 +516,10 @@ namespace Ninja.WebSockets.Internal
         /// Puts data on the wire
         /// </summary>
         /// <param name="stream">The stream to read data from</param>
-        async Task WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
+        void WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            await _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+            _stream.Write(buffer.Array, buffer.Offset, buffer.Count);
         }
 
         /// <summary>

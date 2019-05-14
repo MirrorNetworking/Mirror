@@ -19,6 +19,6 @@ namespace Ninja.WebSockets
         /// </summary>
         /// <param name="payload">The payload (must be 125 bytes of less)</param>
         /// <param name="cancellation">The cancellation token</param>
-        Task SendPing(ArraySegment<byte> payload, CancellationToken cancellation);
+        void SendPing(ArraySegment<byte> payload, CancellationToken cancellation);
     }
 }

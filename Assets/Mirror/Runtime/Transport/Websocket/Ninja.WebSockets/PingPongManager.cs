@@ -82,9 +82,9 @@ namespace Ninja.WebSockets
         /// </summary>
         /// <param name="payload">The payload (must be 125 bytes of less)</param>
         /// <param name="cancellation">The cancellation token</param>
-        public async Task SendPing(ArraySegment<byte> payload, CancellationToken cancellation)
+        public void SendPing(ArraySegment<byte> payload, CancellationToken cancellation)
         {
-            await _webSocket.SendPingAsync(payload, cancellation);
+            _webSocket.SendPingAsync(payload, cancellation);
         }
 
         protected virtual void OnPong(PongEventArgs e)
@@ -118,7 +118,7 @@ namespace Ninja.WebSockets
                     {
                         _pingSentTicks = _stopwatch.Elapsed.Ticks;
                         ArraySegment<byte> buffer = new ArraySegment<byte>(BitConverter.GetBytes(_pingSentTicks));
-                        await SendPing(buffer, _cancellationToken);
+                        SendPing(buffer, _cancellationToken);
                     }
                 }
             }
