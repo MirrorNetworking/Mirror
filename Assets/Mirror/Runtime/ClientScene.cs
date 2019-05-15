@@ -336,8 +336,8 @@ namespace Mirror
             {
                 identity.gameObject.SetActive(true);
             }
-            identity.transform.position = position;
-            identity.transform.rotation = rotation;
+            identity.transform.localPosition = position;
+            identity.transform.localRotation = rotation;
             identity.transform.localScale = scale;
             if (payload != null && payload.Length > 0)
             {

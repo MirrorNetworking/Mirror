@@ -844,8 +844,8 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     assetId = identity.assetId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
 
                     // serialize all components with initialState = true
@@ -871,8 +871,8 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
 
                     // include synch data
