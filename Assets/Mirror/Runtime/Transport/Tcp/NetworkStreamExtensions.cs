@@ -20,8 +20,7 @@ namespace Mirror.Tcp
             // keep reading until we fill up the buffer;
             while (offset < size)
             {
-                int received = 0;
-
+                int received;
                 if (stream is NetworkStream && ((NetworkStream)stream).DataAvailable)
                 {
                     // read available data immediatelly
