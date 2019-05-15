@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Mirror.Tcp
@@ -63,7 +64,7 @@ namespace Mirror.Tcp
         }
 
         // the listener thread's listen function
-        public async void Listen(int port)
+        public async Task Listen(int port)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
@@ -109,7 +110,7 @@ namespace Mirror.Tcp
             }
         }
 
-        private async void ReceiveLoop(TcpClient tcpClient)
+        private async Task ReceiveLoop(TcpClient tcpClient)
         {
             int connectionId = NextConnectionId();
             clients.Add(connectionId, tcpClient);
@@ -176,18 +177,18 @@ namespace Mirror.Tcp
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, byte[] data)
+        public async Task Send(int connectionId, byte[] data)
         {
             // find the connection
-            TcpClient client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out TcpClient client))
             {
                 try
                 {
                     NetworkStream stream = client.GetStream();
                     await SendMessage(stream, data);
                 }
-                catch (ObjectDisposedException) {
+                catch (ObjectDisposedException)
+                {
                     // connection has been closed,  swallow exception
                     Disconnect(connectionId);
                 }
