@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -519,7 +520,14 @@ namespace Ninja.WebSockets.Internal
         void WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            _stream.Write(buffer.Array, buffer.Offset, buffer.Count);
+            try
+            {
+                _stream.Write(buffer.Array, buffer.Offset, buffer.Count);
+            }
+            catch(SocketException ex)
+            {
+                // do nothing, socket has been shut down
+            }
         }
 
         /// <summary>
