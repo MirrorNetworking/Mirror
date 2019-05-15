@@ -32,11 +32,6 @@ namespace Mirror.Tcp
             client.NoDelay = NoDelay;
             server.NoDelay = NoDelay;
 
-            // HLAPI's local connection uses hard coded connectionId '0', so we
-            // need to make sure that external connections always start at '1'
-            // by simple eating the first one before the server starts
-            Server.NextConnectionId();
-
             Debug.Log("Tcp transport initialized!");
         }
 

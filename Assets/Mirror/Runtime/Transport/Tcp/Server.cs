@@ -26,13 +26,13 @@ namespace Mirror.Tcp
         // connectionId counter
         // (right now we only use it from one listener thread, but we might have
         //  multiple threads later in case of WebSockets etc.)
-        // -> static so that another server instance doesn't start at 0 again.
-        static int counter = 0;
+        //  HLAPI uses 0 for local connection,  so our ids start with 1
+        int counter = 1;
 
         // public next id function in case someone needs to reserve an id
         // (e.g. if hostMode should always have 0 connection and external
         //  connections should start at 1, etc.)
-        public static int NextConnectionId()
+        public int NextConnectionId()
         {
             int id = Interlocked.Increment(ref counter);
 
