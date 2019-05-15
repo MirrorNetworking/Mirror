@@ -19,7 +19,7 @@ namespace Mirror.Tcp
         TcpListener listener;
 
         // clients with <connectionId, TcpClient>
-        Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
+        readonly Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
 
         public bool NoDelay = true;
 
@@ -63,7 +63,7 @@ namespace Mirror.Tcp
         }
 
         // the listener thread's listen function
-        async public void Listen(int port, int maxConnections = int.MaxValue)
+        public async void Listen(int port)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
@@ -163,7 +163,7 @@ namespace Mirror.Tcp
             listener.Stop();
 
             // close all client connections
-            foreach (var kvp in clients)
+            foreach (KeyValuePair<int, TcpClient> kvp in clients)
             {
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
@@ -219,8 +219,7 @@ namespace Mirror.Tcp
         public string GetClientAddress(int connectionId)
         {
             // find the connection
-            TcpClient client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out TcpClient client))
             {
                 return ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
             }
@@ -231,8 +230,7 @@ namespace Mirror.Tcp
         public bool Disconnect(int connectionId)
         {
             // find the connection
-            TcpClient client;
-            if (clients.TryGetValue(connectionId, out client))
+            if (clients.TryGetValue(connectionId, out TcpClient client))
             {
                 clients.Remove(connectionId);
                 // just close it. client thread will take care of the rest.
