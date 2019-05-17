@@ -195,12 +195,10 @@ namespace Mirror
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    reader = reader,
-                    conn = this
-                };
+                NetworkMessage message;
+                message.msgType = msgType;
+                message.reader = reader;
+                message.conn = this;
 
                 msgDelegate(message);
                 return true;
