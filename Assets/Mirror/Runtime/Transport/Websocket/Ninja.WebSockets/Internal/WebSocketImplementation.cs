@@ -61,6 +61,9 @@ namespace Ninja.WebSockets.Internal
 
         public event EventHandler<PongEventArgs> Pong;
 
+        Queue<ArraySegment<byte>> _messageQueue = new Queue<ArraySegment<byte>>();
+        SemaphoreSlim _sendSemaphore = new SemaphoreSlim(1, 1);
+
         internal WebSocketImplementation(Guid guid, Func<MemoryStream> recycledStreamFactory, Stream stream, TimeSpan keepAliveInterval, string secWebSocketExtensions, bool includeExceptionInCloseResponse, bool isClient, string subProtocol)
         {
             _guid = guid;
@@ -520,7 +523,20 @@ namespace Ninja.WebSockets.Internal
         async Task WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            await _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
+            _messageQueue.Enqueue(buffer);
+            await _sendSemaphore.WaitAsync();
+            try
+            {
+                while (_messageQueue.Count > 0)
+                {
+                    var _buf = _messageQueue.Dequeue();
+                    await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _sendSemaphore.Release();
+            }
         }
 
         /// <summary>
