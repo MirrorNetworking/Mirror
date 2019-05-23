@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -136,6 +137,10 @@ namespace Ninja.WebSockets.Internal
                         {
                             frame = await WebSocketFrameReader.ReadAsync(_stream, buffer, linkedCts.Token);
                             Events.Log.ReceivedFrame(_guid, frame.OpCode, frame.IsFinBitSet, frame.Count);
+                        }
+                        catch (SocketException ex)
+                        {
+                            // do nothing, the socket has been disconnected
                         }
                         catch (InternalBufferOverflowException ex)
                         {
@@ -530,7 +535,18 @@ namespace Ninja.WebSockets.Internal
                 while (_messageQueue.Count > 0)
                 {
                     var _buf = _messageQueue.Dequeue();
-                    await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                    try
+                    {
+                        await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (IOException ex)
+                    {
+                        // do nothing, the socket is not connected
+                    }
+                    catch (SocketException ex)
+                    {
+                        // do nothing, the socket is not connected
+                    }
                 }
             }
             finally
