@@ -614,7 +614,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + netId);
 
             // is there already an owner that is a different object??
-            readyConnection.playerController?.SetNotLocalPlayer();
+            if (readyConnection.playerController != null)
+            {
+                readyConnection.playerController.SetNotLocalPlayer();
+            }
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {

@@ -31,22 +31,22 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
 
-		// Unity makes a clone of the material when GetComponent<Renderer>().material is used
-		// Cache it here and Destroy it in OnDestroy to prevent a memory leak
-		Material materialClone;
+        // Unity makes a clone of the material when GetComponent<Renderer>().material is used
+        // Cache it here and Destroy it in OnDestroy to prevent a memory leak
+        Material materialClone;
 
-		void SetColor(Color color)
-		{
-			if (materialClone == null) materialClone = GetComponent<Renderer>().material;
-			materialClone.color = color;
-		}
+        void SetColor(Color color)
+        {
+            if (materialClone == null) materialClone = GetComponent<Renderer>().material;
+            materialClone.color = color;
+        }
 
-		private void OnDestroy()
-		{
-			Destroy(materialClone);
-		}
+        private void OnDestroy()
+        {
+            Destroy(materialClone);
+        }
 
-		float horizontal = 0f;
+        float horizontal = 0f;
         float vertical = 0f;
         float turn = 0f;
 
@@ -110,7 +110,10 @@ namespace Mirror.Examples.NetworkLobby
         public void CmdClaimPrize(GameObject hitObject)
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
-            hitObject?.GetComponent<Reward>().ClaimPrize(gameObject);
+            if (hitObject != null)
+            {
+                hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
+            }
         }
 
         void OnGUI()
