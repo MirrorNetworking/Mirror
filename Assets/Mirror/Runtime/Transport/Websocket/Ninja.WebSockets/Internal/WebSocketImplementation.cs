@@ -537,7 +537,10 @@ namespace Ninja.WebSockets.Internal
                     var _buf = _messageQueue.Dequeue();
                     try
                     {
-                        await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                        if(_stream!=null && _stream.CanWrite)
+                        {
+                            await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     catch (IOException ex)
                     {
