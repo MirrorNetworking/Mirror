@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
@@ -528,33 +529,40 @@ namespace Ninja.WebSockets.Internal
         async Task WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            _messageQueue.Enqueue(buffer);
-            await _sendSemaphore.WaitAsync();
-            try
+            if(_stream is SslStream)
             {
-                while (_messageQueue.Count > 0)
+                _messageQueue.Enqueue(buffer);
+                await _sendSemaphore.WaitAsync();
+                try
                 {
-                    var _buf = _messageQueue.Dequeue();
-                    try
+                    while (_messageQueue.Count > 0)
                     {
-                        if(_stream!=null && _stream.CanWrite)
+                        var _buf = _messageQueue.Dequeue();
+                        try
                         {
-                            await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                            if (_stream != null && _stream.CanWrite)
+                            {
+                                await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
+                            }
+                        }
+                        catch (IOException ex)
+                        {
+                            // do nothing, the socket is not connected
+                        }
+                        catch (SocketException ex)
+                        {
+                            // do nothing, the socket is not connected
                         }
                     }
-                    catch (IOException ex)
-                    {
-                        // do nothing, the socket is not connected
-                    }
-                    catch (SocketException ex)
-                    {
-                        // do nothing, the socket is not connected
-                    }
+                }
+                finally
+                {
+                    _sendSemaphore.Release();
                 }
             }
-            finally
+            else
             {
-                _sendSemaphore.Release();
+                await _stream.WriteAsync(buffer.Array, buffer.Offset, buffer.Count, cancellationToken).ConfigureAwait(false);
             }
         }
 
