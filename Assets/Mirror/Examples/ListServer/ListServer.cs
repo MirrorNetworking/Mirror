@@ -241,8 +241,7 @@ namespace Mirror.Examples.ListServer
             // instantiate until amount
             for (int i = parent.childCount; i < amount; ++i)
             {
-                GameObject go = Instantiate(prefab);
-                go.transform.SetParent(parent, false);
+                Instantiate(prefab, parent, false);
             }
 
             // delete everything that's too much
