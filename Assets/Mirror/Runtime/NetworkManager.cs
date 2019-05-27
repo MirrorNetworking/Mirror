@@ -674,7 +674,11 @@ namespace Mirror
                 // this is now allowed (was not for a while)
                 if (LogFilter.Debug) Debug.Log("Ready with no player object");
             }
-            NetworkServer.SetClientReady(conn);
+
+            // Spawn observers if no player.
+            // Otherwise, do it when add player.
+            bool spawnObservers = (playerPrefab == null);
+            NetworkServer.SetClientReady(conn, spawnObservers);
         }
 
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)

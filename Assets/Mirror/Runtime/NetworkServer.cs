@@ -588,14 +588,7 @@ namespace Mirror
             identity.connectionToClient = conn;
 
             // set ready if not set yet
-            SetClientReady(conn);
-
-            // add connection to observers AFTER the playerController was set.
-            // by definition, there is nothing to observe if there is no player
-            // controller.
-            //
-            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
-            SpawnObserversForConnection(conn);
+            SetClientReady(conn, true);
 
             if (SetupLocalPlayerForConnection(conn, identity))
             {
@@ -683,8 +676,6 @@ namespace Mirror
             // add connection to observers AFTER the playerController was set.
             // by definition, there is nothing to observe if there is no player
             // controller.
-            //
-            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
             SpawnObserversForConnection(conn);
 
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer setup local");
@@ -715,12 +706,17 @@ namespace Mirror
             return true;
         }
 
-        public static void SetClientReady(NetworkConnection conn)
+        public static void SetClientReady(NetworkConnection conn, bool spawnObservers)
         {
             if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId);
 
             // set ready
             conn.isReady = true;
+
+            if (spawnObservers)
+            {
+                SpawnObserversForConnection(conn);
+            }
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
@@ -763,7 +759,7 @@ namespace Mirror
         static void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("Default handler for ready message from " + conn);
-            SetClientReady(conn);
+            SetClientReady(conn, true);
         }
 
         // default remove player handler
