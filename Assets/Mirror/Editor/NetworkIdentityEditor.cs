@@ -10,10 +10,13 @@ namespace Mirror
     {
         SerializedProperty serverOnlyProperty;
         SerializedProperty localPlayerAuthorityProperty;
+		SerializedProperty skipAuthorityProperty;
 
         readonly GUIContent serverOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
         readonly GUIContent localPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
-        readonly GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
+        readonly GUIContent skipAuthorityLabel = new GUIContent("Skip Authority", "This causes clients to send cmds over an object without authority");
+		readonly GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
+
 
         NetworkIdentity networkIdentity;
         bool initialized;
@@ -30,6 +33,7 @@ namespace Mirror
 
             serverOnlyProperty = serializedObject.FindProperty("serverOnly");
             localPlayerAuthorityProperty = serializedObject.FindProperty("localPlayerAuthority");
+			skipAuthorityProperty = serializedObject.FindProperty("skipAuthority");
         }
 
         public override void OnInspectorGUI()
@@ -58,6 +62,8 @@ namespace Mirror
                 EditorGUILayout.PropertyField(serverOnlyProperty, serverOnlyLabel);
                 EditorGUILayout.PropertyField(localPlayerAuthorityProperty, localPlayerAuthorityLabel);
             }
+			
+			EditorGUILayout.PropertyField(skipAuthorityProperty, skipAuthorityLabel);
 
             serializedObject.ApplyModifiedProperties();
 

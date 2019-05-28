@@ -38,6 +38,7 @@ namespace Mirror
         }
         public bool isLocalPlayer { get; private set; }
         public bool hasAuthority { get; private set; }
+		public bool skipAuthority { get; private set; }
 
         // <connectionId, NetworkConnection>
         // null until OnStartServer was called. this is necessary for SendTo...

@@ -605,7 +605,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
             FinishPlayerForConnection(identity, player);
-            if (identity.localPlayerAuthority)
+            if (identity.localPlayerAuthority || identity.skipAuthority)
             {
                 identity.SetClientOwner(conn);
             }
@@ -792,7 +792,7 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (conn.playerController != null && conn.playerController.netId != identity.netId)
+            if (conn.playerController != null && conn.playerController.netId != identity.netId && !identity.skipAuthority)
             {
                 if (identity.clientAuthorityOwner != conn)
                 {

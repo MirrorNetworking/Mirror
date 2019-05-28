@@ -22,6 +22,7 @@ namespace Mirror
         public bool isServerOnly => isServer && !isClient;
         public bool isClientOnly => isClient && !isServer;
         public bool hasAuthority => netIdentity.hasAuthority;
+		public bool skipAuthority => netIdentity.skipAuthority;
         public uint netId => netIdentity.netId;
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
@@ -87,7 +88,7 @@ namespace Mirror
                 return;
             }
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(isLocalPlayer || hasAuthority))
+            if (!(isLocalPlayer || hasAuthority || skipAuthority))
             {
                 Debug.LogWarning("Trying to send command for object without authority.");
                 return;
