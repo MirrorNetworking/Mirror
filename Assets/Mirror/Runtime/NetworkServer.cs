@@ -844,6 +844,7 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     assetId = identity.assetId,
+                    // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
@@ -871,6 +872,7 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
+                    // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
