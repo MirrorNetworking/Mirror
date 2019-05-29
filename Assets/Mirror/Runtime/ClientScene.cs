@@ -336,9 +336,11 @@ namespace Mirror
             {
                 identity.gameObject.SetActive(true);
             }
+            
+            // apply local values for VR support
             identity.transform.localPosition = position;
             identity.transform.localRotation = rotation;
-            identity.transform.localScale = scale;
+            identity.transform.localScale = scale;            
             if (payload != null && payload.Length > 0)
             {
                 NetworkReader payloadReader = new NetworkReader(payload);
