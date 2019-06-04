@@ -1,0 +1,44 @@
+{
+   "name":"com.vis2k.mirror",
+   "displayName":"Mirror",
+   "version":"4.0.0",
+   "unity":"2019.1",
+   "description":"Mirror is a high level Networking API for Unity, supporting different low level Transports.",
+   "author":"vis2k",
+   "repository":{
+      "type":"git",
+      "url":"https://github.com/vis2k/Mirror.git#upm"
+   },
+   "samples":[
+      {
+         "displayName":"Basic",
+         "description":"Basic",
+         "path":"Examples/Basic"
+      },
+      {
+         "displayName":"Pong",
+         "description":"Pong",
+         "path":"Examples/Pong"
+      },
+      {
+         "displayName":"Tanks",
+         "description":"Tanks",
+         "path":"Examples/Tanks"
+      },
+      {
+         "displayName":"Lobby",
+         "description":"Lobby",
+         "path":"Examples/Lobby"
+      },
+      {
+         "displayName":"ListServer",
+         "description":"ListServer",
+         "path":"Examples/ListServer"
+      },
+      {
+         "displayName":"AdditiveScenes",
+         "description":"AdditiveScenes",
+         "path":"Examples/AdditiveScenes"
+      }
+   ]
+}
