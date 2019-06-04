@@ -83,7 +83,7 @@ namespace Mirror
             InitializeSingleton();
 
             // setup OnSceneLoaded callback
-            SceneManager.sceneLoaded += FinishLoadScene;
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         // headless mode detection
@@ -431,7 +431,7 @@ namespace Mirror
             {
                 if (!forceReload)
                 {
-                    FinishLoadScene(SceneManager.GetSceneByName(newSceneName), sceneMode);
+                    OnSceneLoaded(SceneManager.GetSceneByName(newSceneName), sceneMode);
                     return;
                 }
             }
@@ -453,7 +453,7 @@ namespace Mirror
             networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
-        void FinishLoadScene(Scene scene, LoadSceneMode sceneMode)
+        void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
         {
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
