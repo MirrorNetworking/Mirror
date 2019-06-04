@@ -405,7 +405,7 @@ namespace Mirror
 
         static void DrawLineBetweenDataPoints(DataPoint data1, DataPoint data2, Color color)
         {
-            Gizmos.color = Color.white;
+            Gizmos.color = color;
             Gizmos.DrawLine(data1.localPosition, data2.localPosition);
         }
 
