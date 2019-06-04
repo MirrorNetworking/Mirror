@@ -139,8 +139,7 @@ namespace Mirror
 
         public override int GetMaxPacketSize(int channelId)
         {
-            // Telepathy's limit is Array.Length, which is int
-            return int.MaxValue;
+            return serverMaxMessageSize;
         }
 
         public override string ToString()
