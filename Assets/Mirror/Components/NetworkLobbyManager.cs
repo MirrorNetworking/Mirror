@@ -84,11 +84,14 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnServerReady");
             base.OnServerReady(conn);
 
-            GameObject lobbyPlayer = conn?.playerController?.gameObject;
+            if (conn != null && conn.playerController != null)
+            {
+                GameObject lobbyPlayer = conn.playerController.gameObject;
 
-            // if null or not a lobby player, dont replace it
-            if (lobbyPlayer?.GetComponent<NetworkLobbyPlayer>() != null)
-                SceneLoadedForPlayer(conn, lobbyPlayer);
+                // if null or not a lobby player, dont replace it
+                if (lobbyPlayer != null && lobbyPlayer.GetComponent<NetworkLobbyPlayer>() != null)
+                    SceneLoadedForPlayer(conn, lobbyPlayer);
+            }
         }
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayer)
@@ -142,14 +145,20 @@ namespace Mirror
         {
             OnLobbyClientEnter();
             foreach (NetworkLobbyPlayer player in lobbySlots)
-                player?.OnClientEnterLobby();
+                if (player != null)
+                {
+                    player.OnClientEnterLobby();
+                }
         }
 
         void CallOnClientExitLobby()
         {
             OnLobbyClientExit();
             foreach (NetworkLobbyPlayer player in lobbySlots)
-                player?.OnClientExitLobby();
+                if (player != null)
+                {
+                    player.OnClientExitLobby();
+                }
         }
 
         #region server handlers
@@ -370,14 +379,17 @@ namespace Mirror
 
             if (SceneManager.GetActiveScene().name == LobbyScene && newSceneName == GameplayScene && dontDestroyOnLoad && NetworkClient.isConnected)
             {
-                GameObject lobbyPlayer = NetworkClient.connection?.playerController?.gameObject;
-                if (lobbyPlayer != null)
+                if (NetworkClient.connection != null && NetworkClient.connection.playerController != null)
                 {
-                    lobbyPlayer.transform.SetParent(null);
-                    DontDestroyOnLoad(lobbyPlayer);
+                    GameObject lobbyPlayer = NetworkClient.connection.playerController.gameObject;
+                    if (lobbyPlayer != null)
+                    {
+                        lobbyPlayer.transform.SetParent(null);
+                        DontDestroyOnLoad(lobbyPlayer);
+                    }
+                    else
+                        Debug.LogWarningFormat("OnClientChangeScene: lobbyPlayer is null");
                 }
-                else
-                    Debug.LogWarningFormat("OnClientChangeScene: lobbyPlayer is null");
             }
             else
                if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene {0} {1}", dontDestroyOnLoad, NetworkClient.isConnected);

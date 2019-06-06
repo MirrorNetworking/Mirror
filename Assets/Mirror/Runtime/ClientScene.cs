@@ -336,9 +336,11 @@ namespace Mirror
             {
                 identity.gameObject.SetActive(true);
             }
-            identity.transform.position = position;
-            identity.transform.rotation = rotation;
-            identity.transform.localScale = scale;
+            
+            // apply local values for VR support
+            identity.transform.localPosition = position;
+            identity.transform.localRotation = rotation;
+            identity.transform.localScale = scale;            
             if (payload != null && payload.Length > 0)
             {
                 NetworkReader payloadReader = new NetworkReader(payload);
@@ -614,7 +616,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + netId);
 
             // is there already an owner that is a different object??
-            readyConnection.playerController?.SetNotLocalPlayer();
+            if (readyConnection.playerController != null)
+            {
+                readyConnection.playerController.SetNotLocalPlayer();
+            }
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
