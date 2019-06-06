@@ -64,11 +64,12 @@ namespace Mirror
 
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
+            // if force hidden then return without adding any observers.
             if (forceHidden)
-            {
                 // always return true when overwriting OnRebuildObservers so that
                 // Mirror knows not to use the built in rebuild method.
-                return true;             } 
+                return true;
+            
             // find players within range
             switch (checkMethod)
             {
