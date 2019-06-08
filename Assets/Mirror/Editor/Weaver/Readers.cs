@@ -54,12 +54,6 @@ namespace Mirror.Weaver
 
         public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)
         {
-            if (recursionCount > MaxRecursionCount)
-            {
-                Weaver.Error("GetReadFunc recursion depth exceeded for " + variable.Name + ". Check for self-referencing member variables.");
-                return null;
-            }
-
             if (readFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
             {
                 if (foundFunc.ReturnType.IsArray == variable.IsArray)
@@ -71,14 +65,14 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
             if (td == null)
             {
-                Weaver.Error("GetReadFunc unsupported type " + variable.FullName);
+                Weaver.Error($"{variable} is not a supported type");
                 return null;
             }
 
             if (variable.IsByReference)
             {
                 // error??
-                Weaver.Error("GetReadFunc variable.IsByReference error.");
+                Weaver.Error($"{variable} is not a supported reference type");
                 return null;
             }
 
@@ -105,7 +99,7 @@ namespace Mirror.Weaver
 
             if (newReaderFunc == null)
             {
-                Weaver.Error("GetReadFunc unable to generate function for:" + variable.FullName);
+                Weaver.Error($"{variable} is not a supported type");
                 return null;
             }
             RegisterReadFunc(variable.FullName, newReaderFunc);
@@ -125,7 +119,7 @@ namespace Mirror.Weaver
         {
             if (!variable.IsArrayType())
             {
-                Weaver.Error(variable.FullName + " is an unsupported array type. Jagged and multidimensional arrays are not supported");
+                Weaver.Error($"{variable} is an unsupported type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
             string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
@@ -206,6 +200,11 @@ namespace Mirror.Weaver
 
         static MethodDefinition GenerateStructReadFunction(TypeReference variable, int recursionCount)
         {
+            if (recursionCount > MaxRecursionCount)
+            {
+                Weaver.Error($"{variable} can't be deserialized because it references itself");
+                return null;
+            }
 
             if (!Weaver.IsValidTypeToGenerate(variable.Resolve()))
             {
@@ -250,7 +249,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.Error("The class " + variable.Name + " has no default constructor or it's private, aborting.");
+                    Weaver.Error($"{variable} can't be deserialized bcause i has no default constructor");
                     return null;
                 }
 
@@ -276,7 +275,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("GetReadFunc for " + field.Name + " type " + field.FieldType + " no supported");
+                    Weaver.Error($"{field} has an unsupported type");
                     return null;
                 }
 
@@ -285,7 +284,7 @@ namespace Mirror.Weaver
             }
             if (fields == 0)
             {
-                Log.Warning("The class / struct " + variable.Name + " has no public or non-static fields to serialize");
+                Log.Warning($"{variable} has no public or non-static fields to deserialize");
             }
 
             worker.Append(worker.Create(OpCodes.Ldloc_0));
