@@ -9,14 +9,14 @@ namespace Mirror.Tests
         {
             SceneMessage message = new SceneMessage()
             {
-                value = "Hello world"
+                sceneName = "Hello world"
             };
 
             byte[] data = MessagePacker.Pack(message);
 
             SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
 
-            Assert.That(unpacked.value, Is.EqualTo("Hello world"));
+            Assert.That(unpacked.sceneName, Is.EqualTo("Hello world"));
         }
     }
 }

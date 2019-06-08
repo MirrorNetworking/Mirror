@@ -398,7 +398,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
         }
 
-        static void OnDataReceived(int connectionId, byte[] data)
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
@@ -549,7 +549,7 @@ namespace Mirror
             {
                 if (identity.gameObject.activeSelf) //TODO this is different // try with far away ones in ummorpg!
                 {
-                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId);
+                    if (LogFilter.Debug) Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId);
 
                     bool visible = identity.OnCheckObserver(conn);
                     if (visible)
@@ -844,8 +844,9 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     assetId = identity.assetId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
 
                     // serialize all components with initialState = true
@@ -871,8 +872,9 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
 
                     // include synch data

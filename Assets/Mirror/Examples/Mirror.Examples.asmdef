@@ -1,0 +1,15 @@
+{
+    "name": "Mirror.Examples",
+    "references": [
+        "Mirror",
+        "Mirror.Components"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

@@ -400,6 +400,11 @@ namespace Mirror
 
         public virtual void ServerChangeScene(string newSceneName)
         {
+            ServerChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        public virtual void ServerChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        {
             if (string.IsNullOrEmpty(newSceneName))
             {
                 Debug.LogError("ServerChangeScene empty scene name");
@@ -410,9 +415,17 @@ namespace Mirror
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+            LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
 
-            SceneMessage msg = new SceneMessage(networkSceneName);
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
+
+            SceneMessage msg = new SceneMessage()
+            {
+                sceneName = newSceneName,
+                sceneMode = loadSceneParameters.loadSceneMode,
+                physicsMode = loadSceneParameters.localPhysicsMode
+            };
+
             NetworkServer.SendToAll(msg);
 
             startPositionIndex = 0;
@@ -428,6 +441,11 @@ namespace Mirror
         }
 
         void ClientChangeScene(string newSceneName, bool forceReload)
+        {
+            ClientChangeScene(newSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
+        }
+
+        internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -455,8 +473,12 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName);
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-            networkSceneName = newSceneName;
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
+            {
+                loadSceneMode = sceneMode,
+                localPhysicsMode = physicsMode,
+            });
+            networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
         void FinishLoadScene()
@@ -548,7 +570,8 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                conn.Send(new SceneMessage(networkSceneName));
+                SceneMessage msg = new SceneMessage() {sceneName = networkSceneName};
+                conn.Send(msg);
             }
 
             OnServerConnect(conn);
@@ -628,11 +651,9 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            string newSceneName = msg.value;
-
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(newSceneName, true);
+                ClientChangeScene(msg.sceneName, true, msg.sceneMode, msg.physicsMode);
             }
         }
         #endregion

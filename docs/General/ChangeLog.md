@@ -1,9 +1,17 @@
 # Change Log
 
-## Version 3.x.x -- In Progress
+## Version 3.x.x
 
-- Added: Custom NetworkReader & NetworkWriter for user-defined types
-- Added: NetworkTransform toggle for using local or world coordinates
+- Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
+- Fixed: ListServer Ping not found in WebGL
+
+## Version 3.6.7 -- 2019-Apr-28
+
+- Changed: NetworkReader now uses ArraySegment<byte> to minimize allocations.
+
+## Version 3.6.6 -- 2019-Apr-24
+
+- Fixed: Reverted two internal refactor commits that had unintended consequences.
 
 ## Version 3.6.5 -- 2019-Apr-23
 
