@@ -133,13 +133,13 @@ namespace Mirror.Weaver
         {
             if (!md.Name.StartsWith("Cmd"))
             {
-                Weaver.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
+                Weaver.Error($"{md} must start with Cmd.  Consider renaming it to Cmd{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} cannot be static");
                 return false;
             }
 

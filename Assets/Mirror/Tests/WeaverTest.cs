@@ -86,7 +86,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
-            Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.AccessViolationException MirrorTest.MirrorTestPlayer/MyStruct::violatedPotato has unsupported type. Use a type supported by Mirror instead"));
         }
 
         [Test]
@@ -94,34 +94,34 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Check for self-referencing member variables"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/Potato1 can't be serialized because it references itself"));
         }
 
         [Test]
         public void ClientGuardWrongClass()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientGuardInThisClass() must be declared in a NetworkBehaviour"));
         }
 
         [Test]
         public void ServerGuardWrongClass()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerGuardInThisClass() must be declared in a NetworkBehaviour"));
         }
 
         [Test]
         public void GuardCmdWrongClass()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
+            Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
-            Assert.That(m_weaverErrors[0], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
-            Assert.That(m_weaverErrors[1], Does.Match("\\[Server\\] guard on non-NetworkBehaviour script"));
-            Assert.That(m_weaverErrors[2], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
-            Assert.That(m_weaverErrors[3], Does.Match("\\[Client\\] guard on non-NetworkBehaviour script"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerGuardInThisClass() must be declared in a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[1], Is.EqualTo("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::CantServerCallbackGuardInThisClass() must be declared in a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[2], Is.EqualTo("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientGuardInThisClass() must be declared in a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[3], Is.EqualTo("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::CantClientCallbackGuardInThisClass() must be declared in a NetworkBehaviour"));
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.AtLeast(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Jagged and multidimensional arrays are not supported"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported"));
         }
         #endregion
 
@@ -146,7 +146,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* not found for"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: No hook implementation found for System.Int32 MirrorTest.MirrorTestPlayer::health. Add this method to your class:\npublic void OnChangeHealth(System.Int32 value) { }"));
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth() should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* must have one argument"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Int32,System.Int32) should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar Hook function .* has wrong type signature for"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Boolean) should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
         }
 
        [Test]
@@ -178,7 +178,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot be NetworkBehaviours"));
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be derived from ScriptableObject"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot be scriptable objects"));
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be static"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::invalidVar cannot be static"));
         }
 
         [Test]
@@ -202,7 +202,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32> MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot have generic parameters"));
         }
 
         [Test]
@@ -210,7 +210,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an interface"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. Use a concrete type instead of interface MirrorTest.MirrorTestPlayer/MySyncVar"));
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be a different module"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: UnityEngine.TextMesh MirrorTest.MirrorTestPlayer::invalidVar has invalid type. Use a type defined in the same module SyncVarsDifferentModule.dll"));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("SyncVar .* cannot be an array"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32[] MirrorTest.MirrorTestPlayer::thisShouldntWork has invalid type. Use SyncLists instead of arrays"));
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script class .* has too many SyncVars"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer has too many SyncVars. Consider refactoring your class into multiple components"));
         }
         #endregion
 
@@ -261,7 +261,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Missing parameter-less constructor"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/SyncListString2 MirrorTest.MirrorTestPlayer::Foo does not have a default constructor"));
         }
 
         [Test]
@@ -285,7 +285,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: GenerateSerialization for MyGenericStruct<Single> failed. Can't have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have generic elements MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>"));
         }
 
         [Test]
@@ -293,7 +293,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: WriteReadFunc for potato [MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>/MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>]. Cannot have generic parameters."));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single> MirrorTest.MirrorTestPlayer/MyStruct::potato has unsupported type. Create a derived class instead of using generics"));
         }
 
         [Test]
@@ -301,16 +301,15 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Is.EqualTo( "Mirror.Weaver error: WriteReadFunc for potato [MirrorTest.MirrorTestPlayer/IPotato/MirrorTest.MirrorTestPlayer/IPotato]. Cannot be an interface."));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/IPotato MirrorTest.MirrorTestPlayer/MyStruct::potato has unsupported type. Use a concrete class instead of an interface"));
         }
 
         [Test]
         public void SyncListStructMemberBasicType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
-            Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
-            Assert.That(m_weaverErrors[1], Does.Match("Mirror.Weaver error: WriteReadFunc for nonbasicpotato type System.Object no supported"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[1], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
         }
         #endregion
 
@@ -334,7 +333,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("NetworkBehaviour .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer`1 cannot have generic parameters"));
         }
 
         [Test]
@@ -342,7 +341,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
@@ -350,7 +349,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot be a coroutine"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::CmdCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
@@ -358,7 +357,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command .* must have a void return type"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::CmdCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
@@ -366,7 +365,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
@@ -374,7 +373,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* cannot be a coroutine"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::TargetRpcCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
@@ -382,7 +381,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc .* must have a void return type"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::TargetRpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
@@ -390,7 +389,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have out parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOut(Mirror.NetworkConnection,System.Int32&) cannot have out parameters"));
         }
 
         [Test]
@@ -398,7 +397,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpcfunction .* cannot have optional parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamOptional(Mirror.NetworkConnection,System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -406,7 +405,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have ref parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamRef(Mirror.NetworkConnection,System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
         }
 
         [Test]
@@ -414,7 +413,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* cannot have abstract parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamAbstract(Mirror.NetworkConnection,MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
         }
 
         [Test]
@@ -422,7 +421,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* You cannot pass a Component to a remote call"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamComponent(Mirror.NetworkConnection,MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
         }
 
         [Test]
@@ -445,7 +444,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveGeneric() cannot have generic parameters"));
         }
 
         [Test]
@@ -453,7 +452,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot be a coroutine"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Collections.IEnumerator MirrorTest.MirrorTestPlayer::RpcCantHaveCoroutine() cannot be a coroutine"));
         }
 
         [Test]
@@ -461,7 +460,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc .* must have a void return type"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Int32 MirrorTest.MirrorTestPlayer::RpcCantHaveNonVoidReturn() cannot return a value.  Make it void instead"));
         }
 
         [Test]
@@ -469,7 +468,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have out parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOut(System.Int32&) cannot have out parameters"));
         }
 
         [Test]
@@ -477,7 +476,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpcfunction .* cannot have optional parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -485,7 +484,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have ref parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamRef(System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
         }
 
         [Test]
@@ -493,7 +492,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* cannot have abstract parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamAbstract(MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
         }
 
         [Test]
@@ -501,15 +500,15 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* You cannot pass a Component to a remote call"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamComponent(MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc .* cannot use a NetworkConnection as a parameter"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]
@@ -525,7 +524,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have out parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOut(System.Int32&) cannot have out parameters"));
         }
 
         [Test]
@@ -533,7 +532,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Commandfunction .* cannot have optional parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(System.Int32) cannot have optional parameters"));
         }
 
         [Test]
@@ -541,7 +540,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have ref parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamRef(System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
         }
 
         [Test]
@@ -549,7 +548,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* cannot have abstract parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamAbstract(MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
         }
 
         [Test]
@@ -557,15 +556,15 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* You cannot pass a Component to a remote call"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamComponent(MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamNetworkConnection()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Does.Match("Command .* cannot use a NetworkConnection as a parameter"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamOptional(Mirror.NetworkConnection) has invalid parameer monkeyCon. Cannot pass NeworkConnections"));
         }
 
         [Test]
@@ -590,7 +589,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* doesnt have 'Cmd' prefix"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::DoesntStartWithCmd() must start with Cmd.  Consider renaming it to CmdDoesntStartWithCmd"));
         }
 
         [Test]
@@ -598,7 +597,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Command function .* cant be a static method"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantBeStatic() cannot be static"));
         }
         #endregion
 
@@ -614,16 +613,16 @@ namespace Mirror.Tests
         public void ClientRpcStartsWithRpc()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Rpc function .* doesnt have 'Rpc' prefix"));
+            CollectionAssert.AreEqual(m_weaverErrors,
+                new[] { "Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::DoesntStartWithRpc() must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc" });
         }
 
         [Test]
         public void ClientRpcCantBeStatic()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("ClientRpc function .* cant be a static method"));
+            CollectionAssert.AreEqual(m_weaverErrors, 
+                new [] { "Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantBeStatic() must not be static"});
         }
         #endregion
 
@@ -640,7 +639,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Target Rpc function .* doesnt have 'Target' prefix"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::DoesntStartWithTarget(Mirror.NetworkConnection) must start with Target.  Consider renaming it to TargetDoesntStartWithTarget"));
         }
 
         [Test]
@@ -648,7 +647,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("TargetRpc function .* cant be a static method"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetCantBeStatic(Mirror.NetworkConnection) must not be static"));
         }
         #endregion
 
@@ -665,7 +664,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Event .* doesnt have 'Event' prefix"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncEventDelegate MirrorTest.MirrorTestPlayer::DoCoolThingsWithExcitingPeople must start with Event.  Consider renaming it to EventDoCoolThingsWithExcitingPeople"));
         }
 
         [Test]
@@ -673,7 +672,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Event .* cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> MirrorTest.MirrorTestPlayer::EventDoCoolThingsWithExcitingPeople must not have generic parameters.  Consider creating a new class that inherits from MirrorTest.MirrorTestPlayer/MySyncEventDelegate`1<System.Int32> instead"));
         }
         #endregion
 
@@ -690,7 +689,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[SyncVar\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [SyncVar] System.Int32 MirrorTest.MirrorTestPlayer::potato must be inside a NetworkBehaviour.  MirrorTest.MirrorTestPlayer is not a NetworkBehaviour"));
         }
 
         [Test]
@@ -698,7 +697,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* defines field .* with type .*, but it's not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Mirror.SyncListInt MirrorTest.MirrorTestPlayer::potato is a SyncObject and must be inside a NetworkBehaviour.  MirrorTest.MirrorTestPlayer is not a NetworkBehaviour"));
         }
 
         [Test]
@@ -706,7 +705,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[Command\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Command] System.Void MirrorTest.MirrorTestPlayer::CmdThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -714,7 +713,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[ClientRpc\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [ClienRpc] System.Void MirrorTest.MirrorTestPlayer::RpcThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -722,7 +721,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses \\[TargetRpc\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [TargetRpc] System.Void MirrorTest.MirrorTestPlayer::TargetThisCantBeOutsideNetworkBehaviour(Mirror.NetworkConnection) must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -730,7 +729,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Server\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Server] System.Void MirrorTest.MirrorTestPlayer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -738,7 +737,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[ServerCallback\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [ServerCallback] System.Void MirrorTest.MirrorTestPlayer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -746,7 +745,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[Client\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [Client] System.Void MirrorTest.MirrorTestPlayer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
 
         [Test]
@@ -754,7 +753,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("Script .* uses the attribute \\[ClientCallback\\] .* but is not a NetworkBehaviour"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: [ClientCallback] System.Void MirrorTest.MirrorTestPlayer::ThisCantBeOutsideNetworkBehaviour() must be declared inside a NetworkBehaviour"));
         }
         #endregion
 
@@ -771,26 +770,24 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot be self referencing"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.PrefabClone has field $MirrorTest.PrefabClone MirrorTest.PrefabClone::selfReference that references itself"));
         }
 
         [Test]
         public void MessageInvalidSerializeFieldType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
-            Assert.That(m_weaverErrors[1], Does.Match("GenerateSerialization for .* member variables must be basic types"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.AccessViolationException MirrorTest.PrefabClone::invalidField has unsupported type"));
         }
 
         [Test]
         public void MessageInvalidDeserializeFieldType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
-            Assert.That(m_weaverErrors[0], Does.Match("please make sure to use a valid type"));
-            Assert.That(m_weaverErrors[1], Does.Match("GetReadFunc unable to generate function"));
-            Assert.That(m_weaverErrors[2], Does.Match("GenerateDeSerialization for .* member variables must be basic types"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.AccessViolationException is not a supported type"));
+            Assert.That(m_weaverErrors[1], Is.EqualTo("Mirror.Weaver error: System.AccessViolationException MirrorTest.PrefabClone::invalidField has unsupported type"));
         }
 
         [Test]
@@ -798,7 +795,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot have generic parameters"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.HasGeneric`1<System.Int32> MirrorTest.PrefabClone::invalidField cannot have generic type MirrorTest.HasGeneric`1<System.Int32>.  Consider creating a class that derives the generic type"));
         }
 
         [Test]
@@ -806,7 +803,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Does.Match("GenerateSerialization for .* member cannot be an interface"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.SuperCoolInterface MirrorTest.PrefabClone::invalidField has unsupported type. Use a concrete class instead of interface MirrorTest.SuperCoolInterface"));
         }
         #endregion
     }

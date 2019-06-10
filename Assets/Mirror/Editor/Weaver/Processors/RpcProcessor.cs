@@ -90,13 +90,13 @@ namespace Mirror.Weaver
         {
             if (!md.Name.StartsWith("Rpc"))
             {
-                Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
+                Weaver.Error($"{md} must start with Rpc.  Consider renaming it to Rpc{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} must not be static");
                 return false;
             }
 
