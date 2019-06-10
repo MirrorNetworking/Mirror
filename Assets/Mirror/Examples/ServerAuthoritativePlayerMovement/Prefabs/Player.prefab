@@ -125,7 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0.1
   PosUpdatesPerSecond: 20
-  MoveSpeed: 100
+  MoveSpeed: 50
   RotateSpeed: 500
   MainCamera: {fileID: 0}
 --- !u!54 &-5911433857780266114

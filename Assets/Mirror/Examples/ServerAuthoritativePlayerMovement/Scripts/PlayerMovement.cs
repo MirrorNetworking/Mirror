@@ -42,6 +42,12 @@ public class PlayerMovement : NetworkBehaviour
         //returning 0 will make it wait 1 frame so can determine if running on server or not
         yield return 0;
 
+        //Wait until the server is active so can tell if this instance is running on server or client
+        while (!NetworkServer.active)
+        {
+            yield return null; //Must wait here to ensure server is active
+        }
+
         if (isServer)
         {
             ServerMoveToPosition = transform.position;
@@ -55,7 +61,9 @@ public class PlayerMovement : NetworkBehaviour
             ClientMoveToRotation = transform.rotation;
             if (!isServer) //server needs to keep rigid body, only want physics to be done on server
             {
+                //your choice here, do one or the other depending if you need a rigidbody for animation etc.
                 Destroy(rigidBody);
+                //rigidBody.isKinematic = true;
             }
 
             SetCameraPosition();
