@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using System.Collections;
 
 public class PlayerMovement : NetworkBehaviour
 {
@@ -22,23 +23,30 @@ public class PlayerMovement : NetworkBehaviour
     Quaternion ClientMoveToRotation;
 
     //no need to sync this as only server uses it    
-    Vector3 ServerMoveToPosition;    
-    Quaternion ServerMoveToRotation;
+    Vector3 ServerMoveToPosition = Vector3.zero;    
+    Quaternion ServerMoveToRotation = new Quaternion(0,0,0,1);
     float ServerLastHorizontal, ServerLastVertical;
     Rigidbody rigidBody; //this is removed on non-servers and is used for server movement, hence why is declared at class level
 
-    // Start is called before the first frame update
     void Start()
     {
         //attach camera to the player
         MainCamera = FindObjectOfType<Camera>();
-
         rigidBody = GetComponent<Rigidbody>();
+
+        StartCoroutine(AfterStart());
+    }
+
+    IEnumerator AfterStart()
+    {        
+        //returning 0 will make it wait 1 frame so can determine if running on server or not
+        yield return 0;
 
         if (isServer)
         {
             ServerMoveToPosition = transform.position;
             ServerMoveToRotation = transform.rotation;
+            ServerMoveToRotation = ServerMoveToRotation.normalized;
         }
 
         if (isLocalPlayer)
@@ -53,7 +61,7 @@ public class PlayerMovement : NetworkBehaviour
             SetCameraPosition();
         }
     }
-    
+
     void Update()
     {
 
@@ -61,8 +69,8 @@ public class PlayerMovement : NetworkBehaviour
         //if running in host mode (server is also a player) the movement and rotation has already happened so don't do again here
         if (!isServer)
         {
-            transform.position = Vector3.MoveTowards(transform.position, ClientMoveToPosition, Time.deltaTime * MoveSpeed);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, ClientMoveToRotation, Time.deltaTime * RotateSpeed);
+            transform.position = Vector3.MoveTowards(transform.position, ClientMoveToPosition, Time.smoothDeltaTime * MoveSpeed);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, ClientMoveToRotation, Time.smoothDeltaTime * RotateSpeed);
         }
 
         if (isLocalPlayer)
@@ -165,6 +173,7 @@ public class PlayerMovement : NetworkBehaviour
             if (movement != Vector3.zero)
             {
                 ServerMoveToRotation = Quaternion.LookRotation(movement);
+                ServerMoveToRotation = ServerMoveToRotation.normalized;
             }
         }
     }
