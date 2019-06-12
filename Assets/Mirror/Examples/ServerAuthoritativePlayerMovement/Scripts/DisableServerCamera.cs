@@ -1,17 +1,19 @@
 using UnityEngine;
-using Mirror;
 
-public class DisableServerCamera : NetworkBehaviour
+namespace Mirror.Examples.ServerAuthoritativePlayerMovement
 {
-    public bool DisableCamera = true; //only set this to false if you want to run in host mode
-
-    public override void OnStartServer()
+    public class DisableServerCamera : NetworkBehaviour
     {
-        base.OnStartServer();
-        if (isServer && DisableCamera)
+        public bool DisableCamera = true; //only set this to false if you want to run in host mode
+
+        public override void OnStartServer()
         {
-            Camera MainCamera = FindObjectOfType<Camera>();
-            MainCamera.gameObject.SetActive(false);
+            base.OnStartServer();
+            if (isServer && DisableCamera)
+            {
+                Camera MainCamera = FindObjectOfType<Camera>();
+                MainCamera.gameObject.SetActive(false);
+            }
         }
     }
 }
