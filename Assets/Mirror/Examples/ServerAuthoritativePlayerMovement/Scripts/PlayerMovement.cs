@@ -130,25 +130,9 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
         {
             if (isServer)
             {
-                //if running the server as a host, you will get instant movement rather than smooth movement but this script is intended for non-host servers
-                //useful for quick testing in host mode however
-
-                //don't move transform via transform.position, move the rigidbody instead.  This prevents overlaps when objects get too close
-                //originally when using transform.position, this code block was at the top of OnUpdate() but you should do rigid body updates in FixedUpdate()
-                //transform.position = Vector3.MoveTowards(transform.position, ServerMoveToPosition, Time.deltaTime * MoveSpeed);
-                //transform.rotation = Quaternion.RotateTowards(transform.rotation, ServerMoveToRotation, Time.deltaTime * RotateSpeed);
-
-                //originally tested using rigidbody MovePosition and using Vector3.MoveTowards with Time.deltaTime but this was a bit clunky
-                //rigidBody.MovePosition(Vector3.MoveTowards(transform.position, ServerMoveToPosition, Time.deltaTime * MoveSpeed));
-                //rigidBody.MoveRotation(Quaternion.RotateTowards(transform.rotation, ServerMoveToRotation, Time.deltaTime * RotateSpeed));
-
-                //rigidbody MovePosition already handles smooth interpolation so it is better to just enter the final server position
-                //remember this code is written with the intention that the server it not a host i.e. the server is dedicated
-                //rigidBody.MovePosition(ServerMoveToPosition);
-                rigidBody.MoveRotation(ServerMoveToRotation);
-
-                //try using force instead
                 rigidBody.AddForce(ServerLastHorizontal * MoveSpeed, 0, ServerLastVertical * MoveSpeed);
+                //need to move smoothly rather than jumping server to final angle, in case fire in direction while rotating the player
+                rigidBody.MoveRotation(Quaternion.RotateTowards(transform.rotation, ServerMoveToRotation, Time.deltaTime * RotateSpeed));                                
             }
         }
 
@@ -178,7 +162,7 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
         [Command]
         void CmdPlayerMove(float axisHorizontal, float axisVertical, Quaternion playerDirection, float clientDeltaTime)
         {
-            //movement is true server authoritative, rotation is set by client
+            //movement is true server authoritative using rigidbody and force, rotation is set by client but the server will rotate towards the chosen direction
             ServerLastHorizontal = axisHorizontal;
             ServerLastVertical = axisVertical;
             ServerMoveToRotation = playerDirection;            
