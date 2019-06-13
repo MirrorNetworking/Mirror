@@ -146,7 +146,7 @@ namespace Mirror
                     lastY = behaviourRect.y;
                 }
 
-                if (identity.observers.Count > 0)
+                if (identity.observers != null && identity.observers.Count > 0)
                 {
                     Rect observerRect = new Rect(initialX, lastY + 10, 200, 20);
 

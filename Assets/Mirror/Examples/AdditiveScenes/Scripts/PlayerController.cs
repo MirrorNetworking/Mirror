@@ -21,12 +21,22 @@ namespace Mirror.Examples.Additive
         [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
 
-        void SetColor(Color color)
-        {
-            GetComponent<Renderer>().material.color = color;
-        }
+		// Unity makes a clone of the material when GetComponent<Renderer>().material is used
+		// Cache it here and Destroy it in OnDestroy to prevent a memory leak
+		Material materialClone;
 
-        Camera mainCam;
+		void SetColor(Color color)
+		{
+			if (materialClone == null) materialClone = GetComponent<Renderer>().material;
+			materialClone.color = color;
+		}
+
+		private void OnDestroy()
+		{
+			Destroy(materialClone);
+		}
+
+		Camera mainCam;
 
         public override void OnStartLocalPlayer()
         {

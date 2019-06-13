@@ -1,7 +1,7 @@
 // all the SyncEvent code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             }
             if (eventField == null)
             {
-                Weaver.Error("[" + td.Name + "] ERROR: no event field?!");
+                Weaver.Error($"{td} not found. Did you declare the event?");
                 return null;
             }
 
@@ -113,13 +113,13 @@ namespace Mirror.Weaver
                     {
                         if (!ed.Name.StartsWith("Event"))
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
+                            Weaver.Error($"{ed} must start with Event.  Consider renaming it to Event{ed.Name}");
                             return;
                         }
 
                         if (ed.EventType.Resolve().HasGenericParameters)
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
+                            Weaver.Error($"{ed} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead");
                             return;
                         }
 

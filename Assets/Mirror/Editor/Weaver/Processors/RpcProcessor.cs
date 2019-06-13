@@ -1,6 +1,6 @@
 // all the [Rpc] code from NetworkBehaviourProcessor in one place
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 namespace Mirror.Weaver
 {
     public static class RpcProcessor
@@ -10,7 +10,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
             MethodDefinition rpc = new MethodDefinition(
-                RpcPrefix + md.Name, 
+                RpcPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
@@ -90,13 +90,13 @@ namespace Mirror.Weaver
         {
             if (!md.Name.StartsWith("Rpc"))
             {
-                Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
+                Weaver.Error($"{md} must start with Rpc.  Consider renaming it to Rpc{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} must not be static");
                 return false;
             }
 

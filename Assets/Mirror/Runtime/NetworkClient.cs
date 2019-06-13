@@ -119,7 +119,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        internal static void OnDataReceived(byte[] data)
+        internal static void OnDataReceived(ArraySegment<byte> data)
         {
             if (connection != null)
             {
@@ -195,7 +195,7 @@ namespace Mirror
             return false;
         }
 
-        public static bool Send<T>(T message) where T : IMessageBase
+        public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (connection != null)
             {
@@ -204,7 +204,7 @@ namespace Mirror
                     Debug.LogError("NetworkClient Send when not connected to a server");
                     return false;
                 }
-                return connection.Send(message);
+                return connection.Send(message, channelId);
             }
             Debug.LogError("NetworkClient Send with no connection");
             return false;
@@ -219,7 +219,7 @@ namespace Mirror
                 while (localClientPacketQueue.Count > 0)
                 {
                     byte[] packet = localClientPacketQueue.Dequeue();
-                    OnDataReceived(packet);
+                    OnDataReceived(new ArraySegment<byte>(packet));
                 }
             }
             else

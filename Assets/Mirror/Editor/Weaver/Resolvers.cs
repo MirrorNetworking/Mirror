@@ -4,7 +4,7 @@
 //       value for null otherwise.
 //       (original FieldType.Resolve returns null if not found too, so
 //        exceptions would be a bit inconsistent here)
-using Mono.Cecil;
+using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
@@ -25,14 +25,7 @@ namespace Mirror.Weaver
                     return scriptDef.MainModule.ImportReference(methodRef);
                 }
             }
-            Weaver.Error("ResolveMethod failed " + tr.Name + "::" + name + " " + tr.Resolve());
-
-            // why did it fail!?
-            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
-            {
-                Weaver.Error("Method " + methodRef.Name);
-            }
-
+            Weaver.Error($"{tr}.{name}() not found");
             return null;
         }
 
@@ -71,7 +64,7 @@ namespace Mirror.Weaver
                     }
                 }
             }
-            Weaver.Error("ResolveMethodWithArg failed " + tr.Name + "::" + name + " " + argTypeFullName);
+            Weaver.Error($"{tr}.{name}({argTypeFullName}) not found");
             return null;
         }
 
@@ -117,7 +110,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error("ResolveMethodGeneric failed " + t.Name + "::" + name + " " + genericType);
+            Weaver.Error($"{t}.{name}<{genericType}>() not found");
             return null;
         }
 

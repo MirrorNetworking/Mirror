@@ -1,6 +1,6 @@
 // all the [TargetRpc] code from NetworkBehaviourProcessor in one place
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -127,13 +127,13 @@ namespace Mirror.Weaver
         {
             if (!md.Name.StartsWith("Target"))
             {
-                Weaver.Error("Target Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Target' prefix");
+                Weaver.Error($"{md} must start with Target.  Consider renaming it to Target{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("TargetRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} must not be static");
                 return false;
             }
 
