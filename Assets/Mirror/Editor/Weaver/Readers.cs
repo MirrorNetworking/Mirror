@@ -48,6 +48,7 @@ namespace Mirror.Weaver
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadNetworkIdentity") },
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadTransform") },
                 { "System.Byte[]", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSize") },
+                { "System.ArraySegment`1<System.Byte>", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesSegment") }
             };
         }
 
