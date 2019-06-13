@@ -97,7 +97,7 @@ namespace Mirror.Tcp
             }
             catch (ObjectDisposedException)
             {
-                Debug.Log("Server dispossed");
+                Debug.Log("Server disposed");
             }
             catch (Exception exception)
             {

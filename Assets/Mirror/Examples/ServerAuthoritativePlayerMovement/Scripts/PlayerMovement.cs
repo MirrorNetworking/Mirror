@@ -8,7 +8,7 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
     {
         //this class should be used on a networked player gameobject, and is intended to be used in a non-server-based setup i.e. server is not a player
         //will mostly work if using server in host mode but not designed for use that way, and some movement on the server itself is intentionally 
-        //straight to final desired position rather than smooth movement
+        //straight to final desired position rather than smooth movement.  Also if server as a host, host is always ahead of all other players
         private float lastSentTime;
         public float PosUpdatesPerSecond = 20;
         public float MoveSpeed = 50;
@@ -75,51 +75,21 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
         void Update()
         {
 
-            //this bit must be done outside of isLocalPlayer check to pick up changes for other players
+            //UpdatePlayerPositionOnClient must be called outside of the isLocalPlayer code block to pick up changes for all other players
             //if running in host mode (server is also a player) the movement and rotation has already happened so don't do again here
             if (!isServer)
             {
-                transform.position = Vector3.MoveTowards(transform.position, ClientMoveToPosition, Time.smoothDeltaTime * MoveSpeed);
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, ClientMoveToRotation, Time.smoothDeltaTime * RotateSpeed);
+                UpdatePlayerPositionOnClient();
             }
 
             if (isLocalPlayer)
             {
                 if (Time.time - lastSentTime > (1f / PosUpdatesPerSecond)) //don't send too many player position updates per second to the server 
                 {
-                    //(all movement must be processed by server)
-
-                    //left stick moves in the direction the stick points to rather than in relation to where the player is facing
-                    float leftStickHorizontal = Input.GetAxis("Horizontal");
-                    float leftStickVertical = Input.GetAxis("Vertical");
-
-                    //right stick turns the player to face the direction the stick is pointing
-                    float rightStickHorizontal = Input.GetAxis("Right Joystick Horizontal");
-                    float rightStickVertical = Input.GetAxis("Right Joystick Vertical");
-                    Quaternion playerDirection = new Quaternion(0, 0, 0, 1);
-
-                    //set direction to face direction player is travelling
-                    Vector3 movement = new Vector3(leftStickHorizontal, 0.0f, leftStickVertical);
-                    if (movement == Vector3.zero)
-                    {
-                        //use last known client rotation, otherwise the player will always point upwards
-                        playerDirection = ClientMoveToRotation;
-                    }
-                    else
-                    {
-                        playerDirection = Quaternion.LookRotation(movement);
-                        playerDirection = playerDirection.normalized;
-                    }
-
-                    //override the direction if the right stick is being used
-                    if (rightStickHorizontal != 0.0 || rightStickVertical != 0.0)
-                    {
-                        //angle will match where the right stick points to
-                        float angle = Mathf.Atan2(rightStickVertical, rightStickHorizontal) * Mathf.Rad2Deg;
-                        playerDirection = Quaternion.AngleAxis(180.0f - angle, Vector3.up);                        
-                    }
-      
-                    CmdPlayerMove(leftStickHorizontal, leftStickVertical, playerDirection, Time.smoothDeltaTime);
+                    //(all movement must be processed by server)                    
+                    Vector2 playerMoveDirection = GetInputMovement();
+                    Quaternion playerRotateDirection = GetInputRotation(playerMoveDirection);                    
+                    CmdPlayerMove(playerMoveDirection, playerRotateDirection, Time.smoothDeltaTime);
       
                     lastSentTime = Time.time;
                 }
@@ -149,6 +119,53 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
                 SetCameraPosition();
         }
 
+        Vector2 GetInputMovement()
+        {
+            //left stick moves in the direction the stick points to rather than in relation to where the player is facing
+            float moveStickHorizontal = Input.GetAxis("Horizontal");
+            float moveStickVertical = Input.GetAxis("Vertical");
+            return new Vector2(moveStickHorizontal, moveStickVertical);
+        }
+
+        Quaternion GetInputRotation(Vector2 PlayerMoveDirection)
+        {
+            //right stick turns the player to face the direction the stick is pointing (make sure to set up the Right Joystick inputs)
+            float directionStickHorizontal = Input.GetAxis("Right Joystick Horizontal");
+            float directionStickVertical = Input.GetAxis("Right Joystick Vertical");
+
+            Quaternion playerRotateDirection = new Quaternion(0, 0, 0, 1);
+
+            //set direction to face direction player is travelling
+            //(x is horizontal input, y is vertical input but as camera is above player y maps to Vector3.z)
+            Vector3 movement = new Vector3(PlayerMoveDirection.x, 0.0f, PlayerMoveDirection.y);
+            if (movement == Vector3.zero)
+            {
+                //use last known client rotation, otherwise the player will always point upwards when not pointing right stick
+                playerRotateDirection = ClientMoveToRotation;
+            }
+            else
+            {
+                playerRotateDirection = Quaternion.LookRotation(movement);
+                playerRotateDirection = playerRotateDirection.normalized;
+            }
+
+            //override the direction if the right stick is being used
+            if (directionStickHorizontal != 0.0 || directionStickVertical != 0.0)
+            {
+                //angle will match where the right stick points to
+                float angle = Mathf.Atan2(directionStickVertical, directionStickHorizontal) * Mathf.Rad2Deg;
+                playerRotateDirection = Quaternion.AngleAxis(180.0f - angle, Vector3.up);
+            }
+
+            return playerRotateDirection;
+        }
+
+        void UpdatePlayerPositionOnClient()
+        {
+            transform.position = Vector3.MoveTowards(transform.position, ClientMoveToPosition, Time.smoothDeltaTime * MoveSpeed);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, ClientMoveToRotation, Time.smoothDeltaTime * RotateSpeed);
+        }
+
         void SetCameraPosition()
         {
             if (!MainCamera) return;
@@ -160,12 +177,13 @@ namespace Mirror.Examples.ServerAuthoritativePlayerMovement
         }
 
         [Command]
-        void CmdPlayerMove(float axisHorizontal, float axisVertical, Quaternion playerDirection, float clientDeltaTime)
+        void CmdPlayerMove(Vector2 playerMoveDirection, Quaternion playerRotateDirection, float clientDeltaTime)
         {
             //movement is true server authoritative using rigidbody and force, rotation is set by client but the server will rotate towards the chosen direction
-            ServerLastHorizontal = axisHorizontal;
-            ServerLastVertical = axisVertical;
-            ServerMoveToRotation = playerDirection;            
+            //and push out the current server's rotation to all clients to follow the server's lead
+            ServerLastHorizontal = playerMoveDirection.x;
+            ServerLastVertical = playerMoveDirection.y;
+            ServerMoveToRotation = playerRotateDirection;            
         }
     }
 }
