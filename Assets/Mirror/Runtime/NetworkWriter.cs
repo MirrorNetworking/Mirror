@@ -94,6 +94,11 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
+        public void WriteBytesSegment(ArraySegment<byte> buffer)
+        {
+            WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public void WritePackedInt32(int i)
         {
