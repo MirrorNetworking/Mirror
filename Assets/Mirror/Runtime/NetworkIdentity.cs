@@ -818,6 +818,9 @@ namespace Mirror
 
         public void RebuildObservers(bool initialize)
         {
+            if (observers == null)
+                return;
+
             bool result = false;
             newObservers.Clear();
             
