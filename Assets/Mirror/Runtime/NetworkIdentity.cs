@@ -42,7 +42,7 @@ namespace Mirror
         // <connectionId, NetworkConnection>
         // null until OnStartServer was called. this is necessary for SendTo...
         // to work properly in server-only mode.
-        public readonly Dictionary<int, NetworkConnection> observers = new Dictionary<int, NetworkConnection>();
+        public Dictionary<int, NetworkConnection> observers;
 
         public uint netId { get; internal set; }
         public ulong sceneId => m_SceneId;
@@ -402,6 +402,8 @@ namespace Mirror
             }
             m_IsServer = true;
             hasAuthority = !localPlayerAuthority;
+
+            observers = new Dictionary<int, NetworkConnection>();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             if (netId == 0)
@@ -790,6 +792,12 @@ namespace Mirror
 
         internal void AddObserver(NetworkConnection conn)
         {
+            if (observers == null)
+            {
+                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
+                return;
+            }
+
             if (observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
@@ -1000,7 +1008,7 @@ namespace Mirror
         {
             // SendToReady sends to all observers. no need to serialize if we
             // don't have any.
-            if (observers.Count == 0)
+            if (observers == null || observers.Count == 0)
                 return;
 
             // serialize all the dirty components and send (if any were dirty)
