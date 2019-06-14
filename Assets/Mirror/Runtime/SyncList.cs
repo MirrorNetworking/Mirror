@@ -45,7 +45,7 @@ namespace Mirror
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncList<T> : IList<T>, SyncObject
+    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
