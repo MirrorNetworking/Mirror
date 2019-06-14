@@ -905,7 +905,7 @@ namespace Mirror
             if (changed)
             {
                 observers.Clear();
-                foreach (var conn in newObservers)
+                foreach (NetworkConnection conn in newObservers)
                 {
                     if (conn.isReady)
                         observers.Add(conn.connectionId, conn);
