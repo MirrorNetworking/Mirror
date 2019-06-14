@@ -64,6 +64,22 @@ namespace Mirror
             return packWriter.ToArray();
         }
 
+        public static NetworkWriter PackWriter<T>(T message) where T : IMessageBase
+        {
+            // reset cached writer length and position
+            packWriter.SetLength(0);
+
+            // write message type
+            int msgType = GetId<T>();
+            packWriter.Write((ushort)msgType);
+
+            // serialize message into writer
+            message.Serialize(packWriter);
+
+            // return byte[]
+            return packWriter;
+        }
+
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {

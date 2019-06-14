@@ -122,6 +122,11 @@ namespace Mirror
         {
             return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
         }
+        public override bool ClientSend(int channelId, NetworkWriter data)
+        {
+            byte[] buffer = data.ToArray();
+            return NetworkTransport.Send(clientId, clientConnectionId, channelId, buffer, buffer.Length, out error);
+        }
 
         public bool ProcessClientMessage()
         {
@@ -203,6 +208,11 @@ namespace Mirror
         public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
+        }
+        public override bool ServerSend(int connectionId, int channelId, NetworkWriter data)
+        {
+            byte[] buffer = data.ToArray();
+            return NetworkTransport.Send(serverHostId, connectionId, channelId, buffer, buffer.Length, out error);
         }
 
         public bool ProcessServerMessage()

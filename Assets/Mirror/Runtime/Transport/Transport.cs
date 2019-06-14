@@ -36,6 +36,7 @@ namespace Mirror
         public abstract bool ClientConnected();
         public abstract void ClientConnect(string address);
         public abstract bool ClientSend(int channelId, byte[] data);
+        public abstract bool ClientSend(int channelId, NetworkWriter data);
         public abstract void ClientDisconnect();
 
         // server
@@ -47,6 +48,7 @@ namespace Mirror
         public abstract bool ServerActive();
         public abstract void ServerStart();
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+        public abstract bool ServerSend(int connectionId, int channelId, NetworkWriter data);
         public abstract bool ServerDisconnect(int connectionId);
 
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
