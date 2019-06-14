@@ -74,13 +74,7 @@ namespace Mirror.Weaver
 
             if (variable.IsArray)
             {
-                TypeReference elementType = variable.GetElementType();
-                MethodReference elemenWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
-                if (elemenWriteFunc == null)
-                {
-                    return null;
-                }
-                newWriterFunc = GenerateArrayWriteFunc(variable, elemenWriteFunc);
+                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
             }
             else if (variable.Resolve().IsEnum)
             {
@@ -184,13 +178,22 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, MethodReference elementWriteFunc)
+        static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, int recursionCount)
         {
+
             if (!variable.IsArrayType())
             {
                 Weaver.Error($"{variable} is an unsupported type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
+
+            TypeReference elementType = variable.GetElementType();
+            MethodReference elementWriteFunc = GetWriteFunc(elementType, recursionCount + 1);
+            if (elementWriteFunc == null)
+            {
+                return null;
+            }
+
             string functionName = "_WriteArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {

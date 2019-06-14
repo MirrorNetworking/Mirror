@@ -81,13 +81,7 @@ namespace Mirror.Weaver
 
             if (variable.IsArray)
             {
-                TypeReference elementType = variable.GetElementType();
-                MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
-                if (elementReadFunc == null)
-                {
-                    return null;
-                }
-                newReaderFunc = GenerateArrayReadFunc(variable, elementReadFunc);
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
             }
             else if (td.IsEnum)
             {
@@ -116,13 +110,21 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
-        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, MethodReference elementReadFunc)
+        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
             {
                 Weaver.Error($"{variable} is an unsupported type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
+
+            TypeReference elementType = variable.GetElementType();
+            MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
+            if (elementReadFunc == null)
+            {
+                return null;
+            }
+
             string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {
