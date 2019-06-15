@@ -61,6 +61,7 @@ namespace Mirror
         {
             GetAvailableTransport().ClientDisconnect();
         }
+
         public override bool ClientSend(int channelId, byte[] data)
         {
             return GetAvailableTransport().ClientSend(channelId, data);

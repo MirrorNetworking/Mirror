@@ -153,7 +153,11 @@ namespace Mirror
 
         internal virtual bool SendWriter(NetworkWriter writer, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " writer");
+            if (logNetworkMessages)
+            {
+                ArraySegment<byte> data = writer.ToArraySegment();
+                Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(data.Array, data.Offset, data.Count));
+            }
 
             if (writer.Position > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
