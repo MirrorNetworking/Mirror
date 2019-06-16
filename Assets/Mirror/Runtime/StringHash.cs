@@ -14,5 +14,19 @@ namespace Mirror
                 return hash;
             }
         }
+
+        // calculate a stable hash out of several strings
+        public static int GetStableHashCode(params string [] texts)
+        {
+            unchecked
+            {
+                int hash = 23;
+                foreach (string txt in texts)
+                {
+                    hash = hash * 31 + GetStableHashCode(txt);
+                }
+                return hash;
+            }
+        }
     }
 }

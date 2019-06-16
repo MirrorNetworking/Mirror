@@ -104,7 +104,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = StringHash.GetStableHashCode(invokeClass.FullName, ":", cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -140,7 +140,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = StringHash.GetStableHashCode(invokeClass.FullName, ":", rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -179,7 +179,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = StringHash.GetStableHashCode(invokeClass.FullName, ":", rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -208,7 +208,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + eventName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = StringHash.GetStableHashCode(invokeClass.FullName, ":", eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -238,7 +238,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = StringHash.GetStableHashCode(invokeClass.FullName, ":", cmdName); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
