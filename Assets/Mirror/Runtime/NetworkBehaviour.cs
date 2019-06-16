@@ -74,6 +74,14 @@ namespace Mirror
             syncObjects.Add(syncObject);
         }
 
+        private static NetworkWriter argWriter;
+        protected static NetworkWriter GetArgWriter()
+        {
+            argWriter = argWriter ?? new NetworkWriter();
+            argWriter.SetLength(0);
+            return argWriter;
+        }
+
         #region Commands
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)

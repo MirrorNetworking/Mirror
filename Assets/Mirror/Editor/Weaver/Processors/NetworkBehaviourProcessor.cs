@@ -107,7 +107,8 @@ namespace Mirror.Weaver
         public static void WriteCreateWriter(ILProcessor worker)
         {
             // create writer
-            worker.Append(worker.Create(OpCodes.Newobj, Weaver.NetworkWriterCtor));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.GetArgWriterMethod));
+            //worker.Append(worker.Create(OpCodes.Newobj, Weaver.NetworkWriterCtor));
             worker.Append(worker.Create(OpCodes.Stloc_0));
         }
 
