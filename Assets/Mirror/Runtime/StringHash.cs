@@ -14,18 +14,5 @@ namespace Mirror
                 return hash;
             }
         }
-
-        // calculate a stable hash out of several strings
-        public static int GetStableHashCode(string txt1, string txt2, string txt3)
-        {
-            unchecked
-            {
-                int hash = 23;
-                hash = hash * 31 + GetStableHashCode(txt1);
-                hash = hash * 31 + GetStableHashCode(txt2);
-                hash = hash * 31 + GetStableHashCode(txt3);
-                return hash;
-            }
-        }
     }
 }
