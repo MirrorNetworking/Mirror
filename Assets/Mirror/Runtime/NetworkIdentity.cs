@@ -811,7 +811,7 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
-        readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
         public void RebuildObservers(bool initialize)
         {
