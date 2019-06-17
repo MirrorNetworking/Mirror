@@ -700,7 +700,7 @@ namespace Mirror
 
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
-        public virtual void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) {}
+        public virtual void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode = LoadSceneMode.Single) {}
         #endregion
 
         #region Client System Callbacks
