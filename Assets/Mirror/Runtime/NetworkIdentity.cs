@@ -881,9 +881,8 @@ namespace Mirror
                 }
             }
 
-            foreach (KeyValuePair<int, NetworkConnection> kvp in observers)
+            foreach (NetworkConnection conn in observers.Values)
             {
-                NetworkConnection conn = kvp.Value;
                 if (!newObservers.Contains(conn))
                 {
                     // removed observer
