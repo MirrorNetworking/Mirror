@@ -79,6 +79,18 @@ namespace Mirror
         }
 
         #region Commands
+
+        private static int GetMethodHash(Type invokeClass, string methodName)
+        {
+            // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
+            // so hash1 + hash2 is better.
+            unchecked
+            {
+                int hash = invokeClass.FullName.GetStableHashCode();
+                return hash * 503 + methodName.GetStableHashCode();
+            }
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
@@ -108,7 +120,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -144,7 +156,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -183,7 +195,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -212,7 +224,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + eventName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                functionHash = GetMethodHash(invokeClass, eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
                 payload = writer.ToArray()
             };
 
@@ -242,7 +254,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = GetMethodHash(invokeClass, cmdName); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
