@@ -42,7 +42,12 @@ namespace Mirror
 
         public void Write(byte value) => writer.Write(value);
         public void Write(sbyte value) => writer.Write(value);
-        public void Write(char value) => writer.Write(value);
+        public void Write(char value)
+        {
+            // write char the same way that NetworkReader reads it (2 bytes)
+            byte[] bytes = BitConverter.GetBytes(value);
+            writer.Write(bytes);
+        }
         public void Write(bool value) => writer.Write(value);
         public void Write(short value) => writer.Write(value);
         public void Write(ushort value) => writer.Write(value);
