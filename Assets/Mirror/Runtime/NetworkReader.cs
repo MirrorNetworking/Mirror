@@ -41,7 +41,7 @@ namespace Mirror
 
         public byte ReadByte()
         {
-            if (Position >= buffer.Length)
+            if (Position + 1 > buffer.Length)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadByte out of range:" + ToString());
             }
