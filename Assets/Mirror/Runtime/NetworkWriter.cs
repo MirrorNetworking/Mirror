@@ -12,6 +12,7 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        static byte[] stringBuffer = new byte[NetworkReader.MaxStringLength];
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
@@ -54,12 +55,29 @@ namespace Mirror
 
         public void Write(string value)
         {
-            // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
-            // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
-            //        should also be null on the client)
+            // write bool for null support first
+            // (note: original HLAPI would write "" for null strings, but if a
+            //        string is null on the server then it should also be null
+            //        on the client)
             writer.Write(value != null);
-            if (value != null) 
-                writer.Write(value);
+
+            // write string with same method as NetworkReader
+            if (value != null)
+            {
+                // check if within max size to avoid allocation attacks etc.
+                int numBytes = encoding.GetByteCount(value);
+                if (numBytes >= stringBuffer.Length)
+                {
+                    throw new IndexOutOfRangeException("Serialize(string) too long: " + value.Length + ". Limit: " + stringBuffer.Length);
+                }
+
+                // write number of bytes
+                Write((ushort)numBytes);
+
+                // convert to char[]
+                int convertedBytes = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+                Write(stringBuffer, 0, (ushort)convertedBytes);
+            }
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read

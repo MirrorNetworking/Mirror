@@ -24,6 +24,8 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        public const int MaxStringLength = 1024 * 32;
+        static byte[] stringBuffer = new byte[MaxStringLength];
 
         public NetworkReader(byte[] buffer)
         {
@@ -110,20 +112,51 @@ namespace Mirror
 
         // note: this will throw an ArgumentException if an invalid utf8 string is sent
         // null support, see NetworkWriter
-        //public string ReadString() => ReadBoolean() ? reader.ReadString() : null;
+        public string ReadString()
+        {
+            // isNull?
+            if (ReadBoolean())
+            {
+                // read number of bytes
+                UInt16 numBytes = ReadUInt16();
+                if (numBytes == 0)
+                    return "";
 
-        public byte[] ReadBytes(int count)
+                // make sure it's within limits to avoid allocation attacks etc.
+                if (numBytes >= stringBuffer.Length)
+                {
+                    throw new IndexOutOfRangeException("ReadString() too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
+                }
+
+                // read the bytes
+                ReadBytes(stringBuffer, numBytes);
+
+                // convert to string via encoding
+                char[] chars = encoding.GetChars(stringBuffer, 0, numBytes);
+                return new string(chars);
+            }
+            return null;
+        }
+
+        // read bytes into the passed buffer
+        public byte[] ReadBytes(byte[] bytes, int count)
         {
             if (Position + count > buffer.Length)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
             }
 
-            byte[] bytes = new byte[count];
             for (int i = 0; i < count; ++i)
             {
                 bytes[i] = buffer[Position++];
             }
+            return bytes;
+        }
+
+        public byte[] ReadBytes(int count)
+        {
+            byte[] bytes = new byte[count];
+            ReadBytes(bytes, count);
             return bytes;
         }
 
