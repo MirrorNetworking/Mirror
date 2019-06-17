@@ -55,14 +55,18 @@ namespace Mirror
         {
             get
             {
-                int index = Array.FindIndex(netIdentity.NetworkBehaviours, component => component == this);
-                if (index < 0)
+                // note: FindIndex causes allocations, we search manually instead
+                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
                 {
-                    // this should never happen
-                    Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
+                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
+                    if (component == this)
+                        return i;
                 }
 
-                return index;
+                // this should never happen
+                Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
+
+                return -1;
             }
         }
 
