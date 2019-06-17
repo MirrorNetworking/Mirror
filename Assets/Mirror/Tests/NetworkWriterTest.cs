@@ -521,6 +521,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestChar()
+        {
+            char a = 'a';
+            char u = 'ⓤ';
+
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(a);
+            writer.Write(u);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            char a2 = reader.ReadChar();
+            Assert.That(a2, Is.EqualTo(a));
+            char u2 = reader.ReadChar();
+            Assert.That(u2, Is.EqualTo(u));
+        }
+
+        [Test]
         public void TestUnicodeString()
         {
             string[] weirdUnicode = new string[]{
