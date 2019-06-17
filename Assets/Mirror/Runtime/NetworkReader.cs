@@ -108,7 +108,19 @@ namespace Mirror
             value |= other;
             return value;
         }
-        //public decimal ReadDecimal() => reader.ReadDecimal();
+        public decimal ReadDecimal()
+        {
+            // https://stackoverflow.com/questions/3467893/how-do-i-convert-byte-values-into-decimals
+            int[] decimalBits = new int[4];
+
+            decimalBits[0] = buffer[Position + 0] | (buffer[Position + 1] << 8) | (buffer[Position + 2] << 16) | (buffer[Position + 3] << 24);
+            decimalBits[1] = buffer[Position + 4] | (buffer[Position + 5] << 8) | (buffer[Position + 6] << 16) | (buffer[Position + 7] << 24);
+            decimalBits[2] = buffer[Position + 8] | (buffer[Position + 9] << 8) | (buffer[Position + 10] << 16) | (buffer[Position + 11] << 24);
+            decimalBits[3] = buffer[Position + 12] | (buffer[Position + 13] << 8) | (buffer[Position + 14] << 16) | (buffer[Position + 15] << 24);
+
+            Position += 16;
+            return new Decimal(decimalBits);
+        }
         public float ReadSingle()
         {
             uint value = ReadUInt32();
