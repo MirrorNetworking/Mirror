@@ -12,7 +12,8 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
-        static byte[] stringBuffer = new byte[NetworkReader.MaxStringLength];
+        public const int MaxStringLength = 1024 * 32;
+        static byte[] stringBuffer = new byte[MaxStringLength];
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
