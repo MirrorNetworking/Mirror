@@ -453,7 +453,7 @@ namespace Mirror
             networkSceneName = newSceneName; //This should probably not change if additive is used          
         }
 
-        void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
+        void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode = LoadSceneMode.Single)
         {
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
@@ -699,12 +699,6 @@ namespace Mirror
         }
 
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) instead.")]
-        public virtual void OnServerSceneChanged(string sceneName)
-        {
-            OnServerSceneChanged(sceneName, LoadSceneMode.Single);
-        }
 
         public virtual void OnServerSceneChanged(string sceneName, LoadSceneMode sceneMode) {}
         #endregion
