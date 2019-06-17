@@ -55,6 +55,7 @@ namespace Mirror
         {
             get
             {
+                // note: FindIndex causes allocations, we search manually instead
                 for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
                 {
                     NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
