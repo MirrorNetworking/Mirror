@@ -88,19 +88,6 @@ namespace Mirror
         public ulong longValue;
     }
 
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct UIntDecimal
-    {
-        [FieldOffset(0)]
-        public ulong longValue1;
-
-        [FieldOffset(8)]
-        public ulong longValue2;
-
-        [FieldOffset(0)]
-        public decimal decimalValue;
-    }
-
     internal class FloatConversion
     {
         public static float ToSingle(uint value)
@@ -115,14 +102,6 @@ namespace Mirror
             UIntFloat uf = new UIntFloat();
             uf.longValue = value;
             return uf.doubleValue;
-        }
-
-        public static decimal ToDecimal(ulong value1, ulong value2)
-        {
-            UIntDecimal uf = new UIntDecimal();
-            uf.longValue1 = value1;
-            uf.longValue2 = value2;
-            return uf.decimalValue;
         }
     }
 }
