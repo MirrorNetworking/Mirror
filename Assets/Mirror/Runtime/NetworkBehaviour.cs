@@ -78,6 +78,8 @@ namespace Mirror
 
         private static int GetMethodHash(Type invokeClass, string methodName)
         {
+            // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
+            // so hash1 + hash2 is better.
             unchecked
             {
                 int hash = invokeClass.FullName.GetStableHashCode();
