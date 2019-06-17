@@ -573,16 +573,11 @@ namespace Mirror
             return result;
         }
 
-        // OnSerializeAllSafely is in hot path. caching the writer is really
-        // worth it to avoid large amounts of allocations.
-        static NetworkWriter onSerializeWriter = new NetworkWriter();
-
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
         internal byte[] OnSerializeAllSafely(bool initialState)
         {
-            // reset cached writer length and position
-            onSerializeWriter.SetLength(0);
+            NetworkWriter onSerializeWriter = NetworkWriter.GetPooledWriter();
 
             if (networkBehavioursCache.Length > 64)
             {
