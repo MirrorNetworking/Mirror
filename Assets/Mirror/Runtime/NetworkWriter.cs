@@ -75,7 +75,7 @@ namespace Mirror
             // write string with same method as NetworkReader
             if (value != null)
             {
-                // check if within max size to avoid allocation attacks etc.
+                // check if within max size
                 int numBytes = encoding.GetByteCount(value);
                 if (numBytes >= stringBuffer.Length)
                 {
