@@ -13,12 +13,14 @@ namespace Mirror
     public class NetworkReader
     {
         // internal buffer
-        byte[] buffer;
+        // byte[] pointer would work, but we use ArraySegment to also support
+        // the ArraySegment constructor
+        ArraySegment<byte> buffer;
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position;
-        public int Length => buffer.Length;
+        public int Length => buffer.Count;
 
         // cache encoding instead of creating it each time
         // 1000 readers before:  1MB GC, 30ms
@@ -26,26 +28,23 @@ namespace Mirror
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
         static byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
-        public NetworkReader(byte[] buffer)
+        public NetworkReader(byte[] bytes)
         {
-            this.buffer = buffer;
+            buffer = new ArraySegment<byte>(bytes);
         }
 
         public NetworkReader(ArraySegment<byte> segment)
         {
-            // TODO proper ArraySegment usage later?
-            // let's copy it for now
-            buffer = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, buffer, 0, segment.Count);
+            buffer = segment;
         }
 
         public byte ReadByte()
         {
-            if (Position + 1 > buffer.Length)
+            if (Position + 1 > buffer.Count)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadByte out of range:" + ToString());
             }
-            return buffer[Position++];
+            return buffer.Array[buffer.Offset + Position++];
         }
         public sbyte ReadSByte() => (sbyte)ReadByte();
         // read char the same way that NetworkWriter writes it (2 bytes)
@@ -150,7 +149,7 @@ namespace Mirror
         // read bytes into the passed buffer
         public byte[] ReadBytes(byte[] bytes, int count)
         {
-            if (Position + count > buffer.Length)
+            if (Position + count > buffer.Count)
             {
                 throw new IndexOutOfRangeException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
             }
@@ -307,7 +306,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer);
+            return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count);
         }
     }
 }
