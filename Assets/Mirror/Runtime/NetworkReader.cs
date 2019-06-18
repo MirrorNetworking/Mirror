@@ -143,10 +143,9 @@ namespace Mirror
                 throw new EndOfStreamException("ReadBytes out of range: (" + count + ") " + ToString());
             }
 
-            for (int i = 0; i < count; ++i)
-            {
-                bytes[i] = ReadByte();
-            }
+            // copy it directly from the array
+            Array.Copy(buffer.Array, buffer.Offset + Position, bytes, 0, count);
+            Position += count;
             return bytes;
         }
 
