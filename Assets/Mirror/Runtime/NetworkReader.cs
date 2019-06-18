@@ -138,6 +138,13 @@ namespace Mirror
         // read bytes into the passed buffer
         public byte[] ReadBytes(byte[] bytes, int count)
         {
+            // check if passed byte array is big enough
+            if (count > bytes.Length)
+            {
+                throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes into a buffer with length " + bytes.Length);
+            }
+
+            // check if within buffer limits
             if (Position + count > buffer.Count)
             {
                 throw new EndOfStreamException("ReadBytes can't read " + count + " bytes because the buffer is too small. " + ToString());
