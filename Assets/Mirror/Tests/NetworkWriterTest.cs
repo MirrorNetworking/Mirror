@@ -492,26 +492,6 @@ namespace Mirror.Tests
             Assert.Throws<System.IO.EndOfStreamException>(() => reader.ReadString());
         }
 
-        /* we should read/send exactly the string that is passed. no truncating
-           magic so we don't get out of sync etc.
-        [Test]
-        public void TestStringBinaryCompat()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.Write("");
-            writer.Write("short string");
-            writer.Write(string.Join("0", new string[100]));
-            byte[] data = writer.ToArray();
-            Debug.Log("string=" + BitConverter.ToString(data));
-            byte[] expect = new byte[]{1,0,1,12,115,104,111,114,116,32,115,116,114,105,110,103,1,159,141,6};
-            Assert.That(data.Length, Is.EqualTo(100019));
-            for (int i = 0; i < expect.Length; i++)
-                Assert.That(data[i], Is.EqualTo(expect[i]), $"index {i}");
-            for (int i = expect.Length; i < data.Length; i++)
-                Assert.That(data[i], Is.EqualTo(48), $"index {i}");
-        }
-        */
-
         [Test]
         public void TestToArray()
         {
