@@ -577,8 +577,6 @@ namespace Mirror
         // -> returns serialized data of everything dirty,  null if nothing was dirty
         internal byte[] OnSerializeAllSafely(bool initialState)
         {
-            NetworkWriter onSerializeWriter = NetworkWriter.GetPooledWriter();
-
             if (networkBehavioursCache.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
@@ -588,6 +586,8 @@ namespace Mirror
 
             if (dirtyComponentsMask == 0L)
                 return null;
+
+            NetworkWriter onSerializeWriter = NetworkWriter.GetPooledWriter();
 
             onSerializeWriter.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
