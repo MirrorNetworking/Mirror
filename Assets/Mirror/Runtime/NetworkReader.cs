@@ -78,29 +78,14 @@ namespace Mirror
         public ulong ReadUInt64()
         {
             ulong value = 0;
-            ulong other = ReadByte();
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 8;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 16;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 24;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 32;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 40;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 48;
-            value |= other;
-
-            other = ((ulong)ReadByte()) << 56;
-            value |= other;
+            value |= ReadByte();
+            value |= ((ulong)ReadByte()) << 8;
+            value |= ((ulong)ReadByte()) << 16;
+            value |= ((ulong)ReadByte()) << 24;
+            value |= ((ulong)ReadByte()) << 32;
+            value |= ((ulong)ReadByte()) << 40;
+            value |= ((ulong)ReadByte()) << 48;
+            value |= ((ulong)ReadByte()) << 56;
             return value;
         }
         public float ReadSingle()
