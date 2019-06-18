@@ -5,13 +5,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public static class MemoryStreamExtension
-    {
-        public static ArraySegment<byte> ToArraySegment(this MemoryStream stream)
-        {
-            return new ArraySegment<byte>(stream.GetBuffer(), 0, (int)stream.Length);
-        }
-    }
     // Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
     public class NetworkWriter
     {
@@ -41,7 +34,7 @@ namespace Mirror
         public ArraySegment<byte> ToArraySegment()
         {
             writer.Flush();
-            return ((MemoryStream)writer.BaseStream).ToArraySegment();
+            return ((MemoryStream)writer.BaseStream).TryGetBuffer(out ArraySegment<byte> data) ? data : new ArraySegment<byte>(ToArray());
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
