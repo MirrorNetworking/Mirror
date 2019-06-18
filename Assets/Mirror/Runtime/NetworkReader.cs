@@ -152,7 +152,7 @@ namespace Mirror
                 ReadBytes(stringBuffer, numBytes);
 
                 // convert to string via encoding
-                char[] chars = encoding.GetChars(stringBuffer, 0, numBytes);
+                return encoding.GetString(stringBuffer, 0, numBytes);
                 return new string(chars);
             }
             return null;
