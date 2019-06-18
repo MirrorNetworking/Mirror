@@ -80,7 +80,11 @@ namespace Mirror
 
         [FieldOffset(0)]
         public uint intValue;
+    }
 
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct UIntDouble
+    {
         [FieldOffset(0)]
         public double doubleValue;
 

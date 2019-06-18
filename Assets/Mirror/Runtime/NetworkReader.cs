@@ -120,7 +120,7 @@ namespace Mirror
         }
         public double ReadDouble()
         {
-            UIntFloat converter = new UIntFloat();
+            UIntDouble converter = new UIntDouble();
             converter.longValue = ReadUInt64();
             return converter.doubleValue;
         }
