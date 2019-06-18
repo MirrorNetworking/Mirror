@@ -131,7 +131,7 @@ namespace Mirror
             if (ReadBoolean())
             {
                 // read number of bytes
-                UInt16 numBytes = ReadUInt16();
+                ushort numBytes = ReadUInt16();
                 if (numBytes == 0)
                     return "";
 
