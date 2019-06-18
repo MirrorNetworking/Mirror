@@ -103,13 +103,6 @@ namespace Mirror
             value |= other;
             return value;
         }
-        public decimal ReadDecimal()
-        {
-            UIntDecimal converter = new UIntDecimal();
-            converter.longValue1 = ReadUInt64();
-            converter.longValue2 = ReadUInt64();
-            return converter.decimalValue;
-        }
         public float ReadSingle()
         {
             UIntFloat converter = new UIntFloat();
@@ -121,6 +114,13 @@ namespace Mirror
             UIntDouble converter = new UIntDouble();
             converter.longValue = ReadUInt64();
             return converter.doubleValue;
+        }
+        public decimal ReadDecimal()
+        {
+            UIntDecimal converter = new UIntDecimal();
+            converter.longValue1 = ReadUInt64();
+            converter.longValue2 = ReadUInt64();
+            return converter.decimalValue;
         }
 
         // note: this will throw an ArgumentException if an invalid utf8 string is sent
