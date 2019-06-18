@@ -48,18 +48,8 @@ namespace Mirror
             return buffer[Position++];
         }
         public sbyte ReadSByte() => (sbyte)ReadByte();
-        public char ReadChar()
-        {
-            if (Position + 2 > buffer.Length)
-            {
-                throw new IndexOutOfRangeException("NetworkReader:ReadChar out of range: (2) " + ToString());
-            }
-
-            // a char is 2 bytes in width according to C# docs, so read 2 bytes
-            char result = BitConverter.ToChar(buffer, Position);
-            Position += 2;
-            return result;
-        }
+        // read char the same way that NetworkWriter writes it (2 bytes)
+        public char ReadChar() => (char)ReadUInt16();
         public bool ReadBoolean() => ReadByte() != 0;
         public short ReadInt16() => (short)ReadUInt16();
         public ushort ReadUInt16()
