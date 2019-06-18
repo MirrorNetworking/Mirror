@@ -140,7 +140,7 @@ namespace Mirror
         {
             if (Position + count > buffer.Count)
             {
-                throw new EndOfStreamException("ReadBytes out of range: (" + count + ") " + ToString());
+                throw new EndOfStreamException("ReadBytes can't read " + count + " bytes because the buffer is too small. " + ToString());
             }
 
             // copy it directly from the array
