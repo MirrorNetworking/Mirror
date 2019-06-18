@@ -32,7 +32,6 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
-        static byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
         public NetworkReader(byte[] bytes)
         {
@@ -126,11 +125,16 @@ namespace Mirror
                     throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + NetworkWriter.MaxStringLength);
                 }
 
-                // read the bytes
-                ReadBytes(stringBuffer, size);
+                // check if within buffer limits
+                if (Position + size > buffer.Count)
+                {
+                    throw new EndOfStreamException("ReadString can't read " + size + " bytes because it would read past the end of the stream. " + ToString());
+                }
 
-                // convert to string via encoding
-                return encoding.GetString(stringBuffer, 0, size);
+                // convert directly from buffer to string via encoding
+                string result = encoding.GetString(buffer.Array, buffer.Offset + Position, size);
+                Position += size;
+                return result;
             }
             return null;
         }
