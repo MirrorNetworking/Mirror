@@ -138,7 +138,7 @@ namespace Mirror
                 // make sure it's within limits to avoid allocation attacks etc.
                 if (numBytes >= stringBuffer.Length)
                 {
-                    throw new EndOfStreamException("ReadString() too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
+                    throw new EndOfStreamException("ReadString too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
                 }
 
                 // read the bytes
@@ -155,7 +155,7 @@ namespace Mirror
         {
             if (Position + count > buffer.Count)
             {
-                throw new EndOfStreamException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
+                throw new EndOfStreamException("ReadBytes out of range: (" + count + ") " + ToString());
             }
 
             for (int i = 0; i < count; ++i)
