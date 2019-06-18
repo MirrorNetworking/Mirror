@@ -157,7 +157,7 @@ namespace Mirror
 
             for (int i = 0; i < count; ++i)
             {
-                bytes[i] = buffer[Position++];
+                bytes[i] = ReadByte();
             }
             return bytes;
         }
