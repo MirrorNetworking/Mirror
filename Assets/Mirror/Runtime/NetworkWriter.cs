@@ -79,7 +79,7 @@ namespace Mirror
                 int numBytes = encoding.GetByteCount(value);
                 if (numBytes >= stringBuffer.Length)
                 {
-                    throw new IndexOutOfRangeException("Serialize(string) too long: " + value.Length + ". Limit: " + stringBuffer.Length);
+                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + value.Length + ". Limit: " + stringBuffer.Length);
                 }
 
                 // write number of bytes
