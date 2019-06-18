@@ -69,7 +69,7 @@ namespace Mirror
             NetworkWriter writer = NetworkWriter.GetPooledWriter();
             WriteParameters(writer);
 
-            SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
+            SendAnimationMessage(stateHash, normalizedTime, writer.Close());
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
@@ -116,7 +116,7 @@ namespace Mirror
                 NetworkWriter writer = NetworkWriter.GetPooledWriter();
                 if (WriteParameters(writer))
                 {
-                    SendAnimationParametersMessage(writer.ToArray());
+                    SendAnimationParametersMessage(writer.Close());
                 }
                 else
                 {

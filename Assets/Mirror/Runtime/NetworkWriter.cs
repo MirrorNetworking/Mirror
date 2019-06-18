@@ -54,6 +54,13 @@ namespace Mirror
             }
         }
 
+        public byte[] Close()
+        {
+            byte[] data = ToArray();
+            Recycle(this);
+            return data;
+        }
+
         // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
         // Length is how much data we have written
@@ -62,9 +69,7 @@ namespace Mirror
         public byte[] ToArray()
         {
             writer.Flush();
-            byte[] data = ((MemoryStream)writer.BaseStream).ToArray();
-            Recycle(this);
-            return data;
+            return ((MemoryStream)writer.BaseStream).ToArray();
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
