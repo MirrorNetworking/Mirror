@@ -53,17 +53,17 @@ namespace Mirror
         public void Write(ulong value) => writer.Write(value);
         public void Write(float value) => writer.Write(value);
         public void Write(double value) => writer.Write(value);
-        static UIntDecimal DecimalConverter;
         public void Write(decimal value)
         {
             // the only way to read it without allocations is to both read and
             // write it with the FloatConverter (which is not binary compatible
             // to writer.Write(decimal), hence why we use it here too)
-            DecimalConverter.decimalValue = value;
-            Write(DecimalConverter.intValue1);
-            Write(DecimalConverter.intValue2);
-            Write(DecimalConverter.intValue3);
-            Write(DecimalConverter.intValue4);
+            UIntDecimal converter = new UIntDecimal();
+            converter.decimalValue = value;
+            Write(converter.intValue1);
+            Write(converter.intValue2);
+            Write(converter.intValue3);
+            Write(converter.intValue4);
         }
 
         public void Write(string value)

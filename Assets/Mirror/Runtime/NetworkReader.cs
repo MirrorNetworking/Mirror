@@ -105,21 +105,24 @@ namespace Mirror
         }
         public decimal ReadDecimal()
         {
-            uint value1 = ReadUInt32();
-            uint value2 = ReadUInt32();
-            uint value3 = ReadUInt32();
-            uint value4 = ReadUInt32();
-            return FloatConversion.ToDecimal(value1, value2, value3, value4);
+            UIntDecimal converter = new UIntDecimal();
+            converter.intValue1 = ReadUInt32();
+            converter.intValue2 = ReadUInt32();
+            converter.intValue3 = ReadUInt32();
+            converter.intValue4 = ReadUInt32();
+            return converter.decimalValue;
         }
         public float ReadSingle()
         {
-            uint value = ReadUInt32();
-            return FloatConversion.ToSingle(value);
+            UIntFloat converter = new UIntFloat();
+            converter.intValue = ReadUInt32();
+            return converter.floatValue;
         }
         public double ReadDouble()
         {
-            ulong value = ReadUInt64();
-            return FloatConversion.ToDouble(value);
+            UIntFloat converter = new UIntFloat();
+            converter.longValue = ReadUInt64();
+            return converter.doubleValue;
         }
 
         // note: this will throw an ArgumentException if an invalid utf8 string is sent

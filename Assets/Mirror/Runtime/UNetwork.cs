@@ -71,7 +71,7 @@ namespace Mirror
         public const int DefaultUnreliable = 1;
     }
 
-    // -- helpers for float conversion --
+    // -- helpers for float conversion without allocations --
     [StructLayout(LayoutKind.Explicit)]
     internal struct UIntFloat
     {
@@ -105,32 +105,5 @@ namespace Mirror
 
         [FieldOffset(0)]
         public decimal decimalValue;
-    }
-
-    internal class FloatConversion
-    {
-        public static float ToSingle(uint value)
-        {
-            UIntFloat uf = new UIntFloat();
-            uf.intValue = value;
-            return uf.floatValue;
-        }
-
-        public static double ToDouble(ulong value)
-        {
-            UIntFloat uf = new UIntFloat();
-            uf.longValue = value;
-            return uf.doubleValue;
-        }
-
-        public static decimal ToDecimal(uint value1, uint value2, uint value3, uint value4)
-        {
-            UIntDecimal uf = new UIntDecimal();
-            uf.intValue1 = value1;
-            uf.intValue2 = value2;
-            uf.intValue3 = value3;
-            uf.intValue4 = value4;
-            return uf.decimalValue;
-        }
     }
 }
