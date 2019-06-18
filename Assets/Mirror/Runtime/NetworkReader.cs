@@ -192,6 +192,7 @@ namespace Mirror
             }
             return null;
         }
+
         public ArraySegment<byte> ReadBytesAndSizeSegment()
         {
             if (ReadBoolean())
