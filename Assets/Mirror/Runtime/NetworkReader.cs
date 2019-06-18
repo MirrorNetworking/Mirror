@@ -42,7 +42,7 @@ namespace Mirror
         {
             if (Position + 1 > buffer.Count)
             {
-                throw new IndexOutOfRangeException("NetworkReader:ReadByte out of range:" + ToString());
+                throw new EndOfStreamException("NetworkReader:ReadByte out of range:" + ToString());
             }
             return buffer.Array[buffer.Offset + Position++];
         }
@@ -134,7 +134,7 @@ namespace Mirror
                 // make sure it's within limits to avoid allocation attacks etc.
                 if (numBytes >= stringBuffer.Length)
                 {
-                    throw new IndexOutOfRangeException("ReadString() too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
+                    throw new EndOfStreamException("ReadString() too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
                 }
 
                 // read the bytes
@@ -151,7 +151,7 @@ namespace Mirror
         {
             if (Position + count > buffer.Count)
             {
-                throw new IndexOutOfRangeException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
+                throw new EndOfStreamException("NetworkReader:ReadBytes out of range: (" + count + ") " + ToString());
             }
 
             for (int i = 0; i < count; ++i)
