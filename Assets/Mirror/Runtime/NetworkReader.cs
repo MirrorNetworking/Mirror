@@ -48,7 +48,7 @@ namespace Mirror
         {
             if (Position + 1 > buffer.Count)
             {
-                throw new EndOfStreamException("NetworkReader:ReadByte out of range:" + ToString());
+                throw new EndOfStreamException("ReadByte out of range:" + ToString());
             }
             return buffer.Array[buffer.Offset + Position++];
         }
