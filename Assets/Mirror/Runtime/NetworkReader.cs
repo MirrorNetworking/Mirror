@@ -105,14 +105,11 @@ namespace Mirror
         }
         public decimal ReadDecimal()
         {
-            int[] bits = new int[4];
-
-            bits[0] = ReadInt32();
-            bits[1] = ReadInt32();
-            bits[2] = ReadInt32();
-            bits[3] = ReadInt32();
-
-            return new decimal(bits);
+            uint value1 = ReadUInt32();
+            uint value2 = ReadUInt32();
+            uint value3 = ReadUInt32();
+            uint value4 = ReadUInt32();
+            return FloatConversion.ToDecimal(value1, value2, value3, value4);
         }
         public float ReadSingle()
         {

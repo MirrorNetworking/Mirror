@@ -924,14 +924,17 @@ namespace Mirror.Tests
                 ((decimal) Math.E) / 3.0m
             };
             byte[] expected = new byte[]{
-                171,234,132, 10, 91, 94,177,  3, 18, 55,214, 33,  0,  0, 28,  0,
-                240,109,194,164,104, 82,  0,  0,  0,  0,  0,  0,  0,  0, 14,  0,
+                0x00, 0x00, 0x1C, 0x00, 0x12, 0x37, 0xD6, 0x21, 0xAB, 0xEA,
+                0x84, 0x0A, 0x5B, 0x5E, 0xB1, 0x03, 0x00, 0x00, 0x0E, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0xF0, 0x6D, 0xC2, 0xA4, 0x68, 0x52,
+                0x00, 0x00
             };
             NetworkWriter writer = new NetworkWriter();
             foreach (decimal weird in weirdDecimals)
             {
                 writer.Write(weird);
             }
+            //Debug.Log(BitConverter.ToString(writer.ToArray()));
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
