@@ -131,21 +131,21 @@ namespace Mirror
             if (ReadBoolean())
             {
                 // read number of bytes
-                ushort numBytes = ReadUInt16();
-                if (numBytes == 0)
+                ushort size = ReadUInt16();
+                if (size == 0)
                     return "";
 
                 // make sure it's within limits to avoid allocation attacks etc.
-                if (numBytes >= stringBuffer.Length)
+                if (size >= stringBuffer.Length)
                 {
-                    throw new EndOfStreamException("ReadString too long: " + numBytes + ". Limit is: " + stringBuffer.Length);
+                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + stringBuffer.Length);
                 }
 
                 // read the bytes
-                ReadBytes(stringBuffer, numBytes);
+                ReadBytes(stringBuffer, size);
 
                 // convert to string via encoding
-                return encoding.GetString(stringBuffer, 0, numBytes);
+                return encoding.GetString(stringBuffer, 0, size);
             }
             return null;
         }
