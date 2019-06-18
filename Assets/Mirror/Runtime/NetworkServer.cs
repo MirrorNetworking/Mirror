@@ -193,12 +193,12 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                NetworkWriter bytes = MessagePacker.PackWriter(msg);
+                byte[] bytes = MessagePacker.Pack(msg);
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendWriter(bytes);
+                    result &= kvp.Value.SendBytes(bytes);
                 }
                 return result;
             }
@@ -227,12 +227,12 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
             // pack message into byte[] once
-            NetworkWriter bytes = MessagePacker.PackWriter(msg);
+            byte[] bytes = MessagePacker.Pack(msg);
 
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendWriter(bytes, channelId);
+                result &= kvp.Value.SendBytes(bytes, channelId);
             }
             return result;
         }
@@ -268,14 +268,14 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                NetworkWriter bytes = MessagePacker.PackWriter(msg);
+                byte[] bytes = MessagePacker.Pack(msg);
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendWriter(bytes, channelId);
+                        result &= kvp.Value.SendBytes(bytes, channelId);
                     }
                 }
                 return result;
