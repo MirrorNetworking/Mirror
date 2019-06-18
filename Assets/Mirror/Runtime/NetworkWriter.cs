@@ -75,7 +75,7 @@ namespace Mirror
             // write string with same method as NetworkReader
             if (value != null)
             {
-                // convert to char[]
+                // convert to byte[]
                 int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
 
                 // check if within max size
