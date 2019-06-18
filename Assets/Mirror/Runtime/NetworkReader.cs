@@ -145,7 +145,7 @@ namespace Mirror
             // check if passed byte array is big enough
             if (count > bytes.Length)
             {
-                throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes because the passed bytes[] only has length " + bytes.Length);
+                throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes because the passed byte[] only has length " + bytes.Length);
             }
 
             // check if within buffer limits
