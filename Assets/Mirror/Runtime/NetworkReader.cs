@@ -1,3 +1,11 @@
+// Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
+// avoid allocations.
+//
+// Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
+//   before with MemoryStream
+//     0.8% CPU time, 250KB memory, 3.82ms
+//   now:
+//     0.0% CPU time,  32KB memory, 0.02ms
 using System;
 using System.IO;
 using System.Text;
@@ -10,51 +18,153 @@ namespace Mirror
     // The exceptions will be handled in NetworkServer/NetworkClient.
     public class NetworkReader
     {
-        // cache encoding instead of creating it with BinaryWriter each time
+        // internal buffer
+        // byte[] pointer would work, but we use ArraySegment to also support
+        // the ArraySegment constructor
+        ArraySegment<byte> buffer;
+
+        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
+        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
+        public int Position;
+        public int Length => buffer.Count;
+
+        // cache encoding instead of creating it each time
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
-        readonly BinaryReader reader;
-
-        public NetworkReader(byte[] buffer)
+        public NetworkReader(byte[] bytes)
         {
-            reader = new BinaryReader(new MemoryStream(buffer, false), encoding);
+            buffer = new ArraySegment<byte>(bytes);
         }
 
-        public NetworkReader(ArraySegment<byte> buffer)
+        public NetworkReader(ArraySegment<byte> segment)
         {
-            reader = new BinaryReader(new MemoryStream(buffer.Array, buffer.Offset, buffer.Count, false), encoding);
+            buffer = segment;
         }
 
-        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
-        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)reader.BaseStream.Position; }  set { reader.BaseStream.Position = value; } }
-        public int Length => (int)reader.BaseStream.Length;
-
-        public byte ReadByte() => reader.ReadByte();
-        public sbyte ReadSByte() => reader.ReadSByte();
-        public char ReadChar() => reader.ReadChar();
-        public bool ReadBoolean() => reader.ReadBoolean();
-        public short ReadInt16() => reader.ReadInt16();
-        public ushort ReadUInt16() => reader.ReadUInt16();
-        public int ReadInt32() => reader.ReadInt32();
-        public uint ReadUInt32() => reader.ReadUInt32();
-        public long ReadInt64() => reader.ReadInt64();
-        public ulong ReadUInt64() => reader.ReadUInt64();
-        public decimal ReadDecimal() => reader.ReadDecimal();
-        public float ReadSingle() => reader.ReadSingle();
-        public double ReadDouble() => reader.ReadDouble();
+        public byte ReadByte()
+        {
+            if (Position + 1 > buffer.Count)
+            {
+                throw new EndOfStreamException("ReadByte out of range:" + ToString());
+            }
+            return buffer.Array[buffer.Offset + Position++];
+        }
+        public sbyte ReadSByte() => (sbyte)ReadByte();
+        // read char the same way that NetworkWriter writes it (2 bytes)
+        public char ReadChar() => (char)ReadUInt16();
+        public bool ReadBoolean() => ReadByte() != 0;
+        public short ReadInt16() => (short)ReadUInt16();
+        public ushort ReadUInt16()
+        {
+            ushort value = 0;
+            value |= ReadByte();
+            value |= (ushort)(ReadByte() << 8);
+            return value;
+        }
+        public int ReadInt32() => (int)ReadUInt32();
+        public uint ReadUInt32()
+        {
+            uint value = 0;
+            value |= ReadByte();
+            value |= (uint)(ReadByte() << 8);
+            value |= (uint)(ReadByte() << 16);
+            value |= (uint)(ReadByte() << 24);
+            return value;
+        }
+        public long ReadInt64() => (long)ReadUInt64();
+        public ulong ReadUInt64()
+        {
+            ulong value = 0;
+            value |= ReadByte();
+            value |= ((ulong)ReadByte()) << 8;
+            value |= ((ulong)ReadByte()) << 16;
+            value |= ((ulong)ReadByte()) << 24;
+            value |= ((ulong)ReadByte()) << 32;
+            value |= ((ulong)ReadByte()) << 40;
+            value |= ((ulong)ReadByte()) << 48;
+            value |= ((ulong)ReadByte()) << 56;
+            return value;
+        }
+        public float ReadSingle()
+        {
+            UIntFloat converter = new UIntFloat();
+            converter.intValue = ReadUInt32();
+            return converter.floatValue;
+        }
+        public double ReadDouble()
+        {
+            UIntDouble converter = new UIntDouble();
+            converter.longValue = ReadUInt64();
+            return converter.doubleValue;
+        }
+        public decimal ReadDecimal()
+        {
+            UIntDecimal converter = new UIntDecimal();
+            converter.longValue1 = ReadUInt64();
+            converter.longValue2 = ReadUInt64();
+            return converter.decimalValue;
+        }
 
         // note: this will throw an ArgumentException if an invalid utf8 string is sent
         // null support, see NetworkWriter
-        public string ReadString() => ReadBoolean() ? reader.ReadString() : null;
+        public string ReadString()
+        {
+            // isNull?
+            if (ReadBoolean())
+            {
+                // read number of bytes
+                ushort size = ReadUInt16();
+                if (size == 0)
+                    return "";
+
+                // make sure it's within limits to avoid allocation attacks etc.
+                if (size >= NetworkWriter.MaxStringLength)
+                {
+                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + NetworkWriter.MaxStringLength);
+                }
+
+                // check if within buffer limits
+                if (Position + size > buffer.Count)
+                {
+                    throw new EndOfStreamException("ReadString can't read " + size + " bytes because it would read past the end of the stream. " + ToString());
+                }
+
+                // convert directly from buffer to string via encoding
+                string result = encoding.GetString(buffer.Array, buffer.Offset + Position, size);
+                Position += size;
+                return result;
+            }
+            return null;
+        }
+
+        // read bytes into the passed buffer
+        public byte[] ReadBytes(byte[] bytes, int count)
+        {
+            // check if passed byte array is big enough
+            if (count > bytes.Length)
+            {
+                throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes because the passed byte[] only has length " + bytes.Length);
+            }
+
+            // check if within buffer limits
+            if (Position + count > buffer.Count)
+            {
+                throw new EndOfStreamException("ReadBytes can't read " + count + " bytes because it would read past the end of the stream. " + ToString());
+            }
+
+            // copy it directly from the array
+            Array.Copy(buffer.Array, buffer.Offset + Position, bytes, 0, count);
+            Position += count;
+            return bytes;
+        }
 
         public byte[] ReadBytes(int count)
         {
-            byte[] data = reader.ReadBytes(count);
-            if (data.Length != count) throw new EndOfStreamException("Could not fulfill request to read a byte[] of length " + count);
-            return data;
+            byte[] bytes = new byte[count];
+            ReadBytes(bytes, count);
+            return bytes;
         }
 
         // Use checked() to force it to throw OverflowException if data is invalid
@@ -193,6 +303,9 @@ namespace Mirror
             return null;
         }
 
-        public override string ToString() => reader.ToString();
+        public override string ToString()
+        {
+            return "NetworkReader pos=" + Position + " len=" + Length + " buffer=" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count);
+        }
     }
 }
