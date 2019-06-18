@@ -153,7 +153,6 @@ namespace Mirror
 
                 // convert to string via encoding
                 return encoding.GetString(stringBuffer, 0, numBytes);
-                return new string(chars);
             }
             return null;
         }
