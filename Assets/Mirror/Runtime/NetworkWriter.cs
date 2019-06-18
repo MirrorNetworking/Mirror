@@ -75,19 +75,18 @@ namespace Mirror
             // write string with same method as NetworkReader
             if (value != null)
             {
+                // convert to char[]
+                int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+
                 // check if within max size
-                int numBytes = encoding.GetByteCount(value);
-                if (numBytes >= stringBuffer.Length)
+                if (size >= stringBuffer.Length)
                 {
-                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + value.Length + ". Limit: " + stringBuffer.Length);
+                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + stringBuffer.Length);
                 }
 
-                // write number of bytes
-                Write((ushort)numBytes);
-
-                // convert to char[]
-                int convertedBytes = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
-                Write(stringBuffer, 0, (ushort)convertedBytes);
+                // write size and bytes
+                Write((ushort)size);
+                Write(stringBuffer, 0, (ushort)size);
             }
         }
 
