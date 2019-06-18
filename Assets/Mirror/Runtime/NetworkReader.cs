@@ -170,7 +170,7 @@ namespace Mirror
         // Use checked() to force it to throw OverflowException if data is invalid
         // null support, see NetworkWriter
         public byte[] ReadBytesAndSize() => ReadBoolean() ? ReadBytes(checked((int)ReadPackedUInt32())) : null;
-        public ArraySegment<byte> ReadBytesSegment() => new ArraySegment<byte>(ReadBytesAndSize());
+        public ArraySegment<byte> ReadBytesAndSizeSegment() => new ArraySegment<byte>(ReadBytesAndSize());
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public int ReadPackedInt32()

@@ -122,7 +122,7 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
-        public void WriteBytesSegment(ArraySegment<byte> buffer)
+        public void WriteBytesAndSizeSegment(ArraySegment<byte> buffer)
         {
             WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
         }
