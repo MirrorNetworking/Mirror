@@ -60,10 +60,8 @@ namespace Mirror
             // to writer.Write(decimal), hence why we use it here too)
             UIntDecimal converter = new UIntDecimal();
             converter.decimalValue = value;
-            Write(converter.intValue1);
-            Write(converter.intValue2);
-            Write(converter.intValue3);
-            Write(converter.intValue4);
+            Write(converter.longValue1);
+            Write(converter.longValue2);
         }
 
         public void Write(string value)

@@ -96,16 +96,10 @@ namespace Mirror
     internal struct UIntDecimal
     {
         [FieldOffset(0)]
-        public uint intValue1;
-
-        [FieldOffset(4)]
-        public uint intValue2;
+        public ulong longValue1;
 
         [FieldOffset(8)]
-        public uint intValue3;
-
-        [FieldOffset(12)]
-        public uint intValue4;
+        public ulong longValue2;
 
         [FieldOffset(0)]
         public decimal decimalValue;

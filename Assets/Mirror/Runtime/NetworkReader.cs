@@ -106,10 +106,8 @@ namespace Mirror
         public decimal ReadDecimal()
         {
             UIntDecimal converter = new UIntDecimal();
-            converter.intValue1 = ReadUInt32();
-            converter.intValue2 = ReadUInt32();
-            converter.intValue3 = ReadUInt32();
-            converter.intValue4 = ReadUInt32();
+            converter.longValue1 = ReadUInt64();
+            converter.longValue2 = ReadUInt64();
             return converter.decimalValue;
         }
         public float ReadSingle()
