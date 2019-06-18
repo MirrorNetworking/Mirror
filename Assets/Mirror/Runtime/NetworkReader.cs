@@ -121,9 +121,9 @@ namespace Mirror
                     return "";
 
                 // make sure it's within limits to avoid allocation attacks etc.
-                if (size >= stringBuffer.Length)
+                if (size >= NetworkWriter.MaxStringLength)
                 {
-                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + stringBuffer.Length);
+                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + NetworkWriter.MaxStringLength);
                 }
 
                 // read the bytes

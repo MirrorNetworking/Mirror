@@ -79,9 +79,9 @@ namespace Mirror
                 int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
 
                 // check if within max size
-                if (size >= stringBuffer.Length)
+                if (size >= MaxStringLength)
                 {
-                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + stringBuffer.Length);
+                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
                 }
 
                 // write size and bytes
