@@ -41,6 +41,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingBytesAndSizeSegment()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSize(new byte[42]);
+            byte[] data = writer.ToArray();
+
+            NetworkReader reader = new NetworkReader(data);
+            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            Assert.That(deserialized.Count, Is.EqualTo(42));
+        }
+
+        [Test]
         public void TestOverwritingData()
         {
             NetworkWriter writer = new NetworkWriter();
