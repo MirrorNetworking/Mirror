@@ -1043,7 +1043,9 @@ namespace Mirror
             {
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
-                varsMessage.payload = payload;
+                // segment to avoid reader allocations.
+                // (never null because of our above check)
+                varsMessage.payload = new ArraySegment<byte>(payload);
                 NetworkServer.SendToReady(this, varsMessage);
             }
         }
