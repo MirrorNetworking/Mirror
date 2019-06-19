@@ -599,7 +599,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ProcessNetworkReaderParameters(TypeDefinition td, MethodDefinition md, ILProcessor worker, bool skipFirst)
+        public static bool ProcessNetworkReaderParameters(MethodDefinition md, ILProcessor worker, bool skipFirst)
         {
             int count = 0;
 
@@ -642,7 +642,7 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
-        public static bool ProcessMethodsValidateFunction(TypeDefinition td, MethodReference md, string actionType)
+        public static bool ProcessMethodsValidateFunction(MethodReference md, string actionType)
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
@@ -662,7 +662,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool ProcessMethodsValidateParameters(TypeDefinition td, MethodReference md, CustomAttribute ca, string actionType)
+        public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca, string actionType)
         {
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
@@ -766,7 +766,7 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!RpcProcessor.ProcessMethodsValidateRpc(netBehaviourSubclass, md, ca))
+            if (!RpcProcessor.ProcessMethodsValidateRpc(md, ca))
             {
                 return;
             }
@@ -795,7 +795,7 @@ namespace Mirror.Weaver
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(netBehaviourSubclass, md, ca))
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, ca))
                 return;
 
             if (names.Contains(md.Name))
@@ -822,7 +822,7 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!CommandProcessor.ProcessMethodsValidateCommand(netBehaviourSubclass, md, ca))
+            if (!CommandProcessor.ProcessMethodsValidateCommand(md, ca))
                 return;
 
             if (names.Contains(md.Name))
