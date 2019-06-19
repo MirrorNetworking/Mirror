@@ -6,7 +6,7 @@ using Mono.CecilX.Cil;
 namespace Mirror.Weaver
 {
 
-    public class Writers
+    public static class Writers
     {
         const int MaxRecursionCount = 128;
 
