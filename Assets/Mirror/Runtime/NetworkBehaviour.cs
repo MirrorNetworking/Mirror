@@ -74,12 +74,14 @@ namespace Mirror
             syncObjects.Add(syncObject);
         }
 
-        private static NetworkWriter argWriter;
-        protected static NetworkWriter GetArgWriter()
+        // this writer is used by the weaver to serialize remote method arguments
+        // it is declared here so that we can reuse it instead of allocating a new one
+        // in every call
+        private static readonly NetworkWriter weaverRemoteArgWriter = new NetworkWriter();
+        protected static NetworkWriter WeaverRemoteArgWriter()
         {
-            argWriter = argWriter ?? new NetworkWriter();
-            argWriter.SetLength(0);
-            return argWriter;
+            weaverRemoteArgWriter.SetLength(0);
+            return weaverRemoteArgWriter;
         }
 
         #region Commands

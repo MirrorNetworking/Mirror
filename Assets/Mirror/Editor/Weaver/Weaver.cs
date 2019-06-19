@@ -57,7 +57,7 @@ namespace Mirror.Weaver
         public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference GetArgWriterMethod;
+        public static MethodReference WeaverRemoteArgWriterReference;
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
 
@@ -342,7 +342,7 @@ namespace Mirror.Weaver
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
-            GetArgWriterMethod = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetArgWriter");
+            WeaverRemoteArgWriterReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "WeaverRemoteArgWriter");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
