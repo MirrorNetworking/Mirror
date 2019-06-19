@@ -33,6 +33,12 @@ namespace Mirror
             return ((MemoryStream)writer.BaseStream).ToArray();
         }
 
+        public ArraySegment<byte> ToArraySegment()
+        {
+            writer.Flush();
+            ((MemoryStream)writer.BaseStream).TryGetBuffer(out ArraySegment<byte> segment);
+            return segment;
+        }
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
         public void SetLength(long value)
