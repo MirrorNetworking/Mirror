@@ -497,19 +497,19 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.StartsWith(SyncListType.FullName))
+                if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncSetType.FullName))
+                else if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName))
+                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
                 {
                     SyncDictionaryProcessor.Process(td);
                     didWork = true;
