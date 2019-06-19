@@ -42,7 +42,7 @@ namespace Mirror.Weaver
         public static bool GenerateLogErrors { get; set; }
 
         // private properties
-        static bool DebugLogEnabled = true;
+        static readonly bool DebugLogEnabled = true;
 
         // Network types
         public static TypeReference NetworkBehaviourType;
