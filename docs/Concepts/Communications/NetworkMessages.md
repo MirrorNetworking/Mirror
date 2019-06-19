@@ -4,16 +4,16 @@ For the most part we recommend the high level [Commands and RPC](RemoteActions.m
 
 There is a class called MessageBase that you can extend to make serializable network message classes. This class has Serialize and Deserialize functions that take writer and reader objects. You can implement these functions yourself, but we recommend you let Mirror generate them for you.
 
-The base class looks like this:
+The base interface looks like this:
 
 ```cs
-public abstract class MessageBase
+public interface IMessageBase
 {
     // Deserialize the contents of the reader into this message
-    public virtual void Deserialize(NetworkReader reader) {}
+    void Deserialize(NetworkReader reader);
 
     // Serialize the contents of this message into the writer
-    public virtual void Serialize(NetworkWriter writer) {}
+    void Serialize(NetworkWriter writer);
 }
 ```
 
@@ -31,7 +31,7 @@ public class Scores : MonoBehaviour
 {
     NetworkClient myClient;
 
-    public class ScoreMessage : MessageBase
+    public struct ScoreMessage : IMessageBase
     {
         public int score;
         public Vector3 scorePos;
