@@ -78,6 +78,16 @@ namespace Mirror
             syncObjects.Add(syncObject);
         }
 
+        // this writer is used by the weaver to serialize remote method arguments
+        // it is declared here so that we can reuse it instead of allocating a new one
+        // in every call
+        private static readonly NetworkWriter weaverRemoteArgWriter = new NetworkWriter();
+        protected static NetworkWriter WeaverRemoteArgWriter()
+        {
+            weaverRemoteArgWriter.SetLength(0);
+            return weaverRemoteArgWriter;
+        }
+
         #region Commands
 
         private static int GetMethodHash(Type invokeClass, string methodName)
