@@ -220,7 +220,6 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            // generates:
             // if (value == null)
             // {
             //     writer.WritePackedInt32(-1);
@@ -235,14 +234,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
             worker.Append(worker.Create(OpCodes.Ret));
 
-            // generates:
             // int length = value.Length;
             worker.Append(labelNull);
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             worker.Append(worker.Create(OpCodes.Ldlen));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
-            // generates:
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -264,9 +261,9 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldelema, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Ldobj, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
+
+
             worker.Append(worker.Create(OpCodes.Ldloc_1));
-
-
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Stloc_1));
