@@ -642,7 +642,7 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
-        public static bool ProcessMethodsValidateFunction(MethodReference md, string actionType)
+        public static bool ProcessMethodsValidateFunction(MethodReference md)
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
@@ -662,7 +662,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca, string actionType)
+        public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca)
         {
             for (int i = 0; i < md.Parameters.Count; ++i)
             {

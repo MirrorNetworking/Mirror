@@ -137,13 +137,13 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md, "Target Rpc"))
+            if (!NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md))
             {
                 return false;
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca, "Target Rpc");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }

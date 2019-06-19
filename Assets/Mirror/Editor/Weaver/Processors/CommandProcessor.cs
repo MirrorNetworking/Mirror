@@ -144,8 +144,8 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md, "Command") &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca, "Command");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }
