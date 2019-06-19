@@ -189,7 +189,7 @@ namespace Mirror.Weaver
             WeaveLists.numSyncVars[className] = num;
         }
 
-        static internal void ConfirmGeneratedCodeClass()
+        internal static void ConfirmGeneratedCodeClass()
         {
             if (WeaveLists.generateContainerClass == null)
             {
