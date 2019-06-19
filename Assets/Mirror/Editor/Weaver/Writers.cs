@@ -214,8 +214,8 @@ namespace Mirror.Weaver
             writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
 
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.uint16Type));
-            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.uint16Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
+            writerFunc.Body.Variables.Add(new VariableDefinition(Weaver.int32Type));
             writerFunc.Body.InitLocals = true;
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
@@ -226,22 +226,20 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Brtrue, labelNull));
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriteUInt16));
+            worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // setup array length local variable
             worker.Append(labelNull);
             worker.Append(worker.Create(OpCodes.Ldarg_1));
             worker.Append(worker.Create(OpCodes.Ldlen));
-            worker.Append(worker.Create(OpCodes.Conv_I4));
-            worker.Append(worker.Create(OpCodes.Conv_U2));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             //write length
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriteUInt16));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
 
             // start loop
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));

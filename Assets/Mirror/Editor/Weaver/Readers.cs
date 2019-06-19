@@ -152,16 +152,16 @@ namespace Mirror.Weaver
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReadUInt16));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedInt32));
             worker.Append(worker.Create(OpCodes.Stloc_0));
+
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-
-            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
-
-            // return empty array
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Newarr, variable.GetElementType()));
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
+
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // create the actual array

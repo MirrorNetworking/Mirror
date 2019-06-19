@@ -87,9 +87,11 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
         public static MethodReference getBehaviourIsServer;
+        public static MethodReference NetworkReaderReadPackedInt32;
         public static MethodReference NetworkReaderReadPackedUInt32;
-        public static MethodReference NetworkReaderReadPackedUInt64;
         public static MethodReference NetworkWriterWritePackedUInt64;
+        public static MethodReference NetworkWriterWritePackedInt32;
+        public static MethodReference NetworkReaderReadPackedUInt64;
 
         public static MethodReference NetworkReadUInt16;
         public static MethodReference NetworkWriteUInt16;
@@ -309,10 +311,13 @@ namespace Mirror.Weaver
 
             NetworkWriterWriteInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type);
 
+            NetworkReaderReadPackedInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt32");
             NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
             NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
 
+            NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
             NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
+
 
             NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16");
             NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type);
