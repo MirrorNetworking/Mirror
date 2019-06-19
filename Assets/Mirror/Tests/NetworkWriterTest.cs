@@ -41,6 +41,51 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingBytesSegment()
+        {
+            byte[] data = {1, 2, 3};
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(data, 0, data.Length);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesSegment(data.Length);
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
+        }
+
+        // write byte[], read segment
+        [Test]
+        public void TestWritingBytesAndReadingSegment()
+        {
+            byte[] data = {1, 2, 3};
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSize(data);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
+        }
+
+        // write segment, read segment
+        [Test]
+        public void TestWritingSegmentAndReadingSegment()
+        {
+            byte[] data = {1, 2, 3, 4};
+            ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1); // [2, 3]
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSizeSegment(segment);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            Assert.That(deserialized.Count, Is.EqualTo(segment.Count));
+            for (int i = 0; i < segment.Count; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(segment.Array[segment.Offset + i]));
+        }
+
+        [Test]
         public void TestOverwritingData()
         {
             NetworkWriter writer = new NetworkWriter();

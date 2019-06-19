@@ -167,6 +167,21 @@ namespace Mirror
             return bytes;
         }
 
+        // useful to parse payloads etc. without allocating
+        public ArraySegment<byte> ReadBytesSegment(int count)
+        {
+            // check if within buffer limits
+            if (Position + count > buffer.Count)
+            {
+                throw new EndOfStreamException("ReadBytesSegment can't read " + count + " bytes because it would read past the end of the stream. " + ToString());
+            }
+
+            // return the segment
+            ArraySegment<byte> result = new ArraySegment<byte>(buffer.Array, buffer.Offset + Position, count);
+            Position += count;
+            return result;
+        }
+
         // Use checked() to force it to throw OverflowException if data is invalid
         // null support, see NetworkWriter
         public byte[] ReadBytesAndSize()
@@ -177,7 +192,15 @@ namespace Mirror
             }
             return null;
         }
-        public ArraySegment<byte> ReadBytesAndSizeSegment() => new ArraySegment<byte>(ReadBytesAndSize());
+
+        public ArraySegment<byte> ReadBytesAndSizeSegment()
+        {
+            if (ReadBoolean())
+            {
+                return ReadBytesSegment((int)ReadPackedUInt32());
+            }
+            return default;
+        }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public int ReadPackedInt32()
