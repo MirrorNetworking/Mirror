@@ -41,15 +41,31 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingBytesSegment()
+        {
+            byte[] data = {1, 2, 3};
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(data, 0, data.Length);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesSegment(data.Length);
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
+        }
+
+        [Test]
         public void TestWritingBytesAndSizeSegment()
         {
+            byte[] data = {1, 2, 3};
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteBytesAndSize(new byte[42]);
-            byte[] data = writer.ToArray();
+            writer.WriteBytesAndSize(data);
 
-            NetworkReader reader = new NetworkReader(data);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
             ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
-            Assert.That(deserialized.Count, Is.EqualTo(42));
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
         }
 
         [Test]
