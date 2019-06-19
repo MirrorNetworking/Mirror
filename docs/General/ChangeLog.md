@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 3.x.x
+## Version 3.10.10 - 2019-Jun-19
 
 - Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
 - Added: ClientScene.Send now has an optional ChannelId parameter
