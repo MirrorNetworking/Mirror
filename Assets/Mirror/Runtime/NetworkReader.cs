@@ -195,11 +195,8 @@ namespace Mirror
 
         public ArraySegment<byte> ReadBytesAndSizeSegment()
         {
-            if (ReadBoolean())
-            {
-                return ReadBytesSegment((int)ReadPackedUInt32());
-            }
-            return default;
+            byte[] bytes = ReadBytesAndSize();
+            return bytes == null ? default : new ArraySegment<byte>(bytes);
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
