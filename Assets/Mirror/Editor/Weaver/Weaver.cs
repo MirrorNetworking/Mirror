@@ -93,9 +93,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkWriterWritePackedInt32;
         public static MethodReference NetworkReaderReadPackedUInt64;
 
-        public static MethodReference NetworkReadUInt16;
-        public static MethodReference NetworkWriteUInt16;
-
         // custom attribute types
         public static TypeReference SyncVarType;
         public static TypeReference CommandType;
@@ -317,10 +314,6 @@ namespace Mirror.Weaver
 
             NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
             NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
-
-
-            NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16");
-            NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type);
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
