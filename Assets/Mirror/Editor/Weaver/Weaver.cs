@@ -61,10 +61,8 @@ namespace Mirror.Weaver
         public static TypeReference NetworkServerType;
 
         public static TypeReference NetworkReaderType;
-        public static TypeDefinition NetworkReaderDef;
 
         public static TypeReference NetworkWriterType;
-        public static TypeDefinition NetworkWriterDef;
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
@@ -291,12 +289,12 @@ namespace Mirror.Weaver
             guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
-            NetworkReaderDef = NetworkReaderType.Resolve();
+            TypeDefinition NetworkReaderDef = NetworkReaderType.Resolve();
 
             NetworkReaderCtor = Resolvers.ResolveMethod(NetworkReaderDef, CurrentAssembly, ".ctor");
 
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
-            NetworkWriterDef  = NetworkWriterType.Resolve();
+            TypeDefinition NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = Resolvers.ResolveMethod(NetworkWriterDef, CurrentAssembly, ".ctor");
 
