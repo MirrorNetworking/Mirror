@@ -1,5 +1,5 @@
-using NUnit.Framework;
 using System;
+using NUnit.Framework;
 
 namespace Mirror.Tests
 {
@@ -8,13 +8,29 @@ namespace Mirror.Tests
     {
         class ArrayMessage : MessageBase
         {
-            public ArraySegment<int> array;
+            public ArraySegment<byte> array;
         }
 
         [Test]
-        public void TestEmptyArray()
+        public void TestEmptyByteArray()
         {
-            ArrayMessage message = new ArrayMessage()
+            ArrayMessage message = new ArrayMessage
+            {
+                array = new ArraySegment<byte>(new byte[0])
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+
+            ArrayMessage unpacked = MessagePacker.Unpack<ArrayMessage>(data);
+
+            Assert.IsNotNull(unpacked.array.Array);
+            Assert.That(unpacked.array.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TestNullByteArray()
+        {
+            ArrayMessage message = new ArrayMessage
             {
                 array = default
             };
@@ -23,25 +39,28 @@ namespace Mirror.Tests
 
             ArrayMessage unpacked = MessagePacker.Unpack<ArrayMessage>(data);
 
+            Assert.IsNull(unpacked.array.Array);
+            Assert.That(unpacked.array.Offset, Is.EqualTo(0));
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void TestSegmentArray()
+        public void TestSegmentByteArray()
         {
-            int[] sourcedata = { 0, 1, 2, 3, 4, 5, 6 };
+            byte[] sourcedata = { 0, 1, 2, 3, 4, 5, 6 };
 
-            ArrayMessage message = new ArrayMessage()
+            ArrayMessage message = new ArrayMessage
             {
-                array = new ArraySegment<int>(sourcedata, 3, 2)
+                array = new ArraySegment<byte>(sourcedata, 3, 2)
             };
 
             byte[] data = MessagePacker.Pack(message);
 
             ArrayMessage unpacked = MessagePacker.Unpack<ArrayMessage>(data);
 
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4 }));
+            Assert.IsNotNull(unpacked.array.Array);
+            Assert.That(unpacked.array.Count, Is.EqualTo(2));
+            Assert.That(unpacked.array, Is.EquivalentTo(new byte[] { 3, 4 }));
         }
-
     }
 }
