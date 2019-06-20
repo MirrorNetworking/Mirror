@@ -41,6 +41,51 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestWritingBytesSegment()
+        {
+            byte[] data = {1, 2, 3};
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(data, 0, data.Length);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesSegment(data.Length);
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
+        }
+
+        // write byte[], read segment
+        [Test]
+        public void TestWritingBytesAndReadingSegment()
+        {
+            byte[] data = {1, 2, 3};
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSize(data);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            Assert.That(deserialized.Count, Is.EqualTo(data.Length));
+            for (int i = 0; i < data.Length; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
+        }
+
+        // write segment, read segment
+        [Test]
+        public void TestWritingSegmentAndReadingSegment()
+        {
+            byte[] data = {1, 2, 3, 4};
+            ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1); // [2, 3]
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBytesAndSizeSegment(segment);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            ArraySegment<byte> deserialized = reader.ReadBytesAndSizeSegment();
+            Assert.That(deserialized.Count, Is.EqualTo(segment.Count));
+            for (int i = 0; i < segment.Count; ++i)
+                Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(segment.Array[segment.Offset + i]));
+        }
+
+        [Test]
         public void TestOverwritingData()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -61,15 +106,21 @@ namespace Mirror.Tests
             // check that clipping off the end affect ToArray()'s length
             writer.SetLength(128);
             byte[] output = writer.ToArray();
+            //Debug.Log(BitConverter.ToString(output));
             byte[] expected = new byte[]{
-                0,0,128,63,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,128,63,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,128,63,0,0,238,
-                255,192,190,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,1,14,110,111,32,119,111,114,114,105,101,
-                115,44,32,109,56,0,0,0,0,0,0,0,0,0,0,0,0
+                0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0xEE, 0xFF, 0xC0, 0xBE,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x01, 0x0E, 0x00, 0x6E, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x72,
+                0x69, 0x65, 0x73, 0x2C, 0x20, 0x6D, 0x38, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
             };
             Assert.That(output, Is.EqualTo(expected));
         }
@@ -487,22 +538,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestStringBinaryCompat()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.Write("");
-            writer.Write("short string");
-            writer.Write(string.Join("0", new string[100000]));
-            byte[] data = writer.ToArray();
-            byte[] expect = new byte[]{1,0,1,12,115,104,111,114,116,32,115,116,114,105,110,103,1,159,141,6};
-            Assert.That(data.Length, Is.EqualTo(100019));
-            for (int i = 0; i < expect.Length; i++)
-                Assert.That(data[i], Is.EqualTo(expect[i]), $"index {i}");
-            for (int i = expect.Length; i < data.Length; i++)
-                Assert.That(data[i], Is.EqualTo(48), $"index {i}");
-        }
-
-        [Test]
         public void TestToArray()
         {
             // write 2 bytes
@@ -518,6 +553,22 @@ namespace Mirror.Tests
 
             // Changing the position should not alter the size of the data
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TestChar()
+        {
+            char a = 'a';
+            char u = 'ⓤ';
+
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(a);
+            writer.Write(u);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            char a2 = reader.ReadChar();
+            Assert.That(a2, Is.EqualTo(a));
+            char u2 = reader.ReadChar();
+            Assert.That(u2, Is.EqualTo(u));
         }
 
         [Test]
@@ -898,14 +949,17 @@ namespace Mirror.Tests
                 ((decimal) Math.E) / 3.0m
             };
             byte[] expected = new byte[]{
-                171,234,132, 10, 91, 94,177,  3, 18, 55,214, 33,  0,  0, 28,  0,
-                240,109,194,164,104, 82,  0,  0,  0,  0,  0,  0,  0,  0, 14,  0,
+                0x00, 0x00, 0x1C, 0x00, 0x12, 0x37, 0xD6, 0x21, 0xAB, 0xEA,
+                0x84, 0x0A, 0x5B, 0x5E, 0xB1, 0x03, 0x00, 0x00, 0x0E, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0xF0, 0x6D, 0xC2, 0xA4, 0x68, 0x52,
+                0x00, 0x00
             };
             NetworkWriter writer = new NetworkWriter();
             foreach (decimal weird in weirdDecimals)
             {
                 writer.Write(weird);
             }
+            //Debug.Log(BitConverter.ToString(writer.ToArray()));
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 

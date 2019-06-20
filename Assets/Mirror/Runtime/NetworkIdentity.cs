@@ -806,6 +806,8 @@ namespace Mirror
             conn.AddToVisList(this);
         }
 
+        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+
         public void RebuildObservers(bool initialize)
         {
             if (observers == null)
@@ -813,8 +815,8 @@ namespace Mirror
 
             bool changed = false;
             bool result = false;
-            HashSet<NetworkConnection> oldObservers = new HashSet<NetworkConnection>(observers.Values);
-            HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+
+            newObservers.Clear();
 
             // call OnRebuildObservers function in components
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -865,7 +867,7 @@ namespace Mirror
                     continue;
                 }
 
-                if (initialize || !oldObservers.Contains(conn))
+                if (initialize || !observers.ContainsKey(conn.connectionId))
                 {
                     // new observer
                     conn.AddToVisList(this);
@@ -874,7 +876,7 @@ namespace Mirror
                 }
             }
 
-            foreach (NetworkConnection conn in oldObservers)
+            foreach (NetworkConnection conn in observers.Values)
             {
                 if (!newObservers.Contains(conn))
                 {
@@ -896,10 +898,12 @@ namespace Mirror
 
             if (changed)
             {
-                observers =
-                    newObservers.
-                    Where(conn => conn.isReady).
-                    ToDictionary(conn => conn.connectionId, conn => conn);
+                observers.Clear();
+                foreach (NetworkConnection conn in newObservers)
+                {
+                    if (conn.isReady)
+                        observers.Add(conn.connectionId, conn);
+                }
             }
         }
 
@@ -1034,7 +1038,9 @@ namespace Mirror
             {
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
-                varsMessage.payload = payload;
+                // segment to avoid reader allocations.
+                // (never null because of our above check)
+                varsMessage.payload = new ArraySegment<byte>(payload);
                 NetworkServer.SendToReady(this, varsMessage);
             }
         }

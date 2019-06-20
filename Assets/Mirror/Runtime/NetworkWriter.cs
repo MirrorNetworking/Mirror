@@ -15,6 +15,8 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        public const int MaxStringLength = 1024 * 32;
+        static byte[] stringBuffer = new byte[MaxStringLength];
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
@@ -81,7 +83,8 @@ namespace Mirror
 
         public void Write(byte value) => writer.Write(value);
         public void Write(sbyte value) => writer.Write(value);
-        public void Write(char value) => writer.Write(value);
+        // write char the same way that NetworkReader reads it (2 bytes)
+        public void Write(char value) => writer.Write((ushort)value);
         public void Write(bool value) => writer.Write(value);
         public void Write(short value) => writer.Write(value);
         public void Write(ushort value) => writer.Write(value);
@@ -91,16 +94,41 @@ namespace Mirror
         public void Write(ulong value) => writer.Write(value);
         public void Write(float value) => writer.Write(value);
         public void Write(double value) => writer.Write(value);
-        public void Write(decimal value) => writer.Write(value);
+        public void Write(decimal value)
+        {
+            // the only way to read it without allocations is to both read and
+            // write it with the FloatConverter (which is not binary compatible
+            // to writer.Write(decimal), hence why we use it here too)
+            UIntDecimal converter = new UIntDecimal();
+            converter.decimalValue = value;
+            Write(converter.longValue1);
+            Write(converter.longValue2);
+        }
 
         public void Write(string value)
         {
-            // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
-            // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
-            //        should also be null on the client)
+            // write bool for null support first
+            // (note: original HLAPI would write "" for null strings, but if a
+            //        string is null on the server then it should also be null
+            //        on the client)
             writer.Write(value != null);
-            if (value != null) 
-                writer.Write(value);
+
+            // write string with same method as NetworkReader
+            if (value != null)
+            {
+                // convert to byte[]
+                int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+
+                // check if within max size
+                if (size >= MaxStringLength)
+                {
+                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
+                }
+
+                // write size and bytes
+                Write((ushort)size);
+                Write(stringBuffer, 0, (ushort)size);
+            }
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
@@ -135,7 +163,7 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
-        public void WriteBytesSegment(ArraySegment<byte> buffer)
+        public void WriteBytesAndSizeSegment(ArraySegment<byte> buffer)
         {
             WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
         }
