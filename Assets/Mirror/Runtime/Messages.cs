@@ -192,7 +192,7 @@ namespace Mirror
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
             functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
-            payload = reader.ReadBoolean() ? reader.ReadBytesSegment((int)reader.ReadPackedUInt32()) : default;
+            payload = reader.ReadBytesAndSizeSegment();
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -232,7 +232,7 @@ namespace Mirror
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             scale = reader.ReadVector3();
-            payload = reader.ReadBoolean() ? reader.ReadBytesSegment((int)reader.ReadPackedUInt32()) : default;
+            payload = reader.ReadBytesAndSizeSegment();
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -267,7 +267,7 @@ namespace Mirror
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             scale = reader.ReadVector3();
-            payload = reader.ReadBoolean() ? reader.ReadBytesSegment((int)reader.ReadPackedUInt32()) : default;
+            payload = reader.ReadBytesAndSizeSegment();
         }
 
         public override void Serialize(NetworkWriter writer)
@@ -344,7 +344,7 @@ namespace Mirror
         public override void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            payload = reader.ReadBoolean() ? reader.ReadBytesSegment((int)reader.ReadPackedUInt32()) : default;
+            payload = reader.ReadBytesAndSizeSegment();
         }
 
         public override void Serialize(NetworkWriter writer)

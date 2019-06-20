@@ -24,8 +24,6 @@ namespace Mirror.Tests
             ArrayMessage unpacked = MessagePacker.Unpack<ArrayMessage>(data);
 
             Assert.IsNotNull(unpacked.array.Array);
-            Assert.That(unpacked.array.Array.Length, Is.EqualTo(0));
-            Assert.That(unpacked.array.Offset, Is.EqualTo(0));
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }
 
@@ -61,8 +59,6 @@ namespace Mirror.Tests
             ArrayMessage unpacked = MessagePacker.Unpack<ArrayMessage>(data);
 
             Assert.IsNotNull(unpacked.array.Array);
-            Assert.That(unpacked.array.Array.Length, Is.EqualTo(2));
-            Assert.That(unpacked.array.Offset, Is.EqualTo(0));
             Assert.That(unpacked.array.Count, Is.EqualTo(2));
             Assert.That(unpacked.array, Is.EquivalentTo(new byte[] { 3, 4 }));
         }
