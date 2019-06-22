@@ -338,22 +338,9 @@ namespace Mirror
             get => objects[i];
             set
             {
-                bool changed = false;
-                if (objects[i] == null)
+                if (!EqualityComparer<T>.Default.Equals(objects[i], value))
                 {
-                    if (value == null)
-                        return;
-                    else
-                        changed = true;
-                }
-                else
-                {
-                    changed = !objects[i].Equals(value);
-                }
-
-                objects[i] = value;
-                if (changed)
-                {
+                    objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
             }
