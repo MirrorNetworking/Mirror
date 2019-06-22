@@ -49,6 +49,11 @@ namespace Mirror
 
         public static void Recycle(NetworkWriter writer)
         {
+            if (writer == null)
+            {
+                Debug.LogWarning("Recycling null writers is not allowed, please check your code!");
+                return;
+            }
             if (writer.reusable && !writer.polled)
             {
                 writer.polled = true;
