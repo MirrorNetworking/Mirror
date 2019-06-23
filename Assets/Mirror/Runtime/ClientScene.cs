@@ -320,16 +320,6 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
-        }
-
         static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, ArraySegment<byte> payload, uint netId)
         {
             if (!identity.gameObject.activeSelf)
