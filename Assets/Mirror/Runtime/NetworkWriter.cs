@@ -33,12 +33,17 @@ namespace Mirror
             return ((MemoryStream)writer.BaseStream).ToArray();
         }
 
+        // Gets the serialized data in an ArraySegment<byte>
+        // this is similar to ToArray(),  but it gets the data in O(1)
+        // and without allocations.
+        // Do not write anything else or modify the NetworkWriter
+        // while you are using the ArraySegment
         public ArraySegment<byte> ToArraySegment()
         {
             writer.Flush();
-            ((MemoryStream)writer.BaseStream).TryGetBuffer(out ArraySegment<byte> segment);
-            return segment;
+            return ((MemoryStream)writer.BaseStream).TryGetBuffer(out ArraySegment<byte> data) ? data : new ArraySegment<byte>(ToArray());
         }
+
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
         public void SetLength(long value)
