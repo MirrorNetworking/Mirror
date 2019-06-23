@@ -16,6 +16,7 @@ namespace Mirror
         static readonly byte[] stringBuffer = new byte[MaxStringLength];
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
+        // note: BinaryWriter allocates too much, so we only use a MemoryStream
         readonly MemoryStream stream = new MemoryStream();
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
