@@ -13,15 +13,15 @@ If none of these options is checked, the server will have authority over the obj
 
 ## Instantiated Network GameObjects
 
-With the Unity’s server-authoritative networking system, the server must spawn networked GameObjects with network identities, using [NetworkServer.Spawn]. This automatically creates them on clients that are connected to the server, and assigns them a [NetworkInstanceId].
+With the Unity’s server-authoritative networking system, the server must spawn networked GameObjects with network identities, using `NetworkServer.Spawn`. This automatically creates them on clients that are connected to the server, and assigns them a `netId`.
 
-You must put a Network Identity component on any Prefabs that spawn at runtime for the network system to use them. See [Object Spawning] for more information.
+You must put a Network Identity component on any Prefabs that spawn at runtime for the network system to use them. See [Object Spawning](../Concepts/GameObjects/SpawnObject) for more information.
 
 ## Scene-based Network GameObjects
 
 You can also network GameObjects that are saved as part of your Scene (for example, environmental props). Networking GameObjects makes them behave slightly differently, because you need to have them spawn across the network.
 
-When building your game, Unity disables all Scene-based GameObjects with Network Identity components. When a client connects to the server, the server sends spawn messages to tell the client which Scene GameObjects to enable and what their most up-to-date state information is. This ensures the client’s game does not contain GameObjects at incorrect locations when they start playing, or that Unity does not spawn and immediately destroy GameObjects on connection (for example, if an event removed the GameObject before that client connected). See [Networked Scene GameObjects] for more information.
+When building your game, Unity disables all Scene-based GameObjects with Network Identity components. When a client connects to the server, the server sends spawn messages to tell the client which Scene GameObjects to enable and what their most up-to-date state information is. This ensures the client’s game does not contain GameObjects at incorrect locations when they start playing, or that Unity does not spawn and immediately destroy GameObjects on connection (for example, if an event removed the GameObject before that client connected). See [Networked Scene GameObjects](../Concepts/GameObjects/SceneObjects) for more information.
 
 ## Preview Pane Information
 
@@ -32,6 +32,8 @@ This component contains network tracking information, and displays that informat
 At runtime there is more information to display here (a disabled NetworkBehaviour is displayed non-bold):
 
 ![Runtime Preview](NetworkIdentityPreviewRuntime.png)
+
+## Properties
 
 -   **assetId**  
     This identifies the prefab associated with this object (for spawning).
@@ -53,11 +55,26 @@ At runtime there is more information to display here (a disabled NetworkBehaviou
     True if this object is controlled by the client that owns it - the local player object on that client has authority over it. This is used by other components such as NetworkTransform.
 -   **netId**  
     A unique identifier for this network session, assigned when spawned.
+-   **NetworkBehaviours**  
+    Cached array of Network Behaviors on this object.
 -   **observers**  
     The list of client NetworkConnections that are able to see this object. This is read-only.
--   **playerControllerId**  
-    The identifier of the controller associated with this object. Only valid for player objects.
--   **SceneId**  
+-   **sceneId**  
     A unique identifier for networked objects in a Scene. This is only populated in play-mode.
+-   **spawned**  
+    Dictionary of all spawned NetworkIdentities by netId. This is read-only.
 -   **serverOnly**  
     A flag to make this object not be spawned on clients.
+
+## Methods
+
+-   **AssignClientAuthority**  
+    This assigns control of an object to a client via the client's NetworkConnection.
+-   **RebuildObservers**  
+    This causes the set of players that can see this object to be rebuild. The OnRebuildObservers callback function will be invoked on each NetworkBehaviour.
+-   **RemoveClientAuthority**  
+    Removes ownership for an object for a client by its conneciton.  
+    This applies to objects that had authority set by AssignClientAuthority or NetworkServer.SpawnWithClientAuthority.  
+    Authority cannot be removed for player objects.
+-   **ResetNextNetworkId**  
+    Sets the next netId back to 1. This is called from `NetworkServer.Shutdown`
