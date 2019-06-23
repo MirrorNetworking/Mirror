@@ -50,11 +50,11 @@ namespace Mirror
         {
             get
             {
-                if (netIdentityCache == null)
+                if (((object)netIdentityCache) == null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
                 }
-                if (netIdentityCache == null)
+                if (((object)netIdentityCache) == null)
                 {
                     Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
                 }
