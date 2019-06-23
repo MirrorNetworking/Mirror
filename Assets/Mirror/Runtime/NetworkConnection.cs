@@ -109,20 +109,6 @@ namespace Mirror
             messageHandlers[msgType] = handler;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.UnregisterHandler<T> instead")]
-        public void UnregisterHandler(short msgType)
-        {
-            messageHandlers.Remove(msgType);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
-        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            // pack message and send
-            byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(message, channelId);
-        }
-
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
         {
             // pack message and send

@@ -28,31 +28,6 @@ namespace Mirror
         }
 
         // pack message before sending
-        // -> pass writer instead of byte[] so we can reuse it
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(int msgType, MessageBase msg)
-        {
-            // reset cached writer length and position
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-            try
-            {
-                // write message type
-                writer.Write((short)msgType);
-
-                // serialize message into writer
-                msg.Serialize(writer);
-
-                return writer.ToArray();
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
-            }
-            
-        }
-
-        // pack message before sending
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
             // reset cached writer length and position
