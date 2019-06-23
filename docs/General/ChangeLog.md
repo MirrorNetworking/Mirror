@@ -1,13 +1,22 @@
 # Change Log
 
-## Version 3.x.x
+## Version 3.10.10 - 2019-Jun-19
 
 - Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
+- Added: ClientScene.Send now has an optional ChannelId parameter
+- Added: ASMDEF to Examples folder
+- Added: Support for sending and receiving ArraySegment\<byte\>
+- Added: IReadOnlyList\<T\> in SyncLists
+- Fixed: NetworkManager not switching to correct scene in some cases
 - Fixed: ListServer Ping not found in WebGL
+- Fixed: TelepathyTransport.GetMaxPacketSize uses the new configurable max size
+- Fixed: Significant reduction in memory allocation and garbage collection
+- Changed: Use transform.localPosition and transform.localRotation for better VR support
+- Removed: Websockets send queues (they never worked) and SSL (temporarily because it didn't work)
 
 ## Version 3.6.7 -- 2019-Apr-28
 
-- Changed: NetworkReader now uses ArraySegment<byte> to minimize allocations.
+- Changed: NetworkReader now uses ArraySegment\<byte\> to minimize allocations.
 
 ## Version 3.6.6 -- 2019-Apr-24
 

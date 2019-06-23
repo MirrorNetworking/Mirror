@@ -37,7 +37,7 @@ namespace Mirror.Weaver
         {
             if (netBehaviourSubclass.HasGenericParameters)
             {
-                Weaver.Error("NetworkBehaviour " + netBehaviourSubclass.Name + " cannot have generic parameters");
+                Weaver.Error($"{netBehaviourSubclass} cannot have generic parameters");
                 return;
             }
             Weaver.DLog(netBehaviourSubclass, "Process Start");
@@ -126,7 +126,7 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Error("WriteArguments for " + md.Name + " type " + pd.ParameterType + " not supported");
+                    Weaver.Error($"{md} has invalid parameter {pd}" );
                     return false;
                 }
                 // use built-in writer func on writer object
@@ -189,7 +189,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Weaver.Error("No cctor for " + netBehaviourSubclass.Name);
+                        Weaver.Error($"{netBehaviourSubclass} has invalid class constructor");
                         return;
                     }
                 }
@@ -221,7 +221,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Weaver.Error("No ctor for " + netBehaviourSubclass.Name);
+                        Weaver.Error($"{netBehaviourSubclass} has invalid constructor");
                         return;
                     }
 
@@ -231,7 +231,7 @@ namespace Mirror.Weaver
 
             if (ctor == null)
             {
-                Weaver.Error("No ctor for " + netBehaviourSubclass.Name);
+                Weaver.Error($"{netBehaviourSubclass} has invalid constructor");
                 return;
             }
 
@@ -350,7 +350,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("GenerateSerialization for " + netBehaviourSubclass.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
+                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
                     return;
                 }
             }
@@ -398,7 +398,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("GenerateSerialization for " + netBehaviourSubclass.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
+                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
                     return;
                 }
 
@@ -486,7 +486,7 @@ namespace Mirror.Weaver
                 MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
                 if (readFunc == null)
                 {
-                    Weaver.Error("GenerateDeSerialization for " + netBehaviourSubclass.Name + " unknown type [" + syncVar.FieldType + "]. Mirror [SyncVar] member variables must be basic types.");
+                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
                     return;
                 }
                 VariableDefinition tmpValue = new VariableDefinition(syncVar.FieldType);
@@ -599,7 +599,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ProcessNetworkReaderParameters(TypeDefinition td, MethodDefinition md, ILProcessor worker, bool skipFirst)
+        public static bool ProcessNetworkReaderParameters(MethodDefinition md, ILProcessor worker, bool skipFirst)
         {
             int count = 0;
 
@@ -629,7 +629,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("ProcessNetworkReaderParameters for " + td.Name + ":" + md.Name + " type " + arg.ParameterType + " not supported");
+                    Weaver.Error($"{md} has invalid parameter {arg}.  Unsupported type {arg.ParameterType},  use a supported Mirror type instead");
                     return false;
                 }
             }
@@ -642,67 +642,63 @@ namespace Mirror.Weaver
             collection.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
         }
 
-        public static bool ProcessMethodsValidateFunction(TypeDefinition td, MethodReference md, string actionType)
+        public static bool ProcessMethodsValidateFunction(MethodReference md)
         {
             if (md.ReturnType.FullName == Weaver.IEnumeratorType.FullName)
             {
-                Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot be a coroutine");
+                Weaver.Error($"{md} cannot be a coroutine");
                 return false;
             }
             if (md.ReturnType.FullName != Weaver.voidType.FullName)
             {
-                Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] must have a void return type.");
+                Weaver.Error($"{md} cannot return a value.  Make it void instead");
                 return false;
             }
             if (md.HasGenericParameters)
             {
-                Weaver.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot have generic parameters");
+                Weaver.Error($"{md} cannot have generic parameters");
                 return false;
             }
             return true;
         }
 
-        public static bool ProcessMethodsValidateParameters(TypeDefinition td, MethodReference md, CustomAttribute ca, string actionType)
+        public static bool ProcessMethodsValidateParameters(MethodReference md, CustomAttribute ca)
         {
             for (int i = 0; i < md.Parameters.Count; ++i)
             {
                 ParameterDefinition p = md.Parameters[i];
                 if (p.IsOut)
                 {
-                    Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have out parameters");
+                    Weaver.Error($"{md} cannot have out parameters");
                     return false;
                 }
                 if (p.IsOptional)
                 {
-                    Weaver.Error(actionType + "function [" + td.FullName + ":" + md.Name + "] cannot have optional parameters");
+                    Weaver.Error($"{md} cannot have optional parameters");
                     return false;
                 }
                 if (p.ParameterType.Resolve().IsAbstract)
                 {
-                    Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have abstract parameters");
+                    Weaver.Error($"{md} has invalid parameter {p}.  Use concrete type instead of abstract type {p.ParameterType}");
                     return false;
                 }
                 if (p.ParameterType.IsByReference)
                 {
-                    Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] cannot have ref parameters");
+                    Weaver.Error($"{md} has invalid parameter {p}. Use supported type instead of reference type {p.ParameterType}");
                     return false;
                 }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
                 if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName &&
                     !(ca.AttributeType.FullName == Weaver.TargetRpcType.FullName && i == 0))
                 {
-                    Weaver.Error(actionType + " [" + td.FullName + ":" + md.Name + "] cannot use a NetworkConnection as a parameter. To access a player object's connection on the server use connectionToClient");
-                    Weaver.Error("Name: " + ca.AttributeType.FullName + " parameter: " + md.Parameters[0].ParameterType.FullName);
+                    Weaver.Error($"{md} has invalid parameer {p}. Cannot pass NeworkConnections");
                     return false;
                 }
                 if (p.ParameterType.Resolve().IsDerivedFrom(Weaver.ComponentType))
                 {
                     if (p.ParameterType.FullName != Weaver.NetworkIdentityType.FullName)
                     {
-                        Weaver.Error(actionType + " function [" + td.FullName + ":" + md.Name + "] parameter [" + p.Name +
-                            "] is of the type [" +
-                            p.ParameterType.Name +
-                            "] which is a Component. You cannot pass a Component to a remote call. Try passing data from within the component.");
+                        Weaver.Error($"{md} has invalid parameter {p}. Cannot pass components in remote method calls");
                         return false;
                     }
                 }
@@ -770,7 +766,7 @@ namespace Mirror.Weaver
 
         void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!RpcProcessor.ProcessMethodsValidateRpc(netBehaviourSubclass, md, ca))
+            if (!RpcProcessor.ProcessMethodsValidateRpc(md, ca))
             {
                 return;
             }
@@ -799,7 +795,7 @@ namespace Mirror.Weaver
 
         void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(netBehaviourSubclass, md, ca))
+            if (!TargetRpcProcessor.ProcessMethodsValidateTargetRpc(md, ca))
                 return;
 
             if (names.Contains(md.Name))
@@ -826,7 +822,7 @@ namespace Mirror.Weaver
 
         void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute ca)
         {
-            if (!CommandProcessor.ProcessMethodsValidateCommand(netBehaviourSubclass, md, ca))
+            if (!CommandProcessor.ProcessMethodsValidateCommand(md, ca))
                 return;
 
             if (names.Contains(md.Name))

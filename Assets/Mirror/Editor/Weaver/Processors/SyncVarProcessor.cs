@@ -31,17 +31,17 @@ namespace Mirror.Weaver
                                     {
                                         if (m.Parameters[0].ParameterType != syncVar.FieldType)
                                         {
-                                            Weaver.Error("SyncVar Hook function " + hookFunctionName + " has wrong type signature for " + td.Name);
+                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
                                             return false;
                                         }
                                         foundMethod = m;
                                         return true;
                                     }
-                                    Weaver.Error("SyncVar Hook function " + hookFunctionName + " must have one argument " + td.Name);
+                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
                                     return false;
                                 }
                             }
-                            Weaver.Error("SyncVar Hook function " + hookFunctionName + " not found for " + td.Name);
+                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}" );
                             return false;
                         }
                     }
@@ -253,31 +253,31 @@ namespace Mirror.Weaver
 
                         if (resolvedField.IsDerivedFrom(Weaver.NetworkBehaviourType))
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be derived from NetworkBehaviour.");
+                            Weaver.Error($"{fd} has invalid type. SyncVars cannot be NetworkBehaviours");
                             return;
                         }
 
                         if (resolvedField.IsDerivedFrom(Weaver.ScriptableObjectType))
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be derived from ScriptableObject.");
+                            Weaver.Error($"{fd} has invalid type. SyncVars cannot be scriptable objects");
                             return;
                         }
 
                         if ((fd.Attributes & FieldAttributes.Static) != 0)
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be static.");
+                            Weaver.Error($"{fd} cannot be static");
                             return;
                         }
 
                         if (resolvedField.HasGenericParameters)
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot have generic parameters.");
+                            Weaver.Error($"{fd} has invalid type. SyncVars cannot have generic parameters");
                             return;
                         }
 
                         if (resolvedField.IsInterface)
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be an interface.");
+                            Weaver.Error($"{fd} has invalid type. Use a concrete type instead of interface {fd.FieldType}");
                             return;
                         }
 
@@ -290,19 +290,19 @@ namespace Mirror.Weaver
                             fieldModuleName != "netstandard.dll" // handle built-in types when weaving new C#7 compiler assemblies
                             )
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] from " + resolvedField.Module.ToString() + " cannot be a different module.");
+                            Weaver.Error($"{fd} has invalid type. Use a type defined in the same module {fd.Module}");
                             return;
                         }
 
                         if (fd.FieldType.IsArray)
                         {
-                            Weaver.Error("SyncVar [" + fd.FullName + "] cannot be an array. Use a SyncList instead.");
+                            Weaver.Error($"{fd} has invalid type. Use SyncLists instead of arrays");
                             return;
                         }
 
                         if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                         {
-                            Log.Warning(string.Format("Script class [{0}] has [SyncVar] attribute on SyncList field {1}, SyncLists should not be marked with SyncVar.", td.FullName, fd.Name));
+                            Log.Warning($"{fd} has [SyncVar] attribute. SyncLists should not be marked with SyncVar");
                             break;
                         }
 
@@ -314,7 +314,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Error("Script class [" + td.FullName + "] has too many SyncVars (" + SyncVarLimit + "). (This could include base classes)");
+                            Weaver.Error($"{td} has too many SyncVars. Consider refactoring your class into multiple components");
                             return;
                         }
                         break;
@@ -325,7 +325,7 @@ namespace Mirror.Weaver
                 {
                     if (fd.IsStatic)
                     {
-                        Weaver.Error("SyncList [" + td.FullName + ":" + fd.FullName + "] cannot be a static");
+                        Weaver.Error($"{fd} cannot be static");
                         return;
                     }
 

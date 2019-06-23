@@ -19,7 +19,7 @@ namespace Mirror.Weaver
             GenericInstanceType gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count <= genericArgument)
             {
-                Weaver.Error("SyncObjectProcessor no generic args");
+                Weaver.Error($"{td} should have {genericArgument} generic arguments");
                 return;
             }
             TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[genericArgument]);
@@ -62,7 +62,7 @@ namespace Mirror.Weaver
 
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Can't have generic parameters");
+                Weaver.Error($"{td} cannot have generic elements {itemType}");
                 return null;
             }
 
@@ -75,7 +75,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error("GenerateSerialization for " + td.Name + " unknown type [" + itemType + "/" + itemType.FullName + "]. Member variables must be basic types.");
+                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
                 return null;
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -112,7 +112,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error("GenerateDeserialization for " + td.Name + " unknown type [" + itemType + "]. Member variables must be basic types.");
+                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
                 return null;
             }
 

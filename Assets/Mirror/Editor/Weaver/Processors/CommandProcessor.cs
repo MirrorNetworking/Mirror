@@ -117,7 +117,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, cmdWorker, false))
                 return null;
 
             // invoke actual command function
@@ -129,23 +129,23 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        public static bool ProcessMethodsValidateCommand(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute ca)
         {
             if (!md.Name.StartsWith("Cmd"))
             {
-                Weaver.Error("Command function [" + td.FullName + ":" + md.Name + "] doesnt have 'Cmd' prefix");
+                Weaver.Error($"{md} must start with Cmd.  Consider renaming it to Cmd{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("Command function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} cannot be static");
                 return false;
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Command") &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Command");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }

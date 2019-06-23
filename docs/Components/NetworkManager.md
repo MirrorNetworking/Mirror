@@ -118,7 +118,7 @@ public class CustomManager : NetworkManager {
     {
         NetworkServer.DestroyPlayersForConnection(conn);
 
-        if (conn.lastError != NetworkError.Ok)
+        if (conn.lastError != UnityEngine.Networking.NetworkError.Ok)
         {
             if (LogFilter.logError)
                 Debug.LogError("ServerDisconnected due to error: " + conn.lastError);
@@ -151,7 +151,7 @@ public class CustomManager : NetworkManager {
 
     public override void OnServerError(NetworkConnection conn, int errorCode)
     {
-        Debug.Log("Server network error occurred: " + (NetworkError)errorCode);
+        Debug.Log("Server network error occurred: " + (UnityEngine.Networking.NetworkError)errorCode);
     }
 
     public override void OnStartHost()
@@ -186,7 +186,7 @@ public class CustomManager : NetworkManager {
     {
         StopClient();
 
-        if (conn.lastError != NetworkError.Ok)
+        if (conn.lastError != UnityEngine.Networking.NetworkError.Ok)
         {
             if (LogFilter.logError)
                 Debug.LogError("ClientDisconnected due to error: " + conn.lastError);
@@ -197,7 +197,7 @@ public class CustomManager : NetworkManager {
 
     public override void OnClientError(NetworkConnection conn, int errorCode)
     {
-        Debug.Log("Client network error occurred: " + (NetworkError)errorCode);
+        Debug.Log("Client network error occurred: " + (UnityEngine.Networking.NetworkError)errorCode);
     }
 
     public override void OnClientNotReady(NetworkConnection conn)

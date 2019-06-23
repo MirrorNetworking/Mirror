@@ -66,14 +66,18 @@ namespace Mirror
         {
             get
             {
-                int index = Array.FindIndex(netIdentity.NetworkBehaviours, component => component == this);
-                if (index < 0)
+                // note: FindIndex causes allocations, we search manually instead
+                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
                 {
-                    // this should never happen
-                    Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
+                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
+                    if (component == this)
+                        return i;
                 }
 
-                return index;
+                // this should never happen
+                Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
+
+                return -1;
             }
         }
 
@@ -86,6 +90,18 @@ namespace Mirror
         }
 
         #region Commands
+
+        private static int GetMethodHash(Type invokeClass, string methodName)
+        {
+            // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
+            // so hash1 + hash2 is better.
+            unchecked
+            {
+                int hash = invokeClass.FullName.GetStableHashCode();
+                return hash * 503 + methodName.GetStableHashCode();
+            }
+        }
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId)
         {
@@ -115,8 +131,8 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + cmdName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArray()
+                functionHash = GetMethodHash(invokeClass, cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
             };
 
             ClientScene.readyConnection.Send(message, channelId);
@@ -151,8 +167,8 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArray()
+                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
@@ -190,8 +206,8 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + rpcName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArray()
+                functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
             };
 
             conn.Send(message, channelId);
@@ -219,8 +235,8 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
-                functionHash = (invokeClass + ":" + eventName).GetStableHashCode(), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = writer.ToArray()
+                functionHash = GetMethodHash(invokeClass, eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
+                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
             };
 
             NetworkServer.SendToReady(netIdentity,message, channelId);
@@ -249,7 +265,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected static void RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func)
         {
-            int cmdHash = (invokeClass + ":" + cmdName).GetStableHashCode(); // type+func so Inventory.RpcUse != Equipment.RpcUse
+            int cmdHash = GetMethodHash(invokeClass, cmdName); // type+func so Inventory.RpcUse != Equipment.RpcUse
 
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {

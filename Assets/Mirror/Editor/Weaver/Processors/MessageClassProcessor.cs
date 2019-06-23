@@ -39,7 +39,7 @@ namespace Mirror.Weaver
             {
                 if (field.FieldType.FullName == td.FullName)
                 {
-                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + field.FullName + "]. [MessageBase] member cannot be self referencing.");
+                    Weaver.Error($"{td} has field ${field} that references itself");
                     return;
                 }
             }
@@ -56,15 +56,15 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                if (field.FieldType.Resolve().HasGenericParameters)
+                if (field.FieldType.Resolve().HasGenericParameters && field.FieldType.FullName != "System.ArraySegment`1<System.Byte>")
                 {
-                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot have generic parameters.");
+                    Weaver.Error($"{field} cannot have generic type {field.FieldType}.  Consider creating a class that derives the generic type");
                     return;
                 }
 
                 if (field.FieldType.Resolve().IsInterface)
                 {
-                    Weaver.Error("GenerateSerialization for " + td.Name + " [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member cannot be an interface.");
+                    Weaver.Error($"{field} has unsupported type. Use a concrete class instead of interface {field.FieldType}");
                     return;
                 }
 
@@ -78,7 +78,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("GenerateSerialization for " + td.Name + " unknown type [" + field.FieldType + "/" + field.FieldType.FullName + "]. [MessageBase] member variables must be basic types.");
+                    Weaver.Error($"{field} has unsupported type");
                     return;
                 }
             }
@@ -123,7 +123,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error("GenerateDeSerialization for " + td.Name + " unknown type [" + field.FieldType + "]. [SyncVar] member variables must be basic types.");
+                    Weaver.Error($"{field} has unsupported type");
                     return;
                 }
             }

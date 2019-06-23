@@ -837,6 +837,14 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
+            // serialize all components with initialState = true
+            // (can be null if has none)
+            byte[] serialized = identity.OnSerializeAllSafely(true);
+
+            // convert to ArraySegment to avoid reader allocations
+            // (need to handle null case too)
+            ArraySegment<byte> segment = serialized != null ? new ArraySegment<byte>(serialized) : default;
+
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
             {
@@ -845,12 +853,11 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     assetId = identity.assetId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-
-                    // serialize all components with initialState = true
-                    payload = identity.OnSerializeAllSafely(true)
+                    payload = segment
                 };
 
                 // conn is != null when spawning it for a client
@@ -872,12 +879,11 @@ namespace Mirror
                     netId = identity.netId,
                     owner = conn?.playerController == identity,
                     sceneId = identity.sceneId,
-                    position = identity.transform.position,
-                    rotation = identity.transform.rotation,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-
-                    // include synch data
-                    payload = identity.OnSerializeAllSafely(true)
+                    payload = segment
                 };
 
                 // conn is != null when spawning it for a client

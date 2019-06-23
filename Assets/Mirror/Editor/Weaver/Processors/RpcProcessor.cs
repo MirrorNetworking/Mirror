@@ -23,7 +23,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, rpcWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, rpcWorker, false))
                 return null;
 
             // invoke actual command function
@@ -86,23 +86,23 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
         {
             if (!md.Name.StartsWith("Rpc"))
             {
-                Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
+                Weaver.Error($"{md} must start with Rpc.  Consider renaming it to Rpc{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} must not be static");
                 return false;
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Rpc") &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Rpc");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }

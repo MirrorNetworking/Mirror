@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             }
             if (eventField == null)
             {
-                Weaver.Error("[" + td.Name + "] ERROR: no event field?!");
+                Weaver.Error($"{td} not found. Did you declare the event?");
                 return null;
             }
 
@@ -51,7 +51,7 @@ namespace Mirror.Weaver
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, invoke.Resolve(), cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false))
                 return null;
 
             // invoke actual event delegate function
@@ -113,13 +113,13 @@ namespace Mirror.Weaver
                     {
                         if (!ed.Name.StartsWith("Event"))
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
+                            Weaver.Error($"{ed} must start with Event.  Consider renaming it to Event{ed.Name}");
                             return;
                         }
 
                         if (ed.EventType.Resolve().HasGenericParameters)
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
+                            Weaver.Error($"{ed} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead");
                             return;
                         }
 
