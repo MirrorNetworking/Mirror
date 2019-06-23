@@ -293,11 +293,5 @@ namespace Mirror
             ClientScene.Shutdown();
             connectState = ConnectState.None;
         }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
-        public static void ShutdownAll()
-        {
-            Shutdown();
-        }
     }
 }
