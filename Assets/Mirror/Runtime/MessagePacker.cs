@@ -35,13 +35,7 @@ namespace Mirror
 
             try
             {
-                // write message type
-                int msgType = GetId<T>();
-                writer.Write((ushort)msgType);
-
-                // serialize message into writer
-                message.Serialize(writer);
-
+                Pack(message, writer);
                 // return byte[]
                 return writer.ToArray();
             }
@@ -49,6 +43,16 @@ namespace Mirror
             {
                 NetworkWriterPool.Recycle(writer);
             }
+        }
+
+        public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
+        {
+            // write message type
+            int msgType = GetId<T>();
+            writer.Write((ushort)msgType);
+
+            // serialize message into writer
+            message.Serialize(writer);
         }
 
         // unpack a message we received
@@ -67,6 +71,20 @@ namespace Mirror
             return message;
         }
 
+        public static T Unpack<T>(ArraySegment<byte> data) where T : IMessageBase, new()
+        {
+            NetworkReader reader = new NetworkReader(data);
+
+            int msgType = GetId<T>();
+
+            int id = reader.ReadUInt16();
+            if (id != msgType)
+                throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+
+            T message = new T();
+            message.Deserialize(reader);
+            return message;
+        }
         // unpack message after receiving
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
