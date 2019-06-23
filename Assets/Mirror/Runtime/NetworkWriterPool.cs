@@ -13,7 +13,7 @@ namespace Mirror
             if (writerPool.Count != 0)
             {
                 NetworkWriter writer = writerPool.Pop();
-                writer.polled = false;
+                writer.pooled = false;
                 // reset cached writer length and position
                 writer.SetLength(0);
                 return writer;
@@ -29,9 +29,9 @@ namespace Mirror
                 Debug.LogWarning("Recycling null writers is not allowed, please check your code!");
                 return;
             }
-            if (writer.reusable && !writer.polled)
+            if (writer.reusable && !writer.pooled)
             {
-                writer.polled = true;
+                writer.pooled = true;
                 writerPool.Push(writer);
             }
         }

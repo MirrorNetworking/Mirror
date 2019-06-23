@@ -18,7 +18,7 @@ namespace Mirror
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
 
-        internal bool polled;
+        internal bool pooled;
         internal readonly bool reusable;
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
