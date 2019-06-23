@@ -87,12 +87,6 @@ namespace Mirror
         // headless mode detection
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("This is a static property now...use `isHeadless` instead of `IsHeadless()`.  This method will be removed by summer 2019.")]
-        public static bool IsHeadless()
-        {
-            return isHeadless;
-        }
-
         void InitializeSingleton()
         {
             if (singleton != null && singleton == this)
@@ -572,16 +566,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Remove(start);
-        }
-
-        /// <summary>
-        /// This checks if the NetworkManager has a client and that it is connected to the server.
-        /// </summary>
-        /// <returns>True if the NetworkManagers client is connected to a server.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient.isConnected instead")]
-        public bool IsClientConnected()
-        {
-            return NetworkClient.isConnected;
         }
 
         /// <summary>
