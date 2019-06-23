@@ -46,7 +46,7 @@ namespace Mirror
             { 
                 return data;
             }
-            throw new Exception("Cannot expose contents of memory stream");
+            throw new Exception("Cannot expose contents of memory stream. Make sure that MemoryStream buffer is publicly visible (see MemoryStream source code).");
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
