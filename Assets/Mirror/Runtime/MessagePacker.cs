@@ -39,7 +39,9 @@ namespace Mirror
             msg.Serialize(packWriter);
 
             // return byte[]
-            return packWriter.Close();
+            byte[] data = packWriter.ToArray();
+            NetworkWriterPool.Recycle(packWriter);
+            return data;
         }
 
         // pack message before sending
@@ -55,7 +57,9 @@ namespace Mirror
             message.Serialize(packWriter);
 
             // return byte[]
-            return packWriter.Close();
+            byte[] data = packWriter.ToArray();
+            NetworkWriterPool.Recycle(packWriter);
+            return data;
         }
 
         // unpack a message we received

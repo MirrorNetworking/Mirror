@@ -611,7 +611,9 @@ namespace Mirror
                 }
             }
 
-            return onSerializeWriter.Close();
+            byte[] data = onSerializeWriter.ToArray();
+            NetworkWriterPool.Recycle(onSerializeWriter);
+            return data;
         }
 
         ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)

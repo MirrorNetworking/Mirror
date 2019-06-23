@@ -30,13 +30,6 @@ namespace Mirror
             this.reusable = reusable;
         }
 
-        public byte[] Close()
-        {
-            byte[] data = ToArray();
-            NetworkWriterPool.Recycle(this);
-            return data;
-        }
-
         // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
         // Length is how much data we have written

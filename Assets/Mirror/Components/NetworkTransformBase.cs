@@ -354,7 +354,8 @@ namespace Mirror
                             SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
 
                             // send to server
-                            CmdClientToServerSync(writer.Close());
+                            CmdClientToServerSync(writer.ToArray());
+                            NetworkWriterPool.Recycle(writer);
                         }
                         lastClientSendTime = Time.time;
                     }
