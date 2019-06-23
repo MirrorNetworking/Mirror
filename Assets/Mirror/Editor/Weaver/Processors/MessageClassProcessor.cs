@@ -56,7 +56,7 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                if (field.FieldType.Resolve().HasGenericParameters && field.FieldType.FullName != "System.ArraySegment`1<System.Byte>")
+                if (field.FieldType.Resolve().HasGenericParameters && !field.FieldType.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
                 {
                     Weaver.Error($"{field} cannot have generic type {field.FieldType}.  Consider creating a class that derives the generic type");
                     return;

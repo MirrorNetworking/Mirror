@@ -137,5 +137,19 @@ namespace Mirror.Weaver
             }
             return null;
         }
+
+        public static MethodReference ResolveGenericProperty(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        {
+            foreach (PropertyDefinition pd in tr.Resolve().Properties)
+            {
+                if (pd.Name == name)
+                {
+                    var reference = new GenericInstanceMethod(scriptDef.MainModule.ImportReference(pd.GetMethod, tr));
+                    return scriptDef.MainModule.ImportReference(reference);
+
+                }
+            }
+            return null;
+        }
     }
 }
