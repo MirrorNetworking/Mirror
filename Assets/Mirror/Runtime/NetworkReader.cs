@@ -186,16 +186,14 @@ namespace Mirror
         // null support, see NetworkWriter
         public byte[] ReadBytesAndSize()
         {
-            if (ReadBoolean())
-            {
-                return ReadBytes(checked((int)ReadPackedUInt32()));
-            }
-            return null;
+            uint count = ReadPackedUInt32();
+            return count == 0 ? null : ReadBytes(checked((int)(count - 1u)));
         }
 
         public ArraySegment<byte> ReadBytesAndSizeSegment()
         {
-            return ReadBoolean() ? ReadBytesSegment((int)ReadPackedUInt32()) : default;
+            uint count = ReadPackedUInt32();
+            return count == 0 ? default : ReadBytesSegment(checked((int)(count - 1u)));
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
