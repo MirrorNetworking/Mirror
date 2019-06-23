@@ -170,14 +170,17 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> bytes = writer.ToArraySegment();
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     result &= kvp.Value.SendBytes(bytes);
                 }
+
+                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;
@@ -187,14 +190,17 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.Pack(msg);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            MessagePacker.Pack(msg, writer);
+            ArraySegment<byte> bytes = writer.ToArraySegment();
 
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 result &= kvp.Value.SendBytes(bytes, channelId);
             }
+
+            NetworkWriterPool.Recycle(writer);
             return result;
         }
 
@@ -205,7 +211,9 @@ namespace Mirror
             if (identity != null && identity.observers != null)
             {
                 // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> bytes = writer.ToArraySegment();
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
@@ -215,6 +223,7 @@ namespace Mirror
                         result &= kvp.Value.SendBytes(bytes, channelId);
                     }
                 }
+                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;
