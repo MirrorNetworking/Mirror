@@ -30,7 +30,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            NetworkWriter packWriter = NetworkWriter.GetPooledWriter();
+            NetworkWriter packWriter = NetworkWriterPool.GetPooledWriter();
 
             // write message type
             packWriter.Write((short)msgType);
@@ -45,7 +45,7 @@ namespace Mirror
         // pack message before sending
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            NetworkWriter packWriter = NetworkWriter.GetPooledWriter();
+            NetworkWriter packWriter = NetworkWriterPool.GetPooledWriter();
 
             // write message type
             int msgType = GetId<T>();

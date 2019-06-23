@@ -587,7 +587,7 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return null;
 
-            NetworkWriter onSerializeWriter = NetworkWriter.GetPooledWriter();
+            NetworkWriter onSerializeWriter = NetworkWriterPool.GetPooledWriter();
 
             onSerializeWriter.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
