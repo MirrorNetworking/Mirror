@@ -19,8 +19,6 @@ namespace Mirror
     {
         // PackMessage is in hot path. caching the writer is really worth it to
         // avoid large amounts of allocations.
-        static NetworkWriter packWriter = new NetworkWriter();
-
         public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions
@@ -35,33 +33,47 @@ namespace Mirror
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
             // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
 
-            // write message type
-            packWriter.Write((short)msgType);
+            try
+            {
+                // write message type
+                writer.Write((short)msgType);
 
-            // serialize message into writer
-            msg.Serialize(packWriter);
+                // serialize message into writer
+                msg.Serialize(writer);
 
-            // return byte[]
-            return packWriter.ToArray();
+                return writer.ToArray();
+            }
+            finally
+            {
+                NetworkWriterPool.Recycle(writer);
+            }
+            
         }
 
         // pack message before sending
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
             // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
 
-            // write message type
-            int msgType = GetId<T>();
-            packWriter.Write((ushort)msgType);
+            try
+            {
+                // write message type
+                int msgType = GetId<T>();
+                writer.Write((ushort)msgType);
 
-            // serialize message into writer
-            message.Serialize(packWriter);
+                // serialize message into writer
+                message.Serialize(writer);
 
-            // return byte[]
-            return packWriter.ToArray();
+                // return byte[]
+                return writer.ToArray();
+            }
+            finally
+            {
+                NetworkWriterPool.Recycle(writer);
+            }
         }
 
         // unpack a message we received
