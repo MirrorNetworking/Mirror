@@ -186,6 +186,8 @@ namespace Mirror
         // null support, see NetworkWriter
         public byte[] ReadBytesAndSize()
         {
+            // count = 0 means the array was null
+            // otherwise count -1 is the length of the array 
             uint count = ReadPackedUInt32();
             return count == 0 ? null : ReadBytes(checked((int)(count - 1u)));
         }
