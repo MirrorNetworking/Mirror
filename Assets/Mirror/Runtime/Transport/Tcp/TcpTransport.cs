@@ -38,7 +38,7 @@ namespace Mirror.Tcp
         // client
         public override bool ClientConnected() { return client.IsConnected; }
         public override void ClientConnect(string address) { client.Connect(address, port); }
-        public override bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, ArraySegment<byte> data)
         {
             client.Send(data);
             return true;
@@ -55,7 +55,7 @@ namespace Mirror.Tcp
             server.Listen(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> data)
         {
             server.Send(connectionId, data);
             return true;

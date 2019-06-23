@@ -40,20 +40,25 @@ namespace Mirror.Tcp
 
         // send message (via stream) with the <size,content> message structure
         // throws exception if there is a problem
-        protected static async Task SendMessage(NetworkStream stream, byte[] content)
+        protected static async Task SendMessage(NetworkStream stream, ArraySegment<byte> content)
         {
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
            
             // construct header (size)
-            byte[] header = IntToBytes(content.Length);
+            // TODO:  we can do this without allocation
+            byte[] header = IntToBytes(content.Count);
 
             // write header+content at once via payload array. writing
             // header,payload separately would cause 2 TCP packets to be
             // sent if nagle's algorithm is disabled(2x TCP header overhead)
-            byte[] payload = new byte[header.Length + content.Length];
+
+            // TODO: what if we are sending this message to multiple clients?
+            // we would allocate an identicall array buffer for all of them
+            // should be possible to do just one and use it for all connections
+            byte[] payload = new byte[header.Length + content.Count];
             Array.Copy(header, payload, header.Length);
-            Array.Copy(content, 0, payload, header.Length, content.Length);
+            Array.Copy(content.Array, content.Offset, payload, header.Length, content.Count);
             await stream.WriteAsync(payload, 0, payload.Length);
         }
 

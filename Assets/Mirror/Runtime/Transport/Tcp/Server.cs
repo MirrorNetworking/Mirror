@@ -177,7 +177,7 @@ namespace Mirror.Tcp
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, byte[] data)
+        public async void Send(int connectionId, ArraySegment<byte> data)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))
