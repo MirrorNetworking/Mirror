@@ -145,7 +145,7 @@ namespace Mirror
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
             // (writing a size=0 empty array is not the same, the server and client would be out of sync)
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            Write(buffer != null); // notNull?
+            Write(buffer != null);
             if (buffer != null)
             {
                 WritePackedUInt32(length);
