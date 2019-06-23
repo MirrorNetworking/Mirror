@@ -107,7 +107,7 @@ namespace Mirror
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
             if (buffer == null)
             {
-                WritePackedUInt32(0u);// notNull?
+                WritePackedUInt32(0u);
                 return;
             }
             WritePackedUInt32(checked((uint)count) + 1u);
