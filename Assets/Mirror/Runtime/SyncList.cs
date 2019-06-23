@@ -346,8 +346,40 @@ namespace Mirror
             }
         }
 
-        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
+        public Enumerator GetEnumerator() => new Enumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
+
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+
+        public struct Enumerator : IEnumerator<T>
+        {
+            private readonly SyncList<T> _list;
+            private int _curIndex;
+            public T Current { get; private set; }
+
+            public Enumerator(SyncList<T> list)
+            {
+                _list = list;
+                _curIndex = -1;
+                Current = default;
+            }
+
+            public bool MoveNext()
+            {
+                if (++_curIndex >= _list.Count)
+                {
+                    return false;
+                }
+                Current = _list[_curIndex];
+                return true;
+            }
+
+            public void Reset() => _curIndex = -1;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose() {}
+        }
     }
 }
