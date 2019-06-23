@@ -19,16 +19,6 @@ namespace Mirror
         public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
         public bool logNetworkMessages;
 
-        // this is always true for regular connections, false for local
-        // connections because it's set in the constructor and never reset.
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
-        public bool isConnected { get; protected set; }
-
-        // this is always 0 for regular connections, -1 for local
-        // connections because it's set in the constructor and never reset.
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("hostId will be removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use connection.GetType() == typeof(NetworkConnection) to check if it's a regular or local connection.")]
-        public int hostId = -1;
-
         public NetworkConnection(string networkAddress)
         {
             address = networkAddress;
@@ -37,10 +27,6 @@ namespace Mirror
         {
             address = networkAddress;
             connectionId = networkConnectionId;
-#pragma warning disable 618
-            isConnected = true;
-            hostId = 0;
-#pragma warning restore 618
         }
 
         ~NetworkConnection()
@@ -169,12 +155,6 @@ namespace Mirror
                 identity.RemoveObserverInternal(this);
             }
             visList.Clear();
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
-        public bool InvokeHandlerNoData(int msgType)
-        {
-            return InvokeHandler(msgType, null);
         }
 
         internal bool InvokeHandler(int msgType, NetworkReader reader)

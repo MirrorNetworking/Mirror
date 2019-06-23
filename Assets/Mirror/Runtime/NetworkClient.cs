@@ -242,22 +242,6 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
-            }
-            handlers[msgType] = handler;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
@@ -266,18 +250,6 @@ namespace Mirror
                 if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
             }
             handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
         }
 
         public static void UnregisterHandler<T>() where T : IMessageBase
