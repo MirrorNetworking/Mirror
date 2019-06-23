@@ -62,8 +62,6 @@ namespace Mirror
         public static string networkSceneName = "";
         [NonSerialized]
         public bool isNetworkActive;
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
-        public NetworkClient client => NetworkClient.singleton;
         static int startPositionIndex;
 
         public static NetworkManager singleton;
@@ -860,14 +858,7 @@ namespace Mirror
         /// <summary>Called when the server is started - including when a host is started.</summary>
         public virtual void OnStartServer() {}
         /// <summary>Called when the client is started.</summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) {}
-        public virtual void OnStartClient()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            OnStartClient(NetworkClient.singleton);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        public virtual void OnStartClient() {}
 
         /// <summary>Called when the server is stopped - including when a host is stopped.</summary>
         public virtual void OnStopServer() {}
