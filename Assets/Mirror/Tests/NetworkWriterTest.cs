@@ -556,6 +556,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestToArraySegment()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write("hello");
+            writer.Write("world");
+
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Assert.That(reader.ReadString(), Is.EqualTo("hello"));
+            Assert.That(reader.ReadString(), Is.EqualTo("world"));
+        }
+
+        [Test]
         public void TestChar()
         {
             char a = 'a';
