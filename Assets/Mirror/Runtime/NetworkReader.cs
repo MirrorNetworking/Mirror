@@ -194,6 +194,9 @@ namespace Mirror
 
         public ArraySegment<byte> ReadBytesAndSizeSegment()
         {
+
+            // count = 0 means the array was null
+            // otherwise count - 1 is the length of the array
             uint count = ReadPackedUInt32();
             return count == 0 ? default : ReadBytesSegment(checked((int)(count - 1u)));
         }
