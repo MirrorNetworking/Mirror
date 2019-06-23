@@ -210,58 +210,6 @@ namespace Mirror
             }
         }
 
-        /* TODO use or remove
-        void GenerateConnectError(byte error)
-        {
-            Debug.LogError("Mirror Client Error Connect Error: " + error);
-            GenerateError(error);
-        }
-
-        void GenerateDataError(byte error)
-        {
-            NetworkError dataError = (NetworkError)error;
-            Debug.LogError("Mirror Client Data Error: " + dataError);
-            GenerateError(error);
-        }
-
-        void GenerateDisconnectError(byte error)
-        {
-            NetworkError disconnectError = (NetworkError)error;
-            Debug.LogError("Mirror Client Disconnect Error: " + disconnectError);
-            GenerateError(error);
-        }
-
-        void GenerateError(byte error)
-        {
-            int msgId = MessageBase.GetId<ErrorMessage>();
-            if (handlers.TryGetValue(msgId, out NetworkMessageDelegate msgDelegate))
-            {
-                ErrorMessage msg = new ErrorMessage
-                {
-                    value = error
-                };
-
-                // write the message to a local buffer
-                NetworkWriter writer = new NetworkWriter();
-                msg.Serialize(writer);
-
-                NetworkMessage netMsg = new NetworkMessage
-                {
-                    msgType = msgId,
-                    reader = new NetworkReader(writer.ToArray()),
-                    conn = connection
-                };
-                msgDelegate(netMsg);
-            }
-        }
-        */
-
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkTime.rtt instead")]
-        public static float GetRTT()
-        {
-            return (float)NetworkTime.rtt;
-        }
-
         internal static void RegisterSystemHandlers(bool localClient)
         {
             // local client / regular client react to some messages differently.
