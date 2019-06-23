@@ -103,7 +103,7 @@ namespace Mirror
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // (writing a size=0 empty array is not the same, the server and client would be out of sync)
+            // write 0 for null array, increment normal size by 1 to save bandwith
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
             if (buffer == null)
             {
