@@ -50,6 +50,9 @@ namespace Mirror
         {
             get
             {
+                // in this specific case,  we want to know if we have set it before
+                // so we can compare if the reference is null
+                // instead of calling unity's MonoBehaviour == operator
                 if (((object)netIdentityCache) == null)
                 {
                     netIdentityCache = GetComponent<NetworkIdentity>();
