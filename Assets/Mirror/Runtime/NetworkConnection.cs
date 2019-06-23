@@ -85,16 +85,6 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.RegisterHandler<T> instead")]
-        public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
-        {
-            if (messageHandlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
-            }
-            messageHandlers[msgType] = handler;
-        }
-
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
         {
             // pack message and send
