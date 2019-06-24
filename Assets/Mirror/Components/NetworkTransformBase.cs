@@ -16,6 +16,8 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
+
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -219,7 +221,7 @@ namespace Mirror
 
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(byte[] payload)
+        void CmdClientToServerSync(ArraySegment<byte> payload)
         {
             // deserialize payload
             NetworkReader reader = new NetworkReader(payload);
@@ -350,11 +352,12 @@ namespace Mirror
                         {
                             // serialize
                             // local position/rotation for VR support
-                            NetworkWriter writer = new NetworkWriter();
+                            NetworkWriter writer = NetworkWriterPool.GetPooledWriter();
                             SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation);
 
                             // send to server
-                            CmdClientToServerSync(writer.ToArray());
+                            CmdClientToServerSync(writer.ToArraySegment());
+                            NetworkWriterPool.Recycle(writer);
                         }
                         lastClientSendTime = Time.time;
                     }
