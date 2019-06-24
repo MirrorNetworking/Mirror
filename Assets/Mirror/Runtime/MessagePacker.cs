@@ -17,10 +17,6 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
-        // PackMessage is in hot path. caching the writer is really worth it to
-        // avoid large amounts of allocations.
-        static NetworkWriter packWriter = new NetworkWriter();
-
         public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions
@@ -34,8 +30,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter packWriter = NetworkWriterPool.GetPooledWriter();
 
             // write message type
             packWriter.Write((short)msgType);
@@ -44,14 +39,15 @@ namespace Mirror
             msg.Serialize(packWriter);
 
             // return byte[]
-            return packWriter.ToArray();
+            byte[] data = packWriter.ToArray();
+            NetworkWriterPool.Recycle(packWriter);
+            return data;
         }
 
         // pack message before sending
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter packWriter = NetworkWriterPool.GetPooledWriter();
 
             // write message type
             int msgType = GetId<T>();
@@ -61,7 +57,9 @@ namespace Mirror
             message.Serialize(packWriter);
 
             // return byte[]
-            return packWriter.ToArray();
+            byte[] data = packWriter.ToArray();
+            NetworkWriterPool.Recycle(packWriter);
+            return data;
         }
 
         // unpack a message we received
