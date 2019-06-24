@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -66,10 +67,11 @@ namespace Mirror
                 return;
             }
 
-            NetworkWriter writer = new NetworkWriter();
+            NetworkWriter writer = NetworkWriterPool.GetPooledWriter();
             WriteParameters(writer);
 
-            SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
+            SendAnimationMessage(stateHash, normalizedTime, writer.ToArraySegment());
+            NetworkWriterPool.Recycle(writer);
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
@@ -113,15 +115,16 @@ namespace Mirror
             {
                 sendTimer = Time.time + syncInterval;
 
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = NetworkWriterPool.GetPooledWriter();
                 if (WriteParameters(writer))
                 {
-                    SendAnimationParametersMessage(writer.ToArray());
+                    SendAnimationParametersMessage(writer.ToArraySegment());
                 }
+                NetworkWriterPool.Recycle(writer);
             }
         }
 
-        void SendAnimationMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void SendAnimationMessage(int stateHash, float normalizedTime, ArraySegment<byte> parameters)
         {
             if (isServer)
             {
@@ -133,7 +136,7 @@ namespace Mirror
             }
         }
 
-        void SendAnimationParametersMessage(byte[] parameters)
+        void SendAnimationParametersMessage(ArraySegment<byte> parameters)
         {
             if (isServer)
             {
@@ -329,7 +332,7 @@ namespace Mirror
 
         #region server message handlers
         [Command]
-        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, ArraySegment<byte> parameters)
         {
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
@@ -339,7 +342,7 @@ namespace Mirror
         }
 
         [Command]
-        void CmdOnAnimationParametersServerMessage(byte[] parameters)
+        void CmdOnAnimationParametersServerMessage(ArraySegment<byte> parameters)
         {
             // handle and broadcast
             HandleAnimParamsMsg(new NetworkReader(parameters));
@@ -357,13 +360,13 @@ namespace Mirror
 
         #region client message handlers
         [ClientRpc]
-        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, ArraySegment<byte> parameters)
         {
             HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
         }
 
         [ClientRpc]
-        void RpcOnAnimationParametersClientMessage(byte[] parameters)
+        void RpcOnAnimationParametersClientMessage(ArraySegment<byte> parameters)
         {
             HandleAnimParamsMsg(new NetworkReader(parameters));
         }
