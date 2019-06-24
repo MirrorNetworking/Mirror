@@ -423,8 +423,7 @@ namespace Mirror
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
             // newly initialized or changed value?
-            if ((value == null && fieldValue != null) ||
-                (value != null && !value.Equals(fieldValue)))
+            if (!EqualityComparer<T>.Default.Equals(value, fieldValue))
             {
                 if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
                 SetDirtyBit(dirtyBit);
