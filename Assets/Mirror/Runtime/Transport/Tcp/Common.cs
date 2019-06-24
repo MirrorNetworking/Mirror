@@ -18,15 +18,6 @@ namespace Mirror.Tcp
         // -> this way we don't need to allocate BinaryWriter/Reader either
         // -> 4 bytes because some people may want to send messages larger than
         //    64K bytes
-        protected static byte[] IntToBytes(int value)
-        {
-            return new byte[] {
-                (byte)value,
-                (byte)(value >> 8),
-                (byte)(value >> 16),
-                (byte)(value >> 24)
-            };
-        }
 
         protected static int BytesToInt(byte[] bytes )
         {
@@ -38,6 +29,14 @@ namespace Mirror.Tcp
 
         }
 
+        protected static void WriteSize(int length, byte[] bytes)
+        {
+            bytes[0] = (byte)length;
+            bytes[1] = (byte)(length >> 8);
+            bytes[2] = (byte)(length >> 16);
+            bytes[3] = (byte)(length >> 24);
+        }
+
         // send message (via stream) with the <size,content> message structure
         // throws exception if there is a problem
         protected static async Task SendMessage(NetworkStream stream, ArraySegment<byte> content)
@@ -46,9 +45,8 @@ namespace Mirror.Tcp
             // frequency and the server stops
            
             // construct header (size)
-            // TODO:  we can do this without allocation
-            byte[] header = IntToBytes(content.Count);
 
+            // TODO:  we can do this without allocation
             // write header+content at once via payload array. writing
             // header,payload separately would cause 2 TCP packets to be
             // sent if nagle's algorithm is disabled(2x TCP header overhead)
@@ -56,10 +54,10 @@ namespace Mirror.Tcp
             // TODO: what if we are sending this message to multiple clients?
             // we would allocate an identicall array buffer for all of them
             // should be possible to do just one and use it for all connections
-            byte[] payload = new byte[header.Length + content.Count];
-            Array.Copy(header, payload, header.Length);
-            Array.Copy(content.Array, content.Offset, payload, header.Length, content.Count);
-            await stream.WriteAsync(payload, 0, payload.Length);
+            byte[] payload = new byte[4 + content.Count];
+            WriteSize(content.Count, payload);
+            Array.Copy(content.Array, content.Offset, payload, 4, content.Count);
+            await stream.WriteAsync(payload, 0, payload.Length).ConfigureAwait(false);
         }
 
         // read message (via stream) with the <size,content> message structure
