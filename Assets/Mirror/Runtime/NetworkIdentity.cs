@@ -573,17 +573,10 @@ namespace Mirror
             return result;
         }
 
-        // OnSerializeAllSafely is in hot path. caching the writer is really
-        // worth it to avoid large amounts of allocations.
-        static NetworkWriter onSerializeWriter = new NetworkWriter();
-
         // serialize all components (or only dirty ones if not initial state)
         // -> returns serialized data of everything dirty,  null if nothing was dirty
-        internal byte[] OnSerializeAllSafely(bool initialState)
+        internal NetworkWriter OnSerializeAllSafely(bool initialState)
         {
-            // reset cached writer length and position
-            onSerializeWriter.SetLength(0);
-
             if (networkBehavioursCache.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
@@ -594,6 +587,7 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return null;
 
+            NetworkWriter onSerializeWriter = NetworkWriterPool.GetPooledWriter();
             onSerializeWriter.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
@@ -616,7 +610,7 @@ namespace Mirror
                 }
             }
 
-            return onSerializeWriter.ToArray();
+            return onSerializeWriter;
         }
 
         ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
@@ -1038,15 +1032,16 @@ namespace Mirror
                 return;
 
             // serialize all the dirty components and send (if any were dirty)
-            byte[] payload = OnSerializeAllSafely(false);
+            NetworkWriter payload = OnSerializeAllSafely(false);
             if (payload != null)
             {
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
                 // segment to avoid reader allocations.
                 // (never null because of our above check)
-                varsMessage.payload = new ArraySegment<byte>(payload);
+                varsMessage.payload = payload.ToArraySegment();
                 NetworkServer.SendToReady(this, varsMessage);
+                NetworkWriterPool.Recycle(payload);
             }
         }
     }
