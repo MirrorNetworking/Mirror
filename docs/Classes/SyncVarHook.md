@@ -1,57 +1,47 @@
 # SyncVar Hook
 
-The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.
+The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.  This ensures that all clients receive the proper variables from other clients.
 
-This ensures that all clients receive the proper variables from other clients.
+-   The Hook method must have a single parameter of the same type as the SyncVar property.  This parameter should have a unique name, e.g. newValue.
 
-```cs
+-   Do not try to set the property value from inside the hook.  The property value will be updated after the hook completes.
+
+-   Reference the hook parameter inside the hook to use the new value.  Referencing the property value will be the old value, in case you need to compare.
+
+Below is a simple example of assigning a random color to each player when they're spawned on the server.  All clients will see all players in the correct colors, even if they join later.
+
+``` cs
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Health : NetworkBehaviour
+public class PlayerController : NetworkBehaviour
 {
-    public const int m_MaxHealth = 100;
-
-    //Detects when a health change happens and calls the appropriate function
-    [SyncVar(hook = nameof(OnChangeHealth))]
-    public int m_CurrentHealth = m_MaxHealth;
-    public RectTransform healthBar;
-
-    public void TakeDamage(int amount)
+    public override void OnStartServer()
     {
-        if (!isServer)
-            return;
-
-        //Decrease the "health" of the GameObject
-        m_CurrentHealth -= amount;
-        //Make sure the health doesn't go below 0
-        if (m_CurrentHealth <= 0)
-        {
-            m_CurrentHealth = 0;
-        }
+        base.OnStartServer();
+        playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
     }
 
-    void Update()
+    [SyncVar(hook = nameof(SetColor))]
+    public Color playerColor = Color.black;
+
+    // Unity makes a clone of the material when
+    // GetComponent<Renderer>().material is used.
+    // Cache it here and Destroy it in OnDestroy
+    // to prevent a memory leak.
+    Material materialClone;
+
+    void SetColor(Color color)
     {
-        //If the space key is pressed, decrease the GameObject's own "health"
-        if (Input.GetKey(KeyCode.Space))
-        {
-            if (isLocalPlayer)
-                CmdTakeHealth();
-        }
+        if (materialClone == null)
+            materialClone = GetComponent<Renderer>().material;
+
+        materialClone.color = color;
     }
 
-    void OnChangeHealth(int health)
+    private void OnDestroy()
     {
-        healthBar.sizeDelta = new Vector2(health, healthBar.sizeDelta.y);
-    }
-
-    //This is a Network command, so the damage is done to the relevant GameObject
-    [Command]
-    void CmdTakeHealth()
-    {
-        //Apply damage to the GameObject
-        TakeDamage(2);
+        Destroy(materialClone);
     }
 }
 ```
