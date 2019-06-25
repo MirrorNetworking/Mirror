@@ -351,7 +351,7 @@ namespace Mirror
             m_SceneId = (m_SceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            if (LogFilter.Debug) Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()
