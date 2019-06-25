@@ -159,7 +159,6 @@ namespace Mirror.Tests
         public void TestReadingLengthWrapAround()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(true);
             // This is 1.5x int.MaxValue, in the negative range of int.
             writer.WritePackedUInt32(3221225472);
             NetworkReader reader = new NetworkReader(writer.ToArray());
@@ -189,8 +188,6 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             Assert.Throws<OverflowException>(() => writer.WriteBytesAndSize(new byte[0], 0, -1));
-            Assert.That(writer.Position, Is.EqualTo(0));
-            Assert.Throws<OverflowException>(() => writer.WriteBytesAndSize(null, 0, -1));
             Assert.That(writer.Position, Is.EqualTo(0));
         }
 

@@ -157,16 +157,16 @@ namespace Mirror
         // (like an inventory with different items etc.)
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
-            uint length = checked((uint)count);
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // (writing a size=0 empty array is not the same, the server and client would be out of sync)
+            // write 0 for null array, increment normal size by 1 to save bandwith
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            Write(buffer != null);
-            if (buffer != null)
+            if (buffer == null)
             {
-                WritePackedUInt32(length);
-                Write(buffer, offset, count);
+                WritePackedUInt32(0u);
+                return;
             }
+            WritePackedUInt32(checked((uint)count) + 1u);
+            Write(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter
