@@ -113,14 +113,10 @@ namespace Mirror
         {
             // read number of bytes
             ushort size = ReadUInt16();
-            // isNull?
-            switch (size)
-            {
-                case 0:
-                    return null;
-                case 1:
-                    return "";
-            }
+
+            if (size == 0)
+                return null;
+            
             int realSize = size - 1;
 
             // make sure it's within limits to avoid allocation attacks etc.
