@@ -125,14 +125,10 @@ namespace Mirror
             // (note: original HLAPI would write "" for null strings, but if a
             //        string is null on the server then it should also be null
             //        on the client)
-            switch (value)
+            if (value == null)
             {
-                case null:
-                    Write((ushort)0);
-                    return;
-                case "":
-                    Write((ushort)1);
-                    return;
+                Write((ushort)0);
+                return;
             }
 
             // write string with same method as NetworkReader
