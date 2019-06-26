@@ -112,5 +112,26 @@ namespace Mirror.Weaver
             }
             return true;
         }
+
+
+        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
+        {
+
+            MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
+            {
+                CallingConvention = self.CallingConvention,
+                HasThis = self.HasThis,
+                ExplicitThis = self.ExplicitThis
+            };
+
+            foreach (ParameterDefinition parameter in self.Parameters)
+                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+
+            foreach (GenericParameter generic_parameter in self.GenericParameters)
+                reference.GenericParameters.Add(new GenericParameter(generic_parameter.Name, reference));
+
+            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+        }
+
     }
 }

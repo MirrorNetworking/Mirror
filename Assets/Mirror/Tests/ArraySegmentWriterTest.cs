@@ -32,6 +32,20 @@ namespace Mirror.Tests
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }
 
+
+        public static ArraySegment<int> SampleReader(NetworkReader reader )
+        {
+            int length = reader.ReadPackedInt32();
+            int[] array = new int[length];
+
+            for (int i=0; i< length; i++)
+            {
+                array[i] = reader.ReadPackedInt32();
+            }
+
+            return new ArraySegment<int>(array);
+        }
+
         [Test]
         public void TestNullByteArray()
         {
@@ -104,7 +118,6 @@ namespace Mirror.Tests
 
             IntArraySegmentMessage unpacked = MessagePacker.Unpack<IntArraySegmentMessage>(data);
 
-            Assert.IsNull(unpacked.array.Array);
             Assert.That(unpacked.array.Offset, Is.EqualTo(0));
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }

@@ -286,19 +286,6 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        static MethodReference MakeGeneric(MethodReference method, GenericInstanceType instanceType)
-        {
-            
-            var reference = new MethodReference(method.Name, method.ReturnType, instanceType)
-            {
-                CallingConvention = method.CallingConvention,
-                HasThis = method.HasThis,
-                ExplicitThis = method.ExplicitThis
-            };
-            
-            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
-        }
-
         static MethodDefinition GenerateArraySegmentWriteFunc(TypeReference variable, int recursionCount)
         {
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
@@ -336,13 +323,14 @@ namespace Mirror.Weaver
 
             ILProcessor worker = writerFunc.Body.GetILProcessor();
 
-            MethodReference countref = MakeGeneric(Weaver.ArraySegmentCountReference, genericInstance);
+            MethodReference countref = Weaver.ArraySegmentCountReference.MakeHostInstanceGeneric(genericInstance);
 
             // int length = value.Count;
-            worker.Append(worker.Create(OpCodes.Ldarg_1));
+            worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
             worker.Append(worker.Create(OpCodes.Call, countref));
             worker.Append(worker.Create(OpCodes.Stloc_0));
-            /*
+
+            
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -357,18 +345,19 @@ namespace Mirror.Weaver
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
-            // writer.Write(value.Array[i + value.Offset]);
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldarg_1));
-                worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentArrayReference));
-                    worker.Append(worker.Create(OpCodes.Ldloc_1));
-                    worker.Append(worker.Create(OpCodes.Ldarg_1));
-                    worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentOffsetReference));
-                    worker.Append(worker.Create(OpCodes.Add));
+            {
+                // writer.Write(value.Array[i + value.Offset]);
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
+                worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentArrayReference.MakeHostInstanceGeneric(genericInstance)));
+                worker.Append(worker.Create(OpCodes.Ldloc_1));
+                worker.Append(worker.Create(OpCodes.Ldarga_S, (byte)1));
+                worker.Append(worker.Create(OpCodes.Call, Weaver.ArraySegmentOffsetReference.MakeHostInstanceGeneric(genericInstance)));
+                worker.Append(worker.Create(OpCodes.Add));
                 worker.Append(worker.Create(OpCodes.Ldelema, elementType));
                 worker.Append(worker.Create(OpCodes.Ldobj, elementType));
-            worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
-
+                worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
+            }
 
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -381,7 +370,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
-            */
+            
             // return
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;
