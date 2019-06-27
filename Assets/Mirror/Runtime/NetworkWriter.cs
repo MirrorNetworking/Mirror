@@ -121,28 +121,29 @@ namespace Mirror
 
         public void Write(string value)
         {
-            // write bool for null support first
+            // write 0 for null support, increment real size by 1
             // (note: original HLAPI would write "" for null strings, but if a
             //        string is null on the server then it should also be null
             //        on the client)
-            Write(value != null);
+            if (value == null)
+            {
+                Write((ushort)0);
+                return;
+            }
 
             // write string with same method as NetworkReader
-            if (value != null)
+            // convert to byte[]
+            int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+
+            // check if within max size
+            if (size >= MaxStringLength)
             {
-                // convert to byte[]
-                int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
-
-                // check if within max size
-                if (size >= MaxStringLength)
-                {
-                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
-                }
-
-                // write size and bytes
-                Write((ushort)size);
-                Write(stringBuffer, 0, (ushort)size);
+                throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
             }
+
+            // write size and bytes
+            Write(checked((ushort)(size + 1)));
+            Write(stringBuffer, 0, size);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read

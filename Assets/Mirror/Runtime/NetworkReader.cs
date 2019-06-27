@@ -111,32 +111,30 @@ namespace Mirror
         // null support, see NetworkWriter
         public string ReadString()
         {
-            // isNull?
-            if (ReadBoolean())
+            // read number of bytes
+            ushort size = ReadUInt16();
+
+            if (size == 0)
+                return null;
+            
+            int realSize = size - 1;
+
+            // make sure it's within limits to avoid allocation attacks etc.
+            if (realSize >= NetworkWriter.MaxStringLength)
             {
-                // read number of bytes
-                ushort size = ReadUInt16();
-                if (size == 0)
-                    return "";
-
-                // make sure it's within limits to avoid allocation attacks etc.
-                if (size >= NetworkWriter.MaxStringLength)
-                {
-                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + NetworkWriter.MaxStringLength);
-                }
-
-                // check if within buffer limits
-                if (Position + size > buffer.Count)
-                {
-                    throw new EndOfStreamException("ReadString can't read " + size + " bytes because it would read past the end of the stream. " + ToString());
-                }
-
-                // convert directly from buffer to string via encoding
-                string result = encoding.GetString(buffer.Array, buffer.Offset + Position, size);
-                Position += size;
-                return result;
+                throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
             }
-            return null;
+
+            // check if within buffer limits
+            if (Position + realSize > buffer.Count)
+            {
+                throw new EndOfStreamException("ReadString can't read " + realSize + " bytes because it would read past the end of the stream. " + ToString());
+            }
+
+            // convert directly from buffer to string via encoding
+            string result = encoding.GetString(buffer.Array, buffer.Offset + Position, realSize);
+            Position += realSize;
+            return result;
         }
 
         // read bytes into the passed buffer
