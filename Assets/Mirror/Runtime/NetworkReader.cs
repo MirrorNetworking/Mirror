@@ -120,7 +120,7 @@ namespace Mirror
             int realSize = size - 1;
 
             // make sure it's within limits to avoid allocation attacks etc.
-            if (size - 1 >= NetworkWriter.MaxStringLength)
+            if (realSize >= NetworkWriter.MaxStringLength)
             {
                 throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
             }
