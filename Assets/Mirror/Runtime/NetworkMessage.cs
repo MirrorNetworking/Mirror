@@ -8,7 +8,12 @@ namespace Mirror
 
         public TMsg ReadMessage<TMsg>() where TMsg : IMessageBase, new()
         {
-            TMsg msg = new TMsg();
+            TMsg msg = default;
+
+            if (!typeof(TMsg).IsValueType)
+            {
+                msg = new TMsg();
+            }
             msg.Deserialize(reader);
             return msg;
         }
