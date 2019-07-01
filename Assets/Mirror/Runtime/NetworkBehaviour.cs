@@ -125,7 +125,6 @@ namespace Mirror
             };
 
             ClientScene.readyConnection.Send(message, channelId);
-            NetworkWriterPool.Recycle(writer);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -162,7 +161,6 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
-            NetworkWriterPool.Recycle(writer);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -202,7 +200,6 @@ namespace Mirror
             };
 
             conn.Send(message, channelId);
-            NetworkWriterPool.Recycle(writer);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -232,7 +229,6 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity,message, channelId);
-            NetworkWriterPool.Recycle(writer);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

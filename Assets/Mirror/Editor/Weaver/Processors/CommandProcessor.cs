@@ -86,6 +86,8 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(cmdWorker);
+
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
 
             return cmd;
