@@ -836,13 +836,20 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
-            // serialize all components with initialState = true
-            // (can be null if has none)
-            byte[] serialized = identity.OnSerializeAllSafely(true);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+           
+            
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
-            ArraySegment<byte> segment = serialized != null ? new ArraySegment<byte>(serialized) : default;
+            ArraySegment<byte> segment = default;
+
+            // serialize all components with initialState = true
+            // (can be null if has none)
+            if (identity.OnSerializeAllSafely(true, writer))
+            {
+                segment = writer.ToArraySegment();
+            }
 
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
@@ -896,6 +903,8 @@ namespace Mirror
                     SendToReady(identity, msg);
                 }
             }
+
+            NetworkWriterPool.Recycle(writer);
         }
 
         public static void DestroyPlayerForConnection(NetworkConnection conn)
