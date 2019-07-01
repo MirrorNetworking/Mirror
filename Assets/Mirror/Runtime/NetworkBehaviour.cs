@@ -162,9 +162,7 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
-
             NetworkWriterPool.Recycle(writer);
-
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
