@@ -81,6 +81,8 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);
+
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             return rpc;

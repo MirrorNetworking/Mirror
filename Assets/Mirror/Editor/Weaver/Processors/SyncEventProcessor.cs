@@ -97,6 +97,8 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(evtWorker);
+
             evtWorker.Append(evtWorker.Create(OpCodes.Ret));
 
             return evt;

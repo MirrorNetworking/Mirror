@@ -107,8 +107,15 @@ namespace Mirror.Weaver
         public static void WriteCreateWriter(ILProcessor worker)
         {
             // create writer
-            worker.Append(worker.Create(OpCodes.Newobj, Weaver.NetworkWriterCtor));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.GetPooledWriterReference));
             worker.Append(worker.Create(OpCodes.Stloc_0));
+        }
+
+        public static void WriteRecycleWriter(ILProcessor worker)
+        {
+            // NetworkWriterPool.Recycle(writer);
+            worker.Append(worker.Create(OpCodes.Ldloc_0));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.RecycleWriterReference));
         }
 
         public static bool WriteArguments(ILProcessor worker, MethodDefinition md, bool skipFirst)

@@ -121,7 +121,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = ComponentIndex,
                 functionHash = GetMethodHash(invokeClass, cmdName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
+                payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
             ClientScene.readyConnection.Send(message, channelId);
@@ -157,7 +157,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = ComponentIndex,
                 functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
+                payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
@@ -196,7 +196,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = ComponentIndex,
                 functionHash = GetMethodHash(invokeClass, rpcName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
+                payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
             conn.Send(message, channelId);
@@ -225,7 +225,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = ComponentIndex,
                 functionHash = GetMethodHash(invokeClass, eventName), // type+func so Inventory.RpcUse != Equipment.RpcUse
-                payload = new ArraySegment<byte>(writer.ToArray()) // segment to avoid reader allocations
+                payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
             NetworkServer.SendToReady(netIdentity,message, channelId);
