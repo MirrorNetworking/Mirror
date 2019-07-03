@@ -183,6 +183,25 @@ namespace Mirror
             }
         }
 
+#if UNITY_EDITOR
+        private PlayModeStateChange playModeStateChange;
+
+        private void OnEnable()
+        {
+            EditorApplication.playModeStateChanged += StateChange;
+        }
+
+        private void StateChange(PlayModeStateChange playModeStateChange)
+        {
+            this.playModeStateChange = playModeStateChange;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.playModeStateChanged -= StateChange;
+        }
+#endif
+
         void OnValidate()
         {
 #if UNITY_EDITOR
@@ -366,7 +385,7 @@ namespace Mirror
                 AssignSceneID();
                 AssignAssetID(prefab);
             }
-            else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+            else if (playModeStateChange != PlayModeStateChange.EnteredEditMode && playModeStateChange != PlayModeStateChange.ExitingEditMode && PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 m_SceneId = 0; // force 0 for prefabs
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
