@@ -265,7 +265,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
 
-            // for (int i=0; i< length ; i++) {
+            // loop through array and deserialize each element
+            // generates code like this
+            // for (int i=0; i< length ; i++) 
+            // {
+            //     value[i] = reader.ReadXXX();
+            // }
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Stloc_2));
             Instruction labelHead = worker.Create(OpCodes.Nop);
