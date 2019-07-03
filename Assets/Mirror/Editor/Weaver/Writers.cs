@@ -336,7 +336,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
 
-            // for (int i=0; i< length; i++) {
+            // Loop through the ArraySegment<T> and call the writer for each element.
+            // generates this:
+            // for (int i=0; i< length; i++) 
+            // {
+            //    writer.Write(value.Array[i + value.Offset]);
+            // }
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Stloc_1));
             Instruction labelHead = worker.Create(OpCodes.Nop);
