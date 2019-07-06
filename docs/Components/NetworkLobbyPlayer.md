@@ -17,3 +17,15 @@ A GameObject with a Network Lobby Player component must also have a Network Iden
 
 -   **Network Sync Interval**  
     The rate at which information is sent from the Network Lobby Player to the server.
+
+## Methods
+
+### Client Virtual Methods
+
+```
+public virtual void OnClientEnterLobby() {}
+
+public virtual void OnClientExitLobby() {}
+
+public virtual void OnClientReady(bool readyState) {}
+```
