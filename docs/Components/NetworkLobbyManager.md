@@ -56,3 +56,70 @@ There are two types of player objects with the Network Lobby Manager:
 
 -   **Gameplay Scene**  
     The scene to use for main game play.
+
+-   **pendingPlayers**  
+    List\<PendingPlayer\> that holds players that are ready to start playing.
+
+-   **lobbySlots**  
+    List\<NetworkLobbyPlayer\> that manages the slots for connected clients in the lobby.
+
+-   **allPlayersReady**  
+    Bool indicating if all players are ready to start playing.  This value changes as players invoke `CmdChangeReadyState` indicating true or false, and will be set false when a new client connects.
+
+## Methods
+
+### Server Virtual Methods
+
+```
+public virtual void OnLobbyStartHost() {}
+
+public virtual void OnLobbyStopHost() {}
+
+public virtual void OnLobbyStartServer() {}
+
+public virtual void OnLobbyServerConnect(NetworkConnection conn) {}
+
+public virtual void OnLobbyServerDisconnect(NetworkConnection conn) {}
+
+public virtual void OnLobbyServerSceneChanged(string sceneName) {}
+
+public virtual GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn)
+{
+    return null;
+}
+
+public virtual GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn)
+{
+    return null;
+}
+
+public virtual bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
+{
+    return true;
+}
+
+public virtual void OnLobbyServerPlayersReady()
+{
+    ServerChangeScene(GameplayScene);
+}
+```
+
+### Client Virtual Methods
+
+```
+public virtual void OnLobbyClientEnter() {}
+
+public virtual void OnLobbyClientExit() {}
+
+public virtual void OnLobbyClientConnect(NetworkConnection conn) {}
+
+public virtual void OnLobbyClientDisconnect(NetworkConnection conn) {}
+
+public virtual void OnLobbyStartClient() {}
+
+public virtual void OnLobbyStopClient() {}
+
+public virtual void OnLobbyClientSceneChanged(NetworkConnection conn) {}
+
+public virtual void OnLobbyClientAddPlayerFailed() {}
+```
