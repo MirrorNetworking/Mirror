@@ -8,7 +8,7 @@ For multiplayer games with no dedicated server, one of the players running the g
 
 A common pattern for multiplayer games is to have a game object that manages the network state of the game. Below is the start of a NetworkManager script. This script would be attached to a game object that is in the start-up Scene of the game. It has a simple UI and keyboard handling functions that allow the game to be started in different network modes. Before you release your game you should create a more visually appealing menu, with options such as “Start single player game” and “Start multiplayer game”.
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -47,7 +47,7 @@ public class MyNetworkManager : MonoBehaviour {
 
 This basic code calls setup functions to get things going. Below are the simple setup functions for each of the scenarios. These functions create a server, or the right kind of client for each scenario. Note that the remote client assumes the server is on the same machine (127.0.0.1). For a finished game this would be an internet address, or something supplied by the Matchmaking system.
 
-```
+```cs
 // Create a server and listen on a port
 public void SetupServer()
 {
@@ -75,7 +75,7 @@ public void SetupLocalClient()
 
 The clients in this code register a callback function for the connection event [MsgType.Connect](https://docs.unity3d.com/ScriptReference/Networking.MsgType.Connect.html). This is a built-in message of Mirror that the script invokes when a client connects to a server. In this case, the code for the handler on the client is:
 
-```
+```cs
 // client function
     public void OnConnected(NetworkMessage netMsg)
     {

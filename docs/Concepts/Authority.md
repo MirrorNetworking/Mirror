@@ -28,7 +28,7 @@ Assigning authority to a client causes Mirror to call OnStartAuthority() on each
 
 If you want non-player game objects to have client authority, you must enable localPlayerAuthority on their Network Identity component. The example below spawns a game object and assigns authority to the client of the player that spawned it.
 
-```
+```cs
 [Command]
 void CmdSpawn()
 {

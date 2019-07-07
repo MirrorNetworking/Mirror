@@ -70,7 +70,7 @@ There are two types of player objects with the Network Lobby Manager:
 
 ### Server Virtual Methods
 
-```
+```cs
 public virtual void OnLobbyStartHost() {}
 
 public virtual void OnLobbyStopHost() {}
@@ -106,7 +106,7 @@ public virtual void OnLobbyServerPlayersReady()
 
 ### Client Virtual Methods
 
-```
+```cs
 public virtual void OnLobbyClientEnter() {}
 
 public virtual void OnLobbyClientExit() {}

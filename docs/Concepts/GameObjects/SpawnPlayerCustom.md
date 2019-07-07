@@ -8,7 +8,7 @@ When the Network Manager adds a player, it also instantiates a game object from 
 
 The example below customizes the color of a player. First, add the color script to the player prefab:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 class Player : NetworkBehaviour
@@ -20,7 +20,7 @@ class Player : NetworkBehaviour
 
 Next, create a NetworkManager to handle spawning.
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -53,7 +53,7 @@ To replace the player game object for a connection, use NetworkServer.ReplacePla
 
 You can also use `ReplacePlayerForConnection` to respawn a player after their game object is destroyed. In some cases it is better to just disable a game object and reset its game attributes on respawn. The following code sample demonstrates how to actually replace the destroyed game object with a new game object:
 
-```
+```cs
 class GameManager
 {
     public void PlayerWasKilled(Player player)

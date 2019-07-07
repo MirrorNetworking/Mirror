@@ -22,7 +22,7 @@ A game object with a Network Lobby Player component must also have a Network Ide
 
 ### Client Virtual Methods
 
-```
+```cs
 public virtual void OnClientEnterLobby() {}
 
 public virtual void OnClientExitLobby() {}

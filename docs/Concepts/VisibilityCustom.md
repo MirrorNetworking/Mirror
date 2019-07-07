@@ -19,7 +19,7 @@ On the `NetworkBehaviour`class (which your networked scripts inherit from), ther
 
 You can check whether any given networked game object is a player by checking if its `NetworkIdentity` has a valid connectionToClient. For example:
 
-```
+```cs
     var hits = Physics.OverlapSphere(transform.position, visRange);
     foreach (var hit in hits)
     {

@@ -20,7 +20,7 @@ To spawn game objects without using the Network Manager, you can handle the Pref
 
 ### Example: MyNetworkManager
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -49,7 +49,7 @@ Registering Prefabs ensures that the Asset, so that there is no stalling or load
 
 However, for the script to work, you also need to add code for the server. Add this to the MyNetworkManager script:
 
-```
+```cs
 public void ServerListen()
 {
     NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnect);
@@ -91,7 +91,7 @@ For more advanced uses, such as object pools or dynamically created Assets, you 
 
 If the game object has a network state like synchronized variables, then that state is synchronized with the spawn message. In the following example, this script is attached to the tree Prefab:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -109,7 +109,7 @@ class Tree : NetworkBehaviour
 
 With this script attached, you can change the `numLeaves` variable and modify the `SpawnTrees` function to see it accurately reflected on the client:
 
-```
+```cs
 void SpawnTrees()
 {
     int x = 0;
@@ -179,7 +179,7 @@ Objects spawned with client authority must have `LocalPlayerAuthority` set in th
 
 For example, the tree spawn example above can be modified to allow the tree to have client authority like this (note that we now need to pass in a NetworkConnection game object for the owning client’s connection):
 
-```
+```cs
 void SpawnTrees(NetworkConnection conn)
 {
     int x = 0;
@@ -196,7 +196,7 @@ void SpawnTrees(NetworkConnection conn)
 
 The Tree script can now be modified to send a command to the server:
 
-```
+```cs
 public override void OnStartAuthority()
 {
     CmdMessageFromTree("Tree with " + numLeaves + " reporting in");
