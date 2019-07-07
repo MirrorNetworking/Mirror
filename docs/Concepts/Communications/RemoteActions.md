@@ -20,10 +20,7 @@ public class Player : NetworkBehaviour
     [Command]
     void CmdDoFire(float lifeTime)
     {
-        GameObject bullet = (GameObject)Instantiate(
-            bulletPrefab, 
-            transform.position + transform.right,
-            Quaternion.identity);
+        GameObject bullet = Instantiate(bulletPrefab, transform.position + transform.right, Quaternion.identity);
             
         var bullet2D = bullet.GetComponent<Rigidbody2D>();
         bullet2D.velocity = transform.right * bulletSpeed;
@@ -116,6 +113,6 @@ The arguments passed to commands and ClientRpc calls are serialized and sent ove
 -   structs containing allowable types
 -   built-in unity math types (Vector3, Quaternion, etc)
 -   NetworkIdentity
--   GameObject with a NetworkIdentity component attached
+-   game object with a NetworkIdentity component attached
 
-Arguments to remote actions cannot be subcomponents of GameObjects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.
+Arguments to remote actions cannot be subcomponents of game objects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.

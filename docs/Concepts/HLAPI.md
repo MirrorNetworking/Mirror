@@ -44,16 +44,16 @@ One of the aims of the multiplayer system is for the code for local clients and 
 
 ## Instantiate and Spawn
 
-When you make a single player game In Mirror, you usually use the `GameObject.Instantiate` method to create new GameObjects at runtime. However, with a multiplayer system, the server itself must “spawn” GameObjects in order for them to be active within the networked game. When the server spawns GameObjects, it triggers the creation of GameObjects on connected clients. The spawning system manages the lifecycle of the GameObject, and synchronizes the state of the GameObject based on how you set the GameObject up.
+When you make a single player game In Mirror, you usually use the `GameObject.Instantiate` method to create new game objects at runtime. However, with a multiplayer system, the server itself must “spawn” game objects in order for them to be active within the networked game. When the server spawns game objects, it triggers the creation of game objects on connected clients. The spawning system manages the lifecycle of the game object, and synchronizes the state of the game object based on how you set the game object up.
 
-For more details about networked instantiating and spawning, see documentation on Spawning GameObjects.
+For more details about networked instantiating and spawning, see documentation on Spawning game objects.
 
 ## Players and Local Players
 
-Mirror’s multiplayer HLAPI system handles player GameObjects differently to non-player GameObjects. When a new player joins the game (when a new client connects to the server), that player’s GameObject becomes a “local player” GameObject on the client of that player, and Mirror associates the player’s connection with the player’s GameObject. Mirror associates one player GameObject for each person playing the game, and routes networking commands to that individual GameObject. A player cannot invoke a command on another player’s GameObject, only their own.
+Mirror’s multiplayer HLAPI system handles player game objects differently to non-player game objects. When a new player joins the game (when a new client connects to the server), that player’s game object becomes a “local player” game object on the client of that player, and Mirror associates the player’s connection with the player’s game object. Mirror associates one player game object for each person playing the game, and routes networking commands to that individual game object. A player cannot invoke a command on another player’s game object, only their own.
 
-For more details, see documentation on Player GameObjects.
+For more details, see documentation on Player game objects.
 
 ## Authority
 
-Servers and clients can both manage a GameObject’s behavior. The concept of “authority” refers to how and where a GameObject is managed. Mirror’s HLAPI is based around “server authority” as the default state, where the Server (the host) has authority over all GameObjects which do not represent players. Player GameObjects are a special case and treated as having “local authority”. You may want to build your game using a different system of authority - for more details, see Network Authority.
+Servers and clients can both manage a game object’s behavior. The concept of “authority” refers to how and where a game object is managed. Mirror’s HLAPI is based around “server authority” as the default state, where the Server (the host) has authority over all game objects which do not represent players. Player game objects are a special case and treated as having “local authority”. You may want to build your game using a different system of authority - for more details, see Network Authority.

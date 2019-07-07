@@ -7,14 +7,14 @@ This page contains an overview of the most basic and common things you need when
 -   Networked Player Prefabs (for players to control)
 -   Scripts which are multiplayer-aware
 
-There are variations on this list; for example, in a multiplayer chess game, or a real-time strategy (RTS) game, you don’t need a visible GameObject to represent the player. However, you might still want an invisible empty GameObject to represent the player, and attach scripts to it which relate to what the player is able to do.
+There are variations on this list; for example, in a multiplayer chess game, or a real-time strategy (RTS) game, you don’t need a visible game object to represent the player. However, you might still want an invisible empty game object to represent the player, and attach scripts to it which relate to what the player is able to do.
 
 This introductory page contains a brief description of each of the items listed above. However, each section links to more detailed documentation, which you need to continue reading to fully understand them.
 
 There are also some important concepts that you need to understand and make choices about when building your game. These concepts can broadly be summarised as:
 
 -   The relationship between a client, a server, and a host
--   The idea of authority over GameObjects and actions
+-   The idea of authority over game objects and actions
 
 To learn about these concepts, see documentation on Network System Concepts.
 
@@ -34,7 +34,7 @@ Mirror has an extremely basic built-in version of such an interface, called the 
 
 To learn more, see documentation on the Network Manager HUD.
 
-## Networked player GameObjects
+## Networked player Game Objects
 
 Most multiplayer games feature some kind of object that a player can control, like a character, a car, or something else. Some multiplayer games don’t feature a single visible player object, and attach all the scripts to it which control what the player can do in your game.
 
@@ -54,10 +54,10 @@ Writing scripts for a multiplayer game is different to writing scripts for a sin
 
 For example, the scripts you place on your player Prefab should allow the “owner” of that player instance to control it, but it should not allow other people to control it.
 
-You need to think about whether the server or the client has authority over what the script does. Sometimes, you want the script to run on both the server and the clients. Other times, you only want the script to run on the server, and you only want the clients to replicate how the GameObjects are moving (for example, in a game in which players pick up collectible GameObjects, the script should only run on the server so that the server can be the authority on the number of GameObjects collected).
+You need to think about whether the server or the client has authority over what the script does. Sometimes, you want the script to run on both the server and the clients. Other times, you only want the script to run on the server, and you only want the clients to replicate how the game objects are moving (for example, in a game in which players pick up collectible game objects, the script should only run on the server so that the server can be the authority on the number of game objects collected).
 
 Depending on what your script does, you need to decide which parts of your script should be active in which situations.
 
-For player GameObjects, each person usually has active control over their own player instance. This means each client has local authority over its own player, and the server accepts what the client tells it about what the player is doing.
+For player game objects, each person usually has active control over their own player instance. This means each client has local authority over its own player, and the server accepts what the client tells it about what the player is doing.
 
-For non-player GameObjects, the server usually has authority over what happens (such as whether an item has been collected), and all clients accept what the server tells them about what has happened to that GameObject.
+For non-player game objects, the server usually has authority over what happens (such as whether an item has been collected), and all clients accept what the server tells them about what has happened to that game object.

@@ -9,7 +9,7 @@ Data is not synchronized in the opposite direction - from remote clients to the 
 -   [SyncVars](../Classes/SyncVars)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
 -   [SyncEvents](../Classes/SyncEvent)  
-    SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the GameObject, they trigger Events instead.
+    SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the game object, they trigger Events instead.
 -   [SyncLists](../Classes/SyncLists)  
     SyncLists contain lists of values and synchronize data from servers to clients.
 -   [SyncDictionary](../Classes/SyncDictionary)  
@@ -35,7 +35,7 @@ public virtual bool OnSerialize(NetworkWriter writer, bool initialState);
 public virtual void OnDeSerialize(NetworkReader reader, bool initialState);
 ```
 
-Use the `initialState` flag to differentiate between the first time a GameObject[​](ttps://docs.unity3d.com/Manual/class-GameObject.htmlhttps://docs.unity3d.com/Manual/Glossary.html#GameObject) is serialized and when incremental updates can be sent. The first time a GameObject is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when `initialState` is true; they are only called for incremental updates.
+Use the `initialState` flag to differentiate between the first time a game object is serialized and when incremental updates can be sent. The first time a game object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when `initialState` is true; they are only called for incremental updates.
 
 If a class has SyncVars, then implementations of these functions are added automatically to the class, meaning that a class that has SyncVars cannot also have custom serialization functions.
 
@@ -43,7 +43,7 @@ The `OnSerialize` function should return true to indicate that an update should 
 
 ## Serialization Flow
 
-GameObjects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these GameObjects is:
+Game objects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these game objects is:
 
 On the server:
 
@@ -51,19 +51,19 @@ On the server:
 -   Each SyncVar in a `NetworkBehaviour` script is assigned a bit in the dirty mask.
 -   Changing the value of SyncVars causes the bit for that SyncVar to be set in the dirty mask
 -   Alternatively, calling `SetDirtyBit` writes directly to the dirty mask
--   NetworkIdentity GameObjects are checked on the server as part of it’s update loop
--   If any `NetworkBehaviours` on a `NetworkIdentity` are dirty, then an `UpdateVars` packet is created for that GameObject
--   The `UpdateVars` packet is populated by calling `OnSerialize` on each `NetworkBehaviour` on the GameObject
+-   NetworkIdentity game objects are checked on the server as part of it’s update loop
+-   If any `NetworkBehaviours` on a `NetworkIdentity` are dirty, then an `UpdateVars` packet is created for that game object
+-   The `UpdateVars` packet is populated by calling `OnSerialize` on each `NetworkBehaviour` on the game object
 -   `NetworkBehaviours` that are not dirty write a zero to the packet for their dirty bits
 -   `NetworkBehaviours` that are dirty write their dirty mask, then the values for the SyncVars that have changed
 -   If `OnSerialize` returns true for a `NetworkBehaviour`, the dirty mask is reset for that `NetworkBehaviour` so it does not send again until its value changes.
--   The `UpdateVars` packet is sent to ready clients that are observing the GameObject
+-   The `UpdateVars` packet is sent to ready clients that are observing the game object
 
 On the client:
 
--   an `UpdateVars packet` is received for a GameObject
--   The `OnDeserialize` function is called for each `NetworkBehaviour` script on the GameObject
--   Each `NetworkBehaviour` script on the GameObject reads a dirty mask.
+-   an `UpdateVars packet` is received for a game object
+-   The `OnDeserialize` function is called for each `NetworkBehaviour` script on the game object
+-   Each `NetworkBehaviour` script on the game object reads a dirty mask.
 -   If the dirty mask for a `NetworkBehaviour` is zero, the `OnDeserialize` function returns without reading any more
 -   If the dirty mask is non-zero value, then the `OnDeserialize` function reads the values for the SyncVars that correspond to the dirty bits that are set
 -   If there are SyncVar hook functions, those are invoked with the value read from the stream.
@@ -91,7 +91,7 @@ public override bool OnSerialize(NetworkWriter writer, bool forceAll)
 {
     if (forceAll)
     {
-        // The first time a GameObject is sent to a client, send all the data (and no dirty bits)
+        // The first time a game object is sent to a client, send all the data (and no dirty bits)
         writer.WritePackedUInt32((uint)this.int1);
         writer.WritePackedUInt32((uint)this.int2);
         writer.Write(this.MyString);
@@ -174,4 +174,4 @@ public override void OnDeserialize(NetworkReader reader, bool initialState)
 
 If a `NetworkBehaviour` has a base class that also has serialization functions, the base class functions should also be called.
 
-Note that the `UpdateVar` packets created for GameObject state updates may be aggregated in buffers before being sent to the client, so a single transport layer packet may contain updates for multiple GameObjects.
+Note that the `UpdateVar` packets created for game object state updates may be aggregated in buffers before being sent to the client, so a single transport layer packet may contain updates for multiple game objects.

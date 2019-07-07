@@ -2,7 +2,7 @@
 
 The Network Lobby Player stores per-player state for the [Network Lobby Manager](NetworkLobbyManager) while in the lobby. When using this component, you need to write a script which allows players to indicate they are ready to begin playing, which sets the ReadyToBegin property.
 
-A GameObject with a Network Lobby Player component must also have a Network Identity component. When you create a Network Lobby Player component on a GameObject, Unity also creates a Network Identity component on that GameObject if it does not already have one.
+A game object with a Network Lobby Player component must also have a Network Identity component. When you create a Network Lobby Player component on a game object, Unity also creates a Network Identity component on that game object if it does not already have one.
 
 ![Network Lobby Player](NetworkLobbyPlayer.PNG)
 

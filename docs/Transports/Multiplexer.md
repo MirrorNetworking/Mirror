@@ -7,7 +7,7 @@ A common use case for the MultiplexTransport is a server listening to both webso
 To use the MultiplexTransport follow these steps:
 
 1. Add a gameobject with a NetworkManager to your scene if you have not done so
-2. By default, Unity will add TelepathyTransport to your NetworkManager GameObject
+2. By default, Unity will add TelepathyTransport to your NetworkManager game object
 3. Add a MultiplexTransport component to the gameobject
 4. Assign the MultiplexTransport component in your NetworkManager's transport
 5. Add a WebsocketTransport component to the gameobject
