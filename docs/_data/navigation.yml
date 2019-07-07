@@ -32,8 +32,6 @@
       url: "/Concepts/Authentication"
     - title: "Conversion"
       url: "/Concepts/Conversion"
-    - title: "HLAPI"
-      url: "/Concepts/HLAPI"
     - title: "Clock Synchronization"
       url: "/Concepts/ClockSync"
     - title: "Project Setup"
