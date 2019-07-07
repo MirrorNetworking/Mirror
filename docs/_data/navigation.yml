@@ -36,8 +36,6 @@
       url: "/Concepts/HLAPI"
     - title: "Clock Synchronization"
       url: "/Concepts/ClockSync"
-    - title: "Mobile Tips"
-      url: "/Concepts/MobileTips"
     - title: "Project Setup"
       url: "/Concepts/Setup"
     - title: "State Syncronization"
