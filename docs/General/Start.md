@@ -28,7 +28,7 @@ See [Player Objects](/Mirror/Concepts/GameObjects/SpawnPlayer) for more informat
 
 For example, this script only processes input for the local player:
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 

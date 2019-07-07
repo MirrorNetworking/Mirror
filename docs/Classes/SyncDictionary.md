@@ -18,7 +18,7 @@ To use it, create a class that derives from SyncDictionary for your specific typ
 
 ## Simple Example
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 
@@ -60,7 +60,7 @@ public class ExamplePlayer : NetworkBehaviour
 
 By default, SyncDictionary uses a Dictionary to store it's data. If you want to use a different `IDictionary `implementation such as `SortedList` or `SortedDictionary`, add a constructor to your SyncDictionary implementation and pass a dictionary to the base class. For example:
 
-``` cs
+```cs
 public class ExamplePlayer : NetworkBehaviour
 {
     public class SyncDictionaryStringItem : SyncDictionary<string, Item> 

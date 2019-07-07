@@ -4,7 +4,7 @@ This is an attribute that can be put on events in NetworkBehaviour classes to al
 
 SyncEvent events are called by user code on the server, and then invoked on corresponding client objects on clients connected to the server. The arguments to the Event call are serialized across the network, so that the client event is invoked with the same values as the method on the server. These events must begin with the prefix "Event".
 
-``` cs
+```cs
 using UnityEngine;
 using Mirror;
 

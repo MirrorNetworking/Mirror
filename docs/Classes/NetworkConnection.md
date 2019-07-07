@@ -47,7 +47,7 @@ Network Connection is a high-level API class that encapsulates a network connect
 
 The NetworkConnection class has virtual functions that are called when data is sent to the transport layer or received from the transport layer. These functions allow specialized versions of NetworkConnection to inspect or modify this data, or even route it to different sources. These function are shown below, including the default behaviour:
 
-``` cs
+```cs
 public virtual void TransportRecieve(byte[] bytes, int numBytes, int channelId)
 {
     HandleBytes(bytes, numBytes, channelId);
@@ -61,7 +61,7 @@ public virtual bool TransportSend(byte[] bytes, int numBytes, int channelId, out
 
 An example use of these function is to log the contents of incoming and outgoing packets. Below is an example of a `DebugConnection` class that is derived from `NetworkConnection` that logs the first 50 bytes of packets to the console. To use a class like this call the `SetNetworkConnectionClass()` function on a `NetworkClient` or `NetworkServer`.
 
-``` cs
+```cs
 class DebugConnection : NetworkConnection
 {
     public override void TransportRecieve(byte[] bytes, int numBytes, int channelId)

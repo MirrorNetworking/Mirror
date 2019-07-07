@@ -30,7 +30,7 @@ HLAPI also supports SyncLists, but we have made redesigned them to better suit o
 
 Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
 
-``` cs
+```cs
 public struct Item
 {
     public string name;
@@ -81,7 +81,7 @@ There are some ready made SyncLists you can use:
 
 You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.
 
-``` cs
+```cs
 class Player : NetworkBehaviour {
 
     SyncListItem inventory;
@@ -131,7 +131,7 @@ class Player : NetworkBehaviour {
 
 By default, SyncList uses a List to store it's data. If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor. For example:
 
-``` cs
+```cs
 class SyncListItem : SyncList<Item> 
 {
     public SyncListItem() : base(new MyIList<Item>()) {}

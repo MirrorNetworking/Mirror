@@ -55,7 +55,7 @@ NetworkBehaviour scripts have the following features:
 
 There are built-in callback functions which are invoked on NetworkBehaviour scripts for various network events. These are virtual functions on the base class, so you can override them in your own code like this:
 
-``` cs
+```cs
 public class SpaceShip : NetworkBehaviour
 {
     public override void OnStartServer()

@@ -2,7 +2,7 @@
 
 SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. When a game object is spawned, or a new player joins a game in progress, they are sent the latest state of all SyncVars on networked objects that are visible to them. Use the `SyncVar` custom attribute to specify which variables in your script you want to synchronize, like this:
 
-``` cs
+```cs
 class Player : NetworkBehaviour
 {
     [SyncVar]
