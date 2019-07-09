@@ -34,8 +34,6 @@
       url: "/Concepts/Conversion"
     - title: "Clock Synchronization"
       url: "/Concepts/ClockSync"
-    - title: "Project Setup"
-      url: "/Concepts/Setup"
     - title: "State Syncronization"
       url: "/Concepts/StateSync"
     - title: "Visibility"
