@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 3.11.6 - 2019-Jul-10
+
+- Fixed: Telepathy IPv4, IPv6, and FQDN should all work now
+- Fixed: TelepathyTransport error in UWP builds
+- Fixed: OnApplicationQuit is handled better now
+- Fixed: Performance and memory allocation improvements
+- Changed: Telepathy Source is now included instead of a DLL
+
 ## Version 3.10.10 - 2019-Jun-19
 
 - Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
