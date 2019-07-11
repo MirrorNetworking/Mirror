@@ -16,7 +16,7 @@ namespace Mirror.Examples.NetworkLobby
         public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
         {
             PlayerController player = gamePlayer.GetComponent<PlayerController>();
-            player.Index = lobbyPlayer.GetComponent<NetworkLobbyPlayer>().Index;
+            player.index = lobbyPlayer.GetComponent<NetworkLobbyPlayer>().index;
             player.playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             return true;
         }
