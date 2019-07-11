@@ -57,14 +57,14 @@ namespace Mirror.Weaver
         public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference WeaverRemoteArgWriterReference;
+        public static MethodReference GetPooledWriterReference;
+        public static MethodReference RecycleWriterReference;
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
 
         public static TypeReference NetworkReaderType;
 
         public static TypeReference NetworkWriterType;
-        public static TypeReference NetworkWriterPoolType;
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
@@ -296,7 +296,6 @@ namespace Mirror.Weaver
             NetworkReaderCtor = Resolvers.ResolveMethod(NetworkReaderDef, CurrentAssembly, ".ctor");
 
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
-            NetworkWriterPoolType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
             TypeDefinition NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = Resolvers.ResolveMethod(NetworkWriterDef, CurrentAssembly, ".ctor");
@@ -336,7 +335,9 @@ namespace Mirror.Weaver
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
-            WeaverRemoteArgWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "GetWriter");
+            TypeDefinition NetworkWriterPoolType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
+            GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "GetWriter");
+            RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
@@ -576,7 +577,7 @@ namespace Mirror.Weaver
                             }
                             catch (Exception ex)
                             {
-                                Weaver.Error(ex.Message);
+                                Weaver.Error(ex.ToString());
                                 throw ex;
                             }
                         }

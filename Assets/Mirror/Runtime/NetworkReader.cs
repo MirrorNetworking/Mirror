@@ -111,32 +111,30 @@ namespace Mirror
         // null support, see NetworkWriter
         public string ReadString()
         {
-            // isNull?
-            if (ReadBoolean())
+            // read number of bytes
+            ushort size = ReadUInt16();
+
+            if (size == 0)
+                return null;
+            
+            int realSize = size - 1;
+
+            // make sure it's within limits to avoid allocation attacks etc.
+            if (realSize >= NetworkWriter.MaxStringLength)
             {
-                // read number of bytes
-                ushort size = ReadUInt16();
-                if (size == 0)
-                    return "";
-
-                // make sure it's within limits to avoid allocation attacks etc.
-                if (size >= NetworkWriter.MaxStringLength)
-                {
-                    throw new EndOfStreamException("ReadString too long: " + size + ". Limit is: " + NetworkWriter.MaxStringLength);
-                }
-
-                // check if within buffer limits
-                if (Position + size > buffer.Count)
-                {
-                    throw new EndOfStreamException("ReadString can't read " + size + " bytes because it would read past the end of the stream. " + ToString());
-                }
-
-                // convert directly from buffer to string via encoding
-                string result = encoding.GetString(buffer.Array, buffer.Offset + Position, size);
-                Position += size;
-                return result;
+                throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
             }
-            return null;
+
+            // check if within buffer limits
+            if (Position + realSize > buffer.Count)
+            {
+                throw new EndOfStreamException("ReadString can't read " + realSize + " bytes because it would read past the end of the stream. " + ToString());
+            }
+
+            // convert directly from buffer to string via encoding
+            string result = encoding.GetString(buffer.Array, buffer.Offset + Position, realSize);
+            Position += realSize;
+            return result;
         }
 
         // read bytes into the passed buffer
@@ -186,16 +184,19 @@ namespace Mirror
         // null support, see NetworkWriter
         public byte[] ReadBytesAndSize()
         {
-            if (ReadBoolean())
-            {
-                return ReadBytes(checked((int)ReadPackedUInt32()));
-            }
-            return null;
+            // count = 0 means the array was null
+            // otherwise count -1 is the length of the array 
+            uint count = ReadPackedUInt32();
+            return count == 0 ? null : ReadBytes(checked((int)(count - 1u)));
         }
 
         public ArraySegment<byte> ReadBytesAndSizeSegment()
         {
-            return ReadBoolean() ? ReadBytesSegment((int)ReadPackedUInt32()) : default;
+
+            // count = 0 means the array was null
+            // otherwise count - 1 is the length of the array
+            uint count = ReadPackedUInt32();
+            return count == 0 ? default : ReadBytesSegment(checked((int)(count - 1u)));
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba

@@ -121,28 +121,29 @@ namespace Mirror
 
         public void Write(string value)
         {
-            // write bool for null support first
+            // write 0 for null support, increment real size by 1
             // (note: original HLAPI would write "" for null strings, but if a
             //        string is null on the server then it should also be null
             //        on the client)
-            Write(value != null);
+            if (value == null)
+            {
+                Write((ushort)0);
+                return;
+            }
 
             // write string with same method as NetworkReader
-            if (value != null)
+            // convert to byte[]
+            int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+
+            // check if within max size
+            if (size >= MaxStringLength)
             {
-                // convert to byte[]
-                int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
-
-                // check if within max size
-                if (size >= MaxStringLength)
-                {
-                    throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
-                }
-
-                // write size and bytes
-                Write((ushort)size);
-                Write(stringBuffer, 0, (ushort)size);
+                throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
             }
+
+            // write size and bytes
+            Write(checked((ushort)(size + 1)));
+            Write(stringBuffer, 0, size);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
@@ -157,16 +158,16 @@ namespace Mirror
         // (like an inventory with different items etc.)
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
-            uint length = checked((uint)count);
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // (writing a size=0 empty array is not the same, the server and client would be out of sync)
+            // write 0 for null array, increment normal size by 1 to save bandwith
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            Write(buffer != null);
-            if (buffer != null)
+            if (buffer == null)
             {
-                WritePackedUInt32(length);
-                Write(buffer, offset, count);
+                WritePackedUInt32(0u);
+                return;
             }
+            WritePackedUInt32(checked((uint)count) + 1u);
+            Write(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter

@@ -362,7 +362,7 @@ namespace Mirror
             m_SceneId = (m_SceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            if (LogFilter.Debug) Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()
@@ -575,28 +575,21 @@ namespace Mirror
             return result;
         }
 
-        // OnSerializeAllSafely is in hot path. caching the writer is really
-        // worth it to avoid large amounts of allocations.
-        static NetworkWriter onSerializeWriter = new NetworkWriter();
-
         // serialize all components (or only dirty ones if not initial state)
-        // -> returns serialized data of everything dirty,  null if nothing was dirty
-        internal byte[] OnSerializeAllSafely(bool initialState)
+        // -> returns true if something was written
+        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
         {
-            // reset cached writer length and position
-            onSerializeWriter.SetLength(0);
-
             if (networkBehavioursCache.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-                return null;
+                return false;
             }
             ulong dirtyComponentsMask = GetDirtyMask(networkBehavioursCache, initialState);
 
             if (dirtyComponentsMask == 0L)
-                return null;
+                return false;
 
-            onSerializeWriter.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+            writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
             {
@@ -607,7 +600,7 @@ namespace Mirror
                 {
                     // serialize the data
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
-                    OnSerializeSafely(comp, onSerializeWriter, initialState);
+                    OnSerializeSafely(comp, writer, initialState);
 
                     // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
                     // This preserves the behavior in HLAPI
@@ -618,16 +611,13 @@ namespace Mirror
                 }
             }
 
-            // did we write anything? then write dirty, payload and return true
-            byte[] bytes = onSerializeWriter.ToArray();
-
             // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
             // be useful for debugging.
-            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(Channels.DefaultReliable))
+            if (writer.Position > Transport.activeTransport.GetMaxPacketSize(Channels.DefaultReliable))
             {
-                Debug.LogWarning("Large state update of " + bytes.Length + " bytes for netId:" + netId);
+                Debug.LogWarning("Large state update of " + writer.Position + " bytes for netId:" + netId);
             }
-            return bytes;
+            return true;
         }
 
         ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
@@ -1039,17 +1029,18 @@ namespace Mirror
             if (observers == null || observers.Count == 0)
                 return;
 
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
             // serialize all the dirty components and send (if any were dirty)
-            byte[] payload = OnSerializeAllSafely(false);
-            if (payload != null)
+            if (OnSerializeAllSafely(false, writer))
             {
                 // populate cached UpdateVarsMessage and send
                 varsMessage.netId = netId;
                 // segment to avoid reader allocations.
                 // (never null because of our above check)
-                varsMessage.payload = new ArraySegment<byte>(payload);
+                varsMessage.payload = writer.ToArraySegment();
                 NetworkServer.SendToReady(this, varsMessage);
             }
+            NetworkWriterPool.Recycle(writer);
         }
     }
 }

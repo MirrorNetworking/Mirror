@@ -2,7 +2,7 @@
 
 Here we will maintain a list of assets known to be compatible with Mirror.  If you know of others, please have the publisher contact us directly in our [Discord](https://discord.gg/2BvnM4R).
 
-## [Network Sync Transform](https://assetstore.unity.com/packages/tools/network/network-sync-transform-nst-98453)
+## [Network Sync Transform](https://github.com/emotitron/NetworkSyncTransform)
 
 ![Network Sync Transform](NetworkSyncTransform.jpg)
 

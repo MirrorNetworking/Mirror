@@ -17,8 +17,6 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
-        // PackMessage is in hot path. caching the writer is really worth it to
-        // avoid large amounts of allocations.
         public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions
