@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 33190644788701022}
   - component: {fileID: 23708975923909982}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
