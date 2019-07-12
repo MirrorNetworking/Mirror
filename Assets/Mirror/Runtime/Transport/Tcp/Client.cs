@@ -10,7 +10,7 @@ namespace Mirror.Tcp
     public class Client : Common
     {
         public event Action Connected;
-        public event Action<byte[]> ReceivedData;
+        public event Action<ArraySegment<byte>> ReceivedData;
         public event Action Disconnected;
         public event Action<Exception> ReceivedError;
 
@@ -76,17 +76,21 @@ namespace Mirror.Tcp
         {
             using (Stream networkStream = client.GetStream())
             {
+                MemoryStream buffer = new MemoryStream();
                 while (true)
                 {
-                    byte[] data = await ReadMessageAsync(networkStream);
+                    buffer.SetLength(0);
 
-                    if (data == null)
+                    if (!await ReadMessageAsync(networkStream, buffer))
                         break;
 
                     try
                     {
-                        // we received some data,  raise event
-                        ReceivedData?.Invoke(data);
+                        if (buffer.TryGetBuffer(out ArraySegment<byte> data))
+                        {
+                            // we received some data,  raise event
+                            ReceivedData?.Invoke(data);
+                        }
                     }
                     catch (Exception exception)
                     {
@@ -110,7 +114,7 @@ namespace Mirror.Tcp
         }
 
         // send the data or throw exception
-        public async void Send(ArraySegment<byte> data)
+        public async void Send(byte[] data)
         {
             if (client == null)
             {

@@ -39,38 +39,35 @@ namespace Mirror.Tcp
 
         // send message (via stream) with the <size,content> message structure
         // throws exception if there is a problem
-        protected static async Task SendMessage(NetworkStream stream, ArraySegment<byte> content)
+        protected static async Task SendMessage(NetworkStream stream, byte[] payload)
         {
-            // stream.Write throws exceptions if client sends with high
-            // frequency and the server stops
-           
-            // construct header (size)
-
-            // TODO:  we can do this without allocation
-            // write header+content at once via payload array. writing
-            // header,payload separately would cause 2 TCP packets to be
-            // sent if nagle's algorithm is disabled(2x TCP header overhead)
-
-            // TODO: what if we are sending this message to multiple clients?
-            // we would allocate an identicall array buffer for all of them
-            // should be possible to do just one and use it for all connections
-            byte[] payload = new byte[4 + content.Count];
-            WriteSize(content.Count, payload);
-            Array.Copy(content.Array, content.Offset, payload, 4, content.Count);
+            // note that payload has a 4 byte message length prefix from mirror
             await stream.WriteAsync(payload, 0, payload.Length).ConfigureAwait(false);
         }
 
         // read message (via stream) with the <size,content> message structure
-        protected static async Task<byte[]> ReadMessageAsync(Stream stream)
+        protected static async Task<bool> ReadMessageAsync(Stream stream, MemoryStream buffer)
         {
-            byte[] messageSizeBuffer = await stream.ReadExactlyAsync(4);
 
-            if (messageSizeBuffer == null)
-                return null; // end of stream,  just disconnect
+            // messages are packed with a 4 byte in message size
+            // read the size to see how much more data we need
+            int headerSize = await stream.ReadExactlyAsync(4, buffer);
 
-            int messageSize = BytesToInt(messageSizeBuffer);
+            if (headerSize == 0)
+                return false; // end of stream,  just disconnect
 
-            return await stream.ReadExactlyAsync(messageSize);
+            
+            stream.Position -= headerSize;
+
+            int messageSize =
+                stream.ReadByte() |
+                (stream.ReadByte() << 8) |
+                (stream.ReadByte() << 16) |
+                (stream.ReadByte() << 32);
+
+            // read the rest of the message
+            int readSize = await stream.ReadExactlyAsync(messageSize - headerSize, buffer);
+            return readSize == messageSize - headerSize;
         }
 
     }

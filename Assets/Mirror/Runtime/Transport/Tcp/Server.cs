@@ -12,7 +12,7 @@ namespace Mirror.Tcp
     public class Server : Common
     {
         public event Action<int> Connected;
-        public event Action<int, byte[]> ReceivedData;
+        public event Action<int, ArraySegment<byte>> ReceivedData;
         public event Action<int> Disconnected;
         public event Action<int, Exception> ReceivedError;
 
@@ -124,15 +124,18 @@ namespace Mirror.Tcp
                 {
                     while (true)
                     {
-                        byte[] data = await ReadMessageAsync(networkStream);
+                        MemoryStream buffer = new MemoryStream();
 
-                        if (data == null)
+                        if (!await ReadMessageAsync(networkStream, buffer))
                             break;
 
                         try
                         {
                             // we received some data,  raise event
-                            ReceivedData?.Invoke(connectionId, data);
+                            if (buffer.TryGetBuffer(out ArraySegment<byte> data))
+                            {
+                                ReceivedData?.Invoke(connectionId, data);
+                            }
                         }
                         catch (Exception exception)
                         {
@@ -177,7 +180,7 @@ namespace Mirror.Tcp
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, ArraySegment<byte> data)
+        public async void Send(int connectionId, byte[] data)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))

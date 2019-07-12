@@ -19,13 +19,13 @@ namespace Mirror.Tcp
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
             server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
-            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, new ArraySegment<byte>(data));
+            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, data);
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
-            client.ReceivedData += (data) => OnClientDataReceived.Invoke(new ArraySegment<byte>(data));
+            client.ReceivedData += (data) => OnClientDataReceived.Invoke(data);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
 
             // configure
@@ -38,7 +38,7 @@ namespace Mirror.Tcp
         // client
         public override bool ClientConnected() { return client.IsConnected; }
         public override void ClientConnect(string address) { client.Connect(address, port); }
-        public override bool ClientSend(int channelId, ArraySegment<byte> data)
+        public override bool ClientSend(int channelId, byte[] data)
         {
             client.Send(data);
             return true;
@@ -55,7 +55,7 @@ namespace Mirror.Tcp
             server.Listen(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> data)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             server.Send(connectionId, data);
             return true;

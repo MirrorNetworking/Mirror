@@ -88,26 +88,22 @@ namespace Mirror
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
         {
             // pack message and send
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            MessagePacker.Pack(msg, writer);
-            bool result = SendBytes(writer.ToArraySegment(), channelId);
-            NetworkWriterPool.Recycle(writer);
-            return result;
+            return SendBytes(MessagePacker.Pack(msg), channelId);
         }
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(ArraySegment<byte> bytes, int channelId = Channels.DefaultReliable)
+        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes.Array, bytes.Offset, bytes.Count ));
+            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
 
-            if (bytes.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
+            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
                 Debug.LogError("NetworkConnection.SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
-            if (bytes.Count == 0)
+            if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
                 Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
@@ -204,7 +200,7 @@ namespace Mirror
             }
         }
 
-        public virtual bool TransportSend(int channelId, ArraySegment<byte> bytes)
+        public virtual bool TransportSend(int channelId, byte[] bytes)
         {
             if (Transport.activeTransport.ClientConnected())
             {
