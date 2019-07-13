@@ -38,36 +38,37 @@ public class MyNetworkManager : MonoBehaviour
     {
         if (isAtStartup)
         {
-            GUI.Label(new Rect(2, 10, 150, 100), "Press S for server");     
-            GUI.Label(new Rect(2, 30, 150, 100), "Press B for both");       
+            GUI.Label(new Rect(2, 10, 150, 100), "Press S for server");
+            GUI.Label(new Rect(2, 30, 150, 100), "Press B for both");
             GUI.Label(new Rect(2, 50, 150, 100), "Press C for client");
         }
     }   
 }
 ```
 
-This basic code calls setup functions to get things going. Below are the simple setup functions for each of the scenarios. These functions create a server, or the right kind of client for each scenario. Note that the remote client assumes the server is on the same machine (127.0.0.1). For a finished game this would be an internet address, or something supplied by a matchmaker or master server.
+This basic code calls setup functions to get things going. Below are the simple setup functions for each of the scenarios. These functions create a server, or the right kind of client for each scenario. Note that the remote client assumes the server is on the same machine (localhost). For a finished game this would be an internet address, or something supplied by a matchmaker or master server.
 
 ``` cs
 // Create a server and listen on a port
 public void SetupServer()
 {
-    NetworkServer.Listen(4444);
+    NetworkServer.Listen(7777);
     isAtStartup = false;
 }
 
 // Create a client and connect to the server port
 public void SetupClient()
 {
-    NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);     
-    NetworkClient.Connect("127.0.0.1");
+    NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);
+    NetworkClient.Connect("localhost");
     isAtStartup = false;
 }
 
 // Create a local client and connect to the local server
 public void SetupLocalClient()
 {
-    NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);     
+    NetworkServer.ActivateLocalClientScene();
+    NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);
     isAtStartup = false;
 }
 ```
