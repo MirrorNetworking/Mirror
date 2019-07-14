@@ -15,7 +15,6 @@ using Mirror;
 public class MyNetworkManager : MonoBehaviour
 {
     public bool isAtStartup = true;
-    NetworkClient myClient;
 
     void Update () 
     {
@@ -42,21 +41,21 @@ public class MyNetworkManager : MonoBehaviour
             GUI.Label(new Rect(2, 30, 150, 100), "Press B for both");
             GUI.Label(new Rect(2, 50, 150, 100), "Press C for client");
         }
-    }   
+    }
 }
 ```
 
 This basic code calls setup functions to get things going. Below are the simple setup functions for each of the scenarios. These functions create a server, or the right kind of client for each scenario. Note that the remote client assumes the server is on the same machine (localhost). For a finished game this would be an internet address, or something supplied by a matchmaker or master server.
 
 ``` cs
-// Create a server and listen on a port
+// Create a server and listen on a port  
 public void SetupServer()
 {
     NetworkServer.Listen(7777);
     isAtStartup = false;
 }
 
-// Create a client and connect to the server port
+// Create a client and connect to the server port  
 public void SetupClient()
 {
     NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);
@@ -64,10 +63,9 @@ public void SetupClient()
     isAtStartup = false;
 }
 
-// Create a local client and connect to the local server
+// Create a local client and connect to the local server  
 public void SetupLocalClient()
 {
-    NetworkServer.ActivateLocalClientScene();
     NetworkClient.RegisterHandler<ConnectMessage>(OnConnected);
     isAtStartup = false;
 }
@@ -77,7 +75,7 @@ The clients in this code register a callback function for the connection event `
 
 ``` cs
 // client function
-public void OnConnected(NetworkMessage netMsg)
+public void OnConnected(NetworkConnection conn, ConnectMessage netMsg)
 {
     Debug.Log("Connected to server");
 }
