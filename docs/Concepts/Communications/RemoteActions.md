@@ -12,37 +12,37 @@ Commands are sent from player objects on the client to player objects on the ser
 
 Commands functions must have the prefix “Cmd”. This is a hint when reading code that calls the command - this function is special and is not invoked locally like a normal function.
 
-```cs
+``` cs
 public class Player : NetworkBehaviour
 {
-    public GameObject bulletPrefab;
-
-    [Command]
-    void CmdDoFire(float lifeTime)
-    {
-        GameObject bullet = Instantiate(bulletPrefab, transform.position + transform.right, Quaternion.identity);
-            
-        var bullet2D = bullet.GetComponent<Rigidbody2D>();
-        bullet2D.velocity = transform.right * bulletSpeed;
-        Destroy(bullet, lifeTime);
-
-        NetworkServer.Spawn(bullet);
-    }
-
     void Update()
     {
-        if (!isLocalPlayer)
-            return;
+        if (!isLocalPlayer) return;
 
-        if (Input.GetKeyDown(KeyCode.Space))
-            CmdDoFire(3.0f);
+        if (Input.GetKey(KeyCode.X))
+                CmdDropCube();
+    }
+
+    // assigned in inspector
+    GameObject cubePrefab;
+
+    [Command]
+    void CmdDropCube()
+    {
+        if (cubePrefab != null)
+        {
+            Vector3 spawnPos = transform.position + transform.forward * 2;
+            Quaternion spawnRot = transform.rotation;
+            GameObject cube = Instantiate(cubePrefab, spawnPos, spawnRot);
+            NetworkServer.Spawn(cube);
+        }
     }
 }
 ```
 
 Be careful of sending commands from the client every frame! This can cause a lot of network traffic.
 
-It is possible to send commands from non-player objects that have client authority. These objects must have been spawned with NetworkServer.SpawnWithClientAuthority or have authority set with NetworkIdentity.AssignClientAuthority. Commands sent from these object are run on the server instance of the object, not on the associated player object for the client.
+It is possible to send commands from non-player objects that have client authority. These objects must have been spawned with `NetworkServer.SpawnWithClientAuthority` or have authority set with `NetworkIdentity.AssignClientAuthority`. Commands sent from these object are run on the server instance of the object, not on the associated player object for the client.
 
 ## ClientRpc Calls
 
@@ -50,30 +50,29 @@ ClientRpc calls are sent from objects on the server to objects on clients. They 
 
 ClientRpc functions must have the prefix “Rpc”. This is a hint when reading code that calls the method - this function is special and is not invoked locally like a normal function.
 
-```cs
+``` cs
 public class Player : NetworkBehaviour
 {
     [SyncVar]
     int health;
+
+    public void TakeDamage(int amount)
+    {
+        if (!isServer) return;
+
+        health -= amount;
+        RpcDamage(amount);
+    }
 
     [ClientRpc]
     void RpcDamage(int amount)
     {
         Debug.Log("Took damage:" + amount);
     }
-
-    public void TakeDamage(int amount)
-    {
-        if (!isServer)
-            return;
-
-        health -= amount;
-        RpcDamage(amount);
-    }
 }
 ```
 
-When running a game as a host with a LocalClient, ClientRpc calls will be invoked on the LocalClient - even though it is in the same process as the server. So the behaviour of LocalClients and RemoteClients is the same for ClientRpc calls.
+When running a game as a host with a local client, ClientRpc calls will be invoked on the local client even though it is in the same process as the server. So the behaviours of local and remote clients are the same for ClientRpc calls.
 
 ## TargetRpc Calls
 
@@ -81,25 +80,22 @@ TargetRpc functions are called by user code on the server, and then invoked on t
 
 The first argument to an TargetRpc function must be a NetworkConnection object.
 
-This example shows how a client can use a Command to make a request from the server (CmdTest) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
+This example shows how a client can use a Command to make a request from the server (`CmdMagic`) by including its own `connectionToClient` as one of the parameters of the TargetRpc invoked directly from that Command:
 
-```cs
-using UnityEngine;
-using UnityEngine.Networking;
-
-public class Example : NetworkBehaviour
+``` cs
+public class Player : NetworkBehaviour
 {
     [Command]
-    void CmdTest()
+    void CmdMagic(int damage)
     {
-        TargetDoMagic(connectionToClient, 55);
+        TargetDoMagic(connectionToClient, damage);
     }
 
     [TargetRpc]
-    public void TargetDoMagic(NetworkConnection target, int extra)
+    public void TargetDoMagic(NetworkConnection target, int damage)
     {
         // This output will appear on the client that called the [Command] above
-        Debug.Log("Magic = " + (123 + extra));
+        Debug.LogFormat("Magic Damage = {0}", damage);
     }
 }
 ```
@@ -109,10 +105,15 @@ public class Example : NetworkBehaviour
 The arguments passed to commands and ClientRpc calls are serialized and sent over the network. These arguments can be:
 
 -   basic types (byte, int, float, string, UInt64, etc)
+
 -   arrays of basic types
+
 -   structs containing allowable types
+
 -   built-in unity math types (Vector3, Quaternion, etc)
+
 -   NetworkIdentity
+
 -   game object with a NetworkIdentity component attached
 
-Arguments to remote actions cannot be subcomponents of game objects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.
+Arguments to remote actions cannot be sub-components of game objects, such as script instances or Transforms. They cannot be other types that cannot be serialized across the network.
