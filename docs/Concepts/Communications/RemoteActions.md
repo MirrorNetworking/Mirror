@@ -24,7 +24,7 @@ public class Player : NetworkBehaviour
     }
 
     // assigned in inspector
-    GameObject cubePrefab;
+    public GameObject cubePrefab;
 
     [Command]
     void CmdDropCube()
