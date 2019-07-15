@@ -2,11 +2,11 @@
 
 You can use spawn handler functions to customize the default behavior when creating spawned game objects on the client. Spawn handler functions ensure you have full control of how you spawn the game object, as well as how you destroy it.
 
-Use ClientScene.RegisterSpawnHandler to register functions to spawn and destroy client game objects. The server creates game objects directly, and then spawns them on the clients through this functionality. This function takes the asset ID of the game object and two function delegates: one to handle creating game objects on the client, and one to handle destroying game objects on the client. The asset ID can be a dynamic one, or just the asset ID found on the prefab game object you want to spawn (if you have one).
+Use `ClientScene.RegisterSpawnHandler` to register functions to spawn and destroy client game objects. The server creates game objects directly, and then spawns them on the clients through this functionality. This function takes the asset ID of the game object and two function delegates: one to handle creating game objects on the client, and one to handle destroying game objects on the client. The asset ID can be a dynamic one, or just the asset ID found on the prefab game object you want to spawn (if you have one).
 
-The spawn / un-spawner need to have this game object signature. This is defined in the high level API.
+The spawn / unspawn delegates need to have this game object signature. This is defined in the high level API.
 
-```cs
+``` cs
 // Handles requests to spawn game objects on the client
 public delegate GameObject SpawnDelegate(Vector3 position, System.Guid assetId);
 
@@ -14,9 +14,9 @@ public delegate GameObject SpawnDelegate(Vector3 position, System.Guid assetId);
 public delegate void UnSpawnDelegate(GameObject spawned);
 ```
 
-The asset ID passed to the spawn function can be found on NetworkIdentity.assetId for prefabs, where it is populated automatically. The registration for a dynamic asset ID is handled like this:
+The asset ID passed to the spawn function can be found on `NetworkIdentity.assetId` for prefabs, where it is populated automatically. The registration for a dynamic asset ID is handled like this:
 
-```cs
+``` cs
 // generate a new unique assetId 
 System.Guid creatureAssetId = System.Guid.NewGuid();
 
@@ -33,9 +33,9 @@ ClientScene.RegisterSpawnHandler(coinAssetId, SpawnCoin, UnSpawnCoin);
 NetworkServer.Spawn(gameObject, coinAssetId);
 ```
 
-The spawn functions themselves are implemented with the delegate signature. Here is the coin spawner. The SpawnCreature would look the same, but have different spawn logic:
+The spawn functions themselves are implemented with the delegate signature. Here is the coin spawner. The `SpawnCreature` would look the same, but have different spawn logic:
 
-```cs
+``` cs
 public GameObject SpawnCoin(Vector3 position, System.Guid assetId)
 {
     return Instantiate(m_CoinPrefab, position, Quaternion.identity);
@@ -46,7 +46,7 @@ public void UnSpawnCoin(GameObject spawned)
 }
 ```
 
-When using custom spawn functions, it is sometimes useful to be able to unspawn game objects without destroying them. This can be done by calling [NetworkServer.UnSpawn]. This causes a message to be sent to clients to un-spawn the game object, so that the custom un-spawn function will be called on the clients. The game object is not destroyed when this function is called.
+When using custom spawn functions, it is sometimes useful to be able to unspawn game objects without destroying them. This can be done by calling `NetworkServer.UnSpawn`. This causes a message to be sent to clients to un-spawn the game object, so that the custom unspawn function will be called on the clients. The game object is not destroyed when this function is called.
 
 Note that on the host, game objects are not spawned for the local client, because they already exist on the server. This also means that no spawn handler functions are called.
 
@@ -54,7 +54,7 @@ Note that on the host, game objects are not spawned for the local client, becaus
 
 Here is an example of how you might set up a very simple game object pooling system with custom spawn handlers. Spawning and unspawning then puts game objects in or out of the pool.
 
-```cs
+``` cs
 using UnityEngine;
 using Mirror;
 using System.Collections;
@@ -118,7 +118,7 @@ To use this manager, create a new empty game object and name it â€œSpawnManagerâ
 
 Finally, set up a reference to the SpawnManager in the script you are using for player movement:
 
-```cs
+``` cs
 SpawnManager spawnManager;
 
 void Start()
@@ -129,7 +129,7 @@ void Start()
 
 Your player logic might contain something like this, which moves and fires coins:
 
-```cs
+``` cs
 void Update()
 {
     if (!isLocalPlayer)
@@ -150,7 +150,7 @@ void Update()
 
 In the fire logic on the player, make it use the game object pool:
 
-```cs
+``` cs
 [Command]
 void CmdFire()
 {
