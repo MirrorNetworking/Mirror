@@ -1028,6 +1028,7 @@ namespace Mirror
             if (observers == null || observers.Count == 0)
             {
                 // if we have no observers, then flush all objects
+                // (fixes https://github.com/vis2k/Mirror/issues/963)
                 foreach (NetworkBehaviour comp in networkBehavioursCache)
                 {
                     comp.ClearAllDirtyBits();
