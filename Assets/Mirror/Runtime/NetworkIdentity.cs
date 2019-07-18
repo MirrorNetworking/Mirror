@@ -1024,10 +1024,16 @@ namespace Mirror
         // invoked by NetworkServer during Update()
         internal void MirrorUpdate()
         {
-            // SendToReady sends to all observers. no need to serialize if we
-            // don't have any.
             if (observers == null || observers.Count == 0)
+            {
+                // if we have no observers, then flush all objects
+                // (fixes https://github.com/vis2k/Mirror/issues/963)
+                foreach (NetworkBehaviour comp in networkBehavioursCache)
+                {
+                    comp.ClearAllDirtyBits();
+                }
                 return;
+            }
 
             NetworkWriter writer = NetworkWriterPool.GetWriter();
             // serialize all the dirty components and send (if any were dirty)
