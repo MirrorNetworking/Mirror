@@ -12,13 +12,16 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        public const int MaxStringLength = 1024 * 32;
+        static readonly byte[] stringBuffer = new byte[MaxStringLength];
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
-        readonly BinaryWriter writer = new BinaryWriter(new MemoryStream(), encoding);
+        // note: BinaryWriter allocates too much, so we only use a MemoryStream
+        readonly MemoryStream stream = new MemoryStream();
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)writer.BaseStream.Position; } set { writer.BaseStream.Position = value; } }
+        public int Position { get { return (int)stream.Position; } set { stream.Position = value; } }
 
         // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
@@ -27,39 +30,120 @@ namespace Mirror
         // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
-            writer.Flush();
-            return ((MemoryStream)writer.BaseStream).ToArray();
+            stream.Flush();
+            return stream.ToArray();
+        }
+
+        // Gets the serialized data in an ArraySegment<byte>
+        // this is similar to ToArray(),  but it gets the data in O(1)
+        // and without allocations.
+        // Do not write anything else or modify the NetworkWriter
+        // while you are using the ArraySegment
+        public ArraySegment<byte> ToArraySegment()
+        {
+            stream.Flush();
+            if (stream.TryGetBuffer(out ArraySegment<byte> data))
+            { 
+                return data;
+            }
+            throw new Exception("Cannot expose contents of memory stream. Make sure that MemoryStream buffer is publicly visible (see MemoryStream source code).");
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
         public void SetLength(long value)
         {
-            ((MemoryStream)writer.BaseStream).SetLength(value);
+            stream.SetLength(value);
         }
 
-        public void Write(byte value) => writer.Write(value);
-        public void Write(sbyte value) => writer.Write(value);
-        public void Write(char value) => writer.Write(value);
-        public void Write(bool value) => writer.Write(value);
-        public void Write(short value) => writer.Write(value);
-        public void Write(ushort value) => writer.Write(value);
-        public void Write(int value) => writer.Write(value);
-        public void Write(uint value) => writer.Write(value);
-        public void Write(long value) => writer.Write(value);
-        public void Write(ulong value) => writer.Write(value);
-        public void Write(float value) => writer.Write(value);
-        public void Write(double value) => writer.Write(value);
-        public void Write(decimal value) => writer.Write(value);
+        public void Write(ushort value)
+        {
+            Write((byte)(value & 0xFF));
+            Write((byte)(value >> 8));
+        }
+        public void Write(uint value)
+        {
+            Write((byte)(value & 0xFF));
+            Write((byte)((value >> 8) & 0xFF));
+            Write((byte)((value >> 16) & 0xFF));
+            Write((byte)((value >> 24) & 0xFF));
+        }
+
+        public void Write(ulong value) {
+            Write((byte)(value & 0xFF));
+            Write((byte)((value >> 8) & 0xFF));
+            Write((byte)((value >> 16) & 0xFF));
+            Write((byte)((value >> 24) & 0xFF));
+            Write((byte)((value >> 32) & 0xFF));
+            Write((byte)((value >> 40) & 0xFF));
+            Write((byte)((value >> 48) & 0xFF));
+            Write((byte)((value >> 56) & 0xFF));
+        }
+
+        public void Write(byte value) => stream.WriteByte(value);
+        public void Write(sbyte value) => Write((byte)value);
+        // write char the same way that NetworkReader reads it (2 bytes)
+        public void Write(char value) => Write((ushort)value);
+        public void Write(bool value) => Write((byte)(value ? 1 : 0));
+        public void Write(short value) => Write((ushort)value);
+        public void Write(int value) => Write((uint)value);
+        public void Write(long value) => Write((ulong)value);
+
+        public void Write(float value) {
+            UIntFloat converter = new UIntFloat
+            {
+                floatValue = value
+            };
+            Write(converter.intValue);
+        }
+
+        public void Write(double value)
+        {
+            UIntDouble converter = new UIntDouble
+            {
+                doubleValue = value
+            };
+            Write(converter.longValue);
+        }
+
+        public void Write(decimal value)
+        {
+            // the only way to read it without allocations is to both read and
+            // write it with the FloatConverter (which is not binary compatible
+            // to writer.Write(decimal), hence why we use it here too)
+            UIntDecimal converter = new UIntDecimal
+            {
+                decimalValue = value
+            };
+            Write(converter.longValue1);
+            Write(converter.longValue2);
+        }
 
         public void Write(string value)
         {
-            // BinaryWriter doesn't support null strings, so let's write an extra boolean for that
-            // (note: original HLAPI would write "" for null strings, but if a string is null on the server then it
-            //        should also be null on the client)
-            writer.Write(value != null);
-            if (value != null) 
-                writer.Write(value);
+            // write 0 for null support, increment real size by 1
+            // (note: original HLAPI would write "" for null strings, but if a
+            //        string is null on the server then it should also be null
+            //        on the client)
+            if (value == null)
+            {
+                Write((ushort)0);
+                return;
+            }
+
+            // write string with same method as NetworkReader
+            // convert to byte[]
+            int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+
+            // check if within max size
+            if (size >= MaxStringLength)
+            {
+                throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + MaxStringLength);
+            }
+
+            // write size and bytes
+            Write(checked((ushort)(size + 1)));
+            Write(stringBuffer, 0, size);
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
@@ -67,23 +151,23 @@ namespace Mirror
         public void Write(byte[] buffer, int offset, int count)
         {
             // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
-            writer.Write(buffer, offset, count);
+            stream.Write(buffer, offset, count);
         }
 
         // for byte arrays with dynamic size, where the reader doesn't know how many will come
         // (like an inventory with different items etc.)
         public void WriteBytesAndSize(byte[] buffer, int offset, int count)
         {
-            uint length = checked((uint)count);
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // (writing a size=0 empty array is not the same, the server and client would be out of sync)
+            // write 0 for null array, increment normal size by 1 to save bandwith
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
-            writer.Write(buffer != null); // notNull?
-            if (buffer != null)
+            if (buffer == null)
             {
-                WritePackedUInt32(length);
-                writer.Write(buffer, offset, count);
+                WritePackedUInt32(0u);
+                return;
             }
+            WritePackedUInt32(checked((uint)count) + 1u);
+            Write(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter
@@ -92,6 +176,11 @@ namespace Mirror
         {
             // buffer might be null, so we can't use .Length in that case
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
+        }
+
+        public void WriteBytesAndSizeSegment(ArraySegment<byte> buffer)
+        {
+            WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
@@ -301,7 +390,8 @@ namespace Mirror
 
         public void Write(Guid value)
         {
-            writer.Write(value.ToByteArray());
+            byte[] data = value.ToByteArray();
+            Write(data, 0, data.Length);
         }
 
         public void Write(NetworkIdentity value)

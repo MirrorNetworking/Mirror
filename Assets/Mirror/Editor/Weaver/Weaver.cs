@@ -42,7 +42,7 @@ namespace Mirror.Weaver
         public static bool GenerateLogErrors { get; set; }
 
         // private properties
-        static bool DebugLogEnabled = true;
+        static readonly bool DebugLogEnabled = true;
 
         // Network types
         public static TypeReference NetworkBehaviourType;
@@ -57,14 +57,14 @@ namespace Mirror.Weaver
         public static TypeReference SyncDictionaryType;
 
         public static MethodReference NetworkBehaviourDirtyBitsReference;
+        public static MethodReference GetPooledWriterReference;
+        public static MethodReference RecycleWriterReference;
         public static TypeReference NetworkClientType;
         public static TypeReference NetworkServerType;
 
         public static TypeReference NetworkReaderType;
-        public static TypeDefinition NetworkReaderDef;
 
         public static TypeReference NetworkWriterType;
-        public static TypeDefinition NetworkWriterDef;
 
         public static MethodReference NetworkWriterCtor;
         public static MethodReference NetworkReaderCtor;
@@ -81,18 +81,15 @@ namespace Mirror.Weaver
         public static TypeReference CmdDelegateReference;
         public static MethodReference CmdDelegateConstructor;
 
-        public static MethodReference NetworkWriterWriteInt16;
-
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
         public static MethodReference getBehaviourIsServer;
+        public static MethodReference NetworkReaderReadPackedInt32;
         public static MethodReference NetworkReaderReadPackedUInt32;
-        public static MethodReference NetworkReaderReadPackedUInt64;
         public static MethodReference NetworkWriterWritePackedUInt64;
-
-        public static MethodReference NetworkReadUInt16;
-        public static MethodReference NetworkWriteUInt16;
+        public static MethodReference NetworkWriterWritePackedInt32;
+        public static MethodReference NetworkReaderReadPackedUInt64;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -187,7 +184,7 @@ namespace Mirror.Weaver
             WeaveLists.numSyncVars[className] = num;
         }
 
-        static internal void ConfirmGeneratedCodeClass()
+        internal static void ConfirmGeneratedCodeClass()
         {
             if (WeaveLists.generateContainerClass == null)
             {
@@ -294,12 +291,12 @@ namespace Mirror.Weaver
             guidType = ImportCorLibType("System.Guid");
 
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
-            NetworkReaderDef = NetworkReaderType.Resolve();
+            TypeDefinition NetworkReaderDef = NetworkReaderType.Resolve();
 
             NetworkReaderCtor = Resolvers.ResolveMethod(NetworkReaderDef, CurrentAssembly, ".ctor");
 
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
-            NetworkWriterDef  = NetworkWriterType.Resolve();
+            TypeDefinition NetworkWriterDef  = NetworkWriterType.Resolve();
 
             NetworkWriterCtor = Resolvers.ResolveMethod(NetworkWriterDef, CurrentAssembly, ".ctor");
 
@@ -307,15 +304,12 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
 
-            NetworkWriterWriteInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", int16Type);
-
+            NetworkReaderReadPackedInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt32");
             NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
             NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
 
+            NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
             NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
-
-            NetworkReadUInt16 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadUInt16");
-            NetworkWriteUInt16 = Resolvers.ResolveMethodWithArg(NetworkWriterType, CurrentAssembly, "Write", uint16Type);
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
@@ -341,6 +335,9 @@ namespace Mirror.Weaver
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, CurrentAssembly, "syncVarDirtyBits");
+            TypeDefinition NetworkWriterPoolType = NetAssembly.MainModule.GetType("Mirror.NetworkWriterPool");
+            GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "GetWriter");
+            RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, CurrentAssembly, "Recycle");
 
             ComponentType = UnityAssembly.MainModule.GetType("UnityEngine.Component");
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
@@ -492,19 +489,19 @@ namespace Mirror.Weaver
             TypeReference parent = td.BaseType;
             while (parent != null)
             {
-                if (parent.FullName.StartsWith(SyncListType.FullName))
+                if (parent.FullName.StartsWith(SyncListType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncSetType.FullName))
+                else if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName))
+                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
                 {
                     SyncDictionaryProcessor.Process(td);
                     didWork = true;
@@ -531,7 +528,7 @@ namespace Mirror.Weaver
             return didWork;
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
+        static bool Weave(string assName, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath, string outputDir)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
@@ -580,7 +577,7 @@ namespace Mirror.Weaver
                             }
                             catch (Exception ex)
                             {
-                                Weaver.Error(ex.Message);
+                                Weaver.Error(ex.ToString());
                                 throw ex;
                             }
                         }
@@ -629,7 +626,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, IAssemblyResolver assemblyResolver, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
+        public static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string outputDir, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -643,7 +640,7 @@ namespace Mirror.Weaver
                 {
                     foreach (string ass in assemblies)
                     {
-                        if (!Weave(ass, dependencies, assemblyResolver, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
+                        if (!Weave(ass, dependencies, unityEngineDLLPath, mirrorNetDLLPath, outputDir))
                         {
                             return false;
                         }

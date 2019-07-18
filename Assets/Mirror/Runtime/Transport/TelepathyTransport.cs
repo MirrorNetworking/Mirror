@@ -1,6 +1,7 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
 using System.ComponentModel;
+using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -126,7 +127,25 @@ namespace Mirror
             return false;
         }
         public override bool ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
-        public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
+        public override string ServerGetClientAddress(int connectionId)
+        {
+            try
+            {
+                return server.GetClientAddress(connectionId);
+            }
+            catch (SocketException)
+            {
+                // using server.listener.LocalEndpoint causes an Exception
+                // in UWP + Unity 2019:
+                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+                //   location 0x000000E15A0FCDD0. SocketException: An address
+                //   incompatible with the requested protocol was used at
+                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+                // so let's at least catch it and recover
+                return "unknown";
+            }
+        }
         public override void ServerStop() => server.Stop();
 
         // common
@@ -146,7 +165,15 @@ namespace Mirror
         {
             if (server.Active && server.listener != null)
             {
-                return "Telepathy Server port: " + server.listener.LocalEndpoint;
+                // printing server.listener.LocalEndpoint causes an Exception
+                // in UWP + Unity 2019:
+                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+                //   location 0x000000E15A0FCDD0. SocketException: An address
+                //   incompatible with the requested protocol was used at
+                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+                // so let's use the regular port instead.
+                return "Telepathy Server port: " + port;
             }
             else if (client.Connecting || client.Connected)
             {

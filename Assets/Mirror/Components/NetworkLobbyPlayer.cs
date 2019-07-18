@@ -8,13 +8,13 @@ namespace Mirror
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyPlayer")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
-        public bool ShowLobbyGUI = true;
+        public bool showLobbyGUI = true;
 
         [SyncVar(hook=nameof(ReadyStateChanged))]
-        public bool ReadyToBegin;
+        public bool readyToBegin;
 
         [SyncVar]
-        public int Index;
+        public int index;
 
         #region Unity Callbacks
 
@@ -34,9 +34,9 @@ namespace Mirror
         #region Commands
 
         [Command]
-        public void CmdChangeReadyState(bool ReadyState)
+        public void CmdChangeReadyState(bool readyState)
         {
-            ReadyToBegin = ReadyState;
+            readyToBegin = readyState;
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
             if (lobby != null)
             {
@@ -48,9 +48,9 @@ namespace Mirror
 
         #region SyncVar Hooks
 
-        void ReadyStateChanged(bool NewReadyState)
+        void ReadyStateChanged(bool newReadyState)
         {
-            OnClientReady(ReadyToBegin);
+            OnClientReady(readyToBegin);
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace Mirror
 
         public virtual void OnGUI()
         {
-            if (!ShowLobbyGUI)
+            if (!showLobbyGUI)
                 return;
 
             NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
@@ -81,16 +81,16 @@ namespace Mirror
                 if (SceneManager.GetActiveScene().name != lobby.LobbyScene)
                     return;
 
-                GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
+                GUILayout.BeginArea(new Rect(20f + (index * 100), 200f, 90f, 130f));
 
-                GUILayout.Label($"Player [{Index + 1}]");
+                GUILayout.Label($"Player [{index + 1}]");
 
-                if (ReadyToBegin)
+                if (readyToBegin)
                     GUILayout.Label("Ready");
                 else
                     GUILayout.Label("Not Ready");
 
-                if (((isServer && Index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
+                if (((isServer && index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
                 {
                     // This button only shows on the Host for all players other than the Host
                     // Host and Players can't remove themselves (stop the client instead)
@@ -104,7 +104,7 @@ namespace Mirror
                 {
                     GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 
-                    if (ReadyToBegin)
+                    if (readyToBegin)
                     {
                         if (GUILayout.Button("Cancel"))
                             CmdChangeReadyState(false);

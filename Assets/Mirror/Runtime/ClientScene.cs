@@ -330,18 +330,21 @@ namespace Mirror
             return null;
         }
 
-        static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, byte[] payload, uint netId)
+        static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, ArraySegment<byte> payload, uint netId)
         {
             if (!identity.gameObject.activeSelf)
             {
                 identity.gameObject.SetActive(true);
             }
-            
+
             // apply local values for VR support
             identity.transform.localPosition = position;
             identity.transform.localRotation = rotation;
-            identity.transform.localScale = scale;            
-            if (payload != null && payload.Length > 0)
+            identity.transform.localScale = scale;
+
+            // deserialize components if any payload
+            // (Count is 0 if there were no components)
+            if (payload.Count > 0)
             {
                 NetworkReader payloadReader = new NetworkReader(payload);
                 identity.OnUpdateVars(payloadReader, true);
@@ -453,7 +456,7 @@ namespace Mirror
                     foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
                         Debug.Log("Spawnable: SceneId=" + kvp.Key + " name=" + kvp.Value.name);
                 }
-                
+
                 return;
             }
 

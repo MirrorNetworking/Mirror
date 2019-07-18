@@ -51,7 +51,7 @@ namespace Mirror.Weaver
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, invoke.Resolve(), cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false))
                 return null;
 
             // invoke actual event delegate function
@@ -96,6 +96,8 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ldloc_0)); // writer
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
+
+            NetworkBehaviourProcessor.WriteRecycleWriter(evtWorker);
 
             evtWorker.Append(evtWorker.Create(OpCodes.Ret));
 

@@ -45,7 +45,7 @@ namespace Mirror
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncList<T> : IList<T>, SyncObject
+    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
@@ -338,22 +338,9 @@ namespace Mirror
             get => objects[i];
             set
             {
-                bool changed = false;
-                if (objects[i] == null)
+                if (!EqualityComparer<T>.Default.Equals(objects[i], value))
                 {
-                    if (value == null)
-                        return;
-                    else
-                        changed = true;
-                }
-                else
-                {
-                    changed = !objects[i].Equals(value);
-                }
-
-                objects[i] = value;
-                if (changed)
-                {
+                    objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
             }

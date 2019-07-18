@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -48,6 +47,7 @@ namespace Mirror.Weaver
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadNetworkIdentity") },
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadTransform") },
                 { "System.Byte[]", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSize") },
+                { "System.ArraySegment`1<System.Byte>", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSizeSegment") }
             };
         }
 
@@ -80,13 +80,7 @@ namespace Mirror.Weaver
 
             if (variable.IsArray)
             {
-                TypeReference elementType = variable.GetElementType();
-                MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
-                if (elementReadFunc == null)
-                {
-                    return null;
-                }
-                newReaderFunc = GenerateArrayReadFunc(variable, elementReadFunc);
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
             }
             else if (td.IsEnum)
             {
@@ -115,13 +109,21 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
-        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, MethodReference elementReadFunc)
+        static MethodDefinition GenerateArrayReadFunc(TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
             {
                 Weaver.Error($"{variable} is an unsupported type. Jagged and multidimensional arrays are not supported");
                 return null;
             }
+
+            TypeReference elementType = variable.GetElementType();
+            MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
+            if (elementReadFunc == null)
+            {
+                return null;
+            }
+
             string functionName = "_ReadArray" + variable.GetElementType().Name + "_";
             if (variable.DeclaringType != null)
             {
@@ -148,40 +150,48 @@ namespace Mirror.Weaver
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
+            // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReadUInt16));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedInt32));
             worker.Append(worker.Create(OpCodes.Stloc_0));
+
+            // if (length < 0) {
+            //    return null
+            // }
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-
-            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
-            worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
-
-            // return empty array
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Newarr, variable.GetElementType()));
+            Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
+            worker.Append(worker.Create(OpCodes.Bge, labelEmptyArray));
+            // return null
+            worker.Append(worker.Create(OpCodes.Ldnull));
             worker.Append(worker.Create(OpCodes.Ret));
-
-            // create the actual array
             worker.Append(labelEmptyArray);
+
+
+            // T value = new T[length];
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Newarr, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Stloc_1));
+
+
+            // for (int i=0; i< length ; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
             worker.Append(worker.Create(OpCodes.Stloc_2));
-
-            // loop start
             Instruction labelHead = worker.Create(OpCodes.Nop);
             worker.Append(worker.Create(OpCodes.Br, labelHead));
 
             // loop body
             Instruction labelBody = worker.Create(OpCodes.Nop);
             worker.Append(labelBody);
+            // value[i] = reader.ReadT();
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldelema, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
             worker.Append(worker.Create(OpCodes.Stobj, variable.GetElementType()));
+
+
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
             worker.Append(worker.Create(OpCodes.Add));
@@ -193,6 +203,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
 
+            // return value;
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;

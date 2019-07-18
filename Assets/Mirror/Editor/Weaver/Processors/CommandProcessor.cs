@@ -86,6 +86,8 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.sendCommandInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(cmdWorker);
+
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
 
             return cmd;
@@ -117,7 +119,7 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, cmdWorker, false))
                 return null;
 
             // invoke actual command function
@@ -129,7 +131,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        public static bool ProcessMethodsValidateCommand(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateCommand(MethodDefinition md, CustomAttribute ca)
         {
             if (!md.Name.StartsWith("Cmd"))
             {
@@ -144,8 +146,8 @@ namespace Mirror.Weaver
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Command") &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Command");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }
