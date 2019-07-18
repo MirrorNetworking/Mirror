@@ -6,7 +6,7 @@ Mirror uses GUID for Asset Ids. Every prefab with a NetworkIdentity component ha
 
 ## Scene Id
 
-Mirror uses uint for Scene Ids. Every GameObject with a NetworkIdentity in the scene (hierarchy) is assigned a scene id in OnPostProcessScene. Mirror needs that to distinguish scene objects from each other, because Unity has no unique id for different GameObjects in the scene.
+Mirror uses uint for Scene Ids. Every game object with a NetworkIdentity in the scene (hierarchy) is assigned a scene id in OnPostProcessScene. Mirror needs that to distinguish scene objects from each other, because Unity has no unique id for different game objects in the scene.
 
 ## Network Instance Id (a.k.a. NetId)
 

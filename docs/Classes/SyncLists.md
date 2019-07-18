@@ -1,33 +1,36 @@
 # SyncLists Overview
 
-`SyncLists` are array based lists similar to C# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
+SyncLists are array based lists similar to C\# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
 A SyncList can contain items of the following types:
 
 -   Basic type (byte, int, float, string, UInt64, etc)
+
 -   Built-in Unity math type (Vector3, Quaternion, etc)
+
 -   NetworkIdentity
--   GameObject with a NetworkIdentity component attached.
+
+-   Game object with a NetworkIdentity component attached.
+
 -   Structure with any of the above
 
 ## Differences with HLAPI
 
-HLAPI also supports SyncLists,  but we have made redesigned them to better suit our needs. Some of the key differences include:
+HLAPI also supports SyncLists, but we have made redesigned them to better suit our needs. Some of the key differences include:
 
-* In HLAPI, SyncLists were synchornized immediatelly when they changed.  If you add 10 elements, that means 10 separate messages.   Mirror synchronizes synclists with the syncvars. The 10 elements and other syncvars are batched together into a single message.   Mirror also respects the sync interval when synchronizing lists.
+-   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. Mirror synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. Mirror also respects the sync interval when synchronizing lists.
 
-* In HLAPI if you want a list of structs,  you have to use `SyncListStruct<MyStructure>`,  we changed it to just `SyncList<MyStructure>`
+-   In HLAPI if you want a list of structs, you have to use `SyncListStruct<MyStructure>`, we changed it to just `SyncList<MyStructure>`
 
-* In HLAPI the Callback is a delegate.  In Mirror we changed it to an event, so that you can add many subscribers. 
+-   In HLAPI the Callback is a delegate. In Mirror we changed it to an event, so that you can add many subscribers.
 
-* In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
+-   In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
 
 ## Usage
 
-Create a class that derives from SyncList<T> for your specific type.  This is necesary because Mirror will add methods to that class with the weaver.  Then add a SyncList field to your NetworkBehaviour class.   For example:
+Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
 
 ```cs
-
 public struct Item
 {
     public string name;
@@ -65,13 +68,18 @@ class Player : NetworkBehaviour {
 ```
 
 There are some ready made SyncLists you can use:
-* `SyncListString`
-* `SyncListFloat`
-* `SyncListInt`
-* `SyncListUInt`
-* `SyncListBool`
 
-You can also detect when a synclist changes in the client or server.  This is useful for refreshing your character when you add equipment or determining when you need to update your database.  Subscribe to the Callback event typically during `Start`,  `OnClientStart` or `OnServerStart` for that.   Note that by the time you subscribe,  the list will already be initialized,  so you will not get a call for the initial data, only updates.
+-   SyncListString
+
+-   SyncListFloat
+
+-   SyncListInt
+
+-   SyncListUInt
+
+-   SyncListBool
+
+You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.
 
 ```cs
 class Player : NetworkBehaviour {
@@ -121,7 +129,7 @@ class Player : NetworkBehaviour {
 }
 ```
 
-By default, `SyncList` uses a `List` to store it's data.  If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor.  For example:
+By default, SyncList uses a List to store it's data. If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor. For example:
 
 ```cs
 class SyncListItem : SyncList<Item> 

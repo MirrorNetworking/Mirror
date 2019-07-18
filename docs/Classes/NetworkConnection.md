@@ -1,25 +1,51 @@
 # NetworkConnection
 
-NetworkConnection is a high-level API class that encapsulates a network connection. NetworkClient objects have a `NetworkConnection`, and NetworkServers have multiple connections - one from each client. NetworkConnections have the ability to send byte arrays, or serialized objects as network messages.
+Network Connection is a high-level API class that encapsulates a network connection. `NetworkClient` objects have a single connection, and `NetworkServer`'s have multiple connections - one from each client. Network Connections have the ability to send byte arrays or serialized objects as network messages.
+
+## Constructors
+
+-   **NetworkConnection**()
+
+-   **NetworkConnection**(string networkAddress)
+
+-   **NetworkConnection**(string networkAddress, int networkConnectionId)
 
 ## Properties
 
--   **hostId**  
-    The [NetworkTransport] hostId for this connection.
--   **connectionId**
--   The `NetworkTransport` connectionId for this connection.
--   **isReady**  
-    Flag to control whether state updates are sent to this connection
--   **lastMessageTime**  
-    The last time that a message was received on this connection.
 -   **address**  
     The IP address of the end-point that this connection is connected to.
--   **playerController**  
-    A reference to the [NetworkIdentity] playerController.
--   **clientOwnedObjects**  
-    The set of objects that this connection has authority over.
 
-The NetworkConnection class has virtual functions that are called when data is sent to the transport layer or recieved from the transport layer. These functions allow specialized versions of NetworkConnection to inspect or modify this data, or even route it to different sources. These function are show below, including the default behaviour:
+-   **clientOwnedObjects**  
+    The `HashSet` of objects that this connection has authority over.
+
+-   **connectionId**  
+    The incremented connectionId for this connection.
+
+-   **hostId**  
+    Deprecated.  Use `connection.GetType() == typeof(NetworkConnection)` to check if it's a regular or local connection.
+
+-   **isReady**  
+    Flag to control whether state updates are sent to this connection
+
+-   **lastMessageTime**  
+    The last time that a message was received on this connection.
+
+-   **playerController**  
+    A reference to the [NetworkIdentity](../Components/NetworkIdentity) playerController.
+
+## Methods
+
+-   void **Disconnect**()
+
+-   bool **InvokeHandler**\<T\>(T msg)
+
+-   virtual bool **Send**\<T\>(T msg, int channelId = Channels.DefaultReliable)
+
+-   virtual void **TransportReceive**(ArraySegment\<byte\> buffer)
+
+-   virtual bool **TransportSend**(int channelId, byte[] bytes)
+
+The NetworkConnection class has virtual functions that are called when data is sent to the transport layer or received from the transport layer. These functions allow specialized versions of NetworkConnection to inspect or modify this data, or even route it to different sources. These function are shown below, including the default behaviour:
 
 ```cs
 public virtual void TransportRecieve(byte[] bytes, int numBytes, int channelId)
@@ -33,7 +59,7 @@ public virtual bool TransportSend(byte[] bytes, int numBytes, int channelId, out
 }
 ```
 
-An example use of these function is to log the contents of incoming and outgoing packets. Below is an example of a DebugConnection class that is derived from NetworkConnection that logs the first 50 bytes of packets to the console. To use a class like this call the SetNetworkConnectionClass() function on a NetworkClient or NetworkServer.
+An example use of these function is to log the contents of incoming and outgoing packets. Below is an example of a `DebugConnection` class that is derived from `NetworkConnection` that logs the first 50 bytes of packets to the console. To use a class like this call the `SetNetworkConnectionClass()` function on a `NetworkClient` or `NetworkServer`.
 
 ```cs
 class DebugConnection : NetworkConnection
