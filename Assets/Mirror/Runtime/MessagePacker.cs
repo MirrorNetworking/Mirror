@@ -93,8 +93,6 @@ namespace Mirror
             // read message type (varint)
             try
             {
-                _ = messageReader.ReadInt32();
-
                 msgType = (int)messageReader.ReadUInt16();
                 return true;
             }
