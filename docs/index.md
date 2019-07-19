@@ -40,7 +40,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 
 -   Single and separated Unity projects supported
 
--   Network [Manager](Components/NetworkManage) and [HUD](Components/NetworkManagerHUD)
+-   Network [Manager](Components/NetworkManager) and [HUD](Components/NetworkManagerHUD)
 
 -   Network [Lobby Manager](Components/NetworkLobbyManager) and [Lobby Player](Components/NetworkLobbyPlayer)
 
