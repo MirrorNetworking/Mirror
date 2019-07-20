@@ -1,4 +1,4 @@
-# Network Lobby Manager
+# NetworkLobbyManager
 
 \*\*Please see the Lobby example in the Examples folder in your Mirror folder
 
