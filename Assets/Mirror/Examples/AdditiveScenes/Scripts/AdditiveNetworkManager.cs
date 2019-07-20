@@ -23,12 +23,6 @@ namespace Mirror.Examples.Additive
             }
         }
 
-        IEnumerator LoadScene(string sceneName)
-        {
-            yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            Debug.LogFormat("Loaded {0}", sceneName);
-        }
-
         public override void OnStopServer()
         {
             Debug.Log("Stopping Server");
