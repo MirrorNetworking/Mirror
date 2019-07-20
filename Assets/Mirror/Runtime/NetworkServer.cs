@@ -172,7 +172,7 @@ namespace Mirror
             {
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> bytes = writer.ToArraySegment();
+                byte[] bytes = writer.ToArray();
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
@@ -192,7 +192,7 @@ namespace Mirror
 
             NetworkWriter writer = NetworkWriterPool.GetWriter();
             MessagePacker.Pack(msg, writer);
-            ArraySegment<byte> bytes = writer.ToArraySegment();
+            byte[] bytes = writer.ToArray();
 
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
@@ -213,7 +213,7 @@ namespace Mirror
                 // pack message into byte[] once
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> bytes = writer.ToArraySegment();
+                byte[] bytes = writer.ToArray();
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)

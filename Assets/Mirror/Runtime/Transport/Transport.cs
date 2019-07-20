@@ -1,7 +1,6 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
-using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -35,23 +34,8 @@ namespace Mirror
 
         public abstract bool ClientConnected();
         public abstract void ClientConnect(string address);
-        public virtual bool ClientSend(int channelId, byte[] data)
-        {
-            throw new NotImplementedException("You must override one of the ClientSend methods in your transport");
-        }
-
+        public abstract bool ClientSend(int channelId, byte[] data);
         public abstract void ClientDisconnect();
-
-        // by default,  just copy the data in a byte[] and call the method that existing
-        // transports already implement
-        // transports can override this one instead to void allocations
-        public virtual bool ClientSend(int channelId, ArraySegment<byte> data)
-        {
-            byte[] data2 = new byte[data.Count];
-            Array.Copy(data.Array, data.Offset, data2, 0, data.Count);
-            return ClientSend(channelId, data2);
-        }
-
 
         // server
         [HideInInspector] public UnityEventInt OnServerConnected = new UnityEventInt();
@@ -61,19 +45,7 @@ namespace Mirror
 
         public abstract bool ServerActive();
         public abstract void ServerStart();
-        public virtual bool ServerSend(int connectionId, int channelId, byte[] data)
-        {
-            throw new NotImplementedException("Your transport must override one of the ServerSend methods");
-        }
-
-        // by default copy the data into a byte[] and pass it to the legacy method
-        public virtual bool ServerSend(int connectionId, int channelId, ArraySegment<byte> data)
-        {
-            byte[] data2 = new byte[data.Count];
-            Array.Copy(data.Array, data.Offset, data2, 0, data.Count);
-            return ServerSend(connectionId, channelId, data2);
-        }
-
+        public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
         public abstract bool ServerDisconnect(int connectionId);
 
         public abstract string ServerGetClientAddress(int connectionId);
