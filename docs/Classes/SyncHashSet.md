@@ -1,18 +1,22 @@
 # SyncHashSet
 
-`SyncHashSet` are sets similar to C# [HashSet\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1) that synchronize their contents from the server to the clients.
+`SyncHashSet` are sets similar to C\# [HashSet\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1) that synchronize their contents from the server to the clients.
 
 A SyncHashSet can contain items of the following types:
 
 -   Basic type (byte, int, float, string, UInt64, etc)
+
 -   Built-in Unity math type (Vector3, Quaternion, etc)
+
 -   NetworkIdentity
--   GameObject with a NetworkIdentity component attached.
+
+-   Game object with a NetworkIdentity component attached.
+
 -   Structure with any of the above
 
 ## Usage
 
-Create a class that derives from SyncHashSet<T> for your specific type.  This is necesary because Mirror will add methods to that class with the weaver.  Then add a SyncHashSet field to your NetworkBehaviour class.   For example:
+Create a class that derives from SyncHashSet for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncHashSet field to your NetworkBehaviour class. For example:
 
 ```cs
 class Player : NetworkBehaviour {
@@ -36,7 +40,7 @@ class Player : NetworkBehaviour {
 }
 ```
 
-You can also detect when a SyncHashSet changes.  This is useful for refreshing your character in the client or determining when you need to update your database.  Subscribe to the Callback event typically during `Start`,  `OnClientStart` or `OnServerStart` for that.   Note that by the time you subscribe,  the set will already be initialized,  so you will not get a call for the initial data, only updates.
+You can also detect when a SyncHashSet changes. This is useful for refreshing your character in the client or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart` or `OnServerStart` for that. Note that by the time you subscribe, the set will already be initialized, so you will not get a call for the initial data, only updates.
 
 ```cs
 class Player : NetworkBehaviour

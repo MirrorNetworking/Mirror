@@ -8,6 +8,7 @@ namespace Mirror.Examples.NetworkLobby
 
         float x;
         float z;
+
         GameObject newPrize;
         Reward reward;
 

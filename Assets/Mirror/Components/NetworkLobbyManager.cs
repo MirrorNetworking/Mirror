@@ -68,7 +68,7 @@ namespace Mirror
                 if (item != null)
                 {
                     CurrentPlayers++;
-                    if (item.ReadyToBegin)
+                    if (item.readyToBegin)
                         ReadyPlayers++;
                 }
             }
@@ -130,7 +130,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name != LobbyScene) return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().ReadyToBegin) < minPlayers)
+            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -197,7 +197,7 @@ namespace Mirror
             foreach (NetworkLobbyPlayer player in lobbySlots)
             {
                 if (player != null)
-                    player.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
+                    player.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
             }
 
             if (SceneManager.GetActiveScene().name == LobbyScene)
@@ -236,7 +236,7 @@ namespace Mirror
             {
                 for (int i = 0; i < lobbySlots.Count; i++)
                 {
-                    lobbySlots[i].Index = i;
+                    lobbySlots[i].index = i;
                 }
             }
         }
@@ -258,7 +258,7 @@ namespace Mirror
                     if (NetworkServer.active)
                     {
                         // re-add the lobby object
-                        lobbyPlayer.GetComponent<NetworkLobbyPlayer>().ReadyToBegin = false;
+                        lobbyPlayer.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
                         NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, lobbyPlayer.gameObject);
                     }
                 }

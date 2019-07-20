@@ -1,24 +1,45 @@
 # NetworkClient
 
-`NetworkClient` is a high-level API class that manages a network connection from a client to a server, and can send and receive messages between the client and the server. The `NetworkClient` class also helps to manage spawned network GameObjects, and routing of RPC message and network events.
-
-See the [NetworkClient](#networkclient) script reference for more information.
+`NetworkClient` is a high-level API class that manages a network connection from a client to a server, and can send and receive messages between the client and the server. The `NetworkClient` class also helps to manage spawned network game object, and routing of RPC message and network events.
 
 ## Properties
 
--   **serverIP**  
-    The IP address of the server that this client is connected to.
--   **serverPort**  
-    The port of the server that this client is connected to.
+-   **active**  
+    True while a client is connecting / connected.
+
+-   **allClients**  
+    Deprecated.  Use NetworkClient directly instead. There is always exactly one client.
+
 -   **connection**  
-    The NetworkConnection GameObject this `NetworkClient` instance is using.
+    The NetworkConnection game object this `NetworkClient` instance is using.
+
 -   **handlers**  
     The set of registered message handler functions.
--   **numChannels**  
-    The number of configured NetworkTransport QoS channels.
+
 -   **isConnected**  
     True if the client is connected to a server.
--   **allClients**  
-    List of active NetworkClients (static).
--   **active**  
-    True if any NetworkClients are active (static).
+
+-   **numChannels**  
+    Deprecated.  QoS channels are available in some [Transports].
+
+-   **serverIP**  
+    The IP address of the server this client is connected to.
+
+-   **serverPort**  
+    Deprecated.  Port was moved to the [Transports](../Transports) that support it.
+
+## Methods
+
+-   static void **Connect**(string address)
+
+-   static void **Disconnect**()
+
+-   static void **RegisterHandler**\<T\>(Action\<NetworkConnection, T\> handler)
+
+-   static bool **Send**\<T\>(T message, int channelId = Channels.DefaultReliable)
+
+-   static void **Shutdown**()
+
+-   static void **UnregisterHandler**\<T\>()
+
+ 
