@@ -4,19 +4,19 @@ This document describes steps to converting a single player game to a multiplaye
 
 ## NetworkManager set-up
 
--   Add a new GameObject and rename it “NetworkManager”.
--   Add the NetworkManager component to the “NetworkManager” GameObject.
--   Add the NetworkManagerHUD component to the GameObject. This provides the default UI​ for managing the network game state.
+-   Add a new game object and rename it “NetworkManager”.
+-   Add the NetworkManager component to the “NetworkManager” game object.
+-   Add the NetworkManagerHUD component to the game object. This provides the default UI​ for managing the network game state.
 
 See Using the NetworkManager.
 
 ## Player Prefab Setup
 
--   Find the Prefab for the player GameObject in the game, or create a Prefab from the player GameObject
+-   Find the Prefab for the player game object in the game, or create a Prefab from the player game object
 -   Add the NetworkIdentity component to the player Prefab
 -   Check the LocalPlayerAuthority box on the NetworkIdentity
 -   Set the `playerPrefab` in the NetworkManager’s Spawn Info section to the player Prefab
--   Remove the player GameObject instance from the Scene if it exists in the Scene
+-   Remove the player game object instance from the Scene if it exists in the Scene
 
 See Player Objects for more information.
 
@@ -61,7 +61,7 @@ See State Synchronization.
 
 See Networked Actions.
 
-## Non-player GameObjects
+## Non-player Game Objects
 
 Fix non-player prefabs such as enemies:
 
@@ -74,18 +74,18 @@ Fix non-player prefabs such as enemies:
 
 -   Potentially change spawner scripts to be NetworkBehaviours
 -   Modify spawners to only run on the server (use isServer property or the `OnStartServer()` function)
--   Call `NetworkServer.Spawn()` for created GameObjects
+-   Call `NetworkServer.Spawn()` for created game objects
 
 ## Spawn Positions for Players
 
--   Add a new GameObject and place it at player’s start location
--   Add the NetworkStartPosition component to the new GameObject
+-   Add a new game object and place it at player’s start location
+-   Add the NetworkStartPosition component to the new game object
 
 ## Lobby
 
 -   Create Lobby Scene
--   Add a new GameObject to the Scene and rename it to “NetworkLobbyManager”.
--   Add the NetworkLobbyManager component to the new GameObject.
+-   Add a new game object to the Scene and rename it to “NetworkLobbyManager”.
+-   Add the NetworkLobbyManager component to the new game object.
 -   Configure the Manager:
     -   Scenes
     -   Prefabs

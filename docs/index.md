@@ -1,24 +1,71 @@
 # Documentation
 
-## High level scripting API
+**Mirror is the most compatible direct replacement for the deprecated Unity Networking API.**
 
-Mirror’s networking has a “high-level” scripting API (which we’ll refer to as the HLAPI). Using this means you get access to commands which cover most of the common requirements for multiuser games without needing to worry about the “lower level” implementation details. The HLAPI allows you to:
+Mirror has nearly all of the components and features from UNet, making networking easy, concise and maintainable, whether you're starting from scratch or converting an existing project. We even have a [Migration Tool](General/Migration) to do most of the work for you!
 
--   Control the networked state of the game using a “Network Manager".
--   Operate “client hosted” games, where the host is also a player client.
--   Serialize data using a general-purpose serializer.
--   Send and receive network messages.
--   Send networked commands from clients to servers.
--   Make remote procedure calls (RPCs) from servers to clients.
--   Send networked events from servers to clients.
+Built to support games of any scale, from LAN party games to dedicated high-volume authoritative servers running hundreds of players, Mirror is the core networking solution for [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015), [Cubica](https://www.cubica.net/), and [more](https://vis2k.github.io/Mirror/General/Showcase)!
 
-## Engine and Editor integration
+uMMORPG was possible with \<6000 lines of code. We needed a networking library that allows us to launch our games, period!
 
-Mirror’s networking is integrated into the engine and the editor, allowing you to work with components and visual aids to build your multiplayer game. It provides:
+-   **Full Source included** for debugging convenience
 
--   A NetworkIdentity component for networked objects.
--   A NetworkBehaviour for networked scripts
--   Configurable automatic synchronization of object transforms.
--   Automatic synchronization of script variables.
--   Support for placing networked objects in Unity scenes.
--   Network components
+-   Several working examples included
+
+-   Active [Discord](https://discord.gg/2BvnM4R) for prompt support
+
+-   **Requires Unity 2018.3.6+**
+
+-   Alpha / Beta Unity versions cannot be supported
+
+**Multiple Transports Available:**
+
+-   **TCP** ([Telepathy](Transports/Telepathy))
+
+-   **UDP** ([ENet](Transports/Ignorance) and [LiteNetLib](Transports/LiteNetLib4Mirror))
+
+-   **Steam** ([Steamworks.Net](Transports/Fizzy))
+
+-   **WebGL** ([Web Sockets](Transports/WebSockets))
+
+**List Server**
+
+We've developed a [List Server](https://mirror-networking.com/list-server/) where game servers can register and clients can connect to find those servers to play on them.
+
+**Key Features & Components:**
+
+-   [Transports](Transports) are interchangeable components
+
+-   Additive Scene Loading
+
+-   Single and separated Unity projects supported
+
+-   Network [Manager](Components/NetworkManage) and [HUD](Components/NetworkManagerHUD)
+
+-   Network [Lobby Manager](Components/NetworkLobbyManager) and [Lobby Player](Components/NetworkLobbyPlayer)
+
+-   Network [Identity](Components/NetworkIdentity)
+
+-   Network [Transform](Components/NetworkTransform)
+
+-   Network [Animator](Components/NetworkAnimator) with 64 parameters
+
+-   Network [Proximity Checker](Components/NetworkProximityChecker)
+
+-   [SyncVar](Classes/SyncVars), [SyncList](Classes/SyncLists), [SyncEvent](Classes/SyncEvent), [SyncDictionary](Classes/SyncDictionary), and [SyncHashSet](Classes/SyncHashSet)
+
+**Integrations**
+
+-   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)
+
+-   [Network Sync Transform](https://github.com/emotitron/NetworkSyncTransform)
+
+-   [Noble Connect Free](https://assetstore.unity.com/packages/tools/network/noble-connect-free-141599)
+
+-   [Rucksack](https://assetstore.unity.com/packages/templates/systems/rucksack-multiplayer-inventory-system-114921)
+
+-   [RTS Engine](https://assetstore.unity.com/packages/templates/packs/rts-engine-79732)
+
+-   [Smooth Sync](https://assetstore.unity.com/packages/tools/network/smooth-sync-96925)
+
+-   [Weather Maker](https://assetstore.unity.com/packages/tools/particles-effects/weather-maker-unity-weather-system-sky-water-volumetric-clouds-a-60955)

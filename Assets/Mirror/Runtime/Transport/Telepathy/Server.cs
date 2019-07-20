@@ -92,6 +92,10 @@ namespace Telepathy
                     // in the thread
                     TcpClient client = listener.AcceptTcpClient();
 
+                    // set socket options
+                    client.NoDelay = NoDelay;
+                    client.SendTimeout = SendTimeout;
+
                     // generate the next connection id (thread safely)
                     int connectionId = NextConnectionId();
 
