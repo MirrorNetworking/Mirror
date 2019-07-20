@@ -28,9 +28,9 @@ If you are already familiar with multiplayer game development, you might find it
 
 ## Transports
 
-Mirror's uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport.  This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs.  Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
+Mirror's uses a separate component (derived from the Transport class) to connect across the network. By default, it is Telepathy Transport. This design choice of separating the transport into its own component allows game developers to choose the transport that best fits their game needs. Changing transports is as simple as swapping out the component on the Network Manager object and assigning it to the Transport field.
 
-Transports are available for TCP, UDP, WebGL, and Steam.  Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly.  See [Transports](../Transports) for more information.
+Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a Multiplex transport that allows for using two transports together on the server, e.g. Telepathy and WebSockets, so that desktop and browser players can play together on the same server seamlessly. See [Transports](../Transports) for more information.
 
 ## Game State Management
 
@@ -58,7 +58,7 @@ Use the Network Manager to manage the spawning (networked instantiation) of netw
 
 ![The “Spawn Info” section of the Network Manager component](NetworkManagerSpawnInfo.png)
 
-Most games have a Prefab which represents the player, so the Network Manager has a Player Prefab slot. You should assign this slot with your player Prefab. When you have a player Prefab set, a player game object  is automatically spawned from that Prefab for each user in the game. This applies to the local player on a hosted server, and remote players on remote clients. You must attach a Network Identity component to the Player Prefab before assigning it to this field.
+Most games have a Prefab which represents the player, so the Network Manager has a Player Prefab slot. You should assign this slot with your player Prefab. When you have a player Prefab set, a player game object is automatically spawned from that Prefab for each user in the game. This applies to the local player on a hosted server, and remote players on remote clients. You must attach a Network Identity component to the Player Prefab before assigning it to this field.
 
 Once you have assigned a Player Prefab, you can start the game as a host and see the player game object spawn. Stopping the game destroys the player game object . If you build and run another copy of the game and connect it as a client to *localhost*, the Network Manager makes another player game object appear. When you stop that client, it destroys that player’s game object .
 
@@ -114,7 +114,7 @@ See [Application](../Events/Application), [Server](../Events/Server), [Client](.
     If this box is checked (property is true) *and* computer that runs the program has no graphic device, program will start in server mode.
 
 -   **serverTickRate**  
-    Sets the target frame rate for the server.  Default is 30.
+    Sets the target frame rate for the server. Default is 30.
 
 -   **showDebugMessages**  
     Use this property to control the amount of information Mirror outputs to the console window.
@@ -131,10 +131,10 @@ See [Application](../Events/Application), [Server](../Events/Server), [Client](.
         A link to a Component derived from `Transport` class. TelepathyTransport is created and linked there by default.
 
     -   **networkAddress**  
-        The network address currently in use. For clients, this is the address of the server that is connected to. For servers, this is the local address. This is set to ‘localhost’ by default.  A Fully Qualified Domain Name (FQDN) can be used by clients in this field.
+        The network address currently in use. For clients, this is the address of the server that is connected to. For servers, this is the local address. This is set to ‘localhost’ by default. A Fully Qualified Domain Name (FQDN) can be used by clients in this field.
 
     -   **maxConnections**  
-        Maximum number of clients connected to a server. Note that host is a server and one client.  Transports may also have their own setting for this, otherwise they either copy this value or leave it to Mirror to manage the limit.
+        Maximum number of clients connected to a server. Note that host is a server and one client. Transports may also have their own setting for this, otherwise they either copy this value or leave it to Mirror to manage the limit.
 
 -   **SpawnInfo**  
     You can expand this section of the inspector to access spawn-related settings, listed below
@@ -164,7 +164,7 @@ See [Application](../Events/Application), [Server](../Events/Server), [Client](.
         Bool that indicates that the client has loaded the current scene
 
     -   **numPlayers**  
-        Returns the number of active connections from `NetworkServer`.  Only valid on the server.
+        Returns the number of active connections from `NetworkServer`. Only valid on the server.
 
     -   **networkSceneName**  
         Name of currently loaded and active scene.
@@ -178,4 +178,92 @@ See [Application](../Events/Application), [Server](../Events/Server), [Client](.
     -   **isHeadless**  
         Bool that indicates of the application was started in headless mode.
 
- 
+## Methods
+
+### Unity Virtual Callbacks
+
+```cs
+public virtual void Awake() {}
+
+public virtual void Start() {}
+```
+
+### Server Methods
+
+```cs
+public bool StartServer() {}
+
+public void StartClient() {}
+
+public void StopHost() {}
+
+public void StopServer() {}
+
+public void StopClient() {}
+
+public Transform GetStartPosition() {}
+```
+
+### Server Static Methods
+
+```cs
+public static void RegisterStartPosition(Transform start) {}
+
+public static void UnRegisterStartPosition(Transform start) {}
+
+public static void Shutdown() {}
+```
+
+### Server Virtual Methods
+
+```cs
+public virtual void ConfigureServerFrameRate() {}
+
+public virtual void StartHost() {}
+
+public virtual void ServerChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode) {}
+
+public virtual void OnServerConnect(NetworkConnection conn) {}
+
+public virtual void OnServerDisconnect(NetworkConnection conn) {}
+
+public virtual void OnServerReady(NetworkConnection conn) {}
+
+public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage) {}
+
+public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player) {}
+
+public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
+
+public virtual void OnServerSceneChanged(string sceneName) {}
+
+public virtual void OnStartHost() {}
+
+public virtual void OnStartServer() {}
+
+public virtual void OnStopServer() {}
+
+public virtual void OnStopHost() {}
+
+public virtual void OnDestroy() {}
+```
+
+### Client Virtual Methods
+
+```cs
+public virtual void OnStartClient() {}
+
+public virtual void OnStopClient() {}
+
+public virtual void OnClientConnect(NetworkConnection conn) {}
+
+public virtual void OnClientDisconnect(NetworkConnection conn) {}
+
+public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
+
+public virtual void OnClientNotReady(NetworkConnection conn) {}
+
+public virtual void OnClientChangeScene(string newSceneName, LoadSceneMode sceneMode) {}
+
+public virtual void OnClientSceneChanged(NetworkConnection conn) {}
+```
