@@ -45,21 +45,12 @@ namespace Mirror
 
         public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
         {
-            var startPosition = writer.Position;
-            writer.Write(0);
-
             // write message type
             int msgType = GetId<T>();
             writer.Write((ushort)msgType);
 
             // serialize message into writer
             message.Serialize(writer);
-
-            int endPosition = writer.Position;
-
-            writer.Position = startPosition;
-            writer.Write(endPosition - startPosition);
-            writer.Position = endPosition;
         }
 
         // unpack a message we received
@@ -71,8 +62,6 @@ namespace Mirror
         public static T Unpack<T>(ArraySegment<byte> data) where T : IMessageBase, new()
         {
             NetworkReader reader = new NetworkReader(data);
-
-            _ = reader.ReadInt32();
 
             int msgType = GetId<T>();
 
