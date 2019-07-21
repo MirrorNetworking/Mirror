@@ -157,7 +157,7 @@ namespace Mirror
     public class SceneMessage : MessageBase
     {
         public string sceneName;
-        public LoadSceneMode sceneMode; // Single = 0, Additive = 1
+        public LoadSceneMode sceneMode = LoadSceneMode.Single;
 
         public override void Deserialize(NetworkReader reader)
         {
