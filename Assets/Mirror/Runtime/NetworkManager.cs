@@ -445,7 +445,7 @@ namespace Mirror
                 SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters(sceneMode, physicsMode));
 
                 // Do not include physicsMode in SceneMessage to clients.
-                // Clients will only have one instance of the additve scene
+                // Clients will only have one instance of the additive scene
                 // and the physics needs to be merged with their main scene.
                 SceneMessage msg = new SceneMessage()
                 {
@@ -465,7 +465,6 @@ namespace Mirror
             }
         }
 
-        //internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode)
         internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
