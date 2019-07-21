@@ -75,6 +75,16 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
+#if UNITY_2019_2_OR_NEWER
+            // Coburn: You could remove this pesty warning but you'd be shooting yourself in the foot.
+            // There's a reason why we do not support alpha and beta versions of Unity. If you understand the risks, then feel free to use it.
+            // If you want official developer support, YOU MUST use a version of Mirror supported by the development team. We cannot support
+            // every single version of Unity pops out of their build bots.
+            if(!UnityEditor.SessionState.GetBool("MirrorDidNonSupportedCheck", false)) {
+                UnityEditor.SessionState.SetBool("MirrorDidNonSupportedCheck", true);
+                Debug.LogWarning("WARNING: Your Unity version is newer than the versions Mirror is designed to work with (2018.3.6+, 2018.4 LTS and 2019.1).\nTHIS IS A UNSUPPORTED USAGE CASE. Unless you are willing to fix any bugs that may occur, the Mirror development team cannot support you.");
+            }
+#endif
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
             networkSceneName = offlineScene;
