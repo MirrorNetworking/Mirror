@@ -44,7 +44,7 @@ namespace Mirror
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
 
-        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
@@ -410,7 +410,7 @@ namespace Mirror
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 // Must pass true or offlineScene will not be loaded
-                ClientChangeScene(offlineScene);
+                ClientChangeScene(offlineScene, LoadSceneMode.Single);
             }
             CleanupNetworkIdentities();
         }
@@ -428,25 +428,33 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
-            NetworkServer.SetAllClientsNotReady();
-            networkSceneName = newSceneName;
+            if (LogFilter.Debug) Debug.LogFormat("ServerChangeScene {0}  SceneMode:{1}  PhysicsMode:{2}", newSceneName, sceneMode, physicsMode);
 
-            LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
-
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
-
-            SceneMessage msg = new SceneMessage()
+            if (sceneMode == LoadSceneMode.Single)
             {
-                sceneName = newSceneName,
-                sceneMode = loadSceneParameters.loadSceneMode,
-                physicsMode = loadSceneParameters.localPhysicsMode
-            };
+                // normal scene change as it has always been
+                NetworkServer.SetAllClientsNotReady();
+                loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+                NetworkServer.SendToAll(new SceneMessage() { sceneName = newSceneName });
+                startPositionIndex = 0;
+                startPositions.Clear();
+            }
+            else
+            {
+                // Additive scene handling, with physicsMode on server only
+                SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters(sceneMode, physicsMode));
 
-            NetworkServer.SendToAll(msg);
+                // Do not include physicsMode in SceneMessage to clients.
+                // Clients will only have one instance of the additve scene
+                // and the physics needs to be merged with their main scene.
+                SceneMessage msg = new SceneMessage()
+                {
+                    sceneName = newSceneName,
+                    sceneMode = sceneMode
+                };
 
-            startPositionIndex = 0;
-            startPositions.Clear();
+                NetworkServer.SendToAll(msg);
+            }
         }
 
         void CleanupNetworkIdentities()
@@ -457,12 +465,8 @@ namespace Mirror
             }
         }
 
-        void ClientChangeScene(string newSceneName)
-        {
-            ClientChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
-        }
-
-        internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        //internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode)
+        internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -470,7 +474,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
+            if (LogFilter.Debug) Debug.LogFormat("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
 
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
@@ -478,15 +482,25 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             Transport.activeTransport.enabled = false;
 
-            // Let client prepare for scene change
-            OnClientChangeScene(newSceneName);
-
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
+            if (sceneMode == LoadSceneMode.Single)
             {
-                loadSceneMode = sceneMode,
-                localPhysicsMode = physicsMode,
-            });
-            networkSceneName = newSceneName; //This should probably not change if additive is used          
+                // Let client prepare for scene change
+                OnClientChangeScene(newSceneName, sceneMode);
+
+                loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+                networkSceneName = newSceneName; //This should probably not change if additive is used          
+            }
+            else
+            {
+                // Do not additively load a scene that's already loaded
+                if (!SceneManager.GetSceneByName(newSceneName).IsValid())
+                {
+                    // Let client prepare for scene change
+                    OnClientChangeScene(newSceneName, sceneMode);
+
+                    SceneManager.LoadSceneAsync(newSceneName, sceneMode);
+                }
+            }
         }
 
         void FinishLoadScene()
@@ -557,6 +571,7 @@ namespace Mirror
         {
             return NetworkClient.isConnected;
         }
+
         // this is the only way to clear the singleton, so another instance can be created.
         public static void Shutdown()
         {
@@ -578,7 +593,7 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage() {sceneName = networkSceneName};
+                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
             }
 
@@ -661,7 +676,7 @@ namespace Mirror
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(msg.sceneName, msg.sceneMode, msg.physicsMode);
+                ClientChangeScene(msg.sceneName, msg.sceneMode);
             }
         }
         #endregion
@@ -715,25 +730,25 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-		public Transform GetStartPosition()
-		{
-			// first remove any dead transforms
-			startPositions.RemoveAll(t => t == null);
+        public Transform GetStartPosition()
+        {
+            // first remove any dead transforms
+            startPositions.RemoveAll(t => t == null);
 
-			if (startPositions.Count == 0)
-				return null;
+            if (startPositions.Count == 0)
+                return null;
 
-			if (playerSpawnMethod == PlayerSpawnMethod.Random)
-			{
-				return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
-			}
-			else
-			{
-				Transform startPosition = startPositions[startPositionIndex];
-				startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
-				return startPosition;
-			}
-		}
+            if (playerSpawnMethod == PlayerSpawnMethod.Random)
+            {
+                return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
+            }
+            else
+            {
+                Transform startPosition = startPositions[startPositionIndex];
+                startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
+                return startPosition;
+            }
+        }
 
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
@@ -773,7 +788,7 @@ namespace Mirror
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
-        public virtual void OnClientChangeScene(string newSceneName) {}
+        public virtual void OnClientChangeScene(string newSceneName, LoadSceneMode sceneMode) {}
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {

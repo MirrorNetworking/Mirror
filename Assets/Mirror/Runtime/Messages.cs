@@ -158,20 +158,17 @@ namespace Mirror
     {
         public string sceneName;
         public LoadSceneMode sceneMode; // Single = 0, Additive = 1
-        public LocalPhysicsMode physicsMode; // None = 0, Physics3D = 1, Physics2D = 2
 
         public override void Deserialize(NetworkReader reader)
         {
             sceneName = reader.ReadString();
             sceneMode = (LoadSceneMode)reader.ReadByte();
-            physicsMode = (LocalPhysicsMode)reader.ReadByte();
         }
 
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(sceneName);
             writer.Write((byte)sceneMode);
-            writer.Write((byte)physicsMode);
         }
     }
     #endregion

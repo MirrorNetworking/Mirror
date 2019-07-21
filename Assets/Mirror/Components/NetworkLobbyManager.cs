@@ -373,7 +373,7 @@ namespace Mirror
             }
         }
 
-        public override void OnClientChangeScene(string newSceneName)
+        public override void OnClientChangeScene(string newSceneName, LoadSceneMode sceneMode)
         {
             if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene from {0} to {1}", SceneManager.GetActiveScene().name, newSceneName);
 
