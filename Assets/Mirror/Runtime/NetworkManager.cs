@@ -44,7 +44,7 @@ namespace Mirror
         [FormerlySerializedAs("m_AutoCreatePlayer")] public bool autoCreatePlayer = true;
         [FormerlySerializedAs("m_PlayerSpawnMethod")] public PlayerSpawnMethod playerSpawnMethod;
 
-        [FormerlySerializedAs("m_SpawnPrefabs"),HideInInspector]
+        [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         public static List<Transform> startPositions = new List<Transform>();
@@ -75,14 +75,14 @@ namespace Mirror
         {
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
 
-#if UNITY_2019_2_OR_NEWER
+#if UNITY_2019_3_OR_NEWER
             // Coburn: You could remove this pesty warning but you'd be shooting yourself in the foot.
             // There's a reason why we do not support alpha and beta versions of Unity. If you understand the risks, then feel free to use it.
             // If you want official developer support, YOU MUST use a version of Mirror supported by the development team. We cannot support
             // every single version of Unity pops out of their build bots.
             if(!UnityEditor.SessionState.GetBool("MirrorDidNonSupportedCheck", false)) {
                 UnityEditor.SessionState.SetBool("MirrorDidNonSupportedCheck", true);
-                Debug.LogWarning("WARNING: Your Unity version is newer than the versions Mirror is designed to work with (2018.3.6+, 2018.4 LTS and 2019.1).\nTHIS IS A UNSUPPORTED USAGE CASE. Unless you are willing to fix any bugs that may occur, the Mirror development team cannot support you.");
+                Debug.LogWarning("WARNING: You are using a Unity version that has been untested with Mirror. We recommend only using a stable version of Unity such as 2018.3.6+, 2018.4 LTS or 2019.1.\nWhile you are welcome to use Mirror in a unsupported version, you will be required to reproduce any bugs in a stable version.");
             }
 #endif
             // Set the networkSceneName to prevent a scene reload
@@ -588,7 +588,7 @@ namespace Mirror
 
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage() {sceneName = networkSceneName};
+                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
             }
 
@@ -677,7 +677,7 @@ namespace Mirror
         #endregion
 
         #region Server System Callbacks
-        public virtual void OnServerConnect(NetworkConnection conn) {}
+        public virtual void OnServerConnect(NetworkConnection conn) { }
 
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
@@ -725,25 +725,25 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-		public Transform GetStartPosition()
-		{
-			// first remove any dead transforms
-			startPositions.RemoveAll(t => t == null);
+        public Transform GetStartPosition()
+        {
+            // first remove any dead transforms
+            startPositions.RemoveAll(t => t == null);
 
-			if (startPositions.Count == 0)
-				return null;
+            if (startPositions.Count == 0)
+                return null;
 
-			if (playerSpawnMethod == PlayerSpawnMethod.Random)
-			{
-				return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
-			}
-			else
-			{
-				Transform startPosition = startPositions[startPositionIndex];
-				startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
-				return startPosition;
-			}
-		}
+            if (playerSpawnMethod == PlayerSpawnMethod.Random)
+            {
+                return startPositions[UnityEngine.Random.Range(0, startPositions.Count)];
+            }
+            else
+            {
+                Transform startPosition = startPositions[startPositionIndex];
+                startPositionIndex = (startPositionIndex + 1) % startPositions.Count;
+                return startPosition;
+            }
+        }
 
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
@@ -753,9 +753,9 @@ namespace Mirror
             }
         }
 
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
+        public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnServerSceneChanged(string sceneName) {}
+        public virtual void OnServerSceneChanged(string sceneName) { }
         #endregion
 
         #region Client System Callbacks
@@ -777,13 +777,13 @@ namespace Mirror
             StopClient();
         }
 
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
+        public virtual void OnClientError(NetworkConnection conn, int errorCode) { }
 
-        public virtual void OnClientNotReady(NetworkConnection conn) {}
+        public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         // Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         // This allows client to do work / cleanup / prep before the scene changes.
-        public virtual void OnClientChangeScene(string newSceneName) {}
+        public virtual void OnClientChangeScene(string newSceneName) { }
 
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
@@ -803,10 +803,10 @@ namespace Mirror
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        public virtual void OnStartHost() {}
-        public virtual void OnStartServer() {}
+        public virtual void OnStartHost() { }
+        public virtual void OnStartServer() { }
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) {}
+        public virtual void OnStartClient(NetworkClient client) { }
         public virtual void OnStartClient()
         {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -814,9 +814,9 @@ namespace Mirror
 #pragma warning restore CS0618 // Type or member is obsolete
         }
 
-        public virtual void OnStopServer() {}
-        public virtual void OnStopClient() {}
-        public virtual void OnStopHost() {}
+        public virtual void OnStopServer() { }
+        public virtual void OnStopClient() { }
+        public virtual void OnStopHost() { }
         #endregion
     }
 }
