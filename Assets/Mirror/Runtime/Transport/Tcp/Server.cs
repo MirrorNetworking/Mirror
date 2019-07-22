@@ -64,7 +64,7 @@ namespace Mirror.Tcp
         }
 
         // the listener thread's listen function
-        public async void Listen(int port)
+        public async Task Listen(int port)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
@@ -93,7 +93,8 @@ namespace Mirror.Tcp
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
 
                     // non blocking receive loop
-                    ReceiveLoop(tcpClient);
+                    // must be on main thread
+                    Task receive = ReceiveLoop(tcpClient);
                 }
             }
             catch(ObjectDisposedException)
@@ -110,7 +111,7 @@ namespace Mirror.Tcp
             }
         }
 
-        private async void ReceiveLoop(TcpClient tcpClient)
+        private async Task ReceiveLoop(TcpClient tcpClient)
         {
             int connectionId = NextConnectionId();
             clients.Add(connectionId, tcpClient);
@@ -177,7 +178,7 @@ namespace Mirror.Tcp
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, ArraySegment<byte> data)
+        public async Task Send(int connectionId, ArraySegment<byte> data)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))
