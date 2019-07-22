@@ -64,7 +64,7 @@ namespace Mirror.Tcp
         }
 
         // the listener thread's listen function
-        public async Task Listen(int port)
+        public async Task ListenAsync(int port)
         {
             // absolutely must wrap with try/catch, otherwise thread
             // exceptions are silent
@@ -178,7 +178,7 @@ namespace Mirror.Tcp
         }
 
         // send message to client using socket connection or throws exception
-        public async Task Send(int connectionId, ArraySegment<byte> data)
+        public async Task SendAsync(int connectionId, ArraySegment<byte> data)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))

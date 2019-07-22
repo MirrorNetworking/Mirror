@@ -110,7 +110,7 @@ namespace Mirror.Tcp
         }
 
         // send the data or throw exception
-        public async void Send(ArraySegment<byte> data)
+        public async Task SendAsync(ArraySegment<byte> data)
         {
             if (client == null)
             {
