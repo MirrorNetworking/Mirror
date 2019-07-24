@@ -97,7 +97,9 @@ namespace Mirror
         public void Write(sbyte value) => WriteByte((byte)value);
         public void WriteSByte(sbyte value) => WriteByte((byte)value);
         // write char the same way that NetworkReader reads it (2 bytes)
+        [Obsolete("Use WriteChar instead")]
         public void Write(char value) => WriteUInt16((ushort)value);
+        public void WriteChar(char value) => WriteUInt16((ushort)value);
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
         public void Write(short value) => WriteUInt16((ushort)value);
         public void Write(int value) => WriteUInt32((uint)value);

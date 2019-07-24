@@ -570,8 +570,8 @@ namespace Mirror.Tests
             char u = 'ⓤ';
 
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(a);
-            writer.Write(u);
+            writer.WriteChar(a);
+            writer.WriteChar(u);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             char a2 = reader.ReadChar();
             Assert.That(a2, Is.EqualTo(a));
@@ -1080,7 +1080,7 @@ namespace Mirror.Tests
         {
             // write all simple types once
             NetworkWriter writer = new NetworkWriter();
-            writer.Write((char)1);
+            writer.WriteChar((char)1);
             writer.WriteByte((byte)2);
             writer.WriteSByte((sbyte)3);
             writer.Write(true);
