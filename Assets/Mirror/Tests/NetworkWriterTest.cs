@@ -102,7 +102,7 @@ namespace Mirror.Tests
             writer.Position = 100;
             writer.Write("no worries, m8");
             writer.Position = 64;
-            writer.Write(true);
+            writer.WriteBoolean(true);
             // check that clipping off the end affect ToArray()'s length
             writer.SetLength(128);
             byte[] output = writer.ToArray();
@@ -1083,7 +1083,7 @@ namespace Mirror.Tests
             writer.WriteChar((char)1);
             writer.WriteByte((byte)2);
             writer.WriteSByte((sbyte)3);
-            writer.Write(true);
+            writer.WriteBoolean(true);
             writer.Write((short)4);
             writer.WriteUInt16((ushort)5);
             writer.Write(6);

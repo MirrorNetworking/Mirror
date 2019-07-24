@@ -31,7 +31,7 @@ namespace Mirror
 
     public class SyncListBool : SyncList<bool>
     {
-        protected override void SerializeItem(NetworkWriter writer, bool item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, bool item) => writer.WriteBoolean(item);
         protected override bool DeserializeItem(NetworkReader reader) => reader.ReadBoolean();
     }
 

@@ -239,7 +239,7 @@ namespace Mirror
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
-                    writer.Write(newBoolValue);
+                    writer.WriteBoolean(newBoolValue);
                 }
             }
             return dirtyBits != 0;

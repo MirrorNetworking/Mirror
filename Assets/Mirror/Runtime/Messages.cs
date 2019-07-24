@@ -238,7 +238,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(owner);
+            writer.WriteBoolean(owner);
             writer.Write(assetId);
             writer.Write(position);
             writer.Write(rotation);
@@ -273,7 +273,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(owner);
+            writer.WriteBoolean(owner);
             writer.WriteUInt64(sceneId);
             writer.Write(position);
             writer.Write(rotation);
@@ -330,7 +330,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(authority);
+            writer.WriteBoolean(authority);
         }
     }
 
