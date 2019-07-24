@@ -992,7 +992,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
             {
-                writer.Write(value);
+                writer.WriteUInt16(value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1085,7 +1085,7 @@ namespace Mirror.Tests
             writer.Write((sbyte)3);
             writer.Write(true);
             writer.Write((short)4);
-            writer.Write((ushort)5);
+            writer.WriteUInt16((ushort)5);
             writer.Write(6);
             writer.Write(7U);
             writer.Write(8L);

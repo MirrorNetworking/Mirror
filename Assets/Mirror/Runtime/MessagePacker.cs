@@ -56,7 +56,7 @@ namespace Mirror
             {
                 // write message type
                 int msgType = GetId<T>();
-                writer.Write((ushort)msgType);
+                writer.WriteUInt16((ushort)msgType);
 
                 // serialize message into writer
                 message.Serialize(writer);

@@ -56,11 +56,15 @@ namespace Mirror
             stream.SetLength(value);
         }
 
-        public void Write(ushort value)
+        [Obsolete("Use WriteUInt16 instead")]
+        public void Write(ushort value) => WriteUInt16(value);
+
+        public void WriteUInt16(ushort value)
         {
             Write((byte)(value & 0xFF));
             Write((byte)(value >> 8));
         }
+
         public void Write(uint value)
         {
             Write((byte)(value & 0xFF));
@@ -83,9 +87,9 @@ namespace Mirror
         public void Write(byte value) => stream.WriteByte(value);
         public void Write(sbyte value) => Write((byte)value);
         // write char the same way that NetworkReader reads it (2 bytes)
-        public void Write(char value) => Write((ushort)value);
+        public void Write(char value) => WriteUInt16((ushort)value);
         public void Write(bool value) => Write((byte)(value ? 1 : 0));
-        public void Write(short value) => Write((ushort)value);
+        public void Write(short value) => WriteUInt16((ushort)value);
         public void Write(int value) => Write((uint)value);
         public void Write(long value) => Write((ulong)value);
 
@@ -127,7 +131,7 @@ namespace Mirror
             //        on the client)
             if (value == null)
             {
-                Write((ushort)0);
+                WriteUInt16((ushort)0);
                 return;
             }
 
@@ -142,7 +146,7 @@ namespace Mirror
             }
 
             // write size and bytes
-            Write(checked((ushort)(size + 1)));
+            WriteUInt16(checked((ushort)(size + 1)));
             Write(stringBuffer, 0, size);
         }
 

@@ -84,7 +84,7 @@ namespace Mirror
             else if (compressRotation == Compression.Lots)
             {
                 // write 2 byte, 5 bits for each float
-                writer.Write(FloatBytePacker.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
+                writer.WriteUInt16(FloatBytePacker.PackThreeFloatsIntoUShort(euler.x, euler.y, euler.z, 0, 360));
             }
         }
 
