@@ -28,7 +28,7 @@ namespace Mirror.Weaver
                 { Weaver.int16Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.int16Type) },
                 { Weaver.uint16Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteUInt16") },
                 { Weaver.byteType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteByte") },
-                { Weaver.sbyteType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.sbyteType) },
+                { Weaver.sbyteType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteSByte") },
                 { Weaver.charType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.charType) },
                 { Weaver.decimalType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.decimalType) },
                 { Weaver.vector2Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.vector2Type) },

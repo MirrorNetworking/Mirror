@@ -93,7 +93,9 @@ namespace Mirror
         [Obsolete("Use WriteByte instead")]
         public void Write(byte value) => stream.WriteByte(value);
         public void WriteByte(byte value) => stream.WriteByte(value);
+        [Obsolete("Use WriteSByte instead")]
         public void Write(sbyte value) => WriteByte((byte)value);
+        public void WriteSByte(sbyte value) => WriteByte((byte)value);
         // write char the same way that NetworkReader reads it (2 bytes)
         public void Write(char value) => WriteUInt16((ushort)value);
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
