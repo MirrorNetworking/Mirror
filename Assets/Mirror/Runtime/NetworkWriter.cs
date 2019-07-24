@@ -65,7 +65,10 @@ namespace Mirror
             Write((byte)(value >> 8));
         }
 
-        public void Write(uint value)
+        [Obsolete("Use WriteUInt32 instead")]
+        public void Write(uint value) => WriteUInt32(value);
+
+        public void WriteUInt32(uint value)
         {
             Write((byte)(value & 0xFF));
             Write((byte)((value >> 8) & 0xFF));
@@ -90,7 +93,7 @@ namespace Mirror
         public void Write(char value) => WriteUInt16((ushort)value);
         public void Write(bool value) => Write((byte)(value ? 1 : 0));
         public void Write(short value) => WriteUInt16((ushort)value);
-        public void Write(int value) => Write((uint)value);
+        public void Write(int value) => WriteUInt32((uint)value);
         public void Write(long value) => Write((ulong)value);
 
         public void Write(float value) {
@@ -98,7 +101,7 @@ namespace Mirror
             {
                 floatValue = value
             };
-            Write(converter.intValue);
+            WriteUInt32(converter.intValue);
         }
 
         public void Write(double value)
