@@ -45,7 +45,7 @@ namespace Mirror
             finally
             {
                 NetworkWriterPool.Recycle(writer);
-            } 
+            }
         }
 
         // pack message before sending
