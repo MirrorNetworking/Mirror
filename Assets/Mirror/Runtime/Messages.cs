@@ -61,7 +61,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteByte(value);
         }
     }
 
@@ -170,8 +170,8 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.Write(sceneName);
-            writer.Write((byte)sceneMode);
-            writer.Write((byte)physicsMode);
+            writer.WriteByte((byte)sceneMode);
+            writer.WriteByte((byte)physicsMode);
         }
     }
     #endregion

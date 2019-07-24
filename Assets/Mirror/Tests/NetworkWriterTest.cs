@@ -538,8 +538,8 @@ namespace Mirror.Tests
         {
             // write 2 bytes
             NetworkWriter writer = new NetworkWriter();
-            writer.Write((byte)1);
-            writer.Write((byte)2);
+            writer.WriteByte((byte)1);
+            writer.WriteByte((byte)2);
 
             // .ToArray() length is 2?
             Assert.That(writer.ToArray().Length, Is.EqualTo(2));
@@ -979,7 +979,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
             {
-                writer.Write(value);
+                writer.WriteByte(value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1081,7 +1081,7 @@ namespace Mirror.Tests
             // write all simple types once
             NetworkWriter writer = new NetworkWriter();
             writer.Write((char)1);
-            writer.Write((byte)2);
+            writer.WriteByte((byte)2);
             writer.Write((sbyte)3);
             writer.Write(true);
             writer.Write((short)4);

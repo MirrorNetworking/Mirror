@@ -80,7 +80,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
+        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
 
@@ -147,7 +147,7 @@ namespace Mirror
             for (int i = 0; i < changes.Count; i++)
             {
                 Change change = changes[i];
-                writer.Write((byte)change.operation);
+                writer.WriteByte((byte)change.operation);
 
                 switch (change.operation)
                 {

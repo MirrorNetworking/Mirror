@@ -61,8 +61,8 @@ namespace Mirror
 
         public void WriteUInt16(ushort value)
         {
-            Write((byte)(value & 0xFF));
-            Write((byte)(value >> 8));
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)(value >> 8));
         }
 
         [Obsolete("Use WriteUInt32 instead")]
@@ -70,31 +70,33 @@ namespace Mirror
 
         public void WriteUInt32(uint value)
         {
-            Write((byte)(value & 0xFF));
-            Write((byte)((value >> 8) & 0xFF));
-            Write((byte)((value >> 16) & 0xFF));
-            Write((byte)((value >> 24) & 0xFF));
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)((value >> 8) & 0xFF));
+            WriteByte((byte)((value >> 16) & 0xFF));
+            WriteByte((byte)((value >> 24) & 0xFF));
         }
 
         [Obsolete("Use WriteUInt64 instead")]
         public void Write(ulong value) => WriteUInt64(value);        
 
         public void WriteUInt64(ulong value) {
-            Write((byte)(value & 0xFF));
-            Write((byte)((value >> 8) & 0xFF));
-            Write((byte)((value >> 16) & 0xFF));
-            Write((byte)((value >> 24) & 0xFF));
-            Write((byte)((value >> 32) & 0xFF));
-            Write((byte)((value >> 40) & 0xFF));
-            Write((byte)((value >> 48) & 0xFF));
-            Write((byte)((value >> 56) & 0xFF));
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)((value >> 8) & 0xFF));
+            WriteByte((byte)((value >> 16) & 0xFF));
+            WriteByte((byte)((value >> 24) & 0xFF));
+            WriteByte((byte)((value >> 32) & 0xFF));
+            WriteByte((byte)((value >> 40) & 0xFF));
+            WriteByte((byte)((value >> 48) & 0xFF));
+            WriteByte((byte)((value >> 56) & 0xFF));
         }
 
+        [Obsolete("Use WriteByte instead")]
         public void Write(byte value) => stream.WriteByte(value);
-        public void Write(sbyte value) => Write((byte)value);
+        public void WriteByte(byte value) => stream.WriteByte(value);
+        public void Write(sbyte value) => WriteByte((byte)value);
         // write char the same way that NetworkReader reads it (2 bytes)
         public void Write(char value) => WriteUInt16((ushort)value);
-        public void Write(bool value) => Write((byte)(value ? 1 : 0));
+        public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
         public void Write(short value) => WriteUInt16((ushort)value);
         public void Write(int value) => WriteUInt32((uint)value);
         public void Write(long value) => WriteUInt64((ulong)value);
@@ -219,84 +221,84 @@ namespace Mirror
         {
             if (value <= 240)
             {
-                Write((byte)value);
+                WriteByte((byte)value);
                 return;
             }
             if (value <= 2287)
             {
-                Write((byte)(((value - 240) >> 8) + 241));
-                Write((byte)((value - 240) & 0xFF));
+                WriteByte((byte)(((value - 240) >> 8) + 241));
+                WriteByte((byte)((value - 240) & 0xFF));
                 return;
             }
             if (value <= 67823)
             {
-                Write((byte)249);
-                Write((byte)((value - 2288) >> 8));
-                Write((byte)((value - 2288) & 0xFF));
+                WriteByte((byte)249);
+                WriteByte((byte)((value - 2288) >> 8));
+                WriteByte((byte)((value - 2288) & 0xFF));
                 return;
             }
             if (value <= 16777215)
             {
-                Write((byte)250);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)250);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
                 return;
             }
             if (value <= 4294967295)
             {
-                Write((byte)251);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)251);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
                 return;
             }
             if (value <= 1099511627775)
             {
-                Write((byte)252);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)252);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
                 return;
             }
             if (value <= 281474976710655)
             {
-                Write((byte)253);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)253);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
                 return;
             }
             if (value <= 72057594037927935)
             {
-                Write((byte)254);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
-                Write((byte)((value >> 48) & 0xFF));
+                WriteByte((byte)254);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)((value >> 48) & 0xFF));
                 return;
             }
 
             // all others
             {
-                Write((byte)255);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
-                Write((byte)((value >> 48) & 0xFF));
-                Write((byte)((value >> 56) & 0xFF));
+                WriteByte((byte)255);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)((value >> 48) & 0xFF));
+                WriteByte((byte)((value >> 56) & 0xFF));
             }
         }
 
@@ -344,10 +346,10 @@ namespace Mirror
 
         public void Write(Color32 value)
         {
-            Write(value.r);
-            Write(value.g);
-            Write(value.b);
-            Write(value.a);
+            WriteByte(value.r);
+            WriteByte(value.g);
+            WriteByte(value.b);
+            WriteByte(value.a);
         }
 
         public void Write(Quaternion value)
