@@ -22,6 +22,10 @@ namespace Mirror.Tcp
         // clients with <connectionId, TcpClient>
         readonly Dictionary<int, TcpClient> clients = new Dictionary<int, TcpClient>();
 
+        static readonly ObjectPool<MemoryStream> bufferPool = new ObjectPool<MemoryStream>(() => new MemoryStream());
+
+        static readonly Dictionary<int, MemoryStream> dirtyBuffers = new Dictionary<int, MemoryStream>();
+
         public bool NoDelay = true;
 
         // connectionId counter
@@ -177,8 +181,34 @@ namespace Mirror.Tcp
             listener = null;
         }
 
+        // queue up all the messages
+        public void Send(int connectionId, ArraySegment<byte> data)
+        {
+            if (!dirtyBuffers.TryGetValue(connectionId, out MemoryStream buffer))
+            {
+                buffer = bufferPool.GetObject();
+                buffer.SetLength(0);
+                dirtyBuffers.Add(connectionId, buffer);
+            }
+
+            buffer.WritePrefixedData(data);
+        }
+
+        // send everything at the end of the frame
+        public void Flush()
+        {
+            foreach (KeyValuePair<int, MemoryStream> kvp in dirtyBuffers)
+            {
+                int connectionId = kvp.Key;
+                MemoryStream buffer = kvp.Value;
+                _ = SendAsync(connectionId, buffer);
+            }
+
+            dirtyBuffers.Clear();
+        }
+
         // send message to client using socket connection or throws exception
-        public async Task SendAsync(int connectionId, ArraySegment<byte> data)
+        private async Task SendAsync(int connectionId, MemoryStream data)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out TcpClient client))
@@ -214,6 +244,8 @@ namespace Mirror.Tcp
             {
                 ReceivedError?.Invoke(connectionId, new SocketException((int)SocketError.NotConnected));
             }
+            // we are done with the buffer return it
+            bufferPool.PutObject(data);
         }
 
         // get connection info in case it's needed (IP etc.)

@@ -39,7 +39,7 @@ namespace Mirror.Tcp
 
         // send message (via stream) with the <size,content> message structure
         // throws exception if there is a problem
-        protected static async Task SendMessage(NetworkStream stream, ArraySegment<byte> content)
+        protected static Task SendMessage(NetworkStream stream, ArraySegment<byte> content)
         {
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
@@ -57,7 +57,14 @@ namespace Mirror.Tcp
             byte[] payload = new byte[4 + content.Count];
             WriteSize(content.Count, payload);
             Array.Copy(content.Array, content.Offset, payload, 4, content.Count);
-            await stream.WriteAsync(payload, 0, payload.Length).ConfigureAwait(false);
+            return stream.WriteAsync(payload, 0, payload.Length);
+        }
+
+        // send message (via stream) with the <size,content> message structure
+        // throws exception if there is a problem
+        protected static Task SendMessage(NetworkStream stream, MemoryStream content)
+        {
+            return stream.WriteAsync(content.GetBuffer(), 0, (int)content.Length);
         }
 
         // read message (via stream) with the <size,content> message structure

@@ -40,7 +40,7 @@ namespace Mirror.Tcp
         public override void ClientConnect(string address) { client.Connect(address, port); }
         public override bool ClientSend(int channelId, byte [] data)
         {
-            var sendTask = client.SendAsync(new ArraySegment<byte>(data));
+            _ = client.SendAsync(new ArraySegment<byte>(data));
             return true;
         }
         public override void ClientDisconnect() 
@@ -52,12 +52,12 @@ namespace Mirror.Tcp
         public override bool ServerActive() { return server.Active; }
         public override void ServerStart()
         {
-            var listenTask = server.ListenAsync(port);
+            _ = server.ListenAsync(port);
         }
 
         public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
-            var sendTask = server.SendAsync(connectionId, new ArraySegment<byte>(data));
+            server.Send(connectionId, new ArraySegment<byte>(data));
             return true;
         }
 
@@ -72,6 +72,11 @@ namespace Mirror.Tcp
         }
 
         public override void ServerStop() { server.Stop(); }
+
+        public void LateUpdate()
+        {
+            server.Flush();
+        }
 
         // common
         public override void Shutdown()

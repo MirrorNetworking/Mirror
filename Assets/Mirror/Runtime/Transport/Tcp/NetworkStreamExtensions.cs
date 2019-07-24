@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -48,5 +49,18 @@ namespace Mirror.Tcp
             return data;
         }
 
+        public static void WriteInt(this Stream stream, int length)
+        {
+            stream.WriteByte((byte)length);
+            stream.WriteByte((byte)(length >> 8));
+            stream.WriteByte((byte)(length >> 16));
+            stream.WriteByte((byte)(length >> 24));
+        }
+
+        public static void WritePrefixedData(this Stream stream, ArraySegment<byte> data)
+        {
+            stream.WriteInt(data.Count);
+            stream.Write(data.Array, data.Offset, data.Count);
+        }
     }
 }
