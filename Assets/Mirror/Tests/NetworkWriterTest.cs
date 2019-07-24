@@ -1018,7 +1018,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {
-                writer.Write(value);
+                writer.WriteUInt64(value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1089,7 +1089,7 @@ namespace Mirror.Tests
             writer.Write(6);
             writer.WriteUInt32(7U);
             writer.Write(8L);
-            writer.Write(9UL);
+            writer.WriteUInt64(9UL);
             writer.Write(10.0F);
             writer.Write(11.0D);
             writer.Write((decimal)12);

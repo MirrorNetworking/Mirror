@@ -76,7 +76,10 @@ namespace Mirror
             Write((byte)((value >> 24) & 0xFF));
         }
 
-        public void Write(ulong value) {
+        [Obsolete("Use WriteUInt64 instead")]
+        public void Write(ulong value) => WriteUInt64(value);        
+
+        public void WriteUInt64(ulong value) {
             Write((byte)(value & 0xFF));
             Write((byte)((value >> 8) & 0xFF));
             Write((byte)((value >> 16) & 0xFF));
@@ -94,7 +97,7 @@ namespace Mirror
         public void Write(bool value) => Write((byte)(value ? 1 : 0));
         public void Write(short value) => WriteUInt16((ushort)value);
         public void Write(int value) => WriteUInt32((uint)value);
-        public void Write(long value) => Write((ulong)value);
+        public void Write(long value) => WriteUInt64((ulong)value);
 
         public void Write(float value) {
             UIntFloat converter = new UIntFloat
@@ -110,7 +113,7 @@ namespace Mirror
             {
                 doubleValue = value
             };
-            Write(converter.longValue);
+            WriteUInt64(converter.longValue);
         }
 
         public void Write(decimal value)
@@ -122,8 +125,8 @@ namespace Mirror
             {
                 decimalValue = value
             };
-            Write(converter.longValue1);
-            Write(converter.longValue2);
+            WriteUInt64(converter.longValue1);
+            WriteUInt64(converter.longValue2);
         }
 
         public void Write(string value)

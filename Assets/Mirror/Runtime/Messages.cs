@@ -274,7 +274,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.Write(owner);
-            writer.Write(sceneId);
+            writer.WriteUInt64(sceneId);
             writer.Write(position);
             writer.Write(rotation);
             writer.Write(scale);
