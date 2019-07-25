@@ -44,7 +44,7 @@ namespace Mirror.Weaver
                 { Weaver.rayType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteRay") },
                 { Weaver.matrixType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteMatrix4x4") },
                 { Weaver.guidType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteGuid") },
-                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.gameObjectType) },
+                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteGameObject") },
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteNetworkIdentity") },
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteTransform") },
                 { "System.Byte[]", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSize", "System.Byte[]") },

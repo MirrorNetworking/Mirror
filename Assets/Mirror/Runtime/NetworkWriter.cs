@@ -507,7 +507,10 @@ namespace Mirror
             }
         }
 
-        public void Write(GameObject value)
+        [Obsolete("Use WriteGameObject instead")]
+        public void Write(GameObject value) => WriteGameObject(value);
+
+        public void WriteGameObject(GameObject value)
         {
             if (value == null)
             {
