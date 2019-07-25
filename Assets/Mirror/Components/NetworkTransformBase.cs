@@ -70,9 +70,9 @@ namespace Mirror
             if (compressRotation == Compression.None)
             {
                 // write 3 floats = 12 byte
-                writer.Write(euler.x);
-                writer.Write(euler.y);
-                writer.Write(euler.z);
+                writer.WriteSingle(euler.x);
+                writer.WriteSingle(euler.y);
+                writer.WriteSingle(euler.z);
             }
             else if (compressRotation == Compression.Much)
             {

@@ -127,7 +127,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteDouble(value);
         }
     }
 
@@ -378,8 +378,8 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(clientTime);
-            writer.Write(serverTime);
+            writer.WriteDouble(clientTime);
+            writer.WriteDouble(serverTime);
         }
     }
     #endregion

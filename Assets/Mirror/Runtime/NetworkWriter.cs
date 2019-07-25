@@ -113,7 +113,10 @@ namespace Mirror
         public void Write(long value) => WriteUInt64((ulong)value);
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
 
-        public void Write(float value) {
+        [Obsolete("Use WriteSingle instead")]
+        public void Write(float value) => WriteSingle(value);
+        
+        public void WriteSingle(float value) {
             UIntFloat converter = new UIntFloat
             {
                 floatValue = value
@@ -121,7 +124,10 @@ namespace Mirror
             WriteUInt32(converter.intValue);
         }
 
-        public void Write(double value)
+        [Obsolete("Use WriteDouble instead")]
+        public void Write(double value) => WriteDouble(value);
+
+        public void WriteDouble(double value)
         {
             UIntDouble converter = new UIntDouble
             {
@@ -316,23 +322,23 @@ namespace Mirror
 
         public void Write(Vector2 value)
         {
-            Write(value.x);
-            Write(value.y);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
         }
 
         public void Write(Vector3 value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
         }
 
         public void Write(Vector4 value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
-            Write(value.w);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
+            WriteSingle(value.w);
         }
 
         public void Write(Vector2Int value)
@@ -350,10 +356,10 @@ namespace Mirror
 
         public void Write(Color value)
         {
-            Write(value.r);
-            Write(value.g);
-            Write(value.b);
-            Write(value.a);
+            WriteSingle(value.r);
+            WriteSingle(value.g);
+            WriteSingle(value.b);
+            WriteSingle(value.a);
         }
 
         public void Write(Color32 value)
@@ -366,24 +372,24 @@ namespace Mirror
 
         public void Write(Quaternion value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
-            Write(value.w);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
+            WriteSingle(value.w);
         }
 
         public void Write(Rect value)
         {
-            Write(value.xMin);
-            Write(value.yMin);
-            Write(value.width);
-            Write(value.height);
+            WriteSingle(value.xMin);
+            WriteSingle(value.yMin);
+            WriteSingle(value.width);
+            WriteSingle(value.height);
         }
 
         public void Write(Plane value)
         {
             Write(value.normal);
-            Write(value.distance);
+            WriteSingle(value.distance);
         }
 
         public void Write(Ray value)
@@ -394,22 +400,22 @@ namespace Mirror
 
         public void Write(Matrix4x4 value)
         {
-            Write(value.m00);
-            Write(value.m01);
-            Write(value.m02);
-            Write(value.m03);
-            Write(value.m10);
-            Write(value.m11);
-            Write(value.m12);
-            Write(value.m13);
-            Write(value.m20);
-            Write(value.m21);
-            Write(value.m22);
-            Write(value.m23);
-            Write(value.m30);
-            Write(value.m31);
-            Write(value.m32);
-            Write(value.m33);
+            WriteSingle(value.m00);
+            WriteSingle(value.m01);
+            WriteSingle(value.m02);
+            WriteSingle(value.m03);
+            WriteSingle(value.m10);
+            WriteSingle(value.m11);
+            WriteSingle(value.m12);
+            WriteSingle(value.m13);
+            WriteSingle(value.m20);
+            WriteSingle(value.m21);
+            WriteSingle(value.m22);
+            WriteSingle(value.m23);
+            WriteSingle(value.m30);
+            WriteSingle(value.m31);
+            WriteSingle(value.m32);
+            WriteSingle(value.m33);
         }
 
         public void Write(Guid value)

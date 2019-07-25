@@ -13,7 +13,7 @@ namespace Mirror
 
     public class SyncListFloat : SyncList<float>
     {
-        protected override void SerializeItem(NetworkWriter writer, float item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, float item) => writer.WriteSingle(item);
         protected override float DeserializeItem(NetworkReader reader) => reader.ReadSingle();
     }
 

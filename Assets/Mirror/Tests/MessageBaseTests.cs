@@ -26,7 +26,7 @@ namespace Mirror.Tests
         {
             writer.WriteInt32(IntValue);
             writer.Write(StringValue);
-            writer.Write(DoubleValue);
+            writer.WriteDouble(DoubleValue);
         }
     }
 

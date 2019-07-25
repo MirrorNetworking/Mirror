@@ -234,7 +234,7 @@ namespace Mirror
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
-                    writer.Write(newFloatValue);
+                    writer.WriteSingle(newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
@@ -280,13 +280,13 @@ namespace Mirror
                 {
                     AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(0);
                     writer.WriteInt32(st.fullPathHash);
-                    writer.Write(st.normalizedTime);
+                    writer.WriteSingle(st.normalizedTime);
                 }
                 else
                 {
                     AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
                     writer.WriteInt32(st.fullPathHash);
-                    writer.Write(st.normalizedTime);
+                    writer.WriteSingle(st.normalizedTime);
                 }
                 WriteParameters(writer);
                 return true;

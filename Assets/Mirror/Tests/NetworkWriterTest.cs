@@ -852,7 +852,7 @@ namespace Mirror.Tests
             foreach (float weird in weirdFloats)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(weird);
+                writer.WriteSingle(weird);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 float readFloat = reader.ReadSingle();
                 Assert.That(readFloat, Is.EqualTo(weird));
@@ -883,7 +883,7 @@ namespace Mirror.Tests
             foreach (double weird in weirdDoubles)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(weird);
+                writer.WriteDouble(weird);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 double readDouble = reader.ReadDouble();
                 Assert.That(readDouble, Is.EqualTo(weird));
@@ -925,7 +925,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (float weird in weirdFloats)
             {
-                writer.Write(weird);
+                writer.WriteSingle(weird);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -944,7 +944,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (double weird in weirdDoubles)
             {
-                writer.Write(weird);
+                writer.WriteDouble(weird);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1090,8 +1090,8 @@ namespace Mirror.Tests
             writer.WriteUInt32(7U);
             writer.WriteInt64(8L);
             writer.WriteUInt64(9UL);
-            writer.Write(10.0F);
-            writer.Write(11.0D);
+            writer.WriteSingle(10.0F);
+            writer.WriteDouble(11.0D);
             writer.Write((decimal)12);
             writer.Write((string)null);
             writer.Write("");
