@@ -348,7 +348,10 @@ namespace Mirror
             WriteSingle(value.z);
         }
 
-        public void Write(Vector4 value)
+        [Obsolete("Use WriteVector4 instead")]
+        public void Write(Vector4 value) => WriteVector4(value);
+
+        public void WriteVector4(Vector4 value)
         {
             WriteSingle(value.x);
             WriteSingle(value.y);
