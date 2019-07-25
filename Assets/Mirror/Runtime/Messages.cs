@@ -39,7 +39,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteString(value);
         }
     }
 
@@ -169,7 +169,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(sceneName);
+            writer.WriteString(sceneName);
             writer.WriteByte((byte)sceneMode);
             writer.WriteByte((byte)physicsMode);
         }

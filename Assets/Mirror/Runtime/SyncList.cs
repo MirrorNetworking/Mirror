@@ -7,7 +7,7 @@ namespace Mirror
 {
     public class SyncListString : SyncList<string>
     {
-        protected override void SerializeItem(NetworkWriter writer, string item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, string item) => writer.WriteString(item);
         protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
     }
 

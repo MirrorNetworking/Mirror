@@ -20,7 +20,7 @@ namespace Mirror.Weaver
                 { Weaver.singleType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteSingle") },
                 { Weaver.doubleType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteDouble") },
                 { Weaver.boolType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteBoolean") },
-                { Weaver.stringType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.stringType) },
+                { Weaver.stringType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteString") },
                 { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt64") },
                 { Weaver.uint64Type.FullName, Weaver.NetworkWriterWritePackedUInt64 },
                 { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt32") },

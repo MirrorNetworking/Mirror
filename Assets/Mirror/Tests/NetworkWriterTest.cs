@@ -100,7 +100,7 @@ namespace Mirror.Tests
             writer.SetLength(50);
             // check that jumping leaves 0s between
             writer.Position = 100;
-            writer.Write("no worries, m8");
+            writer.WriteString("no worries, m8");
             writer.Position = 64;
             writer.WriteBoolean(true);
             // check that clipping off the end affect ToArray()'s length
@@ -129,9 +129,9 @@ namespace Mirror.Tests
         public void TestSetLengthZeroes()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write("I saw");
+            writer.WriteString("I saw");
             writer.WriteInt64(0xA_FADED_DEAD_EEL);
-            writer.Write("and ate it");
+            writer.WriteString("and ate it");
             int position = writer.Position;
             writer.SetLength(10);
             // Setting length should set position too
@@ -515,7 +515,7 @@ namespace Mirror.Tests
             foreach (byte invalid in invalidUTF8bytes)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write("an uncorrupted string");
+                writer.WriteString("an uncorrupted string");
                 byte[] data = writer.ToArray();
                 data[10] = invalid;
                 NetworkReader reader = new NetworkReader(data);
@@ -527,7 +527,7 @@ namespace Mirror.Tests
         public void TestReadingTruncatedString()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write("a string longer than 10 bytes");
+            writer.WriteString("a string longer than 10 bytes");
             writer.SetLength(10);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.Throws<System.IO.EndOfStreamException>(() => reader.ReadString());
@@ -555,8 +555,8 @@ namespace Mirror.Tests
         public void TestToArraySegment()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write("hello");
-            writer.Write("world");
+            writer.WriteString("hello");
+            writer.WriteString("world");
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Assert.That(reader.ReadString(), Is.EqualTo("hello"));
@@ -622,7 +622,7 @@ namespace Mirror.Tests
             foreach (string weird in weirdUnicode)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(weird);
+                writer.WriteString(weird);
                 byte[] data = writer.ToArray();
                 NetworkReader reader = new NetworkReader(data);
                 string str = reader.ReadString();
@@ -1093,9 +1093,9 @@ namespace Mirror.Tests
             writer.WriteSingle(10.0F);
             writer.WriteDouble(11.0D);
             writer.WriteDecimal((decimal)12);
-            writer.Write((string)null);
-            writer.Write("");
-            writer.Write("13");
+            writer.WriteString((string)null);
+            writer.WriteString("");
+            writer.WriteString("13");
             writer.Write(new byte[] { 14, 15 }, 0, 2); // just the byte array, no size info etc.
             writer.WriteBytesAndSize((byte[])null); // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2); // buffer, no-offset, count

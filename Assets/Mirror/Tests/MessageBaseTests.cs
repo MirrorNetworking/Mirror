@@ -25,7 +25,7 @@ namespace Mirror.Tests
         public void Serialize(NetworkWriter writer)
         {
             writer.WriteInt32(IntValue);
-            writer.Write(StringValue);
+            writer.WriteString(StringValue);
             writer.WriteDouble(DoubleValue);
         }
     }

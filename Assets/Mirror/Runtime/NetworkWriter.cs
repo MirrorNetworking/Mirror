@@ -152,7 +152,10 @@ namespace Mirror
             WriteUInt64(converter.longValue2);
         }
 
-        public void Write(string value)
+        [Obsolete("Use WriteString instead")]
+        public void Write(string value) => WriteString(value);
+
+        public void WriteString(string value)
         {
             // write 0 for null support, increment real size by 1
             // (note: original HLAPI would write "" for null strings, but if a
