@@ -368,7 +368,10 @@ namespace Mirror
             WritePackedInt32(value.y);
         }
 
-        public void Write(Vector3Int value)
+        [Obsolete("Use WriteVector3Int instead")]
+        public void Write(Vector3Int value) => WriteVector3Int(value);
+
+        public void WriteVector3Int(Vector3Int value)
         {
             WritePackedInt32(value.x);
             WritePackedInt32(value.y);

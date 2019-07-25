@@ -348,7 +348,7 @@ namespace Mirror.Tests
             foreach (Vector3Int input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteVector3Int(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Vector3Int output = reader.ReadVector3Int();
                 Assert.That(output, Is.EqualTo(input));
