@@ -393,7 +393,7 @@ namespace Mirror.Tests
             foreach (Color32 input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteColor32(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Color32 output = reader.ReadColor32();
                 Assert.That(output, Is.EqualTo(input));

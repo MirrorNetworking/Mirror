@@ -389,7 +389,10 @@ namespace Mirror
             WriteSingle(value.a);
         }
 
-        public void Write(Color32 value)
+        [Obsolete("Use WriteColor32 instead")]
+        public void Write(Color32 value) => WriteColor32(value);
+
+        public void WriteColor32(Color32 value)
         {
             WriteByte(value.r);
             WriteByte(value.g);
