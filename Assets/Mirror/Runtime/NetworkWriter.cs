@@ -92,25 +92,38 @@ namespace Mirror
 
         [Obsolete("Use WriteByte instead")]
         public void Write(byte value) => stream.WriteByte(value);
+
         public void WriteByte(byte value) => stream.WriteByte(value);
+
         [Obsolete("Use WriteSByte instead")]
         public void Write(sbyte value) => WriteByte((byte)value);
+
         public void WriteSByte(sbyte value) => WriteByte((byte)value);
+
         // write char the same way that NetworkReader reads it (2 bytes)
         [Obsolete("Use WriteChar instead")]
         public void Write(char value) => WriteUInt16((ushort)value);
+
         public void WriteChar(char value) => WriteUInt16((ushort)value);
+
         [Obsolete("Use WriteBoolean instead")]
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
+
         public void WriteBoolean(bool value) => WriteByte((byte)(value ? 1 : 0));
+
         [Obsolete("Use WriteInt16 instead")]
         public void Write(short value) => WriteUInt16((ushort)value);
+
         public void WriteInt16(short value) => WriteUInt16((ushort)value);
+
         [Obsolete("Use WriteInt32 instead")]
         public void Write(int value) => WriteUInt32((uint)value);
+
         public void WriteInt32(int value) => WriteUInt32((uint)value);
+
         [Obsolete("Use WriteInt64 instead")]
         public void Write(long value) => WriteUInt64((ulong)value);
+
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
 
         [Obsolete("Use WriteSingle instead")]
