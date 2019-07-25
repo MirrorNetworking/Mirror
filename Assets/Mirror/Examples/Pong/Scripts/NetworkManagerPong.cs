@@ -8,7 +8,6 @@ public class NetworkManagerPong : NetworkManager
 {
     public Transform leftRacketSpawn;
     public Transform rightRacketSpawn;
-    public GameObject ballPrefab;
     GameObject ball;
 
     public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
@@ -21,7 +20,7 @@ public class NetworkManagerPong : NetworkManager
         // spawn ball if two players
         if (numPlayers == 2)
         {
-            ball = Instantiate(ballPrefab);
+            ball = Instantiate(spawnPrefabs.Find(prefab => prefab.name == "Ball"));
             NetworkServer.Spawn(ball);
         }
     }
