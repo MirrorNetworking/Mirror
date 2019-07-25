@@ -279,13 +279,13 @@ namespace Mirror
                 if (animator.IsInTransition(0))
                 {
                     AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(0);
-                    writer.Write(st.fullPathHash);
+                    writer.WriteInt32(st.fullPathHash);
                     writer.Write(st.normalizedTime);
                 }
                 else
                 {
                     AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
-                    writer.Write(st.fullPathHash);
+                    writer.WriteInt32(st.fullPathHash);
                     writer.Write(st.normalizedTime);
                 }
                 WriteParameters(writer);

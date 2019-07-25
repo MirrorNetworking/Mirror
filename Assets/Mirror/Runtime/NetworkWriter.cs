@@ -106,7 +106,9 @@ namespace Mirror
         [Obsolete("Use WriteInt16 instead")]
         public void Write(short value) => WriteUInt16((ushort)value);
         public void WriteInt16(short value) => WriteUInt16((ushort)value);
+        [Obsolete("Use WriteInt32 instead")]
         public void Write(int value) => WriteUInt32((uint)value);
+        public void WriteInt32(int value) => WriteUInt32((uint)value);
         public void Write(long value) => WriteUInt64((ulong)value);
 
         public void Write(float value) {

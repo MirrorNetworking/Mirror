@@ -13,7 +13,7 @@ namespace Mirror.Tests
             // try serializing less than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 30000 / 4; ++i)
-                writer.Write(i);
+                writer.WriteInt32(i);
             Assert.That(writer.Position, Is.EqualTo(30000));
         }
 
@@ -23,7 +23,7 @@ namespace Mirror.Tests
             // try serializing more than 32kb and see what happens
             NetworkWriter writer = new NetworkWriter();
             for (int i = 0; i < 40000 / 4; ++i)
-                writer.Write(i);
+                writer.WriteInt32(i);
             Assert.That(writer.Position, Is.EqualTo(40000));
         }
 
@@ -1057,7 +1057,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
             {
-                writer.Write((int) value);
+                writer.WriteInt32((int) value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1086,7 +1086,7 @@ namespace Mirror.Tests
             writer.WriteBoolean(true);
             writer.WriteInt16((short)4);
             writer.WriteUInt16((ushort)5);
-            writer.Write(6);
+            writer.WriteInt32(6);
             writer.WriteUInt32(7U);
             writer.Write(8L);
             writer.WriteUInt64(9UL);

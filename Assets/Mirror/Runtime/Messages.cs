@@ -199,7 +199,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32((uint)componentIndex);
-            writer.Write(functionHash);
+            writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
