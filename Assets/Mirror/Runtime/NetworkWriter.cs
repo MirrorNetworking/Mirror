@@ -485,7 +485,10 @@ namespace Mirror
             WritePackedUInt32(value.netId);
         }
 
-        public void Write(Transform value)
+        [Obsolete("Use WriteTransform instead")]
+        public void Write(Transform value) => WriteTransform(value);
+
+        public void WriteTransform(Transform value)
         {
             if (value == null || value.gameObject == null)
             {
