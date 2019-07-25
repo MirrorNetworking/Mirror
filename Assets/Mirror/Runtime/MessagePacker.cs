@@ -34,7 +34,7 @@ namespace Mirror
             try
             {
                 // write message type
-                writer.Write((short)msgType);
+                writer.WriteInt16((short)msgType);
 
                 // serialize message into writer
                 msg.Serialize(writer);

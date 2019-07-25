@@ -103,7 +103,9 @@ namespace Mirror
         [Obsolete("Use WriteBoolean instead")]
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
         public void WriteBoolean(bool value) => WriteByte((byte)(value ? 1 : 0));
+        [Obsolete("Use WriteInt16 instead")]
         public void Write(short value) => WriteUInt16((ushort)value);
+        public void WriteInt16(short value) => WriteUInt16((ushort)value);
         public void Write(int value) => WriteUInt32((uint)value);
         public void Write(long value) => WriteUInt64((ulong)value);
 
