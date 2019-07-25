@@ -431,7 +431,10 @@ namespace Mirror
             WriteSingle(value.distance);
         }
 
-        public void Write(Ray value)
+        [Obsolete("Use WriteRay instead")]
+        public void Write(Ray value) => WriteRay(value);
+
+        public void WriteRay(Ray value)
         {
             WriteVector3(value.origin);
             WriteVector3(value.direction);

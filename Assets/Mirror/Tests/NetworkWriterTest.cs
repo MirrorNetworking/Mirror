@@ -473,7 +473,7 @@ namespace Mirror.Tests
             foreach (Ray input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteRay(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Ray output = reader.ReadRay();
                 Assert.That((output.direction - input.direction).magnitude, Is.LessThan(1e-6f));
