@@ -201,7 +201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 473997961}
   m_Layer: 0
-  m_Name: RacketSpawnLeft
+  m_Name: RacquetSpawnLeft
   m_TagString: Untagged
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -649,7 +649,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1397990096}
   m_Layer: 0
-  m_Name: RacketSpawnRight
+  m_Name: RacquetSpawnRight
   m_TagString: Untagged
   m_Icon: {fileID: -964228994112308473, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -886,9 +886,8 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
-  leftRacketSpawn: {fileID: 473997961}
-  rightRacketSpawn: {fileID: 1397990096}
-  ballPrefab: {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
+  leftSpawn: {fileID: 473997961}
+  rightSpawn: {fileID: 1397990096}
 --- !u!114 &1886246553
 MonoBehaviour:
   m_ObjectHideFlags: 0

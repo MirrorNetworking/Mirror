@@ -17,8 +17,8 @@ namespace Mirror.Examples.Pong
         // need to use FixedUpdate for rigidbody
         void FixedUpdate()
         {
-            // only let the local player control the racket.
-            // don't control other player's rackets
+            // only let the local player control the racquet.
+            // don't control other player's racquets
             if (isLocalPlayer)
                 rb.velocity = new Vector2(0, Input.GetAxisRaw("Vertical")) * speed * Time.fixedDeltaTime;
         }

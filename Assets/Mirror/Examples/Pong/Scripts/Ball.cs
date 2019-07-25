@@ -20,27 +20,35 @@ namespace Mirror.Examples.Pong
             rb.velocity = Vector2.right * speed;
         }
 
-        float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
+        //public void Start()
+        //{
+        //    // only simulate ball physics on server
+        //    GetComponent<Rigidbody2D>().simulated = isServer;
+        //    if (isServer)
+        //        GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
+        //}
+
+        float HitFactor(Vector2 ballPos, Vector2 racquetPos, float racquetHeight)
         {
             // ascii art:
-            // ||  1 <- at the top of the racket
+            // ||  1 <- at the top of the racquet
             // ||
-            // ||  0 <- at the middle of the racket
+            // ||  0 <- at the middle of the racquet
             // ||
-            // || -1 <- at the bottom of the racket
-            return (ballPos.y - racketPos.y) / racketHeight;
+            // || -1 <- at the bottom of the racquet
+            return (ballPos.y - racquetPos.y) / racquetHeight;
         }
 
         [ServerCallback] // only call this on server
         void OnCollisionEnter2D(Collision2D col)
         {
             // Note: 'col' holds the collision information. If the
-            // Ball collided with a racket, then:
-            //   col.gameObject is the racket
-            //   col.transform.position is the racket's position
-            //   col.collider is the racket's collider
+            // Ball collided with a racquet, then:
+            //   col.gameObject is the racquet
+            //   col.transform.position is the racquet's position
+            //   col.collider is the racquet's collider
 
-            // did we hit a racket? then we need to calculate the hit factor
+            // did we hit a racquet? then we need to calculate the hit factor
             if (col.transform.GetComponent<Player>())
             {
                 // Calculate y direction via hit Factor

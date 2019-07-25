@@ -1,4 +1,4 @@
-// custom NetworkManager that simply assigns the correct racket positions when
+// custom NetworkManager that simply assigns the correct racquet positions when
 // spawning players. the built in RoundRobin spawn method wouldn't work after
 // someone reconnects (both players would be on the same side).
 using UnityEngine;
@@ -6,14 +6,14 @@ using Mirror;
 
 public class NetworkManagerPong : NetworkManager
 {
-    public Transform leftRacketSpawn;
-    public Transform rightRacketSpawn;
+    public Transform leftSpawn;
+    public Transform rightSpawn;
     GameObject ball;
 
     public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
     {
         // add player at correct spawn position
-        Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
+        Transform start = numPlayers == 0 ? leftSpawn : rightSpawn;
         GameObject player = Instantiate(playerPrefab, start.position, start.rotation);
         NetworkServer.AddPlayerForConnection(conn, player);
 
