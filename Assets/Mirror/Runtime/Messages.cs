@@ -239,7 +239,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(owner);
-            writer.Write(assetId);
+            writer.WriteGuid(assetId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);

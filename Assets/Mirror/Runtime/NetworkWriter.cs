@@ -463,7 +463,10 @@ namespace Mirror
             WriteSingle(value.m33);
         }
 
-        public void Write(Guid value)
+        [Obsolete("Use WriteGuid instead")]
+        public void Write(Guid value) => WriteGuid(value);
+
+        public void WriteGuid(Guid value)
         {
             byte[] data = value.ToByteArray();
             WriteBytes(data, 0, data.Length);

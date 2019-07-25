@@ -821,7 +821,7 @@ namespace Mirror.Tests
         {
             Guid originalGuid = new Guid("0123456789abcdef9876543210fedcba");
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(originalGuid);
+            writer.WriteGuid(originalGuid);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Guid readGuid = reader.ReadGuid();
