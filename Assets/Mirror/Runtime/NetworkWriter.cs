@@ -472,7 +472,10 @@ namespace Mirror
             WriteBytes(data, 0, data.Length);
         }
 
-        public void Write(NetworkIdentity value)
+        [Obsolete("Use WriteNetworkIdentity instead")]
+        public void Write(NetworkIdentity value) => WriteNetworkIdentity(value);
+
+        public void WriteNetworkIdentity(NetworkIdentity value)
         {
             if (value == null)
             {
