@@ -6,12 +6,18 @@ namespace Mirror.Examples.Pong
     {
         public float speed = 30;
 
-        public void Start()
+        Rigidbody2D rb;
+
+        public override void OnStartServer()
         {
+            base.OnStartServer();
+
+            rb = GetComponent<Rigidbody2D>();
+
             // only simulate ball physics on server
-            GetComponent<Rigidbody2D>().simulated = isServer;
-            if (isServer)
-                GetComponent<Rigidbody2D>().velocity = Vector2.right * speed;
+            rb.simulated = true;
+
+            rb.velocity = Vector2.right * speed;
         }
 
         float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
@@ -49,7 +55,7 @@ namespace Mirror.Examples.Pong
                 Vector2 dir = new Vector2(x, y).normalized;
 
                 // Set Velocity with dir * speed
-                GetComponent<Rigidbody2D>().velocity = dir * speed;
+                rb.velocity = dir * speed;
             }
         }
     }
