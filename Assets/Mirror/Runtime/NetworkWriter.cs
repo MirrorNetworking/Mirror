@@ -400,7 +400,10 @@ namespace Mirror
             WriteByte(value.a);
         }
 
-        public void Write(Quaternion value)
+        [Obsolete("Use WriteQuaternion instead")]
+        public void Write(Quaternion value) => WriteQuaternion(value);
+
+        public void WriteQuaternion(Quaternion value)
         {
             WriteSingle(value.x);
             WriteSingle(value.y);

@@ -412,7 +412,7 @@ namespace Mirror.Tests
             foreach (Quaternion input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteQuaternion(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Quaternion output = reader.ReadQuaternion();
                 Assert.That(output, Is.EqualTo(input));

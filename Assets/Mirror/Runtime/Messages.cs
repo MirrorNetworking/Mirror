@@ -241,7 +241,7 @@ namespace Mirror
             writer.WriteBoolean(owner);
             writer.Write(assetId);
             writer.WriteVector3(position);
-            writer.Write(rotation);
+            writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
@@ -276,7 +276,7 @@ namespace Mirror
             writer.WriteBoolean(owner);
             writer.WriteUInt64(sceneId);
             writer.WriteVector3(position);
-            writer.Write(rotation);
+            writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
