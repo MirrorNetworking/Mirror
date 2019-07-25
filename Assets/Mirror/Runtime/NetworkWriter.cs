@@ -440,7 +440,10 @@ namespace Mirror
             WriteVector3(value.direction);
         }
 
-        public void Write(Matrix4x4 value)
+        [Obsolete("Use WriteMatrix4x4 instead")]
+        public void Write(Matrix4x4 value) => WriteMatrix4x4(value);
+
+        public void WriteMatrix4x4(Matrix4x4 value)
         {
             WriteSingle(value.m00);
             WriteSingle(value.m01);

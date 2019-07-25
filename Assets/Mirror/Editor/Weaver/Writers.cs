@@ -42,7 +42,7 @@ namespace Mirror.Weaver
                 { Weaver.rectType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteRect") },
                 { Weaver.planeType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePlane") },
                 { Weaver.rayType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteRay") },
-                { Weaver.matrixType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.matrixType) },
+                { Weaver.matrixType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteMatrix4x4") },
                 { Weaver.guidType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.guidType) },
                 { Weaver.gameObjectType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.gameObjectType) },
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.NetworkIdentityType) },

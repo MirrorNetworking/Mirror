@@ -89,7 +89,7 @@ namespace Mirror.Tests
         public void TestOverwritingData()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(Matrix4x4.identity);
+            writer.WriteMatrix4x4(Matrix4x4.identity);
             writer.WriteDecimal(1.23456789m);
             writer.Position += 10;
             writer.WriteVector3(Vector3.negativeInfinity);
@@ -494,7 +494,7 @@ namespace Mirror.Tests
             foreach (Matrix4x4 input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteMatrix4x4(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Matrix4x4 output = reader.ReadMatrix4x4();
                 Assert.That(output, Is.EqualTo(input));
