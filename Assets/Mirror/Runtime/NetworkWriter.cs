@@ -109,7 +109,9 @@ namespace Mirror
         [Obsolete("Use WriteInt32 instead")]
         public void Write(int value) => WriteUInt32((uint)value);
         public void WriteInt32(int value) => WriteUInt32((uint)value);
+        [Obsolete("Use WriteInt64 instead")]
         public void Write(long value) => WriteUInt64((ulong)value);
+        public void WriteInt64(long value) => WriteUInt64((ulong)value);
 
         public void Write(float value) {
             UIntFloat converter = new UIntFloat

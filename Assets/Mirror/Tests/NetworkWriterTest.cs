@@ -95,7 +95,7 @@ namespace Mirror.Tests
             writer.Write(Vector3.negativeInfinity);
             writer.Position = 46;
             // write right at the boundary before SetLength
-            writer.Write(0xfeed_babe_c0ffee);
+            writer.WriteInt64(0xfeed_babe_c0ffee);
             // test that SetLength clears data beyond length
             writer.SetLength(50);
             // check that jumping leaves 0s between
@@ -130,7 +130,7 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             writer.Write("I saw");
-            writer.Write(0xA_FADED_DEAD_EEL);
+            writer.WriteInt64(0xA_FADED_DEAD_EEL);
             writer.Write("and ate it");
             int position = writer.Position;
             writer.SetLength(10);
@@ -1070,7 +1070,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {
-                writer.Write((long) value);
+                writer.WriteInt64((long) value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1088,7 +1088,7 @@ namespace Mirror.Tests
             writer.WriteUInt16((ushort)5);
             writer.WriteInt32(6);
             writer.WriteUInt32(7U);
-            writer.Write(8L);
+            writer.WriteInt64(8L);
             writer.WriteUInt64(9UL);
             writer.Write(10.0F);
             writer.Write(11.0D);
