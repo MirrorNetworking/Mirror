@@ -25,7 +25,7 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 
 ## Callbacks in host mode
 
-These are only called on the **Player GameObjects** when a client connects:
+These are only called on the **Player Game Objects** when a client connects:
 
 -   `OnStartServer`
 -   `OnStartClient`

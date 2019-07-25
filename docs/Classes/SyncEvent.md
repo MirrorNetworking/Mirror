@@ -35,7 +35,7 @@ public class Other : NetworkBehaviour
 
     public void TakeDamage(int amount, float dir)
     {
-        health -=  amount;
+        health -= amount;
     }
 }
 ```
