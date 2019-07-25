@@ -432,7 +432,7 @@ namespace Mirror.Tests
             foreach (Rect input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteRect(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Rect output = reader.ReadRect();
                 Assert.That(output, Is.EqualTo(input));
@@ -451,7 +451,7 @@ namespace Mirror.Tests
             foreach (Plane input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WritePlane(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Plane output = reader.ReadPlane();
                 // note: Plane constructor does math internally, resulting in

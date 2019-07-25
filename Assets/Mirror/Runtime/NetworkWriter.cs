@@ -411,7 +411,10 @@ namespace Mirror
             WriteSingle(value.w);
         }
 
-        public void Write(Rect value)
+        [Obsolete("Use WriteRect instead")]
+        public void Write(Rect value) => WriteRect(value);
+
+        public void WriteRect(Rect value)
         {
             WriteSingle(value.xMin);
             WriteSingle(value.yMin);
@@ -419,7 +422,10 @@ namespace Mirror
             WriteSingle(value.height);
         }
 
-        public void Write(Plane value)
+        [Obsolete("Use WritePlane instead")]
+        public void Write(Plane value) => WritePlane(value);
+
+        public void WritePlane(Plane value)
         {
             WriteVector3(value.normal);
             WriteSingle(value.distance);
