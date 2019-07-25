@@ -45,7 +45,7 @@ namespace Mirror.Tests
         {
             byte[] data = {1, 2, 3};
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(data, 0, data.Length);
+            writer.WriteBytes(data, 0, data.Length);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
             ArraySegment<byte> deserialized = reader.ReadBytesSegment(data.Length);
@@ -178,7 +178,7 @@ namespace Mirror.Tests
         public void TestReading0LengthBytes()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(new byte[]{}, 0, 0);
+            writer.WriteBytes(new byte[]{}, 0, 0);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadBytes(0).Length, Is.EqualTo(0));
         }
@@ -1096,7 +1096,7 @@ namespace Mirror.Tests
             writer.WriteString((string)null);
             writer.WriteString("");
             writer.WriteString("13");
-            writer.Write(new byte[] { 14, 15 }, 0, 2); // just the byte array, no size info etc.
+            writer.WriteBytes(new byte[] { 14, 15 }, 0, 2); // just the byte array, no size info etc.
             writer.WriteBytesAndSize((byte[])null); // [SyncVar] struct values can have uninitialized byte arrays, null needs to be supported
             writer.WriteBytesAndSize(new byte[] { 17, 18 }, 0, 2); // buffer, no-offset, count
             writer.WriteBytesAndSize(new byte[] { 19, 20, 21 }, 1, 2); // buffer, offset, count

@@ -179,12 +179,15 @@ namespace Mirror
 
             // write size and bytes
             WriteUInt16(checked((ushort)(size + 1)));
-            Write(stringBuffer, 0, size);
+            WriteBytes(stringBuffer, 0, size);
         }
+
+        [Obsolete("Use WriteBytes instead")]
+        public void Write(byte[] buffer, int offset, int count) => WriteBytes(buffer, offset, count);
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
-        public void Write(byte[] buffer, int offset, int count)
+        public void WriteBytes(byte[] buffer, int offset, int count)
         {
             // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
             stream.Write(buffer, offset, count);
@@ -203,7 +206,7 @@ namespace Mirror
                 return;
             }
             WritePackedUInt32(checked((uint)count) + 1u);
-            Write(buffer, offset, count);
+            WriteBytes(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter
@@ -427,7 +430,7 @@ namespace Mirror
         public void Write(Guid value)
         {
             byte[] data = value.ToByteArray();
-            Write(data, 0, data.Length);
+            WriteBytes(data, 0, data.Length);
         }
 
         public void Write(NetworkIdentity value)
