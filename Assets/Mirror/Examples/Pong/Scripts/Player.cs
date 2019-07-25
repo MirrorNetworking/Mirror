@@ -6,15 +6,21 @@ namespace Mirror.Examples.Pong
     {
         public float speed = 30;
 
+        Rigidbody2D rb;
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            rb = GetComponent<Rigidbody2D>();
+        }
+
         // need to use FixedUpdate for rigidbody
         void FixedUpdate()
         {
             // only let the local player control the racket.
             // don't control other player's rackets
-            if (!isLocalPlayer) return;
-
-            float vertical = Input.GetAxisRaw("Vertical");
-            GetComponent<Rigidbody2D>().velocity = new Vector2(0, vertical) * speed * Time.fixedDeltaTime;
+            if (isLocalPlayer)
+                rb.velocity = new Vector2(0, Input.GetAxisRaw("Vertical")) * speed * Time.fixedDeltaTime;
         }
     }
 }
