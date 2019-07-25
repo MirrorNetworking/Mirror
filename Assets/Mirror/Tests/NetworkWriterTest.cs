@@ -90,7 +90,7 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             writer.Write(Matrix4x4.identity);
-            writer.Write(1.23456789m);
+            writer.WriteDecimal(1.23456789m);
             writer.Position += 10;
             writer.Write(Vector3.negativeInfinity);
             writer.Position = 46;
@@ -904,7 +904,7 @@ namespace Mirror.Tests
             foreach (decimal weird in weirdDecimals)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(weird);
+                writer.WriteDecimal(weird);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 decimal readDecimal = reader.ReadDecimal();
                 Assert.That(readDecimal, Is.EqualTo(weird));
@@ -965,7 +965,7 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             foreach (decimal weird in weirdDecimals)
             {
-                writer.Write(weird);
+                writer.WriteDecimal(weird);
             }
             //Debug.Log(BitConverter.ToString(writer.ToArray()));
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
@@ -1092,7 +1092,7 @@ namespace Mirror.Tests
             writer.WriteUInt64(9UL);
             writer.WriteSingle(10.0F);
             writer.WriteDouble(11.0D);
-            writer.Write((decimal)12);
+            writer.WriteDecimal((decimal)12);
             writer.Write((string)null);
             writer.Write("");
             writer.Write("13");

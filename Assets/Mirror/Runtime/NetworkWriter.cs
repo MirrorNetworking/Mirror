@@ -136,7 +136,10 @@ namespace Mirror
             WriteUInt64(converter.longValue);
         }
 
-        public void Write(decimal value)
+        [Obsolete("Use WriteDecimal instead")]
+        public void Write(decimal value) => WriteDecimal(value);
+
+        public void WriteDecimal(decimal value)
         {
             // the only way to read it without allocations is to both read and
             // write it with the FloatConverter (which is not binary compatible
