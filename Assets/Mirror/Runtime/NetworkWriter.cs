@@ -338,7 +338,10 @@ namespace Mirror
             WriteSingle(value.y);
         }
 
-        public void Write(Vector3 value)
+        [Obsolete("Use WriteVector3 instead")]
+        public void Write(Vector3 value) => WriteVector3(value);
+
+        public void WriteVector3(Vector3 value)
         {
             WriteSingle(value.x);
             WriteSingle(value.y);
@@ -400,14 +403,14 @@ namespace Mirror
 
         public void Write(Plane value)
         {
-            Write(value.normal);
+            WriteVector3(value.normal);
             WriteSingle(value.distance);
         }
 
         public void Write(Ray value)
         {
-            Write(value.origin);
-            Write(value.direction);
+            WriteVector3(value.origin);
+            WriteVector3(value.direction);
         }
 
         public void Write(Matrix4x4 value)

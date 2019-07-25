@@ -240,9 +240,9 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(owner);
             writer.Write(assetId);
-            writer.Write(position);
+            writer.WriteVector3(position);
             writer.Write(rotation);
-            writer.Write(scale);
+            writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
@@ -275,9 +275,9 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(owner);
             writer.WriteUInt64(sceneId);
-            writer.Write(position);
+            writer.WriteVector3(position);
             writer.Write(rotation);
-            writer.Write(scale);
+            writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }

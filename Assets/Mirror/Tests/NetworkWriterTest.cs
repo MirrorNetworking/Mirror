@@ -92,7 +92,7 @@ namespace Mirror.Tests
             writer.Write(Matrix4x4.identity);
             writer.WriteDecimal(1.23456789m);
             writer.Position += 10;
-            writer.Write(Vector3.negativeInfinity);
+            writer.WriteVector3(Vector3.negativeInfinity);
             writer.Position = 46;
             // write right at the boundary before SetLength
             writer.WriteInt64(0xfeed_babe_c0ffee);
@@ -282,7 +282,7 @@ namespace Mirror.Tests
             foreach (Vector3 input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteVector3(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Vector3 output = reader.ReadVector3();
                 Assert.That(output, Is.EqualTo(input));

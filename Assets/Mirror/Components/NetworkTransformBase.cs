@@ -59,7 +59,7 @@ namespace Mirror
         static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation)
         {
             // serialize position
-            writer.Write(position);
+            writer.WriteVector3(position);
 
             // serialize rotation
             // writing quaternion = 16 byte
