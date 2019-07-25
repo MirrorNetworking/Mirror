@@ -260,7 +260,7 @@ namespace Mirror.Tests
             foreach (Vector2 input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteVector2(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Vector2 output = reader.ReadVector2();
                 Assert.That(output, Is.EqualTo(input));

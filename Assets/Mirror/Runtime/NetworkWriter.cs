@@ -329,7 +329,10 @@ namespace Mirror
             }
         }
 
-        public void Write(Vector2 value)
+        [Obsolete("Use WriteVector2 instead")]
+        public void Write(Vector2 value) => WriteVector2(value);
+
+        public void WriteVector2(Vector2 value)
         {
             WriteSingle(value.x);
             WriteSingle(value.y);
