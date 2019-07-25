@@ -325,7 +325,7 @@ namespace Mirror.Tests
             foreach (Vector2Int input in inputs)
             {
                 NetworkWriter writer = new NetworkWriter();
-                writer.Write(input);
+                writer.WriteVector2Int(input);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 Vector2Int output = reader.ReadVector2Int();
                 Assert.That(output, Is.EqualTo(input));

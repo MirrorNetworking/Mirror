@@ -359,7 +359,10 @@ namespace Mirror
             WriteSingle(value.w);
         }
 
-        public void Write(Vector2Int value)
+        [Obsolete("Use WriteVector2Int instead")]
+        public void Write(Vector2Int value) => WriteVector2Int(value);
+
+        public void WriteVector2Int(Vector2Int value)
         {
             WritePackedInt32(value.x);
             WritePackedInt32(value.y);
