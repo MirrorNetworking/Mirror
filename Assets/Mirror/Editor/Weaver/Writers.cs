@@ -36,7 +36,7 @@ namespace Mirror.Weaver
                 { Weaver.vector4Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector4") },
                 { Weaver.vector2IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector2Int") },
                 { Weaver.vector3IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector3Int") },
-                { Weaver.colorType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.colorType) },
+                { Weaver.colorType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteColor") },
                 { Weaver.color32Type.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.color32Type) },
                 { Weaver.quaternionType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.quaternionType) },
                 { Weaver.rectType.FullName, Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "Write", Weaver.rectType) },

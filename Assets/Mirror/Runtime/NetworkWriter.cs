@@ -378,7 +378,10 @@ namespace Mirror
             WritePackedInt32(value.z);
         }
 
-        public void Write(Color value)
+        [Obsolete("Use WriteColor instead")]
+        public void Write(Color value) => WriteColor(value);
+
+        public void WriteColor(Color value)
         {
             WriteSingle(value.r);
             WriteSingle(value.g);
