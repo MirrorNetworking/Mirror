@@ -309,11 +309,11 @@ namespace Mirror
         {
             if (initialState)
             {
-                for(int i = 0; i < m_Animator.layerCount; i++)
+                for(int i = 0; i < animator.layerCount; i++)
                 {
                     int stateHash = reader.ReadInt32();
                     float normalizedTime = reader.ReadSingle();
-                    m_Animator.Play(stateHash, i, normalizedTime);
+                    animator.Play(stateHash, i, normalizedTime);
                 }
 
                 ReadParameters(reader);
