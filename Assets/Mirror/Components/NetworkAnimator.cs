@@ -74,7 +74,7 @@ namespace Mirror
                 }
 
                 NetworkWriter writer = new NetworkWriter();
-                WriteParameters(writer, false);
+                WriteParameters(writer);
 
                 SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
             }
