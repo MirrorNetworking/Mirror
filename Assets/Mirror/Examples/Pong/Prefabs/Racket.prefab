@@ -161,6 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncInterval: 0.1
   speed: 1500
+  rigidbody2d: {fileID: 50389918509199184}
 --- !u!114 &114398896143473162
 MonoBehaviour:
   m_ObjectHideFlags: 0
