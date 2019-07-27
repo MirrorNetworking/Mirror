@@ -5,19 +5,17 @@ namespace Mirror.Examples.Pong
     public class Ball : NetworkBehaviour
     {
         public float speed = 30;
-
-        Rigidbody2D rb;
+        public Rigidbody2D rigidbody2d;
 
         public override void OnStartServer()
         {
             base.OnStartServer();
 
-            rb = GetComponent<Rigidbody2D>();
-
             // only simulate ball physics on server
-            rb.simulated = true;
+            rigidbody2d.simulated = true;
 
-            rb.velocity = Vector2.right * speed;
+            // Serve the ball from left player
+            rigidbody2d.velocity = Vector2.right * speed;
         }
 
         float HitFactor(Vector2 ballPos, Vector2 racketPos, float racketHeight)
@@ -55,7 +53,7 @@ namespace Mirror.Examples.Pong
                 Vector2 dir = new Vector2(x, y).normalized;
 
                 // Set Velocity with dir * speed
-                rb.velocity = dir * speed;
+                rigidbody2d.velocity = dir * speed;
             }
         }
     }
