@@ -249,7 +249,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVector2()
         {
-            Vector2[] inputs = new Vector2[]{
+            Vector2[] inputs = {
                 Vector2.right,
                 Vector2.up,
                 Vector2.zero,
@@ -270,7 +270,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVector3()
         {
-            Vector3[] inputs = new Vector3[]{
+            Vector3[] inputs = {
                 Vector3.right,
                 Vector3.up,
                 Vector3.zero,
@@ -292,7 +292,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVector4()
         {
-            Vector4[] inputs = new Vector4[]{
+            Vector4[] inputs = {
                 Vector3.right,
                 Vector3.up,
                 Vector4.zero,
@@ -313,7 +313,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVector2Int()
         {
-            Vector2Int[] inputs = new Vector2Int[]{
+            Vector2Int[] inputs = {
                 Vector2Int.down,
                 Vector2Int.up,
                 Vector2Int.left,
@@ -335,7 +335,7 @@ namespace Mirror.Tests
         [Test]
         public void TestVector3Int()
         {
-            Vector3Int[] inputs = new Vector3Int[]{
+            Vector3Int[] inputs = {
                 Vector3Int.down,
                 Vector3Int.up,
                 Vector3Int.left,
@@ -358,7 +358,7 @@ namespace Mirror.Tests
         [Test]
         public void TestColor()
         {
-            Color[] inputs = new Color[]{
+            Color[] inputs = {
                 Color.black,
                 Color.blue,
                 Color.cyan,
@@ -380,7 +380,7 @@ namespace Mirror.Tests
         [Test]
         public void TestColor32()
         {
-            Color32[] inputs = new Color32[]{
+            Color32[] inputs = {
                 Color.black,
                 Color.blue,
                 Color.cyan,
@@ -403,7 +403,7 @@ namespace Mirror.Tests
         [Test]
         public void TestQuaternion()
         {
-            Quaternion[] inputs = new Quaternion[]{
+            Quaternion[] inputs = {
                 Quaternion.identity,
                 default,
                 Quaternion.LookRotation(new Vector3(0.3f,0.4f,0.5f)),
@@ -422,7 +422,7 @@ namespace Mirror.Tests
         [Test]
         public void TestRect()
         {
-            Rect[] inputs = new Rect[]{
+            Rect[] inputs = {
                 Rect.zero,
                 new Rect(1004.1f,2.001f,4636,400f),
                 new Rect(-100.622f,-200f,300f,975.6f),
@@ -442,7 +442,7 @@ namespace Mirror.Tests
         [Test]
         public void TestPlane()
         {
-            Plane[] inputs = new Plane[]{
+            Plane[] inputs = {
                 new Plane(new Vector3(-0.24f,0.34f,0.2f), 120.2f),
                 new Plane(new Vector3(0.133f,0.34f,0.122f), -10.135f),
                 new Plane(new Vector3(0.133f,-0.0f,float.MaxValue), -13.3f),
@@ -465,7 +465,7 @@ namespace Mirror.Tests
         [Test]
         public void TestRay()
         {
-            Ray[] inputs = new Ray[]{
+            Ray[] inputs = {
                 new Ray(Vector3.up,Vector3.down),
                 new Ray(new Vector3(0.1f,0.2f,0.3f), new Vector3(0.4f,0.5f,0.6f)),
                 new Ray(new Vector3(-0.3f,0.5f,0.999f), new Vector3(1f,100.1f,20f)),
@@ -484,7 +484,7 @@ namespace Mirror.Tests
         [Test]
         public void TestMatrix4x4()
         {
-            Matrix4x4[] inputs = new Matrix4x4[]{
+            Matrix4x4[] inputs = {
                 Matrix4x4.identity,
                 Matrix4x4.zero,
                 Matrix4x4.Scale(Vector3.one * 0.12345f),
@@ -506,8 +506,7 @@ namespace Mirror.Tests
         {
             // These are all bytes which never show up in valid UTF8 encodings.
             // NetworkReader should gracefully handle maliciously crafted input.
-            byte[] invalidUTF8bytes = new byte[]
-            {
+            byte[] invalidUTF8bytes = {
                 0xC0, 0xC1, 0xF5, 0xF6,
                 0xF7, 0xF8, 0xF9, 0xFA,
                 0xFB, 0xFC, 0xFD, 0xFE,
@@ -583,7 +582,7 @@ namespace Mirror.Tests
         [Test]
         public void TestUnicodeString()
         {
-            string[] weirdUnicode = new string[]{
+            string[] weirdUnicode = {
                 "𝔲𝔫𝔦𝔠𝔬𝔡𝔢 𝔱𝔢𝔰𝔱",
                 "𝖚𝖓𝖎𝖈𝖔𝖉𝖊 𝖙𝖊𝖘𝖙",
                 "𝐮𝐧𝐢𝐜𝐨𝐝𝐞 𝐭𝐞𝐬𝐭",
@@ -832,7 +831,7 @@ namespace Mirror.Tests
         [Test]
         public void TestFloats()
         {
-            float[] weirdFloats = new float[]{
+            float[] weirdFloats = {
                 0f,
                 -0f,
                 float.Epsilon,
@@ -863,7 +862,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDoubles()
         {
-            double[] weirdDoubles = new double[]{
+            double[] weirdDoubles = {
                 0d,
                 -0d,
                 double.Epsilon,
@@ -894,7 +893,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDecimals()
         {
-            decimal[] weirdDecimals = new decimal[]{
+            decimal[] weirdDecimals = {
                 decimal.Zero,
                 -decimal.Zero,
                 decimal.MaxValue,
@@ -915,11 +914,11 @@ namespace Mirror.Tests
         [Test]
         public void TestFloatBinaryCompatibility()
         {
-            float[] weirdFloats = new float[]{
+            float[] weirdFloats = {
                 ((float) Math.PI) / 3.0f,
                 ((float) Math.E) / 3.0f
             };
-            byte[] expected = new byte[]{
+            byte[] expected = {
                 146, 10,134, 63,
                 197,245,103, 63,
             };
@@ -934,11 +933,11 @@ namespace Mirror.Tests
         [Test]
         public void TestDoubleBinaryCompatibility()
         {
-            double[] weirdDoubles = new double[]{
+            double[] weirdDoubles = {
                 Math.PI / 3.0d,
                 Math.E / 3.0d
             };
-            byte[] expected = new byte[]{
+            byte[] expected = {
                 101,115, 45, 56, 82,193,240, 63,
                 140,116,112,185,184,254,236, 63,
             };
@@ -953,11 +952,11 @@ namespace Mirror.Tests
         [Test]
         public void TestDecimalBinaryCompatibility()
         {
-            decimal[] weirdDecimals = new decimal[]{
+            decimal[] weirdDecimals = {
                 ((decimal) Math.PI) / 3.0m,
                 ((decimal) Math.E) / 3.0m
             };
-            byte[] expected = new byte[]{
+            byte[] expected = {
                 0x00, 0x00, 0x1C, 0x00, 0x12, 0x37, 0xD6, 0x21, 0xAB, 0xEA,
                 0x84, 0x0A, 0x5B, 0x5E, 0xB1, 0x03, 0x00, 0x00, 0x0E, 0x00,
                 0x00, 0x00, 0x00, 0x00, 0xF0, 0x6D, 0xC2, 0xA4, 0x68, 0x52,
@@ -975,8 +974,8 @@ namespace Mirror.Tests
         [Test]
         public void TestByteEndianness()
         {
-            byte[] values = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
-            byte[] expected = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] values = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] expected = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
             {
@@ -988,8 +987,8 @@ namespace Mirror.Tests
         [Test]
         public void TestUShortEndianness()
         {
-            ushort[] values = new ushort[]{0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
-            byte[] expected = new byte[]{0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            ushort[] values = {0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
+            byte[] expected = {0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
             {
@@ -1001,8 +1000,8 @@ namespace Mirror.Tests
         [Test]
         public void TestUIntEndianness()
         {
-            uint[] values = new uint[]{0x12345678,0xabcdef09,0xdeadbeef};
-            byte[] expected = new byte[]{0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            uint[] values = {0x12345678,0xabcdef09,0xdeadbeef};
+            byte[] expected = {0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
             {
@@ -1014,8 +1013,8 @@ namespace Mirror.Tests
         [Test]
         public void TestULongEndianness()
         {
-            ulong[] values = new ulong[]{0x0123456789abcdef,0xdeaded_beef_c0ffee};
-            byte[] expected = new byte[]{0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            ulong[] values = {0x0123456789abcdef,0xdeaded_beef_c0ffee};
+            byte[] expected = {0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {
@@ -1027,8 +1026,8 @@ namespace Mirror.Tests
         [Test]
         public void TestSbyteEndianness()
         {
-            byte[] values = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
-            byte[] expected = new byte[]{0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] values = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] expected = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
             {
@@ -1040,8 +1039,8 @@ namespace Mirror.Tests
         [Test]
         public void TestShortEndianness()
         {
-            ushort[] values = new ushort[]{0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
-            byte[] expected = new byte[]{0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            ushort[] values = {0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
+            byte[] expected = {0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
             {
@@ -1053,8 +1052,8 @@ namespace Mirror.Tests
         [Test]
         public void TestIntEndianness()
         {
-            uint[] values = new uint[]{0x12345678,0xabcdef09,0xdeadbeef};
-            byte[] expected = new byte[]{0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            uint[] values = {0x12345678,0xabcdef09,0xdeadbeef};
+            byte[] expected = {0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
             {
@@ -1066,8 +1065,8 @@ namespace Mirror.Tests
         [Test]
         public void TestLongEndianness()
         {
-            ulong[] values = new ulong[]{0x0123456789abcdef,0xdeaded_beef_c0ffee};
-            byte[] expected = new byte[]{0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            ulong[] values = {0x0123456789abcdef,0xdeaded_beef_c0ffee};
+            byte[] expected = {0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {

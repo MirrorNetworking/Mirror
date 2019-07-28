@@ -1,16 +1,20 @@
 # SyncDictionary
 
-A `SyncDictionary` is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
+A SyncDictionary is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
 
-- Basic type (byte, int, float, string, UInt64, etc)
-- Built-in Unity math type (Vector3, Quaternion, etc)
-- NetworkIdentity
-- GameObject with a NetworkIdentity component attached.
-- Struct with any of the above
+-   Basic type (byte, int, float, string, UInt64, etc)
 
-SyncDictionaries work much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
+-   Built-in Unity math type (Vector3, Quaternion, etc)
 
-To use it, create a class that derives from `SyncDictionary` for your specific type. This is necesary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
+-   NetworkIdentity
+
+-   Game object with a NetworkIdentity component attached.
+
+-   Struct with any of the above
+
+SyncDictionary works much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
+
+To use it, create a class that derives from SyncDictionary for your specific type. This is necessary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
 
 ## Simple Example
 
@@ -54,8 +58,7 @@ public class ExamplePlayer : NetworkBehaviour
 }
 ```
 
-By default,  `SyncDictionary` uses a Dictionary to store it's data.
-If you want to use a different `IDictionary` implementation such as `SortedList` or `SortedDictionary`, add a constructor to your `SyncDictionary` implementation and pass a dictionary to the base class. For example:
+By default, SyncDictionary uses a Dictionary to store it's data. If you want to use a different `IDictionary `implementation such as `SortedList` or `SortedDictionary`, add a constructor to your SyncDictionary implementation and pass a dictionary to the base class. For example:
 
 ```cs
 public class ExamplePlayer : NetworkBehaviour
@@ -68,4 +71,3 @@ public class ExamplePlayer : NetworkBehaviour
     public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 }
 ```
-

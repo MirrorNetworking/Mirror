@@ -37,11 +37,6 @@ namespace Mirror
             server.NoDelay = NoDelay;
             server.MaxMessageSize = serverMaxMessageSize;
 
-            // HLAPI's local connection uses hard coded connectionId '0', so we
-            // need to make sure that external connections always start at '1'
-            // by simple eating the first one before the server starts
-            Telepathy.Server.NextConnectionId();
-
             Debug.Log("TelepathyTransport initialized!");
         }
 

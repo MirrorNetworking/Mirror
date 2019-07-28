@@ -5,13 +5,31 @@ namespace Mirror.Examples.NetworkLobby
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
     {
-        CharacterController characterController;
-
         [SyncVar]
         public int index;
 
         [SyncVar]
         public uint score;
+
+        [SyncVar(hook = nameof(SetColor))]
+        public Color playerColor = Color.black;
+
+        // Unity makes a clone of the material when GetComponent<Renderer>().material is used
+        // Cache it here and Destroy it in OnDestroy to prevent a memory leak
+        Material cachedMaterial;
+
+        void SetColor(Color color)
+        {
+            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
+            cachedMaterial.color = color;
+        }
+
+        void OnDestroy()
+        {
+            Destroy(cachedMaterial);
+        }
+
+        CharacterController characterController;
 
         public override void OnStartLocalPlayer()
         {
@@ -22,24 +40,6 @@ namespace Mirror.Examples.NetworkLobby
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
             Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
-        }
-
-        [SyncVar(hook = nameof(SetColor))]
-        public Color playerColor = Color.black;
-
-        // Unity makes a clone of the material when GetComponent<Renderer>().material is used
-        // Cache it here and Destroy it in OnDestroy to prevent a memory leak
-        Material materialClone;
-
-        void SetColor(Color color)
-        {
-            if (materialClone == null) materialClone = GetComponent<Renderer>().material;
-            materialClone.color = color;
-        }
-
-        private void OnDestroy()
-        {
-            Destroy(materialClone);
         }
 
         [Header("Movement Settings")]
@@ -132,7 +132,7 @@ namespace Mirror.Examples.NetworkLobby
         }
 
         [Command]
-        public void CmdClaimPrize(GameObject hitObject)
+        void CmdClaimPrize(GameObject hitObject)
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
             if (hitObject != null)

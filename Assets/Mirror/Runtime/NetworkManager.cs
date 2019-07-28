@@ -19,7 +19,6 @@ namespace Mirror
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManager")]
     public class NetworkManager : MonoBehaviour
     {
-
         // configuration
         [FormerlySerializedAs("m_DontDestroyOnLoad")] public bool dontDestroyOnLoad = true;
         [FormerlySerializedAs("m_RunInBackground")] public bool runInBackground = true;
@@ -423,7 +422,7 @@ namespace Mirror
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 // Must pass true or offlineScene will not be loaded
-                ClientChangeScene(offlineScene, true);
+                ClientChangeScene(offlineScene);
             }
             CleanupNetworkIdentities();
         }
@@ -474,12 +473,12 @@ namespace Mirror
             }
         }
 
-        void ClientChangeScene(string newSceneName, bool forceReload)
+        void ClientChangeScene(string newSceneName)
         {
-            ClientChangeScene(newSceneName, forceReload, LoadSceneMode.Single, LocalPhysicsMode.None);
+            ClientChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
         }
 
-        internal void ClientChangeScene(string newSceneName, bool forceReload, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -488,15 +487,6 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
-
-            if (newSceneName == networkSceneName)
-            {
-                if (!forceReload)
-                {
-                    FinishLoadScene();
-                    return;
-                }
-            }
 
             // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
             // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
@@ -693,7 +683,7 @@ namespace Mirror
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(msg.sceneName, true, msg.sceneMode, msg.physicsMode);
+                ClientChangeScene(msg.sceneName, msg.sceneMode, msg.physicsMode);
             }
         }
         #endregion

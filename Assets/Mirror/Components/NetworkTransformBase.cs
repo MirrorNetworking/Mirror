@@ -30,7 +30,7 @@ namespace Mirror
         //    but would cause errors immediately and be pretty obvious.
         [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
         [SerializeField] Compression compressRotation = Compression.Much;
-        public enum Compression { None, Much, Lots , NoRotation }; // easily understandable and funny
+        public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
 
         // server
         Vector3 lastPosition;
@@ -152,7 +152,8 @@ namespace Mirror
             //    so that we can start interpolation without waiting for next.
             if (start == null)
             {
-                start = new DataPoint{
+                start = new DataPoint
+                {
                     timeStamp = Time.time - syncInterval,
                     // local position/rotation for VR support
                     localPosition = targetComponent.transform.localPosition,
