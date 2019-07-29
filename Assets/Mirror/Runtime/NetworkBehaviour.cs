@@ -17,140 +17,73 @@ namespace Mirror
     {
         float lastSyncTime;
 
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         /// <summary>
         /// sync interval for OnSerialize (in seconds)
         /// </summary>
-        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         [HideInInspector] public float syncInterval = 0.1f;
 
         /// <summary>
         /// This value is set on the NetworkIdentity and is accessible here for convenient access for scripts.
         /// </summary>
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
+
         /// <summary>
         /// Returns true if this object is active on an active server.
         /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
         /// </summary>
         public bool isServer => netIdentity.isServer;
+
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
         public bool isClient => netIdentity.isClient;
+
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
         /// <para>This example shows processing input for only the local player.</para>
-        /// <code>
-        /// using UnityEngine;
-        /// using UnityEngine.Networking;
-        ///
-        /// public class Player : NetworkBehaviour
-        /// {
-        ///    int moveX = 0;
-        ///    int moveY = 0;
-        ///
-        ///    void Update()
-        ///    {
-        ///        if (!isLocalPlayer)
-        ///        {
-        ///            return;
-        ///        }
-        ///        // input handling for local player only
-        ///        int oldMoveX = moveX;
-        ///        int oldMoveY = moveY;
-        ///        moveX = 0;
-        ///        moveY = 0;
-        ///        if (Input.GetKey(KeyCode.LeftArrow))
-        ///        {
-        ///            moveX -= 1;
-        ///        }
-        ///        if (Input.GetKey(KeyCode.RightArrow))
-        ///        {
-        ///            moveX += 1;
-        ///        }
-        ///        if (Input.GetKey(KeyCode.UpArrow))
-        ///        {
-        ///            moveY += 1;
-        ///        }
-        ///        if (Input.GetKey(KeyCode.DownArrow))
-        ///        {
-        ///            moveY -= 1;
-        ///        }
-        ///        if (moveX != oldMoveX || moveY != oldMoveY)
-        ///        {
-        ///            CmdMove(moveX, moveY);
-        ///        }
-        ///    }
-        ///
-        ///    [Command]
-        ///    void CmdMove(int dx, int dy)
-        ///    {
-        ///        // move here
-        ///    }
-        /// }
-        /// </code>
         /// </summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool isServerOnly => isServer && !isClient;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool isClientOnly => isClient && !isServer;
+
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
         /// <para>The <see cref="localPlayerAuthority">localPlayerAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server / host. For objects with <see cref="localPlayerAuthority">localPlayerAuthority</see> set, authority is held by the client of that player.</para>
         /// </summary>
         public bool hasAuthority => netIdentity.hasAuthority;
+
         /// <summary>
         /// The unique network Id of this object.
         /// <para>This is assigned at runtime by the network server and will be unique for all objects for that network session.</para>
         /// </summary>
         public uint netId => netIdentity.netId;
+
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
+
         /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
-        /// <code>
-        /// //Attach this script to a GameObject
-        /// //Attach a TextMesh to the GameObject. To do this click the GameObject, click the Add Component button in the Inspector window, and go to Mesh>Text Mesh.
-        /// //Attach a NetworkIdentity to the GameObject by clicking Add Component, then go to Network>NetworkIdentity. In the component that was added, check the Local Player Authority checkbox.
-        /// //Next, create an empty GameObject. Attach a NetworkManager to it by clicking the GameObject, clicking Add Component going to Network>NetworkManager. Also add a NetworkManagerHUD the same way.
-        ///
-        /// //This script outputs the Connection ID and address to the console when the Client is started
-        ///
-        /// using UnityEngine;
-        /// using UnityEngine.Networking;
-        ///
-        /// public class ConnectionToClientExample : NetworkBehaviour
-        /// {
-        ///    //This is a TextMesh component that you attach to the child of the NetworkIdentity GameObject
-        ///    TextMesh m_TextMesh;
-        ///
-        ///    void Start()
-        ///    {
-        ///        //Output the connection ID and IP address of the connection by using connectionToClient
-        ///        Debug.Log("Connection ID : " + connectionToClient.connectionId);
-        ///        Debug.Log("Connection Address : " + connectionToClient.address);
-        ///        //Check that the connection is marked as ready
-        ///        if (connectionToClient.isReady)
-        ///        {
-        ///            Debug.Log("Ready!");
-        ///        }
-        ///        //Enter the child of your GameObject (the GameObject with the TextMesh you attach)
-        ///        //Fetch the TextMesh component of it
-        ///        m_TextMesh = GetComponentInChildren(typeof(TextMesh)) as TextMesh;
-        ///        //Change the Text of the TextMesh to show the netId
-        ///        m_TextMesh.text = "ID : " + netId;
-        ///        //Output the connection to Client
-        ///    }
-        /// }
-        /// </code>
         /// </summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+
         protected ulong syncVarDirtyBits { get; private set; }
         protected bool syncVarHookGuard { get; set; }
 
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
         protected List<SyncObject> m_SyncObjects => syncObjects;
+
         /// <summary>
         /// objects that can synchronize themselves, such as synclists
         /// </summary>
@@ -160,6 +93,10 @@ namespace Mirror
         /// NetworkIdentity component caching for easier access
         /// </summary>
         NetworkIdentity netIdentityCache;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public NetworkIdentity netIdentity
         {
             get
@@ -176,6 +113,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public int ComponentIndex
         {
             get
@@ -336,7 +276,7 @@ namespace Mirror
         /// <summary>
         /// Manually invoke an RPC function.
         /// </summary>
-        /// <param name="cmdHash">Hash of the RPC name.</param>
+        /// <param name="rpcHash">Hash of the RPC name.</param>
         /// <param name="reader">Parameters to pass to the RPC function.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -371,7 +311,7 @@ namespace Mirror
         /// <summary>
         /// Manually invoke a SyncEvent.
         /// </summary>
-        /// <param name="cmdHash">Hash of the SyncEvent name.</param>
+        /// <param name="eventHash">Hash of the SyncEvent name.</param>
         /// <param name="reader">Parameters to pass to the SyncEvent.</param>
         /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -737,46 +677,39 @@ namespace Mirror
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         /// <summary>
         /// This is invoked on clients when the server has caused this object to be destroyed.
         /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
-        /// <code>
-        /// using UnityEngine;
-        /// using UnityEngine.Networking;
-        ///
-        /// class Bomb : <see cref="NetworkBehaviour">NetworkBehaviour</see>
-        /// {
-        ///    public override void OnNetworkDestroy()
-        ///    {
-        ///        // play explosion sound
-        ///    }
-        /// }
-        /// </code>
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void OnNetworkDestroy() {}
+
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
         /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
         /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
         /// </summary>
         public virtual void OnStartServer() {}
+
         /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.
         /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
         /// </summary>
         public virtual void OnStartClient() {}
+
         /// <summary>
         /// Called when the local player object has been set up.
         /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
         /// </summary>
         public virtual void OnStartLocalPlayer() {}
+
         /// <summary>
         /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
         /// <para>When NetworkIdentity.AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() {}
+
         /// <summary>
         /// This is invoked on behaviours when authority is removed.
         /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
