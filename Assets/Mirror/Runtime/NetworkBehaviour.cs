@@ -47,12 +47,12 @@ namespace Mirror
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
         /// <summary>
-        /// 
+        /// True if this object only exists on the server
         /// </summary>
         public bool isServerOnly => isServer && !isClient;
 
         /// <summary>
-        /// 
+        /// True if this object exists on a client that is not also acting as a server
         /// </summary>
         public bool isClientOnly => isClient && !isServer;
 
@@ -95,7 +95,7 @@ namespace Mirror
         NetworkIdentity netIdentityCache;
 
         /// <summary>
-        /// 
+        /// Returns the NetworkIdentity of this object
         /// </summary>
         public NetworkIdentity netIdentity
         {
@@ -114,7 +114,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        /// Returns the index of the component on this object
         /// </summary>
         public int ComponentIndex
         {
