@@ -22,6 +22,10 @@ namespace Mirror
     /// </summary>
     public class NetworkClient
     {
+        /// <summary>
+        /// Obsolete: Use NetworkClient directly.
+        /// <para>Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).</para>
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
         public static NetworkClient singleton = new NetworkClient();
 
@@ -218,6 +222,9 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
+        /// <summary>
+        /// Obsolete: Use SendMessage<T> instead with no message id instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendMessage<T> instead with no message id instead")]
         public static bool Send(short msgType, MessageBase msg)
         {
@@ -326,6 +333,9 @@ namespace Mirror
         }
         */
 
+        /// <summary>
+        /// Obsolete: Use NetworkTime.rtt instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkTime.rtt instead")]
         public static float GetRTT()
         {
@@ -364,6 +374,9 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
+        /// <summary>
+        /// Obsolete: Use RegisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
@@ -374,6 +387,9 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        /// <summary>
+        /// Obsolete: Use RegisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
@@ -396,12 +412,18 @@ namespace Mirror
             handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
         }
 
+        /// <summary>
+        /// Obsolete: Use UnregisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
 
+        /// <summary>
+        /// Obsolete: Use UnregisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
         {
@@ -430,6 +452,9 @@ namespace Mirror
             connectState = ConnectState.None;
         }
 
+        /// <summary>
+        /// Obsolete: Call NetworkClient.Shutdown() instead. There is only one client.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
         public static void ShutdownAll()
         {
