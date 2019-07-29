@@ -156,12 +156,12 @@
       url: "/Transports/Multiplexer"
     - title: "Socket - Insight"
       url: "/Transports/Insight"
-- title: "Sample Projects"
+- title: "Example Projects"
   children:
     - title: "Overview"
-      url: "/Samples"
+      url: "/Examples"
     - title: "Pong"
-      url: "/Samples/Pong"
+      url: "/Examples/Pong"
 - title: "Services"
   children: 
     - title: "Overview"
