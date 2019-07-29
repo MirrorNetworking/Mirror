@@ -81,6 +81,9 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get; private set; }
         protected bool syncVarHookGuard { get; set; }
 
+        /// <summary>
+        /// Obsolete: Use syncObjects instead.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
         protected List<SyncObject> m_SyncObjects => syncObjects;
 
