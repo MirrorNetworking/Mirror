@@ -95,7 +95,7 @@ namespace Mirror
         #region Optional UI
 
         /// <summary>
-        /// virtual so inheriting classes can roll their own
+        /// Render a UI for the lobby.   Override to provide your on UI
         /// </summary>
         public virtual void OnGUI()
         {
