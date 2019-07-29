@@ -142,17 +142,42 @@ namespace Mirror
     #region Public System Messages
     public class ErrorMessage : ByteMessage {}
 
-    public class ReadyMessage : EmptyMessage {}
+    public class ReadyMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
 
-    public class NotReadyMessage : EmptyMessage {}
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+    public class NotReadyMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
 
     public class AddPlayerMessage : BytesMessage {}
 
-    public class RemovePlayerMessage : EmptyMessage {}
+    public class RemovePlayerMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
 
-    public class DisconnectMessage : EmptyMessage {}
+        public void Serialize(NetworkWriter writer) { }
+    }
 
-    public class ConnectMessage : EmptyMessage {}
+    public class DisconnectMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+    public class ConnectMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
 
     public class SceneMessage : MessageBase
     {
@@ -282,9 +307,19 @@ namespace Mirror
         }
     }
 
-    class ObjectSpawnStartedMessage : EmptyMessage {}
+    class ObjectSpawnStartedMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
 
-    class ObjectSpawnFinishedMessage : EmptyMessage {}
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+    class ObjectSpawnFinishedMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
 
     class ObjectDestroyMessage : MessageBase
     {
