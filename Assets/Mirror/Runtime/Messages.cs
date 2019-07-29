@@ -372,7 +372,7 @@ namespace Mirror
 
         public void Serialize(NetworkWriter writer)
         {
-            writer.Write(clientTime);
+            writer.WriteDouble(clientTime);
         }        
     }
 
