@@ -3,13 +3,22 @@ using UnityEngine.Serialization;
 
 namespace Mirror
 {
+    /// <summary>
+    /// A component to synchronize Mecanim animation states for networked objects.
+    /// <para>The animation of game objects can be networked by this component. There are two models of authority for networked movement:</para>
+    /// <para>If the object has authority on the client, then it should animated locally on the owning client. The animation state information will be sent from the owning client to the server, then broadcast to all of the other clients. This is common for player objects.</para>
+    /// <para>If the object has authority on the server, then it should be animated on the server and state information will be sent to all clients. This is common for objects not related to a specific client, such as an enemy unit.</para>
+    /// <para>The NetworkAnimator synchronizes the animation parameters that are checked in the inspector view. It does not automatically sychronize triggers. The function SetTrigger can by used by an object with authority to fire an animation trigger on other clients.</para>
+    /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkAnimator")]
     public class NetworkAnimator : NetworkBehaviour
     {
-        // configuration
+        /// <summary>
+        /// The animator component to synchronize.
+        /// </summary>
         [FormerlySerializedAs("m_Animator")] public Animator animator;
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
@@ -305,11 +314,20 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Causes an animation trigger to be invoked for a networked object.
+        /// <para>If local authority is set, and this is called from the client, then the trigger will be invoked on the server and all clients. If not, then this is called on the server, and the trigger will be called on all clients.</para>
+        /// </summary>
+        /// <param name="triggerName">Name of trigger.</param>
         public void SetTrigger(string triggerName)
         {
             SetTrigger(Animator.StringToHash(triggerName));
         }
 
+        /// <summary>
+        /// Causes an animation trigger to be invoked for a networked object.
+        /// </summary>
+        /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
             if (hasAuthority && localPlayerAuthority)
