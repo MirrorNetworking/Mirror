@@ -39,7 +39,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteString(value);
         }
     }
 
@@ -61,7 +61,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteByte(value);
         }
     }
 
@@ -127,7 +127,7 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(value);
+            writer.WriteDouble(value);
         }
     }
 
@@ -169,9 +169,9 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(sceneName);
-            writer.Write((byte)sceneMode);
-            writer.Write((byte)physicsMode);
+            writer.WriteString(sceneName);
+            writer.WriteByte((byte)sceneMode);
+            writer.WriteByte((byte)physicsMode);
         }
     }
     #endregion
@@ -199,7 +199,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32((uint)componentIndex);
-            writer.Write(functionHash);
+            writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
@@ -238,11 +238,11 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(owner);
-            writer.Write(assetId);
-            writer.Write(position);
-            writer.Write(rotation);
-            writer.Write(scale);
+            writer.WriteBoolean(owner);
+            writer.WriteGuid(assetId);
+            writer.WriteVector3(position);
+            writer.WriteQuaternion(rotation);
+            writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
@@ -273,11 +273,11 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(owner);
-            writer.Write(sceneId);
-            writer.Write(position);
-            writer.Write(rotation);
-            writer.Write(scale);
+            writer.WriteBoolean(owner);
+            writer.WriteUInt64(sceneId);
+            writer.WriteVector3(position);
+            writer.WriteQuaternion(rotation);
+            writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
     }
@@ -330,7 +330,7 @@ namespace Mirror
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(authority);
+            writer.WriteBoolean(authority);
         }
     }
 
@@ -378,8 +378,8 @@ namespace Mirror
 
         public override void Serialize(NetworkWriter writer)
         {
-            writer.Write(clientTime);
-            writer.Write(serverTime);
+            writer.WriteDouble(clientTime);
+            writer.WriteDouble(serverTime);
         }
     }
     #endregion
