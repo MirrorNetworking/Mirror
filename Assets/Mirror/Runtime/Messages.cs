@@ -237,7 +237,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    class SpawnPrefabMessage : MessageBase
+    struct SpawnPrefabMessage : IMessageBase
     {
         public uint netId;
         public bool owner;
@@ -249,7 +249,7 @@ namespace Mirror
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
             owner = reader.ReadBoolean();
@@ -260,7 +260,7 @@ namespace Mirror
             payload = reader.ReadBytesAndSizeSegment();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(owner);
