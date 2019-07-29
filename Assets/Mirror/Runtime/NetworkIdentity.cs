@@ -1009,7 +1009,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Removes ownership for an object for a client by its conneciton.
+        /// Removes ownership for an object for a client by its connection.
         /// <para>This applies to objects that had authority set by AssignClientAuthority, or NetworkServer.SpawnWithClientAuthority. Authority cannot be removed for player objects.</para>
         /// </summary>
         /// <param name="conn">The connection of the client to remove authority for.</param>
