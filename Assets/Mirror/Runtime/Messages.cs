@@ -334,20 +334,20 @@ namespace Mirror
         }
     }
 
-    class UpdateVarsMessage : MessageBase
+    struct UpdateVarsMessage : IMessageBase
     {
         public uint netId;
         // the serialized component data
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
             payload = reader.ReadBytesAndSizeSegment();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBytesAndSizeSegment(payload);
