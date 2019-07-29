@@ -162,6 +162,9 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
+        /// <summary>
+        /// Obsolete: Use NetworkClient/NetworkServer.RegisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.RegisterHandler<T> instead")]
         public void RegisterHandler(short msgType, NetworkMessageDelegate handler)
         {
@@ -172,12 +175,18 @@ namespace Mirror
             messageHandlers[msgType] = handler;
         }
 
+        /// <summary>
+        /// Obsolete: Use NetworkClient/NetworkServer.UnregisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient/NetworkServer.UnregisterHandler<T> instead")]
         public void UnregisterHandler(short msgType)
         {
             messageHandlers.Remove(msgType);
         }
 
+        /// <summary>
+        /// Obsolete: use Send<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
@@ -255,6 +264,9 @@ namespace Mirror
             visList.Clear();
         }
 
+        /// <summary>
+        /// Obsolete: Use InvokeHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
