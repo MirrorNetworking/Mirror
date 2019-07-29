@@ -91,7 +91,7 @@ namespace Mirror
         /// Called when a new player enters, and when scene changes occur
         /// </summary>
         /// <param name="observers"></param>
-        /// <param name="initial"></param>
+        /// <param name="initial">True if this is the first time the method is called for this object</param>
         /// <returns></returns>
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
