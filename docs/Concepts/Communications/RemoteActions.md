@@ -20,7 +20,7 @@ public class Player : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         if (Input.GetKey(KeyCode.X))
-                CmdDropCube();
+            CmdDropCube();
     }
 
     // assigned in inspector
@@ -53,7 +53,6 @@ ClientRpc functions must have the prefix “Rpc”. This is a hint when reading 
 ``` cs
 public class Player : NetworkBehaviour
 {
-    [SyncVar]
     int health;
 
     public void TakeDamage(int amount)

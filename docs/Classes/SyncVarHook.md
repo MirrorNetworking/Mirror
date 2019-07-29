@@ -23,25 +23,23 @@ public class PlayerController : NetworkBehaviour
     }
 
     [SyncVar(hook = nameof(SetColor))]
-    public Color playerColor = Color.black;
+    Color playerColor = Color.black;
 
-    // Unity makes a clone of the material when
-    // GetComponent<Renderer>().material is used.
-    // Cache it here and Destroy it in OnDestroy
-    // to prevent a memory leak.
-    Material materialClone;
+    // Unity makes a clone of the Material every time GetComponent<Renderer>().material is used.
+    // Cache it here and Destroy it in OnDestroy to prevent a memory leak.
+    Material cachedMaterial;
 
     void SetColor(Color color)
     {
-        if (materialClone == null)
-            materialClone = GetComponent<Renderer>().material;
+        if (cachedMaterial == null)
+            cachedMaterial = GetComponent<Renderer>().material;
 
-        materialClone.color = color;
+        cachedMaterial.color = color;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
-        Destroy(materialClone);
+        Destroy(cachedMaterial);
     }
 }
 ```
