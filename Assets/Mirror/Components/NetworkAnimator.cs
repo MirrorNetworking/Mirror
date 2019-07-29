@@ -19,7 +19,9 @@ namespace Mirror
         /// <summary>
         /// The animator component to synchronize.
         /// </summary>
-        [FormerlySerializedAs("m_Animator")] public Animator animator;
+        [FormerlySerializedAs("m_Animator")]
+        public Animator animator;
+
         // Note: not an object[] array because otherwise initialization is real annoying
         int[] lastIntParameters;
         float[] lastFloatParameters;
