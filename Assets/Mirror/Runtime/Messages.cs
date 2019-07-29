@@ -356,27 +356,40 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    class NetworkPingMessage : DoubleMessage
+    struct NetworkPingMessage : IMessageBase
     {
-        public NetworkPingMessage() {}
+        public double clientTime;
 
-        public NetworkPingMessage(double value) : base(value) {}
+        public NetworkPingMessage(double value)
+        {
+            clientTime = value;
+        }
+
+        public void Deserialize(NetworkReader reader)
+        {
+            clientTime = reader.ReadDouble();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.Write(clientTime);
+        }        
     }
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    class NetworkPongMessage : MessageBase
+    struct NetworkPongMessage : IMessageBase
     {
         public double clientTime;
         public double serverTime;
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(NetworkReader reader)
         {
             clientTime = reader.ReadDouble();
             serverTime = reader.ReadDouble();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(NetworkWriter writer)
         {
             writer.Write(clientTime);
             writer.Write(serverTime);
