@@ -194,11 +194,10 @@ namespace Mirror
 
         /// <summary>
         /// Obsolete: Use isHeadless instead of IsHeadless().
-        /// <para>This is a static property now.</para>
-        /// <para>This method will be removed by summer 2019.</para>
+        /// <para>This is a static property now. This method will be removed by summer 2019.</para>
         /// </summary>
         /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use isHeadless instead of IsHeadless()")]
         public static bool IsHeadless()
         {
             return isHeadless;
