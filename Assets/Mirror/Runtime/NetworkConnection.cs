@@ -190,8 +190,8 @@ namespace Mirror
         /// This sends a network message with a message ID on the connection. This message is sent on channel zero, which by default is the reliable channel.
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="msg"></param>
-        /// <param name="channelId"></param>
+        /// <param name="msg">The message to send.</param>
+        /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
         {
@@ -284,7 +284,7 @@ namespace Mirror
         /// <para>Network connections used by the NetworkClient and NetworkServer use this function for handling network messages.</para>
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="msg"></param>
+        /// <param name="msg">The message object to process.</param>
         /// <returns></returns>
         public bool InvokeHandler<T>(T msg) where T : IMessageBase
         {
@@ -304,7 +304,7 @@ namespace Mirror
         ///          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// </para>
         /// </summary>
-        /// <param name="buffer"></param>
+        /// <param name="buffer">The data recieved.</param>
         public virtual void TransportReceive(ArraySegment<byte> buffer)
         {
             // unpack message
@@ -330,8 +330,8 @@ namespace Mirror
         /// <summary>
         /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
         /// </summary>
-        /// <param name="channelId"></param>
-        /// <param name="bytes"></param>
+        /// <param name="channelId">Channel to send data on.</param>
+        /// <param name="bytes">Data to send.</param>
         /// <returns></returns>
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
