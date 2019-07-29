@@ -336,16 +336,16 @@ namespace Mirror
         }
     }
 
-    class ObjectHideMessage : MessageBase
+    struct ObjectHideMessage : IMessageBase
     {
         public uint netId;
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
         }
