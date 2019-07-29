@@ -280,8 +280,8 @@ namespace Mirror
             }
         }
 
-        // <para>NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.</para>
-        // <para>If we want TCP then we need to call it manually. Probably best from NetworkManager, although this means that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.</para>
+        // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
+        // If we want TCP then we need to call it manually. Probably best from NetworkManager, although this means that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
         /// <summary>
         /// virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
         /// </summary>
