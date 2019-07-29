@@ -281,6 +281,12 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Custom Serialization
+        /// </summary>
+        /// <param name="writer"></param>
+        /// <param name="forceAll"></param>
+        /// <returns></returns>
         public override bool OnSerialize(NetworkWriter writer, bool forceAll)
         {
             if (forceAll)
@@ -303,6 +309,11 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Custom Deserialization
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="initialState"></param>
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
             if (initialState)
