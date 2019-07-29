@@ -142,14 +142,14 @@ namespace Mirror
     #region Public System Messages
     public class ErrorMessage : ByteMessage {}
 
-    public class ReadyMessage : IMessageBase
+    public struct ReadyMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public class NotReadyMessage : IMessageBase
+    public struct NotReadyMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
@@ -158,21 +158,21 @@ namespace Mirror
 
     public class AddPlayerMessage : BytesMessage {}
 
-    public class RemovePlayerMessage : IMessageBase
+    public struct RemovePlayerMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public class DisconnectMessage : IMessageBase
+    public struct DisconnectMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public class ConnectMessage : IMessageBase
+    public struct ConnectMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
@@ -307,14 +307,14 @@ namespace Mirror
         }
     }
 
-    class ObjectSpawnStartedMessage : IMessageBase
+    struct ObjectSpawnStartedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    class ObjectSpawnFinishedMessage : IMessageBase
+    struct ObjectSpawnFinishedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
