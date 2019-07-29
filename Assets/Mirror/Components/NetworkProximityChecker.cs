@@ -90,7 +90,7 @@ namespace Mirror
         /// <summary>
         /// Called when a new player enters, and when scene changes occur
         /// </summary>
-        /// <param name="observers"></param>
+        /// <param name="observers">List of players to be updated.  Modify this set with all the players that can see this object</param>
         /// <param name="initial">True if this is the first time the method is called for this object</param>
         /// <returns>True if this component calculated the list of observers</returns>
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
