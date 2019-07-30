@@ -202,8 +202,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    // remote calls like Rpc/Cmd/SyncEvent all use the same message type
-    class RemoteCallMessage : MessageBase
+    struct CommandMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -212,7 +211,7 @@ namespace Mirror
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
 
-        public override void Deserialize(NetworkReader reader)
+        public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
             componentIndex = (int)reader.ReadPackedUInt32();
@@ -220,7 +219,7 @@ namespace Mirror
             payload = reader.ReadBytesAndSizeSegment();
         }
 
-        public override void Serialize(NetworkWriter writer)
+        public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
             writer.WritePackedUInt32((uint)componentIndex);
@@ -229,11 +228,57 @@ namespace Mirror
         }
     }
 
-    class CommandMessage : RemoteCallMessage {}
+    struct RpcMessage : IMessageBase
+    {
+        public uint netId;
+        public int componentIndex;
+        public int functionHash;
+        // the parameters for the Cmd function
+        // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
 
-    class RpcMessage : RemoteCallMessage {}
+        public void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+            componentIndex = (int)reader.ReadPackedUInt32();
+            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSizeSegment();
+        }
 
-    class SyncEventMessage : RemoteCallMessage {}
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+            writer.WritePackedUInt32((uint)componentIndex);
+            writer.WriteInt32(functionHash);
+            writer.WriteBytesAndSizeSegment(payload);
+        }
+    }
+
+    struct SyncEventMessage : IMessageBase
+    {
+        public uint netId;
+        public int componentIndex;
+        public int functionHash;
+        // the parameters for the Cmd function
+        // -> ArraySegment to avoid unnecessary allocations
+        public ArraySegment<byte> payload;
+
+        public void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+            componentIndex = (int)reader.ReadPackedUInt32();
+            functionHash = reader.ReadInt32(); // hash is always 4 full bytes, WritePackedInt would send 1 extra byte here
+            payload = reader.ReadBytesAndSizeSegment();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+            writer.WritePackedUInt32((uint)componentIndex);
+            writer.WriteInt32(functionHash);
+            writer.WriteBytesAndSizeSegment(payload);
+        }
+    }
     #endregion
 
     #region Internal System Messages
