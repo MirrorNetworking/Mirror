@@ -156,7 +156,20 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public class AddPlayerMessage : BytesMessage {}
+    public struct AddPlayerMessage : IMessageBase
+    {
+        public byte[] value;
+
+        public void Deserialize(NetworkReader reader)
+        {
+            value = reader.ReadBytesAndSize();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WriteBytesAndSize(value);
+        }
+    }
 
     public struct RemovePlayerMessage : IMessageBase
     {
