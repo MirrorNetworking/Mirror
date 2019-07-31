@@ -361,6 +361,8 @@ namespace Mirror
                 m_SceneId = 0; // force 0 for prefabs
                 AssignAssetID(gameObject);
             }
+            // check prefabstage BEFORE SceneObjectWithPrefabParent
+            // (fixes https://github.com/vis2k/Mirror/issues/976)
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 m_SceneId = 0; // force 0 for prefabs
