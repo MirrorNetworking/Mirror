@@ -361,16 +361,18 @@ namespace Mirror
                 m_SceneId = 0; // force 0 for prefabs
                 AssignAssetID(gameObject);
             }
-            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
-            {
-                AssignSceneID();
-                AssignAssetID(prefab);
-            }
+            // check prefabstage BEFORE SceneObjectWithPrefabParent
+            // (fixes https://github.com/vis2k/Mirror/issues/976)
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 m_SceneId = 0; // force 0 for prefabs
                 string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
                 AssignAssetID(path);
+            }
+            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
+            {
+                AssignSceneID();
+                AssignAssetID(prefab);
             }
             else
             {
@@ -547,7 +549,7 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
-            writer.Write((int)0);
+            writer.WriteInt32((int)0);
             int contentPosition = writer.Position;
 
             // write payload
@@ -565,7 +567,7 @@ namespace Mirror
 
             // fill in length now
             writer.Position = headerPosition;
-            writer.Write(endPosition - contentPosition);
+            writer.WriteInt32(endPosition - contentPosition);
             writer.Position = endPosition;
 
             if (LogFilter.Debug) Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));

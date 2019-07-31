@@ -64,7 +64,7 @@ namespace Mirror
 
             NetworkPongMessage pongMsg = new NetworkPongMessage
             {
-                clientTime = msg.value,
+                clientTime = msg.clientTime,
                 serverTime = LocalTime()
             };
 

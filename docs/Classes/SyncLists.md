@@ -1,4 +1,4 @@
-# SyncLists Overview
+# SyncLists
 
 SyncLists are array based lists similar to C\# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
