@@ -56,57 +56,103 @@ namespace Mirror
             stream.SetLength(value);
         }
 
-        public void Write(ushort value)
+        [Obsolete("Use WriteUInt16 instead")]
+        public void Write(ushort value) => WriteUInt16(value);
+
+        public void WriteUInt16(ushort value)
         {
-            Write((byte)(value & 0xFF));
-            Write((byte)(value >> 8));
-        }
-        public void Write(uint value)
-        {
-            Write((byte)(value & 0xFF));
-            Write((byte)((value >> 8) & 0xFF));
-            Write((byte)((value >> 16) & 0xFF));
-            Write((byte)((value >> 24) & 0xFF));
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)(value >> 8));
         }
 
-        public void Write(ulong value) {
-            Write((byte)(value & 0xFF));
-            Write((byte)((value >> 8) & 0xFF));
-            Write((byte)((value >> 16) & 0xFF));
-            Write((byte)((value >> 24) & 0xFF));
-            Write((byte)((value >> 32) & 0xFF));
-            Write((byte)((value >> 40) & 0xFF));
-            Write((byte)((value >> 48) & 0xFF));
-            Write((byte)((value >> 56) & 0xFF));
+        [Obsolete("Use WriteUInt32 instead")]
+        public void Write(uint value) => WriteUInt32(value);
+
+        public void WriteUInt32(uint value)
+        {
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)((value >> 8) & 0xFF));
+            WriteByte((byte)((value >> 16) & 0xFF));
+            WriteByte((byte)((value >> 24) & 0xFF));
         }
 
+        [Obsolete("Use WriteUInt64 instead")]
+        public void Write(ulong value) => WriteUInt64(value);        
+
+        public void WriteUInt64(ulong value) {
+            WriteByte((byte)(value & 0xFF));
+            WriteByte((byte)((value >> 8) & 0xFF));
+            WriteByte((byte)((value >> 16) & 0xFF));
+            WriteByte((byte)((value >> 24) & 0xFF));
+            WriteByte((byte)((value >> 32) & 0xFF));
+            WriteByte((byte)((value >> 40) & 0xFF));
+            WriteByte((byte)((value >> 48) & 0xFF));
+            WriteByte((byte)((value >> 56) & 0xFF));
+        }
+
+        [Obsolete("Use WriteByte instead")]
         public void Write(byte value) => stream.WriteByte(value);
-        public void Write(sbyte value) => Write((byte)value);
-        // write char the same way that NetworkReader reads it (2 bytes)
-        public void Write(char value) => Write((ushort)value);
-        public void Write(bool value) => Write((byte)(value ? 1 : 0));
-        public void Write(short value) => Write((ushort)value);
-        public void Write(int value) => Write((uint)value);
-        public void Write(long value) => Write((ulong)value);
 
-        public void Write(float value) {
+        public void WriteByte(byte value) => stream.WriteByte(value);
+
+        [Obsolete("Use WriteSByte instead")]
+        public void Write(sbyte value) => WriteByte((byte)value);
+
+        public void WriteSByte(sbyte value) => WriteByte((byte)value);
+
+        // write char the same way that NetworkReader reads it (2 bytes)
+        [Obsolete("Use WriteChar instead")]
+        public void Write(char value) => WriteUInt16((ushort)value);
+
+        public void WriteChar(char value) => WriteUInt16((ushort)value);
+
+        [Obsolete("Use WriteBoolean instead")]
+        public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
+
+        public void WriteBoolean(bool value) => WriteByte((byte)(value ? 1 : 0));
+
+        [Obsolete("Use WriteInt16 instead")]
+        public void Write(short value) => WriteUInt16((ushort)value);
+
+        public void WriteInt16(short value) => WriteUInt16((ushort)value);
+
+        [Obsolete("Use WriteInt32 instead")]
+        public void Write(int value) => WriteUInt32((uint)value);
+
+        public void WriteInt32(int value) => WriteUInt32((uint)value);
+
+        [Obsolete("Use WriteInt64 instead")]
+        public void Write(long value) => WriteUInt64((ulong)value);
+
+        public void WriteInt64(long value) => WriteUInt64((ulong)value);
+
+        [Obsolete("Use WriteSingle instead")]
+        public void Write(float value) => WriteSingle(value);
+        
+        public void WriteSingle(float value) {
             UIntFloat converter = new UIntFloat
             {
                 floatValue = value
             };
-            Write(converter.intValue);
+            WriteUInt32(converter.intValue);
         }
 
-        public void Write(double value)
+        [Obsolete("Use WriteDouble instead")]
+        public void Write(double value) => WriteDouble(value);
+
+        public void WriteDouble(double value)
         {
             UIntDouble converter = new UIntDouble
             {
                 doubleValue = value
             };
-            Write(converter.longValue);
+            WriteUInt64(converter.longValue);
         }
 
-        public void Write(decimal value)
+        [Obsolete("Use WriteDecimal instead")]
+        public void Write(decimal value) => WriteDecimal(value);
+
+        public void WriteDecimal(decimal value)
         {
             // the only way to read it without allocations is to both read and
             // write it with the FloatConverter (which is not binary compatible
@@ -115,11 +161,14 @@ namespace Mirror
             {
                 decimalValue = value
             };
-            Write(converter.longValue1);
-            Write(converter.longValue2);
+            WriteUInt64(converter.longValue1);
+            WriteUInt64(converter.longValue2);
         }
 
-        public void Write(string value)
+        [Obsolete("Use WriteString instead")]
+        public void Write(string value) => WriteString(value);
+
+        public void WriteString(string value)
         {
             // write 0 for null support, increment real size by 1
             // (note: original HLAPI would write "" for null strings, but if a
@@ -127,7 +176,7 @@ namespace Mirror
             //        on the client)
             if (value == null)
             {
-                Write((ushort)0);
+                WriteUInt16((ushort)0);
                 return;
             }
 
@@ -142,13 +191,16 @@ namespace Mirror
             }
 
             // write size and bytes
-            Write(checked((ushort)(size + 1)));
-            Write(stringBuffer, 0, size);
+            WriteUInt16(checked((ushort)(size + 1)));
+            WriteBytes(stringBuffer, 0, size);
         }
+
+        [Obsolete("Use WriteBytes instead")]
+        public void Write(byte[] buffer, int offset, int count) => WriteBytes(buffer, offset, count);
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
-        public void Write(byte[] buffer, int offset, int count)
+        public void WriteBytes(byte[] buffer, int offset, int count)
         {
             // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
             stream.Write(buffer, offset, count);
@@ -167,7 +219,7 @@ namespace Mirror
                 return;
             }
             WritePackedUInt32(checked((uint)count) + 1u);
-            Write(buffer, offset, count);
+            WriteBytes(buffer, offset, count);
         }
 
         // Weaver needs a write function with just one byte[] parameter
@@ -209,192 +261,234 @@ namespace Mirror
         {
             if (value <= 240)
             {
-                Write((byte)value);
+                WriteByte((byte)value);
                 return;
             }
             if (value <= 2287)
             {
-                Write((byte)(((value - 240) >> 8) + 241));
-                Write((byte)((value - 240) & 0xFF));
+                WriteByte((byte)(((value - 240) >> 8) + 241));
+                WriteByte((byte)((value - 240) & 0xFF));
                 return;
             }
             if (value <= 67823)
             {
-                Write((byte)249);
-                Write((byte)((value - 2288) >> 8));
-                Write((byte)((value - 2288) & 0xFF));
+                WriteByte((byte)249);
+                WriteByte((byte)((value - 2288) >> 8));
+                WriteByte((byte)((value - 2288) & 0xFF));
                 return;
             }
             if (value <= 16777215)
             {
-                Write((byte)250);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)250);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
                 return;
             }
             if (value <= 4294967295)
             {
-                Write((byte)251);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)251);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
                 return;
             }
             if (value <= 1099511627775)
             {
-                Write((byte)252);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)252);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
                 return;
             }
             if (value <= 281474976710655)
             {
-                Write((byte)253);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)253);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
                 return;
             }
             if (value <= 72057594037927935)
             {
-                Write((byte)254);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
-                Write((byte)((value >> 48) & 0xFF));
+                WriteByte((byte)254);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)((value >> 48) & 0xFF));
                 return;
             }
 
             // all others
             {
-                Write((byte)255);
-                Write((byte)(value & 0xFF));
-                Write((byte)((value >> 8) & 0xFF));
-                Write((byte)((value >> 16) & 0xFF));
-                Write((byte)((value >> 24) & 0xFF));
-                Write((byte)((value >> 32) & 0xFF));
-                Write((byte)((value >> 40) & 0xFF));
-                Write((byte)((value >> 48) & 0xFF));
-                Write((byte)((value >> 56) & 0xFF));
+                WriteByte((byte)255);
+                WriteByte((byte)(value & 0xFF));
+                WriteByte((byte)((value >> 8) & 0xFF));
+                WriteByte((byte)((value >> 16) & 0xFF));
+                WriteByte((byte)((value >> 24) & 0xFF));
+                WriteByte((byte)((value >> 32) & 0xFF));
+                WriteByte((byte)((value >> 40) & 0xFF));
+                WriteByte((byte)((value >> 48) & 0xFF));
+                WriteByte((byte)((value >> 56) & 0xFF));
             }
         }
 
-        public void Write(Vector2 value)
+        [Obsolete("Use WriteVector2 instead")]
+        public void Write(Vector2 value) => WriteVector2(value);
+
+        public void WriteVector2(Vector2 value)
         {
-            Write(value.x);
-            Write(value.y);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
         }
 
-        public void Write(Vector3 value)
+        [Obsolete("Use WriteVector3 instead")]
+        public void Write(Vector3 value) => WriteVector3(value);
+
+        public void WriteVector3(Vector3 value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
         }
 
-        public void Write(Vector4 value)
+        [Obsolete("Use WriteVector4 instead")]
+        public void Write(Vector4 value) => WriteVector4(value);
+
+        public void WriteVector4(Vector4 value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
-            Write(value.w);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
+            WriteSingle(value.w);
         }
 
-        public void Write(Vector2Int value)
+        [Obsolete("Use WriteVector2Int instead")]
+        public void Write(Vector2Int value) => WriteVector2Int(value);
+
+        public void WriteVector2Int(Vector2Int value)
         {
             WritePackedInt32(value.x);
             WritePackedInt32(value.y);
         }
 
-        public void Write(Vector3Int value)
+        [Obsolete("Use WriteVector3Int instead")]
+        public void Write(Vector3Int value) => WriteVector3Int(value);
+
+        public void WriteVector3Int(Vector3Int value)
         {
             WritePackedInt32(value.x);
             WritePackedInt32(value.y);
             WritePackedInt32(value.z);
         }
 
-        public void Write(Color value)
+        [Obsolete("Use WriteColor instead")]
+        public void Write(Color value) => WriteColor(value);
+
+        public void WriteColor(Color value)
         {
-            Write(value.r);
-            Write(value.g);
-            Write(value.b);
-            Write(value.a);
+            WriteSingle(value.r);
+            WriteSingle(value.g);
+            WriteSingle(value.b);
+            WriteSingle(value.a);
         }
 
-        public void Write(Color32 value)
+        [Obsolete("Use WriteColor32 instead")]
+        public void Write(Color32 value) => WriteColor32(value);
+
+        public void WriteColor32(Color32 value)
         {
-            Write(value.r);
-            Write(value.g);
-            Write(value.b);
-            Write(value.a);
+            WriteByte(value.r);
+            WriteByte(value.g);
+            WriteByte(value.b);
+            WriteByte(value.a);
         }
 
-        public void Write(Quaternion value)
+        [Obsolete("Use WriteQuaternion instead")]
+        public void Write(Quaternion value) => WriteQuaternion(value);
+
+        public void WriteQuaternion(Quaternion value)
         {
-            Write(value.x);
-            Write(value.y);
-            Write(value.z);
-            Write(value.w);
+            WriteSingle(value.x);
+            WriteSingle(value.y);
+            WriteSingle(value.z);
+            WriteSingle(value.w);
         }
 
-        public void Write(Rect value)
+        [Obsolete("Use WriteRect instead")]
+        public void Write(Rect value) => WriteRect(value);
+
+        public void WriteRect(Rect value)
         {
-            Write(value.xMin);
-            Write(value.yMin);
-            Write(value.width);
-            Write(value.height);
+            WriteSingle(value.xMin);
+            WriteSingle(value.yMin);
+            WriteSingle(value.width);
+            WriteSingle(value.height);
         }
 
-        public void Write(Plane value)
+        [Obsolete("Use WritePlane instead")]
+        public void Write(Plane value) => WritePlane(value);
+
+        public void WritePlane(Plane value)
         {
-            Write(value.normal);
-            Write(value.distance);
+            WriteVector3(value.normal);
+            WriteSingle(value.distance);
         }
 
-        public void Write(Ray value)
+        [Obsolete("Use WriteRay instead")]
+        public void Write(Ray value) => WriteRay(value);
+
+        public void WriteRay(Ray value)
         {
-            Write(value.origin);
-            Write(value.direction);
+            WriteVector3(value.origin);
+            WriteVector3(value.direction);
         }
 
-        public void Write(Matrix4x4 value)
+        [Obsolete("Use WriteMatrix4x4 instead")]
+        public void Write(Matrix4x4 value) => WriteMatrix4x4(value);
+
+        public void WriteMatrix4x4(Matrix4x4 value)
         {
-            Write(value.m00);
-            Write(value.m01);
-            Write(value.m02);
-            Write(value.m03);
-            Write(value.m10);
-            Write(value.m11);
-            Write(value.m12);
-            Write(value.m13);
-            Write(value.m20);
-            Write(value.m21);
-            Write(value.m22);
-            Write(value.m23);
-            Write(value.m30);
-            Write(value.m31);
-            Write(value.m32);
-            Write(value.m33);
+            WriteSingle(value.m00);
+            WriteSingle(value.m01);
+            WriteSingle(value.m02);
+            WriteSingle(value.m03);
+            WriteSingle(value.m10);
+            WriteSingle(value.m11);
+            WriteSingle(value.m12);
+            WriteSingle(value.m13);
+            WriteSingle(value.m20);
+            WriteSingle(value.m21);
+            WriteSingle(value.m22);
+            WriteSingle(value.m23);
+            WriteSingle(value.m30);
+            WriteSingle(value.m31);
+            WriteSingle(value.m32);
+            WriteSingle(value.m33);
         }
 
-        public void Write(Guid value)
+        [Obsolete("Use WriteGuid instead")]
+        public void Write(Guid value) => WriteGuid(value);
+
+        public void WriteGuid(Guid value)
         {
             byte[] data = value.ToByteArray();
-            Write(data, 0, data.Length);
+            WriteBytes(data, 0, data.Length);
         }
 
-        public void Write(NetworkIdentity value)
+        [Obsolete("Use WriteNetworkIdentity instead")]
+        public void Write(NetworkIdentity value) => WriteNetworkIdentity(value);
+
+        public void WriteNetworkIdentity(NetworkIdentity value)
         {
             if (value == null)
             {
@@ -404,7 +498,10 @@ namespace Mirror
             WritePackedUInt32(value.netId);
         }
 
-        public void Write(Transform value)
+        [Obsolete("Use WriteTransform instead")]
+        public void Write(Transform value) => WriteTransform(value);
+
+        public void WriteTransform(Transform value)
         {
             if (value == null || value.gameObject == null)
             {
@@ -423,7 +520,10 @@ namespace Mirror
             }
         }
 
-        public void Write(GameObject value)
+        [Obsolete("Use WriteGameObject instead")]
+        public void Write(GameObject value) => WriteGameObject(value);
+
+        public void WriteGameObject(GameObject value)
         {
             if (value == null)
             {

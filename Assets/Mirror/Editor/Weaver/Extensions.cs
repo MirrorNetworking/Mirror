@@ -118,5 +118,29 @@ namespace Mirror.Weaver
         {
             return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == typeName);
         }
+
+        // Given a method of a generic class such as ArraySegment<T>.get_Count,   
+        // and a generic instance such as ArraySegment<int>
+        // Creates a reference to the specialized method  ArraySegment<int>.get_Count;
+        // Note that calling ArraySegment<T>.get_Count directly gives an invalid IL error
+        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
+        {
+
+            MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
+            {
+                CallingConvention = self.CallingConvention,
+                HasThis = self.HasThis,
+                ExplicitThis = self.ExplicitThis
+            };
+
+            foreach (ParameterDefinition parameter in self.Parameters)
+                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+
+            foreach (GenericParameter generic_parameter in self.GenericParameters)
+                reference.GenericParameters.Add(new GenericParameter(generic_parameter.Name, reference));
+
+            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+        }
+
     }
 }
