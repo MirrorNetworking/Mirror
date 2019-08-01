@@ -7,13 +7,15 @@ namespace Mirror
 {
     /// <summary>
     /// A High level network connection. This is used for connections from client-to-server and for connection from server-to-client.
+    /// </summary>
+    /// <remarks>
     /// <para>A NetworkConnection corresponds to a specific connection for a host in the transport layer. It has a connectionId that is assigned by the transport layer and passed to the Initialize function.</para>
     /// <para>A NetworkClient has one NetworkConnection. A NetworkServerSimple manages multiple NetworkConnections. The NetworkServer has multiple "remote" connections and a "local" connection for the local client.</para>
     /// <para>The NetworkConnection class provides message sending and handling facilities. For sending data over a network, there are methods to send message objects, byte arrays, and NetworkWriter objects. To handle data arriving from the network, handler functions can be registered for message Ids, byte arrays can be processed by HandleBytes(), and NetworkReader object can be processed by HandleReader().</para>
     /// <para>NetworkConnection objects also act as observers for networked objects. When a connection is an observer of a networked object with a NetworkIdentity, then the object will be visible to corresponding client for the connection, and incremental state changes will be sent to the client.</para>
     /// <para>NetworkConnection objects can "own" networked game objects. Owned objects will be destroyed on the server by default when the connection is destroyed. A connection owns the player objects created by its client, and other objects with client-authority assigned to the corresponding client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
-    /// </summary>
+    /// </remarks>
     public class NetworkConnection : IDisposable
     {
         public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
@@ -22,10 +24,12 @@ namespace Mirror
 
         /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
+        /// </summary>
+        /// <remarks>
         /// <para>On a server, this Id is unique for every connection on the server. On a client this Id is local to the client, it is not the same as the Id on the server for this connection.</para>
         /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
         /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
-        /// </summary>
+        /// </remarks>
         public int connectionId = -1;
 
         /// <summary>
@@ -52,18 +56,20 @@ namespace Mirror
         public NetworkIdentity playerController { get; internal set; }
 
         /// <summary>
-        /// A list of the NetworkIdentity objects owned by this connection.
-        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority. This list is read only.</para>
+        /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
+        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
         /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
         /// </summary>
         public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
 
         /// <summary>
         /// Setting this to true will log the contents of network message to the console.
+        /// </summary>
+        /// <remarks>
         /// <para>Warning: this can be a lot of data and can be very slow. Both incoming and outgoing messages are logged. The format of the logs is:</para>
         /// <para>ConnectionSend con:1 bytes:11 msgId:5 FB59D743FD120000000000 ConnectionRecv con:1 bytes:27 msgId:8 14F21000000000016800AC3FE090C240437846403CDDC0BD3B0000</para>
         /// <para>Note that these are application-level network messages, not protocol-level packets. There will typically be multiple network messages combined in a single protocol packet.</para>
-        /// </summary>
+        /// </remarks>
         public bool logNetworkMessages;
 
         // this is always true for regular connections, false for local
@@ -305,16 +311,14 @@ namespace Mirror
             return InvokeHandler(msgType, new NetworkReader(data));
         }
 
+        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
+        //       anymore because NetworkServer/NetworkClient Update both use while loops to handle >1 data events per
+        //       frame already.
+        //       -> in other words, we always receive 1 message per Receive call, never two.
+        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
+        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// <summary>
         /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
-        /// <para>
-        /// note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
-        ///       anymore because NetworkServer/NetworkClient Update both use while loops to handle >1 data events per
-        ///       frame already.
-        ///       -> in other words, we always receive 1 message per Receive call, never two.
-        ///       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
-        ///          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
-        /// </para>
         /// </summary>
         /// <param name="buffer">The data recieved.</param>
         public virtual void TransportReceive(ArraySegment<byte> buffer)
