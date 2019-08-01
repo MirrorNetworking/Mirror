@@ -1009,7 +1009,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Removes ownership for an object for a client by its conneciton.
+        /// Removes ownership for an object for a client by its connection.
         /// <para>This applies to objects that had authority set by AssignClientAuthority, or NetworkServer.SpawnWithClientAuthority. Authority cannot be removed for player objects.</para>
         /// </summary>
         /// <param name="conn">The connection of the client to remove authority for.</param>
@@ -1059,7 +1059,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This assigns control of an object to a client via the client's <see cref="NetworkConnection">NetworkConnection.</see>
+        /// Assign control of an object to a client via the client's <see cref="NetworkConnection">NetworkConnection.</see>
         /// <para>This causes hasAuthority to be set on the client that owns the object, and NetworkBehaviour.OnStartAuthority will be called on that client. This object then will be in the NetworkConnection.clientOwnedObjects list for the connection.</para>
         /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. Only NetworkIdentities with localPlayerAuthority set can have client authority assigned. This does not need to be called for player objects, as their authority is setup automatically.</para>
         /// </summary>
