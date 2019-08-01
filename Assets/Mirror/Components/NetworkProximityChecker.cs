@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// Component that controls visibility of networked objects for players.
+    /// <para>Any object with this component on it will not be visible to players more than a (configurable) distance away.</para>
+    /// </summary>
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkProximityChecker")]
