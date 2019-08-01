@@ -7,10 +7,12 @@ namespace Mirror
 {
     /// <summary>
     /// Base class which should be inherited by scripts which contain networking functionality.
+    /// </summary>
+    /// <remarks>
     /// <para>This is a MonoBehaviour class so scripts which need to use the networking feature should inherit this class instead of MonoBehaviour. It allows you to invoke networked actions, receive various callbacks, and automatically synchronize state from server-to-client.</para>
     /// <para>The NetworkBehaviour component requires a NetworkIdentity on the game object. There can be multiple NetworkBehaviours on a single game object. For an object with sub-components in a hierarchy, the NetworkIdentity must be on the root object, and NetworkBehaviour scripts must also be on the root object.</para>
     /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
-    /// </summary>
+    /// </remarks>
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
@@ -42,7 +44,6 @@ namespace Mirror
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
-        /// <para>This example shows processing input for only the local player.</para>
         /// </summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
@@ -578,10 +579,12 @@ namespace Mirror
 
         /// <summary>
         /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
+        /// </summary>
+        /// <remarks>
         /// <para>The initialState flag is useful to differentiate between the first time an object is serialized and when incremental updates can be sent. The first time an object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when initialState is true, only for incremental updates.</para>
         /// <para>If a class has SyncVars, then an implementation of this function and OnDeserialize() are added automatically to the class. So a class that has SyncVars cannot also have custom serialization functions.</para>
         /// <para>The OnSerialize function should return true to indicate that an update should be sent. If it returns true, then the dirty bits for that script are set to zero, if it returns false then the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.</para>
-        /// </summary>
+        /// </remarks>
         /// <param name="writer">Writer to use to write to the stream.</param>
         /// <param name="initialState">If this is being called to send initial state.</param>
         /// <returns>True if data was written.</returns>
