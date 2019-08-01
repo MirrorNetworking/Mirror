@@ -7,12 +7,14 @@ namespace Mirror
 {
     /// <summary>
     /// The NetworkServer uses a NetworkServerSimple for basic network functionality and adds more game-like functionality.
+    /// </summary>
+    /// <remarks>
     /// <para>NetworkServer handles remote connections from remote clients via a NetworkServerSimple instance, and also has a local connection for a local client.</para>
     /// <para>The NetworkServer is a singleton. It has static convenience functions such as NetworkServer.SendToAll() and NetworkServer.Spawn() which automatically use the singleton instance.</para>
     /// <para>The NetworkManager uses the NetworkServer, but it can be used without the NetworkManager.</para>
     /// <para>The set of networked objects that have been spawned is managed by NetworkServer. Objects are spawned with NetworkServer.Spawn() which adds them to this set, and makes them be created on clients. Spawned objects are removed automatically when they are destroyed, or than they can be removed from the spawned set by calling NetworkServer.UnSpawn() - this does not destroy the object.</para>
     /// <para>There are a number of internal messages used by NetworkServer, these are setup when NetworkServer.Listen() is called.</para>
-    /// </summary>
+    /// </remarks>
     public static class NetworkServer
     {
         static bool initialized;
