@@ -140,19 +140,17 @@ namespace Mirror
 
         [SerializeField] string m_AssetId;
 
+        // the AssetId trick:
+        // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   serialize it because Guid's internal bytes are private
+        // - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
+        //   which works, but it just unnecessary extra code
+        // - using just the Guid string would work, but it's 32 chars long and
+        //   would then be sent over the network as 64 instead of 16 bytes
+        // -> the solution is to serialize the string internally here and then
+        //    use the real 'Guid' type for everything else via .assetId
         /// <summary>
         /// Unique identifier used to find the source assets when server spawns the on clients.
-        /// <para>
-        /// the AssetId trick:
-        /// - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
-        ///   serialize it because Guid's internal bytes are private
-        /// - UNET used 'NetworkHash128' originally, with byte0, ..., byte16
-        ///   which works, but it just unnecessary extra code
-        /// - using just the Guid string would work, but it's 32 chars long and
-        ///   would then be sent over the network as 64 instead of 16 bytes
-        /// -> the solution is to serialize the string internally here and then
-        ///    use the real 'Guid' type for everything else via .assetId
-        /// </para>
         /// </summary>
         public Guid assetId
         {
