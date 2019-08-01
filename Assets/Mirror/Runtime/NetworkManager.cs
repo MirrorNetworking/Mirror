@@ -140,10 +140,12 @@ namespace Mirror
 
         /// <summary>
         /// The name of the current network scene.
+        /// </summary>
+        /// <remarks>
         /// <para>This is populated if the NetworkManager is doing scene management. This should not be changed directly. Calls to ServerChangeScene() cause this to change. New clients that connect to a server will automatically load this scene.</para>
         /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
         /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
-        /// </summary>
+        /// </remarks>
         public static string networkSceneName = "";
 
         /// <summary>
@@ -155,7 +157,7 @@ namespace Mirror
 
         /// <summary>
         /// Obsolete: Use NetworkClient directly
-        /// <para>For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)</para>
+        /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
         public NetworkClient client => NetworkClient.singleton;
@@ -295,8 +297,8 @@ namespace Mirror
         }
 
         /// <summary>
-        /// virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too
-        /// <para>called when quitting the application by closing the window / pressing stop in the editor</para>
+        /// called when quitting the application by closing the window / pressing stop in the editor
+        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
         /// </summary>
         public virtual void OnApplicationQuit()
         {
@@ -1042,14 +1044,14 @@ namespace Mirror
         // from all versions, so users only need to implement this one case.
 
         /// <summary>
-        /// This hook is invoked when a host is started.
+        /// This is invoked when a host is started.
         /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
         public virtual void OnStartHost() { }
 
         /// <summary>
-        /// This hook is invoked when a server is started - including when a host is started.
-        /// StartServer has multiple signatures, but they all cause this hook to be called.
+        /// This is invoked when a server is started - including when a host is started.
+        /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
         /// </summary>
         public virtual void OnStartServer() { }
 
@@ -1062,7 +1064,7 @@ namespace Mirror
         public virtual void OnStartClient(NetworkClient client) { }
 
         /// <summary>
-        /// This is a hook that is invoked when the client is started.
+        /// This is invoked when the client is started.
         /// </summary>
         public virtual void OnStartClient()
         {
@@ -1072,17 +1074,17 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This hook is called when a server is stopped - including when a host is stopped.
+        /// This is called when a server is stopped - including when a host is stopped.
         /// </summary>
         public virtual void OnStopServer() { }
 
         /// <summary>
-        /// This hook is called when a client is stopped.
+        /// This is called when a client is stopped.
         /// </summary>
         public virtual void OnStopClient() { }
 
         /// <summary>
-        /// This hook is called when a host is stopped.
+        /// This is called when a host is stopped.
         /// </summary>
         public virtual void OnStopHost() { }
 
