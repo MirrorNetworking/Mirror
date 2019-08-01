@@ -16,7 +16,7 @@ A SyncList can contain items of the following types:
 
 ## Differences with HLAPI
 
-HLAPI also supports SyncLists, but we have made redesigned them to better suit our needs. Some of the key differences include:
+HLAPI also supports SyncLists, but we have redesigned them to better suit our needs. Some of the key differences include:
 
 -   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. Mirror synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. Mirror also respects the sync interval when synchronizing lists.
 
