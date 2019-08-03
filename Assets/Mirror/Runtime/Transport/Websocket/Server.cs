@@ -143,7 +143,7 @@ namespace Mirror.Websocket
                 }
 
             }
-            catch(IOException ex)
+            catch(IOException)
             {
                 // do nothing. This will be thrown if the transport is closed
             }

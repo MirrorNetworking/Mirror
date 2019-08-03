@@ -139,7 +139,7 @@ namespace Ninja.WebSockets.Internal
                             frame = await WebSocketFrameReader.ReadAsync(_stream, buffer, linkedCts.Token);
                             Events.Log.ReceivedFrame(_guid, frame.OpCode, frame.IsFinBitSet, frame.Count);
                         }
-                        catch (SocketException ex)
+                        catch (SocketException)
                         {
                             // do nothing, the socket has been disconnected
                         }
@@ -545,11 +545,11 @@ namespace Ninja.WebSockets.Internal
                                 await _stream.WriteAsync(_buf.Array, _buf.Offset, _buf.Count, cancellationToken).ConfigureAwait(false);
                             }
                         }
-                        catch (IOException ex)
+                        catch (IOException)
                         {
                             // do nothing, the socket is not connected
                         }
-                        catch (SocketException ex)
+                        catch (SocketException)
                         {
                             // do nothing, the socket is not connected
                         }
