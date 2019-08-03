@@ -14,29 +14,60 @@ namespace Mirror
     }
 
     // TODO make fully static after removing obsoleted singleton!
+    /// <summary>
+    /// This is a network client class used by the networking system. It contains a NetworkConnection that is used to connect to a network server.
+    /// <para>The <see cref="NetworkClient">NetworkClient</see> handle connection state, messages handlers, and connection configuration. There can be many <see cref="NetworkClient">NetworkClient</see> instances in a process at a time, but only one that is connected to a game server (<see cref="NetworkServer">NetworkServer</see>) that uses spawned objects.</para>
+    /// <para><see cref="NetworkClient">NetworkClient</see> has an internal update function where it handles events from the transport layer. This includes asynchronous connect events, disconnect events and incoming data from a server.</para>
+    /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
+    /// </summary>
     public class NetworkClient
     {
+        /// <summary>
+        /// Obsolete: Use NetworkClient directly.
+        /// <para>Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).</para>
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
         public static NetworkClient singleton = new NetworkClient();
 
+        /// <summary>
+        /// A list of all the active network clients in the current process.
+        /// <para>This is NOT a list of all clients that are connected to the remote server, it is client instances on the local game.</para>
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
-        public static List<NetworkClient> allClients => new List<NetworkClient>{singleton};
+        public static List<NetworkClient> allClients => new List<NetworkClient> { singleton };
 
+        /// <summary>
+        /// The registered network message handlers.
+        /// </summary>
         public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
+        /// <summary>
+        /// The NetworkConnection object this client is using.
+        /// </summary>
         public static NetworkConnection connection { get; internal set; }
 
         internal static ConnectState connectState = ConnectState.None;
 
+        /// <summary>
+        /// The IP address of the server that this client is connected to.
+        /// <para>This will be empty if the client has not connected yet.</para>
+        /// </summary>
         public static string serverIp => connection.address;
 
-        // active is true while a client is connecting/connected
-        // (= while the network is active)
+        /// <summary>
+        /// active is true while a client is connecting/connected
+        /// (= while the network is active)
+        /// </summary>
         public static bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
 
+        /// <summary>
+        /// This gives the current connection status of the client.
+        /// </summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
-        // NetworkClient can connect to local server in host mode too
+        /// <summary>
+        /// NetworkClient can connect to local server in host mode too
+        /// </summary>
         public static bool isLocalClient => connection is ULocalConnectionToServer;
 
         // local client in host mode might call Cmds/Rpcs during Update, but we
@@ -44,7 +75,10 @@ namespace Mirror
         // to avoid race conditions. keep packets in Queue until LateUpdate.
         internal static Queue<byte[]> localClientPacketQueue = new Queue<byte[]>();
 
-        // connect remote
+        /// <summary>
+        /// Connect client to a NetworkServer instance.
+        /// </summary>
+        /// <param name="address"></param>
         public static void Connect(string address)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
@@ -61,7 +95,9 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        // connect host mode
+        /// <summary>
+        /// connect host mode
+        /// </summary>
         internal static void ConnectLocalServer()
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
@@ -81,7 +117,10 @@ namespace Mirror
             localClientPacketQueue.Enqueue(MessagePacker.Pack(new ConnectMessage()));
         }
 
-        // Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
+        /// <summary>
+        /// Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
+        /// </summary>
+        /// <param name="localPlayer"></param>
         internal static void AddLocalPlayer(NetworkIdentity localPlayer)
         {
             if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + connection.connectionId);
@@ -144,6 +183,10 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
+        /// <summary>
+        /// Disconnect from server.
+        /// <para>The disconnect message will be invoked.</para>
+        /// </summary>
         public static void Disconnect()
         {
             connectState = ConnectState.Disconnected;
@@ -179,6 +222,9 @@ namespace Mirror
             Transport.activeTransport.OnClientError.RemoveListener(OnError);
         }
 
+        /// <summary>
+        /// Obsolete: Use SendMessage<T> instead with no message id instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendMessage<T> instead with no message id instead")]
         public static bool Send(short msgType, MessageBase msg)
         {
@@ -195,6 +241,15 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// This sends a network message with a message Id to the server. This message is sent on channel zero, which by default is the reliable channel.
+        /// <para>The message must be an instance of a class derived from MessageBase.</para>
+        /// <para>The message id passed to Send() is used to identify the handler function to invoke on the server when the message is received.</para>
+        /// </summary>
+        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <param name="message"></param>
+        /// <param name="channelId"></param>
+        /// <returns>True if message was sent.</returns>
         public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (connection != null)
@@ -278,6 +333,9 @@ namespace Mirror
         }
         */
 
+        /// <summary>
+        /// Obsolete: Use NetworkTime.rtt instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkTime.rtt instead")]
         public static float GetRTT()
         {
@@ -293,12 +351,12 @@ namespace Mirror
             {
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnLocalClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
-                RegisterHandler<NetworkPongMessage>((conn, msg) => {});
+                RegisterHandler<NetworkPongMessage>((conn, msg) => { });
                 RegisterHandler<SpawnPrefabMessage>(ClientScene.OnLocalClientSpawnPrefab);
                 RegisterHandler<SpawnSceneObjectMessage>(ClientScene.OnLocalClientSpawnSceneObject);
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {}); // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {}); // host mode doesn't need spawning
-                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { }); // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { }); // host mode doesn't need spawning
+                RegisterHandler<UpdateVarsMessage>((conn, msg) => { });
             }
             else
             {
@@ -316,6 +374,9 @@ namespace Mirror
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);
         }
 
+        /// <summary>
+        /// Obsolete: Use RegisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
@@ -326,12 +387,21 @@ namespace Mirror
             handlers[msgType] = handler;
         }
 
+        /// <summary>
+        /// Obsolete: Use RegisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);
         }
 
+        /// <summary>
+        /// Register a handler for a particular message type.
+        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
+        /// </summary>
+        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <param name="handler"></param>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
@@ -342,18 +412,28 @@ namespace Mirror
             handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
         }
 
+        /// <summary>
+        /// Obsolete: Use UnregisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
 
+        /// <summary>
+        /// Obsolete: Use UnregisterHandler<T> instead
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((int)msgType);
         }
 
+        /// <summary>
+        /// Unregisters a network message handler.
+        /// </summary>
+        /// <typeparam name="T">The message type to unregister.</typeparam>
         public static void UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
@@ -361,6 +441,10 @@ namespace Mirror
             handlers.Remove(msgType);
         }
 
+        /// <summary>
+        /// Shut down a client.
+        /// <para>This should be done when a client is no longer going to be used.</para>
+        /// </summary>
         public static void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
@@ -368,6 +452,9 @@ namespace Mirror
             connectState = ConnectState.None;
         }
 
+        /// <summary>
+        /// Obsolete: Call NetworkClient.Shutdown() instead. There is only one client.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
         public static void ShutdownAll()
         {
