@@ -26,9 +26,12 @@ namespace Mirror.Examples.Additive
 
         void OnDisable()
         {
-            Camera.main.transform.SetParent(null);
-            Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
-            Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            if (isLocalPlayer)
+            {
+                Camera.main.transform.SetParent(null);
+                Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
+                Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            }
         }
 
         void OnDestroy()
