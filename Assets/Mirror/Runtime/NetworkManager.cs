@@ -551,7 +551,7 @@ namespace Mirror
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 // Must pass true or offlineScene will not be loaded
-                ClientChangeScene(offlineScene);
+                ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
             CleanupNetworkIdentities();
         }
@@ -608,11 +608,6 @@ namespace Mirror
             {
                 identity.MarkForReset();
             }
-        }
-
-        void ClientChangeScene(string newSceneName)
-        {
-            ClientChangeScene(newSceneName, LoadSceneMode.Single, LocalPhysicsMode.None);
         }
 
         internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
