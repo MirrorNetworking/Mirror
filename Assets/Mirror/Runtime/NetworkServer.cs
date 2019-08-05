@@ -881,6 +881,9 @@ namespace Mirror
 
             // set ready
             conn.isReady = true;
+
+            if (conn.playerController != null)
+                SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
