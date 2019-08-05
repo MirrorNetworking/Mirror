@@ -774,13 +774,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
 
-            if (playerPrefab == null)
+            if (autoCreatePlayer && playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
                 return;
             }
 
-            if (playerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (autoCreatePlayer && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
