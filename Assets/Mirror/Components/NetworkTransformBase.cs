@@ -401,8 +401,8 @@ namespace Mirror
                         {
                             // local position/rotation for VR support
                             ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
-                                                     InterpolateRotation(start, goal, targetComponent.transform.localRotation),
-                                                     InterpolateScale(start, goal, targetComponent.transform.localScale));
+                                                       InterpolateRotation(start, goal, targetComponent.transform.localRotation),
+                                                       InterpolateScale(start, goal, targetComponent.transform.localScale));
                         }
                     }
                 }
