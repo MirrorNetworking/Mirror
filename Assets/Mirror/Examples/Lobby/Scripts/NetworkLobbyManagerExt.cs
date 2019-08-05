@@ -35,7 +35,7 @@ namespace Mirror.Examples.NetworkLobby
         public override void OnLobbyServerPlayersReady()
         {
             // calling the base method calls ServerChangeScene as soon as all players are in Ready state.
-            if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
+            if (isHeadless)
                 base.OnLobbyServerPlayersReady();
             else
                 showStartButton = true;
