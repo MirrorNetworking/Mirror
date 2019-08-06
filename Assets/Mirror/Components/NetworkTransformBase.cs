@@ -105,31 +105,28 @@ namespace Mirror
         // => if this is the first time ever then we use our best guess:
         //    -> delta based on transform.localPosition
         //    -> elapsed based on send interval hoping that it roughly matches
-        static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
+        static float EstimateMovementSpeed(DataPoint from, Vector3 toPosition, float toTimeStap, Transform transform, float sendInterval)
         {
-            Vector3 delta = to.localPosition - (from != null ? from.localPosition : transform.localPosition);
-            float elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
+            Vector3 delta = toPosition - (from != null ? from.localPosition : transform.localPosition);
+            float elapsed = from != null ? toTimeStap - from.timeStamp : sendInterval;
             return elapsed > 0 ? delta.magnitude / elapsed : 0; // avoid NaN
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
         void DeserializeFromReader(NetworkReader reader)
         {
-            // put it into a data point immediately
-            DataPoint temp = new DataPoint
-            {
-                // deserialize position
-                localPosition = reader.ReadVector3()
-            };
+            // deserialize position
+            Vector3 localPosition = reader.ReadVector3();
 
             // deserialize rotation
+            Quaternion localRotation = default;
             if (compressRotation == Compression.None)
             {
                 // read 3 floats = 16 byte
                 float x = reader.ReadSingle();
                 float y = reader.ReadSingle();
                 float z = reader.ReadSingle();
-                temp.localRotation = Quaternion.Euler(x, y, z);
+                localRotation = Quaternion.Euler(x, y, z);
             }
             else if (compressRotation == Compression.Much)
             {
@@ -137,22 +134,22 @@ namespace Mirror
                 float x = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
                 float y = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
                 float z = FloatBytePacker.ScaleByteToFloat(reader.ReadByte(), byte.MinValue, byte.MaxValue, 0, 360);
-                temp.localRotation = Quaternion.Euler(x, y, z);
+                localRotation = Quaternion.Euler(x, y, z);
             }
             else if (compressRotation == Compression.Lots)
             {
                 // read 2 byte, 5 bits per float
-                float[] xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
-                temp.localRotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
+                Vector3 xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
+                localRotation = Quaternion.Euler(xyz.x, xyz.y, xyz.z);
             }
 
-            temp.localScale = reader.ReadVector3();
+            Vector3 localScale = reader.ReadVector3();
 
-            temp.timeStamp = Time.time;
+            float timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
+            float movementSpeed = EstimateMovementSpeed(goal, localPosition, timeStamp, targetComponent.transform, syncInterval);
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
@@ -166,7 +163,7 @@ namespace Mirror
                     localPosition = targetComponent.transform.localPosition,
                     localRotation = targetComponent.transform.localRotation,
                     localScale = targetComponent.transform.localScale,
-                    movementSpeed = temp.movementSpeed
+                    movementSpeed = movementSpeed
                 };
             }
             // -> second or nth data point? then update previous, but:
@@ -201,9 +198,13 @@ namespace Mirror
             else
             {
                 float oldDistance = Vector3.Distance(start.localPosition, goal.localPosition);
-                float newDistance = Vector3.Distance(goal.localPosition, temp.localPosition);
+                float newDistance = Vector3.Distance(goal.localPosition, localPosition);
 
-                start = goal;
+                start.localPosition = goal.localPosition;
+                start.localRotation = goal.localRotation;
+                start.localScale = goal.localScale;
+                start.timeStamp = goal.timeStamp;
+                start.movementSpeed = goal.movementSpeed;
 
                 // teleport / lag / obstacle detection: only continue at current
                 // position if we aren't too far away
@@ -218,7 +219,15 @@ namespace Mirror
             }
 
             // set new destination in any case. new data is best data.
-            goal = temp;
+            if (goal == null)
+            {
+                goal = new DataPoint();
+            }
+            goal.localPosition = localPosition;
+            goal.localRotation = localRotation;
+            goal.localScale = localScale;
+            goal.timeStamp = timeStamp;
+            goal.movementSpeed = movementSpeed;
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)

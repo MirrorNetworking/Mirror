@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Mirror
 {
     public static class FloatBytePacker
@@ -42,7 +44,7 @@ namespace Mirror
         }
 
         // see PackThreeFloatsIntoUShort for explanation
-        public static float[] UnpackUShortIntoThreeFloats(ushort combined, float minTarget, float maxTarget)
+        public static Vector3 UnpackUShortIntoThreeFloats(ushort combined, float minTarget, float maxTarget)
         {
             byte lower = (byte)(combined & 0x1F);
             byte middle = (byte)((combined >> 5) & 0x1F);
@@ -52,7 +54,7 @@ namespace Mirror
             float u = ScaleByteToFloat(lower, 0x00, 0x1F, minTarget, maxTarget);
             float v = ScaleByteToFloat(middle, 0x00, 0x1F, minTarget, maxTarget);
             float w = ScaleByteToFloat(upper, 0x00, 0x1F, minTarget, maxTarget);
-            return new float[]{u, v, w};
+            return new Vector3(u, v, w);
         }
     }
 }
