@@ -33,8 +33,8 @@ Here is an example of how to implement simple username/password authentication:
 For example this would be part of your `NetworkManager` class:
 
 ```cs
-class MyGameNetworkManager : NetworkManager {
-
+class MyGameNetworkManager : NetworkManager
+{
     class CredentialsMessage : MessageBase
     {
         // use whatever credentials make sense for your game
