@@ -207,7 +207,6 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
 
-                    identity.isClient = true;
                     identity.OnStartClient();
                 }
             }
