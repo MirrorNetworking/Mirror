@@ -30,8 +30,8 @@ namespace Mirror
         bool[] lastBoolParameters;
         AnimatorControllerParameter[] parameters;
 
-        int animationHash;
-        int transitionHash;
+        int[] animationHash; // multiple layers
+        int[] transitionHash;
         float sendTimer;
 
         bool sendMessagesAllowed
@@ -65,6 +65,9 @@ namespace Mirror
             lastIntParameters = new int[parameters.Length];
             lastFloatParameters = new float[parameters.Length];
             lastBoolParameters = new bool[parameters.Length];
+            
+            animationHash = new int[animator.layerCount];
+            transitionHash = new int[animator.layerCount];
         }
 
         void FixedUpdate()
@@ -73,48 +76,53 @@ namespace Mirror
                 return;
 
             CheckSendRate();
-
-            if (!CheckAnimStateChanged(out int stateHash, out float normalizedTime))
+            
+            for(int i = 0; i < animator.layerCount; i++)
             {
-                return;
+                int stateHash;
+                float normalizedTime;
+                if (!CheckAnimStateChanged(out stateHash, out normalizedTime, i))
+                {
+                    continue;
+                }
+
+                NetworkWriter writer = new NetworkWriter();
+                WriteParameters(writer);
+
+                SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
             }
-
-            NetworkWriter writer = new NetworkWriter();
-            WriteParameters(writer);
-
-            SendAnimationMessage(stateHash, normalizedTime, writer.ToArray());
         }
-
-        bool CheckAnimStateChanged(out int stateHash, out float normalizedTime)
+        
+        bool CheckAnimStateChanged(out int stateHash, out float normalizedTime, int layerId)
         {
             stateHash = 0;
             normalizedTime = 0;
 
-            if (animator.IsInTransition(0))
+            if (animator.IsInTransition(layerId))
             {
-                AnimatorTransitionInfo tt = animator.GetAnimatorTransitionInfo(0);
-                if (tt.fullPathHash != transitionHash)
+                AnimatorTransitionInfo tt = animator.GetAnimatorTransitionInfo(layerId);
+                if (tt.fullPathHash != transitionHash[layerId])
                 {
                     // first time in this transition
-                    transitionHash = tt.fullPathHash;
-                    animationHash = 0;
+                    transitionHash[layerId] = tt.fullPathHash;
+                    animationHash[layerId] = 0;
                     return true;
                 }
                 return false;
             }
 
-            AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
-            if (st.fullPathHash != animationHash)
+            AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(layerId);
+            if (st.fullPathHash != animationHash[layerId])
             {
                 // first time in this animation state
-                if (animationHash != 0)
+                if (animationHash[layerId] != 0)
                 {
                     // came from another animation directly - from Play()
                     stateHash = st.fullPathHash;
                     normalizedTime = st.normalizedTime;
                 }
-                transitionHash = 0;
-                animationHash = st.fullPathHash;
+                transitionHash[layerId] = 0;
+                animationHash[layerId] = st.fullPathHash;
                 return true;
             }
             return false;
@@ -134,15 +142,15 @@ namespace Mirror
             }
         }
 
-        void SendAnimationMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void SendAnimationMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
             if (isServer)
             {
-                RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
+                RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
             }
             else if (ClientScene.readyConnection != null)
             {
-                CmdOnAnimationServerMessage(stateHash, normalizedTime, parameters);
+                CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, parameters);
             }
         }
 
@@ -158,7 +166,7 @@ namespace Mirror
             }
         }
 
-        void HandleAnimMsg(int stateHash, float normalizedTime, NetworkReader reader)
+        void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
             if (hasAuthority)
                 return;
@@ -168,7 +176,7 @@ namespace Mirror
             // NOTE: there is no API to play a transition(?)
             if (stateHash != 0)
             {
-                animator.Play(stateHash, 0, normalizedTime);
+                animator.Play(stateHash, layerId, normalizedTime);
             }
 
             ReadParameters(reader);
@@ -295,17 +303,20 @@ namespace Mirror
         {
             if (forceAll)
             {
-                if (animator.IsInTransition(0))
+                for(int i = 0; i < animator.layerCount; i++)
                 {
-                    AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(0);
-                    writer.WriteInt32(st.fullPathHash);
-                    writer.WriteSingle(st.normalizedTime);
-                }
-                else
-                {
-                    AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(0);
-                    writer.WriteInt32(st.fullPathHash);
-                    writer.WriteSingle(st.normalizedTime);
+                    if (animator.IsInTransition(i))
+                    {
+                        AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
+                        writer.WriteInt32(st.fullPathHash);
+                        writer.WriteSingle(st.normalizedTime);
+                    }
+                    else
+                    {
+                        AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
+                        writer.WriteInt32(st.fullPathHash);
+                        writer.WriteSingle(st.normalizedTime);
+                    }
                 }
                 WriteParameters(writer);
                 return true;
@@ -322,10 +333,14 @@ namespace Mirror
         {
             if (initialState)
             {
-                int stateHash = reader.ReadInt32();
-                float normalizedTime = reader.ReadSingle();
+                for(int i = 0; i < animator.layerCount; i++)
+                {
+                    int stateHash = reader.ReadInt32();
+                    float normalizedTime = reader.ReadSingle();
+                    animator.Play(stateHash, i, normalizedTime);
+                }
+
                 ReadParameters(reader);
-                animator.Play(stateHash, 0, normalizedTime);
             }
         }
 
@@ -362,13 +377,13 @@ namespace Mirror
 
         #region server message handlers
         [Command]
-        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
             if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
 
             // handle and broadcast
-            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
-            RpcOnAnimationClientMessage(stateHash, normalizedTime, parameters);
+            HandleAnimMsg(stateHash, normalizedTime, layerId, new NetworkReader(parameters));
+            RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
         }
 
         [Command]
@@ -390,9 +405,9 @@ namespace Mirror
 
         #region client message handlers
         [ClientRpc]
-        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, byte[] parameters)
+        void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
-            HandleAnimMsg(stateHash, normalizedTime, new NetworkReader(parameters));
+            HandleAnimMsg(stateHash, normalizedTime, layerId, new NetworkReader(parameters));
         }
 
         [ClientRpc]
