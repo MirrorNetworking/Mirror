@@ -114,16 +114,18 @@ namespace Mirror.Weaver
 
             if (hookFunctionMethod != null)
             {
-                //if (NetworkServer.localClientActive && !syncVarHookGuard)
+                //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
                 setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.getSyncVarHookGuard));
                 setWorker.Append(setWorker.Create(OpCodes.Brtrue, label));
 
-                // syncVarHookGuard = true;
+                // setSyncVarHookGuard(dirtyBit, true);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
@@ -132,8 +134,9 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
 
-                // syncVarHookGuard = false;
+                // setSyncVarHookGuard(dirtyBit, false);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_0));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
