@@ -135,8 +135,6 @@ namespace Mirror
         /// <summary>
         /// Deprecated: Use ServerGetClientAddress(int connectionId) instead
         /// </summary>
-        /// <param name="address">the address of the client</param>
-        /// <returns>true if the client exists</returns>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use ServerGetClientAddress(int connectionId) instead")]
         public virtual bool GetConnectionInfo(int connectionId, out string address)
         {
@@ -166,7 +164,7 @@ namespace Mirror
 
         /// <summary>
         /// The maximum packet size for a given channel.  Unreliable transports
-        /// usually can only deliver small packets.  reliable fragmented channels
+        /// usually can only deliver small packets.  Reliable fragmented channels
         /// can usually deliver large ones.
         /// </summary>
         /// <param name="channelId">channel id</param>
