@@ -550,7 +550,6 @@ namespace Mirror
 
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                // Must pass true or offlineScene will not be loaded
                 ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
             CleanupNetworkIdentities();
@@ -584,6 +583,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
+
+            // Let server prepare for scene change
+            OnServerChangeScene(newSceneName);
 
             LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
 
@@ -960,6 +962,13 @@ namespace Mirror
         public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
         /// <summary>
+        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        public virtual void OnServerChangeScene(string newSceneName) { }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="sceneName"></param>
@@ -1015,7 +1024,7 @@ namespace Mirror
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
-        /// <param name="newSceneName">Name if the scene that's about to be loaded</param>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         public virtual void OnClientChangeScene(string newSceneName) { }
 
         /// <summary>
