@@ -133,7 +133,7 @@ namespace Mirror
         public abstract bool ServerDisconnect(int connectionId);
 
         /// <summary>
-        /// Get the client address
+        /// Deprecated: Use ServerGetClientAddress(int connectionId) instead
         /// </summary>
         /// <param name="connectionId">id of the client</param>
         /// <param name="address">the address of the client</param>
