@@ -23,8 +23,8 @@ namespace Mirror
 
         /// <summary>
         /// Is this transport available in the current platform?
-        /// Some transports might only be available in mobile
-        /// Many will not work in webgl
+        /// <para>Some transports might only be available in mobile</para>
+        /// <para>Many will not work in webgl</para>
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
         public virtual bool Available()
