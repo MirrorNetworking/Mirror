@@ -16,10 +16,6 @@ namespace Mirror.Tests
         [SyncVar]
         public Guild guild;
 
-        public bool IsDirty()
-        {
-            return base.syncVarDirtyBits != 0;
-        }
     }
 
 
@@ -33,6 +29,9 @@ namespace Mirror.Tests
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
+
+            // synchronize immediatelly
+            player.syncInterval = 0f;
 
             Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
 

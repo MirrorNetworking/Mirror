@@ -675,7 +675,7 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns true if something was written
-        public bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
+        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
         {
             if (NetworkBehaviours.Length > 64)
             {
@@ -761,7 +761,7 @@ namespace Mirror
             }
         }
 
-        public void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
+        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
