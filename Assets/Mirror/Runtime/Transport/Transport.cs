@@ -17,7 +17,7 @@ namespace Mirror
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
-        /// The current transport used by mirror.  
+        /// The current transport used by Mirror. 
         /// </summary>
         public static Transport activeTransport;
 
