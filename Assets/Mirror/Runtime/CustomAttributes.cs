@@ -15,6 +15,7 @@ namespace Mirror
     public class SyncVarAttribute : Attribute
     {
         public string hook;
+        public bool ownerOnly;
     }
 
     [AttributeUsage(AttributeTargets.Method)]
