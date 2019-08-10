@@ -687,6 +687,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
 
+            if (!conn.isReady)
+            {
+                // client needs to finish initializing before we can spawn objects
+                // otherwise it would not find them.
+                return;
+            }
+
             // let connection know that we are about to start spawning...
             conn.Send(new ObjectSpawnStartedMessage());
 
@@ -736,6 +743,8 @@ namespace Mirror
                 return false;
             }
 
+            // make sure we have a controller before we call SetClientReady
+            // because the observers will be rebuilt only if we have a controller
             conn.playerController = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
@@ -743,13 +752,6 @@ namespace Mirror
 
             // set ready if not set yet
             SetClientReady(conn);
-
-            // add connection to observers AFTER the playerController was set.
-            // by definition, there is nothing to observe if there is no player
-            // controller.
-            //
-            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
-            SpawnObserversForConnection(conn);
 
             if (SetupLocalPlayerForConnection(conn, identity))
             {
@@ -880,6 +882,10 @@ namespace Mirror
 
             // set ready
             conn.isReady = true;
+
+            // client is ready to start spawning objects
+            if (conn.playerController != null)
+                SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
