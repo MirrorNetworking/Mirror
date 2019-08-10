@@ -72,7 +72,7 @@ namespace Mirror
         /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
         /// as new channels</param>
         /// <param name="data">The data to send to the server</param>
-        /// <returns></returns>
+        /// <returns>true if the send was successful</returns>
         public abstract bool ClientSend(int channelId, byte[] data);
 
         /// <summary>
