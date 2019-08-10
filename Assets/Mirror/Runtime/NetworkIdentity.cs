@@ -677,19 +677,19 @@ namespace Mirror
         // -> returns true if something was written
         internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
         {
-            if (networkBehavioursCache.Length > 64)
+            if (NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return false;
             }
-            ulong dirtyComponentsMask = GetDirtyMask(networkBehavioursCache, initialState);
+            ulong dirtyComponentsMask = GetDirtyMask(NetworkBehaviours, initialState);
 
             if (dirtyComponentsMask == 0L)
                 return false;
 
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
-            foreach (NetworkBehaviour comp in networkBehavioursCache)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
@@ -761,11 +761,12 @@ namespace Mirror
             }
         }
 
-        void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
+        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
+            var components = NetworkBehaviours;
             // loop through all components and deserialize the dirty ones
             for (int i = 0; i < components.Length; ++i)
             {
@@ -834,7 +835,7 @@ namespace Mirror
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
         {
-            OnDeserializeAllSafely(NetworkBehaviours, reader, initialState);
+            OnDeserializeAllSafely(reader, initialState);
         }
 
         internal void SetLocalPlayer()
