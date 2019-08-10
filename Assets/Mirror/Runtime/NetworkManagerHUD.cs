@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// An extension for the NetworkManager that displays a default HUD for controlling the network state of the game.
+    /// <para>This component also shows useful internal state for the networking system in the inspector window of the editor. It allows users to view connections, networked objects, message handlers, and packet statistics. This information can be helpful when debugging networked games.</para>
+    /// </summary>
     [AddComponentMenu("Network/NetworkManagerHUD")]
     [RequireComponent(typeof(NetworkManager))]
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -12,8 +16,20 @@ namespace Mirror
     public class NetworkManagerHUD : MonoBehaviour
     {
         NetworkManager manager;
+
+        /// <summary>
+        /// Whether to show the default control HUD at runtime.
+        /// </summary>
         public bool showGUI = true;
+
+        /// <summary>
+        /// The horizontal offset in pixels to draw the HUD runtime GUI at.
+        /// </summary>
         public int offsetX;
+
+        /// <summary>
+        /// The vertical offset in pixels to draw the HUD runtime GUI at.
+        /// </summary>
         public int offsetY;
 
         void Awake()

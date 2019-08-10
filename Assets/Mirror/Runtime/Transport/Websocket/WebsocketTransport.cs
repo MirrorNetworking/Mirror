@@ -11,6 +11,10 @@ namespace Mirror.Websocket
 
         public int port = 7778;
 
+        public bool Secure;
+        public string CertificatePath;
+        public string CertificatePassword;
+
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
@@ -32,11 +36,6 @@ namespace Mirror.Websocket
             client.NoDelay = NoDelay;
             server.NoDelay = NoDelay;
 
-            // HLAPI's local connection uses hard coded connectionId '0', so we
-            // need to make sure that external connections always start at '1'
-            // by simple eating the first one before the server starts
-            Server.NextConnectionId();
-
             Debug.Log("Websocket transport initialized!");
         }
 
@@ -51,7 +50,14 @@ namespace Mirror.Websocket
 
         public override void ClientConnect(string host)
         {
-            client.Connect(new Uri($"ws://{host}:{port}"));
+            if (Secure)
+            {
+                client.Connect(new Uri($"wss://{host}:{port}"));
+            }
+            else
+            {
+                client.Connect(new Uri($"ws://{host}:{port}"));
+            }
         }
 
         public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
@@ -63,6 +69,20 @@ namespace Mirror.Websocket
 
         public override void ServerStart()
         {
+            server._secure = Secure;
+            if (Secure)
+            {
+                server._secure = Secure;
+                server._sslConfig = new Server.SslConfiguration
+                {
+                    Certificate = new System.Security.Cryptography.X509Certificates.X509Certificate2(
+                        System.IO.Path.Combine(Application.dataPath, CertificatePath),
+                        CertificatePassword),
+                    ClientCertificateRequired = false,
+                    CheckCertificateRevocation = false,
+                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
+                };
+            }
             server.Listen(port);
         }
 

@@ -14,7 +14,7 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 
 -   Active [Discord](https://discord.gg/2BvnM4R) for prompt support
 
--   **Requires Unity 2018.3.6+**
+-   **Requires Unity 2018.3.6+ and Runtime .Net 4.x**
 
 -   Alpha / Beta Unity versions cannot be supported
 

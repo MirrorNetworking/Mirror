@@ -8,18 +8,49 @@ using Object = UnityEngine.Object;
 
 namespace Mirror
 {
+    /// <summary>
+    /// A client manager which contains static client information and functions.
+    /// <para>This manager contains references to tracked static local objects such as spawner registrations. It also has the default message handlers used by clients when they registered none themselves. The manager handles adding/removing player objects to the game after a client connection has been set as ready.</para>
+    /// <para>The ClientScene is a singleton, and it has static convenience methods such as ClientScene.Ready().</para>
+    /// <para>The ClientScene is used by the NetworkManager, but it can be used by itself.</para>
+    /// <para>As the ClientScene manages player objects on the client, it is where clients request to add players. The NetworkManager does this via the ClientScene automatically when auto-add-players is set, but it can be done through code using the function ClientScene.AddPlayer(). This sends an AddPlayer message to the server and will cause a player object to be created for this client.</para>
+    /// <para>Like NetworkServer, the ClientScene understands the concept of the local client. The function ClientScene.ConnectLocalServer() is used to become a host by starting a local client (when a server is already running).</para>
+    /// </summary>
     public static class ClientScene
     {
         static bool isSpawnFinished;
 
         static HashSet<uint> pendingOwnerNetIds = new HashSet<uint>();
 
+        /// <summary>
+        /// NetworkIdentity of the localPlayer
+        /// </summary>
         public static NetworkIdentity localPlayer { get; private set; }
+
+        /// <summary>
+        /// Returns true when a client's connection has been set to ready.
+        /// <para>A client that is ready recieves state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
+        /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
+        /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
+        /// </summary>
         public static bool ready { get; internal set; }
+
+        /// <summary>
+        /// The NetworkConnection object that is currently "ready". This is the connection to the server where objects are spawned from.
+        /// <para>This connection can be used to send messages to the server. There can only be one ready connection at a time. There can be multiple NetworkClient instances in existence, each with their own NetworkConnections, but there is only one ClientScene instance and corresponding ready connection.</para>
+        /// </summary>
         public static NetworkConnection readyConnection { get; private set; }
 
+        /// <summary>
+        /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
+        /// <para>The key to the dictionary is the prefab asset Id.</para>
+        /// </summary>
         public static Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
-        // scene id to NetworkIdentity
+
+        /// <summary>
+        /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
+        /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
+        /// </summary>
         public static Dictionary<ulong, NetworkIdentity> spawnableObjects;
 
         // spawn handlers
@@ -57,14 +88,27 @@ namespace Mirror
             }
         }
 
-        // use this if already ready
+        /// <summary>
+        /// This adds a player GameObject for this client.
+        /// <para>This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.</para>
+        /// </summary>
+        /// <returns>True if player was added.</returns>
         public static bool AddPlayer() => AddPlayer(null);
 
-        // use this to implicitly become ready
+        /// <summary>
+        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
+        /// </summary>
+        /// <param name="readyConn">The connection to become ready for this client.</param>
+        /// <returns>True if player was added.</returns>
         public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer(readyConn, null);
 
-        // use this to implicitly become ready
-        // -> extraMessage can contain character selection, etc.
+        /// <summary>
+        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called. If an extra message was passed to AddPlayer, then OnServerAddPlayer will be called with a NetworkReader that contains the contents of the message.
+        /// <para>extraMessage can contain character selection, etc.</para>
+        /// </summary>
+        /// <param name="readyConn">The connection to become ready for this client.</param>
+        /// <param name="extraMessage">An extra message object that can be passed to the server for this player.</param>
+        /// <returns>True if player was added.</returns>
         public static bool AddPlayer(NetworkConnection readyConn, byte[] extraData)
         {
             // ensure valid ready connection
@@ -96,6 +140,10 @@ namespace Mirror
             return true;
         }
 
+        /// <summary>
+        /// Removes the player from the game.
+        /// </summary>
+        /// <returns>True if succcessful</returns>
         public static bool RemovePlayer()
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + readyConnection + "]");
@@ -114,6 +162,12 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Signal that the client connection is ready to enter the game.
+        /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
+        /// </summary>
+        /// <param name="conn">The client connection which is ready.</param>
+        /// <returns>True if succcessful</returns>
         public static bool Ready(NetworkConnection conn)
         {
             if (ready)
@@ -154,8 +208,9 @@ namespace Mirror
                    identity.sceneId != 0;
         }
 
-        // this needs to be public. If users load/unload a scene in the client after connection
-        // they should call this to register the spawnable objects
+        /// <summary>
+        /// Call this after loading/unloading a scene in the client after connection to register the spawnable objects
+        /// </summary>
         public static void PrepareToSpawnSceneObjects()
         {
             // add all unspawned NetworkIdentities to spawnable objects
@@ -183,7 +238,14 @@ namespace Mirror
                    prefabs.TryGetValue(assetId, out prefab) && prefab != null;
         }
 
-        // this assigns the newAssetId to the prefab. This is for registering dynamically created game objects for already know assetIds.
+        /// <summary>
+        /// Registers a prefab with the spawning system.
+        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
+        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
+        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// </summary>
+        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
@@ -200,6 +262,13 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Registers a prefab with the spawning system.
+        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
+        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
+        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// </summary>
+        /// <param name="prefab">A Prefab that will be spawned.</param>
         public static void RegisterPrefab(GameObject prefab)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
@@ -221,6 +290,15 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Registers a prefab with the spawning system.
+        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
+        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
+        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
+        /// </summary>
+        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
+        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
@@ -248,6 +326,10 @@ namespace Mirror
             unspawnHandlers[identity.assetId] = unspawnHandler;
         }
 
+        /// <summary>
+        /// Removes a registered spawn prefab that was setup with ClientScene.RegisterPrefab.
+        /// </summary>
+        /// <param name="prefab">The prefab to be removed from registration.</param>
         public static void UnregisterPrefab(GameObject prefab)
         {
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
@@ -260,6 +342,13 @@ namespace Mirror
             unspawnHandlers.Remove(identity.assetId);
         }
 
+        /// <summary>
+        /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
+        /// <para>This can be used to register custom spawning methods for an assetId - instead of the usual method of registering spawning methods for a prefab. This should be used when no prefab exists for the spawned objects - such as when they are constructed dynamically at runtime from configuration data.</para>
+        /// </summary>
+        /// <param name="assetId">Custom assetId string.</param>
+        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
+        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (spawnHandler == null || unspawnHandler == null)
@@ -274,12 +363,19 @@ namespace Mirror
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
+        /// <summary>
+        /// Removes a registered spawn handler function that was registered with ClientScene.RegisterHandler().
+        /// </summary>
+        /// <param name="assetId">The assetId for the handler to be removed for.</param>
         public static void UnregisterSpawnHandler(Guid assetId)
         {
             spawnHandlers.Remove(assetId);
             unspawnHandlers.Remove(assetId);
         }
 
+        /// <summary>
+        /// This clears the registered spawn prefabs and spawn handler functions for this client.
+        /// </summary>
         public static void ClearSpawners()
         {
             prefabs.Clear();
@@ -297,6 +393,10 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Destroys all networked objects on the client.
+        /// <para>This can be used to clean up when a network connection is closed.</para>
+        /// </summary>
         public static void DestroyAllClientObjects()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
@@ -346,7 +446,6 @@ namespace Mirror
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
             {
-                identity.isClient = true;
                 identity.OnStartClient();
                 CheckForOwner(identity);
             }

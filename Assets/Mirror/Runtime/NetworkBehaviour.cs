@@ -5,45 +5,96 @@ using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// Base class which should be inherited by scripts which contain networking functionality.
+    /// </summary>
+    /// <remarks>
+    /// <para>This is a MonoBehaviour class so scripts which need to use the networking feature should inherit this class instead of MonoBehaviour. It allows you to invoke networked actions, receive various callbacks, and automatically synchronize state from server-to-client.</para>
+    /// <para>The NetworkBehaviour component requires a NetworkIdentity on the game object. There can be multiple NetworkBehaviours on a single game object. For an object with sub-components in a hierarchy, the NetworkIdentity must be on the root object, and NetworkBehaviour scripts must also be on the root object.</para>
+    /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
+    /// </remarks>
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
         float lastSyncTime;
 
-        // sync interval for OnSerialize (in seconds)
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        /// <summary>
+        /// sync interval for OnSerialize (in seconds)
+        /// </summary>
         [HideInInspector] public float syncInterval = 0.1f;
 
-        ///<summary>True if the object is controlled by the client that owns it.</summary>
+        /// <summary>
+        /// This value is set on the NetworkIdentity and is accessible here for convenient access for scripts.
+        /// </summary>
         public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-        ///<summary>True if this object is running on the server, and has been spawned.</summary>
+
+        /// <summary>
+        /// Returns true if this object is active on an active server.
+        /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
+        /// </summary>
         public bool isServer => netIdentity.isServer;
-        ///<summary>True if this object is running on the server, and has been spawned.</summary>
+
+        /// <summary>
+        /// Returns true if running as a client and this object was spawned by a server.
+        /// </summary>
         public bool isClient => netIdentity.isClient;
-        ///<summary>True if the object is the one that represents the player on the local machine.</summary>
+
+        /// <summary>
+        /// This returns true if this object is the one that represents the player on the local machine.
+        /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
+        /// </summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
-        ///<summary>True if the object is only running on the server, and has been spawned.</summary>
+
+        /// <summary>
+        /// True if this object only exists on the server
+        /// </summary>
         public bool isServerOnly => isServer && !isClient;
-        ///<summary>True if the object is only running on the client.</summary>
+
+        /// <summary>
+        /// True if this object exists on a client that is not also acting as a server
+        /// </summary>
         public bool isClientOnly => isClient && !isServer;
-        ///<summary>True if this object is the authoritative version of the object. For more info: https://vis2k.github.io/Mirror/Concepts/Authority</summary>
+
+        /// <summary>
+        /// This returns true if this object is the authoritative version of the object in the distributed network application.
+        /// <para>The <see cref="localPlayerAuthority">localPlayerAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server / host. For objects with <see cref="localPlayerAuthority">localPlayerAuthority</see> set, authority is held by the client of that player.</para>
+        /// </summary>
         public bool hasAuthority => netIdentity.hasAuthority;
-        ///<summary>A unique identifier for this network object, assigned when spawned.</summary>
+
+        /// <summary>
+        /// The unique network Id of this object.
+        /// <para>This is assigned at runtime by the network server and will be unique for all objects for that network session.</para>
+        /// </summary>
         public uint netId => netIdentity.netId;
-        ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.</summary>
+
+        /// <summary>
+        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
+        /// </summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
-        ///<summary>The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on the server.</summary>
+
+        /// <summary>
+        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
+        /// </summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+
         protected ulong syncVarDirtyBits { get; private set; }
         protected bool syncVarHookGuard { get; set; }
 
-        // objects that can synchronize themselves,  such as synclists
+        /// <summary>
+        /// objects that can synchronize themselves, such as synclists
+        /// </summary>
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
-        // NetworkIdentity component caching for easier access
+        /// <summary>
+        /// NetworkIdentity component caching for easier access
+        /// </summary>
         NetworkIdentity netIdentityCache;
-        ///<summary>The NetworkIdentity attached to this object.</summary>
+
+        /// <summary>
+        /// Returns the NetworkIdentity of this object
+        /// </summary>
         public NetworkIdentity netIdentity
         {
             get
@@ -63,6 +114,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Returns the index of the component on this object
+        /// </summary>
         public int ComponentIndex
         {
             get
@@ -139,6 +193,12 @@ namespace Mirror
             ClientScene.readyConnection.Send(message, channelId);
         }
 
+        /// <summary>
+        /// Manually invoke a Command.
+        /// </summary>
+        /// <param name="cmdHash">Hash of the Command name.</param>
+        /// <param name="reader">Parameters to pass to the command.</param>
+        /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeCommand(int cmdHash, NetworkReader reader)
         {
@@ -214,6 +274,12 @@ namespace Mirror
             conn.Send(message, channelId);
         }
 
+        /// <summary>
+        /// Manually invoke an RPC function.
+        /// </summary>
+        /// <param name="rpcHash">Hash of the RPC name.</param>
+        /// <param name="reader">Parameters to pass to the RPC function.</param>
+        /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeRPC(int rpcHash, NetworkReader reader)
         {
@@ -243,6 +309,12 @@ namespace Mirror
             NetworkServer.SendToReady(netIdentity,message, channelId);
         }
 
+        /// <summary>
+        /// Manually invoke a SyncEvent.
+        /// </summary>
+        /// <param name="eventHash">Hash of the SyncEvent name.</param>
+        /// <param name="reader">Parameters to pass to the SyncEvent.</param>
+        /// <returns>Returns true if successful.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool InvokeSyncEvent(int eventHash, NetworkReader reader)
         {
@@ -251,6 +323,11 @@ namespace Mirror
         #endregion
 
         #region Code Gen Path Helpers
+        /// <summary>
+        /// Delegate for Command functions.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="reader"></param>
         public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader);
 
         protected class Invoker
@@ -444,12 +521,20 @@ namespace Mirror
         }
         #endregion
 
-        // these are masks, not bit numbers, ie. 0x004 not 2
+        /// <summary>
+        /// Used to set the behaviour as dirty, so that a network update will be sent for the object.
+        /// these are masks, not bit numbers, ie. 0x004 not 2
+        /// </summary>
+        /// <param name="dirtyBit">Bit mask to set.</param>
         public void SetDirtyBit(ulong dirtyBit)
         {
             syncVarDirtyBits |= dirtyBit;
         }
 
+        /// <summary>
+        /// This clears all the dirty bits that were set on this script by SetDirtyBits();
+        /// <para>This is automatically invoked when an update is sent for this object, but can be called manually as well.</para>
+        /// </summary>
         public void ClearAllDirtyBits()
         {
             lastSyncTime = Time.time;
@@ -489,6 +574,17 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
+        /// </summary>
+        /// <remarks>
+        /// <para>The initialState flag is useful to differentiate between the first time an object is serialized and when incremental updates can be sent. The first time an object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when initialState is true, only for incremental updates.</para>
+        /// <para>If a class has SyncVars, then an implementation of this function and OnDeserialize() are added automatically to the class. So a class that has SyncVars cannot also have custom serialization functions.</para>
+        /// <para>The OnSerialize function should return true to indicate that an update should be sent. If it returns true, then the dirty bits for that script are set to zero, if it returns false then the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.</para>
+        /// </remarks>
+        /// <param name="writer">Writer to use to write to the stream.</param>
+        /// <param name="initialState">If this is being called to send initial state.</param>
+        /// <returns>True if data was written.</returns>
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             if (initialState)
@@ -501,6 +597,11 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
+        /// </summary>
+        /// <param name="reader">Reader to read from the stream.</param>
+        /// <param name="initialState">True if being sent initial state.</param>
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
         {
             if (initialState)
@@ -579,35 +680,72 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// This is invoked on clients when the server has caused this object to be destroyed.
+        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         ///<summary>Called on clients when the server destroys the GameObject.</summary>
         public virtual void OnNetworkDestroy() {}
-        ///<summary>Called when the GameObject spawns on the server, or when the server is started for GameObjects in the scene.</summary>
+
+        /// <summary>
+        /// This is invoked for NetworkBehaviour objects when they become active on the server.
+        /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
+        /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
+        /// </summary>
         public virtual void OnStartServer() {}
-        ///<summary>Called when the GameObject spawns on the client, or when the client connects to a server for GameObject in the scene.</summary>
+
+        /// <summary>
+        /// Called on every NetworkBehaviour when it is activated on a client.
+        /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
+        /// </summary>
         public virtual void OnStartClient() {}
-        ///<summary>Called on clients for GameObjects on the local client only.</summary>
+
+        /// <summary>
+        /// Called when the local player object has been set up.
+        /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
+        /// </summary>
         public virtual void OnStartLocalPlayer() {}
-        ///<summary>Called when the GameObject starts with local player authority.</summary>
+
+        /// <summary>
+        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
+        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
+        /// <para>When NetworkIdentity.AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
+        /// </summary>
         public virtual void OnStartAuthority() {}
-        ///<summary>Called when the GameObject stops with local player authority.</summary>
+
+        /// <summary>
+        /// This is invoked on behaviours when authority is removed.
+        /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
+        /// </summary>
         public virtual void OnStopAuthority() {}
 
-        // rebuild observers ourselves. otherwise it uses built in rebuild.
-        ///<summary>Called on the server when the set of observers for a GameObject is rebuilt.</summary>
-        ///<returns>Return true when overwriting so that Mirror knows that we wanted to.</returns>
+        /// <summary>
+        /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
+        /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
+        /// </summary>
+        /// <param name="observers">The new set of observers for this object.</param>
+        /// <param name="initialize">True if the set of observers is being built for the first time.</param>
+        /// <returns>true when overwriting so that Mirror knows that we wanted to rebuild observers ourselves. otherwise it uses built in rebuild.</returns>
         public virtual bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             return false;
         }
 
-        ///<summary>Called on the client and/or server when the visibility of a GameObject changes for the local client.</summary>
-        ///<param name="vis">New visibility state.</param>
+
+        /// <summary>
+        /// Callback used by the visibility system for objects on a host.
+        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
+        /// </summary>
+        /// <param name="vis">New visibility state.</param>
         public virtual void OnSetLocalVisibility(bool vis) {}
 
-        ///<summary>Called on the server to check visibility state for a new client.</summary>
-        ///<param name="conn">Network connection of a player.</param>
-        ///<returns>True if the player can see this object.</returns>
+        /// <summary>
+        /// Callback used by the visibility system to determine if an observer (player) can see this object.
+        /// <para>If this function returns true, the network connection will be added as an observer.</para>
+        /// </summary>
+        /// <param name="conn">Network connection of a player.</param>
+        /// <returns>True if the player can see this object.</returns>
         public virtual bool OnCheckObserver(NetworkConnection conn)
         {
             return true;
