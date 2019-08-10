@@ -16,8 +16,6 @@ To enable local player authority on a game object, tick the Network Identity com
 
 See Scripting API Reference documentation on NetworkIdentity and localPlayerAuthority for information on implementing local player authority via script.
 
-![This image shows the Enemy object under server authority. The enemy appears on Client 1 and Client 2, but the server is in charge of its position, movement, and behavior](NetworkAuthority.png)
-
 Use the NetworkIdentity.hasAuthority property to find out whether a game object has local authority (also accessible on `NetworkBehaviour` for convenience). Non-player game objects have authority on the server, and player game objects with localPlayerAuthority set have authority on their owner’s client.
 
 ## Local (Client) Authority for Non-Player Game Objects
