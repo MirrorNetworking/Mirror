@@ -80,7 +80,19 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        protected bool syncVarHookGuard { get; set; }
+        private ulong syncVarHookGuard;
+
+        protected bool getSyncVarHookGuard(ulong dirtyBit)
+        {
+            return (syncVarHookGuard & dirtyBit) != 0UL;
+        }
+        protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
+        {
+            if (value)
+                syncVarHookGuard |= dirtyBit;
+            else
+                syncVarHookGuard &= ~dirtyBit;
+        }
 
         /// <summary>
         /// Obsolete: Use syncObjects instead.
@@ -422,7 +434,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (syncVarHookGuard)
+            if (getSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
@@ -471,7 +483,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (syncVarHookGuard)
+            if (getSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
