@@ -23,7 +23,7 @@ namespace Mirror
 
         /// <summary>
         /// Is this transport available in the current platform?
-        /// Some transports might only be available in mobile,
+        /// Some transports might only be available in mobile
         /// Many will not work in webgl
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
