@@ -180,7 +180,7 @@ namespace Mirror
 
         // persistent scene id <sceneHash/32,sceneId/32>
         // (see AssignSceneID comments)
-        [SerializeField] ulong m_SceneId = 0;
+        [SerializeField] ulong m_SceneId;
 
         // keep track of all sceneIds to detect scene duplicates
         static Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
