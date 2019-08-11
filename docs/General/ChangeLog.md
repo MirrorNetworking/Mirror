@@ -1,5 +1,24 @@
 # Change Log
 
+## Version 3.x.x - In Progress
+
+- Added: Sync-To-Owner via optional attributes and parameter for SyncVars and related classes
+- Added: Support for reading and writing array segments
+- Added: NetworkAnimator now has layers support
+- Added: New virtual method OnServerChangeScene to NetworkManager
+- Added: XML <summary> comments for intellisense and future generated class docs
+- Updated Examples and Documentation
+- Fixed: ScneID was not set to 0 for prefab variants
+- Fixed: Observers are not properly rebuilt on scene changes
+- Fixed: SyncVar hooks were not able to change other SyncVars in Host mode
+- Fixed: Telepathy not setting socket options on accepted clients
+- Fixed: Catch IL2CPP bug
+- Fixed: Telepathy and Websockets now start connections ID's at 1 instead of 2
+- Fixed: Websockets support for SSL restored
+- Fixed: NetworkManager no longer complains about missing player prefab if auto-create is disabled.
+- Changed: AddPlayerForConnection handler is now internal to keep safety checks intact
+- Changed: A bunch of messages converted to value types for performance
+
 ## Version 3.11.6 - 2019-Jul-10
 
 - Fixed: Telepathy IPv4, IPv6, and FQDN should all work now
