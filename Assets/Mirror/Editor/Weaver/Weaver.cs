@@ -29,6 +29,9 @@ namespace Mirror.Weaver
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
+
+        // owner only bits per class
+        public Dictionary<string, ulong> ownerSyncVarMask = new Dictionary<string, ulong>();
     }
 
     class Weaver
@@ -189,6 +192,18 @@ namespace Mirror.Weaver
         public static void SetNumSyncVars(string className, int num)
         {
             WeaveLists.numSyncVars[className] = num;
+        }
+
+        public static ulong GetOwnerSyncVarMask(string className)
+        {
+            return WeaveLists.ownerSyncVarMask.ContainsKey(className)
+                   ? WeaveLists.ownerSyncVarMask[className]
+                   : 0;
+        }
+
+        public static void SetOwnerSyncVarMask(string className, ulong num)
+        {
+            WeaveLists.ownerSyncVarMask[className] = num;
         }
 
         internal static void ConfirmGeneratedCodeClass()
@@ -387,6 +402,18 @@ namespace Mirror.Weaver
 
             SyncObjectType = CurrentAssembly.MainModule.ImportReference(SyncObjectType);
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "InitSyncObject");
+        }
+
+        internal static bool isOwnerOnly(CustomAttribute ca)
+        {
+            foreach (var field in ca.Fields)
+            {
+                if (field.Name == "ownerOnly")
+                {
+                    return field.Argument.Value.Equals(true);
+                }
+            }
+            return false;
         }
 
         public static bool IsNetworkBehaviour(TypeDefinition td)

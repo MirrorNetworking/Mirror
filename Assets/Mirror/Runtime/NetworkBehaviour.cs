@@ -79,6 +79,10 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
+        // overriden by the weaver
+        // to tell which sync vars are owner only
+        protected internal virtual ulong getSyncVarOwnerMask() => 0;
+
         protected ulong syncVarDirtyBits { get; private set; }
         private ulong syncVarHookGuard;
 

@@ -16,6 +16,15 @@ namespace Mirror.Tests
         [SyncVar]
         public Guild guild;
 
+        [SyncVar(ownerOnly = true)]
+        public int health;
+
+        [SyncVar(ownerOnly = true)]
+        public int mana;
+
+        [SyncVar]
+        public string playerName;
+
     }
 
 
@@ -79,6 +88,16 @@ namespace Mirror.Tests
 
             // check that the syncvars got updated
             Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
+        }
+
+        [Test]
+        public void TestOwnerBits()
+        {
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity _ = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+
+            Assert.That(player1.getSyncVarOwnerMask(), Is.EqualTo(0b0110), "second and third variable are owner private");
         }
     }
 }

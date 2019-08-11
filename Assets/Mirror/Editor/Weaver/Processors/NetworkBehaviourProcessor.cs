@@ -53,6 +53,8 @@ namespace Mirror.Weaver
             }
             GenerateConstants();
 
+            GenerateOwnerSyncVarMask();
+
             GenerateSerialization();
             if (Weaver.WeavingFailed)
             {
@@ -281,6 +283,39 @@ namespace Mirror.Weaver
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
+        }
+
+        // Generates
+        // public override ulong getSyncVarOwnerMask() => 0xxxxxx;
+        private void GenerateOwnerSyncVarMask()
+        {
+            foreach (MethodDefinition m in netBehaviourSubclass.Methods)
+            {
+                if (m.Name == "getSyncVarOwnerMask")
+                    return;
+            }
+
+            ulong mask = Weaver.GetOwnerSyncVarMask(netBehaviourSubclass.FullName);
+
+            if (mask == 0)
+            {
+                return;
+            }
+            if (syncVars.Count == 0)
+            {
+                // no synvars,  no need for custom SyncVarOwnerMask
+                return;
+            }
+
+            MethodDefinition syncVarOwnerMask = new MethodDefinition("getSyncVarOwnerMask",
+                MethodAttributes.FamORAssem | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                Weaver.uint64Type);
+
+            ILProcessor serWorker = syncVarOwnerMask.Body.GetILProcessor();
+            serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, (long)mask));
+            serWorker.Append(serWorker.Create(OpCodes.Ret));
+
+            netBehaviourSubclass.Methods.Add(syncVarOwnerMask);
         }
 
         /*
