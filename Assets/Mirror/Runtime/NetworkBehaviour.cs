@@ -352,7 +352,7 @@ namespace Mirror
             public CmdDelegate invokeFunction;
         }
 
-        static Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
