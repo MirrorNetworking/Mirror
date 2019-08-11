@@ -183,7 +183,7 @@ namespace Mirror
         [SerializeField] ulong m_SceneId;
 
         // keep track of all sceneIds to detect scene duplicates
-        static Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+        static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
