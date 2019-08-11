@@ -606,10 +606,7 @@ namespace Mirror
             {
                 return SerializeObjectsAll(writer);
             }
-            else
-            {
-                return SerializeObjectsDelta(writer);
-            }
+            return SerializeObjectsDelta(writer);
         }
 
         /// <summary>
