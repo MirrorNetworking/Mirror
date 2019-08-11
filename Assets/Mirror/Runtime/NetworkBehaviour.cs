@@ -584,11 +584,14 @@ namespace Mirror
             return false;
         }
 
-        internal bool IsDirty()
+        internal bool IsDirty(bool owner)
         {
             if (Time.time - lastSyncTime >= syncInterval)
             {
-                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
+                // if owner,  take into account all bits
+                // if not owner,  do not take into account owner only variables
+                ulong dirtyBits = owner ? syncVarDirtyBits : (syncVarDirtyBits & ~getSyncVarOwnerMask());
+                return dirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
         }

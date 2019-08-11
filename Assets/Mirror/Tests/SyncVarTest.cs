@@ -42,7 +42,7 @@ namespace Mirror.Tests
             // synchronize immediatelly
             player.syncInterval = 0f;
 
-            Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
+            Assert.That(player.IsDirty(false), Is.False, "First time object should not be dirty");
 
             MockPlayer.Guild myGuild = new MockPlayer.Guild
             {
@@ -51,13 +51,13 @@ namespace Mirror.Tests
 
             player.guild = myGuild;
 
-            Assert.That(player.IsDirty(), "Setting struct should mark object as dirty");
+            Assert.That(player.IsDirty(false), "Setting struct should mark object as dirty");
             player.ClearAllDirtyBits();
-            Assert.That(player.IsDirty(), Is.False, "ClearAllDirtyBits() should clear dirty flag");
+            Assert.That(player.IsDirty(false), Is.False, "ClearAllDirtyBits() should clear dirty flag");
 
             // clearing the guild should set dirty bit too
             player.guild = default;
-            Assert.That(player.IsDirty(), "Clearing struct should mark object as dirty");
+            Assert.That(player.IsDirty(false), "Clearing struct should mark object as dirty");
         }
 
         [Test]
@@ -98,6 +98,23 @@ namespace Mirror.Tests
             MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
 
             Assert.That(player1.getSyncVarOwnerMask(), Is.EqualTo(0b0110), "second and third variable are owner private");
+        }
+
+        [Test]
+        public void TestOwnerDirtyBits()
+        {
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity _ = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            player1.syncInterval = 0;
+
+            Assert.That(player1.IsDirty(false), Is.False, "Object is not dirty from observer perspective");
+            Assert.That(player1.IsDirty(true), Is.False, "Object is not dirty from owner perspective");
+
+            player1.health = 10;
+
+            Assert.That(player1.IsDirty(false), Is.False, "Object is not dirty from observer perspective");
+            Assert.That(player1.IsDirty(true), Is.True, "Object is dirty from owner perspective");
         }
     }
 }
