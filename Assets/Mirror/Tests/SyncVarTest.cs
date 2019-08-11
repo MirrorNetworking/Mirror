@@ -116,5 +116,27 @@ namespace Mirror.Tests
             Assert.That(player1.IsDirty(false), Is.False, "Object is not dirty from observer perspective");
             Assert.That(player1.IsDirty(true), Is.True, "Object is dirty from owner perspective");
         }
+
+        [Test]
+        public void TestDirtyComponentMask()
+        {
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            player1.syncInterval = 0;
+            MockPlayer player2 = gameObject1.AddComponent<MockPlayer>();
+            player2.syncInterval = 0;
+            MockPlayer player3 = gameObject1.AddComponent<MockPlayer>();
+            player3.syncInterval = 0;
+
+            // owner bit
+            player1.health = 10;
+            player3.playerName = "Paul";
+
+            Assert.That(identity.GetDirtyMask(true, true), Is.EqualTo(0b111), "All components are considered dirty on initialization");
+            Assert.That(identity.GetDirtyMask(false, true), Is.EqualTo(0b101), "first and third component are dirty for owners");
+            Assert.That(identity.GetDirtyMask(false, false), Is.EqualTo(0b100), "first component is not dirty for observers");
+
+        }
     }
 }
