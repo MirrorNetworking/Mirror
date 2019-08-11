@@ -762,7 +762,7 @@ namespace Mirror
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
-            var components = NetworkBehaviours;
+            NetworkBehaviour[] components = NetworkBehaviours;
             // loop through all components and deserialize the dirty ones
             for (int i = 0; i < components.Length; ++i)
             {
