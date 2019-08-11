@@ -682,7 +682,7 @@ namespace Mirror
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return false;
             }
-            ulong dirtyComponentsMask = GetDirtyMask(NetworkBehaviours, initialState);
+            ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
                 return false;
@@ -705,10 +705,11 @@ namespace Mirror
             return true;
         }
 
-        ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        internal ulong GetDirtyMask(bool initialState)
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
+            NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour comp = components[i];
