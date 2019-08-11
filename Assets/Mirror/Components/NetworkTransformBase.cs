@@ -93,7 +93,7 @@ namespace Mirror
             writer.WriteVector3(scale);
         }
 
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override bool OnSerialize(NetworkWriter writer, bool initialState, bool owner)
         {
             // use local position/rotation/scale for VR support
             SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation, targetComponent.transform.localScale);

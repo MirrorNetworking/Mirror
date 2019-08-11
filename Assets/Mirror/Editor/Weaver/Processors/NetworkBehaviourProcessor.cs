@@ -356,6 +356,7 @@ namespace Mirror.Weaver
 
             serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, Weaver.boolType));
+            serialize.Parameters.Add(new ParameterDefinition("owner", ParameterAttributes.None, Weaver.boolType));
             ILProcessor serWorker = serialize.Body.GetILProcessor();
 
             serialize.Body.InitLocals = true;
@@ -370,6 +371,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_3)); // owner
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
             }

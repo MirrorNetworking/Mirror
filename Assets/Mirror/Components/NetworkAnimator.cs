@@ -299,7 +299,7 @@ namespace Mirror
         /// <param name="writer"></param>
         /// <param name="forceAll"></param>
         /// <returns></returns>
-        public override bool OnSerialize(NetworkWriter writer, bool forceAll)
+        public override bool OnSerialize(NetworkWriter writer, bool forceAll, bool owner)
         {
             if (forceAll)
             {

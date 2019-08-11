@@ -607,7 +607,7 @@ namespace Mirror
         /// <param name="writer">Writer to use to write to the stream.</param>
         /// <param name="initialState">If this is being called to send initial state.</param>
         /// <returns>True if data was written.</returns>
-        public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
+        public virtual bool OnSerialize(NetworkWriter writer, bool initialState, bool owner)
         {
             if (initialState)
             {

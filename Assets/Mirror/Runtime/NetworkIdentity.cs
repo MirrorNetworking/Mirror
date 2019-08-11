@@ -643,7 +643,7 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
         //    -> it will be impossible to read too many or too few bytes in OnDeserialize
         //    -> we can properly track down errors
-        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState, bool owner)
         {
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
@@ -656,7 +656,7 @@ namespace Mirror
             bool result = false;
             try
             {
-                result = comp.OnSerialize(writer, initialState);
+                result = comp.OnSerialize(writer, initialState, owner);
             }
             catch (Exception e)
             {
@@ -700,7 +700,7 @@ namespace Mirror
                 {
                     // serialize the data
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
-                    OnSerializeSafely(comp, writer, initialState);
+                    OnSerializeSafely(comp, writer, initialState, owner);
                 }
             }
 
