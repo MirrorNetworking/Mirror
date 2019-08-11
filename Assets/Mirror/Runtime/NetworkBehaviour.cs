@@ -596,6 +596,14 @@ namespace Mirror
             return false;
         }
 
+        // Determines which variables are dirty, but take into account
+        // if we are synchronizing to an owner and if this is the initial message
+        protected internal ulong GetDirtySyncVarMask(bool initial, bool owner)
+        {
+            ulong dirty = initial ? ~0ul : syncVarDirtyBits;
+            return owner ? dirty : (dirty & ~getSyncVarOwnerMask());
+        }
+
         /// <summary>
         /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
         /// </summary>

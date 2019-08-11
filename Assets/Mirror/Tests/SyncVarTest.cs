@@ -138,5 +138,22 @@ namespace Mirror.Tests
             Assert.That(identity.GetDirtyMask(false, false), Is.EqualTo(0b100), "first component is not dirty for observers");
 
         }
+
+        [Test]
+        public void TestDirtySyncVarMask()
+        {
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+
+            // owner bit
+            player1.health = 10;
+            player1.playerName = "Paul";
+
+            Assert.That(player1.GetDirtySyncVarMask(true, true), Is.EqualTo(~0UL), "All components are considered dirty on initialization");
+            Assert.That(player1.GetDirtySyncVarMask(true, false), Is.EqualTo(~0b0110ul), "owner only should not be considered dirty");
+            Assert.That(player1.GetDirtySyncVarMask(false, true), Is.EqualTo(0b1010ul), "Onwer can see both health and player name");
+            Assert.That(player1.GetDirtySyncVarMask(false, false), Is.EqualTo(0b1000ul), "Non Owner can only see player name");
+        }
     }
 }
