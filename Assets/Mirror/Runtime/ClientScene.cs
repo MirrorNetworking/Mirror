@@ -20,8 +20,6 @@ namespace Mirror
     {
         static bool isSpawnFinished;
 
-        static HashSet<uint> pendingOwnerNetIds = new HashSet<uint>();
-
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
@@ -62,7 +60,6 @@ namespace Mirror
         internal static void Shutdown()
         {
             ClearSpawners();
-            pendingOwnerNetIds.Clear();
             spawnableObjects = null;
             readyConnection = null;
             ready = false;
@@ -502,6 +499,7 @@ namespace Mirror
                     return;
                 }
                 localObject.Reset();
+                localObject.pendingOwner = msg.owner;
                 ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
             }
             // lookup registered factory for type:
@@ -520,6 +518,7 @@ namespace Mirror
                     return;
                 }
                 localObject.Reset();
+                localObject.pendingOwner = msg.owner;
                 localObject.assetId = msg.assetId;
                 ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
             }
@@ -564,6 +563,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name);
             spawnedId.Reset();
+            spawnedId.pendingOwner = msg.owner;
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
         }
 
@@ -733,15 +733,11 @@ namespace Mirror
                 localObject.SetLocalPlayer();
                 InternalAddPlayer(localObject);
             }
-            else
-            {
-                pendingOwnerNetIds.Add(netId);
-            }
         }
 
         static void CheckForOwner(NetworkIdentity identity)
         {
-            if (pendingOwnerNetIds.Contains(identity.netId))
+            if (identity.pendingOwner)
             {
                 // found owner, turn into a local player
 
@@ -757,7 +753,7 @@ namespace Mirror
                 }
                 InternalAddPlayer(identity);
 
-                pendingOwnerNetIds.Remove(identity.netId);
+                identity.pendingOwner = false;
             }
         }
     }

@@ -76,6 +76,8 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer { get; private set; }
 
+        internal bool pendingOwner { get; set; }
+
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
         /// <para>This value is determined at runtime, as opposed to localPlayerAuthority which is set on the prefab. For most objects, authority is held by the server / host. For objects with localPlayerAuthority set, authority is held by the client of that player.</para>
