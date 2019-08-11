@@ -1016,10 +1016,11 @@ namespace Mirror
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
             ArraySegment<byte> segment = default;
+            bool owner = conn?.playerController == identity;
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            if (identity.OnSerializeAllSafely(true, writer))
+            if (identity.OnSerializeAllSafely(true, writer, owner))
             {
                 segment = writer.ToArraySegment();
             }
@@ -1030,7 +1031,7 @@ namespace Mirror
                 SpawnPrefabMessage msg = new SpawnPrefabMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.playerController == identity,
+                    owner = owner,
                     assetId = identity.assetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1056,7 +1057,7 @@ namespace Mirror
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.playerController == identity,
+                    owner = owner,
                     sceneId = identity.sceneId,
                     // use local values for VR support
                     position = identity.transform.localPosition,

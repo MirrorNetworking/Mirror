@@ -75,7 +75,7 @@ namespace Mirror.Tests
 
             // serialize all the data as we would for the network
             NetworkWriter writer = new NetworkWriter();
-            identity1.OnSerializeAllSafely(true, writer);
+            identity1.OnSerializeAllSafely(true, writer, true);
 
             // set up a "client" object
             GameObject gameObject2 = new GameObject();

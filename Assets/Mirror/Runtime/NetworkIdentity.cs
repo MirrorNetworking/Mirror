@@ -677,7 +677,7 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns true if something was written
-        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
+        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer, bool owner)
         {
             if (NetworkBehaviours.Length > 64)
             {
@@ -1144,7 +1144,7 @@ namespace Mirror
 
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
                 // serialize all the dirty components and send (if any were dirty)
-                if (OnSerializeAllSafely(false, writer))
+                if (OnSerializeAllSafely(false, writer, true))
                 {
                     // populate cached UpdateVarsMessage and send
                     varsMessage.netId = netId;
