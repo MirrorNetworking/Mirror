@@ -699,13 +699,6 @@ namespace Mirror
                     // serialize the data
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
                     OnSerializeSafely(comp, writer, initialState);
-
-                    // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
-                    // This preserves the behavior in HLAPI
-                    if (!initialState)
-                    {
-                        comp.ClearAllDirtyBits();
-                    }
                 }
             }
 
@@ -1143,29 +1136,37 @@ namespace Mirror
         // invoked by NetworkServer during Update()
         internal void MirrorUpdate()
         {
-            if (observers == null || observers.Count == 0)
+            if (observers != null && observers.Count > 0)
             {
-                // if we have no observers, then flush all objects
-                // (fixes https://github.com/vis2k/Mirror/issues/963)
-                foreach (NetworkBehaviour comp in networkBehavioursCache)
-                {
-                    comp.ClearAllDirtyBits();
-                }
-                return;
-            }
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            // serialize all the dirty components and send (if any were dirty)
-            if (OnSerializeAllSafely(false, writer))
-            {
-                // populate cached UpdateVarsMessage and send
-                varsMessage.netId = netId;
-                // segment to avoid reader allocations.
-                // (never null because of our above check)
-                varsMessage.payload = writer.ToArraySegment();
-                NetworkServer.SendToReady(this, varsMessage);
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+                // serialize all the dirty components and send (if any were dirty)
+                if (OnSerializeAllSafely(false, writer))
+                {
+                    // populate cached UpdateVarsMessage and send
+                    varsMessage.netId = netId;
+                    // segment to avoid reader allocations.
+                    // (never null because of our above check)
+                    varsMessage.payload = writer.ToArraySegment();
+                    NetworkServer.SendToReady(this, varsMessage);
+
+                    // only clear bits if we sent something
+                    ClearDirtyBits();
+                }
+                NetworkWriterPool.Recycle(writer);
             }
-            NetworkWriterPool.Recycle(writer);
+            else
+            {
+                ClearDirtyBits();
+            }
+        }
+
+        private void ClearDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ClearAllDirtyBits();
+            }
         }
     }
 }
