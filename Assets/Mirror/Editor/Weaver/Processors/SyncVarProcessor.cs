@@ -284,19 +284,6 @@ namespace Mirror.Weaver
                             return;
                         }
 
-                        string fieldModuleName = resolvedField.Module.Name;
-                        if (fieldModuleName != Weaver.CurrentAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.UnityAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.NetAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.CorLibModule.Name &&
-                            fieldModuleName != "System.Runtime.dll" && // this is only for Metro, built-in types are not in corlib on metro
-                            fieldModuleName != "netstandard.dll" // handle built-in types when weaving new C#7 compiler assemblies
-                            )
-                        {
-                            Weaver.Error($"{fd} has invalid type. Use a type defined in the same module {fd.Module}");
-                            return;
-                        }
-
                         if (fd.FieldType.IsArray)
                         {
                             Weaver.Error($"{fd} has invalid type. Use SyncLists instead of arrays");
