@@ -380,12 +380,14 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
             }
 
-            // Generates: ulong dirtyBits = this.GetDirtySyncVarMask(forceAll, owner);
-
+            // Generates: ulong dirtyBits = this.GetDirtySyncVarMask(forceAll, owner) & 0x000011111;
+            // the & 0x0000011111  is to avoid serializing a huge 0xFFFFFFFFFFFFFFF when initializing
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_3)); // owner
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+            serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, GetAllVariablesMask())); // mask that includes all variables
+            serWorker.Append(serWorker.Create(OpCodes.And)); // mask that includes all variables
             serWorker.Append(serWorker.Create(OpCodes.Stloc_1));
 
             // write dirty bits before the data fields
@@ -440,6 +442,15 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldloc_0));
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             netBehaviourSubclass.Methods.Add(serialize);
+        }
+
+        private long GetAllVariablesMask()
+        {
+            long mask = 0L;
+            int totalVariables = Weaver.WeaveLists.numSyncVars[netBehaviourSubclass.FullName];
+            for (int i = 0; i < totalVariables; i++)
+                mask |= (1L << i);
+            return mask;
         }
 
         public static int GetChannelId(CustomAttribute ca)
