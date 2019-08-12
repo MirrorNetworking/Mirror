@@ -1141,7 +1141,6 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
-
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
                 // serialize all the dirty components and send (if any were dirty)
                 if (OnSerializeAllSafely(false, writer))
