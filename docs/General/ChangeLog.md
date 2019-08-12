@@ -3,6 +3,7 @@
 ## Version 3.x.x - In Progress
 
 - Added: Sync-To-Owner via optional attributes and parameter for SyncVars and related classes
+- Added: SyncVars now support structs and enums in other assemblies
 - Added: Support for reading and writing array segments
 - Added: NetworkAnimator now has layers support
 - Added: New virtual method OnServerChangeScene to NetworkManager
