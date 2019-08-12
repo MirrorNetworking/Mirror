@@ -1010,8 +1010,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             NetworkWriter writer = NetworkWriterPool.GetWriter();
-           
-            
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
