@@ -9,7 +9,7 @@
 - Added: New virtual method OnServerChangeScene to NetworkManager
 - Added: XML <summary> comments for intellisense and future generated class docs
 - Updated Examples and Documentation
-- Fixed: ScneID was not set to 0 for prefab variants
+- Fixed: SceneID was not set to 0 for prefab variants
 - Fixed: Observers are not properly rebuilt on scene changes
 - Fixed: SyncVar hooks were not able to change other SyncVars in Host mode
 - Fixed: Telepathy not setting socket options on accepted clients
