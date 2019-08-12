@@ -155,5 +155,61 @@ namespace Mirror.Tests
             Assert.That(player1.GetDirtySyncVarMask(false, true), Is.EqualTo(0b1010ul), "Onwer can see both health and player name");
             Assert.That(player1.GetDirtySyncVarMask(false, false), Is.EqualTo(0b1000ul), "Non Owner can only see player name");
         }
+
+        [Test]
+        public void TestSynchronizingOwnerObjects()
+        {
+            // set up a "server" object
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            player1.health = 10;
+            player1.playerName = "Moe Lester";
+
+            // serialize all the data as we would for the network
+            NetworkWriter writer = new NetworkWriter();
+            identity1.OnSerializeAllSafely(true, writer, true);
+
+            // set up a "client" object
+            GameObject gameObject2 = new GameObject();
+            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
+            MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
+
+            // apply all the data from the server object
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            identity2.OnDeserializeAllSafely(reader, true);
+
+            // check that the syncvars got updated
+            Assert.That(player2.health, Is.EqualTo(10), "owner variables should be synchronized");
+            Assert.That(player2.playerName, Is.EqualTo("Moe Lester"), "Non owner variables should be synchronized");
+        }
+
+        [Test]
+        public void TestSynchronizingObserverObjects()
+        {
+            // set up a "server" object
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            player1.health = 10;
+            player1.playerName = "Moe Lester";
+
+            // serialize all the data as we would for the network
+            NetworkWriter writer = new NetworkWriter();
+            identity1.OnSerializeAllSafely(true, writer, false);
+
+            // set up a "client" object
+            GameObject gameObject2 = new GameObject();
+            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
+            MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
+
+            // apply all the data from the server object
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            identity2.OnDeserializeAllSafely(reader, true);
+
+            // check that the syncvars got updated
+            Assert.That(player2.health, Is.EqualTo(0), "owner variables should NOT be synchronized");
+            Assert.That(player2.playerName, Is.EqualTo("Moe Lester"), "Non owner variables should be synchronized");
+        }
     }
 }

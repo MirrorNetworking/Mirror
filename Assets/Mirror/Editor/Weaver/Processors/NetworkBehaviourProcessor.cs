@@ -364,6 +364,10 @@ namespace Mirror.Weaver
             // loc_0,  this local variable is to determine if any variable was dirty
             VariableDefinition dirtyLocal = new VariableDefinition(Weaver.boolType);
             serialize.Body.Variables.Add(dirtyLocal);
+            // loc_1, this variable keeps the dirty bits for this component
+            VariableDefinition dirtyBits = new VariableDefinition(Weaver.uint64Type);
+            serialize.Body.Variables.Add(dirtyBits);
+
 
             MethodReference baseSerialize = Resolvers.ResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, "OnSerialize");
             if (baseSerialize != null)
@@ -376,46 +380,19 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Stloc_0)); // set dirtyLocal to result of base.OnSerialize()
             }
 
-            // Generates: if (forceAll);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
+            // Generates: ulong dirtyBits = this.GetDirtySyncVarMask(forceAll, owner);
+
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // forceAll
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (FieldDefinition syncVar in syncVars)
-            {
-                // Generates a writer call for each sync variable
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this
-                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    serWorker.Append(serWorker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
-                    return;
-                }
-            }
-
-            // always return true if forceAll
-
-            // Generates: return true
-            serWorker.Append(serWorker.Create(OpCodes.Ldc_I4_1));
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (forceAll);
-            serWorker.Append(initialStateLabel);
+            serWorker.Append(serWorker.Create(OpCodes.Ldarg_3)); // owner
+            serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+            serWorker.Append(serWorker.Create(OpCodes.Stloc_1));
 
             // write dirty bits before the data fields
-            // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
+            // Generates: writer.WritePackedUInt64 (dirtyBit);
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-            serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+            serWorker.Append(serWorker.Create(OpCodes.Ldloc_1)); // dirtyBits
             serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePackedUInt64));
-
-            // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
             int dirtyBit = Weaver.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
@@ -423,9 +400,8 @@ namespace Mirror.Weaver
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
 
-                // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-                serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
+                // Generates: if ((dirtyBit & 1uL) != 0uL)
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc_1));
                 serWorker.Append(serWorker.Create(OpCodes.Ldc_I8, 1L << dirtyBit)); // 8 bytes = long
                 serWorker.Append(serWorker.Create(OpCodes.And));
                 serWorker.Append(serWorker.Create(OpCodes.Brfalse, varLabel));
@@ -592,23 +568,6 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_2)); // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
             }
-
-            // Generates: if (initialState);
-            Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
-
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-            serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
-
-            foreach (FieldDefinition syncVar in syncVars)
-            {
-                DeserializeField(syncVar, serWorker, serialize);
-            }
-
-            serWorker.Append(serWorker.Create(OpCodes.Ret));
-
-            // Generates: end if (initialState);
-            serWorker.Append(initialStateLabel);
-
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
