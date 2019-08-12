@@ -1139,29 +1139,85 @@ namespace Mirror
         // invoked by NetworkServer during Update()
         internal void MirrorUpdate()
         {
-            if (observers != null && observers.Count > 0)
-            {
-
-                NetworkWriter writer = NetworkWriterPool.GetWriter();
-                // serialize all the dirty components and send (if any were dirty)
-                if (OnSerializeAllSafely(false, writer, true))
-                {
-                    // populate cached UpdateVarsMessage and send
-                    varsMessage.netId = netId;
-                    // segment to avoid reader allocations.
-                    // (never null because of our above check)
-                    varsMessage.payload = writer.ToArraySegment();
-                    NetworkServer.SendToReady(this, varsMessage);
-
-                    // only clear bits if we sent something
-                    ClearDirtyBits();
-                }
-                NetworkWriterPool.Recycle(writer);
-            }
-            else
+            if (observers == null || observers.Count == 0)
             {
                 ClearDirtyBits();
+                return;
             }
+
+            bool updated = false;
+
+            if (connectionToClient != null)
+            {
+                updated = UpdateOwner();
+            }
+
+            if (hasNonOwners())
+            {
+                updated |= UpdateNonOwner();
+            }
+
+            if (updated)
+                ClearDirtyBits();
+        }
+
+        // do we have any observer that is not the owner?
+        private bool hasNonOwners()
+        {
+            if (observers == null)
+                return false;
+
+            if (observers.Count == 0)
+                return false;
+
+            if (this.connectionToClient != null)
+            {
+                if (observers.Count == 1 && observers.ContainsKey(this.connectionToClient.connectionId))
+                    return false;
+            }
+            return true;
+        }
+
+        private bool UpdateOwner()
+        {
+            bool updated = false;
+
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            // serialize all the dirty components and send (if any were dirty)
+            if (OnSerializeAllSafely(false, writer, true))
+            {
+                // populate cached UpdateVarsMessage and send
+                varsMessage.netId = netId;
+                // segment to avoid reader allocations.
+                // (never null because of our above check)
+                varsMessage.payload = writer.ToArraySegment();
+                this.connectionToClient.Send(varsMessage);
+
+                updated = true;
+            }
+            NetworkWriterPool.Recycle(writer);
+            return updated;
+        }
+
+        private bool UpdateNonOwner()
+        {
+            bool updated = false;
+
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            // serialize all the dirty components and send (if any were dirty)
+            if (OnSerializeAllSafely(false, writer, false))
+            {
+                // populate cached UpdateVarsMessage and send
+                varsMessage.netId = netId;
+                // segment to avoid reader allocations.
+                // (never null because of our above check)
+                varsMessage.payload = writer.ToArraySegment();
+                NetworkServer.SendToReadyNonOwners(this, varsMessage);
+
+                updated = true;
+            }
+            NetworkWriterPool.Recycle(writer);
+            return updated;
         }
 
         private void ClearDirtyBits()

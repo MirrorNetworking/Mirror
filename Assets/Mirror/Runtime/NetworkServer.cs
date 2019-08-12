@@ -358,6 +358,36 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Send a message structure with the given type number to only clients which are ready.
+        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// </summary>
+        /// <typeparam name="T">Message type.</typeparam>
+        /// <param name="identity"></param>
+        /// <param name="msg">Message structure.</param>
+        /// <param name="channelId">Transport channel to use</param>
+        /// <returns></returns>
+        internal static bool SendToReadyNonOwners<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
+
+            if (identity != null && identity.observers != null)
+            {
+                // pack message into byte[] once
+                byte[] bytes = MessagePacker.Pack(msg);
+
+                bool result = true;
+                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                {
+                    if (kvp.Value.isReady && kvp.Value != identity.connectionToClient)
+                    {
+                        result &= kvp.Value.SendBytes(bytes, channelId);
+                    }
+                }
+                return result;
+            }
+            return false;
+        }
+        /// <summary>
         /// Disconnect all currently connected clients, including the local connection.
         /// <para>This can only be called on the server. Clients will receive the Disconnect message.</para>
         /// </summary>
