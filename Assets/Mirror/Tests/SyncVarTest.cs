@@ -65,8 +65,9 @@ namespace Mirror.Tests
             player1.guild = myGuild;
 
             // serialize all the data as we would for the network
-            NetworkWriter writer = new NetworkWriter();
-            identity1.OnSerializeAllSafely(true, writer);
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter everyoneWriter = new NetworkWriter(); // not really used in this Test
+            identity1.OnSerializeAllSafely(true, ownerWriter, everyoneWriter);
 
             // set up a "client" object
             GameObject gameObject2 = new GameObject();
@@ -74,7 +75,7 @@ namespace Mirror.Tests
             MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
 
             // apply all the data from the server object
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
             identity2.OnDeserializeAllSafely(reader, true);
 
             // check that the syncvars got updated

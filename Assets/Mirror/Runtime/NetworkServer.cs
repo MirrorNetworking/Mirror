@@ -333,9 +333,10 @@ namespace Mirror
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg">Message structure.</param>
+        /// <param name="includeSelf">Send to observers including self..</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
-        public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static bool SendToReady<T>(NetworkIdentity identity, T msg, bool includeSelf = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
@@ -347,7 +348,9 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    if (kvp.Value.isReady)
+                    bool isSelf = kvp.Value == identity.connectionToClient;
+                    if ((!isSelf || includeSelf) &&
+                        kvp.Value.isReady)
                     {
                         result &= kvp.Value.SendBytes(bytes, channelId);
                     }
@@ -1009,17 +1012,21 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            // one writer for owner, one for everyone else
+            NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
+            NetworkWriter everyoneWriter = NetworkWriterPool.GetWriter();
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
-            ArraySegment<byte> segment = default;
+            ArraySegment<byte> ownerSegment = default;
+            ArraySegment<byte> everyoneSegment = default;
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            if (identity.OnSerializeAllSafely(true, writer))
+            if (identity.OnSerializeAllSafely(true, ownerWriter, everyoneWriter))
             {
-                segment = writer.ToArraySegment();
+                ownerSegment = ownerWriter.ToArraySegment();
+                everyoneSegment = everyoneWriter.ToArraySegment();
             }
 
             // 'identity' is a prefab that should be spawned
@@ -1033,19 +1040,34 @@ namespace Mirror
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-                    payload = segment
+                    scale = identity.transform.localScale
                 };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
+                    // 'conn' owns this identity?
+                    if (identity.connectionToClient == conn)
+                        msg.payload = ownerSegment;
+                    // otherwise it's for someone else
+                    else
+                        msg.payload = everyoneSegment;
+
                     conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, msg);
+                    // TODO do we need to send to owner and everyone here too?
+                    // TODO what exactly does this do?
+
+                    // send ownerWriter to owner
+                    msg.payload = ownerSegment;
+                    SendToClientOfPlayer(identity, msg);
+
+                    // send everyoneWriter to everyone but owner
+                    msg.payload = everyoneSegment;
+                    SendToReady(identity, msg, false);
                 }
             }
             // 'identity' is a scene object that should be spawned again
@@ -1059,23 +1081,39 @@ namespace Mirror
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-                    payload = segment
+                    scale = identity.transform.localScale
                 };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
+                    // 'conn' owns this identity?
+                    if (identity.connectionToClient == conn)
+                        msg.payload = ownerSegment;
+                    // otherwise it's for someone else
+                    else
+                        msg.payload = everyoneSegment;
+
                     conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, msg);
+                    // TODO do we need to send to owner and everyone here too?
+                    // TODO what exactly does this do?
+
+                    // send ownerWriter to owner
+                    msg.payload = ownerSegment;
+                    SendToClientOfPlayer(identity, msg);
+
+                    // send everyoneWriter to everyone but owner
+                    msg.payload = everyoneSegment;
+                    SendToReady(identity, msg, false);
                 }
             }
 
-            NetworkWriterPool.Recycle(writer);
+            NetworkWriterPool.Recycle(ownerWriter);
+            NetworkWriterPool.Recycle(everyoneWriter);
         }
 
         /// <summary>

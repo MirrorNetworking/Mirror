@@ -185,6 +185,9 @@ namespace Mirror
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
+        // syncMode.Everyone components mask
+        ulong syncModeEveryoneMask;
+
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
@@ -282,6 +285,9 @@ namespace Mirror
                     sceneIds[sceneId] = this;
                 }
             }
+
+            // build syncMode.Everyone mask once
+            syncModeEveryoneMask = GetSyncModeEveryoneMask();
         }
 
         void OnValidate()
@@ -677,7 +683,7 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns true if something was written
-        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
+        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter everyoneWriter)
         {
             if (NetworkBehaviours.Length > 64)
             {
@@ -689,7 +695,11 @@ namespace Mirror
             if (dirtyComponentsMask == 0L)
                 return false;
 
-            writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
+            // write regular dirty mask for owner,
+            // writer 'dirty mask & syncMode==Everyone' for everyone else
+            // (WritePacked64 so we don't write full 8 bytes if we don't have to)
+            ownerWriter.WritePackedUInt64(dirtyComponentsMask);
+            everyoneWriter.WritePackedUInt64(dirtyComponentsMask & syncModeEveryoneMask);
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -698,9 +708,27 @@ namespace Mirror
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 if (initialState || comp.IsDirty())
                 {
-                    // serialize the data
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
-                    OnSerializeSafely(comp, writer, initialState);
+
+                    // serialize into ownerWriter first
+                    // (owner always gets everything!)
+                    int startPosition = ownerWriter.Position;
+                    OnSerializeSafely(comp, ownerWriter, initialState);
+
+                    // copy into everyoneWriter too if syncMode.Everyone
+                    // -> we copy instead of calling OnSerialize again because
+                    //    we don't know what magic the user does in OnSerialize.
+                    // -> it's not guaranteed that calling it twice gets the
+                    //    same result
+                    // -> it's not guaranteed that calling it twice doesn't mess
+                    //    with the user's OnSerialize timing code etc.
+                    // => so we just copy the result without touching
+                    //    OnSerialize again
+                    if (comp.syncMode == SyncMode.Everyone)
+                    {
+                        ArraySegment<byte> segment = ownerWriter.ToArraySegment();
+                        everyoneWriter.WriteBytes(segment.Array, startPosition, ownerWriter.Position);
+                    }
                 }
             }
 
@@ -722,6 +750,24 @@ namespace Mirror
             }
 
             return dirtyComponentsMask;
+        }
+
+        // a mask that contains all the components with syncMode.Everyone
+        internal ulong GetSyncModeEveryoneMask()
+        {
+            // loop through all components
+            ulong mask = 0L;
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour comp = components[i];
+                if (comp.syncMode == SyncMode.Everyone)
+                {
+                    mask |= (ulong)(1L << i);
+                }
+            }
+
+            return mask;
         }
 
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
@@ -1141,21 +1187,31 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
-                NetworkWriter writer = NetworkWriterPool.GetWriter();
+                // one writer for owner, one for everyone else
+                NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
+                NetworkWriter everyoneWriter = NetworkWriterPool.GetWriter();
+
                 // serialize all the dirty components and send (if any were dirty)
-                if (OnSerializeAllSafely(false, writer))
+                if (OnSerializeAllSafely(false, ownerWriter, everyoneWriter))
                 {
                     // populate cached UpdateVarsMessage and send
                     varsMessage.netId = netId;
-                    // segment to avoid reader allocations.
-                    // (never null because of our above check)
-                    varsMessage.payload = writer.ToArraySegment();
-                    NetworkServer.SendToReady(this, varsMessage);
+
+                    // send ownerWriter to owner
+                    // (only if ready because we use SendToReady below too)
+                    varsMessage.payload = ownerWriter.ToArraySegment();
+                    if (connectionToClient.isReady)
+                        NetworkServer.SendToClientOfPlayer(this, varsMessage);
+
+                    // send everyoneWriter to everyone but owner
+                    varsMessage.payload = everyoneWriter.ToArraySegment();
+                    NetworkServer.SendToReady(this, varsMessage, false);
 
                     // only clear bits if we sent something
                     ClearDirtyBits();
                 }
-                NetworkWriterPool.Recycle(writer);
+                NetworkWriterPool.Recycle(ownerWriter);
+                NetworkWriterPool.Recycle(everyoneWriter);
             }
             else
             {
