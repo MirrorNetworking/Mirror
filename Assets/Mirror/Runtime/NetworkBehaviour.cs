@@ -6,6 +6,11 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
+    /// Sync to everyone, or only to owner.
+    /// </summary>
+    public enum SyncMode { Everyone, Owner }
+
+    /// <summary>
     /// Base class which should be inherited by scripts which contain networking functionality.
     /// </summary>
     /// <remarks>
@@ -18,6 +23,12 @@ namespace Mirror
     public class NetworkBehaviour : MonoBehaviour
     {
         float lastSyncTime;
+
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        /// <summary>
+        /// sync mode for OnSerialize
+        /// </summary>
+        [HideInInspector] public SyncMode syncMode = SyncMode.Everyone;
 
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         /// <summary>
