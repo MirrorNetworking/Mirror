@@ -1199,8 +1199,9 @@ namespace Mirror
                     varsMessage.netId = netId;
 
                     // send ownerWriter to owner
-                    // (only if ready because we use SendToReady below too)
-                    // (connectionToClient is null for local player in host mode)
+                    // (only if there is a connection (e.g. if not a monster),
+                    //  and if connection is ready because we use SendToReady
+                    //  below too)
                     varsMessage.payload = ownerWriter.ToArraySegment();
                     if (connectionToClient != null && connectionToClient.isReady)
                         NetworkServer.SendToClientOfPlayer(this, varsMessage);
