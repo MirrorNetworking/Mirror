@@ -185,9 +185,6 @@ namespace Mirror
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
-        // SyncMode.Observers components mask
-        ulong syncModeObserversMask;
-
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
@@ -286,8 +283,6 @@ namespace Mirror
                 }
             }
 
-            // build SyncMode.Observers mask once
-            syncModeObserversMask = GetSyncModeObserversMask();
         }
 
         void OnValidate()
@@ -694,6 +689,17 @@ namespace Mirror
 
             if (dirtyComponentsMask == 0L)
                 return false;
+
+            // calculate syncMode mask at runtime. this allows users to change
+            // component.syncMode while the game is running, which can be a huge
+            // advantage over syncvar-based sync modes. e.g. if a player decides
+            // to share or not share his inventory, or to go invisible, etc.
+            //
+            // (this also lets the TestSynchronizingObjects test pass because
+            //  otherwise if we were to cache it in Awake, then we would call
+            //  GetComponents<NetworkBehaviour> before all the test behaviours
+            //  were added)
+            ulong syncModeObserversMask = GetSyncModeObserversMask();
 
             // write regular dirty mask for owner,
             // writer 'dirty mask & syncMode==Everyone' for everyone else
