@@ -8,7 +8,7 @@ namespace Mirror
     /// <summary>
     /// Sync to everyone, or only to owner.
     /// </summary>
-    public enum SyncMode { Everyone, Owner }
+    public enum SyncMode { Observers, Owner }
 
     /// <summary>
     /// Base class which should be inherited by scripts which contain networking functionality.
@@ -28,7 +28,7 @@ namespace Mirror
         /// <summary>
         /// sync mode for OnSerialize
         /// </summary>
-        [HideInInspector] public SyncMode syncMode = SyncMode.Everyone;
+        [HideInInspector] public SyncMode syncMode = SyncMode.Observers;
 
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         /// <summary>

@@ -724,7 +724,7 @@ namespace Mirror
                     //    with the user's OnSerialize timing code etc.
                     // => so we just copy the result without touching
                     //    OnSerialize again
-                    if (comp.syncMode == SyncMode.Everyone)
+                    if (comp.syncMode == SyncMode.Observers)
                     {
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         everyoneWriter.WriteBytes(segment.Array, startPosition, ownerWriter.Position);
@@ -761,7 +761,7 @@ namespace Mirror
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour comp = components[i];
-                if (comp.syncMode == SyncMode.Everyone)
+                if (comp.syncMode == SyncMode.Observers)
                 {
                     mask |= (ulong)(1L << i);
                 }
