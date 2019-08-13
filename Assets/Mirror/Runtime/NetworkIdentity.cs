@@ -1200,8 +1200,9 @@ namespace Mirror
 
                     // send ownerWriter to owner
                     // (only if ready because we use SendToReady below too)
+                    // (connectionToClient is null for local player in host mode)
                     varsMessage.payload = ownerWriter.ToArraySegment();
-                    if (connectionToClient.isReady)
+                    if (connectionToClient != null && connectionToClient.isReady)
                         NetworkServer.SendToClientOfPlayer(this, varsMessage);
 
                     // send observersWriter to everyone but owner
