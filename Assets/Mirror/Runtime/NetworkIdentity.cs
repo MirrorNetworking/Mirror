@@ -1212,7 +1212,7 @@ namespace Mirror
                 // segment to avoid reader allocations.
                 // (never null because of our above check)
                 varsMessage.payload = writer.ToArraySegment();
-                NetworkServer.SendToReadyNonOwners(this, varsMessage);
+                NetworkServer.SendToReady(this, varsMessage, false);
 
                 updated = true;
             }

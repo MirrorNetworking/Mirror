@@ -337,24 +337,7 @@ namespace Mirror
         /// <returns></returns>
         public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
-
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    if (kvp.Value.isReady)
-                    {
-                        result &= kvp.Value.SendBytes(bytes, channelId);
-                    }
-                }
-                return result;
-            }
-            return false;
+            return SendToReady(identity, msg, true, channelId);
         }
 
         /// <summary>
@@ -366,7 +349,7 @@ namespace Mirror
         /// <param name="msg">Message structure.</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
-        internal static bool SendToReadyNonOwners<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        internal static bool SendToReady<T>(NetworkIdentity identity, T msg, bool sendToSelf, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
@@ -378,6 +361,9 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
+                    if (!sendToSelf && kvp.Value == identity.connectionToClient)
+                        continue;
+
                     if (kvp.Value.isReady && kvp.Value != identity.connectionToClient)
                     {
                         result &= kvp.Value.SendBytes(bytes, channelId);
