@@ -1070,9 +1070,6 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    // TODO do we need to send to owner and everyone here too?
-                    // TODO what exactly does this do?
-
                     // send ownerWriter to owner
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
@@ -1109,9 +1106,6 @@ namespace Mirror
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    // TODO do we need to send to owner and everyone here too?
-                    // TODO what exactly does this do?
-
                     // send ownerWriter to owner
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
