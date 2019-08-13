@@ -727,7 +727,8 @@ namespace Mirror
                     if (comp.syncMode == SyncMode.Observers)
                     {
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        observersWriter.WriteBytes(segment.Array, startPosition, ownerWriter.Position);
+                        int length = ownerWriter.Position - startPosition;
+                        observersWriter.WriteBytes(segment.Array, startPosition, length);
                     }
                 }
             }
