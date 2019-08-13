@@ -1060,12 +1060,10 @@ namespace Mirror
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    // 'conn' owns this identity?
-                    if (identity.connectionToClient == conn)
-                        msg.payload = ownerSegment;
-                    // otherwise it's for someone else
-                    else
-                        msg.payload = observersSegment;
+                    // use owner segment if 'conn' owns this identity, otherwise
+                    // use observers segment
+                    bool isOwner = identity.connectionToClient == conn;
+                    msg.payload = isOwner ? ownerSegment : observersSegment;
 
                     conn.Send(msg);
                 }
@@ -1101,12 +1099,10 @@ namespace Mirror
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
-                    // 'conn' owns this identity?
-                    if (identity.connectionToClient == conn)
-                        msg.payload = ownerSegment;
-                    // otherwise it's for someone else
-                    else
-                        msg.payload = observersSegment;
+                    // use owner segment if 'conn' owns this identity, otherwise
+                    // use observers segment
+                    bool isOwner = identity.connectionToClient == conn;
+                    msg.payload = isOwner ? ownerSegment : observersSegment;
 
                     conn.Send(msg);
                 }
