@@ -185,8 +185,8 @@ namespace Mirror
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
-        // syncMode.Everyone components mask
-        ulong syncModeEveryoneMask;
+        // SyncMode.Observers components mask
+        ulong syncModeObserversMask;
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -286,8 +286,8 @@ namespace Mirror
                 }
             }
 
-            // build syncMode.Everyone mask once
-            syncModeEveryoneMask = GetSyncModeEveryoneMask();
+            // build SyncMode.Observers mask once
+            syncModeObserversMask = GetSyncModeObserversMask();
         }
 
         void OnValidate()
@@ -683,7 +683,7 @@ namespace Mirror
 
         // serialize all components (or only dirty ones if not initial state)
         // -> returns true if something was written
-        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter everyoneWriter)
+        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             if (NetworkBehaviours.Length > 64)
             {
@@ -699,7 +699,7 @@ namespace Mirror
             // writer 'dirty mask & syncMode==Everyone' for everyone else
             // (WritePacked64 so we don't write full 8 bytes if we don't have to)
             ownerWriter.WritePackedUInt64(dirtyComponentsMask);
-            everyoneWriter.WritePackedUInt64(dirtyComponentsMask & syncModeEveryoneMask);
+            observersWriter.WritePackedUInt64(dirtyComponentsMask & syncModeObserversMask);
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -715,7 +715,7 @@ namespace Mirror
                     int startPosition = ownerWriter.Position;
                     OnSerializeSafely(comp, ownerWriter, initialState);
 
-                    // copy into everyoneWriter too if syncMode.Everyone
+                    // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
                     //    we don't know what magic the user does in OnSerialize.
                     // -> it's not guaranteed that calling it twice gets the
@@ -727,7 +727,7 @@ namespace Mirror
                     if (comp.syncMode == SyncMode.Observers)
                     {
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        everyoneWriter.WriteBytes(segment.Array, startPosition, ownerWriter.Position);
+                        observersWriter.WriteBytes(segment.Array, startPosition, ownerWriter.Position);
                     }
                 }
             }
@@ -752,8 +752,8 @@ namespace Mirror
             return dirtyComponentsMask;
         }
 
-        // a mask that contains all the components with syncMode.Everyone
-        internal ulong GetSyncModeEveryoneMask()
+        // a mask that contains all the components with SyncMode.Observers
+        internal ulong GetSyncModeObserversMask()
         {
             // loop through all components
             ulong mask = 0L;
@@ -1187,12 +1187,12 @@ namespace Mirror
         {
             if (observers != null && observers.Count > 0)
             {
-                // one writer for owner, one for everyone else
+                // one writer for owner, one for observers
                 NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
-                NetworkWriter everyoneWriter = NetworkWriterPool.GetWriter();
+                NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
                 // serialize all the dirty components and send (if any were dirty)
-                if (OnSerializeAllSafely(false, ownerWriter, everyoneWriter))
+                if (OnSerializeAllSafely(false, ownerWriter, observersWriter))
                 {
                     // populate cached UpdateVarsMessage and send
                     varsMessage.netId = netId;
@@ -1203,15 +1203,15 @@ namespace Mirror
                     if (connectionToClient.isReady)
                         NetworkServer.SendToClientOfPlayer(this, varsMessage);
 
-                    // send everyoneWriter to everyone but owner
-                    varsMessage.payload = everyoneWriter.ToArraySegment();
+                    // send observersWriter to everyone but owner
+                    varsMessage.payload = observersWriter.ToArraySegment();
                     NetworkServer.SendToReady(this, varsMessage, false);
 
                     // only clear bits if we sent something
                     ClearDirtyBits();
                 }
                 NetworkWriterPool.Recycle(ownerWriter);
-                NetworkWriterPool.Recycle(everyoneWriter);
+                NetworkWriterPool.Recycle(observersWriter);
             }
             else
             {

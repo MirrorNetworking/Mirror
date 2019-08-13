@@ -1012,21 +1012,21 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
-            // one writer for owner, one for everyone else
+            // one writer for owner, one for observers
             NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
-            NetworkWriter everyoneWriter = NetworkWriterPool.GetWriter();
+            NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
             ArraySegment<byte> ownerSegment = default;
-            ArraySegment<byte> everyoneSegment = default;
+            ArraySegment<byte> observersSegment = default;
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            if (identity.OnSerializeAllSafely(true, ownerWriter, everyoneWriter))
+            if (identity.OnSerializeAllSafely(true, ownerWriter, observersWriter))
             {
                 ownerSegment = ownerWriter.ToArraySegment();
-                everyoneSegment = everyoneWriter.ToArraySegment();
+                observersSegment = observersWriter.ToArraySegment();
             }
 
             // 'identity' is a prefab that should be spawned
@@ -1051,7 +1051,7 @@ namespace Mirror
                         msg.payload = ownerSegment;
                     // otherwise it's for someone else
                     else
-                        msg.payload = everyoneSegment;
+                        msg.payload = observersSegment;
 
                     conn.Send(msg);
                 }
@@ -1065,8 +1065,8 @@ namespace Mirror
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
 
-                    // send everyoneWriter to everyone but owner
-                    msg.payload = everyoneSegment;
+                    // send observersWriter to everyone but owner
+                    msg.payload = observersSegment;
                     SendToReady(identity, msg, false);
                 }
             }
@@ -1092,7 +1092,7 @@ namespace Mirror
                         msg.payload = ownerSegment;
                     // otherwise it's for someone else
                     else
-                        msg.payload = everyoneSegment;
+                        msg.payload = observersSegment;
 
                     conn.Send(msg);
                 }
@@ -1106,14 +1106,14 @@ namespace Mirror
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
 
-                    // send everyoneWriter to everyone but owner
-                    msg.payload = everyoneSegment;
+                    // send observersWriter to everyone but owner
+                    msg.payload = observersSegment;
                     SendToReady(identity, msg, false);
                 }
             }
 
             NetworkWriterPool.Recycle(ownerWriter);
-            NetworkWriterPool.Recycle(everyoneWriter);
+            NetworkWriterPool.Recycle(observersWriter);
         }
 
         /// <summary>
