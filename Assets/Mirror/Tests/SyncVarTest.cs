@@ -16,10 +16,6 @@ namespace Mirror.Tests
         [SyncVar]
         public Guild guild;
 
-        public bool IsDirty()
-        {
-            return base.syncVarDirtyBits != 0;
-        }
     }
 
 
@@ -33,6 +29,9 @@ namespace Mirror.Tests
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
+
+            // synchronize immediatelly
+            player.syncInterval = 0f;
 
             Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
 
@@ -52,5 +51,34 @@ namespace Mirror.Tests
             Assert.That(player.IsDirty(), "Clearing struct should mark object as dirty");
         }
 
+        [Test]
+        public void TestSynchronizingObjects()
+        {
+            // set up a "server" object
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            MockPlayer.Guild myGuild = new MockPlayer.Guild
+            {
+                name = "Back street boys"
+            };
+            player1.guild = myGuild;
+
+            // serialize all the data as we would for the network
+            NetworkWriter writer = new NetworkWriter();
+            identity1.OnSerializeAllSafely(true, writer);
+
+            // set up a "client" object
+            GameObject gameObject2 = new GameObject();
+            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
+            MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
+
+            // apply all the data from the server object
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            identity2.OnDeserializeAllSafely(reader, true);
+
+            // check that the syncvars got updated
+            Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
+        }
     }
 }

@@ -114,16 +114,18 @@ namespace Mirror.Weaver
 
             if (hookFunctionMethod != null)
             {
-                //if (NetworkServer.localClientActive && !syncVarHookGuard)
+                //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
                 setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.getSyncVarHookGuard));
                 setWorker.Append(setWorker.Create(OpCodes.Brtrue, label));
 
-                // syncVarHookGuard = true;
+                // setSyncVarHookGuard(dirtyBit, true);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
@@ -132,8 +134,9 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
 
-                // syncVarHookGuard = false;
+                // setSyncVarHookGuard(dirtyBit, false);
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_0));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
@@ -278,19 +281,6 @@ namespace Mirror.Weaver
                         if (resolvedField.IsInterface)
                         {
                             Weaver.Error($"{fd} has invalid type. Use a concrete type instead of interface {fd.FieldType}");
-                            return;
-                        }
-
-                        string fieldModuleName = resolvedField.Module.Name;
-                        if (fieldModuleName != Weaver.CurrentAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.UnityAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.NetAssembly.MainModule.Name &&
-                            fieldModuleName != Weaver.CorLibModule.Name &&
-                            fieldModuleName != "System.Runtime.dll" && // this is only for Metro, built-in types are not in corlib on metro
-                            fieldModuleName != "netstandard.dll" // handle built-in types when weaving new C#7 compiler assemblies
-                            )
-                        {
-                            Weaver.Error($"{fd} has invalid type. Use a type defined in the same module {fd.Module}");
                             return;
                         }
 

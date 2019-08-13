@@ -40,9 +40,9 @@ public struct Item
 
 class SyncListItem : SyncList<Item> {}
 
-class Player : NetworkBehaviour {
-
-    SyncListItem inventory;
+class Player : NetworkBehaviour
+{
+    SyncListItem inventory = new SyncListItem();
 
     public int coins = 100;
 

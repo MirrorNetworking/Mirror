@@ -80,7 +80,19 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        protected bool syncVarHookGuard { get; set; }
+        private ulong syncVarHookGuard;
+
+        protected bool getSyncVarHookGuard(ulong dirtyBit)
+        {
+            return (syncVarHookGuard & dirtyBit) != 0UL;
+        }
+        protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
+        {
+            if (value)
+                syncVarHookGuard |= dirtyBit;
+            else
+                syncVarHookGuard &= ~dirtyBit;
+        }
 
         /// <summary>
         /// objects that can synchronize themselves, such as synclists
@@ -337,7 +349,7 @@ namespace Mirror
             public CmdDelegate invokeFunction;
         }
 
-        static Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         // helper function register a Command/Rpc/SyncEvent delegate
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -419,7 +431,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (syncVarHookGuard)
+            if (getSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
@@ -468,7 +480,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (syncVarHookGuard)
+            if (getSyncVarHookGuard(dirtyBit))
                 return;
 
             uint newNetId = 0;
@@ -591,10 +603,7 @@ namespace Mirror
             {
                 return SerializeObjectsAll(writer);
             }
-            else
-            {
-                return SerializeObjectsDelta(writer);
-            }
+            return SerializeObjectsDelta(writer);
         }
 
         /// <summary>
@@ -710,7 +719,7 @@ namespace Mirror
         /// <summary>
         /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When NetworkIdentity.AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
+        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() {}
 

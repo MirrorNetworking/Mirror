@@ -76,6 +76,8 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer { get; private set; }
 
+        internal bool pendingOwner { get; set; }
+
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
         /// <para>This value is determined at runtime, as opposed to localPlayerAuthority which is set on the prefab. For most objects, authority is held by the server / host. For objects with localPlayerAuthority set, authority is held by the client of that player.</para>
@@ -178,10 +180,10 @@ namespace Mirror
 
         // persistent scene id <sceneHash/32,sceneId/32>
         // (see AssignSceneID comments)
-        [SerializeField] ulong m_SceneId = 0;
+        [SerializeField] ulong m_SceneId;
 
         // keep track of all sceneIds to detect scene duplicates
-        static Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+        static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -668,19 +670,19 @@ namespace Mirror
         // -> returns true if something was written
         internal bool OnSerializeAllSafely(bool initialState, NetworkWriter writer)
         {
-            if (networkBehavioursCache.Length > 64)
+            if (NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
                 return false;
             }
-            ulong dirtyComponentsMask = GetDirtyMask(networkBehavioursCache, initialState);
+            ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
                 return false;
 
             writer.WritePackedUInt64(dirtyComponentsMask); // WritePacked64 so we don't write full 8 bytes if we don't have to
 
-            foreach (NetworkBehaviour comp in networkBehavioursCache)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // is this component dirty?
                 // -> always serialize if initialState so all components are included in spawn packet
@@ -690,13 +692,6 @@ namespace Mirror
                     // serialize the data
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
                     OnSerializeSafely(comp, writer, initialState);
-
-                    // Clear dirty bits only if we are synchronizing data and not sending a spawn message.
-                    // This preserves the behavior in HLAPI
-                    if (!initialState)
-                    {
-                        comp.ClearAllDirtyBits();
-                    }
                 }
             }
 
@@ -709,10 +704,11 @@ namespace Mirror
             return true;
         }
 
-        ulong GetDirtyMask(NetworkBehaviour[] components, bool initialState)
+        internal ulong GetDirtyMask(bool initialState)
         {
             // loop through all components only once and then write dirty+payload into the writer afterwards
             ulong dirtyComponentsMask = 0L;
+            NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
             {
                 NetworkBehaviour comp = components[i];
@@ -749,11 +745,12 @@ namespace Mirror
             }
         }
 
-        void OnDeserializeAllSafely(NetworkBehaviour[] components, NetworkReader reader, bool initialState)
+        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
             // read component dirty mask
             ulong dirtyComponentsMask = reader.ReadPackedUInt64();
 
+            NetworkBehaviour[] components = NetworkBehaviours;
             // loop through all components and deserialize the dirty ones
             for (int i = 0; i < components.Length; ++i)
             {
@@ -822,7 +819,7 @@ namespace Mirror
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)
         {
-            OnDeserializeAllSafely(NetworkBehaviours, reader, initialState);
+            OnDeserializeAllSafely(reader, initialState);
         }
 
         internal void SetLocalPlayer()
@@ -1130,29 +1127,36 @@ namespace Mirror
         // invoked by NetworkServer during Update()
         internal void MirrorUpdate()
         {
-            if (observers == null || observers.Count == 0)
+            if (observers != null && observers.Count > 0)
             {
-                // if we have no observers, then flush all objects
-                // (fixes https://github.com/vis2k/Mirror/issues/963)
-                foreach (NetworkBehaviour comp in networkBehavioursCache)
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+                // serialize all the dirty components and send (if any were dirty)
+                if (OnSerializeAllSafely(false, writer))
                 {
-                    comp.ClearAllDirtyBits();
-                }
-                return;
-            }
+                    // populate cached UpdateVarsMessage and send
+                    varsMessage.netId = netId;
+                    // segment to avoid reader allocations.
+                    // (never null because of our above check)
+                    varsMessage.payload = writer.ToArraySegment();
+                    NetworkServer.SendToReady(this, varsMessage);
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            // serialize all the dirty components and send (if any were dirty)
-            if (OnSerializeAllSafely(false, writer))
-            {
-                // populate cached UpdateVarsMessage and send
-                varsMessage.netId = netId;
-                // segment to avoid reader allocations.
-                // (never null because of our above check)
-                varsMessage.payload = writer.ToArraySegment();
-                NetworkServer.SendToReady(this, varsMessage);
+                    // only clear bits if we sent something
+                    ClearDirtyBits();
+                }
+                NetworkWriterPool.Recycle(writer);
             }
-            NetworkWriterPool.Recycle(writer);
+            else
+            {
+                ClearDirtyBits();
+            }
+        }
+
+        private void ClearDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ClearAllDirtyBits();
+            }
         }
     }
 }
