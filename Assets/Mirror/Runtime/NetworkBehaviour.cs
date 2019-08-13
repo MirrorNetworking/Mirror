@@ -258,7 +258,7 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, true, channelId);
+            NetworkServer.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -332,7 +332,7 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, true, channelId);
+            NetworkServer.SendToReady(netIdentity, message, channelId);
         }
 
         /// <summary>

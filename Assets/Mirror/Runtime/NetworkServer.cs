@@ -361,6 +361,20 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Send a message structure with the given type number to only clients which are ready.
+        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// </summary>
+        /// <typeparam name="T">Message type.</typeparam>
+        /// <param name="identity"></param>
+        /// <param name="msg">Message structure.</param>
+        /// <param name="channelId">Transport channel to use</param>
+        /// <returns></returns>
+        public static bool SendToReady<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            return SendToReady(identity, msg, true, channelId);
+        }
+
+        /// <summary>
         /// Disconnect all currently connected clients, including the local connection.
         /// <para>This can only be called on the server. Clients will receive the Disconnect message.</para>
         /// </summary>

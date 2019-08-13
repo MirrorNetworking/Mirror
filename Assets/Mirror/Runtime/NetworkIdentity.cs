@@ -758,7 +758,7 @@ namespace Mirror
             // loop through all components
             ulong mask = 0L;
             NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
+            for (int i = 0; i < NetworkBehaviours.Length; ++i)
             {
                 NetworkBehaviour comp = components[i];
                 if (comp.syncMode == SyncMode.Observers)
