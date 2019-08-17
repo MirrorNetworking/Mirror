@@ -142,8 +142,8 @@ namespace Mirror
             else if (compressRotation == Compression.Lots)
             {
                 // read 2 byte, 5 bits per float
-                float[] xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
-                temp.localRotation = Quaternion.Euler(xyz[0], xyz[1], xyz[2]);
+                Vector3 xyz = FloatBytePacker.UnpackUShortIntoThreeFloats(reader.ReadUInt16(), 0, 360);
+                temp.localRotation = Quaternion.Euler(xyz.x, xyz.y, xyz.z);
             }
 
             temp.localScale = reader.ReadVector3();
