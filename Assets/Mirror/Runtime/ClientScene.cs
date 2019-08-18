@@ -104,7 +104,7 @@ namespace Mirror
         /// <para>extraMessage can contain character selection, etc.</para>
         /// </summary>
         /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <param name="extraMessage">An extra message object that can be passed to the server for this player.</param>
+        /// <param name="extraData">An extra message object that can be passed to the server for this player.</param>
         /// <returns>True if player was added.</returns>
         public static bool AddPlayer(NetworkConnection readyConn, byte[] extraData)
         {
