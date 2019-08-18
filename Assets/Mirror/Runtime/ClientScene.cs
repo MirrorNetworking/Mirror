@@ -528,7 +528,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnSceneObject(NetworkConnection conn, SpawnSceneObjectMessage msg)
+        internal static void OnSpawnSceneObject(NetworkConnection _, SpawnSceneObjectMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("Client spawn scene handler instantiating [netId:" + msg.netId + " sceneId:" + msg.sceneId + " pos:" + msg.position);
 
@@ -567,7 +567,7 @@ namespace Mirror
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
         }
 
-        internal static void OnObjectSpawnStarted(NetworkConnection conn, ObjectSpawnStartedMessage msg)
+        internal static void OnObjectSpawnStarted(NetworkConnection _, ObjectSpawnStartedMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("SpawnStarted");
 
@@ -575,7 +575,7 @@ namespace Mirror
             isSpawnFinished = false;
         }
 
-        internal static void OnObjectSpawnFinished(NetworkConnection conn, ObjectSpawnFinishedMessage msg)
+        internal static void OnObjectSpawnFinished(NetworkConnection _, ObjectSpawnFinishedMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("SpawnFinished");
 
