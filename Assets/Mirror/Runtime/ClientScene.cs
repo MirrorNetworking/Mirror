@@ -52,8 +52,8 @@ namespace Mirror
         public static Dictionary<ulong, NetworkIdentity> spawnableObjects;
 
         // spawn handlers
-        static Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
-        static Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        static readonly Dictionary<Guid, SpawnDelegate> spawnHandlers = new Dictionary<Guid, SpawnDelegate>();
+        static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
         // this is never called, and if we do call it in NetworkClient.Shutdown
         // then the client's player object won't be removed after disconnecting!
