@@ -4,13 +4,20 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Mirror
 {
-    // calculates synchronized time and rtt
+    /// <summary>
+    /// Synchronize time between the server and the clients
+    /// </summary>
     public static class NetworkTime
     {
+        /// <summary>
         // how often are we sending ping messages
         // used to calculate network time and RTT
+        /// </summary>
         public static float PingFrequency = 2.0f;
-        // average out the last few results from Ping
+
+        /// <summary>
+        /// average out the last few results from Ping
+        /// </summary>
         public static int PingWindowSize = 10;
 
         static double lastPingTime;
@@ -105,38 +112,66 @@ namespace Mirror
             }
         }
 
-        // returns the same time in both client and server
-        // time should be a double because after a while
-        // float loses too much accuracy if the server is up for more than
-        // a few days.  I measured the accuracy of float and I got this:
-        // for the same day,  accuracy is better than 1 ms
-        // after 1 day,  accuracy goes down to 7 ms
-        // after 10 days, accuracy is 61 ms
-        // after 30 days , accuracy is 238 ms
-        // after 60 days, accuracy is 454 ms
-        // in other words,  if the server is running for 2 months,
-        // and you cast down to float,  then the time will jump in 0.4s intervals.
-        // Notice _offset is 0 at the server
+        /// <summary>
+        /// The time in seconds since the server started.
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// <para>Note this value works in the client and the server
+        /// the value is synchronized accross the network with high accuracy</para>
+        ///
+        /// <para>You should not cast this down to a float because the it loses too much accuracy
+        /// when the server is up for a while</para>
+        /// <para>I measured the accuracy of float and I got this:</para>
+        /// <list type="bullet">
+        /// <item>for the same day,  accuracy is better than 1 ms</item>
+        /// <item>after 1 day,  accuracy goes down to 7 ms</item>
+        /// <item>after 10 days, accuracy is 61 ms</item>
+        /// <item>after 30 days , accuracy is 238 ms</item>
+        /// <item>after 60 days, accuracy is 454 ms</item>
+        /// </list>
+        /// 
+        /// <para>in other words,  if the server is running for 2 months,
+        /// and you cast down to float,  then the time will jump in 0.4s intervals.</para>
+        /// </remarks>
         public static double time => LocalTime() - _offset.Value;
 
-        // measure volatility of time.
-        // the higher the number,  the less accurate the time is
+        /// <summary>
+        /// Measurement of the variance of time.
+        /// <para>The higher the variance, the less accurate the time is</para>
+        /// </summary>
         public static double timeVar => _offset.Var;
 
-        // standard deviation of time
+        /// <summary>
+        /// standard deviation of time.
+        /// <para>The higher the variance, the less accurate the time is</para>
+        /// </summary>
         public static double timeSd => Math.Sqrt(timeVar);
 
+        /// <summary>
+        /// Clock difference in seconds between the client and the server
+        /// </summary>
+        /// <remarks>
+        /// Note this value is always 0 at the server
+        /// </remarks>
         public static double offset => _offset.Value;
 
-        // how long does it take for a message to go
-        // to the server and come back
+        /// <summary>
+        /// how long in seconds does it take for a message to go
+        /// to the server and come back
+        /// </summary>
         public static double rtt => _rtt.Value;
 
-        // measure volatility of rtt
-        // the higher the number,  the less accurate rtt is
+        /// <summary>
+        /// measure variance of rtt
+        /// the higher the number,  the less accurate rtt is
+        /// </summary>
         public static double rttVar => _rtt.Var;
 
-        // standard deviation of rtt
+        /// <summary>
+        /// Measure the standard deviation of rtt
+        /// the higher the number,  the less accurate rtt is
+        /// </summary>
         public static double rttSd => Math.Sqrt(rttVar);
     }
 }
