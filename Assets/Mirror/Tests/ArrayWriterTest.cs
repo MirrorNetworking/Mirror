@@ -12,7 +12,7 @@ namespace Mirror.Tests
         [Test]
         public void TestNullByterray()
         {
-            ArrayByteMessage intMessage = new ArrayByteMessage()
+            ArrayByteMessage intMessage = new ArrayByteMessage
             {
                 array = null
             };
@@ -27,7 +27,7 @@ namespace Mirror.Tests
         [Test]
         public void TestEmptyByteArray()
         {
-            ArrayByteMessage intMessage = new ArrayByteMessage()
+            ArrayByteMessage intMessage = new ArrayByteMessage
             {
                 array = new byte[] { }
             };
@@ -44,7 +44,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDataByteArray()
         {
-            ArrayByteMessage intMessage = new ArrayByteMessage()
+            ArrayByteMessage intMessage = new ArrayByteMessage
             {
                 array = new byte[] { 3, 4, 5 }
             };
@@ -66,7 +66,7 @@ namespace Mirror.Tests
         [Test]
         public void TestNullIntArray()
         {
-            ArrayIntMessage intMessage = new ArrayIntMessage()
+            ArrayIntMessage intMessage = new ArrayIntMessage
             {
                 array = null
             };
@@ -81,7 +81,7 @@ namespace Mirror.Tests
         [Test]
         public void TestEmptyIntArray()
         {
-            ArrayIntMessage intMessage = new ArrayIntMessage()
+            ArrayIntMessage intMessage = new ArrayIntMessage
             {
                 array = new int [] { }
             };
@@ -96,7 +96,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDataIntArray()
         {
-            ArrayIntMessage intMessage = new ArrayIntMessage()
+            ArrayIntMessage intMessage = new ArrayIntMessage
             {
                 array = new[] { 3, 4, 5}
             };
