@@ -461,7 +461,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSpawnPrefab(NetworkConnection conn, SpawnPrefabMessage msg)
+        internal static void OnSpawnPrefab(NetworkConnection _, SpawnPrefabMessage msg)
         {
             if (msg.assetId == Guid.Empty)
             {
