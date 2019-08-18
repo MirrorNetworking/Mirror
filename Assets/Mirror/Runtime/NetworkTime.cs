@@ -86,15 +86,15 @@ namespace Mirror
             double now = LocalTime();
 
             // how long did this message take to come back
-            double rtt = now - msg.clientTime;
-            _rtt.Add(rtt);
+            double newRtt = now - msg.clientTime;
+            _rtt.Add(newRtt);
 
             // the difference in time between the client and the server
             // but subtract half of the rtt to compensate for latency
             // half of rtt is the best approximation we have
-            double offset = now - rtt * 0.5f - msg.serverTime;
+            double newOffset = now - newRtt * 0.5f - msg.serverTime;
 
-            double newOffsetMin = now - rtt - msg.serverTime;
+            double newOffsetMin = now - newRtt - msg.serverTime;
             double newOffsetMax = now - msg.serverTime;
             offsetMin = Math.Max(offsetMin, newOffsetMin);
             offsetMax = Math.Min(offsetMax, newOffsetMax);
@@ -103,12 +103,12 @@ namespace Mirror
             {
                 // the old offset was offrange,  throw it away and use new one
                 _offset = new ExponentialMovingAverage(PingWindowSize);
-                _offset.Add(offset);
+                _offset.Add(newOffset);
             }
-            else if (offset >= offsetMin || offset <= offsetMax)
+            else if (newOffset >= offsetMin || newOffset <= offsetMax)
             {
                 // new offset looks reasonable,  add to the average
-                _offset.Add(offset);
+                _offset.Add(newOffset);
             }
         }
 
