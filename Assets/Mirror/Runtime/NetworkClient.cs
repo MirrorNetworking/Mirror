@@ -413,7 +413,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(int msgType)
@@ -422,7 +422,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
