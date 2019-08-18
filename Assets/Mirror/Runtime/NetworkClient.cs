@@ -223,7 +223,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendMessage<T> instead with no message id instead
+        /// Obsolete: Use <see cref="Send{T}(T, int)"/> instead with no message id instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendMessage<T> instead with no message id instead")]
         public static bool Send(short msgType, MessageBase msg)
