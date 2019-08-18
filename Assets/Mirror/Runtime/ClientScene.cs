@@ -593,12 +593,12 @@ namespace Mirror
             isSpawnFinished = true;
         }
 
-        internal static void OnObjectHide(NetworkConnection conn, ObjectHideMessage msg)
+        internal static void OnObjectHide(NetworkConnection _, ObjectHideMessage msg)
         {
             DestroyObject(msg.netId);
         }
 
-        internal static void OnObjectDestroy(NetworkConnection conn, ObjectDestroyMessage msg)
+        internal static void OnObjectDestroy(NetworkConnection _, ObjectDestroyMessage msg)
         {
             DestroyObject(msg.netId);
         }
@@ -634,14 +634,14 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientObjectDestroy(NetworkConnection conn, ObjectDestroyMessage msg)
+        internal static void OnLocalClientObjectDestroy(NetworkConnection _, ObjectDestroyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
 
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
-        internal static void OnLocalClientObjectHide(NetworkConnection conn, ObjectHideMessage msg)
+        internal static void OnLocalClientObjectHide(NetworkConnection _, ObjectHideMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
 
@@ -651,7 +651,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnPrefab(NetworkConnection conn, SpawnPrefabMessage msg)
+        internal static void OnLocalClientSpawnPrefab(NetworkConnection _, SpawnPrefabMessage msg)
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -659,7 +659,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientSpawnSceneObject(NetworkConnection conn, SpawnSceneObjectMessage msg)
+        internal static void OnLocalClientSpawnSceneObject(NetworkConnection _, SpawnSceneObjectMessage msg)
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
@@ -667,7 +667,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnUpdateVarsMessage(NetworkConnection conn, UpdateVarsMessage msg)
+        internal static void OnUpdateVarsMessage(NetworkConnection _, UpdateVarsMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
 
@@ -681,7 +681,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnRPCMessage(NetworkConnection conn, RpcMessage msg)
+        internal static void OnRPCMessage(NetworkConnection _, RpcMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
 
@@ -691,7 +691,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnSyncEventMessage(NetworkConnection conn, SyncEventMessage msg)
+        internal static void OnSyncEventMessage(NetworkConnection _, SyncEventMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnSyncEventMessage " + msg.netId);
 
@@ -705,7 +705,7 @@ namespace Mirror
             }
         }
 
-        internal static void OnClientAuthority(NetworkConnection conn, ClientAuthorityMessage msg)
+        internal static void OnClientAuthority(NetworkConnection _, ClientAuthorityMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnClientAuthority for netId: " + msg.netId);
 
