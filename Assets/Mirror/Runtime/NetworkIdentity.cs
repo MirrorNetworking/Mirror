@@ -763,7 +763,7 @@ namespace Mirror
         internal ulong GetSyncModeObserversMask()
         {
             // loop through all components
-            ulong mask = 0L;
+            ulong mask = 0UL;
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
             {
