@@ -1030,18 +1030,15 @@ namespace Mirror
             NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
             NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
-            // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = default;
-            ArraySegment<byte> observersSegment = default;
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            if (identity.OnSerializeAllSafely(true, ownerWriter, observersWriter))
-            {
-                ownerSegment = ownerWriter.ToArraySegment();
-                observersSegment = observersWriter.ToArraySegment();
-            }
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // convert to ArraySegment to avoid reader allocations
+            // (need to handle null case too)
+            ArraySegment<byte> ownerSegment     =     ownerWritten > 0 ?     ownerWriter.ToArraySegment() : default;
+            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
@@ -1071,10 +1068,16 @@ namespace Mirror
                 else
                 {
                     // send ownerWriter to owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
 
                     // send observersWriter to everyone but owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
                     msg.payload = observersSegment;
                     SendToReady(identity, msg, false);
                 }
@@ -1107,10 +1110,16 @@ namespace Mirror
                 else
                 {
                     // send ownerWriter to owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
                     msg.payload = ownerSegment;
                     SendToClientOfPlayer(identity, msg);
 
                     // send observersWriter to everyone but owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
                     msg.payload = observersSegment;
                     SendToReady(identity, msg, false);
                 }

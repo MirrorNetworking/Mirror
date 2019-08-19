@@ -676,18 +676,21 @@ namespace Mirror
         }
 
         // serialize all components (or only dirty ones if not initial state)
-        // -> returns true if something was written
-        internal bool OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        // -> check ownerWritten/observersWritten to know if anything was written
+        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
+            // clear 'written' variables
+            ownerWritten = observersWritten = 0;
+
             if (NetworkBehaviours.Length > 64)
             {
                 Debug.LogError("Only 64 NetworkBehaviour components are allowed for NetworkIdentity: " + name + " because of the dirtyComponentMask");
-                return false;
+                return;
             }
             ulong dirtyComponentsMask = GetDirtyMask(initialState);
 
             if (dirtyComponentsMask == 0L)
-                return false;
+                return;
 
             // calculate syncMode mask at runtime. this allows users to change
             // component.syncMode while the game is running, which can be a huge
@@ -719,6 +722,7 @@ namespace Mirror
                     // (owner always gets everything!)
                     int startPosition = ownerWriter.Position;
                     OnSerializeSafely(comp, ownerWriter, initialState);
+                    ++ownerWritten;
 
                     // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
@@ -734,11 +738,10 @@ namespace Mirror
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
+                        ++observersWritten;
                     }
                 }
             }
-
-            return true;
         }
 
         internal ulong GetDirtyMask(bool initialState)
@@ -1198,22 +1201,31 @@ namespace Mirror
                 NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
                 // serialize all the dirty components and send (if any were dirty)
-                if (OnSerializeAllSafely(false, ownerWriter, observersWriter))
+                OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                if (ownerWritten > 0 || observersWritten > 0)
                 {
                     // populate cached UpdateVarsMessage and send
                     varsMessage.netId = netId;
 
                     // send ownerWriter to owner
+                    // (only if we serialized anything for owner)
                     // (only if there is a connection (e.g. if not a monster),
                     //  and if connection is ready because we use SendToReady
                     //  below too)
-                    varsMessage.payload = ownerWriter.ToArraySegment();
-                    if (connectionToClient != null && connectionToClient.isReady)
-                        NetworkServer.SendToClientOfPlayer(this, varsMessage);
+                    if (ownerWritten > 0)
+                    {
+                        varsMessage.payload = ownerWriter.ToArraySegment();
+                        if (connectionToClient != null && connectionToClient.isReady)
+                            NetworkServer.SendToClientOfPlayer(this, varsMessage);
+                    }
 
                     // send observersWriter to everyone but owner
-                    varsMessage.payload = observersWriter.ToArraySegment();
-                    NetworkServer.SendToReady(this, varsMessage, false);
+                    // (only if we serialized anything for observers)
+                    if (observersWritten > 0)
+                    {
+                        varsMessage.payload = observersWriter.ToArraySegment();
+                        NetworkServer.SendToReady(this, varsMessage, false);
+                    }
 
                     // only clear bits if we sent something
                     ClearDirtyBits();
