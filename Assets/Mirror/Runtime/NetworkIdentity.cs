@@ -770,7 +770,7 @@ namespace Mirror
                 NetworkBehaviour comp = components[i];
                 if (comp.syncMode == SyncMode.Observers)
                 {
-                    mask |= (ulong)(1L << i);
+                    mask |= 1UL << i;
                 }
             }
 
