@@ -14,7 +14,17 @@ A SyncDictionary is an associative array containing an unordered list of key, va
 
 SyncDictionary works much like [SyncLists](SyncLists): when you make a change on the server the change is propagated to all clients and the Callback is called.
 
+<aside class="notice"> 
+Note that by the time you subscribe to the callback, the dictionary will already be initialized, so you will not get a call for the initial data, only updates.
+</aside>
+
+
 To use it, create a class that derives from SyncDictionary for your specific type. This is necessary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
+
+<aside class="notice"> 
+Note SyncDictionaries must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
+</aside>
+
 
 ## Simple Example
 
@@ -33,7 +43,7 @@ public class ExamplePlayer : NetworkBehaviour
         public int durability;
     }
 
-    public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
+    public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 
     public void OnStartServer()
     {
@@ -68,6 +78,7 @@ public class ExamplePlayer : NetworkBehaviour
         public SyncDictionaryStringItem() : base (new SortedList<string,Item>()) {}
     }
     
-    public SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
+    public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 }
 ```
+
