@@ -282,7 +282,6 @@ namespace Mirror
                     sceneIds[sceneId] = this;
                 }
             }
-
         }
 
         void OnValidate()
