@@ -23,7 +23,7 @@ class Player : NetworkBehaviour {
 
     class SyncSkillSet : SyncHashSet<string> {}
 
-    SyncSkillSet skills = new SyncSkillSet();
+    readonly SyncSkillSet skills = new SyncSkillSet();
 
     int skillPoints = 10;
 
@@ -40,14 +40,25 @@ class Player : NetworkBehaviour {
 }
 ```
 
-You can also detect when a SyncHashSet changes. This is useful for refreshing your character in the client or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart` or `OnServerStart` for that. Note that by the time you subscribe, the set will already be initialized, so you will not get a call for the initial data, only updates.
+You can also detect when a SyncHashSet changes. This is useful for refreshing your character in the client or determining when you need to update your database. 
+
+Subscribe to the Callback event typically during `Start`, `OnClientStart` or `OnServerStart` for that. 
+
+<aside class="notice">
+Note that by the time you subscribe, the set will already be initialized, so you will not get a call for the initial data, only updates.
+</aside>
+
+<aside class="notice"> 
+Note SyncSets must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
+</aside>
+
 
 ```cs
 class Player : NetworkBehaviour
 {
     class SyncSetBuffs : SyncHashSet<string> {};
 
-    SyncSetBuffs buffs = new SyncSetBuffs();
+    public readonly SyncSetBuffs buffs = new SyncSetBuffs();
 
     // this will add the delegate on the client.
     // Use OnStartServer instead if you want it on the server
