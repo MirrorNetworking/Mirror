@@ -42,7 +42,7 @@ class SyncListItem : SyncList<Item> {}
 
 class Player : NetworkBehaviour
 {
-    SyncListItem inventory = new SyncListItem();
+    readonly SyncListItem inventory = new SyncListItem();
 
     public int coins = 100;
 
@@ -79,12 +79,20 @@ There are some ready made SyncLists you can use:
 
 -   SyncListBool
 
-You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.
+You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. 
+
+<aside class="notice"> 
+Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.
+</aside>
+
+<aside class="notice"> 
+Note SyncLists must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
+</aside>
 
 ```cs
 class Player : NetworkBehaviour {
 
-    SyncListItem inventory;
+    readonly SyncListItem inventory = new SyncListItem();
 
     // this will add the delegates on both server and client.
     // Use OnStartClient instead if you just want the client to act upon updates
