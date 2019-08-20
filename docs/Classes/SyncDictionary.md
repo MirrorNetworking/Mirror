@@ -17,12 +17,9 @@ SyncDictionary works much like [SyncLists](SyncLists): when you make a change on
 
 To use it, create a class that derives from SyncDictionary for your specific type. This is necessary because the Weaver will add methods to that class. Then add a field to your NetworkBehaviour class.
 
-<aside class="notice"> 
-<p>Note that by the time you subscribe to the callback, the dictionary will already be initialized, so you will not get a call for the initial data, only updates.</p>
+> Note that by the time you subscribe to the callback, the dictionary will already be initialized, so you will not get a call for the initial data, only updates.</p>
 
-<p>Note SyncDictionaries must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.</p>
-</aside>
-
+>Note SyncDictionaries must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
 
 ## Simple Example
 

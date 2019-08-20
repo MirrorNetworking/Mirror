@@ -44,12 +44,8 @@ You can also detect when a SyncHashSet changes. This is useful for refreshing yo
 
 Subscribe to the Callback event typically during `Start`, `OnClientStart` or `OnServerStart` for that. 
 
-<aside class="notice">
-<p>Note that by the time you subscribe, the set will already be initialized, so you will not get a call for the initial data, only updates.</p>
-
-<p>Note SyncSets must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.</p>
-</aside>
-
+> Note that by the time you subscribe, the set will already be initialized, so you will not get a call for the initial data, only updates.</p>
+>Note SyncSets must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
 
 ```cs
 class Player : NetworkBehaviour
