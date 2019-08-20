@@ -52,7 +52,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 
 -   Network [Proximity Checker](Components/NetworkProximityChecker)
 
--   [SyncVar](Classes/SyncVars), [SyncList](Classes/SyncLists), [SyncEvent](Classes/SyncEvent), [SyncDictionary](Classes/SyncDictionary), and [SyncHashSet](Classes/SyncHashSet)
+-   [SyncVar](Classes/SyncVars), [SyncList](Classes/SyncLists), [SyncEvent](Classes/SyncEvent), [SyncDictionary](Classes/SyncDictionary.md), and [SyncHashSet](Classes/SyncHashSet)
 
 **Integrations**
 
