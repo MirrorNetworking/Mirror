@@ -82,11 +82,9 @@ There are some ready made SyncLists you can use:
 You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. 
 
 <aside class="notice"> 
-Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.
-</aside>
+<p>Note that by the time you subscribe, the list will already be initialized, so you will not get a call for the initial data, only updates.</p>
 
-<aside class="notice"> 
-Note SyncLists must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
+<p>Note SyncLists must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.</p>
 </aside>
 
 ```cs
