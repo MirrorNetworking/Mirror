@@ -7,12 +7,6 @@ version: '{branch}-{build}'
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
-  - set PATH=C:\Ruby25-x64\bin;%PATH%
-  - cd docs
-  - gem install bundler -v 1.17.3
-  - bundle install
-  - cd ..
-  - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
   - choco install unitypackager
   
 #build:
@@ -23,10 +17,8 @@ install:
 skip_tags: true
 
 build_script:
-  - cd docs
-  - bundle exec jekyll build
-  - ruby checksite.rb
-  - cd ..
+  - docfx metadata doc\docfx.json
+  - docfx build doc\docfx.json
 
 after_build:
   - RMDIR /Q /S Assets\Mirror\Tests
