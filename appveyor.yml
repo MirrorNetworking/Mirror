@@ -8,6 +8,7 @@ version: '{branch}-{build}'
 
 install:
   - choco install unitypackager
+  - cinst docfx
   
 #build:
 #  project: Mirror/Networking.sln
