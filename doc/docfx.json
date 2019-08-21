@@ -4,14 +4,15 @@
             "src": [
                 {
                     "files": [
-                        "all.csproj"
+                        "doc.csproj"
                     ],
-                    "cwd": ".."
+                    "src": "../Assets/Mirror/Runtime"
                 }
             ],
             "dest": "api",
             "disableGitFeatures": false,
-            "disableDefaultFilter": false
+            "disableDefaultFilter": false,
+            "filter": "filterConfig.yml"
         }
     ],
     "build": {
