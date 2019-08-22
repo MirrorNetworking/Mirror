@@ -43,4 +43,5 @@ deploy:
   - provider: Environment
     name: mirror-networking.com
     artifact: doc\_site
+    debug: true
 
