@@ -9,6 +9,7 @@ version: '{branch}-{build}'
 install:
   - choco install unitypackager
   - cinst docfx
+  - choco install lftp
   - npm install -g semantic-release@15 
 
 #build:
