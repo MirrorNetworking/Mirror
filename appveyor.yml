@@ -43,6 +43,6 @@ deploy:
     name: mirror-networking.com
     artifact: docfx.zip
 
-deploy_script:
-  - semantic-release
+  - provider: Script
+    path: semantic-release
 
