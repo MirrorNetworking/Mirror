@@ -42,5 +42,5 @@ before_deploy:
 deploy:
   - provider: Environment
     name: mirror-networking.com
-    artifact: doc\_site\
+    artifact: doc\_site
 
