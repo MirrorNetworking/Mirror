@@ -46,5 +46,5 @@ environment:
 
 deploy_script:
   - semantic-release
-  - lftp -c 'pwd .' -u mirrofx --env-password mirror-networking.com
+  - lftp -c 'pwd' -u mirrofx --env-password mirror-networking.com
 
