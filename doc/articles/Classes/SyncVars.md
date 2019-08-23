@@ -10,7 +10,7 @@ class Player : NetworkBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (!isServer.md)
+        if (!isServer)
             return;
 
         health -= amount;
