@@ -32,8 +32,6 @@ artifacts:
   - path: Mirror.unitypackage
   - path: Assets
     name: Mirror
-  - path: doc\_site
-    name: docfx
 
 image: Visual Studio 2017
 
