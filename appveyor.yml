@@ -44,5 +44,5 @@ environment:
 
 deploy_script:
   - semantic-release
-  - lftp -d -e 'set ftp:ssl-allow no; mirror -R -c doc/_site public_html/xmldocs; bye' -u mirreofx --env-password ftp://mirror-networking.com
+  - lftp -e 'set ftp:ssl-allow no; mirror -R -c doc/_site public_html/xmldocs; bye' -u mirreofx --env-password ftp://mirror-networking.com
 
