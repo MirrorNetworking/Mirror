@@ -82,7 +82,7 @@ public class SpawnManager : MonoBehaviour
             m_Pool[i].SetActive(false);
         }
         
-        ClientScene.RegisterSpawnHandler(assetId, SpawnObject, UnSpawnObject.md);
+        ClientScene.RegisterSpawnHandler(assetId, SpawnObject, UnSpawnObject);
     }
 
     public GameObject GetFromPool(Vector3 position)
