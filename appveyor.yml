@@ -40,9 +40,11 @@ image: Visual Studio 2017
 before_deploy:
   - semantic-release
 
-deploy:
-  - provider: Environment
-    name: mirror-networking.com
-    artifact: doc\_site
-    debug: true
+environment:
+  LFTP_PASSWORD:
+    secure: sH23IC4a98S5uTtgYNHNvg==
+
+deploy_script:
+  - semantic-release
+  - lftp -c 'pwd .' -u mirrofx --env-password mirror-networking.com
 
