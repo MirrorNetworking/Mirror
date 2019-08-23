@@ -31,7 +31,7 @@ If you want non-player game objects to have client authority, you must enable lo
 void CmdSpawn()
 {
     var go = Instantiate(otherPrefab, transform.position + new Vector3(0,1,0), Quaternion.identity);
-    NetworkServer.SpawnWithClientAuthority(go, connectionToClient.md);
+    NetworkServer.SpawnWithClientAuthority(go, connectionToClient);
 }
 ```
 
