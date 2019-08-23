@@ -28,6 +28,6 @@ for (int i = 0; i < hitCount; i++)
     NetworkIdentity identity = hit.GetComponent<NetworkIdentity>();
 
     if (identity != null && identity.connectionToClient != null)
-        observers.Add(identity.connectionToClient.md);
+        observers.Add(identity.connectionToClient);
 }
 ```
