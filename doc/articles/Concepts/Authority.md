@@ -18,7 +18,7 @@ See Scripting API Reference documentation on NetworkIdentity and localPlayerAuth
 
 Use the NetworkIdentity.hasAuthority property to find out whether a game object has local authority (also accessible on `NetworkBehaviour` for convenience). Non-player game objects have authority on the server, and player game objects with localPlayerAuthority set have authority on their owner’s client.
 
-## Local (Client.md) Authority for Non-Player Game Objects
+## Local (Client) Authority for Non-Player Game Objects
 
 It is possible to have client authority over non-player game objects. There are two ways to do this. One is to spawn the game object using NetworkServer.SpawnWithClientAuthority, and pass the network connection of the client to take ownership. The other is to use NetworkIdentity.AssignClientAuthority with the network connection of the client to take ownership.
 
