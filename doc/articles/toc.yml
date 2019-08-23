@@ -1,22 +1,26 @@
-- name: Introduction
-  href: intro.md
-
 - name: General
-  href: General/index.md
-  items:
-    - name: Getting Started
-      href: General/Start.md
-    - name: Migration Guide
-      href: General/Migration.md
-    - name: Deprecations
-      href: General/Deprecations.md
-    - name: ChangeLog
-      href: General/ChangeLog.md
-    - name: Showcase
-      href: General/Showcase.md
-    - name: Integrations
-      href: General/Integrations/index.md
-    - name: Why TCP?
-      href: General/WhyTCP.md
-    - name: Support
-      href: General/Support.md
+  href: General/toc.yml
+  topicHref: General/index.md
+- name: Concepts
+  href: Concepts/toc.yml
+  topicHref: Concepts/index.md
+- name: Components
+  href: Components/toc.yml
+  topicHref: Components/index.md
+- name: Classes
+  href: Classes/toc.yml
+  topicHref: Classes/index.md
+- name: Events
+  href: Events/toc.yml
+  topicHref: Events/Application.md
+- name: Messages
+  href: Messages/index.md
+- name: Transports
+  href: Transports/toc.yml
+  topicHref: Transports/index.md
+- name: Examples
+  href: Examples/toc.yml
+  topicHref: Examples/index.md
+- name: Services
+  href: Services/toc.yml
+  topicHref: Services/index.md
