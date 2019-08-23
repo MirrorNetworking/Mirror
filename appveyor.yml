@@ -46,5 +46,5 @@ environment:
 
 deploy_script:
   - semantic-release
-  - lftp -d -e 'pwd; ls -l .; bye' -u mirrofx --env-password ftp://mirror-networking.com
+  - lftp -d -e 'pwd; set ftp:ssl-allow no; ls -l .; bye' -u mirrofx --env-password ftp://mirror-networking.com
 
