@@ -6,13 +6,13 @@ Mirror cannot support multiple Network Identity components within an object hier
 
 Let's start with the simple case of a single attachment point, called `RightHand`, that is somewhere down the hierarchy of our Player, likely at the end of an arm. In a script that inherits from NetworkBehaviour on the Player Prefab, we'd have a SyncVar enum with various choices of what the player is holding, and a `GameObject` reference where `RightHand` can be assigned in the inspector, and a Hook for the SyncVar to swap out the art of the held item based on the new value.
 
-In the image below, I've created a simple player capsule with an arm and hand, and I've made some prefabs to be equiipped (Ball, Box, Cylinder) and a Player Equip script to handle them.
+In the image below, I've created a simple player capsule with an arm and hand, and I've made some prefabs to be equipped (Ball, Box, Cylinder) and a Player Equip script to handle them.
 
-![](ChildObjects1.PNG)
+![Screenshot of Player with Equip Script](ChildObjects1.PNG)
 
 Here's the Player Equip script to handle the changing of the equipped item:
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
