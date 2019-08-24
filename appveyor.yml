@@ -35,9 +35,6 @@ artifacts:
 
 image: Visual Studio 2017
 
-before_deploy:
-  - semantic-release
-
 environment:
   LFTP_PASSWORD:
     secure: sH23IC4a98S5uTtgYNHNvg==
