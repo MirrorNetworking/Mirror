@@ -4,8 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- your static content you like to publish -->
-        <Content Include="Assets\Mirror\**\*.*" />
+      <Compile Include="..\Assets\Mirror\Runtime\**\*.cs"/>
+      <Compile Include="..\Assets\Mirror\Componens\**\*.cs"/>
     </ItemGroup>
-
 </Project>

@@ -5,8 +5,7 @@
                 {
                     "files": [
                         "doc.csproj"
-                    ],
-                    "src": "../Assets/Mirror/Runtime"
+                    ]
                 }
             ],
             "dest": "api",
