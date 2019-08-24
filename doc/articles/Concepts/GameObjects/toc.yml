@@ -8,3 +8,5 @@
   href: SpawnObjectCustom.md
 - name: Scene Objects
   href: SceneObjects.md
+- name: Child Objects
+  href: ChildObjects.md
