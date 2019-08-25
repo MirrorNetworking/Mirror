@@ -6,5 +6,6 @@
     <ItemGroup>
       <Compile Include="..\Assets\Mirror\Runtime\**\*.cs"/>
       <Compile Include="..\Assets\Mirror\Componens\**\*.cs"/>
+      <Compile Remove="..\Assets\Mirror\Runtime\Transport\Websocket\Ninja.Websockets\**"/>
     </ItemGroup>
 </Project>
