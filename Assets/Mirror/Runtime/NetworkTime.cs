@@ -10,8 +10,8 @@ namespace Mirror
     public static class NetworkTime
     {
         /// <summary>
-        // how often are we sending ping messages
-        // used to calculate network time and RTT
+        /// how often are we sending ping messages
+        /// used to calculate network time and RTT
         /// </summary>
         public static float PingFrequency = 2.0f;
 
