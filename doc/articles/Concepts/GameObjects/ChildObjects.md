@@ -68,6 +68,7 @@ public class PlayerEquip : NetworkBehaviour
             CmdChangeEquippedItem(EquippedItem.cylinder);
     }
 
+    [Command]
     void CmdChangeEquippedItem(EquippedItem selectedItem)
     {
         equippedItem = selectedItem;
