@@ -44,7 +44,7 @@ RenderSettings:
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 1
+  m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -359,8 +359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ServerOnly: 1
-  m_LocalPlayerAuthority: 0
+  serverOnly: 1
+  localPlayerAuthority: 0
   m_AssetId: 
   m_SceneId: 1834901131
 --- !u!114 &159607913
@@ -544,11 +544,11 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 11
+  far clip plane: 1000
   field of view: 60
-  orthographic: 1
-  orthographic size: 25
-  m_Depth: -1
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -571,7 +571,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534669902}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1855,7 +1855,7 @@ MonoBehaviour:
   OnClientDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventByteArray, Mirror, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: Mirror.UnityEventArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   OnClientError:
     m_PersistentCalls:
@@ -1874,7 +1874,7 @@ MonoBehaviour:
   OnServerDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventIntByteArray, Mirror, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: Mirror.UnityEventIntArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   OnServerError:
     m_PersistentCalls:
@@ -1887,7 +1887,8 @@ MonoBehaviour:
     m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   port: 7777
   NoDelay: 1
-  MaxMessageSize: 16384
+  serverMaxMessageSize: 16384
+  clientMaxMessageSize: 16384
 --- !u!114 &1661834281
 MonoBehaviour:
   m_ObjectHideFlags: 0

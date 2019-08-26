@@ -1,4 +1,5 @@
-using Mono.Cecil;
+using System;
+using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
@@ -40,6 +41,16 @@ namespace Mirror.Weaver
             return false;
         }
 
+        public static TypeReference GetEnumUnderlyingType(this TypeDefinition td)
+        {
+            foreach (FieldDefinition field in td.Fields)
+            {
+                if (!field.IsStatic)
+                    return field.FieldType;
+            }
+            throw new ArgumentException($"Invalid enum {td.FullName}");
+        }
+
         public static bool ImplementsInterface(this TypeDefinition td, TypeReference baseInterface)
         {
             TypeDefinition typedef = td;
@@ -54,7 +65,7 @@ namespace Mirror.Weaver
                 try
                 {
                     TypeReference parent = typedef.BaseType;
-                    typedef = parent == null ? null : parent.Resolve();
+                    typedef = parent?.Resolve();
                 }
                 catch (AssemblyResolutionException)
                 {
@@ -101,5 +112,30 @@ namespace Mirror.Weaver
             }
             return true;
         }
+
+
+        // Given a method of a generic class such as ArraySegment<T>.get_Count,   
+        // and a generic instance such as ArraySegment<int>
+        // Creates a reference to the specialized method  ArraySegment<int>.get_Count;
+        // Note that calling ArraySegment<T>.get_Count directly gives an invalid IL error
+        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
+        {
+
+            MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
+            {
+                CallingConvention = self.CallingConvention,
+                HasThis = self.HasThis,
+                ExplicitThis = self.ExplicitThis
+            };
+
+            foreach (ParameterDefinition parameter in self.Parameters)
+                reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
+
+            foreach (GenericParameter generic_parameter in self.GenericParameters)
+                reference.GenericParameters.Add(new GenericParameter(generic_parameter.Name, reference));
+
+            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+        }
+
     }
 }

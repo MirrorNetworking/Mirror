@@ -7,16 +7,16 @@ In Build Settings, remove all scenes and add all of the scenes from the Examples
 - MainScene
 - SubScene
 
+Open the MainScene in the Editor and make sure the Sub Scenes list in the Network scene object contains the SubScene scene.  This is already setup by default, but if the MainScene was opened and saved before putting the scenes in the Build Settings list, the Sub Scenes list may be cleared accidentally.
+
 File -> Build and Run
 
 Start up to 3 built instances:  These will all be client players.
 
-Open the MainScene in the Editor and press Play
-
-Click LAN Host in the editor: This will be the host and the 4th player.  You can also use LAN Server if you prefer.
+Press Play in the Editor and click LAN Host in the editor
+- This will be the host and the 1st player of up to 4.  You can also use LAN Server if you prefer.
 
 Click LAN Client in the built instances.
-
 - WASDQE keys to move & turn your player capsule.
 - There are objects in the corners of the scene hidden by Proximity Checkers.
 - The big area in the middle is where the subscene will be loaded when you get near the shelter.

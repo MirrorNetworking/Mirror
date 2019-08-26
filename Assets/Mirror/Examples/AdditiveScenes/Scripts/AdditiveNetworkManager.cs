@@ -21,13 +21,6 @@ namespace Mirror.Examples.Additive
                 SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
                 Debug.LogFormat("Loaded {0}", sceneName);
             }
-            //StartCoroutine(LoadScene(sceneName));
-        }
-
-        IEnumerator LoadScene(string sceneName)
-        {
-            yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-            Debug.LogFormat("Loaded {0}", sceneName);
         }
 
         public override void OnStopServer()

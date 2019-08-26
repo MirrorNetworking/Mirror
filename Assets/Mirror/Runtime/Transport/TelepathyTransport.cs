@@ -1,5 +1,10 @@
 // wraps Telepathy for use as HLAPI TransportLayer
+using System;
+using System.ComponentModel;
+using System.Net.Sockets;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 namespace Mirror
 {
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
@@ -10,8 +15,18 @@ namespace Mirror
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use MaxMessageSizeFromClient or MaxMessageSizeFromServer instead.")]
+        public int MaxMessageSize
+        {
+            get => serverMaxMessageSize;
+            set => serverMaxMessageSize = clientMaxMessageSize = value;
+        }
+
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
-        public int MaxMessageSize = 16 * 1024;
+        [FormerlySerializedAs("MaxMessageSize")] public int serverMaxMessageSize = 16 * 1024;
+
+        [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker host might send multiple fake packets with 2GB headers, causing the connected clients to run out of memory after allocating multiple large packets.")]
+        [FormerlySerializedAs("MaxMessageSize")] public int clientMaxMessageSize = 16 * 1024;
 
         protected Telepathy.Client client = new Telepathy.Client();
         protected Telepathy.Server server = new Telepathy.Server();
@@ -25,14 +40,9 @@ namespace Mirror
 
             // configure
             client.NoDelay = NoDelay;
-            client.MaxMessageSize = MaxMessageSize;
+            client.MaxMessageSize = clientMaxMessageSize;
             server.NoDelay = NoDelay;
-            server.MaxMessageSize = MaxMessageSize;
-
-            // HLAPI's local connection uses hard coded connectionId '0', so we
-            // need to make sure that external connections always start at '1'
-            // by simple eating the first one before the server starts
-            Telepathy.Server.NextConnectionId();
+            server.MaxMessageSize = serverMaxMessageSize;
 
             Debug.Log("TelepathyTransport initialized!");
         }
@@ -52,7 +62,7 @@ namespace Mirror
                         OnClientConnected.Invoke();
                         break;
                     case Telepathy.EventType.Data:
-                        OnClientDataReceived.Invoke(message.data);
+                        OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data));
                         break;
                     case Telepathy.EventType.Disconnected:
                         OnClientDisconnected.Invoke();
@@ -97,7 +107,7 @@ namespace Mirror
                         OnServerConnected.Invoke(message.connectionId);
                         break;
                     case Telepathy.EventType.Data:
-                        OnServerDataReceived.Invoke(message.connectionId, message.data);
+                        OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data));
                         break;
                     case Telepathy.EventType.Disconnected:
                         OnServerDisconnected.Invoke(message.connectionId);
@@ -112,7 +122,25 @@ namespace Mirror
             return false;
         }
         public override bool ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
-        public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
+        public override string ServerGetClientAddress(int connectionId)
+        {
+            try
+            {
+                return server.GetClientAddress(connectionId);
+            }
+            catch (SocketException)
+            {
+                // using server.listener.LocalEndpoint causes an Exception
+                // in UWP + Unity 2019:
+                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+                //   location 0x000000E15A0FCDD0. SocketException: An address
+                //   incompatible with the requested protocol was used at
+                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+                // so let's at least catch it and recover
+                return "unknown";
+            }
+        }
         public override void ServerStop() => server.Stop();
 
         // common
@@ -125,15 +153,22 @@ namespace Mirror
 
         public override int GetMaxPacketSize(int channelId)
         {
-            // Telepathy's limit is Array.Length, which is int
-            return int.MaxValue;
+            return serverMaxMessageSize;
         }
 
         public override string ToString()
         {
             if (server.Active && server.listener != null)
             {
-                return "Telepathy Server port: " + server.listener.LocalEndpoint;
+                // printing server.listener.LocalEndpoint causes an Exception
+                // in UWP + Unity 2019:
+                //   Exception thrown at 0x00007FF9755DA388 in UWF.exe:
+                //   Microsoft C++ exception: Il2CppExceptionWrapper at memory
+                //   location 0x000000E15A0FCDD0. SocketException: An address
+                //   incompatible with the requested protocol was used at
+                //   System.Net.Sockets.Socket.get_LocalEndPoint ()
+                // so let's use the regular port instead.
+                return "Telepathy Server port: " + port;
             }
             else if (client.Connecting || client.Connected)
             {

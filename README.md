@@ -1,7 +1,7 @@
 ![Mirror Logo](https://i.imgur.com/aZRKBeh.png)
 
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
-[![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://vis2k.github.io/Mirror/)
+[![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://mirror-networking.com/xmldocs)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorNetworking)
 [![Build status](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
@@ -12,7 +12,7 @@ Mirror is a **high level** Networking API for Unity, built on top of the **low l
 
 Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212), [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015) and [Cubica](https://cubica.net).
 
-Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://ummorpg.net/showcase/), period.
+Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period.
 
 With Mirror, the **Server & Client are ONE** project _(hence the name)_. Instead of having one code base for the server and one for the client, we simply use the same code for both of them.
 * `[Server]` / `[Client]` tags can be used for the server-only and client-only parts.
@@ -24,9 +24,9 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/).
+Check out our [Documentation](https://mirror-networking.com/xmldocs/).
 
-If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/xmldocs/articles/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
 We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!

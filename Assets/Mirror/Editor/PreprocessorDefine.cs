@@ -15,7 +15,8 @@ namespace Mirror
             {
                 "MIRROR",
                 "MIRROR_1726_OR_NEWER",
-                "MIRROR_3_0_OR_NEWER"
+                "MIRROR_3_0_OR_NEWER",
+                "MIRROR_3_12_OR_NEWER"
             };
             PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", defines));
         }

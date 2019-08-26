@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-using Mono.Cecil.Mdb;
-using Mono.Cecil.Pdb;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
+using Mono.CecilX.Mdb;
+using Mono.CecilX.Pdb;
 
 namespace Mirror.Weaver
 {
@@ -38,7 +38,7 @@ namespace Mirror.Weaver
         public static string UnityEngineDLLDirectoryName()
         {
             string directoryName = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-            return directoryName != null ? directoryName.Replace(@"file:\", "") : null;
+            return directoryName?.Replace(@"file:\", "");
         }
 
         public static ISymbolReaderProvider GetSymbolReaderProvider(string inputFile)
@@ -72,13 +72,13 @@ namespace Mirror.Weaver
             if (type.IsGenericInstance)
             {
                 GenericInstanceType giType = (GenericInstanceType)type;
-                return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + String.Join(", ", giType.GenericArguments.Select<TypeReference, String>(PrettyPrintType).ToArray()) + ">";
+                return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + string.Join(", ", giType.GenericArguments.Select(PrettyPrintType).ToArray()) + ">";
             }
 
             // generic types, such as List<T>
             if (type.HasGenericParameters)
             {
-                return type.Name.Substring(0, type.Name.Length - 2) + "<" + String.Join(", ", type.GenericParameters.Select<GenericParameter, String>(x => x.Name).ToArray()) + ">";
+                return type.Name.Substring(0, type.Name.Length - 2) + "<" + string.Join(", ", type.GenericParameters.Select(x => x.Name).ToArray()) + ">";
             }
 
             // non-generic type such as Int
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
-            ReaderParameters parameters = new ReaderParameters() {ReadWrite = true};
+            ReaderParameters parameters = new ReaderParameters {ReadWrite = true};
             if (assemblyResolver == null)
                 assemblyResolver = new DefaultAssemblyResolver();
             AddSearchDirectoryHelper helper = new AddSearchDirectoryHelper(assemblyResolver);
@@ -97,7 +97,7 @@ namespace Mirror.Weaver
             helper.AddSearchDirectory(Path.GetDirectoryName(mirrorNetDLLPath));
             if (extraPaths != null)
             {
-                foreach (var path in extraPaths)
+                foreach (string path in extraPaths)
                     helper.AddSearchDirectory(path);
             }
             parameters.AssemblyResolver = assemblyResolver;

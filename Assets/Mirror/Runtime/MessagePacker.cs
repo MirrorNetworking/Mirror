@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -16,10 +17,6 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
-        // PackMessage is in hot path. caching the writer is really worth it to
-        // avoid large amounts of allocations.
-        static NetworkWriter packWriter = new NetworkWriter();
-
         public static int GetId<T>() where T : IMessageBase
         {
             // paul: 16 bits is enough to avoid collisions
@@ -33,34 +30,44 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            try
+            {
+                // write message type
+                writer.WriteInt16((short)msgType);
 
-            // write message type
-            packWriter.Write((short)msgType);
+                // serialize message into writer
+                msg.Serialize(writer);
 
-            // serialize message into writer
-            msg.Serialize(packWriter);
-
-            // return byte[]
-            return packWriter.ToArray();
+                // return byte[]
+                return writer.ToArray();
+            }
+            finally
+            {
+                NetworkWriterPool.Recycle(writer);
+            }
         }
 
         // pack message before sending
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
-            // reset cached writer length and position
-            packWriter.SetLength(0);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            try
+            {
+                // write message type
+                int msgType = GetId<T>();
+                writer.WriteUInt16((ushort)msgType);
 
-            // write message type
-            int msgType = GetId<T>();
-            packWriter.Write((ushort)msgType);
+                // serialize message into writer
+                message.Serialize(writer);
 
-            // serialize message into writer
-            message.Serialize(packWriter);
-
-            // return byte[]
-            return packWriter.ToArray();
+                // return byte[]
+                return writer.ToArray();
+            }
+            finally
+            {
+                NetworkWriterPool.Recycle(writer);
+            }
         }
 
         // unpack a message we received
@@ -86,8 +93,44 @@ namespace Mirror
         public static bool UnpackMessage(NetworkReader messageReader, out int msgType)
         {
             // read message type (varint)
-            msgType = (int)messageReader.ReadUInt16();
-            return true;
+            try
+            {
+                msgType = (int)messageReader.ReadUInt16();
+                return true;
+            }
+            catch (System.IO.EndOfStreamException)
+            {
+                msgType = 0;
+                return false;
+            }
         }
+
+        internal static NetworkMessageDelegate MessageHandler<T>(Action<NetworkConnection, T> handler) where T : IMessageBase, new() => networkMessage =>
+        {
+            // protect against DOS attacks if attackers try to send invalid
+            // data packets to crash the server/client. there are a thousand
+            // ways to cause an exception in data handling:
+            // - invalid headers
+            // - invalid message ids
+            // - invalid data causing exceptions
+            // - negative ReadBytesAndSize prefixes
+            // - invalid utf8 strings
+            // - etc.
+            //
+            // let's catch them all and then disconnect that connection to avoid
+            // further attacks.
+            T message = default;
+            try
+            {
+                message = networkMessage.ReadMessage<T>();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("Closed connection: " + networkMessage.conn.connectionId + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                networkMessage.conn.Disconnect();
+                return;
+            }
+            handler(networkMessage.conn, message);
+        };
     }
 }

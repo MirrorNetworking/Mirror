@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [TargetRpc]
-        private void TargetThatIsTotallyValid(NetworkConnection nc) {}
+        void TargetThatIsTotallyValid(NetworkConnection nc) {}
     }
 }

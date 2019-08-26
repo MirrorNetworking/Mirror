@@ -1,6 +1,6 @@
 // all the [Rpc] code from NetworkBehaviourProcessor in one place
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 namespace Mirror.Weaver
 {
     public static class RpcProcessor
@@ -9,9 +9,9 @@ namespace Mirror.Weaver
 
         public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md)
         {
-            MethodDefinition rpc = new MethodDefinition(RpcPrefix + md.Name, MethodAttributes.Family |
-                                                                               MethodAttributes.Static |
-                                                                               MethodAttributes.HideBySig,
+            MethodDefinition rpc = new MethodDefinition(
+                RpcPrefix + md.Name,
+                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 Weaver.voidType);
 
             ILProcessor rpcWorker = rpc.Body.GetILProcessor();
@@ -23,7 +23,7 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Castclass, td));
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, md, rpcWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, rpcWorker, false))
                 return null;
 
             // invoke actual command function
@@ -56,17 +56,16 @@ namespace Mirror.Weaver
             }
 
             ILProcessor rpcWorker = rpc.Body.GetILProcessor();
-            Instruction label = rpcWorker.Create(OpCodes.Nop);
 
             NetworkBehaviourProcessor.WriteSetupLocals(rpcWorker);
 
             NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, "RPC", false))
+            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
                 return null;
 
-            var rpcName = md.Name;
+            string rpcName = md.Name;
             int index = rpcName.IndexOf(RpcPrefix);
             if (index > -1)
             {
@@ -82,28 +81,30 @@ namespace Mirror.Weaver
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);
+
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             return rpc;
         }
 
-        public static bool ProcessMethodsValidateRpc(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
         {
             if (!md.Name.StartsWith("Rpc"))
             {
-                Weaver.Error("Rpc function [" + td.FullName + ":" + md.Name + "] doesnt have 'Rpc' prefix");
+                Weaver.Error($"{md} must start with Rpc.  Consider renaming it to Rpc{md.Name}");
                 return false;
             }
 
             if (md.IsStatic)
             {
-                Weaver.Error("ClientRpc function [" + td.FullName + ":" + md.Name + "] cant be a static method");
+                Weaver.Error($"{md} must not be static");
                 return false;
             }
 
             // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(td, md, "Rpc") &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(td, md, ca, "Rpc");
+            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
+                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }

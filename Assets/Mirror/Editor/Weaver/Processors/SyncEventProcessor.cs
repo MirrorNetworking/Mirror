@@ -1,7 +1,7 @@
 // all the SyncEvent code from NetworkBehaviourProcessor in one place
 using System.Collections.Generic;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             }
             if (eventField == null)
             {
-                Weaver.Error("[" + td.Name + "] ERROR: no event field?!");
+                Weaver.Error($"{td} not found. Did you declare the event?");
                 return null;
             }
 
@@ -51,7 +51,7 @@ namespace Mirror.Weaver
 
             // read the event arguments
             MethodReference invoke = Resolvers.ResolveMethod(eventField.FieldType, Weaver.CurrentAssembly, "Invoke");
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(td, invoke.Resolve(), cmdWorker, false))
+            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(invoke.Resolve(), cmdWorker, false))
                 return null;
 
             // invoke actual event delegate function
@@ -85,7 +85,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(evtWorker);
 
             // write all the arguments that the user passed to the syncevent
-            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), "SyncEvent", false))
+            if (!NetworkBehaviourProcessor.WriteArguments(evtWorker, invoke.Resolve(), false))
                 return null;
 
             // invoke interal send and return
@@ -97,6 +97,8 @@ namespace Mirror.Weaver
             evtWorker.Append(evtWorker.Create(OpCodes.Ldc_I4, NetworkBehaviourProcessor.GetChannelId(ca)));
             evtWorker.Append(evtWorker.Create(OpCodes.Call, Weaver.sendEventInternal));
 
+            NetworkBehaviourProcessor.WriteRecycleWriter(evtWorker);
+
             evtWorker.Append(evtWorker.Create(OpCodes.Ret));
 
             return evt;
@@ -107,19 +109,19 @@ namespace Mirror.Weaver
             // find events
             foreach (EventDefinition ed in td.Events)
             {
-                foreach (var ca in ed.CustomAttributes)
+                foreach (CustomAttribute ca in ed.CustomAttributes)
                 {
                     if (ca.AttributeType.FullName == Weaver.SyncEventType.FullName)
                     {
-                        if (ed.Name.Length > 4 && ed.Name.Substring(0, 5) != "Event")
+                        if (!ed.Name.StartsWith("Event"))
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] doesnt have 'Event' prefix");
+                            Weaver.Error($"{ed} must start with Event.  Consider renaming it to Event{ed.Name}");
                             return;
                         }
 
                         if (ed.EventType.Resolve().HasGenericParameters)
                         {
-                            Weaver.Error("Event  [" + td.FullName + ":" + ed.FullName + "] cannot have generic parameters");
+                            Weaver.Error($"{ed} must not have generic parameters.  Consider creating a new class that inherits from {ed.EventType} instead");
                             return;
                         }
 

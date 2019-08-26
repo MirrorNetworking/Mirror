@@ -8,6 +8,6 @@ namespace MirrorTest
     class MirrorTestPlayer : NetworkBehaviour
     {
         [Command]
-        private static void CmdCantBeStatic() {}
+        static void CmdCantBeStatic() {}
     }
 }

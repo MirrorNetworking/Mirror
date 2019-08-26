@@ -42,7 +42,7 @@ namespace Mirror
             this.objects = objects;
         }
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
+        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
         public bool IsDirty => changes.Count > 0;
@@ -96,7 +96,7 @@ namespace Mirror
             for (int i = 0; i < changes.Count; i++)
             {
                 Change change = changes[i];
-                writer.Write((byte)change.operation);
+                writer.WriteByte((byte)change.operation);
 
                 switch (change.operation)
                 {
@@ -318,13 +318,13 @@ namespace Mirror
 
     public abstract class SyncHashSet<T> : SyncSet<T>
     {
-        protected SyncHashSet() : base(new HashSet<T>()) {}
+        protected SyncHashSet() : base(new HashSet<T>()) { }
     }
 
     public abstract class SyncSortedSet<T> : SyncSet<T>
     {
-        protected SyncSortedSet() : base(new SortedSet<T>()) {}
+        protected SyncSortedSet() : base(new SortedSet<T>()) { }
 
-        protected SyncSortedSet(IComparer<T> comparer) : base (new SortedSet<T>(comparer)) {}
+        protected SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer)) { }
     }
 }

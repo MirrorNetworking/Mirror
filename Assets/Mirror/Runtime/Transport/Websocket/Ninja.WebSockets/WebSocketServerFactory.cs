@@ -37,8 +37,8 @@ namespace Ninja.WebSockets
     /// </summary>
     public class WebSocketServerFactory : IWebSocketServerFactory
     {
-        private readonly Func<MemoryStream> _bufferFactory;
-        private readonly IBufferPool _bufferPool;
+        readonly Func<MemoryStream> _bufferFactory;
+        readonly IBufferPool _bufferPool;
 
         /// <summary>
         /// Initialises a new instance of the WebSocketServerFactory class without caring about internal buffers
@@ -104,7 +104,7 @@ namespace Ninja.WebSockets
             return new WebSocketImplementation(guid, _bufferFactory, context.Stream, options.KeepAliveInterval, secWebSocketExtensions, options.IncludeExceptionInCloseResponse, false, options.SubProtocol);
         }
 
-        private static void CheckWebSocketVersion(string httpHeader)
+        static void CheckWebSocketVersion(string httpHeader)
         {
             Regex webSocketVersionRegex = new Regex("Sec-WebSocket-Version: (.*)", RegexOptions.IgnoreCase);
 
@@ -125,7 +125,7 @@ namespace Ninja.WebSockets
             }
         }
 
-        private static async Task PerformHandshakeAsync(Guid guid, String httpHeader, string subProtocol, Stream stream, CancellationToken token)
+        static async Task PerformHandshakeAsync(Guid guid, String httpHeader, string subProtocol, Stream stream, CancellationToken token)
         {
             try
             {

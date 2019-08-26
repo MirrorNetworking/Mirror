@@ -1,6 +1,6 @@
 using System;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
+using Mono.CecilX;
+using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
@@ -19,14 +19,13 @@ namespace Mirror.Weaver
             GenericInstanceType gt = (GenericInstanceType)td.BaseType;
             if (gt.GenericArguments.Count <= genericArgument)
             {
-                Weaver.Error("SyncObjectProcessor no generic args");
+                Weaver.Error($"{td} should have {genericArgument} generic arguments");
                 return;
             }
             TypeReference itemType = Weaver.CurrentAssembly.MainModule.ImportReference(gt.GenericArguments[genericArgument]);
 
             Weaver.DLog(td, "SyncObjectProcessor Start item:" + itemType.FullName);
 
-            Weaver.ResetRecursionCount();
             MethodReference writeItemFunc = GenerateSerialization(serializeMethod, td, itemType);
             if (Weaver.WeavingFailed)
             {
@@ -45,7 +44,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateSerialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
@@ -63,11 +62,11 @@ namespace Mirror.Weaver
 
             if (itemType.IsGenericInstance)
             {
-                Weaver.Error("GenerateSerialization for " + Helpers.PrettyPrintType(itemType) + " failed. Can't have generic parameters");
+                Weaver.Error($"{td} cannot have generic elements {itemType}");
                 return null;
             }
 
-            MethodReference writeFunc = Weaver.GetWriteFunc(itemType);
+            MethodReference writeFunc = Writers.GetWriteFunc(itemType);
             if (writeFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
@@ -76,7 +75,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error("GenerateSerialization for " + td.Name + " unknown type [" + itemType + "/" + itemType.FullName + "]. Member variables must be basic types.");
+                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
                 return null;
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
@@ -88,7 +87,7 @@ namespace Mirror.Weaver
         static MethodReference GenerateDeserialization(string methodName, TypeDefinition td, TypeReference itemType)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            foreach (var m in td.Methods)
+            foreach (MethodDefinition m in td.Methods)
             {
                 if (m.Name == methodName)
                     return m;
@@ -104,7 +103,7 @@ namespace Mirror.Weaver
 
             ILProcessor serWorker = deserializeFunction.Body.GetILProcessor();
 
-            MethodReference readerFunc = Weaver.GetReadFunc(itemType);
+            MethodReference readerFunc = Readers.GetReadFunc(itemType);
             if (readerFunc != null)
             {
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
@@ -113,7 +112,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                Weaver.Error("GenerateDeserialization for " + td.Name + " unknown type [" + itemType + "]. Member variables must be basic types.");
+                Weaver.Error($"{td} cannot have item of type {itemType}.  Use a type supported by mirror instead");
                 return null;
             }
 

@@ -1,47 +1,5 @@
-// SyncList code
-using System;
-using System.Linq;
-using Mono.Cecil;
-using Mono.Cecil.Cil;
-
-namespace Mirror.Weaver
-{
-    public static class SyncListInitializer
-    {
-        // generates 'syncListInt = new SyncListInt()' if user didn't do that yet
-        public static void GenerateSyncListInstanceInitializer(ILProcessor ctorWorker, FieldDefinition fd)
-        {
-            // check the ctor's instructions for an Stfld op-code for this specific sync list field.
-            foreach (var ins in ctorWorker.Body.Instructions)
-            {
-                if (ins.OpCode.Code == Code.Stfld)
-                {
-                    var field = (FieldDefinition)ins.Operand;
-                    if (field.DeclaringType == fd.DeclaringType && field.Name == fd.Name)
-                    {
-                        // Already initialized by the user in the field definition, e.g:
-                        // public SyncListInt Foo = new SyncListInt();
-                        return;
-                    }
-                }
-            }
-
-            // Not initialized by the user in the field definition, e.g:
-            // public SyncListInt Foo;
-            MethodReference listCtor;
-            try
-            {
-                listCtor = Weaver.CurrentAssembly.MainModule.ImportReference(fd.FieldType.Resolve().Methods.First<MethodDefinition>(x => x.Name == ".ctor" && !x.HasParameters));
-            }
-            catch (Exception)
-            {
-                Weaver.Error("Missing parameter-less constructor for:" + fd.FieldType.Name);
-                return;
-            }
-
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ldarg_0));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Newobj, listCtor));
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Stfld, fd));
-        }
-    }
-}
+// This file was removed in Mirror 3.4.9
+// The purpose of this file is to get the old file overwritten
+// when users update from the asset store to prevent a flood of errors
+// from having the old file still in the project as a straggler.
+// This file will be dropped from the Asset Store package in May 2019

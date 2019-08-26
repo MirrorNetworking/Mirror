@@ -18,8 +18,9 @@ namespace Mirror.Examples.ListServer
         public ushort capacity;
 
         public int lastLatency = -1;
+#if !UNITY_WEBGL // Ping isn't known in WebGL builds
         public Ping ping;
-
+#endif
         public ServerStatus(string ip, /*ushort port,*/ string title, ushort players, ushort capacity)
         {
             this.ip = ip;
@@ -27,7 +28,9 @@ namespace Mirror.Examples.ListServer
             this.title = title;
             this.players = players;
             this.capacity = capacity;
+#if !UNITY_WEBGL // Ping isn't known in WebGL builds
             ping = new Ping(ip);
+#endif
         }
     }
 
@@ -81,7 +84,7 @@ namespace Mirror.Examples.ListServer
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.IsHeadless() && !NetworkServer.active && !FullyConnected();
+            return !NetworkManager.isHeadless && !NetworkServer.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
@@ -162,8 +165,7 @@ namespace Mirror.Examples.ListServer
             string key = ip/* + ":" + port*/;
 
             // find existing or create new one
-            ServerStatus server;
-            if (list.TryGetValue(key, out server))
+            if (list.TryGetValue(key, out ServerStatus server))
             {
                 // refresh
                 server.title = title;
@@ -202,6 +204,7 @@ namespace Mirror.Examples.ListServer
                             Debug.Log("[List Server] Client disconnected.");
                     }
 
+#if !UNITY_WEBGL // Ping isn't known in WebGL builds
                     // ping again if previous ping finished
                     foreach (ServerStatus server in list.Values)
                     {
@@ -211,6 +214,7 @@ namespace Mirror.Examples.ListServer
                             server.ping = new Ping(server.ip);
                         }
                     }
+#endif
                 }
                 // otherwise try to connect
                 // (we may have just joined the menu/disconnect from game server)
@@ -237,8 +241,7 @@ namespace Mirror.Examples.ListServer
             // instantiate until amount
             for (int i = parent.childCount; i < amount; ++i)
             {
-                GameObject go = Instantiate(prefab);
-                go.transform.SetParent(parent, false);
+                Instantiate(prefab, parent, false);
             }
 
             // delete everything that's too much

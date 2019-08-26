@@ -1,5 +1,5 @@
 using NUnit.Framework;
-namespace Mirror
+namespace Mirror.Tests
 {
     [TestFixture]
     public class FloatBytePackerTest
