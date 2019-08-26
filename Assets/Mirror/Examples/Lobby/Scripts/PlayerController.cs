@@ -5,50 +5,60 @@ namespace Mirror.Examples.NetworkLobby
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
     {
-        CharacterController characterController;
-
-        public float moveSpeed = 300f;
-        public float turnSpeedAccel = 30f;
-        public float turnSpeedDecel = 30f;
-        public float maxTurnSpeed = 100f;
-
         [SyncVar]
-        public int Index;
+        public int index;
 
         [SyncVar]
         public uint score;
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-            characterController = GetComponent<CharacterController>();
-
-            // Turn off main camera because GamePlayer prefab has its own camera
-            GetComponentInChildren<Camera>().enabled = true;
-            Camera.main.enabled = false;
-        }
 
         [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
 
         // Unity makes a clone of the material when GetComponent<Renderer>().material is used
         // Cache it here and Destroy it in OnDestroy to prevent a memory leak
-        Material materialClone;
+        Material cachedMaterial;
 
         void SetColor(Color color)
         {
-            if (materialClone == null) materialClone = GetComponent<Renderer>().material;
-            materialClone.color = color;
+            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
+            cachedMaterial.color = color;
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
-            Destroy(materialClone);
+            Destroy(cachedMaterial);
         }
 
-        float horizontal = 0f;
-        float vertical = 0f;
-        float turn = 0f;
+        CharacterController characterController;
+
+        public override void OnStartLocalPlayer()
+        {
+            base.OnStartLocalPlayer();
+
+            characterController = GetComponent<CharacterController>();
+
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+        }
+
+        [Header("Movement Settings")]
+        public float moveSpeed = 8f;
+        public float turnSpeedAccel = 5f;
+        public float turnSpeedDecel = 5f;
+        public float maxTurnSpeed = 150f;
+
+        [Header("Jump Settings")]
+        public float jumpSpeed = 0f;
+        public float maxJumpSpeed = 5F;
+        public float jumpFactor = .05F;
+
+        [Header("Diagnostics")]
+        public float horizontal = 0f;
+        public float vertical = 0f;
+        public float turn = 0f;
+        public bool isGrounded = true;
+        public bool isFalling = false;
 
         void Update()
         {
@@ -61,14 +71,21 @@ namespace Mirror.Examples.NetworkLobby
                 turn -= turnSpeedAccel;
             else if (Input.GetKey(KeyCode.E) && (turn < maxTurnSpeed))
                 turn += turnSpeedAccel;
+            else if (turn > turnSpeedDecel)
+                turn -= turnSpeedDecel;
+            else if (turn < -turnSpeedDecel)
+                turn += turnSpeedDecel;
+            else
+                turn = 0f;
+
+            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < maxJumpSpeed))
+                jumpSpeed += maxJumpSpeed * jumpFactor;
+            else if (isGrounded)
+                isFalling = false;
             else
             {
-                if (turn > turnSpeedDecel)
-                    turn -= turnSpeedDecel;
-                else if (turn < -turnSpeedDecel)
-                    turn += turnSpeedDecel;
-                else
-                    turn = 0f;
+                isFalling = true;
+                jumpSpeed = 0;
             }
         }
 
@@ -78,9 +95,17 @@ namespace Mirror.Examples.NetworkLobby
 
             transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);
 
-            Vector3 direction = Vector3.ClampMagnitude(new Vector3(horizontal, 0f, vertical), 1f) * moveSpeed;
+            Vector3 direction = new Vector3(horizontal, jumpSpeed, vertical);
+            direction = Vector3.ClampMagnitude(direction, 1f);
             direction = transform.TransformDirection(direction);
-            characterController.SimpleMove(direction * Time.fixedDeltaTime);
+            direction *= moveSpeed;
+
+            if (jumpSpeed > 0)
+                characterController.Move(direction * Time.fixedDeltaTime);
+            else
+                characterController.SimpleMove(direction);
+
+            isGrounded = characterController.isGrounded;
         }
 
         GameObject controllerColliderHitObject;
@@ -107,7 +132,7 @@ namespace Mirror.Examples.NetworkLobby
         }
 
         [Command]
-        public void CmdClaimPrize(GameObject hitObject)
+        void CmdClaimPrize(GameObject hitObject)
         {
             // Null check is required, otherwise close timing of multiple claims could throw a null ref.
             if (hitObject != null)
@@ -118,7 +143,7 @@ namespace Mirror.Examples.NetworkLobby
 
         void OnGUI()
         {
-            GUI.Box(new Rect(10f + (Index * 110), 10f, 100f, 25f), score.ToString().PadLeft(10));
+            GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), score.ToString().PadLeft(10));
         }
     }
 }

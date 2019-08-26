@@ -16,10 +16,10 @@ namespace Mirror.Examples.Additive
         // Tell the client to load a single subscene
         // This is called from ZoneHandler's server-only OnTrigger events
         [TargetRpc]
-        public void TargetLoadUnloadScene(NetworkConnection networkConnection, string SceneName, LoadAction loadAction)
+        public void TargetLoadUnloadScene(NetworkConnection networkConnection, string sceneName, LoadAction loadAction)
         {
             // Check if server here because we already pre-loaded the subscenes on the server
-            if (!isServer) StartCoroutine(LoadUnloadScene(SceneName, loadAction));
+            if (!isServer) StartCoroutine(LoadUnloadScene(sceneName, loadAction));
         }
 
         // isBusy protects us from being overwhelmed by server messages to load several subscenes at once.

@@ -97,7 +97,7 @@ namespace Mirror.Weaver
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
-                Log.Error("[Server] guard on non-NetworkBehaviour script at [" + md.FullName + "]");
+                Weaver.Error($"[Server] {md} must be declared in a NetworkBehaviour");
                 return;
             }
             ILProcessor worker = md.Body.GetILProcessor();
@@ -119,7 +119,7 @@ namespace Mirror.Weaver
         {
             if (!Weaver.IsNetworkBehaviour(td))
             {
-                Log.Error("[Client] guard on non-NetworkBehaviour script at [" + md.FullName + "]");
+                Weaver.Error($"[Client] {md} must be declared in a NetworkBehaviour");
                 return;
             }
             ILProcessor worker = md.Body.GetILProcessor();

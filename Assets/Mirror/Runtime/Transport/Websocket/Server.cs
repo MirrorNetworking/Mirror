@@ -143,6 +143,10 @@ namespace Mirror.Websocket
                 }
 
             }
+            catch(IOException)
+            {
+                // do nothing. This will be thrown if the transport is closed
+            }
             catch (ObjectDisposedException)
             {
                 // do nothing. This will be thrown if the Listener has been stopped

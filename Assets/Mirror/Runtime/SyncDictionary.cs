@@ -38,8 +38,8 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        protected virtual void SerializeKey(NetworkWriter writer, TKey item) {}
-        protected virtual void SerializeItem(NetworkWriter writer, TValue item) {}
+        protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
+        protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }
         protected virtual TKey DeserializeKey(NetworkReader reader) => default;
         protected virtual TValue DeserializeItem(NetworkReader reader) => default;
 
@@ -63,7 +63,7 @@ namespace Mirror
             objects = new Dictionary<TKey, TValue>(eq);
         }
 
-        protected SyncDictionary(IDictionary<TKey,TValue> objects)
+        protected SyncDictionary(IDictionary<TKey, TValue> objects)
         {
             this.objects = objects;
         }
@@ -113,7 +113,7 @@ namespace Mirror
             for (int i = 0; i < changes.Count; i++)
             {
                 Change change = changes[i];
-                writer.Write((byte)change.operation);
+                writer.WriteByte((byte)change.operation);
 
                 switch (change.operation)
                 {
@@ -284,7 +284,7 @@ namespace Mirror
             }
 
             int i = arrayIndex;
-            foreach (KeyValuePair<TKey,TValue> item in objects)
+            foreach (KeyValuePair<TKey, TValue> item in objects)
             {
                 array[i] = item;
                 i++;

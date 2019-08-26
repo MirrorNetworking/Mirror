@@ -7,13 +7,13 @@ namespace Mirror
 {
     public class SyncListString : SyncList<string>
     {
-        protected override void SerializeItem(NetworkWriter writer, string item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, string item) => writer.WriteString(item);
         protected override string DeserializeItem(NetworkReader reader) => reader.ReadString();
     }
 
     public class SyncListFloat : SyncList<float>
     {
-        protected override void SerializeItem(NetworkWriter writer, float item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, float item) => writer.WriteSingle(item);
         protected override float DeserializeItem(NetworkReader reader) => reader.ReadSingle();
     }
 
@@ -31,7 +31,7 @@ namespace Mirror
 
     public class SyncListBool : SyncList<bool>
     {
-        protected override void SerializeItem(NetworkWriter writer, bool item) => writer.Write(item);
+        protected override void SerializeItem(NetworkWriter writer, bool item) => writer.WriteBoolean(item);
         protected override bool DeserializeItem(NetworkReader reader) => reader.ReadBoolean();
     }
 
@@ -45,7 +45,7 @@ namespace Mirror
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncList<T> : IList<T>, SyncObject
+    public abstract class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
@@ -80,7 +80,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        protected virtual void SerializeItem(NetworkWriter writer, T item) {}
+        protected virtual void SerializeItem(NetworkWriter writer, T item) { }
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
 
@@ -147,7 +147,7 @@ namespace Mirror
             for (int i = 0; i < changes.Count; i++)
             {
                 Change change = changes[i];
-                writer.Write((byte)change.operation);
+                writer.WriteByte((byte)change.operation);
 
                 switch (change.operation)
                 {
@@ -338,22 +338,9 @@ namespace Mirror
             get => objects[i];
             set
             {
-                bool changed = false;
-                if (objects[i] == null)
+                if (!EqualityComparer<T>.Default.Equals(objects[i], value))
                 {
-                    if (value == null)
-                        return;
-                    else
-                        changed = true;
-                }
-                else
-                {
-                    changed = !objects[i].Equals(value);
-                }
-
-                objects[i] = value;
-                if (changed)
-                {
+                    objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);
                 }
             }

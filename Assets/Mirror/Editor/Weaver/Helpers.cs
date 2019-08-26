@@ -72,13 +72,13 @@ namespace Mirror.Weaver
             if (type.IsGenericInstance)
             {
                 GenericInstanceType giType = (GenericInstanceType)type;
-                return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + String.Join(", ", giType.GenericArguments.Select<TypeReference, String>(PrettyPrintType).ToArray()) + ">";
+                return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + string.Join(", ", giType.GenericArguments.Select(PrettyPrintType).ToArray()) + ">";
             }
 
             // generic types, such as List<T>
             if (type.HasGenericParameters)
             {
-                return type.Name.Substring(0, type.Name.Length - 2) + "<" + String.Join(", ", type.GenericParameters.Select<GenericParameter, String>(x => x.Name).ToArray()) + ">";
+                return type.Name.Substring(0, type.Name.Length - 2) + "<" + string.Join(", ", type.GenericParameters.Select(x => x.Name).ToArray()) + ">";
             }
 
             // non-generic type such as Int
@@ -87,7 +87,7 @@ namespace Mirror.Weaver
 
         public static ReaderParameters ReaderParameters(string assemblyPath, IEnumerable<string> extraPaths, IAssemblyResolver assemblyResolver, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
-            ReaderParameters parameters = new ReaderParameters() {ReadWrite = true};
+            ReaderParameters parameters = new ReaderParameters {ReadWrite = true};
             if (assemblyResolver == null)
                 assemblyResolver = new DefaultAssemblyResolver();
             AddSearchDirectoryHelper helper = new AddSearchDirectoryHelper(assemblyResolver);

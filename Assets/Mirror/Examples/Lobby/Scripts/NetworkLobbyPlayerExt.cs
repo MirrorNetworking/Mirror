@@ -5,7 +5,6 @@ namespace Mirror.Examples.NetworkLobby
 {
     public class NetworkLobbyPlayerExt : NetworkLobbyPlayer
     {
-        public string Name;
         public override void OnStartClient()
         {
             if (LogFilter.Debug) Debug.LogFormat("OnStartClient {0}", SceneManager.GetActiveScene().name);

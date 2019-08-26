@@ -79,6 +79,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSetNull()
+        {
+            serverSyncList[1] = null;
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList[1], Is.EqualTo(null));
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", null, "!" }));
+            serverSyncList[1] = "yay";
+            SerializeDeltaTo(serverSyncList, clientSyncList);
+            Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "yay", "!" }));
+        }
+
+        [Test]
         public void TestRemoveAt()
         {
             serverSyncList.RemoveAt(1);

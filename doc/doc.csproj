@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="..\Assets\Mirror\Runtime\**\*.cs"/>
+      <Compile Include="..\Assets\Mirror\Componens\**\*.cs"/>
+      <Compile Remove="..\Assets\Mirror\Runtime\Transport\Websocket\Ninja.Websockets\**"/>
+    </ItemGroup>
+</Project>
