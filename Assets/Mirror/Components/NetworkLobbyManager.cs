@@ -15,7 +15,7 @@ namespace Mirror
     /// <para>The OnLobby*() functions have empty implementations on the NetworkLobbyManager base class, so the base class functions do not have to be called.</para>
     /// </remarks>
     [AddComponentMenu("Network/NetworkLobbyManager")]
-    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyManager")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkLobbyManager.html")]
     public class NetworkLobbyManager : NetworkManager
     {
         public struct PendingPlayer
