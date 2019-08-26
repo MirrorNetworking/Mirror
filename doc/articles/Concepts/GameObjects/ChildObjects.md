@@ -10,7 +10,7 @@ Let's start with the simple case of a single attachment point, called `RightHand
 
 In the image below, I've created a simple player capsule with an arm and hand, and I've made some prefabs to be equipped (Ball, Box, Cylinder) and a Player Equip script to handle them.
 
-**NOTE**:  The item prefabs are *art only*...they have no scripts, and they *must not* have networking components.  they can have monobehaviour-based scripts, of course, which can be referenced and called from ClientRpc's on the player prefab.
+**NOTE**:  The item prefabs are *art only*...they have no scripts, and they *must not* have networking components.  They can have monobehaviour-based scripts, of course, which can be referenced and called from ClientRpc's on the player prefab.
 
 ![Screenshot of Player with Equip Script](ChildObjects1.PNG)
 
