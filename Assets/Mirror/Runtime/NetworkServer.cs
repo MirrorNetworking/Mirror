@@ -207,7 +207,6 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
 
-                    identity.isClient = true;
                     identity.OnStartClient();
                 }
             }
@@ -258,7 +257,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToAll<T> instead.
+        /// Obsolete: Use SendToAll{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToAll<T> instead.")]
         public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
@@ -301,7 +300,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToReady<T> instead.
+        /// Obsolete: Use SendToReady{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToReady<T> instead.")]
         public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
@@ -500,7 +499,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler<T> instead.
+        /// Obsolete: Use RegisterHandler{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
@@ -513,7 +512,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler<T> instead.
+        /// Obsolete: Use RegisterHandler{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -538,7 +537,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead.
+        /// Obsolete: Use UnregisterHandler{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
         public static void UnregisterHandler(int msgType)
@@ -547,7 +546,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead.
+        /// Obsolete: Use UnregisterHandler{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
         public static void UnregisterHandler(MsgType msgType)
@@ -574,7 +573,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToClient<T> instead.
+        /// Obsolete: Use SendToClient{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClient<T> instead.")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
@@ -605,7 +604,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToClientOfPlayer<T> instead.
+        /// Obsolete: Use SendToClientOfPlayer{T} instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClientOfPlayer<T> instead.")]
         public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
@@ -688,6 +687,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
 
+            if (!conn.isReady)
+            {
+                // client needs to finish initializing before we can spawn objects
+                // otherwise it would not find them.
+                return;
+            }
+
             // let connection know that we are about to start spawning...
             conn.Send(new ObjectSpawnStartedMessage());
 
@@ -737,6 +743,8 @@ namespace Mirror
                 return false;
             }
 
+            // make sure we have a controller before we call SetClientReady
+            // because the observers will be rebuilt only if we have a controller
             conn.playerController = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
@@ -744,13 +752,6 @@ namespace Mirror
 
             // set ready if not set yet
             SetClientReady(conn);
-
-            // add connection to observers AFTER the playerController was set.
-            // by definition, there is nothing to observe if there is no player
-            // controller.
-            //
-            // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
-            SpawnObserversForConnection(conn);
 
             if (SetupLocalPlayerForConnection(conn, identity))
             {
@@ -881,6 +882,10 @@ namespace Mirror
 
             // set ready
             conn.isReady = true;
+
+            // client is ready to start spawning objects
+            if (conn.playerController != null)
+                SpawnObserversForConnection(conn);
         }
 
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
@@ -1005,8 +1010,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
             NetworkWriter writer = NetworkWriterPool.GetWriter();
-           
-            
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)

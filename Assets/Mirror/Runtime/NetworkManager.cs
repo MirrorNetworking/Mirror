@@ -19,7 +19,7 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkManager")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
     {
         [Header("Configuration")]
@@ -359,7 +359,7 @@ namespace Mirror
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayer);
+            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
         }
@@ -550,7 +550,6 @@ namespace Mirror
 
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                // Must pass true or offlineScene will not be loaded
                 ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
             CleanupNetworkIdentities();
@@ -584,6 +583,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
+
+            // Let server prepare for scene change
+            OnServerChangeScene(newSceneName);
 
             LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
 
@@ -765,6 +767,31 @@ namespace Mirror
             OnServerReady(conn);
         }
 
+        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage extraMessage)
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
+
+            if (autoCreatePlayer && playerPrefab == null)
+            {
+                Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
+                return;
+            }
+
+            if (autoCreatePlayer && playerPrefab.GetComponent<NetworkIdentity>() == null)
+            {
+                Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
+                return;
+            }
+
+            if (conn.playerController != null)
+            {
+                Debug.LogError("There is already a player for this connections.");
+                return;
+            }
+
+            OnServerAddPlayer(conn, extraMessage);
+        }
+
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
@@ -880,26 +907,6 @@ namespace Mirror
         /// <param name="extraMessage">An extra message object passed for the new player.</param>
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
-
-            if (playerPrefab == null)
-            {
-                Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
-                return;
-            }
-
-            if (playerPrefab.GetComponent<NetworkIdentity>() == null)
-            {
-                Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
-                return;
-            }
-
-            if (conn.playerController != null)
-            {
-                Debug.LogError("There is already a player for this connections.");
-                return;
-            }
-
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
@@ -955,9 +962,16 @@ namespace Mirror
         public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
         /// <summary>
-        /// 
+        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
+        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
-        /// <param name="sceneName"></param>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        public virtual void OnServerChangeScene(string newSceneName) { }
+
+        /// <summary>
+        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
+        /// </summary>
+        /// <param name="sceneName">The name of the new scene.</param>
         public virtual void OnServerSceneChanged(string sceneName) { }
 
         #endregion
@@ -1010,7 +1024,7 @@ namespace Mirror
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
-        /// <param name="newSceneName">Name if the scene that's about to be loaded</param>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         public virtual void OnClientChangeScene(string newSceneName) { }
 
         /// <summary>

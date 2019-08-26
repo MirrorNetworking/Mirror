@@ -9,7 +9,7 @@ namespace Mirror
     /// </summary>
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkProximityChecker")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkProximityChecker.html")]
     public class NetworkProximityChecker : NetworkBehaviour
     {
         /// <summary>

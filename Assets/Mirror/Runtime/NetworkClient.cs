@@ -223,7 +223,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendMessage<T> instead with no message id instead
+        /// Obsolete: Use <see cref="Send{T}(T, int)"/> instead with no message id instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendMessage<T> instead with no message id instead")]
         public static bool Send(short msgType, MessageBase msg)
@@ -375,7 +375,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler<T> instead
+        /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
@@ -388,7 +388,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler<T> instead
+        /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -413,7 +413,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(int msgType)
@@ -422,7 +422,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler<T> instead
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
         public static void UnregisterHandler(MsgType msgType)
