@@ -5,30 +5,38 @@ This document describes steps to converting a single player game to a multiplaye
 ## NetworkManager set-up
 
 -   Add a new game object to the Scene and rename it “NetworkManager”.
+
 -   Add the NetworkManager component to the “NetworkManager” game object.
+
 -   Add the NetworkManagerHUD component to the game object. This provides the default UI for managing the network game state.
 
-See [Using the NetworkManager](/xmldocs/articles/Components/NetworkManager.md).
+See [Using the NetworkManager](../Components/NetworkManager.md).
 
 ## Player Prefab
 
 -   Find the Prefab for the player game object in the game, or create a Prefab from the player game object
+
 -   Add the NetworkIdentity component to the player Prefab
+
 -   Check the LocalPlayerAuthority box on the NetworkIdentity
+
 -   Set the `playerPrefab` in the NetworkManager’s Spawn Info section to the player Prefab
+
 -   Remove the player game object instance from the Scene if it exists in the Scene
 
-See [Player Objects](/xmldocs/articles/Concepts/GameObjects/SpawnPlayer.md) for more information.
+See [Player Objects](../Concepts/GameObjects/SpawnPlayer.md) for more information.
 
 ## Player movement
 
 -   Add a NetworkTransform component to the player Prefab
+
 -   Update input and control scripts to respect `isLocalPlayer`
+
 -   Fix Camera to use spawned player and `isLocalPlayer`
 
 For example, this script only processes input for the local player:
 
-```cs
+``` cs
 using UnityEngine;
 using Mirror;
 
@@ -50,33 +58,41 @@ public class Controls : NetworkBehaviour
 ## Basic player game state
 
 -   Make scripts that contain important data into NetworkBehaviours instead of MonoBehaviours
+
 -   Make important member variables into SyncVars
 
-See [State Synchronization](/xmldocs/articles/Concepts/StateSync.md).
+See [State Synchronization](../Concepts/StateSync.md).
 
 ## Networked actions
 
 -   Make scripts that perform important actions into NetworkBehaviours instead of MonoBehaviours
+
 -   Update functions that perform important player actions to be commands
 
-See [Networked Actions](/xmldocs/articles/Concepts/Communications/index.md).
+See [Networked Actions](../Concepts/Communications/index.md).
 
 ## Non-player game objects
 
 Fix non-player prefabs such as enemies:
 
 -   Add the NetworkIdentify component
+
 -   Add the NetworkTransform component
+
 -   Register spawnable Prefabs with the NetworkManager
+
 -   Update scripts with game state and actions
 
 ## Spawners
 
 -   Potentially change spawner scripts to be NetworkBehaviours
+
 -   Modify spawners to only run on the server (use isServer property or the `OnStartServer()` function)
+
 -   Call `NetworkServer.Spawn()` for created game objects
 
 ## Spawn positions for players
 
 -   Add a new game object and place it at player’s start location
+
 -   Add the NetworkStartPosition component to the new game object
