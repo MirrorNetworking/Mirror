@@ -24,9 +24,9 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/).
+Check out our [Documentation](https://mirror-networking.com/xmldocs/).
 
-If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/xmldocs/articles/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
 We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!

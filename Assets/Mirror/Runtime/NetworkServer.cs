@@ -333,9 +333,10 @@ namespace Mirror
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg">Message structure.</param>
+        /// <param name="includeSelf">Send to observers including self..</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <returns></returns>
-        public static bool SendToReady<T>(NetworkIdentity identity,T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public static bool SendToReady<T>(NetworkIdentity identity, T msg, bool includeSelf = true, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + typeof(T));
 
@@ -347,7 +348,9 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    if (kvp.Value.isReady)
+                    bool isSelf = kvp.Value == identity.connectionToClient;
+                    if ((!isSelf || includeSelf) &&
+                        kvp.Value.isReady)
                     {
                         result &= kvp.Value.SendBytes(bytes, channelId);
                     }
@@ -355,6 +358,20 @@ namespace Mirror
                 return result;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Send a message structure with the given type number to only clients which are ready.
+        /// <para>See Networking.NetworkClient.Ready.</para>
+        /// </summary>
+        /// <typeparam name="T">Message type.</typeparam>
+        /// <param name="identity"></param>
+        /// <param name="msg">Message structure.</param>
+        /// <param name="channelId">Transport channel to use</param>
+        /// <returns></returns>
+        public static bool SendToReady<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        {
+            return SendToReady(identity, msg, true, channelId);
         }
 
         /// <summary>
@@ -1009,18 +1026,19 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId); // for easier debugging
 
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            // one writer for owner, one for observers
+            NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
+            NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
-            // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> segment = default;
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            if (identity.OnSerializeAllSafely(true, writer))
-            {
-                segment = writer.ToArraySegment();
-            }
+            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // convert to ArraySegment to avoid reader allocations
+            // (need to handle null case too)
+            ArraySegment<byte> ownerSegment     =     ownerWritten > 0 ?     ownerWriter.ToArraySegment() : default;
+            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
@@ -1033,19 +1051,35 @@ namespace Mirror
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-                    payload = segment
+                    scale = identity.transform.localScale
                 };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
+                    // use owner segment if 'conn' owns this identity, otherwise
+                    // use observers segment
+                    bool isOwner = identity.connectionToClient == conn;
+                    msg.payload = isOwner ? ownerSegment : observersSegment;
+
                     conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, msg);
+                    // send ownerWriter to owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
+                    msg.payload = ownerSegment;
+                    SendToClientOfPlayer(identity, msg);
+
+                    // send observersWriter to everyone but owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
+                    msg.payload = observersSegment;
+                    SendToReady(identity, msg, false);
                 }
             }
             // 'identity' is a scene object that should be spawned again
@@ -1059,23 +1093,40 @@ namespace Mirror
                     // use local values for VR support
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-                    payload = segment
+                    scale = identity.transform.localScale
                 };
 
                 // conn is != null when spawning it for a client
                 if (conn != null)
                 {
+                    // use owner segment if 'conn' owns this identity, otherwise
+                    // use observers segment
+                    bool isOwner = identity.connectionToClient == conn;
+                    msg.payload = isOwner ? ownerSegment : observersSegment;
+
                     conn.Send(msg);
                 }
                 // conn is == null when spawning it for the local player
                 else
                 {
-                    SendToReady(identity, msg);
+                    // send ownerWriter to owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
+                    msg.payload = ownerSegment;
+                    SendToClientOfPlayer(identity, msg);
+
+                    // send observersWriter to everyone but owner
+                    // (spawn no matter what, even if no components were
+                    //  serialized because the spawn message contains more data.
+                    //  components might still be updated later on.)
+                    msg.payload = observersSegment;
+                    SendToReady(identity, msg, false);
                 }
             }
 
-            NetworkWriterPool.Recycle(writer);
+            NetworkWriterPool.Recycle(ownerWriter);
+            NetworkWriterPool.Recycle(observersWriter);
         }
 
         /// <summary>
