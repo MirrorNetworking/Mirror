@@ -24,16 +24,16 @@ Below is the Player Equip script to handle the changing of the equipped item, an
 using UnityEngine;
 using Mirror;
 
+public enum EquippedItem : byte
+{
+    nothing,
+    ball,
+    box,
+    cylinder
+}
+
 public class PlayerEquip : NetworkBehaviour
 {
-    public enum EquippedItem : byte
-    {
-        nothing,
-        ball,
-        box,
-        cylinder
-    }
-
     public GameObject rightHand;
 
     [SyncVar(hook = nameof(OnChangeEquipment))]
