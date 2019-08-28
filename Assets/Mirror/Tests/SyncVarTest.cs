@@ -65,8 +65,9 @@ namespace Mirror.Tests
             player1.guild = myGuild;
 
             // serialize all the data as we would for the network
-            NetworkWriter writer = new NetworkWriter();
-            identity1.OnSerializeAllSafely(true, writer);
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter(); // not really used in this Test
+            identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
             GameObject gameObject2 = new GameObject();
@@ -74,11 +75,31 @@ namespace Mirror.Tests
             MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
 
             // apply all the data from the server object
-            NetworkReader reader = new NetworkReader(writer.ToArray());
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
             identity2.OnDeserializeAllSafely(reader, true);
 
             // check that the syncvars got updated
             Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
+        }
+
+        [Test]
+        public void TestSyncModeObserversMask()
+        {
+            GameObject gameObject1 = new GameObject();
+            NetworkIdentity identity = gameObject1.AddComponent<NetworkIdentity>();
+            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            player1.syncInterval = 0;
+            MockPlayer player2 = gameObject1.AddComponent<MockPlayer>();
+            player2.syncInterval = 0;
+            MockPlayer player3 = gameObject1.AddComponent<MockPlayer>();
+            player3.syncInterval = 0;
+
+            // sync mode
+            player1.syncMode = SyncMode.Observers;
+            player2.syncMode = SyncMode.Owner;
+            player3.syncMode = SyncMode.Observers;
+
+            Assert.That(identity.GetSyncModeObserversMask(), Is.EqualTo(0b101));
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
-    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkLobbyPlayer")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkLobbyPlayer.html")]
     public class NetworkLobbyPlayer : NetworkBehaviour
     {
         /// <summary>

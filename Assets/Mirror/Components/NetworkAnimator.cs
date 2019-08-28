@@ -15,7 +15,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://vis2k.github.io/Mirror/Components/NetworkAnimator")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkAnimator.html")]
     public class NetworkAnimator : NetworkBehaviour
     {
         /// <summary>

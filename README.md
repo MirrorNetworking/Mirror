@@ -1,7 +1,7 @@
 ![Mirror Logo](https://i.imgur.com/aZRKBeh.png)
 
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
-[![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://vis2k.github.io/Mirror/)
+[![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://mirror-networking.com/xmldocs)
 [![Forum](https://img.shields.io/badge/forum-brightgreen.svg)](https://forum.unity.com/threads/mirror-networking-for-unity-aka-hlapi-community-edition.425437/)
 [![donate](https://img.shields.io/badge/donations-brightgreen.svg)](https://www.patreon.com/MirrorNetworking)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
@@ -32,9 +32,9 @@ This is a work in progress branch.  The differences with mirror branch are:
  * Proper error handling.  Just override OnClientError and OnServerError in your network manager
 
 ## Documentation
-Check out our [Documentation](https://vis2k.github.io/Mirror/).
+Check out our [Documentation](https://mirror-networking.com/xmldocs/).
 
-If you are migrating from UNET, then please check out our [Migration Guide](https://vis2k.github.io/Mirror/General/Migration). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/xmldocs/articles/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
 We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!

@@ -7,14 +7,11 @@ version: '{branch}-{build}'
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
-  - set PATH=C:\Ruby25-x64\bin;%PATH%
-  - cd docs
-  - gem install bundler -v 1.17.3
-  - bundle install
-  - cd ..
-  - cp c:\Tools\curl\bin\libcurl.dll C:\Ruby25-x64\bin
   - choco install unitypackager
-  
+  - choco install docfx
+  - choco install lftp
+  - npm install -g semantic-release@15 
+
 #build:
 #  project: Mirror/Networking.sln
 #  verbosity: minimal
@@ -23,10 +20,8 @@ install:
 skip_tags: true
 
 build_script:
-  - cd docs
-  - bundle exec jekyll build
-  - ruby checksite.rb
-  - cd ..
+  - docfx metadata doc\docfx.json
+  - docfx build doc\docfx.json
 
 after_build:
   - RMDIR /Q /S Assets\Mirror\Tests
@@ -40,8 +35,11 @@ artifacts:
 
 image: Visual Studio 2017
 
-before_deploy:
-  - npm install -g semantic-release@15 
+environment:
+  LFTP_PASSWORD:
+    secure: sH23IC4a98S5uTtgYNHNvg==
 
 deploy_script:
   - semantic-release
+  - IF "%APPVEYOR_REPO_BRANCH%"=="master" ( lftp -e 'set ftp:ssl-allow no ; mirror -R -c -e -p doc/_site public_html/xmldocs; chmod -R a+X public_html/xmldocs ; ls -l public_html/xmldocs/ ; ls -l public_html/xmldocs/styles/ ; bye' -u mirreofx --env-password ftp://mirror-networking.com 2>&1 )
+
