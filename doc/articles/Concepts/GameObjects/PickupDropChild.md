@@ -22,7 +22,7 @@ Below is the Player Equip script to handle the changing of the equipped item, an
 
 -   The example makes no effort to deal with position offset between the item and the attach point, e.g. having the grip or handle of an item align with the hand. This is best dealt with in a monobehaviour script on the item that has public fields for the local position and rotation that can be set in the designer and a bit of code in Start to apply those values in local coordinates relative to the parent attach point.
 
-```cs
+``` cs
 using UnityEngine;
 using Mirror;
 
@@ -94,7 +94,7 @@ Now that we can equip the items, we need a way to drop the current item into the
 
 First, let's add one more Input to the Update method above, and a `CmdDropItem` method:
 
-```cs
+``` cs
     void Update()
     {
         if (!isLocalPlayer) return;
@@ -113,7 +113,7 @@ First, let's add one more Input to the Update method above, and a `CmdDropItem` 
     }
 ```
 
-```cs
+``` cs
     [Command]
     void CmdDropItem()
     {
@@ -139,7 +139,7 @@ First, let's add one more Input to the Update method above, and a `CmdDropItem` 
 
 In the image above, there's a `sceneObjectPrefab` field that is assigned to a prefab that will act as a container for our item prefabs. The SceneObject prefab has a SceneObject script with a SyncVar like the Player Equip script, and a SetEquippedItem method that takes the shared enum value as a parameter.
 
-```cs
+``` cs
 using UnityEngine;
 using Mirror;
 
@@ -183,13 +183,15 @@ public class SceneObject : NetworkBehaviour
 
 In the run-time image below, the Ball(Clone) is attached to the `RightHand` object, and the Box(Clone) is attached to the SceneObject(Clone), which is shown in the inspector.
 
+>   The art prefabs have simple colliders on them (sphere, box, capsule).  If your art item has a mesh collider, it must be marked as Convex to work with the RigidBody on the SceneObject container.
+
 ![Screenshot of Kyle with equipped item and scene object](ChildObjects2.PNG)
 
 ## Pickup Items
 
 Now that we have a box dropped in the scene, we need to pick it up again. To do that, a `CmdPickupItem` method is added to the Player Equip script:
 
-```cs
+``` cs
     // CmdPickupItem is public because it's called from a script on the SceneObject
     [Command]
     public void CmdPickupItem(GameObject sceneObject)
@@ -204,7 +206,7 @@ Now that we have a box dropped in the scene, we need to pick it up again. To do 
 
 This method is simply called from `OnMouseDown` in the Scene Object script:
 
-```cs
+``` cs
     void OnMouseDown()
     {
         NetworkClient.connection.playerController.GetComponent<PlayerEquip>().CmdPickupItem(gameObject);
