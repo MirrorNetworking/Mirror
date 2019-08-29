@@ -137,7 +137,7 @@ First, let's add one more Input to the Update method above, and a `CmdDropItem` 
     }
 ```
 
-In the image above, there's a `sceneObjectPrefab` field that is assigned to a prefab that will act as a container for our item prefabs.  The SceneObject prefab has a SceneObject script with a SyncVar like the Player Equip script, and a SetEquippedItem method that takes the shared enum value as a parameter.
+In the image above, there's a `sceneObjectPrefab` field that is assigned to a prefab that will act as a container for our item prefabs. The SceneObject prefab has a SceneObject script with a SyncVar like the Player Equip script, and a SetEquippedItem method that takes the shared enum value as a parameter.
 
 ```
 using UnityEngine;
@@ -187,7 +187,7 @@ In the run-time image below, the Ball(Clone) is attached to the `RightHand` obje
 
 ## Pickup Items
 
-Now that we have a box dropped in the scene, we need to pick it up again.  To do that, a `CmdPickupItem` method is added to the Player Equip script:
+Now that we have a box dropped in the scene, we need to pick it up again. To do that, a `CmdPickupItem` method is added to the Player Equip script:
 
 ```
     // CmdPickupItem is public because it's called from a script on the SceneObject
@@ -212,3 +212,7 @@ This method is simply called from `OnMouseDown` in the Scene Object script:
 ```
 
 Since the SceneObject(Clone) is networked, we can pass it directly through to `CmdPickupItem` on the player object to set the equipped item SyncVar and destroy the scene object.
+
+For this entire example, the only prefab that needs to be registered with Network Manager besides the Player is the SceneObject prefab.
+
+![](ChildObjects3.PNG)
