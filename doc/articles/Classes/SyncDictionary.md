@@ -40,7 +40,7 @@ public class ExamplePlayer : NetworkBehaviour
 
     public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 
-    public void OnStartServer()
+    public override void OnStartServer()
     {
         Equipment.Add("head", new Item { name = "Helmet", hitPoints = 10, durability = 20 });
         Equipment.Add("body", new Item { name = "Epic Armor", hitPoints = 50, durability = 50 });
@@ -48,14 +48,14 @@ public class ExamplePlayer : NetworkBehaviour
         Equipment.Add("hands", new Item { name = "Sword", hitPoints = 30, durability = 15 });
     }
 
-    private void OnStartClient()
+    public override void OnStartClient()
     {
         // Equipment is already populated with anything the server set up
         // but we can subscribe to the callback in case it is updated later on
         Equipment.Callback += OnEquipmentChange;
     }
 
-    private void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
+    void OnEquipmentChange(SyncDictionaryStringItem.Operation op, string key, Item item)
     {
         // equipment changed,  perhaps update the gameobject
         Debug.Log(op + " - " + key);
