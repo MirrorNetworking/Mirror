@@ -187,6 +187,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteGameObject))]
 
 [assembly: ReaderWriter(
+    type: typeof(Mirror.NetworkIdentity),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadNetworkIdentity),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteNetworkIdentity))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
