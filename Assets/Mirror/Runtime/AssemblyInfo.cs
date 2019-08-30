@@ -180,6 +180,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteGuid))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.GameObject),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadGameObject),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteGameObject))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),

@@ -18,7 +18,6 @@ namespace Mirror.Weaver
 
             writeFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteGameObject") },
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteNetworkIdentity") },
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteTransform") },
                 { "System.Byte[]", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSize", "System.Byte[]") },
