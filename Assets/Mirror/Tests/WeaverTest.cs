@@ -218,7 +218,7 @@ namespace Mirror.Tests
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
             Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: UnityEngine.TextMesh MirrorTest.MirrorTestPlayer::invalidVar has invalid type. Use a type defined in the same module SyncVarsDifferentModule.dll"));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: UnityEngine.TextMesh MirrorTest.MirrorTestPlayer::invalidVar has unsupported type. Use a supported Mirror type instead"));
         }
 
         [Test]
