@@ -4,6 +4,12 @@ using Mirror;
 
 [assembly: InternalsVisibleTo("Mirror.Tests")]
 
+[assembly: ReaderWriter(
+    type: typeof(System.Single),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadSingle),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteSingle))]
 
 [assembly: ReaderWriter(
     type: typeof(System.Int32),
