@@ -166,6 +166,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteRay))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Matrix4x4),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadMatrix4x4),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteMatrix4x4))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
