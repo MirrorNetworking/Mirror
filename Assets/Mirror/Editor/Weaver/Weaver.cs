@@ -125,7 +125,6 @@ namespace Mirror.Weaver
         public static TypeReference objectType;
         public static TypeReference valueTypeType;
         public static TypeReference rayType;
-        public static TypeReference planeType;
         public static TypeReference matrixType;
         public static TypeReference guidType;
         public static TypeReference typeType;
@@ -214,7 +213,6 @@ namespace Mirror.Weaver
 
         static void SetupUnityTypes()
         {
-            planeType = UnityAssembly.MainModule.GetType("UnityEngine.Plane");
             rayType = UnityAssembly.MainModule.GetType("UnityEngine.Ray");
             matrixType = UnityAssembly.MainModule.GetType("UnityEngine.Matrix4x4");
             gameObjectType = UnityAssembly.MainModule.GetType("UnityEngine.GameObject");

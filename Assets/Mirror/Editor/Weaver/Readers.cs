@@ -17,7 +17,6 @@ namespace Mirror.Weaver
 
             readFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.planeType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPlane") },
                 { Weaver.rayType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadRay") },
                 { Weaver.matrixType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadMatrix4x4") },
                 { Weaver.guidType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadGuid") },
