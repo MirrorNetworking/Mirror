@@ -82,6 +82,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteChar))]
 
 [assembly: ReaderWriter(
+    type: typeof(System.Decimal),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadDecimal),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteDecimal))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),

@@ -111,7 +111,6 @@ namespace Mirror.Weaver
         public static TypeReference voidType;
         public static TypeReference singleType;
         public static TypeReference doubleType;
-        public static TypeReference decimalType;
         public static TypeReference boolType;
         public static TypeReference stringType;
         public static TypeReference int64Type;
@@ -279,7 +278,6 @@ namespace Mirror.Weaver
             voidType = ImportCorLibType("System.Void");
             singleType = ImportCorLibType("System.Single");
             doubleType = ImportCorLibType("System.Double");
-            decimalType = ImportCorLibType("System.Decimal");
             boolType = ImportCorLibType("System.Boolean");
             stringType = ImportCorLibType("System.String");
             int64Type = ImportCorLibType("System.Int64");
