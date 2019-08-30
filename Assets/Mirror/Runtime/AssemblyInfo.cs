@@ -194,6 +194,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteNetworkIdentity))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Transform),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadTransform),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteTransform))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),

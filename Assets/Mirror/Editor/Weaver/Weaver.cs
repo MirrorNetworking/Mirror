@@ -126,7 +126,6 @@ namespace Mirror.Weaver
         public static TypeReference valueTypeType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
-        public static TypeReference transformType;
         public static TypeReference unityObjectType;
         public static MethodReference gameObjectInequality;
 
@@ -211,7 +210,6 @@ namespace Mirror.Weaver
         static void SetupUnityTypes()
         {
             gameObjectType = UnityAssembly.MainModule.GetType("UnityEngine.GameObject");
-            transformType = UnityAssembly.MainModule.GetType("UnityEngine.Transform");
             unityObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
 
             NetworkClientType = NetAssembly.MainModule.GetType("Mirror.NetworkClient");
@@ -300,7 +298,6 @@ namespace Mirror.Weaver
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
             CurrentAssembly.MainModule.ImportReference(gameObjectType);
-            CurrentAssembly.MainModule.ImportReference(transformType);
 
             TypeReference networkIdentityTmp = NetAssembly.MainModule.GetType("Mirror.NetworkIdentity");
             NetworkIdentityType = CurrentAssembly.MainModule.ImportReference(networkIdentityTmp);
