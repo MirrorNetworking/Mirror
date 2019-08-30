@@ -17,7 +17,6 @@ namespace Mirror.Weaver
 
             readFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.guidType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadGuid") },
                 { Weaver.gameObjectType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadGameObject") },
                 { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadNetworkIdentity") },
                 { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadTransform") },

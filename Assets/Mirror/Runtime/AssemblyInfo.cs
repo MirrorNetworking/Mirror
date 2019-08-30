@@ -173,6 +173,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteMatrix4x4))]
 
 [assembly: ReaderWriter(
+    type: typeof(System.Guid),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadGuid),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteGuid))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),

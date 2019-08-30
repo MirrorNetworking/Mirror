@@ -124,7 +124,6 @@ namespace Mirror.Weaver
         public static TypeReference charType;
         public static TypeReference objectType;
         public static TypeReference valueTypeType;
-        public static TypeReference guidType;
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
@@ -269,7 +268,6 @@ namespace Mirror.Weaver
             valueTypeType = ImportCorLibType("System.ValueType");
             typeType = ImportCorLibType("System.Type");
             IEnumeratorType = ImportCorLibType("System.Collections.IEnumerator");
-            guidType = ImportCorLibType("System.Guid");
 
             ArraySegmentType = ImportCorLibType("System.ArraySegment`1");
             ArraySegmentArrayReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Array");
