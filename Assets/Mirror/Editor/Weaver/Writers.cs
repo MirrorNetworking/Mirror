@@ -12,13 +12,9 @@ namespace Mirror.Weaver
 
         static Dictionary<string, MethodReference> writeFuncs;
 
-        public static void Init(AssemblyDefinition CurrentAssembly)
+        public static void Init()
         {
-            TypeReference networkWriterType = Weaver.NetworkWriterType;
-
-            writeFuncs = new Dictionary<string, MethodReference>
-            {
-            };
+            writeFuncs = new Dictionary<string, MethodReference>();
         }
 
         internal static void Register(TypeReference typeClass, MethodReference methodReference)

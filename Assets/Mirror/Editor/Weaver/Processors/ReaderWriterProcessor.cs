@@ -11,8 +11,8 @@ namespace Mirror.Weaver
         // find all readers and writers and register them
         public static void ProcessReadersAndWriters(AssemblyDefinition CurrentAssembly)
         {
-            Readers.Init(CurrentAssembly);
-            Writers.Init(CurrentAssembly);
+            Readers.Init();
+            Writers.Init();
 
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {

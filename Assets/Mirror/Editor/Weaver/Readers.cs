@@ -11,14 +11,9 @@ namespace Mirror.Weaver
         const int MaxRecursionCount = 128;
         static Dictionary<string, MethodReference> readFuncs;
 
-        public static void Init(AssemblyDefinition CurrentAssembly)
+        public static void Init()
         {
-            TypeReference networkReaderType = Weaver.NetworkReaderType;
-
-            readFuncs = new Dictionary<string, MethodReference>
-            {
-            };
-
+            readFuncs = new Dictionary<string, MethodReference>();
         }
 
         internal static void Register(TypeReference typeClass, MethodReference methodReference)
