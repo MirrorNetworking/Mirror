@@ -124,6 +124,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteVector3Int))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Color),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadColor),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteColor))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
