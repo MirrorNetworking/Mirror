@@ -17,7 +17,6 @@ namespace Mirror.Weaver
 
             readFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.byteType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadByte") },
                 { Weaver.sbyteType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadSByte") },
                 { Weaver.charType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadChar") },
                 { Weaver.decimalType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadDecimal") },

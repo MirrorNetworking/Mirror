@@ -61,6 +61,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteUInt16))]
 
 [assembly: ReaderWriter(
+    type: typeof(System.Byte),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadByte),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteByte))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
