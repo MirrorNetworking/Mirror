@@ -124,7 +124,6 @@ namespace Mirror.Weaver
         public static TypeReference charType;
         public static TypeReference objectType;
         public static TypeReference valueTypeType;
-        public static TypeReference vector3Type;
         public static TypeReference vector4Type;
         public static TypeReference vector2IntType;
         public static TypeReference vector3IntType;
@@ -222,7 +221,6 @@ namespace Mirror.Weaver
 
         static void SetupUnityTypes()
         {
-            vector3Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector3");
             vector4Type = UnityAssembly.MainModule.GetType("UnityEngine.Vector4");
             vector2IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector2Int");
             vector3IntType = UnityAssembly.MainModule.GetType("UnityEngine.Vector3Int");

@@ -96,6 +96,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteVector2))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Vector3),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadVector3),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteVector3))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
