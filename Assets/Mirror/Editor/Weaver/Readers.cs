@@ -17,7 +17,6 @@ namespace Mirror.Weaver
 
             readFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.vector3IntType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadVector3Int") },
                 { Weaver.colorType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadColor") },
                 { Weaver.color32Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadColor32") },
                 { Weaver.quaternionType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadQuaternion") },
