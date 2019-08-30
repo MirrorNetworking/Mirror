@@ -18,7 +18,6 @@ namespace Mirror.Weaver
 
             writeFuncs = new Dictionary<string, MethodReference>
             {
-                { "System.ArraySegment`1<System.Byte>", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSizeSegment", "System.ArraySegment`1<System.Byte>") }
             };
         }
 
