@@ -124,7 +124,6 @@ namespace Mirror.Weaver
         public static TypeReference charType;
         public static TypeReference objectType;
         public static TypeReference valueTypeType;
-        public static TypeReference color32Type;
         public static TypeReference quaternionType;
         public static TypeReference rectType;
         public static TypeReference rayType;
@@ -217,7 +216,6 @@ namespace Mirror.Weaver
 
         static void SetupUnityTypes()
         {
-            color32Type = UnityAssembly.MainModule.GetType("UnityEngine.Color32");
             quaternionType = UnityAssembly.MainModule.GetType("UnityEngine.Quaternion");
             rectType = UnityAssembly.MainModule.GetType("UnityEngine.Rect");
             planeType = UnityAssembly.MainModule.GetType("UnityEngine.Plane");
