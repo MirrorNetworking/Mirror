@@ -230,6 +230,9 @@ namespace Mirror
             WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
         }
 
+        // alias for WriteBytesAndSize to avoid overloaded method in the ReadWriter registration
+        public void WriteByteArray(byte[] buffer) => WriteBytesAndSize(buffer);
+
         public void WriteBytesAndSizeSegment(ArraySegment<byte> buffer)
         {
             WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
