@@ -145,6 +145,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WriteQuaternion))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Rect),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadRect),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteRect))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
