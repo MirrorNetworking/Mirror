@@ -159,6 +159,13 @@ using Mirror;
     writerMethod: nameof(NetworkWriter.WritePlane))]
 
 [assembly: ReaderWriter(
+    type: typeof(UnityEngine.Ray),
+    readerClass: typeof(NetworkReader),
+    readerMethod: nameof(NetworkReader.ReadRay),
+    writerClass: typeof(NetworkWriter),
+    writerMethod: nameof(NetworkWriter.WriteRay))]
+
+[assembly: ReaderWriter(
     type: typeof(System.UInt32),
     readerClass: typeof(NetworkReader),
     readerMethod: nameof(NetworkReader.ReadPackedUInt32),
