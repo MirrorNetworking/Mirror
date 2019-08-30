@@ -18,7 +18,6 @@ namespace Mirror.Weaver
 
             writeFuncs = new Dictionary<string, MethodReference>
             {
-                { Weaver.vector2IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector2Int") },
                 { Weaver.vector3IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector3Int") },
                 { Weaver.colorType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteColor") },
                 { Weaver.color32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteColor32") },
