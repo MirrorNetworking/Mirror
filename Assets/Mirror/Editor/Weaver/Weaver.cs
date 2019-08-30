@@ -560,8 +560,8 @@ namespace Mirror.Weaver
                 }
 
                 SetupTargetTypes();
-                Readers.Init(CurrentAssembly);
-                Writers.Init(CurrentAssembly);
+
+                ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine("Script Module: {0}", moduleDefinition.Name);

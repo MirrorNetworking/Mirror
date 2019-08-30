@@ -50,8 +50,13 @@ namespace Mirror.Weaver
                 { "System.Byte[]", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSize") },
                 { "System.ArraySegment`1<System.Byte>", Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBytesAndSizeSegment") }
             };
+
         }
 
+        internal static void Register(TypeReference typeClass, MethodReference methodReference)
+        {
+            readFuncs[typeClass.FullName] = methodReference;
+        }
 
         public static MethodReference GetReadFunc(TypeReference variable, int recursionCount = 0)
         {

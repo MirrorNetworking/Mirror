@@ -53,6 +53,11 @@ namespace Mirror.Weaver
             };
         }
 
+        internal static void Register(TypeReference typeClass, MethodReference methodReference)
+        {
+            writeFuncs[typeClass.FullName] = methodReference;
+        }
+
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
