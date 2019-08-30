@@ -14,8 +14,8 @@ namespace Mirror.Examples.NetworkLobby
         [SyncVar(hook = nameof(SetColor))]
         public Color playerColor = Color.black;
 
-        // Unity makes a clone of the material when GetComponent<Renderer>().material is used
-        // Cache it here and Destroy it in OnDestroy to prevent a memory leak
+        // Unity clones the material when GetComponent<Renderer>().material is called
+        // Cache it here and destroy it in OnDestroy to prevent a memory leak
         Material cachedMaterial;
 
         void SetColor(Color color)
