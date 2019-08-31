@@ -156,7 +156,7 @@ namespace Mirror
         public bool isNetworkActive;
 
         /// <summary>
-        /// Obsolete: Use NetworkClient directly
+        /// Obsolete: Use <see cref="NetworkClient"/> directly
         /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
@@ -195,7 +195,7 @@ namespace Mirror
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
         /// <summary>
-        /// Obsolete: Use isHeadless instead of IsHeadless().
+        /// Obsolete: Use <see cref="isHeadless"/> instead.
         /// <para>This is a static property now. This method will be removed by summer 2019.</para>
         /// </summary>
         /// <returns></returns>
@@ -715,7 +715,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use NetworkClient.isConnected instead
+        /// Obsolete: Use <see cref="NetworkClient.isConnected"/> instead
         /// </summary>
         /// <returns>Returns True if NetworkClient.isConnected</returns>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient.isConnected instead")]
@@ -1065,7 +1065,7 @@ namespace Mirror
         public virtual void OnStartServer() { }
 
         /// <summary>
-        /// Obsolete: Use OnStartClient() instead of OnStartClient(NetworkClient client).
+        /// Obsolete: Use <see cref="OnStartClient()"/> instead of OnStartClient(NetworkClient client).
         /// <para>All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.</para>
         /// </summary>
         /// <param name="client">The NetworkClient object that was started.</param>

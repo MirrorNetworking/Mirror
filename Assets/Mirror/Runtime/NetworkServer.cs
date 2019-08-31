@@ -257,7 +257,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToAll{T} instead.
+        /// Obsolete: Use <see cref="SendToAll{T}(T, int)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToAll<T> instead.")]
         public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
@@ -300,7 +300,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToReady{T} instead.
+        /// Obsolete: Use <see cref="SendToReady{T}(NetworkIdentity, T, int)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToReady<T> instead.")]
         public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
@@ -516,7 +516,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler{T} instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
@@ -529,7 +529,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use RegisterHandler{T} instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
@@ -554,7 +554,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler{T} instead.
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
         public static void UnregisterHandler(int msgType)
@@ -563,7 +563,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use UnregisterHandler{T} instead.
+        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
         public static void UnregisterHandler(MsgType msgType)
@@ -590,7 +590,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToClient{T} instead.
+        /// Obsolete: Use <see cref="SendToClient{T}(int, T)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClient<T> instead.")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
@@ -621,7 +621,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use SendToClientOfPlayer{T} instead.
+        /// Obsolete: Use <see cref="SendToClientOfPlayer{T}(NetworkIdentity, T)"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClientOfPlayer<T> instead.")]
         public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
@@ -1351,7 +1351,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use NetworkIdentity.spawned[netId] instead.
+        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)
