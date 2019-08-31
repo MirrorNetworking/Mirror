@@ -55,4 +55,7 @@ namespace Mirror
 
     // For Scene property Drawer
     public class SceneAttribute : PropertyAttribute {}
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class NetworkWriterAttribute : Attribute { }
 }
