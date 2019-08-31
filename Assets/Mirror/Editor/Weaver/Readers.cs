@@ -157,7 +157,7 @@ namespace Mirror.Weaver
 
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(Weaver.int32Type)));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
             // if (length < 0) {
@@ -256,7 +256,7 @@ namespace Mirror.Weaver
             
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(Weaver.int32Type)));
             worker.Append(worker.Create(OpCodes.Stloc_0));
             
             // T[] array = new int[length]
