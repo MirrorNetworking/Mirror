@@ -95,7 +95,7 @@ namespace Mirror
             // read message type (varint)
             try
             {
-                msgType = (int)messageReader.ReadUInt16();
+                msgType = messageReader.ReadUInt16();
                 return true;
             }
             catch (System.IO.EndOfStreamException)
