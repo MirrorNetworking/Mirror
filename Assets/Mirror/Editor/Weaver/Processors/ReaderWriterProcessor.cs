@@ -85,7 +85,7 @@ namespace Mirror.Weaver
             // register all the writers in this class
             foreach (MethodDefinition method in klass.Methods)
             {
-                // method must have 2 parameters
+                // method must have 1 parameters
                 if (method.Parameters.Count != 1)
                     continue;
 
