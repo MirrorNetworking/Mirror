@@ -111,6 +111,7 @@ namespace Mirror
 
         internal static void RegisterMessageHandlers()
         {
+            RegisterHandler<AuthenticationMessage>(OnAuthenticationMessage);
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
@@ -947,6 +948,11 @@ namespace Mirror
 
                 conn.Send(new NotReadyMessage());
             }
+        }
+
+        static void OnAuthenticationMessage(NetworkConnection conn, AuthenticationMessage msg)
+        {
+            conn.isAuthenticated = true;
         }
 
         // default ready handler.

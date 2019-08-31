@@ -171,6 +171,21 @@ namespace Mirror
         }
     }
 
+    public struct AuthenticationMessage : IMessageBase
+    {
+        public byte[] value;
+
+        public void Deserialize(NetworkReader reader)
+        {
+            value = reader.ReadBytesAndSize();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WriteBytesAndSize(value);
+        }
+    }
+
     public struct RemovePlayerMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
