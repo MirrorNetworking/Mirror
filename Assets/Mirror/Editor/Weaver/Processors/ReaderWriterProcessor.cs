@@ -89,7 +89,7 @@ namespace Mirror.Weaver
                 if (method.Parameters.Count != 1)
                     continue;
 
-                // first parameter must be a NetworkWriter
+                // first parameter must be a NetworkReader
                 if (method.Parameters[0].ParameterType.FullName != "Mirror.NetworkReader")
                     continue;
 
