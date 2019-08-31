@@ -785,7 +785,7 @@ namespace Mirror
 
             if (conn.playerController != null)
             {
-                Debug.LogError("There is already a player for this connections.");
+                Debug.LogError("There is already a player for this connection.");
                 return;
             }
 
