@@ -60,18 +60,15 @@ namespace Mirror.Weaver
 
         private static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
-            // register all the writers in this class
+            // register all the writers in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
             {
-                // method must have 2 parameters
                 if (method.Parameters.Count != 2)
                     continue;
 
-                // first parameter must be a NetworkWriter
                 if (method.Parameters[0].ParameterType.FullName != "Mirror.NetworkWriter")
                     continue;
 
-                // method must be void
                 if (method.ReturnType.FullName != "System.Void")
                     continue;
 
@@ -82,24 +79,19 @@ namespace Mirror.Weaver
 
         private static void LoadReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
-            // register all the writers in this class
+            // register all the reader in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
             {
-                // method must have 1 parameters
                 if (method.Parameters.Count != 1)
                     continue;
 
-                // first parameter must be a NetworkReader
                 if (method.Parameters[0].ParameterType.FullName != "Mirror.NetworkReader")
                     continue;
 
-                // method must be void
                 if (method.ReturnType.FullName == "System.Void")
                     continue;
 
-                TypeReference dataType = method.ReturnType;
-
-                Readers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
+                Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
             }
         }
     }
