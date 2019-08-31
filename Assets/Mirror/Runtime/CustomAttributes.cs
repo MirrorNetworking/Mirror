@@ -58,4 +58,7 @@ namespace Mirror
 
     [AttributeUsage(AttributeTargets.Class)]
     public class NetworkWriterAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class NetworkReaderAttribute : Attribute { }
 }

@@ -539,7 +539,6 @@ namespace Mirror.Weaver
                 }
 
                 SetupTargetTypes();
-                Readers.Init(CurrentAssembly);
                 ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;

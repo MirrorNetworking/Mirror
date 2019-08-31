@@ -2,6 +2,7 @@ using System;
 using Mono.CecilX;
 using UnityEditor.Compilation;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Mirror.Weaver
 {
@@ -12,7 +13,7 @@ namespace Mirror.Weaver
         // find all readers and writers and register them
         public static void ProcessReadersAndWriters(AssemblyDefinition CurrentAssembly)
         {
-            Readers.Init(CurrentAssembly);
+            Readers.Init();
             Writers.Init();
 
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
@@ -40,7 +41,7 @@ namespace Mirror.Weaver
         private static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
         {
             // find all the classes with writers
-            var writerClasses = from klass in assembly.MainModule.Types
+            IEnumerable<TypeDefinition> writerClasses = from klass in assembly.MainModule.Types
                                 where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkWriterAttribute")
                                 select klass;
 
@@ -48,6 +49,16 @@ namespace Mirror.Weaver
             {
                 LoadWriters(CurrentAssembly, klass);
             }
+
+            IEnumerable<TypeDefinition> readerClasses = from klass in assembly.MainModule.Types
+                                where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkReaderAttribute")
+                                select klass;
+
+            foreach (var klass in readerClasses)
+            {
+                LoadReaders(CurrentAssembly, klass);
+            }
+
         }
 
         private static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
@@ -67,12 +78,34 @@ namespace Mirror.Weaver
                 if (method.ReturnType.FullName != "System.Void")
                     continue;
 
-                var dataType = method.Parameters[1].ParameterType;
+                TypeReference dataType = method.Parameters[1].ParameterType;
 
                 Writers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
             }
         }
 
+        private static void LoadReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        {
+            // register all the writers in this class
+            foreach (MethodDefinition method in klass.Methods)
+            {
+                // method must have 2 parameters
+                if (method.Parameters.Count != 1)
+                    continue;
+
+                // first parameter must be a NetworkWriter
+                if (method.Parameters[0].ParameterType.FullName != "Mirror.NetworkReader")
+                    continue;
+
+                // method must be void
+                if (method.ReturnType.FullName == "System.Void")
+                    continue;
+
+                TypeReference dataType = method.ReturnType;
+
+                Readers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
+            }
+        }
     }
 
 }
