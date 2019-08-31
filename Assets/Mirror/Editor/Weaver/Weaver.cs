@@ -111,7 +111,6 @@ namespace Mirror.Weaver
         public static TypeReference typeType;
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
-        public static TypeReference unityObjectType;
 
         public static MethodReference setSyncVarReference;
         public static MethodReference setSyncVarHookGuard;
@@ -195,7 +194,6 @@ namespace Mirror.Weaver
         {
             gameObjectType = UnityAssembly.MainModule.GetType("UnityEngine.GameObject");
             transformType = UnityAssembly.MainModule.GetType("UnityEngine.Transform");
-            unityObjectType = UnityAssembly.MainModule.GetType("UnityEngine.Object");
 
             NetworkClientType = NetAssembly.MainModule.GetType("Mirror.NetworkClient");
             NetworkServerType = NetAssembly.MainModule.GetType("Mirror.NetworkServer");
