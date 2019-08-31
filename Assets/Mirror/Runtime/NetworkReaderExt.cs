@@ -14,11 +14,8 @@ namespace Mirror
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
-
         public static byte ReadByte(this NetworkReader reader) => reader.ReadByte();
-
         public static sbyte ReadSByte(this NetworkReader reader) => (sbyte) reader.ReadByte();
-        // read char the same way that NetworkWriter writes it (2 bytes)
         public static char ReadChar(this NetworkReader reader) => (char) reader.ReadUInt16();
         public static bool ReadBoolean(this NetworkReader reader) => reader.ReadByte() != 0;
         public static short ReadInt16(this NetworkReader reader) => (short) reader.ReadUInt16();
@@ -109,7 +106,6 @@ namespace Mirror
 
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
         {
-
             // count = 0 means the array was null
             // otherwise count - 1 is the length of the array
             uint count = reader.ReadPackedUInt32();
