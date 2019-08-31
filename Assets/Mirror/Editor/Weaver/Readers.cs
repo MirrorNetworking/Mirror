@@ -24,7 +24,7 @@ namespace Mirror.Weaver
                 { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt64") },
                 { Weaver.uint64Type.FullName, Weaver.NetworkReaderReadPackedUInt64 },
                 { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt32") },
-                { Weaver.uint32Type.FullName, Weaver.NetworkReaderReadPackedUInt32 },
+                { Weaver.uint32Type.FullName,Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedUInt32") },
                 { Weaver.int16Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadInt16") },
                 { Weaver.uint16Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadUInt16") },
                 { Weaver.byteType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadByte") },

@@ -465,7 +465,7 @@ namespace Mirror.Weaver
 
                 // read id and store in a local variable
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkReaderReadPackedUInt32));
+                serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint32Type)));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
 
                 if (foundMethod != null)

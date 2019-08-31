@@ -85,7 +85,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
         public static MethodReference getBehaviourIsServer;
-        public static MethodReference NetworkReaderReadPackedUInt32;
         public static MethodReference NetworkWriterWritePackedUInt64;
         public static MethodReference NetworkWriterWritePackedInt32;
         public static MethodReference NetworkReaderReadPackedUInt64;
@@ -317,7 +316,6 @@ namespace Mirror.Weaver
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
 
-            NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
             NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
 
             NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
