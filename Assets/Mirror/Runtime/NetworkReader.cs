@@ -124,17 +124,9 @@ namespace Mirror
             {
                 throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
             }
-
-            // check if within buffer limits
-            if (Position + realSize > buffer.Count)
-            {
-                throw new EndOfStreamException("ReadString can't read " + realSize + " bytes because it would read past the end of the stream. " + ToString());
-            }
-
+            ArraySegment<byte> data = ReadBytesSegment(realSize);
             // convert directly from buffer to string via encoding
-            string result = encoding.GetString(buffer.Array, buffer.Offset + Position, realSize);
-            Position += realSize;
-            return result;
+            return encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
         // read bytes into the passed buffer
