@@ -8,8 +8,6 @@
 //     0.0% CPU time,  32KB memory, 0.02ms
 using System;
 using System.IO;
-using System.Text;
-using UnityEngine;
 
 namespace Mirror
 {
