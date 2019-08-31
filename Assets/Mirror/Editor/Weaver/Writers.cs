@@ -204,7 +204,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // int length = value.Length;
@@ -216,7 +216,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
 
             // for (int i=0; i< value.length; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
@@ -303,7 +303,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
 
             // Loop through the ArraySegment<T> and call the writer for each element.
             // generates this:

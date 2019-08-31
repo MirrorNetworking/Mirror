@@ -66,8 +66,6 @@ namespace Mirror.Weaver
 
         public static TypeReference NetworkWriterType;
 
-        public static MethodReference NetworkWriterCtor;
-        public static MethodReference NetworkReaderCtor;
         public static MethodReference getComponentReference;
         public static MethodReference getNetIdReference;
         public static TypeReference NetworkIdentityType;
@@ -85,11 +83,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
         public static MethodReference getBehaviourIsServer;
-        public static MethodReference NetworkReaderReadPackedInt32;
-        public static MethodReference NetworkReaderReadPackedUInt32;
-        public static MethodReference NetworkWriterWritePackedUInt64;
-        public static MethodReference NetworkWriterWritePackedInt32;
-        public static MethodReference NetworkReaderReadPackedUInt64;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -275,25 +268,11 @@ namespace Mirror.Weaver
 
 
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
-            TypeDefinition NetworkReaderDef = NetworkReaderType.Resolve();
-
-            NetworkReaderCtor = Resolvers.ResolveMethod(NetworkReaderDef, CurrentAssembly, ".ctor");
-
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
-            TypeDefinition NetworkWriterDef  = NetworkWriterType.Resolve();
-
-            NetworkWriterCtor = Resolvers.ResolveMethod(NetworkWriterDef, CurrentAssembly, ".ctor");
 
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
-
-            NetworkReaderReadPackedInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedInt32");
-            NetworkReaderReadPackedUInt32 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt32");
-            NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
-
-            NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
-            NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, CurrentAssembly, ".ctor");
