@@ -87,7 +87,6 @@ namespace Mirror.Weaver
         public static MethodReference getBehaviourIsServer;
         public static MethodReference NetworkWriterWritePackedUInt64;
         public static MethodReference NetworkWriterWritePackedInt32;
-        public static MethodReference NetworkReaderReadPackedUInt64;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -315,8 +314,6 @@ namespace Mirror.Weaver
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
-
-            NetworkReaderReadPackedUInt64 = Resolvers.ResolveMethod(NetworkReaderType, CurrentAssembly, "ReadPackedUInt64");
 
             NetworkWriterWritePackedInt32 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedInt32");
             NetworkWriterWritePackedUInt64 = Resolvers.ResolveMethod(NetworkWriterType, CurrentAssembly, "WritePackedUInt64");

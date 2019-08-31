@@ -22,7 +22,7 @@ namespace Mirror.Weaver
                 { Weaver.boolType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadBoolean") },
                 { Weaver.stringType.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadString") },
                 { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt64") },
-                { Weaver.uint64Type.FullName, Weaver.NetworkReaderReadPackedUInt64 },
+                { Weaver.uint64Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedUInt64") },
                 { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedInt32") },
                 { Weaver.uint32Type.FullName,Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadPackedUInt32") },
                 { Weaver.int16Type.FullName, Resolvers.ResolveMethod(networkReaderType, CurrentAssembly, "ReadInt16") },
