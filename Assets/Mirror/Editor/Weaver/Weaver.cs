@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -161,7 +160,7 @@ namespace Mirror.Weaver
             if (!DebugLogEnabled)
                 return;
 
-            Console.WriteLine("[" + td.Name + "] " + String.Format(fmt, args));
+            Console.WriteLine("[" + td.Name + "] " + string.Format(fmt, args));
         }
 
         // display weaver error
@@ -249,7 +248,7 @@ namespace Mirror.Weaver
             AssemblyNameReference name = AssemblyNameReference.Parse("mscorlib");
             ReaderParameters parameters = new ReaderParameters
             {
-                AssemblyResolver = CurrentAssembly.MainModule.AssemblyResolver,
+                AssemblyResolver = CurrentAssembly.MainModule.AssemblyResolver
             };
             CorLibModule = CurrentAssembly.MainModule.AssemblyResolver.Resolve(name, parameters).MainModule;
         }
@@ -488,13 +487,13 @@ namespace Mirror.Weaver
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
+                if (parent.FullName.StartsWith(SyncSetType.FullName, StringComparison.Ordinal))
                 {
                     SyncListProcessor.Process(td);
                     didWork = true;
                     break;
                 }
-                else if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
+                if (parent.FullName.StartsWith(SyncDictionaryType.FullName, StringComparison.Ordinal))
                 {
                     SyncDictionaryProcessor.Process(td);
                     didWork = true;
@@ -570,7 +569,7 @@ namespace Mirror.Weaver
                             }
                             catch (Exception ex)
                             {
-                                Weaver.Error(ex.ToString());
+                                Error(ex.ToString());
                                 throw ex;
                             }
                         }
