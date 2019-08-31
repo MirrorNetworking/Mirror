@@ -376,7 +376,7 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
             serWorker.Append(serWorker.Create(OpCodes.Call, Weaver.NetworkBehaviourDirtyBitsReference));
-            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.NetworkWriterWritePackedUInt64));
+            serWorker.Append(serWorker.Create(OpCodes.Callvirt, Writers.GetWriteFunc(Weaver.uint64Type)));
 
             // generate a writer call for any dirty variable in this class
 
