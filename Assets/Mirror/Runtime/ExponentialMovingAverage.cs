@@ -21,7 +21,7 @@ namespace Mirror
             if (initialized)
             {
                 double delta = newValue - Value;
-                Value = Value + alpha * delta;
+                Value += alpha * delta;
                 Var = (1 - alpha) * (Var + alpha * delta * delta);
             }
             else
