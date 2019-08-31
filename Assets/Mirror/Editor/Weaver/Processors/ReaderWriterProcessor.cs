@@ -6,10 +6,8 @@ using System.Collections.Generic;
 
 namespace Mirror.Weaver
 {
-
     public static class ReaderWriterProcessor
     {
-
         // find all readers and writers and register them
         public static void ProcessReadersAndWriters(AssemblyDefinition CurrentAssembly)
         {
@@ -45,7 +43,7 @@ namespace Mirror.Weaver
                                 where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkWriterAttribute")
                                 select klass;
 
-            foreach (var klass in writerClasses)
+            foreach (TypeDefinition klass in writerClasses)
             {
                 LoadWriters(CurrentAssembly, klass);
             }
@@ -54,11 +52,10 @@ namespace Mirror.Weaver
                                 where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkReaderAttribute")
                                 select klass;
 
-            foreach (var klass in readerClasses)
+            foreach (TypeDefinition klass in readerClasses)
             {
                 LoadReaders(CurrentAssembly, klass);
             }
-
         }
 
         private static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
@@ -79,7 +76,6 @@ namespace Mirror.Weaver
                     continue;
 
                 TypeReference dataType = method.Parameters[1].ParameterType;
-
                 Writers.Register(dataType, currentAssembly.MainModule.ImportReference(method));
             }
         }
@@ -107,5 +103,4 @@ namespace Mirror.Weaver
             }
         }
     }
-
 }
