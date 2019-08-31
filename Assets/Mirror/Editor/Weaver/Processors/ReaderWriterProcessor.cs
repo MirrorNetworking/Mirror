@@ -36,7 +36,7 @@ namespace Mirror.Weaver
             ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly);
         }
 
-        private static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
+        static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
         {
             // find all the classes with writers
             IEnumerable<TypeDefinition> writerClasses = from klass in assembly.MainModule.Types
@@ -58,7 +58,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
             // register all the writers in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -77,7 +77,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void LoadReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static void LoadReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
         {
             // register all the reader in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
