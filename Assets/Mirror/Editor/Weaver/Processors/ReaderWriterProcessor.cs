@@ -38,7 +38,6 @@ namespace Mirror.Weaver
 
         static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
         {
-            // find all the classes with writers
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
                 LoadWriters(CurrentAssembly, klass);
