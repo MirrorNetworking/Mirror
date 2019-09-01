@@ -41,13 +41,8 @@ namespace Mirror.Weaver
             // find all the classes with writers
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
-                if (klass.FullName == "Mirror.NetworkReaderExt")
-                {
-                    Console.WriteLine("Looking for readers");
-                }
                 LoadWriters(CurrentAssembly, klass);
                 LoadReaders(CurrentAssembly, klass);
-
             }
         }
 
