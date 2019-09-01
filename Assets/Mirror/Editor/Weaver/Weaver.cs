@@ -485,7 +485,10 @@ namespace Mirror.Weaver
                 }
 
                 SetupTargetTypes();
+                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
+                rwstopwatch.Stop();
+                Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
 
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine("Script Module: {0}", moduleDefinition.Name);
