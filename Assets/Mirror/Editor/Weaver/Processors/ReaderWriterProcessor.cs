@@ -39,22 +39,15 @@ namespace Mirror.Weaver
         static void ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
         {
             // find all the classes with writers
-            IEnumerable<TypeDefinition> writerClasses = from klass in assembly.MainModule.Types
-                                where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkWriterAttribute")
-                                select klass;
-
-            foreach (TypeDefinition klass in writerClasses)
+            foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
+                if (klass.FullName == "Mirror.NetworkReaderExt")
+                {
+                    Console.WriteLine("Looking for readers");
+                }
                 LoadWriters(CurrentAssembly, klass);
-            }
-
-            IEnumerable<TypeDefinition> readerClasses = from klass in assembly.MainModule.Types
-                                where klass.CustomAttributes.Any(attr => attr.AttributeType.FullName == "Mirror.NetworkReaderAttribute")
-                                select klass;
-
-            foreach (TypeDefinition klass in readerClasses)
-            {
                 LoadReaders(CurrentAssembly, klass);
+
             }
         }
 
@@ -70,6 +63,9 @@ namespace Mirror.Weaver
                     continue;
 
                 if (method.ReturnType.FullName != "System.Void")
+                    continue;
+
+                if (method.GetCustomAttribute("System.Runtime.CompilerServices.ExtensionAttribute") == null)
                     continue;
 
                 TypeReference dataType = method.Parameters[1].ParameterType;
@@ -89,6 +85,9 @@ namespace Mirror.Weaver
                     continue;
 
                 if (method.ReturnType.FullName == "System.Void")
+                    continue;
+
+                if (method.GetCustomAttribute("System.Runtime.CompilerServices.ExtensionAttribute") == null)
                     continue;
 
                 Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));

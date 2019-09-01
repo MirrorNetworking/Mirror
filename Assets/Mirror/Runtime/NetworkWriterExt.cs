@@ -5,7 +5,6 @@ using UnityEngine;
 namespace Mirror
 {
     // Regiser all these writers with the weaver
-    [NetworkWriter]
     public static class NetworkWriterExt
     {
         // cache encoding instead of creating it with BinaryWriter each time
@@ -14,7 +13,7 @@ namespace Mirror
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
         static readonly byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
-        public static void WriteByte(NetworkWriter writer, byte value) => writer.WriteByte(value);
+        public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteByte(value);
 
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
 

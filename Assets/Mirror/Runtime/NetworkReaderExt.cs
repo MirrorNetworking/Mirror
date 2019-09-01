@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Mirror
 {
     // readers to be used by Mirror
-    [NetworkReader]
     public static class NetworkReaderExt
     {
         // cache encoding instead of creating it each time
