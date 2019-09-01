@@ -183,6 +183,11 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
+        static void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
+        {
+            if (connection != null) connection.isAuthenticated = true;
+        }
+
         /// <summary>
         /// Disconnect from server.
         /// <para>The disconnect message will be invoked.</para>
@@ -369,6 +374,7 @@ namespace Mirror
                 RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
                 RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
             }
+            RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
             RegisterHandler<ClientAuthorityMessage>(ClientScene.OnClientAuthority);
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
             RegisterHandler<SyncEventMessage>(ClientScene.OnSyncEventMessage);

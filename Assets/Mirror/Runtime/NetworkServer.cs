@@ -111,7 +111,7 @@ namespace Mirror
 
         internal static void RegisterMessageHandlers()
         {
-            RegisterHandler<AuthenticationMessage>(OnAuthenticationMessage);
+            RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
@@ -950,7 +950,7 @@ namespace Mirror
             }
         }
 
-        static void OnAuthenticationMessage(NetworkConnection conn, AuthenticationMessage msg)
+        static void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
         {
             conn.isAuthenticated = true;
         }
