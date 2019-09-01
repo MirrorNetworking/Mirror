@@ -18,17 +18,10 @@ namespace Mirror.Weaver
             {
                 if (unityAsm.name != CurrentAssembly.Name.Name)
                 {
-                    try
+                    using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                    using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
                     {
-                        using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                        using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
-                        {
-                            ProcessAssemblyClasses(CurrentAssembly, assembly);
-                        }
-                    }
-                    catch
-                    {
-                        // some assemblies cannot be loaded,  it is ok
+                        ProcessAssemblyClasses(CurrentAssembly, assembly);
                     }
                 }
             }
