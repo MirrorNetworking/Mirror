@@ -33,8 +33,13 @@ namespace Mirror.Weaver
         {
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
-                LoadWriters(CurrentAssembly, klass);
-                LoadReaders(CurrentAssembly, klass);
+                // extension methods only live in static classes
+                // static classes are representd as sealed and abstract
+                if (klass.IsAbstract && klass.IsSealed)
+                {
+                    LoadWriters(CurrentAssembly, klass);
+                    LoadReaders(CurrentAssembly, klass);
+                }
             }
         }
 
