@@ -20,6 +20,7 @@ namespace Mirror.Weaver
 
         public static void Register(TypeReference dataType, MethodReference methodReference)
         {
+            Console.WriteLine($"Writer {dataType.FullName} => {methodReference}");
             writeFuncs[dataType.FullName] = methodReference;
         }
 

@@ -488,6 +488,8 @@ namespace Mirror.Weaver
                 SetupTargetTypes();
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 ReaderWriterProcessor.ProcessReadersAndWriters(CurrentAssembly);
+                NetworkReaderProcessor.LoadReaders(CurrentAssembly, NetworkReaderType.Resolve());
+                NetworkWriterProcessor.LoadWriters(CurrentAssembly, NetworkWriterType.Resolve());
                 rwstopwatch.Stop();
                 Console.WriteLine("Find all reader and writers took " + rwstopwatch.ElapsedMilliseconds + " milliseconds");
 

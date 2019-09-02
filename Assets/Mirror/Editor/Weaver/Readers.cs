@@ -19,6 +19,8 @@ namespace Mirror.Weaver
 
         internal static void Register(TypeReference dataType, MethodReference methodReference)
         {
+            Console.WriteLine($"Reader {dataType.FullName} => {methodReference}");
+
             readFuncs[dataType.FullName] = methodReference;
         }
 
