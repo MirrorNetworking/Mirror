@@ -46,7 +46,6 @@ namespace Mirror.Weaver
 
         // Network types
         public static TypeReference NetworkBehaviourType;
-
         public static TypeReference NetworkBehaviourType2;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
