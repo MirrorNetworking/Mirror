@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -12,55 +13,21 @@ namespace Mirror.Weaver
 
         static Dictionary<string, MethodReference> writeFuncs;
 
-        public static void Init(AssemblyDefinition CurrentAssembly)
+        public static void Init()
         {
-            TypeReference networkWriterType = Weaver.NetworkWriterType;
+            writeFuncs = new Dictionary<string, MethodReference>();
+        }
 
-            writeFuncs = new Dictionary<string, MethodReference>
-            {
-                { Weaver.singleType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteSingle") },
-                { Weaver.doubleType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteDouble") },
-                { Weaver.boolType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteBoolean") },
-                { Weaver.stringType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteString") },
-                { Weaver.int64Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt64") },
-                { Weaver.uint64Type.FullName, Weaver.NetworkWriterWritePackedUInt64 },
-                { Weaver.int32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedInt32") },
-                { Weaver.uint32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePackedUInt32") },
-                { Weaver.int16Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteInt16") },
-                { Weaver.uint16Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteUInt16") },
-                { Weaver.byteType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteByte") },
-                { Weaver.sbyteType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteSByte") },
-                { Weaver.charType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteChar") },
-                { Weaver.decimalType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteDecimal") },
-                { Weaver.vector2Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector2") },
-                { Weaver.vector3Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector3") },
-                { Weaver.vector4Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector4") },
-                { Weaver.vector2IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector2Int") },
-                { Weaver.vector3IntType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteVector3Int") },
-                { Weaver.colorType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteColor") },
-                { Weaver.color32Type.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteColor32") },
-                { Weaver.quaternionType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteQuaternion") },
-                { Weaver.rectType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteRect") },
-                { Weaver.planeType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WritePlane") },
-                { Weaver.rayType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteRay") },
-                { Weaver.matrixType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteMatrix4x4") },
-                { Weaver.guidType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteGuid") },
-                { Weaver.gameObjectType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteGameObject") },
-                { Weaver.NetworkIdentityType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteNetworkIdentity") },
-                { Weaver.transformType.FullName, Resolvers.ResolveMethod(networkWriterType, CurrentAssembly, "WriteTransform") },
-                { "System.Byte[]", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSize", "System.Byte[]") },
-                { "System.ArraySegment`1<System.Byte>", Resolvers.ResolveMethodWithArg(networkWriterType, CurrentAssembly, "WriteBytesAndSizeSegment", "System.ArraySegment`1<System.Byte>") }
-            };
+        public static void Register(TypeReference dataType, MethodReference methodReference)
+        {
+            writeFuncs[dataType.FullName] = methodReference;
         }
 
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
-            {
-                if (foundFunc.Parameters[0].ParameterType.IsArray == variable.IsArray)
-                {
-                    return foundFunc;
-                }
+            {               
+                return foundFunc;
             }
 
             if (variable.IsByReference)
@@ -235,7 +202,7 @@ namespace Mirror.Weaver
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldc_I4_M1));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
             worker.Append(worker.Create(OpCodes.Ret));
 
             // int length = value.Length;
@@ -247,7 +214,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
 
             // for (int i=0; i< value.length; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
@@ -334,7 +301,7 @@ namespace Mirror.Weaver
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkWriterWritePackedInt32));
+            worker.Append(worker.Create(OpCodes.Call, GetWriteFunc(Weaver.int32Type)));
 
             // Loop through the ArraySegment<T> and call the writer for each element.
             // generates this:

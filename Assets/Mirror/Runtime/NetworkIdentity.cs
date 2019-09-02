@@ -733,17 +733,6 @@ namespace Mirror
                     }
                 }
             }
-
-            // original HLAPI had a warning in UNetUpdate() in case of large state updates. let's move it here, might
-            // be useful for debugging.
-            if (ownerWriter.Position > Transport.activeTransport.GetMaxPacketSize(Channels.DefaultReliable))
-            {
-                Debug.LogWarning("Large state update of " + ownerWriter.Position + " bytes for netId:" + netId);
-            }
-            if (observersWriter.Position > Transport.activeTransport.GetMaxPacketSize(Channels.DefaultReliable))
-            {
-                Debug.LogWarning("Large state update of " + observersWriter.Position + " bytes for netId:" + netId);
-            }
         }
 
         internal ulong GetDirtyMask(bool initialState)

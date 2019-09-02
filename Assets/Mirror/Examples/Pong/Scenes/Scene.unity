@@ -888,8 +888,6 @@ MonoBehaviour:
   - {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
   leftRacketSpawn: {fileID: 473997961}
   rightRacketSpawn: {fileID: 1397990096}
-  ballPrefab: {fileID: 1080679924113744, guid: 5f7a7f34494ed40268eff49dbf9168bf, type: 3}
-  ball: {fileID: 0}
 --- !u!114 &1886246553
 MonoBehaviour:
   m_ObjectHideFlags: 0
