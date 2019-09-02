@@ -14,7 +14,7 @@ namespace Mirror
             int targetRange = maxTarget - minTarget; // max byte - min byte only fits into something bigger
             float valueRange = maxValue - minValue;
             float valueRelative = value - minValue;
-            return (byte)(minTarget + (byte)(valueRelative/valueRange * (float)targetRange));
+            return (byte)(minTarget + (byte)(valueRelative/valueRange * targetRange));
         }
 
         // ScaleByteToFloat(  0, byte.MinValue, byte.MaxValue, -1, 1) => -1
@@ -27,7 +27,7 @@ namespace Mirror
             float targetRange = maxTarget - minTarget;
             byte valueRange = (byte)(maxValue - minValue);
             byte valueRelative = (byte)(value - minValue);
-            return minTarget + ((float)valueRelative/(float)valueRange * targetRange);
+            return minTarget + (valueRelative / (float)valueRange * targetRange);
         }
 
         // eulerAngles have 3 floats, putting them into 2 bytes of [x,y],[z,0]

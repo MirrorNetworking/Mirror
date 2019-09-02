@@ -418,7 +418,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use NetworkIdentity.spawned[netId] instead.
+        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
         public static GameObject FindLocalObject(uint netId)

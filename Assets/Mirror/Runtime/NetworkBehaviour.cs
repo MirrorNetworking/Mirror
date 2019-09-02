@@ -106,7 +106,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use syncObjects instead.
+        /// Obsolete: Use <see cref="syncObjects"/> instead.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
         protected List<SyncObject> m_SyncObjects => syncObjects;
