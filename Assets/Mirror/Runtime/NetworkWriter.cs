@@ -61,12 +61,6 @@ namespace Mirror
             stream.Write(buffer, offset, count);
         }
 
-        public void WriteUInt16(ushort value)
-        {
-            WriteByte((byte)(value & 0xFF));
-            WriteByte((byte)(value >> 8));
-        }
-
         public void WriteUInt32(uint value)
         {
             WriteByte((byte)(value & 0xFF));
@@ -93,7 +87,7 @@ namespace Mirror
 
         #region Obsoletes
         [Obsolete("Use WriteUInt16 instead")]
-        public void Write(ushort value) => WriteUInt16(value);
+        public void Write(ushort value) => this.WriteUInt16(value);
 
         [Obsolete("Use WriteUInt32 instead")]
         public void Write(uint value) => WriteUInt32(value);
@@ -109,13 +103,13 @@ namespace Mirror
 
         // write char the same way that NetworkReader reads it (2 bytes)
         [Obsolete("Use WriteChar instead")]
-        public void Write(char value) => WriteUInt16((ushort)value);
+        public void Write(char value) => this.WriteUInt16((ushort)value);
 
         [Obsolete("Use WriteBoolean instead")]
         public void Write(bool value) => WriteByte((byte)(value ? 1 : 0));
 
         [Obsolete("Use WriteInt16 instead")]
-        public void Write(short value) => WriteUInt16((ushort)value);
+        public void Write(short value) => this.WriteUInt16((ushort)value);
 
         [Obsolete("Use WriteInt32 instead")]
         public void Write(int value) => WriteUInt32((uint)value);
@@ -207,6 +201,12 @@ namespace Mirror
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUInt16((ushort)value);
 
         public static void WriteBoolean(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
+
+        public static void WriteUInt16(this NetworkWriter writer, ushort value)
+        {
+            writer.WriteByte((byte)(value & 0xFF));
+            writer.WriteByte((byte)(value >> 8));
+        }
 
         public static void WriteInt16(this NetworkWriter writer, short value) => writer.WriteUInt16((ushort)value);
 

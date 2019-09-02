@@ -47,15 +47,6 @@ namespace Mirror
             }
             return buffer.Array[buffer.Offset + Position++];
         }
-        // read char the same way that NetworkWriter writes it (2 bytes)
-        public short ReadInt16() => (short)ReadUInt16();
-        public ushort ReadUInt16()
-        {
-            ushort value = 0;
-            value |= ReadByte();
-            value |= (ushort)(ReadByte() << 8);
-            return value;
-        }
         public int ReadInt32() => (int)ReadUInt32();
         public uint ReadUInt32()
         {
