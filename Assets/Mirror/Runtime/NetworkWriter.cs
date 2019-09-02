@@ -190,7 +190,8 @@ namespace Mirror
     }
 
 
-    // Writers that can be used by the Mirror's weaver
+    // Mirror's Weaver automatically detects all NetworkWriter function types,
+    // but they do all need to be extensions.
     public static class NetworkWriterExtensions
     {
         // cache encoding instead of creating it with BinaryWriter each time
