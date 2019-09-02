@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // Regiser all these writers with the weaver
+    // Register all these writers with the weaver
     public static class NetworkWriterExt
     {
         // cache encoding instead of creating it with BinaryWriter each time
