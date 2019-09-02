@@ -114,11 +114,6 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool HasAttributte(this ICustomAttributeProvider attributeProvider, string typeName )
-        {
-            return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.FullName == typeName);
-        }
-
         // Given a method of a generic class such as ArraySegment<T>.get_Count,   
         // and a generic instance such as ArraySegment<int>
         // Creates a reference to the specialized method  ArraySegment<int>.get_Count;

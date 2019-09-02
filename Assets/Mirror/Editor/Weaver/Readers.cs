@@ -87,11 +87,6 @@ namespace Mirror.Weaver
             {
                 return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
             }
-            else if (GetCustomReader(td, out MethodReference customReaderFunc))
-            {
-                readFuncs[variable.FullName] = customReaderFunc;
-                return customReaderFunc;
-            }
             else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
                 newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
@@ -108,54 +103,6 @@ namespace Mirror.Weaver
             }
             RegisterReadFunc(variable.FullName, newReaderFunc);
             return newReaderFunc;
-        }
-
-        /* 
-         * Finds OnDeserialize functions provided by the user, and uses them as readers
-         * For example:
-         * 
-         * class ScriptableQuest 
-         * {
-         *     public static Dictionary<int, ScriptableQuest> quests = new Dictionary<int, ScriptableQuest>();
-         * 
-         *     [NetworkReader]        
-         *     public static ScriptableQuest OnDeserialize(NetworkReader reader) 
-         *     {
-         *        int id = reader.ReadInt32();
-         *        return quests[id];
-         *     }
-         * }        
-         */
-        static bool GetCustomReader(TypeDefinition td, out MethodReference newReaderFunc)
-        {
-            newReaderFunc = default;
-
-            foreach (MethodDefinition md in td.Methods)
-            {
-                if (md.IsStatic && md.HasAttributte("Mirror.NetworkReaderAttribute"))
-                {
-                    if (md.Parameters.Count != 1)
-                    {
-                        Weaver.Error($"{md.FullName} should be static and receive only a NetworkReader");
-                        return false;
-                    }
-
-                    if (md.Parameters[0].ParameterType.FullName != Weaver.NetworkReaderType.FullName)
-                    {
-                        Weaver.Error($"{md.FullName} should be static and receive only a NetworkReader");
-                        return false;
-                    }
-                    if (md.ReturnType.Resolve() != td)
-                    {
-                        Weaver.Error($"{md.FullName} should be static and return ${td.FullName}");
-                        return false;
-                    }
-
-                    newReaderFunc = Weaver.CurrentAssembly.MainModule.ImportReference(md);
-                    return true;
-                }
-            }
-            return false;
         }
 
         static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
