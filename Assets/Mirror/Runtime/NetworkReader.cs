@@ -116,7 +116,8 @@ namespace Mirror
         }
     }
 
-    // Readers that can be used by Mirror's weaver
+    // Mirror's Weaver automatically detects all NetworkReader function types,
+    // but they do all need to be extensions.
     public static class NetworkReaderExtensions
     {
         // cache encoding instead of creating it each time
