@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror
 {
     // Regiser all these writers with the weaver
-    public static class NetworkWriterExt
+    public static class NetworkWriterExtensions
     {
         // cache encoding instead of creating it with BinaryWriter each time
         // 1000 readers before:  1MB GC, 30ms
