@@ -18,10 +18,18 @@ namespace Mirror.Weaver
             {
                 if (unityAsm.name != CurrentAssembly.Name.Name)
                 {
-                    using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                    using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                    try
                     {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                        using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                        {
+                            ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        }
+                    }
+                    catch(FileNotFoundException ex)
+                    {
+                        // During first import,  this gets called before some assemblies
+                        // are built,  just skip them
                     }
                 }
             }
