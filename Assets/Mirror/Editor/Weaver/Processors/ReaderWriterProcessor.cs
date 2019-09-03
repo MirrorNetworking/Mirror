@@ -3,6 +3,7 @@ using Mono.CecilX;
 using UnityEditor.Compilation;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Mirror.Weaver
 {
@@ -18,10 +19,18 @@ namespace Mirror.Weaver
             {
                 if (unityAsm.name != CurrentAssembly.Name.Name)
                 {
-                    using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                    using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                    try
                     {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                        using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                        {
+                            ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        }
+                    }
+                    catch(FileNotFoundException)
+                    {
+                        // During first import,  this gets called before some assemblies
+                        // are built,  just skip them
                     }
                 }
             }
