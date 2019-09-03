@@ -3,6 +3,7 @@ using Mono.CecilX;
 using UnityEditor.Compilation;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Mirror.Weaver
 {
@@ -26,7 +27,7 @@ namespace Mirror.Weaver
                             ProcessAssemblyClasses(CurrentAssembly, assembly);
                         }
                     }
-                    catch(FileNotFoundException ex)
+                    catch(FileNotFoundException)
                     {
                         // During first import,  this gets called before some assemblies
                         // are built,  just skip them
