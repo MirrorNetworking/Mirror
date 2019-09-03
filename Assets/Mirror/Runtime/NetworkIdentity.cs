@@ -311,7 +311,7 @@ namespace Mirror
             {
                 return false;
             }
-            prefab = (GameObject)PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+            prefab = PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
 
             if (prefab == null)
             {
@@ -649,7 +649,7 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
-            writer.WriteInt32((int)0);
+            writer.WriteInt32(0);
             int contentPosition = writer.Position;
 
             // write payload
