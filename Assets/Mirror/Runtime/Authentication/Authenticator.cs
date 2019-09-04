@@ -11,11 +11,6 @@ namespace Mirror
     public abstract class Authenticator : MonoBehaviour
     {
         /// <summary>
-        /// The current Authenticator used by Mirror. 
-        /// </summary>
-        public static Authenticator activeAuthenticator;
-
-        /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
         [HideInInspector] public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();

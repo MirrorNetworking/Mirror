@@ -238,10 +238,9 @@ namespace Mirror
                 singleton = this;
             }
 
-            // set active transport and active authenticator AFTER setting singleton.
+            // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
             Transport.activeTransport = transport;
-            Authenticator.activeAuthenticator = authenticator;
         }
 
         /// <summary>
@@ -412,7 +411,7 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            Authenticator.activeAuthenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -484,7 +483,7 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            Authenticator.activeAuthenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -523,7 +522,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
 
-            Authenticator.activeAuthenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
