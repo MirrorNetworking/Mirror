@@ -16,12 +16,6 @@ namespace Mirror
         public static Authenticator activeAuthenticator;
 
         /// <summary>
-        /// Determines if client has been authenticated
-        /// </summary>
-        /// <returns>True if a client has been authenticated successfully</returns>
-        public abstract bool IsAuthenticated();
-
-        /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
         [HideInInspector] public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
