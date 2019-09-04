@@ -2,7 +2,7 @@
 {
     public class DefaultAuthenticator : Authenticator
     {
-        public override bool isAuthenticated()
+        public override bool IsAuthenticated()
         {
             return true;
         }

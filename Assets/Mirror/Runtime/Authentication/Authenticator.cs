@@ -19,7 +19,7 @@ namespace Mirror
         /// Determines if client has been authenticated
         /// </summary>
         /// <returns>True if a client has been authenticated successfully</returns>
-        public abstract bool isAuthenticated();
+        public abstract bool IsAuthenticated();
 
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
