@@ -636,7 +636,9 @@ namespace Mirror
                 loadSceneMode = sceneMode,
                 localPhysicsMode = physicsMode,
             });
-            networkSceneName = newSceneName; //This should probably not change if additive is used          
+
+            if (sceneMode == LoadSceneMode.Single)
+                networkSceneName = newSceneName;
         }
 
         void FinishLoadScene()
