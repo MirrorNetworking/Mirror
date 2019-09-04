@@ -637,6 +637,7 @@ namespace Mirror
                 localPhysicsMode = physicsMode,
             });
 
+            // don't change the client's current networkSceneName when loading additive scene content
             if (sceneMode == LoadSceneMode.Single)
                 networkSceneName = newSceneName;
         }
