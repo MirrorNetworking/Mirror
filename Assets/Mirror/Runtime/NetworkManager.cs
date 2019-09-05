@@ -338,7 +338,7 @@ namespace Mirror
             // add authenticator if there is none yet. makes upgrading easier.
             if (authenticator == null)
             {
-                // was a transport added yet? if not, add one
+                // was an authenticator added yet? if not, add one
                 authenticator = GetComponent<Authenticator>();
                 if (authenticator == null)
                 {
