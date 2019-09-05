@@ -16,9 +16,7 @@ When you have a multiplayer game, often you need to store information about your
 
 -   Use a web service in your website
 
-Trying to write a comprehensive authentication framework that cover all these is very complex. There is no one size fits all, and we would quickly end up with bloated code.
-
-Instead, Mirror includes an authentication component framework that allows you to implement any Authenticator you need.
+Mirror includes an Authenticator component framework that allows you to implement any authentication scheme you need.
 
 ## Encryption Warning
 
