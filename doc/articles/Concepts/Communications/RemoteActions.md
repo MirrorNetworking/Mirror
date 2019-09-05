@@ -101,6 +101,6 @@ public class Player : NetworkBehaviour
 
 ## Arguments to Remote Actions
 
-The arguments passed to commands and ClientRpc calls are serialized and sent over the network. You can use any [supported mirror type](../DataTypes.md) 
+The arguments passed to commands and ClientRpc calls are serialized and sent over the network. You can use any [supported mirror type](../DataTypes.md).
 
 Arguments to remote actions cannot be sub-components of game objects, such as script instances or Transforms.
