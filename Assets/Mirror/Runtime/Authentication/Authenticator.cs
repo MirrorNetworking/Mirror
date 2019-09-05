@@ -14,14 +14,18 @@ namespace Mirror
     /// </summary>
     public abstract class Authenticator : MonoBehaviour
     {
+        [Header("Event Listners (optional)")]
+
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
+        [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
 
         /// <summary>
         /// Notify subscribers on the client when a client is authenticated
         /// </summary>
+        [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
         /// <summary>

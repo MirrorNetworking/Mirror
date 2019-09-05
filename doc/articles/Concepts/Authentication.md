@@ -94,6 +94,8 @@ using Mirror;
 
 public class BasicAuthenticator : Authenticator
 {
+    [Header("Custom Properties")]
+
     // for demo purposes, set these in the inspector
     public string username;
     public string password;
