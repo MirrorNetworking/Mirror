@@ -94,7 +94,7 @@ using Mirror;
 
 public class BasicAuthenticator : Authenticator
 {
-    // for demo purposes, set this in the inspector
+    // for demo purposes, set these in the inspector
     public string username;
     public string password;
 
