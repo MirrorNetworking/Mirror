@@ -77,6 +77,7 @@ namespace Mirror
             }
             return false;
         }
+        
         public override void ClientDisconnect() => client.Disconnect();
 
         // IMPORTANT: set script execution order to >1000 to call Transport's
@@ -97,6 +98,7 @@ namespace Mirror
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
         public override bool ServerSend(int connectionId, int channelId, byte[] data) => server.Send(connectionId, data);
+        
         public bool ProcessServerMessage()
         {
             if (server.GetNextMessage(out Telepathy.Message message))
@@ -121,7 +123,9 @@ namespace Mirror
             }
             return false;
         }
+        
         public override bool ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
+        
         public override string ServerGetClientAddress(int connectionId)
         {
             try
@@ -141,6 +145,7 @@ namespace Mirror
                 return "unknown";
             }
         }
+        
         public override void ServerStop() => server.Stop();
 
         // common
