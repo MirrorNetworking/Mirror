@@ -26,7 +26,7 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 Mirror automatically adds the Default Authenticator component to any object where the Network Manager component is present. Here's what that looks like:
 
-```cs
+``` cs
 namespace Mirror
 {
     public class DefaultAuthenticator : Authenticator
@@ -52,7 +52,7 @@ Similar to the implementation of Transports in Mirror, the base Authenticator is
 
 -   You **must** implement **both** `ServerAuthenticate` and `ClientAuthenticate` as overrides, even if one of them might be empty, as in the Basic Authenticator example below.
 
--   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client 
+-   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
 
 -   When a client is authenticated to your satisfaction, you **must** invoke the `OnServerAuthenticated` and `OnClientAuthenticated` events on **both** the server and client
 
@@ -60,11 +60,11 @@ In addition to these requirements, we also *suggest* you do the following:
 
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 
--   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails.  If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
+-   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
 
     -   Remember to put a small delay on the Disconnect call on the server if you send them a failure message so that it has a chance to be delivered before the connection is dropped.
 
-Now that you have the foundation of a custom Authenticator component, the rest is up to you.  You can exchange any number of custom message between the server and client as necessary to complete your authentication process before approving the client.
+Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom message between the server and client as necessary to complete your authentication process before approving the client.
 
 ## Basic Authentication
 
@@ -82,11 +82,13 @@ To get you started, here's a complete example of a custom Authenticator.
 
 When you're done, it should look like this:
 
-![](BasicAuthentication.PNG)
+![Inspector showing Basic Authentication component](BasicAuthentication.PNG)
+
+>   **Note:** You don't need to assign anything to the event lists unless you want to subscribe to the events in your own code for your own purposes. Mirror has internal listeners for both events.
 
 ### Basic Authenticator
 
-```cs
+``` cs
 using UnityEngine;
 using Mirror;
 
