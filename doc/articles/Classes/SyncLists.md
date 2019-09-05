@@ -2,17 +2,7 @@
 
 SyncLists are array based lists similar to C\# [List\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.list-1?view=netframework-4.7.2) that synchronize their contents from the server to the clients.
 
-A SyncList can contain items of the following types:
-
--   Basic type (byte, int, float, string, UInt64, etc)
-
--   Built-in Unity math type (Vector3, Quaternion, etc)
-
--   NetworkIdentity
-
--   Game object with a NetworkIdentity component attached.
-
--   Structure with any of the above
+A SyncList can contain any [supported mirror type](../Concepts/DataTypes.md).
 
 ## Differences with HLAPI
 

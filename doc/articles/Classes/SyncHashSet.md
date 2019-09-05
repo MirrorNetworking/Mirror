@@ -2,17 +2,7 @@
 
 `SyncHashSet` are sets similar to C\# [HashSet\<T\>](https://docs.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1) that synchronize their contents from the server to the clients.
 
-A SyncHashSet can contain items of the following types:
-
--   Basic type (byte, int, float, string, UInt64, etc)
-
--   Built-in Unity math type (Vector3, Quaternion, etc)
-
--   NetworkIdentity
-
--   Game object with a NetworkIdentity component attached.
-
--   Structure with any of the above
+A SyncHashSet can contain any [supported mirror type](../Concepts/DataTypes.md) 
 
 ## Usage
 
