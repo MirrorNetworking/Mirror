@@ -17,7 +17,7 @@ public abstract class MessageBase
 }
 ```
 
-The auto generated Serialize/Deserialize can efficiently deal any[supported mirror type](../DataTypes.md) . Make your members public. If you need class members or complex containers such as List and Dictionary, you must implement the Serialize and Deserialize methods yourself.
+The auto generated Serialize/Deserialize can efficiently deal any [supported mirror type](../DataTypes.md) . Make your members public. If you need class members or complex containers such as List and Dictionary, you must implement the Serialize and Deserialize methods yourself.
 
 To send a message, use the `Send()` method on the NetworkClient, NetworkServer, and NetworkConnection classes which work the same way. It takes a message object that is derived from MessageBase. The code below demonstrates how to send and handle a message:
 
