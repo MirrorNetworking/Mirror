@@ -17,12 +17,12 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
-        [HideInInspector] public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
+        public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
 
         /// <summary>
         /// Notify subscribers on the client when a client is authenticated
         /// </summary>
-        [HideInInspector] public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
+        public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
