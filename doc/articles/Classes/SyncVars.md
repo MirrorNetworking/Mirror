@@ -20,7 +20,7 @@ class Player : NetworkBehaviour
 
 The state of SyncVars is applied to game objects on clients before `OnStartClient()` is called, so the state of the object is always up-to-date inside `OnStartClient()`.
 
-SyncVars can use any type supported by Mirror.be basic types such as integers, strings and floats. They can also be Unity types such as Vector3 and user-defined structs, but updates for struct SyncVars are sent as monolithic updates, not incremental changes of fields within a struct change. You can have up to 32 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
+SyncVars can use any [type supported by Mirror](../Concepts/DataTypes.md). You can have up to 32 SyncVars on a single NetworkBehaviour script, including SyncLists (see next section, below).
 
 The server automatically sends SyncVar updates when the value of a SyncVar changes, so you do not need to track when they change or send information about the changes yourself.
 
