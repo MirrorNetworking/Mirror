@@ -12,7 +12,7 @@
 - Added: Support for reading and writing array segments
 - Added: NetworkAnimator now has layers support
 - Added: New virtual method OnServerChangeScene to NetworkManager
-- Added: XML <summary> comments for intellisense and future generated class docs
+- Added: XML summary comments for intellisense and future generated class docs
 - Updated Examples and Documentation
 - Fixed: SceneID was not set to 0 for prefab variants
 - Fixed: Observers were not properly rebuilt on scene changes
