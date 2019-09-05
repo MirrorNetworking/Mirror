@@ -28,7 +28,7 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 Mirror automatically adds the Default Authenticator component to any object where the Network Manager component is present. Here's what that looks like:
 
-```
+```cs
 namespace Mirror
 {
     public class DefaultAuthenticator : Authenticator
@@ -88,7 +88,7 @@ When you're done, it should look like this:
 
 ### Basic Authenticator
 
-```
+```cs
 using UnityEngine;
 using Mirror;
 
