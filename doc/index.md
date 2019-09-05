@@ -1,4 +1,4 @@
-# Documentation
+# Mirror Networking for Unity
 
 **Mirror is the most compatible direct replacement for the deprecated Unity Networking API.**
 
@@ -26,7 +26,7 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 
 -   **Steam** ([Steamworks.Net](articles/Transports/Fizzy.md))
 
--   **WebGL** ([Web Sockets](articles/Transports/WebSockets.md))
+-   **WebGL** ([Secure Web Sockets](articles/Transports/WebSockets.md))
 
 **List Server**
 

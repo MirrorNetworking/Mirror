@@ -1,7 +1,7 @@
 - name: General
   href: General/toc.yml
   topicHref: General/index.md
-- name: Concepts
+- name: Guides
   href: Concepts/toc.yml
   topicHref: Concepts/index.md
 - name: Components

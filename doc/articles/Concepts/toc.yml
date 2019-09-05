@@ -12,6 +12,8 @@
   href: ClockSync.md
 - name: State Syncronization
   href: StateSync.md
+- name: Data Types
+  href: DataTypes.md
 - name: Visibility
   href: Visibility.md
 - name: Custom Visibility
