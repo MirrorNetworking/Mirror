@@ -4,9 +4,14 @@ using UnityEngine.Events;
 
 namespace Mirror
 {
-    // UnityEvent definitions
+    /// <summary>
+    /// Unity Event for the NetworkConnection
+    /// </summary>
     [Serializable] public class UnityEventConnection : UnityEvent<NetworkConnection> { }
 
+    /// <summary>
+    /// Abstract class for implementing component-based authentication during the Connect phase
+    /// </summary>
     public abstract class Authenticator : MonoBehaviour
     {
         /// <summary>
@@ -20,13 +25,13 @@ namespace Mirror
         [HideInInspector] public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
         /// <summary>
-        /// Called on server when a client needs to authenticate
+        /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         public abstract void ServerAuthenticate(NetworkConnection conn);
 
         /// <summary>
-        /// Called on client when a client needs to authenticate
+        /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         public abstract void ClientAuthenticate(NetworkConnection conn);
