@@ -14,7 +14,7 @@ namespace Mirror
     /// </summary>
     public abstract class Authenticator : MonoBehaviour
     {
-        [Header("Event Listners (optional)")]
+        [Header("Event Listeners (optional)")]
 
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
