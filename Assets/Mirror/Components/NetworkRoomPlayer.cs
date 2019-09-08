@@ -1,24 +1,22 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
     /// <summary>
-    /// This component works in conjunction with the NetworkLobbyManager to make up the multiplayer lobby system.
-    /// <para>The LobbyPrefab object of the NetworkLobbyManager must have this component on it. This component holds basic lobby player data required for the lobby to function. Game specific data for lobby players can be put in other components on the LobbyPrefab or in scripts derived from NetworkLobbyPlayer.</para>
+    /// This component works in conjunction with the NetworkRoomManager to make up the multiplayer room system.
+    /// <para>The RoomPrefab object of the NetworkRoomManager must have this component on it. This component holds basic room player data required for the room to function. Game specific data for room players can be put in other components on the RoomPrefab or in scripts derived from NetworkRoomPlayer.</para>
     /// </summary>
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkLobbyPlayer")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkLobbyPlayer.html")]
-    [Obsolete("Use / inherit from NetworkRoomPlayer instead")]
-    public class NetworkLobbyPlayer : NetworkBehaviour
+    [AddComponentMenu("Network/NetworkRoomPlayer")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkRoomPlayer.html")]
+    public class NetworkRoomPlayer : NetworkBehaviour
     {
         /// <summary>
-        /// This flag controls whether the default UI is shown for the lobby player.
+        /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
         /// </summary>
-        public bool showLobbyGUI = true;
+        public bool showRoomGUI = true;
 
         /// <summary>
         /// This is a flag that control whether this player is ready for the game to begin.
@@ -40,10 +38,10 @@ namespace Mirror
         /// </summary>
         public void Start()
         {
-            if (NetworkManager.singleton as NetworkLobbyManager)
-                OnClientEnterLobby();
+            if (NetworkManager.singleton as NetworkRoomManager)
+                OnClientEnterRoom();
             else
-                Debug.LogError("LobbyPlayer could not find a NetworkLobbyManager. The LobbyPlayer requires a NetworkLobbyManager object to function. Make sure that there is one in the scene.");
+                Debug.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
         }
 
         #endregion
@@ -54,10 +52,10 @@ namespace Mirror
         public void CmdChangeReadyState(bool readyState)
         {
             readyToBegin = readyState;
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby != null)
+            NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
+            if (room != null)
             {
-                lobby.ReadyStatusChanged();
+                room.ReadyStatusChanged();
             }
         }
 
@@ -72,21 +70,21 @@ namespace Mirror
 
         #endregion
 
-        #region Lobby Client Virtuals
+        #region Room Client Virtuals
 
         /// <summary>
-        /// This is a hook that is invoked on all player objects when entering the lobby.
+        /// This is a hook that is invoked on all player objects when entering the room.
         /// <para>Note: isLocalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
         /// </summary>
-        public virtual void OnClientEnterLobby() { }
+        public virtual void OnClientEnterRoom() { }
 
         /// <summary>
-        /// This is a hook that is invoked on all player objects when exiting the lobby.
+        /// This is a hook that is invoked on all player objects when exiting the room.
         /// </summary>
-        public virtual void OnClientExitLobby() { }
+        public virtual void OnClientExitRoom() { }
 
         /// <summary>
-        /// This is a hook that is invoked on clients when a LobbyPlayer switches between ready or not ready.
+        /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
         /// <para>This function is called when the a client player calls SendReadyToBeginMessage() or SendNotReadyToBeginMessage().</para>
         /// </summary>
         /// <param name="readyState">Whether the player is ready or not.</param>
@@ -97,20 +95,20 @@ namespace Mirror
         #region Optional UI
 
         /// <summary>
-        /// Render a UI for the lobby.   Override to provide your on UI
+        /// Render a UI for the room.   Override to provide your on UI
         /// </summary>
         public virtual void OnGUI()
         {
-            if (!showLobbyGUI)
+            if (!showRoomGUI)
                 return;
 
-            NetworkLobbyManager lobby = NetworkManager.singleton as NetworkLobbyManager;
-            if (lobby)
+            NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
+            if (room)
             {
-                if (!lobby.showLobbyGUI)
+                if (!room.showRoomGUI)
                     return;
 
-                if (SceneManager.GetActiveScene().name != lobby.LobbyScene)
+                if (SceneManager.GetActiveScene().name != room.RoomScene)
                     return;
 
                 GUILayout.BeginArea(new Rect(20f + (index * 100), 200f, 90f, 130f));

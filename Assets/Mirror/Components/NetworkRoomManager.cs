@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,61 +7,60 @@ using UnityEngine.Serialization;
 namespace Mirror
 {
     /// <summary>
-    /// This is a specialized NetworkManager that includes a networked lobby.
+    /// This is a specialized NetworkManager that includes a networked room.
     /// </summary>
     /// <remarks>
-    /// <para>The lobby has slots that track the joined players, and a maximum player count that is enforced. It requires that the NetworkLobbyPlayer component be on the lobby player objects.</para>
-    /// <para>NetworkLobbyManager is derived from NetworkManager, and so it implements many of the virtual functions provided by the NetworkManager class. To avoid accidentally replacing functionality of the NetworkLobbyManager, there are new virtual functions on the NetworkLobbyManager that begin with "OnLobby". These should be used on classes derived from NetworkLobbyManager instead of the virtual functions on NetworkManager.</para>
-    /// <para>The OnLobby*() functions have empty implementations on the NetworkLobbyManager base class, so the base class functions do not have to be called.</para>
+    /// <para>The room has slots that track the joined players, and a maximum player count that is enforced. It requires that the NetworkRoomPlayer component be on the room player objects.</para>
+    /// <para>NetworkRoomManager is derived from NetworkManager, and so it implements many of the virtual functions provided by the NetworkManager class. To avoid accidentally replacing functionality of the NetworkRoomManager, there are new virtual functions on the NetworkRoomManager that begin with "OnRoom". These should be used on classes derived from NetworkRoomManager instead of the virtual functions on NetworkManager.</para>
+    /// <para>The OnRoom*() functions have empty implementations on the NetworkRoomManager base class, so the base class functions do not have to be called.</para>
     /// </remarks>
-    [AddComponentMenu("Network/NetworkLobbyManager")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkLobbyManager.html")]
-    [Obsolete("Use / inherit from NetworkRoomManager instead")]
-    public class NetworkLobbyManager : NetworkManager
+    [AddComponentMenu("Network/NetworkRoomManager")]
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkRoomManager.html")]
+    public class NetworkRoomManager : NetworkManager
     {
         public struct PendingPlayer
         {
             public NetworkConnection conn;
-            public GameObject lobbyPlayer;
+            public GameObject roomPlayer;
         }
 
-        [Header("Lobby Settings")]
+        [Header("Room Settings")]
 
-        [FormerlySerializedAs("m_ShowLobbyGUI")]
+        [FormerlySerializedAs("m_ShowRoomGUI")]
         [SerializeField]
-        internal bool showLobbyGUI = true;
+        internal bool showRoomGUI = true;
 
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         int minPlayers = 1;
 
-        [FormerlySerializedAs("m_LobbyPlayerPrefab")]
+        [FormerlySerializedAs("m_RoomPlayerPrefab")]
         [SerializeField]
-        NetworkLobbyPlayer lobbyPlayerPrefab;
+        NetworkRoomPlayer roomPlayerPrefab;
 
         /// <summary>
-        /// The scene to use for the lobby. This is similar to the offlineScene of the NetworkManager.
+        /// The scene to use for the room. This is similar to the offlineScene of the NetworkManager.
         /// </summary>
         [Scene]
-        public string LobbyScene;
+        public string RoomScene;
 
         /// <summary>
-        /// The scene to use for the playing the game from the lobby. This is similar to the onlineScene of the NetworkManager.
+        /// The scene to use for the playing the game from the room. This is similar to the onlineScene of the NetworkManager.
         /// </summary>
         [Scene]
         public string GameplayScene;
 
         /// <summary>
-        /// List of players that are in the Lobby
+        /// List of players that are in the Room
         /// </summary>
         [FormerlySerializedAs("m_PendingPlayers")]
         public List<PendingPlayer> pendingPlayers = new List<PendingPlayer>();
 
         /// <summary>
-        /// These slots track players that enter the lobby.
+        /// These slots track players that enter the room.
         /// <para>The slotId on players is global to the game - across all players.</para>
         /// </summary>
-        public List<NetworkLobbyPlayer> lobbySlots = new List<NetworkLobbyPlayer>();
+        public List<NetworkRoomPlayer> roomSlots = new List<NetworkRoomPlayer>();
 
         /// <summary>
         /// True when all players have submitted a Ready message
@@ -80,13 +78,13 @@ namespace Mirror
             // always >= 0
             minPlayers = Mathf.Max(minPlayers, 0);
 
-            if (lobbyPlayerPrefab != null)
+            if (roomPlayerPrefab != null)
             {
-                NetworkIdentity identity = lobbyPlayerPrefab.GetComponent<NetworkIdentity>();
+                NetworkIdentity identity = roomPlayerPrefab.GetComponent<NetworkIdentity>();
                 if (identity == null)
                 {
-                    lobbyPlayerPrefab = null;
-                    Debug.LogError("LobbyPlayer prefab must have a NetworkIdentity component.");
+                    roomPlayerPrefab = null;
+                    Debug.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
                 }
             }
 
@@ -98,7 +96,7 @@ namespace Mirror
             int CurrentPlayers = 0;
             int ReadyPlayers = 0;
 
-            foreach (NetworkLobbyPlayer item in lobbySlots)
+            foreach (NetworkRoomPlayer item in roomSlots)
             {
                 if (item != null)
                 {
@@ -120,34 +118,34 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnServerReady(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkLobbyManager OnServerReady");
+            if (LogFilter.Debug) Debug.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
             if (conn != null && conn.playerController != null)
             {
-                GameObject lobbyPlayer = conn.playerController.gameObject;
+                GameObject roomPlayer = conn.playerController.gameObject;
 
-                // if null or not a lobby player, dont replace it
-                if (lobbyPlayer != null && lobbyPlayer.GetComponent<NetworkLobbyPlayer>() != null)
-                    SceneLoadedForPlayer(conn, lobbyPlayer);
+                // if null or not a room player, dont replace it
+                if (roomPlayer != null && roomPlayer.GetComponent<NetworkRoomPlayer>() != null)
+                    SceneLoadedForPlayer(conn, roomPlayer);
             }
         }
 
-        void SceneLoadedForPlayer(NetworkConnection conn, GameObject lobbyPlayer)
+        void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
         {
-            if (LogFilter.Debug) Debug.LogFormat("NetworkLobby SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
 
-            if (SceneManager.GetActiveScene().name == LobbyScene)
+            if (SceneManager.GetActiveScene().name == RoomScene)
             {
-                // cant be ready in lobby, add to ready list
+                // cant be ready in room, add to ready list
                 PendingPlayer pending;
                 pending.conn = conn;
-                pending.lobbyPlayer = lobbyPlayer;
+                pending.roomPlayer = roomPlayer;
                 pendingPlayers.Add(pending);
                 return;
             }
 
-            GameObject gamePlayer = OnLobbyServerCreateGamePlayer(conn);
+            GameObject gamePlayer = OnRoomServerCreateGamePlayer(conn);
             if (gamePlayer == null)
             {
                 // get start position from base class
@@ -158,22 +156,22 @@ namespace Mirror
                 gamePlayer.name = playerPrefab.name;
             }
 
-            if (!OnLobbyServerSceneLoadedForPlayer(lobbyPlayer, gamePlayer))
+            if (!OnRoomServerSceneLoadedForPlayer(roomPlayer, gamePlayer))
                 return;
 
-            // replace lobby player with game player
+            // replace room player with game player
             NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
         }
 
         /// <summary>
-        /// CheckReadyToBegin checks all of the players in the lobby to see if their readyToBegin flag is set.
-        /// <para>If all of the players are ready, then the server switches from the LobbyScene to the PlayScene - essentially starting the game. This is called automatically in response to NetworkLobbyPlayer.SendReadyToBeginMessage().</para>
+        /// CheckReadyToBegin checks all of the players in the room to see if their readyToBegin flag is set.
+        /// <para>If all of the players are ready, then the server switches from the RoomScene to the PlayScene - essentially starting the game. This is called automatically in response to NetworkRoomPlayer.SendReadyToBeginMessage().</para>
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (SceneManager.GetActiveScene().name != LobbyScene) return;
+            if (SceneManager.GetActiveScene().name != RoomScene) return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkLobbyPlayer>().readyToBegin) < minPlayers)
+            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -181,26 +179,26 @@ namespace Mirror
 
             pendingPlayers.Clear();
             allPlayersReady = true;
-            OnLobbyServerPlayersReady();
+            OnRoomServerPlayersReady();
         }
 
-        void CallOnClientEnterLobby()
+        void CallOnClientEnterRoom()
         {
-            OnLobbyClientEnter();
-            foreach (NetworkLobbyPlayer player in lobbySlots)
+            OnRoomClientEnter();
+            foreach (NetworkRoomPlayer player in roomSlots)
                 if (player != null)
                 {
-                    player.OnClientEnterLobby();
+                    player.OnClientEnterRoom();
                 }
         }
 
-        void CallOnClientExitLobby()
+        void CallOnClientExitRoom()
         {
-            OnLobbyClientExit();
-            foreach (NetworkLobbyPlayer player in lobbySlots)
+            OnRoomClientExit();
+            foreach (NetworkRoomPlayer player in roomSlots)
                 if (player != null)
                 {
-                    player.OnClientExitLobby();
+                    player.OnClientExitRoom();
                 }
         }
 
@@ -219,14 +217,14 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            if (SceneManager.GetActiveScene().name != LobbyScene)
+            if (SceneManager.GetActiveScene().name != RoomScene)
             {
                 conn.Disconnect();
                 return;
             }
 
             base.OnServerConnect(conn);
-            OnLobbyServerConnect(conn);
+            OnRoomServerConnect(conn);
         }
 
         /// <summary>
@@ -237,25 +235,25 @@ namespace Mirror
         {
             if (conn.playerController != null)
             {
-                NetworkLobbyPlayer player = conn.playerController.GetComponent<NetworkLobbyPlayer>();
+                NetworkRoomPlayer player = conn.playerController.GetComponent<NetworkRoomPlayer>();
 
                 if (player != null)
-                    lobbySlots.Remove(player);
+                    roomSlots.Remove(player);
             }
 
             allPlayersReady = false;
 
-            foreach (NetworkLobbyPlayer player in lobbySlots)
+            foreach (NetworkRoomPlayer player in roomSlots)
             {
                 if (player != null)
-                    player.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
+                    player.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
             }
 
-            if (SceneManager.GetActiveScene().name == LobbyScene)
-                RecalculateLobbyPlayerIndices();
+            if (SceneManager.GetActiveScene().name == RoomScene)
+                RecalculateRoomPlayerIndices();
 
             base.OnServerDisconnect(conn);
-            OnLobbyServerDisconnect(conn);
+            OnRoomServerDisconnect(conn);
         }
 
         /// <summary>
@@ -265,34 +263,34 @@ namespace Mirror
         /// <param name="extraMessage"></param>
         public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
-            if (SceneManager.GetActiveScene().name != LobbyScene) return;
+            if (SceneManager.GetActiveScene().name != RoomScene) return;
 
-            if (lobbySlots.Count == maxConnections) return;
+            if (roomSlots.Count == maxConnections) return;
 
             allPlayersReady = false;
 
-            if (LogFilter.Debug) Debug.LogFormat("NetworkLobbyManager.OnServerAddPlayer playerPrefab:{0}", lobbyPlayerPrefab.name);
+            if (LogFilter.Debug) Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
 
-            GameObject newLobbyGameObject = OnLobbyServerCreateLobbyPlayer(conn);
-            if (newLobbyGameObject == null)
-                newLobbyGameObject = (GameObject)Instantiate(lobbyPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
+            GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
+            if (newRoomGameObject == null)
+                newRoomGameObject = (GameObject)Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
-            NetworkLobbyPlayer newLobbyPlayer = newLobbyGameObject.GetComponent<NetworkLobbyPlayer>();
+            NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
 
-            lobbySlots.Add(newLobbyPlayer);
+            roomSlots.Add(newRoomPlayer);
 
-            RecalculateLobbyPlayerIndices();
+            RecalculateRoomPlayerIndices();
 
-            NetworkServer.AddPlayerForConnection(conn, newLobbyGameObject);
+            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
-        void RecalculateLobbyPlayerIndices()
+        void RecalculateRoomPlayerIndices()
         {
-            if (lobbySlots.Count > 0)
+            if (roomSlots.Count > 0)
             {
-                for (int i = 0; i < lobbySlots.Count; i++)
+                for (int i = 0; i < roomSlots.Count; i++)
                 {
-                    lobbySlots[i].index = i;
+                    roomSlots[i].index = i;
                 }
             }
         }
@@ -303,23 +301,23 @@ namespace Mirror
         /// <param name="sceneName"></param>
         public override void ServerChangeScene(string sceneName)
         {
-            if (sceneName == LobbyScene)
+            if (sceneName == RoomScene)
             {
-                foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
+                foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                 {
-                    if (lobbyPlayer == null) continue;
+                    if (roomPlayer == null) continue;
 
                     // find the game-player object for this connection, and destroy it
-                    NetworkIdentity identity = lobbyPlayer.GetComponent<NetworkIdentity>();
+                    NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
                     NetworkIdentity playerController = identity.connectionToClient.playerController;
                     NetworkServer.Destroy(playerController.gameObject);
 
                     if (NetworkServer.active)
                     {
-                        // re-add the lobby object
-                        lobbyPlayer.GetComponent<NetworkLobbyPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, lobbyPlayer.gameObject);
+                        // re-add the room object
+                        roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
+                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
                 }
             }
@@ -327,12 +325,12 @@ namespace Mirror
             {
                 if (dontDestroyOnLoad)
                 {
-                    foreach (NetworkLobbyPlayer lobbyPlayer in lobbySlots)
+                    foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                     {
-                        if (lobbyPlayer != null)
+                        if (roomPlayer != null)
                         {
-                            lobbyPlayer.transform.SetParent(null);
-                            DontDestroyOnLoad(lobbyPlayer);
+                            roomPlayer.transform.SetParent(null);
+                            DontDestroyOnLoad(roomPlayer);
                         }
                     }
                 }
@@ -347,16 +345,16 @@ namespace Mirror
         /// <param name="sceneName"></param>
         public override void OnServerSceneChanged(string sceneName)
         {
-            if (sceneName != LobbyScene)
+            if (sceneName != RoomScene)
             {
                 // call SceneLoadedForPlayer on any players that become ready while we were loading the scene.
                 foreach (PendingPlayer pending in pendingPlayers)
-                    SceneLoadedForPlayer(pending.conn, pending.lobbyPlayer);
+                    SceneLoadedForPlayer(pending.conn, pending.roomPlayer);
 
                 pendingPlayers.Clear();
             }
 
-            OnLobbyServerSceneChanged(sceneName);
+            OnRoomServerSceneChanged(sceneName);
         }
 
         /// <summary>
@@ -364,19 +362,19 @@ namespace Mirror
         /// </summary>
         public override void OnStartServer()
         {
-            if (string.IsNullOrEmpty(LobbyScene))
+            if (string.IsNullOrEmpty(RoomScene))
             {
-                Debug.LogError("NetworkLobbyManager LobbyScene is empty. Set the LobbyScene in the inspector for the NetworkLobbyMangaer");
+                Debug.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomMangaer");
                 return;
             }
 
             if (string.IsNullOrEmpty(GameplayScene))
             {
-                Debug.LogError("NetworkLobbyManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkLobbyMangaer");
+                Debug.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomMangaer");
                 return;
             }
 
-            OnLobbyStartServer();
+            OnRoomStartServer();
         }
 
         /// <summary>
@@ -384,7 +382,7 @@ namespace Mirror
         /// </summary>
         public override void OnStartHost()
         {
-            OnLobbyStartHost();
+            OnRoomStartHost();
         }
 
         /// <summary>
@@ -392,7 +390,7 @@ namespace Mirror
         /// </summary>
         public override void OnStopServer()
         {
-            lobbySlots.Clear();
+            roomSlots.Clear();
             base.OnStopServer();
         }
 
@@ -401,7 +399,7 @@ namespace Mirror
         /// </summary>
         public override void OnStopHost()
         {
-            OnLobbyStopHost();
+            OnRoomStopHost();
         }
 
         #endregion
@@ -413,17 +411,17 @@ namespace Mirror
         /// </summary>
         public override void OnStartClient()
         {
-            if (lobbyPlayerPrefab == null || lobbyPlayerPrefab.gameObject == null)
-                Debug.LogError("NetworkLobbyManager no LobbyPlayer prefab is registered. Please add a LobbyPlayer prefab.");
+            if (roomPlayerPrefab == null || roomPlayerPrefab.gameObject == null)
+                Debug.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
             else
-                ClientScene.RegisterPrefab(lobbyPlayerPrefab.gameObject);
+                ClientScene.RegisterPrefab(roomPlayerPrefab.gameObject);
 
             if (playerPrefab == null)
-                Debug.LogError("NetworkLobbyManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
+                Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
             else
                 ClientScene.RegisterPrefab(playerPrefab);
 
-            OnLobbyStartClient();
+            OnRoomStartClient();
         }
 
         /// <summary>
@@ -432,8 +430,8 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnClientConnect(NetworkConnection conn)
         {
-            OnLobbyClientConnect(conn);
-            CallOnClientEnterLobby();
+            OnRoomClientConnect(conn);
+            CallOnClientEnterRoom();
             base.OnClientConnect(conn);
         }
 
@@ -443,7 +441,7 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnClientDisconnect(NetworkConnection conn)
         {
-            OnLobbyClientDisconnect(conn);
+            OnRoomClientDisconnect(conn);
             base.OnClientDisconnect(conn);
         }
 
@@ -452,12 +450,12 @@ namespace Mirror
         /// </summary>
         public override void OnStopClient()
         {
-            OnLobbyStopClient();
-            CallOnClientExitLobby();
+            OnRoomStopClient();
+            CallOnClientExitRoom();
 
             if (!string.IsNullOrEmpty(offlineScene))
             {
-                // Move the LobbyManager from the virtual DontDestroyOnLoad scene to the Game scene.
+                // Move the RoomManager from the virtual DontDestroyOnLoad scene to the Game scene.
                 // This let's it be destroyed when client changes to the Offline scene.
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
             }
@@ -471,18 +469,18 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene from {0} to {1}", SceneManager.GetActiveScene().name, newSceneName);
 
-            if (SceneManager.GetActiveScene().name == LobbyScene && newSceneName == GameplayScene && dontDestroyOnLoad && NetworkClient.isConnected)
+            if (SceneManager.GetActiveScene().name == RoomScene && newSceneName == GameplayScene && dontDestroyOnLoad && NetworkClient.isConnected)
             {
                 if (NetworkClient.connection != null && NetworkClient.connection.playerController != null)
                 {
-                    GameObject lobbyPlayer = NetworkClient.connection.playerController.gameObject;
-                    if (lobbyPlayer != null)
+                    GameObject roomPlayer = NetworkClient.connection.playerController.gameObject;
+                    if (roomPlayer != null)
                     {
-                        lobbyPlayer.transform.SetParent(null);
-                        DontDestroyOnLoad(lobbyPlayer);
+                        roomPlayer.transform.SetParent(null);
+                        DontDestroyOnLoad(roomPlayer);
                     }
                     else
-                        Debug.LogWarningFormat("OnClientChangeScene: lobbyPlayer is null");
+                        Debug.LogWarningFormat("OnClientChangeScene: roomPlayer is null");
                 }
             }
             else
@@ -495,95 +493,95 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name == LobbyScene)
+            if (SceneManager.GetActiveScene().name == RoomScene)
             {
                 if (NetworkClient.isConnected)
-                    CallOnClientEnterLobby();
+                    CallOnClientEnterRoom();
             }
             else
-                CallOnClientExitLobby();
+                CallOnClientExitRoom();
 
             base.OnClientSceneChanged(conn);
-            OnLobbyClientSceneChanged(conn);
+            OnRoomClientSceneChanged(conn);
         }
 
         #endregion
 
-        #region lobby server virtuals
+        #region room server virtuals
 
         /// <summary>
         /// This is called on the host when a host is started.
         /// </summary>
-        public virtual void OnLobbyStartHost() { }
+        public virtual void OnRoomStartHost() { }
 
         /// <summary>
         /// This is called on the host when the host is stopped.
         /// </summary>
-        public virtual void OnLobbyStopHost() { }
+        public virtual void OnRoomStopHost() { }
 
         /// <summary>
         /// This is called on the server when the server is started - including when a host is started.
         /// </summary>
-        public virtual void OnLobbyStartServer() { }
+        public virtual void OnRoomStartServer() { }
 
         /// <summary>
         /// This is called on the server when a new client connects to the server.
         /// </summary>
         /// <param name="conn">The new connection.</param>
-        public virtual void OnLobbyServerConnect(NetworkConnection conn) { }
+        public virtual void OnRoomServerConnect(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the server when a client disconnects.
         /// </summary>
         /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnLobbyServerDisconnect(NetworkConnection conn) { }
+        public virtual void OnRoomServerDisconnect(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the server when a networked scene finishes loading.
         /// </summary>
         /// <param name="sceneName">Name of the new scene.</param>
-        public virtual void OnLobbyServerSceneChanged(string sceneName) { }
+        public virtual void OnRoomServerSceneChanged(string sceneName) { }
 
         /// <summary>
-        /// This allows customization of the creation of the lobby-player object on the server.
-        /// <para>By default the lobbyPlayerPrefab is used to create the lobby-player, but this function allows that behaviour to be customized.</para>
+        /// This allows customization of the creation of the room-player object on the server.
+        /// <para>By default the roomPlayerPrefab is used to create the room-player, but this function allows that behaviour to be customized.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
-        /// <returns>The new lobby-player object.</returns>
-        public virtual GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn)
+        /// <returns>The new room-player object.</returns>
+        public virtual GameObject OnRoomServerCreateRoomPlayer(NetworkConnection conn)
         {
             return null;
         }
 
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
-        /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the lobby-player on the connection.</para>
+        /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
-        public virtual GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn)
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
         {
             return null;
         }
 
-        // for users to apply settings from their lobby player object to their in-game player object
+        // for users to apply settings from their room player object to their in-game player object
         /// <summary>
-        /// This is called on the server when it is told that a client has finished switching from the lobby scene to a game player scene.
-        /// <para>When switching from the lobby, the lobby-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the lobby-player to the game-player object.</para>
+        /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
+        /// <para>When switching from the room, the room-player is replaced with a game-player object. This callback function gives an opportunity to apply state from the room-player to the game-player object.</para>
         /// </summary>
-        /// <param name="lobbyPlayer">The lobby player object.</param>
+        /// <param name="roomPlayer">The room player object.</param>
         /// <param name="gamePlayer">The game player object.</param>
-        /// <returns>False to not allow this player to replace the lobby player.</returns>
-        public virtual bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
+        /// <returns>False to not allow this player to replace the room player.</returns>
+        public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
         {
             return true;
         }
 
         /// <summary>
-        /// This is called on the server when all the players in the lobby are ready.
-        /// <para>The default implementation of this function uses ServerChangeScene() to switch to the game player scene. By implementing this callback you can customize what happens when all the players in the lobby are ready, such as adding a countdown or a confirmation for a group leader.</para>
+        /// This is called on the server when all the players in the room are ready.
+        /// <para>The default implementation of this function uses ServerChangeScene() to switch to the game player scene. By implementing this callback you can customize what happens when all the players in the room are ready, such as adding a countdown or a confirmation for a group leader.</para>
         /// </summary>
-        public virtual void OnLobbyServerPlayersReady()
+        public virtual void OnRoomServerPlayersReady()
         {
             // all players are readyToBegin, start the game
             ServerChangeScene(GameplayScene);
@@ -591,52 +589,52 @@ namespace Mirror
 
         #endregion
 
-        #region lobby client virtuals
+        #region room client virtuals
 
         /// <summary>
-        /// This is a hook to allow custom behaviour when the game client enters the lobby.
+        /// This is a hook to allow custom behaviour when the game client enters the room.
         /// </summary>
-        public virtual void OnLobbyClientEnter() { }
+        public virtual void OnRoomClientEnter() { }
 
         /// <summary>
-        /// This is a hook to allow custom behaviour when the game client exits the lobby.
+        /// This is a hook to allow custom behaviour when the game client exits the room.
         /// </summary>
-        public virtual void OnLobbyClientExit() { }
+        public virtual void OnRoomClientExit() { }
 
         /// <summary>
         /// This is called on the client when it connects to server.
         /// </summary>
         /// <param name="conn">The connection that connected.</param>
-        public virtual void OnLobbyClientConnect(NetworkConnection conn) { }
+        public virtual void OnRoomClientConnect(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the client when disconnected from a server.
         /// </summary>
         /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnLobbyClientDisconnect(NetworkConnection conn) { }
+        public virtual void OnRoomClientDisconnect(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the client when a client is started.
         /// </summary>
-        /// <param name="lobbyClient">The connection for the lobby.</param>
-        public virtual void OnLobbyStartClient() { }
+        /// <param name="roomClient">The connection for the room.</param>
+        public virtual void OnRoomStartClient() { }
 
         /// <summary>
         /// This is called on the client when the client stops.
         /// </summary>
-        public virtual void OnLobbyStopClient() { }
+        public virtual void OnRoomStopClient() { }
 
         /// <summary>
         /// This is called on the client when the client is finished loading a new networked scene.
         /// </summary>
         /// <param name="conn">The connection that finished loading a new networked scene.</param>
-        public virtual void OnLobbyClientSceneChanged(NetworkConnection conn) { }
+        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) { }
 
         /// <summary>
-        /// Called on the client when adding a player to the lobby fails.
-        /// <para>This could be because the lobby is full, or the connection is not allowed to have more players.</para>
+        /// Called on the client when adding a player to the room fails.
+        /// <para>This could be because the room is full, or the connection is not allowed to have more players.</para>
         /// </summary>
-        public virtual void OnLobbyClientAddPlayerFailed() { }
+        public virtual void OnRoomClientAddPlayerFailed() { }
 
         #endregion
 
@@ -647,10 +645,10 @@ namespace Mirror
         /// </summary>
         public virtual void OnGUI()
         {
-            if (!showLobbyGUI)
+            if (!showRoomGUI)
                 return;
 
-            if (SceneManager.GetActiveScene().name != LobbyScene)
+            if (SceneManager.GetActiveScene().name != RoomScene)
                 return;
 
             GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
