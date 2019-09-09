@@ -513,6 +513,8 @@ namespace Mirror
                 ServerChangeScene(offlineScene);
             }
             CleanupNetworkIdentities();
+            
+            startPositionIndex = 0;
         }
 
         /// <summary>
@@ -953,13 +955,13 @@ namespace Mirror
         /// Called on the client when connected to a server.
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
-        /// <param name="conn"></param>
+        /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientConnect(NetworkConnection conn)
         {
             if (!clientLoadedScene)
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
-                ClientScene.Ready(conn);
+                if (!ClientScene.ready) ClientScene.Ready(conn);
                 if (autoCreatePlayer)
                 {
                     ClientScene.AddPlayer();
@@ -988,7 +990,7 @@ namespace Mirror
         /// Called on clients when a servers tells the client it is no longer ready.
         /// <para>This is commonly used when switching scenes.</para>
         /// </summary>
-        /// <param name="conn">Connection to a server.</param>
+        /// <param name="conn">Connection to the server.</param>
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
@@ -1006,7 +1008,7 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            ClientScene.Ready(conn);
+            if (!ClientScene.ready) ClientScene.Ready(conn);
 
             if (autoCreatePlayer && ClientScene.localPlayer == null)
             {

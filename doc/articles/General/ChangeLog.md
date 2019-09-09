@@ -2,12 +2,17 @@
 
 ## Version 3.x.x - In Progress
 
-- Added: Sync-To-Owner via optional attributes and parameter for SyncVars and related classes
+- Component-based Authentication support to authenticate clients in the Connect phase.
+
+## Version 3.17.4 - 2019-Sep-04
+
+- Added: Custom Network Readers & Writers via extension methods
+- Added: Network Sync Mode selector on components to sync to observers (default) or just the owner
 - Added: SyncVars now support structs and enums in other assemblies
 - Added: Support for reading and writing array segments
 - Added: NetworkAnimator now has layers support
 - Added: New virtual method OnServerChangeScene to NetworkManager
-- Added: XML <summary> comments for intellisense and future generated class docs
+- Added: XML summary comments for intellisense and future generated class docs
 - Updated Examples and Documentation
 - Fixed: SceneID was not set to 0 for prefab variants
 - Fixed: Observers were not properly rebuilt on scene changes
@@ -16,7 +21,10 @@
 - Fixed: Catch IL2CPP bug
 - Fixed: Telepathy and Websockets now start connections ID's at 1 instead of 2
 - Fixed: Websockets support for SSL restored
-- Fixed: NetworkManager no longer complains about missing player prefab if auto-create is disabled.
+- Fixed: NetworkManager no longer complains about missing player prefab if auto-create is disabled
+- Fixed: Removed a garbage allocation in Network Transform
+- Fixed: NetworkClient.Ready was being called unncessarily in certain cases, e.g. SceneMessages
+- Changed: Documentation moved to website and API generated docs implemented
 - Changed: AddPlayerForConnection handler is now internal to keep safety checks intact
 - Changed: A bunch of messages converted to value types for performance
 
