@@ -12,6 +12,7 @@ namespace Mirror
     /// <summary>
     /// Abstract class for implementing component-based authentication during the Connect phase
     /// </summary>
+    [HelpURL("https://mirror-networking.com/xmldocs/articles/Concepts/Authentication.html")]
     public abstract class Authenticator : MonoBehaviour
     {
         [Header("Event Listeners (optional)")]
