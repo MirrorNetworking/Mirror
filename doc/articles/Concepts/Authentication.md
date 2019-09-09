@@ -64,6 +64,8 @@ In addition to these requirements, we also *suggest* you do the following:
 
     -   Remember to put a small delay on the Disconnect call on the server if you send them a failure message so that it has a chance to be delivered before the connection is dropped.
 
+-   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
+
 Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom message between the server and client as necessary to complete your authentication process before approving the client.
 
 ## Basic Authentication
