@@ -83,7 +83,7 @@ namespace Mirror.Weaver
 
             // don't weave mirror files
             string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
-            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName)
+            if (assemblyName == MirrorRuntimeAssemblyName || assemblyName == MirrorWeaverAssemblyName || assemblyName == "Zenject")
             {
                 return;
             }
