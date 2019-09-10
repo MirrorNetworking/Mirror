@@ -10,8 +10,6 @@ namespace Mirror.Examples.NetworkRoom
         {
             if (LogFilter.Debug) Debug.LogFormat("OnStartClient {0}", SceneManager.GetActiveScene().name);
 
-            Debug.LogFormat("NetworkRoomPlayer.OnStartClient {0}", index);
-
             base.OnStartClient();
             NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
 
