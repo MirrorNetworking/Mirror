@@ -1,3 +1,3 @@
-# Lobby
+# Room
 
-General description of Lobby example.
+General description of Room example.

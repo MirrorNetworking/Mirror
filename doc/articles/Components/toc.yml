@@ -1,9 +1,9 @@
 - name: NetworkManager
   href: NetworkManager.md
-- name: NetworkLobbyManager
-  href: NetworkLobbyManager.md
-- name: NetworkLobbyPlayer
-  href: NetworkLobbyPlayer.md
+- name: NetworkRoomManager
+  href: NetworkRoomManager.md
+- name: NetworkRoomPlayer
+  href: NetworkRoomPlayer.md
 - name: NetworkManagerHUD
   href: NetworkManagerHUD.md
 - name: NetworkIdentity
