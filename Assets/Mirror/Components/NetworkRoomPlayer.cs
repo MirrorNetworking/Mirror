@@ -65,7 +65,7 @@ namespace Mirror
 
         void ReadyStateChanged(bool newReadyState)
         {
-            OnClientReady(readyToBegin);
+            OnClientReady(newReadyState);
         }
 
         #endregion
