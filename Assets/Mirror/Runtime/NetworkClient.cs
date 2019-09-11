@@ -450,6 +450,8 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             ClientScene.Shutdown();
             connectState = ConnectState.None;
+            
+            handlers.Clear();
         }
 
         /// <summary>
