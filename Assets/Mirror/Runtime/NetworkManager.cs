@@ -554,6 +554,9 @@ namespace Mirror
             {
                 ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
+
+            NetworkClient.handlers.Clear();
+
             CleanupNetworkIdentities();
         }
 
