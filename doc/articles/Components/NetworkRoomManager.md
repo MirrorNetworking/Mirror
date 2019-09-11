@@ -38,7 +38,7 @@ There are two types of player objects with the Network Room Manager:
 
 -   Handles commands in the game  
 
-![Network Room Manager](NetworkRoomManager.PNG)
+![Network Room Manager](NetworkRoomManager.png)
 
 ## Properties
 
