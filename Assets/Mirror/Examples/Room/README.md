@@ -1,14 +1,14 @@
-﻿# Lobby Example
+# Room Example
 
-In Build Settings, remove all scenes and add all of the scenes from the Examples\Lobby\Scenes folder in the following order:
+In Build Settings, remove all scenes and add all of the scenes from the Examples\Room\Scenes folder in the following order:
 
 -	Offline
--	Lobby
+-	Room
 -	Online
 
-If you opened the Lobby scene before doing the above steps, you may have to reassign the scenes to the NetworkLobbyManagerExt component of the LobbyManager scene object.
+If you opened the Room scene before doing the above steps, you may have to reassign the scenes to the NetworkRoomManagerExt component of the RoomManager scene object.
 
-** Do not assign anything to the Online scene field!**  If you do, the lobby will be bypassed.  Assign **only* the Offline and Lobby and Gameplay scene fields in the inspector.
+** Do not assign anything to the Online scene field!**  If you do, the room will be bypassed.  Assign **only* the Offline and Room and Gameplay scene fields in the inspector.
 
 File -> Build and Run
 

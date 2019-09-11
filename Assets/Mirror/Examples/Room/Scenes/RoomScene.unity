@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 2008127831}
   - component: {fileID: 2008127830}
   m_Layer: 0
-  m_Name: LobbyManager
+  m_Name: RoomManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -263,7 +263,7 @@ MonoBehaviour:
   OnClientDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventByteArray, Mirror, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: Mirror.UnityEventArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   OnClientError:
     m_PersistentCalls:
@@ -282,7 +282,7 @@ MonoBehaviour:
   OnServerDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventIntByteArray, Mirror, Version=0.0.0.0, Culture=neutral,
+    m_TypeName: Mirror.UnityEventIntArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
   OnServerError:
     m_PersistentCalls:
@@ -295,7 +295,8 @@ MonoBehaviour:
     m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   port: 7780
   NoDelay: 1
-  MaxMessageSize: 16384
+  serverMaxMessageSize: 16384
+  clientMaxMessageSize: 16384
 --- !u!114 &2008127831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,13 +325,13 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 1139254171913846, guid: 52f1c9ea06cfd154cb68ff9d1b66fc13, type: 3}
-  showLobbyGUI: 1
+  showRoomGUI: 1
   minPlayers: 1
-  lobbyPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
+  roomPlayerPrefab: {fileID: 114033720796874720, guid: deae2134a1d77704b9c595efe69767dd,
     type: 3}
-  LobbyScene: LobbyScene
+  RoomScene: RoomScene
   GameplayScene: OnlineScene
-  lobbySlots: []
+  roomSlots: []
   allPlayersReady: 0
 --- !u!4 &2008127832
 Transform:
