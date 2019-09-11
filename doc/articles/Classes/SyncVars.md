@@ -20,10 +20,10 @@ public class Enemy : NetworkBehaviour
     [SyncVar]
     public int health = 100;
 
-    private void OnMouseUp()
+    void OnMouseUp()
     {
         NetworkIdentity ni = NetworkClient.connection.playerController;
-        PlayerController pc = networkIdentity.GetComponent<PlayerController>();
+        PlayerController pc = ni.GetComponent<PlayerController>();
         pc.currentTarget = gameObject;
     }
 }
@@ -52,4 +52,4 @@ public class PlayerController : NetworkBehaviour
 }
 ```
 
-In this example, when a Player clicks on an Enemy, the networked enemy game object is assigned to `PlayerController.currentTarget`.  When the player presses X, with a correct target selected, that target is passed through a Command, which runs on the server, to decrement the `Enemy.health` SyncVar.  All clients will be updated with that new value.  You can then have a UI on the enemy to show the current value.
+In this example, when a Player clicks on an Enemy, the networked enemy game object is assigned to `PlayerController.currentTarget`.  When the player presses X, with a correct target selected, that target is passed through a Command, which runs on the server, to decrement the `health` SyncVar.  All clients will be updated with that new value.  You can then have a UI on the enemy to show the current value.
