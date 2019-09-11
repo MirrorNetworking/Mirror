@@ -91,7 +91,7 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        private ulong syncVarHookGuard;
+        ulong syncVarHookGuard;
 
         protected bool getSyncVarHookGuard(ulong dirtyBit)
         {
@@ -172,7 +172,7 @@ namespace Mirror
 
         #region Commands
 
-        private static int GetMethodHash(Type invokeClass, string methodName)
+        static int GetMethodHash(Type invokeClass, string methodName)
         {
             // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
             // so hash1 + hash2 is better.
