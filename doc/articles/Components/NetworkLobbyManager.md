@@ -1,8 +1,8 @@
-# NetworkLobbyManager
+# NetworkRoomManager
 
-\*\*Please see the Lobby example in the Examples folder in your Mirror folder
+\*\*Please see the Room example in the Examples folder in your Mirror folder
 
-The Network Lobby Manager is a specialized type of [Network Manager](NetworkManager.md) that provides a multiplayer lobby before entering the main play scene of the game. It allows you to set up a network with:
+The Network Room Manager is a specialized type of [Network Manager](NetworkManager.md) that provides a multiplayer room before entering the main play scene of the game. It allows you to set up a network with:
 
 -   A maximum player limit
 
@@ -10,11 +10,11 @@ The Network Lobby Manager is a specialized type of [Network Manager](NetworkMana
 
 -   Option to prevent players from joining a game in progress
 
--   Customizable ways for players to choose options while in lobby  
+-   Customizable ways for players to choose options while in room  
 
-There are two types of player objects with the Network Lobby Manager:
+There are two types of player objects with the Network Room Manager:
 
-**Lobby Player Prefab**
+**Room Player Prefab**
 
 -   One for each player
 
@@ -24,9 +24,9 @@ There are two types of player objects with the Network Lobby Manager:
 
 -   Holds ready flag and configuration data
 
--   Handles commands in the lobby
+-   Handles commands in the room
 
--   Must use the [Network Lobby Player](NetworkLobbyPlayer.md) component
+-   Must use the [Network Room Player](NetworkRoomPlayer.md) component
 
 **Player Prefab**
 
@@ -38,21 +38,21 @@ There are two types of player objects with the Network Lobby Manager:
 
 -   Handles commands in the game  
 
-![Network Lobby Manager](NetworkLobbyManager.PNG)
+![Network Room Manager](NetworkRoomManager.PNG)
 
 ## Properties
 
--   **Show Lobby GUI**  
-    Show the default OnGUI controls for the lobby.
+-   **Show Room GUI**  
+    Show the default OnGUI controls for the room.
 
 -   **Min Players**  
     Minimum number of players needed to start a game.
 
--   **Lobby Player Prefab**  
-    The prefab to create for players when they enter the lobby (requires Network Lobby Player component).
+-   **Room Player Prefab**  
+    The prefab to create for players when they enter the room (requires Network Room Player component).
 
--   **Lobby Scene**  
-    The scene to use for the lobby.
+-   **Room Scene**  
+    The scene to use for the room.
 
 -   **Gameplay Scene**  
     The scene to use for main game play.
@@ -60,8 +60,8 @@ There are two types of player objects with the Network Lobby Manager:
 -   **pendingPlayers**  
     List\<PendingPlayer\> that holds players that are ready to start playing.
 
--   **lobbySlots**  
-    List\<NetworkLobbyPlayer\> that manages the slots for connected clients in the lobby.
+-   **roomSlots**  
+    List\<NetworkRoomPlayer\> that manages the slots for connected clients in the room.
 
 -   **allPlayersReady**  
     Bool indicating if all players are ready to start playing.  This value changes as players invoke `CmdChangeReadyState` indicating true or false, and will be set false when a new client connects.
@@ -71,34 +71,34 @@ There are two types of player objects with the Network Lobby Manager:
 ### Server Virtual Methods
 
 ```cs
-public virtual void OnLobbyStartHost() {}
+public virtual void OnRoomStartHost() {}
 
-public virtual void OnLobbyStopHost() {}
+public virtual void OnRoomStopHost() {}
 
-public virtual void OnLobbyStartServer() {}
+public virtual void OnRoomStartServer() {}
 
-public virtual void OnLobbyServerConnect(NetworkConnection conn) {}
+public virtual void OnRoomServerConnect(NetworkConnection conn) {}
 
-public virtual void OnLobbyServerDisconnect(NetworkConnection conn) {}
+public virtual void OnRoomServerDisconnect(NetworkConnection conn) {}
 
-public virtual void OnLobbyServerSceneChanged(string sceneName) {}
+public virtual void OnRoomServerSceneChanged(string sceneName) {}
 
-public virtual GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn)
+public virtual GameObject OnRoomServerCreateRoomPlayer(NetworkConnection conn)
 {
     return null;
 }
 
-public virtual GameObject OnLobbyServerCreateGamePlayer(NetworkConnection conn)
+public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
 {
     return null;
 }
 
-public virtual bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
+public virtual bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
 {
     return true;
 }
 
-public virtual void OnLobbyServerPlayersReady()
+public virtual void OnRoomServerPlayersReady()
 {
     ServerChangeScene(GameplayScene);
 }
@@ -107,19 +107,19 @@ public virtual void OnLobbyServerPlayersReady()
 ### Client Virtual Methods
 
 ```cs
-public virtual void OnLobbyClientEnter() {}
+public virtual void OnRoomClientEnter() {}
 
-public virtual void OnLobbyClientExit() {}
+public virtual void OnRoomClientExit() {}
 
-public virtual void OnLobbyClientConnect(NetworkConnection conn) {}
+public virtual void OnRoomClientConnect(NetworkConnection conn) {}
 
-public virtual void OnLobbyClientDisconnect(NetworkConnection conn) {}
+public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
 
-public virtual void OnLobbyStartClient() {}
+public virtual void OnRoomStartClient() {}
 
-public virtual void OnLobbyStopClient() {}
+public virtual void OnRoomStopClient() {}
 
-public virtual void OnLobbyClientSceneChanged(NetworkConnection conn) {}
+public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
 
-public virtual void OnLobbyClientAddPlayerFailed() {}
+public virtual void OnRoomClientAddPlayerFailed() {}
 ```

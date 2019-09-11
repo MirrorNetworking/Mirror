@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.NetworkLobby
+namespace Mirror.Examples.NetworkRoom
 {
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour

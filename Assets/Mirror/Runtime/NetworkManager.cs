@@ -550,13 +550,12 @@ namespace Mirror
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 
-            if (!string.IsNullOrEmpty(offlineScene))
+            if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
             {
                 ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
 
             NetworkClient.handlers.Clear();
-
             CleanupNetworkIdentities();
         }
 

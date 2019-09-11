@@ -49,7 +49,7 @@ Clients can send and receive network messages without being ready, which also me
 
 ## Switching Players
 
-To replace the player game object for a connection, use `NetworkServer.ReplacePlayerForConnection`. This is useful for restricting the commands that players can issue at certain times, such as in a pregame lobby screen. This function takes the same arguments as `AddPlayerForConnection`, but allows there to already be a player for that connection. The old player game object does not have to be destroyed. The `NetworkLobbyManager` uses this technique to switch from the `NetworkLobbyPlayer` game object to a game play player game object when all the players in the lobby are ready.
+To replace the player game object for a connection, use `NetworkServer.ReplacePlayerForConnection`. This is useful for restricting the commands that players can issue at certain times, such as in a pregame room screen. This function takes the same arguments as `AddPlayerForConnection`, but allows there to already be a player for that connection. The old player game object does not have to be destroyed. The `NetworkRoomManager` uses this technique to switch from the `NetworkRoomPlayer` game object to a game play player game object when all the players in the room are ready.
 
 You can also use `ReplacePlayerForConnection` to respawn a player or change the object that represents the player. In some cases it is better to just disable a game object and reset its game attributes on respawn. The following code sample demonstrates how to actually replace the player game object with a new game object:
 
@@ -76,4 +76,4 @@ If the player game object for a connection is destroyed, then that client cannot
 
 To use `ReplacePlayerForConnection` you must have the `NetworkConnection` game object for the player’s client to establish the relationship between the game object and the client. This is usually the property `connectionToClient` on the `NetworkBehaviour` class, but if the old player has already been destroyed, then that might not be readily available.
 
-To find the connection, there are some lists available. If using the `NetworkLobbyManager`, then the lobby players are available in `lobbySlots`. The `NetworkServer` also has lists of `connections`.
+To find the connection, there are some lists available. If using the `NetworkRoomManager`, then the room players are available in `roomSlots`. The `NetworkServer` also has lists of `connections`.

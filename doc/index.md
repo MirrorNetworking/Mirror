@@ -42,7 +42,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 
 -   Network [Manager](articles/Components/NetworkManager.md) and [HUD](articles/Components/NetworkManagerHUD.md)
 
--   Network [Lobby Manager](articles/Components/NetworkLobbyManager.md) and [Lobby Player](articles/Components/NetworkLobbyPlayer.md)
+-   Network [Room Manager](articles/Components/NetworkRoomManager.md) and [Room Player](articles/Components/NetworkRoomPlayer.md)
 
 -   Network [Identity](articles/Components/NetworkIdentity.md)
 
