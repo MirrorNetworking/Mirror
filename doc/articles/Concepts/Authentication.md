@@ -80,7 +80,7 @@ In addition to these requirements, we also *suggest* the following:
 
 -   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
 
-Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom message between the server and client as necessary to complete your authentication process before approving the client.
+Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom messages between the server and client as necessary to complete your authentication process before approving the client.
 
 ## Basic Authentication
 
@@ -92,9 +92,9 @@ To get you started, here's a complete example of a custom Authenticator.
 
 -   Drag the script to the inspector of the object in your scene that has Network Manager
 
--   Assign the Basic Authenticator component to the Authenticator field in Network Manager
+-   Drag the Basic Authenticator component in the inspector to the Authenticator field in Network Manager
 
--   Remove the Default Authenticator component.
+-   Remove the default Network Authenticator component.
 
 When you're done, it should look like this:
 
