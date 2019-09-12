@@ -60,7 +60,7 @@ namespace Mirror
 
     /// <summary>
     /// Prevents clients from running this method.
-    /// <para>Throws a warning if a client tries to execute this method.</para>
+    /// <para>Prints a warning if a client tries to execute this method.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ServerAttribute : Attribute { }
@@ -74,14 +74,14 @@ namespace Mirror
 
     /// <summary>
     /// Prevents the server from running this method.
-    /// <para>Throws a warning if the server tries to execute this method.</para>
+    /// <para>Prints a warning if the server tries to execute this method.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientAttribute : Attribute { }
 
     /// <summary>
     /// Prevents the server from running this method.
-    /// <para>No warning is thrown.</para>
+    /// <para>No warning is printed.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientCallbackAttribute : Attribute { }
