@@ -95,7 +95,7 @@ namespace Mirror
         [Header("Authentication")]
 
         [SerializeField]
-        protected Authenticator authenticator;
+        protected NetworkAuthenticator authenticator;
 
         [Header("Spawn Info")]
 
@@ -339,11 +339,11 @@ namespace Mirror
             if (authenticator == null)
             {
                 // was an authenticator added yet? if not, add one
-                authenticator = GetComponent<Authenticator>();
+                authenticator = GetComponent<NetworkAuthenticator>();
                 if (authenticator == null)
                 {
-                    authenticator = gameObject.AddComponent<DefaultAuthenticator>();
-                    Debug.Log("NetworkManager: added default Authenticator because there was none yet.");
+                    authenticator = gameObject.AddComponent<NetworkAuthenticator>();
+                    Debug.Log("NetworkManager: added missing NetworkAuthenticator.");
                 }
 #if UNITY_EDITOR
                 UnityEditor.EditorUtility.SetDirty(gameObject);

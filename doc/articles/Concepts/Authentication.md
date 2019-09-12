@@ -16,7 +16,7 @@ When you have a multiplayer game, often you need to store information about your
 
 -   Use a web service in your website
 
-Mirror includes an Authenticator component framework that allows you to implement any authentication scheme you need.
+Mirror includes a  NetworkAuthenticator component that allows you to implement any authentication scheme you need.
 
 ## Encryption Warning
 
@@ -24,24 +24,34 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 ## Default Authenticator
 
-Mirror automatically adds the Default Authenticator component to any object where the Network Manager component is present. Here's what that looks like:
+Mirror automatically adds the NetworkAuthenticatorr component to any object where the Network Manager component is present. Here's what that looks like:
 
 ``` cs
 namespace Mirror
 {
-    public class DefaultAuthenticator : Authenticator
+    public class NetworkAuthenticator : MonoBehaviour
     {
-        public override void ServerInitialize() { }
+        // Notify subscribers on the server when a client is authenticated
+        public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
 
-        public override void ClientInitialize() { }
+        // Notify subscribers on the client when the client is authenticated
+        public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
-        public override void ServerAuthenticate(NetworkConnection conn)
+        // Override this method to register server message handlers
+        public virtual void ServerInitialize() { }
+
+        // Override this method to register client message handlers
+        public virtual void ClientInitialize() { }
+
+        // Called on server when a client needs to authenticate
+        public virtual void ServerAuthenticate(NetworkConnection conn)
         {
             conn.isAuthenticated = true;
             OnServerAuthenticated.Invoke(conn);
         }
 
-        public override void ClientAuthenticate(NetworkConnection conn)
+        // Called on client when a client needs to authenticate
+        public virtual void ClientAuthenticate(NetworkConnection conn)
         {
             conn.isAuthenticated = true;
             OnClientAuthenticated.Invoke(conn);
@@ -52,17 +62,15 @@ namespace Mirror
 
 ## Custom Authenticators
 
-Similar to the implementation of Transports in Mirror, the base Authenticator is an abstract class, so to make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from Authenticator and implements the minimal requirements:
-
--   You **must** implement **all** of the overrides shown above, even if some of them might be empty.
-
--   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
+To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from NetworkAuthenticator and override the methods as needed:
 
 -   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
 
 -   When a client is authenticated to your satisfaction, you **must** invoke the `OnServerAuthenticated` and `OnClientAuthenticated` events on **both** the server and client
 
 In addition to these requirements, we also *suggest* you do the following:
+
+-   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 
@@ -100,7 +108,7 @@ When you're done, it should look like this:
 using UnityEngine;
 using Mirror;
 
-public class BasicAuthenticator : Authenticator
+public class BasicAuthenticator : NetworkAuthenticator
 {
     [Header("Custom Properties")]
 
