@@ -183,7 +183,7 @@ namespace Mirror
         // when building standalone
         #pragma warning disable CS0649
         [SerializeField] ulong m_SceneId;
-        #pragma warning restore CS0649 
+        #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
