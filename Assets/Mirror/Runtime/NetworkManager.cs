@@ -524,7 +524,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
 
-            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            if (authenticator.ClientInitialize())
+                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
