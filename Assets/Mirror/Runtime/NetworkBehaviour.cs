@@ -568,8 +568,8 @@ namespace Mirror
 
             // flush all unsynchronized changes in syncobjects
             // note: don't use List.ForEach here, this is a hot path
-            // List.ForEach: 432b/frame
-            // for: 231b/frame
+            //   List.ForEach: 432b/frame
+            //   for: 231b/frame
             for (int i = 0; i < syncObjects.Count; ++i)
             {
                 syncObjects[i].Flush();
