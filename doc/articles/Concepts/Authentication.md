@@ -60,7 +60,9 @@ namespace Mirror
 
 Similar to the implementation of Transports in Mirror, the base Authenticator is an abstract class, so to make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from Authenticator and implements the minimal requirements:
 
--   You **must** implement **both** `ServerAuthenticate` and `ClientAuthenticate` as overrides, even if one of them might be empty, as in the Basic Authenticator example below.
+-   You **must** implement **all** of the overrides shown above, even if one of them might be empty as in the Basic Authenticator example below.
+
+-   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.  Return true for both to have internal events wired up correctly.
 
 -   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
 
