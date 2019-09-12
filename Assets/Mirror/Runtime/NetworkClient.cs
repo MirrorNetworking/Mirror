@@ -125,7 +125,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + connection.connectionId);
             connection.isReady = true;
-            connection.playerController = localPlayer;
+            connection.identity = localPlayer;
             if (localPlayer != null)
             {
                 localPlayer.isClient = true;

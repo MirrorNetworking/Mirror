@@ -121,9 +121,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
-            if (conn != null && conn.playerController != null)
+            if (conn != null && conn.identity != null)
             {
-                GameObject roomPlayer = conn.playerController.gameObject;
+                GameObject roomPlayer = conn.identity.gameObject;
 
                 // if null or not a room player, dont replace it
                 if (roomPlayer != null && roomPlayer.GetComponent<NetworkRoomPlayer>() != null)
@@ -171,7 +171,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name != RoomScene) return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.playerController.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
+            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -233,9 +233,9 @@ namespace Mirror
         /// <param name="conn">Connection of the client</param>
         public override void OnServerDisconnect(NetworkConnection conn)
         {
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
-                NetworkRoomPlayer player = conn.playerController.GetComponent<NetworkRoomPlayer>();
+                NetworkRoomPlayer player = conn.identity.GetComponent<NetworkRoomPlayer>();
 
                 if (player != null)
                     roomSlots.Remove(player);
@@ -310,7 +310,7 @@ namespace Mirror
                     // find the game-player object for this connection, and destroy it
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
-                    NetworkIdentity playerController = identity.connectionToClient.playerController;
+                    NetworkIdentity playerController = identity.connectionToClient.identity;
                     NetworkServer.Destroy(playerController.gameObject);
 
                     if (NetworkServer.active)
