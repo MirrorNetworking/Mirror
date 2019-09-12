@@ -108,7 +108,7 @@ public class BasicAuthenticator : Authenticator
 {
     [Header("Custom Properties")]
 
-    // for demo purposes, set this in the inspector
+    // for demo purposes, set these in the inspector
     public string username;
     public string password;
 
@@ -177,7 +177,7 @@ public class BasicAuthenticator : Authenticator
 
             NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
 
-            // must notify server event listeners that this connection is authenticated
+            // must invoke server event when this connection is authenticated
             OnServerAuthenticated.Invoke(conn);
         }
         else
@@ -208,7 +208,7 @@ public class BasicAuthenticator : Authenticator
             // Set this on the client for local reference
             conn.isAuthenticated = true;
 
-            // must notify client event listeners that this connection is authenticated
+            // must invoke client event when this connection is authenticated
             OnClientAuthenticated.Invoke(conn);
         }
         else
