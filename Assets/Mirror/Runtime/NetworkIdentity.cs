@@ -1231,7 +1231,7 @@ namespace Mirror
                     }
 
                     // only clear bits if we sent something
-                    ClearAllDirtyBits();
+                    ClearAllComponentsDirtyBits();
                 }
                 NetworkWriterPool.Recycle(ownerWriter);
                 NetworkWriterPool.Recycle(observersWriter);
@@ -1239,11 +1239,11 @@ namespace Mirror
             else
             {
                 // clear all component's dirty bits
-                ClearAllDirtyBits();
+                ClearAllComponentsDirtyBits();
             }
         }
 
-        void ClearAllDirtyBits()
+        void ClearAllComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
