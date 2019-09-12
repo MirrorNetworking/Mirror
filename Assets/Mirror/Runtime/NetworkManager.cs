@@ -552,6 +552,8 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
+            authenticator.OnServerAuthenticated.RemoveAllListeners();
+
             OnStopServer();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
@@ -571,6 +573,8 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
+            authenticator.OnClientAuthenticated.RemoveAllListeners();
+
             OnStopClient();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
