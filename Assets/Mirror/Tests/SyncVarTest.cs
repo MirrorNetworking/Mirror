@@ -52,6 +52,32 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSyncInterval()
+        {
+
+            GameObject gameObject = new GameObject();
+
+            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            player.lastSyncTime = Time.time;
+            // synchronize immediatelly
+            player.syncInterval = 1f;
+
+            player.guild = new MockPlayer.Guild
+            {
+                name = "Back street boys"
+            };
+
+            Assert.That(player.IsDirty(), Is.False, "Sync interval not met,  so not dirty yet");
+
+            // clear bits shoudl do nothing since the object is not dirty
+            player.ClearAllDirtyBits();
+
+            // lets reduce the syncinterval
+            player.syncInterval = 0f;
+            Assert.That(player.IsDirty(), Is.True, "Sync interval met,  should synchronize");
+        }
+
+        [Test]
         public void TestSynchronizingObjects()
         {
             // set up a "server" object
