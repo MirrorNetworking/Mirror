@@ -16,7 +16,7 @@ When you have a multiplayer game, often you need to store information about your
 
 -   Use a web service in your website
 
-Mirror includes a  NetworkAuthenticator component that allows you to implement any authentication scheme you need.
+Mirror includes a  `NetworkAuthenticator` component that allows you to implement any authentication scheme you need.
 
 ## Encryption Warning
 
@@ -24,7 +24,7 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 ## Default Authenticator
 
-Mirror automatically adds the NetworkAuthenticator component to any object where the Network Manager component is present. Here's what that looks like:
+Mirror automatically adds the `NetworkAuthenticator` component to any object where the Network Manager component is present. Here's what that looks like:
 
 ``` cs
 namespace Mirror
@@ -62,13 +62,13 @@ namespace Mirror
 
 ## Custom Authenticators
 
-To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from NetworkAuthenticator and override the methods as needed:
+To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `NetworkAuthenticator` and override the methods as needed:
 
 -   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
 
 -   When a client is authenticated to your satisfaction, you **must** invoke the `OnServerAuthenticated` and `OnClientAuthenticated` events on **both** the server and client
 
-In addition to these requirements, we also *suggest* you do the following:
+In addition to these requirements, we also *suggest* the following:
 
 -   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
@@ -76,7 +76,7 @@ In addition to these requirements, we also *suggest* you do the following:
 
 -   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
 
-    -   Remember to put a small delay on the Disconnect call on the server if you send them a failure message so that it has a chance to be delivered before the connection is dropped.
+    -   Remember to put a small delay on the Disconnect call on the server if you send a failure message so that it has a chance to be delivered before the connection is dropped.
 
 -   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
 
