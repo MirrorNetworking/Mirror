@@ -321,20 +321,6 @@ namespace Mirror
                     }
                 }
             }
-            else
-            {
-                if (dontDestroyOnLoad)
-                {
-                    foreach (NetworkRoomPlayer roomPlayer in roomSlots)
-                    {
-                        if (roomPlayer != null)
-                        {
-                            roomPlayer.transform.SetParent(null);
-                            DontDestroyOnLoad(roomPlayer);
-                        }
-                    }
-                }
-            }
 
             base.ServerChangeScene(sceneName);
         }
@@ -459,32 +445,6 @@ namespace Mirror
                 // This let's it be destroyed when client changes to the Offline scene.
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
             }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="newSceneName"></param>
-        public override void OnClientChangeScene(string newSceneName)
-        {
-            if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene from {0} to {1}", SceneManager.GetActiveScene().name, newSceneName);
-
-            if (SceneManager.GetActiveScene().name == RoomScene && newSceneName == GameplayScene && dontDestroyOnLoad && NetworkClient.isConnected)
-            {
-                if (NetworkClient.connection != null && NetworkClient.connection.playerController != null)
-                {
-                    GameObject roomPlayer = NetworkClient.connection.playerController.gameObject;
-                    if (roomPlayer != null)
-                    {
-                        roomPlayer.transform.SetParent(null);
-                        DontDestroyOnLoad(roomPlayer);
-                    }
-                    else
-                        Debug.LogWarningFormat("OnClientChangeScene: roomPlayer is null");
-                }
-            }
-            else
-               if (LogFilter.Debug) Debug.LogFormat("OnClientChangeScene {0} {1}", dontDestroyOnLoad, NetworkClient.isConnected);
         }
 
         /// <summary>
