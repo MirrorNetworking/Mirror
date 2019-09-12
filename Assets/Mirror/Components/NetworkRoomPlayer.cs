@@ -38,8 +38,7 @@ namespace Mirror
         /// </summary>
         public void Start()
         {
-            NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
-            if (room != null)
+            if (NetworkManager.singleton is NetworkRoomManager room)
             {
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
                 // in server and all clients, otherwise it will be respawned in the game scene which would 
