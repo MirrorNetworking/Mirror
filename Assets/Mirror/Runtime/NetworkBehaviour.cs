@@ -563,6 +563,10 @@ namespace Mirror
         /// </summary>
         public void ClearAllDirtyBits()
         {
+            // do not clear sync bits object is not dirty
+            if (!IsDirty())
+                return;
+
             lastSyncTime = Time.time;
             syncVarDirtyBits = 0L;
 
