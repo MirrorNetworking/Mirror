@@ -24,7 +24,7 @@ namespace Mirror
         public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
 
         /// <summary>
-        /// Notify subscribers on the client when a client is authenticated
+        /// Notify subscribers on the client when the client is authenticated
         /// </summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
@@ -32,18 +32,14 @@ namespace Mirror
         /// <summary>
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
-        /// <para>Implementors should return true to have OnServerAuthenticated listener engaged.</para>
         /// </summary>
-        /// <returns>True if initialization successful</returns>
-        public abstract bool ServerInitialize();
+        public abstract void ServerInitialize();
 
         /// <summary>
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
-        /// <para>Implementors should return true to have OnClientAuthenticated listener engaged.</para>
         /// </summary>
-        /// <returns>True if initialization successful</returns>
-        public abstract bool ClientInitialize();
+        public abstract void ClientInitialize();
 
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate

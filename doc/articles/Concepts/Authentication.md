@@ -31,15 +31,9 @@ namespace Mirror
 {
     public class DefaultAuthenticator : Authenticator
     {
-        public override bool ServerInitialize()
-        {
-            return true;
-        }
+        public override void ServerInitialize() { }
 
-        public override bool ClientInitialize()
-        {
-            return true;
-        }
+        public override void ClientInitialize() { }
 
         public override void ServerAuthenticate(NetworkConnection conn)
         {
@@ -60,9 +54,9 @@ namespace Mirror
 
 Similar to the implementation of Transports in Mirror, the base Authenticator is an abstract class, so to make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from Authenticator and implements the minimal requirements:
 
--   You **must** implement **all** of the overrides shown above, even if one of them might be empty as in the Basic Authenticator example below.
+-   You **must** implement **all** of the overrides shown above, even if some of them might be empty.
 
--   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.  Return true for both to have internal events wired up correctly.
+-   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
 -   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
 
@@ -128,20 +122,16 @@ public class BasicAuthenticator : Authenticator
         public string message;
     }
 
-    public override bool ServerInitialize()
+    public override void ServerInitialize()
     {
         // register a handler for the authentication request we expect from client
         NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
-
-        return true;
     }
 
-    public override bool ClientInitialize()
+    public override void ClientInitialize()
     {
         // register a handler for the authentication response we expect from server
         NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
-
-        return true;
     }
 
     public override void ServerAuthenticate(NetworkConnection conn)

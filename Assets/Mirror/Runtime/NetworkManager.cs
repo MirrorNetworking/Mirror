@@ -411,8 +411,8 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            if (authenticator.ServerInitialize())
-                authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+            authenticator.ServerInitialize();
+            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -484,8 +484,8 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            if (authenticator.ClientInitialize())
-                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            authenticator.ClientInitialize();
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -524,8 +524,8 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
 
-            if (authenticator.ClientInitialize())
-                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            authenticator.ClientInitialize();
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
@@ -562,7 +562,7 @@ namespace Mirror
                 ServerChangeScene(offlineScene);
             }
             CleanupNetworkIdentities();
-            
+
             startPositionIndex = 0;
         }
 
