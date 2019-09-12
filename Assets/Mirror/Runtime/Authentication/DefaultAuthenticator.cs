@@ -7,6 +7,24 @@
     public class DefaultAuthenticator : Authenticator
     {
         /// <summary>
+        /// Called on server from StartServer to initialize the Authenticator
+        /// </summary>
+        /// <returns>True if initialization successful</returns>
+        public override bool ServerInitialize()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Called on client from StartClient to initialize the Authenticator
+        /// </summary>
+        /// <returns>True if initialization successful</returns>
+        public override bool ClientInitialize()
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>

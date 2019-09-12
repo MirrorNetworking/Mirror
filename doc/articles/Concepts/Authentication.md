@@ -31,6 +31,16 @@ namespace Mirror
 {
     public class DefaultAuthenticator : Authenticator
     {
+        public override bool ServerInitialize()
+        {
+            return true;
+        }
+
+        public override bool ClientInitialize()
+        {
+            return true;
+        }
+
         public override void ServerAuthenticate(NetworkConnection conn)
         {
             conn.isAuthenticated = true;
@@ -98,7 +108,7 @@ public class BasicAuthenticator : Authenticator
 {
     [Header("Custom Properties")]
 
-    // for demo purposes, set these in the inspector
+    // for demo purposes, set this in the inspector
     public string username;
     public string password;
 
@@ -116,10 +126,25 @@ public class BasicAuthenticator : Authenticator
         public string message;
     }
 
-    public void Start()
+    public override bool ServerInitialize()
     {
+        // register a handler for the authentication request we expect from client
         NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
+
+        return true;
+    }
+
+    public override bool ClientInitialize()
+    {
+        // register a handler for the authentication response we expect from server
         NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
+
+        return true;
+    }
+
+    public override void ServerAuthenticate(NetworkConnection conn)
+    {
+        // Do nothing...wait for AuthRequestMessage from client
     }
 
     public override void ClientAuthenticate(NetworkConnection conn)
@@ -133,14 +158,11 @@ public class BasicAuthenticator : Authenticator
         NetworkClient.Send(authRequestMessage);
     }
 
-    public override void ServerAuthenticate(NetworkConnection conn)
-    {
-        // Do nothing...wait for AuthRequestMessage from client
-    }
-
     public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
     {
-        // check the credentials
+        Debug.LogFormat("Authentication Request: {0} {1}", msg.authUser, msg.authPass);
+
+        // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
         if (msg.authUser == username && msg.authPass == password)
         {
             // must set NetworkConnection isAuthenticated = true
@@ -155,7 +177,7 @@ public class BasicAuthenticator : Authenticator
 
             NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
 
-            // must invoke server event when this connection is authenticated
+            // must notify server event listeners that this connection is authenticated
             OnServerAuthenticated.Invoke(conn);
         }
         else
@@ -172,7 +194,7 @@ public class BasicAuthenticator : Authenticator
 
             NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
 
-            // disconnect the client after 1 second
+            // disconnect the client after 1 second so that response message gets delivered
             Invoke(nameof(conn.Disconnect), 1);
         }
     }
@@ -186,7 +208,7 @@ public class BasicAuthenticator : Authenticator
             // Set this on the client for local reference
             conn.isAuthenticated = true;
 
-            // must invoke client event when this connection is authenticated
+            // must notify client event listeners that this connection is authenticated
             OnClientAuthenticated.Invoke(conn);
         }
         else

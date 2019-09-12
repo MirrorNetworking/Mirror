@@ -411,7 +411,8 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+            if (authenticator.ServerInitialize())
+                authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -483,7 +484,8 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            if (authenticator.ClientInitialize())
+                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;

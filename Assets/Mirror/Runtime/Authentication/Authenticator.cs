@@ -30,6 +30,22 @@ namespace Mirror
         public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
         /// <summary>
+        /// Called on server from StartServer to initialize the Authenticator
+        /// <para>Server message handlers should be registered in this method.</para>
+        /// <para>Implementors should return true to have OnServerAuthenticated listener engaged.</para>
+        /// </summary>
+        /// <returns>True if initialization successful</returns>
+        public abstract bool ServerInitialize();
+
+        /// <summary>
+        /// Called on client from StartClient to initialize the Authenticator
+        /// <para>Client message handlers should be registered in this method.</para>
+        /// <para>Implementors should return true to have OnClientAuthenticated listener engaged.</para>
+        /// </summary>
+        /// <returns>True if initialization successful</returns>
+        public abstract bool ClientInitialize();
+
+        /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>
