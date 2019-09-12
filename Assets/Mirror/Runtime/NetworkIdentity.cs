@@ -1238,6 +1238,7 @@ namespace Mirror
             }
             else
             {
+                // clear all component's dirty bits
                 ClearAllDirtyBits();
             }
         }
