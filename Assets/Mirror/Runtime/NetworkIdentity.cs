@@ -1231,18 +1231,18 @@ namespace Mirror
                     }
 
                     // only clear bits if we sent something
-                    ClearDirtyBits();
+                    ClearAllDirtyBits();
                 }
                 NetworkWriterPool.Recycle(ownerWriter);
                 NetworkWriterPool.Recycle(observersWriter);
             }
             else
             {
-                ClearDirtyBits();
+                ClearAllDirtyBits();
             }
         }
 
-        void ClearDirtyBits()
+        void ClearAllDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
