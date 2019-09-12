@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Mirror.Examples.NetworkLobby
+namespace Mirror.Examples.NetworkRoom
 {
     public class OfflineGUI : MonoBehaviour
     {
         [Scene]
-        public string LobbyScene;
+        public string RoomScene;
 
         void Start()
         {
@@ -22,7 +22,7 @@ namespace Mirror.Examples.NetworkLobby
             GUILayout.Box("WASDQE keys to move & turn\nTouch the spheres for points\nLighter colors score higher");
 
             if (GUILayout.Button("Join Game"))
-                SceneManager.LoadScene(LobbyScene);
+                SceneManager.LoadScene(RoomScene);
 
             GUILayout.EndArea();
         }

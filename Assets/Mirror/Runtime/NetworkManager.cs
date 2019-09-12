@@ -580,10 +580,11 @@ namespace Mirror
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 
-            if (!string.IsNullOrEmpty(offlineScene))
+            if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
             {
                 ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
             }
+
             CleanupNetworkIdentities();
         }
 
@@ -668,7 +669,10 @@ namespace Mirror
                 loadSceneMode = sceneMode,
                 localPhysicsMode = physicsMode,
             });
-            networkSceneName = newSceneName; //This should probably not change if additive is used          
+
+            // don't change the client's current networkSceneName when loading additive scene content
+            if (sceneMode == LoadSceneMode.Single)
+                networkSceneName = newSceneName;
         }
 
         void FinishLoadScene()

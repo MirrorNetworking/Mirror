@@ -81,11 +81,11 @@ Fix non-player prefabs such as enemies:
 -   Add a new game object and place it at player’s start location
 -   Add the NetworkStartPosition component to the new game object
 
-## Lobby
+## Room
 
--   Create Lobby Scene
--   Add a new game object to the Scene and rename it to “NetworkLobbyManager”.
--   Add the NetworkLobbyManager component to the new game object.
+-   Create Room Scene
+-   Add a new game object to the Scene and rename it to “NetworkRoomManager”.
+-   Add the NetworkRoomManager component to the new game object.
 -   Configure the Manager:
     -   Scenes
     -   Prefabs

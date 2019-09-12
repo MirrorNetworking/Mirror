@@ -1,42 +1,43 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace Mirror.Examples.NetworkLobby
+namespace Mirror.Examples.NetworkRoom
 {
-    public class NetworkLobbyManagerExt : NetworkLobbyManager
+    [AddComponentMenu("")]
+    public class NetworkRoomManagerExt : NetworkRoomManager
     {
         /// <summary>
-        /// Called just after GamePlayer object is instantiated and just before it replaces LobbyPlayer object.
+        /// Called just after GamePlayer object is instantiated and just before it replaces RoomPlayer object.
         /// This is the ideal point to pass any data like player name, credentials, tokens, colors, etc.
         /// into the GamePlayer object as it is about to enter the Online scene.
         /// </summary>
-        /// <param name="lobbyPlayer"></param>
+        /// <param name="roomPlayer"></param>
         /// <param name="gamePlayer"></param>
         /// <returns>true unless some code in here decides it needs to abort the replacement</returns>
-        public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
+        public override bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
         {
             PlayerController player = gamePlayer.GetComponent<PlayerController>();
-            player.index = lobbyPlayer.GetComponent<NetworkLobbyPlayer>().index;
+            player.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
             player.playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             return true;
         }
 
         /*
             This code below is to demonstrate how to do a Start button that only appears for the Host player
-            showStartButton is a local bool that's needed because OnLobbyServerPlayersReady is only fired when
+            showStartButton is a local bool that's needed because OnRoomServerPlayersReady is only fired when
             all players are ready, but if a player cancels their ready state there's no callback to set it back to false
             Therefore, allPlayersReady is used in combination with showStartButton to show/hide the Start button correctly.
-            Setting showStartButton false when the button is pressed hides it in the game scene since NetworkLobbyManager
+            Setting showStartButton false when the button is pressed hides it in the game scene since NetworkRoomManager
             is set as DontDestroyOnLoad = true.
         */
 
         bool showStartButton;
 
-        public override void OnLobbyServerPlayersReady()
+        public override void OnRoomServerPlayersReady()
         {
             // calling the base method calls ServerChangeScene as soon as all players are in Ready state.
             if (isHeadless)
-                base.OnLobbyServerPlayersReady();
+                base.OnRoomServerPlayersReady();
             else
                 showStartButton = true;
         }

@@ -183,7 +183,7 @@ namespace Mirror
         // when building standalone
         #pragma warning disable CS0649
         [SerializeField] ulong m_SceneId;
-        #pragma warning restore CS0649 
+        #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
@@ -1231,18 +1231,20 @@ namespace Mirror
                     }
 
                     // only clear bits if we sent something
-                    ClearDirtyBits();
+                    ClearAllComponentsDirtyBits();
                 }
                 NetworkWriterPool.Recycle(ownerWriter);
                 NetworkWriterPool.Recycle(observersWriter);
             }
             else
             {
-                ClearDirtyBits();
+                // clear all component's dirty bits
+                ClearAllComponentsDirtyBits();
             }
         }
 
-        private void ClearDirtyBits()
+        // clear all component's dirty bits no matter what
+        void ClearAllComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {

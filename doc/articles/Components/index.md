@@ -4,10 +4,10 @@ General description of Components
 
 -   [NetworkManager](NetworkManager.md)  
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
--   [NetworkLobbyManager](NetworkLobbyManager.md)  
-    The Network Lobby Manager is an extension component of Network Manager that provides a basic functional lobby.
--   [NetworkLobbyPlayer](NetworkLobbyPlayer.md)  
-    The Network Lobby Player is a component that's required on Player prefabs used in the Lobby Scene with the Network Lobby Manager above.
+-   [NetworkRoomManager](NetworkRoomManager.md)  
+    The Network Room Manager is an extension component of Network Manager that provides a basic functional room.
+-   [NetworkRoomPlayer](NetworkRoomPlayer.md)  
+    The Network Room Player is a component that's required on Player prefabs used in the Room Scene with the Network Room Manager above.
 -   [NetworkManagerHUD](NetworkManagerHUD.md)  
     The Network Manager HUD is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your gameplay programming, and means you can build your own version of these controls later in your development schedule.
 -   [NetworkIdentity](NetworkIdentity.md)  

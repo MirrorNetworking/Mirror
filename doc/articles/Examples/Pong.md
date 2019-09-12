@@ -13,7 +13,7 @@ First of all, let's have a look at the NetworkManager object in the main scene.
 When adding the NetworkManager component to a gameobject, a few default settings
 are already set (**Don't destroy on Load**, **Run in Background**, ...) For
 playing Pong the maximum number of players is 2, so the setting **Network
-Info/Max connections** will also be 2. As there are no other scenes (lobby,
+Info/Max connections** will also be 2. As there are no other scenes (room,
 online or offline scene) in this sample the properties for **Offline Scene** and
 **Online Scene** will stay empty.
 

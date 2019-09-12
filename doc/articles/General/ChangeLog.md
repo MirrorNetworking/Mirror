@@ -2,7 +2,14 @@
 
 ## Version 3.x.x - In Progress
 
-- Component-based Authentication support to authenticate clients in the Connect phase.
+- Pending: Component-based Authentication support to authenticate clients in the Connect phase.
+- Pending: NetworkClient handlers are now cleared in Shutdown.
+- Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected.
+- Fixed: Start Position Index is now reset to zero when server is stopped.
+- Fixed: Network Room Players are now all in DontDestroyOnLoad so they don't respawn in the game scene.
+- Fixed: Network Room example player controller restores main camera on disable.
+- Fixed: Components with different sync intervals were not sending updates to clients.
+- Changed: Lobby system renamed to Room to better align the name for what it is and make way for a future Lobby framework.
 
 ## Version 3.17.4 - 2019-Sep-04
 

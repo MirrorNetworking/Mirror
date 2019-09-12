@@ -22,7 +22,7 @@ namespace Mirror
     [AddComponentMenu("")]
     public class NetworkBehaviour : MonoBehaviour
     {
-        float lastSyncTime;
+        internal float lastSyncTime;
 
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         /// <summary>
@@ -91,7 +91,7 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        private ulong syncVarHookGuard;
+        ulong syncVarHookGuard;
 
         protected bool getSyncVarHookGuard(ulong dirtyBit)
         {
@@ -172,7 +172,7 @@ namespace Mirror
 
         #region Commands
 
-        private static int GetMethodHash(Type invokeClass, string methodName)
+        static int GetMethodHash(Type invokeClass, string methodName)
         {
             // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
             // so hash1 + hash2 is better.
@@ -568,8 +568,8 @@ namespace Mirror
 
             // flush all unsynchronized changes in syncobjects
             // note: don't use List.ForEach here, this is a hot path
-            // List.ForEach: 432b/frame
-            // for: 231b/frame
+            //   List.ForEach: 432b/frame
+            //   for: 231b/frame
             for (int i = 0; i < syncObjects.Count; ++i)
             {
                 syncObjects[i].Flush();

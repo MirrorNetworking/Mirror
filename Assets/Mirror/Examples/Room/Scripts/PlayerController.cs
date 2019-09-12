@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.NetworkLobby
+namespace Mirror.Examples.NetworkRoom
 {
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
@@ -22,6 +22,16 @@ namespace Mirror.Examples.NetworkLobby
         {
             if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
             cachedMaterial.color = color;
+        }
+
+        void OnDisable()
+        {
+            if (isLocalPlayer)
+            {
+                Camera.main.transform.SetParent(null);
+                Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
+                Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            }
         }
 
         void OnDestroy()
