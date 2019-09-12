@@ -1230,8 +1230,14 @@ namespace Mirror
                         NetworkServer.SendToReady(this, varsMessage, false);
                     }
 
-                    // only clear bits if we sent something
-                    ClearAllComponentsDirtyBits();
+                    // clear dirty bits only for the components that we serialized
+                    // DO NOT clean ALL component's dirty bits, because
+                    // components can have different syncIntervals and we don't
+                    // want to reset dirty bits for the ones that were not
+                    // synced yet.
+                    // (we serialized only the IsDirty() components, or all of
+                    //  them if initialState. clearing the dirty ones is enough.)
+                    ClearDirtyComponentsDirtyBits();
                 }
                 NetworkWriterPool.Recycle(ownerWriter);
                 NetworkWriterPool.Recycle(observersWriter);
@@ -1249,6 +1255,19 @@ namespace Mirror
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.ClearAllDirtyBits();
+            }
+        }
+
+        // clear only dirty component's dirty bits. ignores components which
+        // may be dirty but not ready to be synced yet (because of syncInterval)
+        internal void ClearDirtyComponentsDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                if (comp.IsDirty())
+                {
+                    comp.ClearAllDirtyBits();
+                }
             }
         }
     }
