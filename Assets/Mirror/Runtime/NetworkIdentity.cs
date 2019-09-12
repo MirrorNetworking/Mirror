@@ -1244,7 +1244,7 @@ namespace Mirror
         }
 
         // clear all component's dirty bits no matter what
-        void ClearAllComponentsDirtyBits()
+        internal void ClearAllComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
