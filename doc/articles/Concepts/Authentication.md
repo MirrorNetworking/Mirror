@@ -24,7 +24,7 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 ## Default Authenticator
 
-Mirror automatically adds the NetworkAuthenticatorr component to any object where the Network Manager component is present. Here's what that looks like:
+Mirror automatically adds the NetworkAuthenticator component to any object where the Network Manager component is present. Here's what that looks like:
 
 ``` cs
 namespace Mirror
