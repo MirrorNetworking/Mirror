@@ -563,7 +563,7 @@ namespace Mirror
         /// </summary>
         public void ClearAllDirtyBits()
         {
-            // do not clear sync bits object is not dirty
+            // do not clear sync bits if object is not dirty
             if (!IsDirty())
                 return;
 
