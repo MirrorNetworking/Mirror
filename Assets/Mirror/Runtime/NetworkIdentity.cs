@@ -1242,7 +1242,7 @@ namespace Mirror
             }
         }
 
-        private void ClearDirtyBits()
+        void ClearDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {

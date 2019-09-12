@@ -35,7 +35,7 @@ namespace Mirror
         // server
         Vector3 lastPosition;
         Quaternion lastRotation;
-        private Vector3 lastScale;
+        Vector3 lastScale;
 
         // client
         public class DataPoint

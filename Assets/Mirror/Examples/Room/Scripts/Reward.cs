@@ -17,7 +17,7 @@ namespace Mirror.Examples.NetworkRoom
 			materialClone.color = color;
 		}
 
-		private void OnDestroy()
+		void OnDestroy()
 		{
 			Destroy(materialClone);
 		}
