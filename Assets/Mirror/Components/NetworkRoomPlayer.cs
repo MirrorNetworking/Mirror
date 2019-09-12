@@ -38,8 +38,16 @@ namespace Mirror
         /// </summary>
         public void Start()
         {
-            if (NetworkManager.singleton as NetworkRoomManager)
+            if (NetworkManager.singleton is NetworkRoomManager room)
+            {
+                // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
+                // in server and all clients, otherwise it will be respawned in the game scene which would 
+                // have undesireable effects.
+                if (room.dontDestroyOnLoad)
+                    DontDestroyOnLoad(gameObject);
+
                 OnClientEnterRoom();
+            }
             else
                 Debug.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
         }
@@ -49,7 +57,7 @@ namespace Mirror
         #region Commands
 
         [Command]
-        public void CmdChangeReadyState(bool readyState)
+        void CmdChangeReadyState(bool readyState)
         {
             readyToBegin = readyState;
             NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
