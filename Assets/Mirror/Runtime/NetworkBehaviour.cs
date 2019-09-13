@@ -217,6 +217,9 @@ namespace Mirror
             };
 
             ClientScene.readyConnection.Send(message, channelId);
+#if MIRROR_PROFILING
+            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(CommandMessage), $"{invokeClass.GetType()}.{cmdName}", 1);
+#endif
         }
 
         /// <summary>
@@ -230,9 +233,9 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(cmdHash, MirrorInvokeType.Command, reader);
         }
-        #endregion
+#endregion
 
-        #region Client RPCs
+#region Client RPCs
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
@@ -259,6 +262,9 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
+#if MIRROR_PROFILING
+            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
+#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -298,6 +304,9 @@ namespace Mirror
             };
 
             conn.Send(message, channelId);
+#if MIRROR_PROFILING
+            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
+#endif
         }
 
         /// <summary>
@@ -311,9 +320,9 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(rpcHash, MirrorInvokeType.ClientRpc, reader);
         }
-        #endregion
+#endregion
 
-        #region Sync Events
+#region Sync Events
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
@@ -333,6 +342,9 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
+#if MIRROR_PROFILING
+            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(SyncEventMessage), $"{invokeClass.GetType()}.{eventName}", 1);
+#endif
         }
 
         /// <summary>
@@ -346,9 +358,59 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader);
         }
-        #endregion
+#endregion
 
-        #region Code Gen Path Helpers
+#region Unity Profiler Helper Functions
+        internal static string GetCmdHashHandlerName(int cmdHash)
+        {
+            if (!NetworkBehaviour.cmdHandlerDelegates.ContainsKey(cmdHash))
+            {
+                return cmdHash.ToString();
+            }
+            Invoker inv = NetworkBehaviour.cmdHandlerDelegates[cmdHash];
+            return inv.invokeType + ":" + inv.invokeFunction.GetMethodName();
+        }
+
+        internal static string GetCmdHashPrefixName(int cmdHash, string prefix)
+        {
+            if (!NetworkBehaviour.cmdHandlerDelegates.ContainsKey(cmdHash))
+            {
+                return cmdHash.ToString();
+            }
+            Invoker inv = NetworkBehaviour.cmdHandlerDelegates[cmdHash];
+            var name = inv.invokeFunction.GetMethodName();
+
+            int index = name.IndexOf(prefix);
+            if (index > -1)
+            {
+                name = name.Substring(prefix.Length);
+            }
+            return name;
+        }
+
+        internal static string GetCmdHashCmdName(int cmdHash)
+        {
+            return GetCmdHashPrefixName(cmdHash, "InvokeCmd");
+        }
+
+        internal static string GetCmdHashRpcName(int cmdHash)
+        {
+            return GetCmdHashPrefixName(cmdHash, "InvokeRpc");
+        }
+
+        internal static string GetCmdHashEventName(int cmdHash)
+        {
+            return GetCmdHashPrefixName(cmdHash, "InvokeSyncEvent");
+        }
+
+        internal static string GetCmdHashListName(int cmdHash)
+        {
+            return GetCmdHashPrefixName(cmdHash, "InvokeSyncList");
+        }
+#endregion
+
+
+#region Code Gen Path Helpers
         /// <summary>
         /// Delegate for Command functions.
         /// </summary>
@@ -438,9 +500,9 @@ namespace Mirror
             }
             return false;
         }
-        #endregion
+#endregion
 
-        #region Helpers
+#region Helpers
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -545,7 +607,7 @@ namespace Mirror
                 fieldValue = value;
             }
         }
-        #endregion
+#endregion
 
         /// <summary>
         /// Used to set the behaviour as dirty, so that a network update will be sent for the object.
@@ -646,8 +708,13 @@ namespace Mirror
                 if (syncObject.IsDirty)
                 {
                     dirtyObjects |= 1UL << i;
+#if MIRROR_PROFILING
+                    NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(UpdateVarsMessage), syncObject.GetType().Name, 1);
+#endif
+
                 }
             }
+
             return dirtyObjects;
         }
 

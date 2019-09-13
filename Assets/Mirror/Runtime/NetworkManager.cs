@@ -294,6 +294,8 @@ namespace Mirror
             NetworkServer.Update();
             NetworkClient.Update();
             UpdateScene();
+
+            NetworkProfiler.Tick(Time.time);
         }
 
         /// <summary>

@@ -323,6 +323,11 @@ namespace Mirror
         /// <param name="buffer">The data recieved.</param>
         public virtual void TransportReceive(ArraySegment<byte> buffer)
         {
+#if MIRROR_PROFILING
+            // -1 for now since we don't know the incoming segment channel
+            NetworkProfiler.RecordTraffic(NetworkDirection.Incoming, -1, buffer.Count);
+#endif
+
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
             if (MessagePacker.UnpackMessage(reader, out int msgType))
@@ -351,6 +356,9 @@ namespace Mirror
         /// <returns></returns>
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
+#if MIRROR_PROFILING
+            NetworkProfiler.RecordTraffic(NetworkDirection.Outgoing, channelId, bytes.Length);
+#endif
             if (Transport.activeTransport.ClientConnected())
             {
                 return Transport.activeTransport.ClientSend(channelId, bytes);
