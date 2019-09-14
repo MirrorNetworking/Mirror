@@ -295,7 +295,9 @@ namespace Mirror
             NetworkClient.Update();
             UpdateScene();
 
+#if MIRROR_PROFILING
             NetworkProfiler.Tick(Time.time);
+#endif
         }
 
         /// <summary>
