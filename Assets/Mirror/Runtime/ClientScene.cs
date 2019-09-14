@@ -72,9 +72,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.LogWarning("ClientScene.InternalAddPlayer");
 
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(AddPlayerMessage), identity.gameObject.name, 1);
-#endif
+            NetworkProfiler.ReceivedFor(identity.gameObject);
 
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
@@ -153,7 +151,7 @@ namespace Mirror
             {
                 readyConnection.Send(new RemovePlayerMessage());
 #if MIRROR_PROFILING
-                NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(RemovePlayerMessage), readyConnection.playerController.gameObject.name, 1);
+                NetworkProfiler.RecordMessage(typeof(RemovePlayerMessage), readyConnection.playerController.gameObject.name, 1);
 #endif
 
                 Object.Destroy(readyConnection.playerController.gameObject);
@@ -182,7 +180,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ClientScene.Ready() called with connection [" + conn + "]");
 #if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(ReadyMessage), null, 1);
+            NetworkProfiler.RecordMessage(typeof(ReadyMessage), null, 1);
 #endif
             if (conn != null)
             {
@@ -237,7 +235,7 @@ namespace Mirror
         }
 
         // spawn handlers and prefabs
-        static bool GetPrefab(Guid assetId, out GameObject prefab)
+        internal static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
             return assetId != Guid.Empty &&
@@ -552,9 +550,6 @@ namespace Mirror
                 // this object already exists (was in the scene)
                 localObject.Reset();
                 ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
-#if MIRROR_PROFILING
-                NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(SpawnSceneObjectMessage), localObject.gameObject.name, 1);
-#endif
                 return;
             }
 
@@ -574,9 +569,6 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(SpawnSceneObjectMessage), spawnedId.gameObject.name, 1);
-#endif
             spawnedId.Reset();
             spawnedId.pendingOwner = msg.owner;
             ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
@@ -585,9 +577,6 @@ namespace Mirror
         internal static void OnObjectSpawnStarted(NetworkConnection _, ObjectSpawnStartedMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("SpawnStarted");
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ObjectSpawnStartedMessage), null, 1);
-#endif
             PrepareToSpawnSceneObjects();
             isSpawnFinished = false;
         }
@@ -595,7 +584,6 @@ namespace Mirror
         internal static void OnObjectSpawnFinished(NetworkConnection _, ObjectSpawnFinishedMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("SpawnFinished");
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ObjectSpawnFinishedMessage), null, 1);
 
             // paul: Initialize the objects in the same order as they were initialized
             // in the server.   This is important if spawned objects
@@ -627,8 +615,6 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
-                NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ObjectDestroyMessage), netId.ToString(), 1);
-
                 localObject.OnNetworkDestroy();
 
                 if (!InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
@@ -657,18 +643,12 @@ namespace Mirror
         internal static void OnLocalClientObjectDestroy(NetworkConnection _, ObjectDestroyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ObjectDestroyMessage), msg.netId.ToString(), 1);
-#endif
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
         internal static void OnLocalClientObjectHide(NetworkConnection _, ObjectHideMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ObjectHideMessage), msg.netId.ToString(), 1);
-#endif
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(false);
@@ -735,9 +715,6 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-#if MIRROR_PROFILING
-                NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(ClientAuthorityMessage), identity.gameObject.name, 1);
-#endif
                 identity.HandleClientAuthority(msg.authority);
             }
         }

@@ -186,7 +186,7 @@ namespace Mirror
         #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
-        static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+        static readonly internal Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -721,7 +721,7 @@ namespace Mirror
                 {
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 #if MIRROR_PROFILING
-                    NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(UpdateVarsMessage), $"{comp.GetType()} {name}", 1);
+                    NetworkProfiler.RecordMessage(typeof(UpdateVarsMessage), $"{comp.GetType()} {name}", 1);
 #endif
 
                     // serialize into ownerWriter first
@@ -832,9 +832,6 @@ namespace Mirror
                 if ((dirtyComponentsMask & dirtyBit) != 0L)
                 {
                     OnDeserializeSafely(components[i], reader, initialState);
-#if MIRROR_PROFILING
-                    NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(UpdateVarsMessage), components[i].GetType().Name, 1);
-#endif
                 }
             }
         }
@@ -879,27 +876,18 @@ namespace Mirror
         internal void HandleSyncEvent(int componentIndex, int eventHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, eventHash, MirrorInvokeType.SyncEvent, reader);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(SyncEventMessage), NetworkBehaviour.GetCmdHashEventName(eventHash), 1);
-#endif
         }
 
         // happens on server
         internal void HandleCommand(int componentIndex, int cmdHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, cmdHash, MirrorInvokeType.Command, reader);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(CommandMessage), NetworkBehaviour.GetCmdHashCmdName(cmdHash), 1);
-#endif
         }
 
         // happens on client
         internal void HandleRPC(int componentIndex, int rpcHash, NetworkReader reader)
         {
             HandleRemoteCall(componentIndex, rpcHash, MirrorInvokeType.ClientRpc, reader);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Incoming, typeof(RpcMessage), NetworkBehaviour.GetCmdHashRpcName(rpcHash), 1);
-#endif
         }
 
         internal void OnUpdateVars(NetworkReader reader, bool initialState)

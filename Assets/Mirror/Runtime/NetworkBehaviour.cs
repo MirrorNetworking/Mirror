@@ -218,7 +218,7 @@ namespace Mirror
 
             ClientScene.readyConnection.Send(message, channelId);
 #if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(CommandMessage), $"{invokeClass.GetType()}.{cmdName}", 1);
+            NetworkProfiler.RecordMessage(typeof(CommandMessage), $"{invokeClass.GetType()}.{cmdName}", 1);
 #endif
         }
 
@@ -263,7 +263,7 @@ namespace Mirror
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
 #if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
+            NetworkProfiler.RecordMessage(typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
 #endif
         }
 
@@ -305,7 +305,7 @@ namespace Mirror
 
             conn.Send(message, channelId);
 #if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
+            NetworkProfiler.RecordMessage(typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
 #endif
         }
 
@@ -343,7 +343,7 @@ namespace Mirror
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
 #if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(SyncEventMessage), $"{invokeClass.GetType()}.{eventName}", 1);
+            NetworkProfiler.RecordMessage(typeof(SyncEventMessage), $"{invokeClass.GetType()}.{eventName}", 1);
 #endif
         }
 
@@ -709,7 +709,7 @@ namespace Mirror
                 {
                     dirtyObjects |= 1UL << i;
 #if MIRROR_PROFILING
-                    NetworkProfiler.RecordMessage(NetworkDirection.Outgoing, typeof(UpdateVarsMessage), syncObject.GetType().Name, 1);
+                    NetworkProfiler.RecordMessage(typeof(UpdateVarsMessage), syncObject.GetType().Name, 1);
 #endif
 
                 }

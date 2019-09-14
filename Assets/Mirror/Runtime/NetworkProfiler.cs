@@ -92,24 +92,16 @@ namespace Mirror
         /// <param name="messageType">The message type</param>
         /// <param name="entryName">The name of the entry, generally represents the target of the message</param>
         /// <param name="count">The number of these messages sent</param>
-        public void RecordMessage(NetworkDirection direction, Type messageType, string entryName, int count)
+        public void RecordMessage(NetworkDirection direction, Type messageType, int size, string entryName, int count) 
         {
             TotalMessages += count;
-
-            foreach (NetworkProfileMessage m in this.Messages)
-            {
-                if (m.Direction == direction && messageType == m.Type && entryName == m.Name)
-                {
-                    m.Count += count;
-                    return;
-                }
-            }
 
             this.Messages.Add(new NetworkProfileMessage()
             {
                 Type = messageType,
                 Direction = direction,
                 Name = entryName,
+                Size = size,
                 Count = count
             });
         }
@@ -123,6 +115,7 @@ namespace Mirror
         public NetworkDirection Direction;
         public Type Type;
         public string Name;
+        public int Size;
         public int Count;
     }
 
@@ -151,11 +144,45 @@ namespace Mirror
         /// <param name="messageType"></param>
         /// <param name="entryName"></param>
         /// <param name="count"></param>
-        public static void RecordMessage(NetworkDirection direction, Type messageType, string entryName, int count)
+        public static void RecordMessage(Type messageType, string entryName, int count)
         {
             if (IsRecording)
             {
-                CurrentTick.RecordMessage(direction, messageType, entryName, count);
+                CurrentTick.RecordMessage(NetworkDirection.Outgoing, messageType, 0, entryName, count);
+            }
+        }
+
+        [Conditional("MIRROR_PROFILING")]
+        public static void Receive<T>(T message, int bytes) where T : IMessageBase
+        {
+            if (IsRecording)
+            {
+                if (message is IRpcMessage rpcMessage)
+                {
+                    ReceiveRpc(rpcMessage, bytes);
+                }
+                else
+                {
+                    CurrentTick.RecordMessage(NetworkDirection.Incoming, typeof(T), bytes, null, 1);
+                }
+            }
+        }
+
+        [Conditional("MIRROR_PROFILING")]
+        private static void ReceiveRpc<T>(T message, int bytes) where T : IRpcMessage
+        {
+            if (IsRecording)
+            {
+                CurrentTick.RecordMessage(NetworkDirection.Incoming, typeof(T), bytes, null, 1);
+            }
+        }
+
+        [Conditional("MIRROR_PROFILING")]
+        public static void ReceivedFor(UnityEngine.Object obj)
+        {
+            if (IsRecording)
+            {
+                CurrentTick.Messages[CurrentTick.Messages.Count - 1].Name = obj.name;
             }
         }
 

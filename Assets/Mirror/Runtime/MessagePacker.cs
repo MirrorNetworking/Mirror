@@ -119,6 +119,7 @@ namespace Mirror
             //
             // let's catch them all and then disconnect that connection to avoid
             // further attacks.
+
             T message = default;
             try
             {
@@ -130,6 +131,11 @@ namespace Mirror
                 networkMessage.conn.Disconnect();
                 return;
             }
+            finally
+            {
+                NetworkProfiler.Receive(message, networkMessage.reader.Length);
+            }
+
             handler(networkMessage.conn, message);
         };
     }
