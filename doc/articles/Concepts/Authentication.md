@@ -38,10 +38,10 @@ namespace Mirror
         public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
 
         // Override this method to register server message handlers
-        public virtual void ServerInitialize() { }
+        public virtual void OnStartServer() { }
 
         // Override this method to register client message handlers
-        public virtual void ClientInitialize() { }
+        public virtual void OnStartClient() { }
 
         // Called on server when a client needs to authenticate
         public virtual void ServerAuthenticate(NetworkConnection conn)
@@ -70,7 +70,7 @@ To make your own custom Authenticator, you can just create a new script in your 
 
 In addition to these requirements, we also *suggest* the following:
 
--   `ServerInitialize` and `ClientInitialize` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
+-   `OnStartServer` and `OnStartClient` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 
@@ -120,8 +120,8 @@ public class BasicAuthenticator : NetworkAuthenticator
     {
         // use whatever credentials make sense for your game
         // for example, you might want to pass the accessToken if using oauth
-        public string authUser;
-        public string authPass;
+        public string authUsername;
+        public string authPassword;
     }
 
     public class AuthResponseMessage : MessageBase
@@ -130,13 +130,13 @@ public class BasicAuthenticator : NetworkAuthenticator
         public string message;
     }
 
-    public override void ServerInitialize()
+    public override void OnStartServer()
     {
         // register a handler for the authentication request we expect from client
         NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
     }
 
-    public override void ClientInitialize()
+    public override void OnStartClient()
     {
         // register a handler for the authentication response we expect from server
         NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
@@ -151,8 +151,8 @@ public class BasicAuthenticator : NetworkAuthenticator
     {
         AuthRequestMessage authRequestMessage = new AuthRequestMessage
         {
-            authUser = username,
-            authPass = password
+            authUsername = username,
+            authPassword = password
         };
 
         NetworkClient.Send(authRequestMessage);
@@ -160,10 +160,10 @@ public class BasicAuthenticator : NetworkAuthenticator
 
     public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
     {
-        Debug.LogFormat("Authentication Request: {0} {1}", msg.authUser, msg.authPass);
+        Debug.LogFormat("Authentication Request: {0} {1}", msg.authUsername, msg.authPassword);
 
         // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-        if (msg.authUser == username && msg.authPass == password)
+        if (msg.authUsername == username && msg.authPassword == password)
         {
             // must set NetworkConnection isAuthenticated = true
             conn.isAuthenticated = true;

@@ -94,8 +94,7 @@ namespace Mirror
 
         [Header("Authentication")]
 
-        [SerializeField]
-        protected NetworkAuthenticator authenticator;
+        public NetworkAuthenticator authenticator;
 
         [Header("Spawn Info")]
 
@@ -346,7 +345,7 @@ namespace Mirror
                     Debug.Log("NetworkManager: added missing NetworkAuthenticator.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(gameObject);
+                UnityEditor.Undo.RecordObject(this, "Added Authenticator");
 #endif
             }
 
@@ -361,7 +360,7 @@ namespace Mirror
                     Debug.Log("NetworkManager: added default Transport because there was none yet.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(gameObject);
+                UnityEditor.Undo.RecordObject(this, "Added default Transport");
 #endif
             }
 
@@ -411,7 +410,7 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.ServerInitialize();
+            authenticator.OnStartServer();
             authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             if (runInBackground)
@@ -484,7 +483,7 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.ClientInitialize();
+            authenticator.OnStartClient();
             authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             if (runInBackground)
@@ -524,7 +523,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
 
-            authenticator.ClientInitialize();
+            authenticator.OnStartClient();
             authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             networkAddress = "localhost";
