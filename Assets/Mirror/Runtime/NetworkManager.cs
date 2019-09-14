@@ -342,10 +342,10 @@ namespace Mirror
                 if (authenticator == null)
                 {
                     authenticator = gameObject.AddComponent<NetworkAuthenticator>();
-                    Debug.Log("NetworkManager: added missing NetworkAuthenticator.");
+                    Debug.Log("NetworkManager: added default NetworkAuthenticator.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(gameObject);
+                UnityEditor.Undo.RecordObject(this, "Added default NetworkAuthenticator");
 #endif
             }
 
