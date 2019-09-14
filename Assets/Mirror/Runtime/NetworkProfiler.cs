@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace Mirror
@@ -23,7 +24,7 @@ namespace Mirror
     /// <summary>
     /// Stores data related to a channel
     /// </summary>
-    public class NetworkProfileChannel
+    public struct NetworkProfileChannel
     {
         /// <summary>
         /// The channel id
@@ -44,27 +45,45 @@ namespace Mirror
     /// <summary>
     /// Stores a network tick
     /// </summary>
-    public class NetworkProfileTick
+    public struct NetworkProfileTick
     {
         /// <summary>
         /// The Time.time at the moment tick collection ended
         /// </summary>
-        public float Time;
+        public int frameCount;
 
         /// <summary>
         /// The total number of messages captured during this tick
         /// </summary>
         public int TotalMessages;
 
+        private List<NetworkProfileMessage> messages;
+
         /// <summary>
         /// The summary of messages captured during the tick
         /// </summary>
-        public List<NetworkProfileMessage> Messages = new List<NetworkProfileMessage>();
+        public List<NetworkProfileMessage> Messages
+        {
+            get
+            {
+                messages = messages ?? new List<NetworkProfileMessage>();
+                return messages;
+            }
+        }
 
+        private List<NetworkProfileChannel> channels;
         /// <summary>
         /// The channels that sent or received data during the tick
         /// </summary>
-        public List<NetworkProfileChannel> Channels = new List<NetworkProfileChannel>();
+        public List<NetworkProfileChannel> Channels
+        {
+            get
+            {
+                channels = channels ?? new List<NetworkProfileChannel>();
+                return channels;
+            }
+        }
+
 
         /// <summary>
         /// Records the message to the current tick
@@ -75,7 +94,7 @@ namespace Mirror
         /// <param name="count">The number of these messages sent</param>
         public void RecordMessage(NetworkDirection direction, Type messageType, string entryName, int count)
         {
-            this.TotalMessages += count;
+            TotalMessages += count;
 
             foreach (NetworkProfileMessage m in this.Messages)
             {
@@ -110,7 +129,7 @@ namespace Mirror
     /// <summary>
     /// Profiler used to profiling Mirror Low Level and High Level Activities
     /// </summary>
-    public class NetworkProfiler
+    public static class NetworkProfiler
     {
         /// <summary>
         /// Set to true if profiler should record and fire an event on each server tick
@@ -134,27 +153,27 @@ namespace Mirror
         /// <param name="count"></param>
         public static void RecordMessage(NetworkDirection direction, Type messageType, string entryName, int count)
         {
-            if (NetworkProfiler.IsRecording)
+            if (IsRecording)
             {
-                NetworkProfiler.CurrentTick.RecordMessage(direction, messageType, entryName, count);
+                CurrentTick.RecordMessage(direction, messageType, entryName, count);
             }
         }
 
         /// <summary>
         /// Completes the collection of this frame and marks the frame tick
         /// </summary>
-        /// <param name="newTime"></param>
-        public static void Tick(float newTime)
+        [Conditional("MIRROR_PROFILING")]
+        public static void Tick()
         {
-#if !MIRROR_PROFILING
-            throw new InvalidOperationException("Network Profiling Ticks will return nothing without setting the MIRROR_PROFILING define");
-#endif
-
-            if (NetworkProfiler.IsRecording)
+            if (IsRecording)
             {
-                NetworkProfiler.CurrentTick.Time = newTime;
-                NetworkProfiler.TickRecorded?.Invoke(NetworkProfiler.CurrentTick);
-                NetworkProfiler.CurrentTick = new NetworkProfileTick();
+                if (CurrentTick.TotalMessages > 0)
+                {
+                    CurrentTick.frameCount = Time.frameCount;
+                    TickRecorded?.Invoke(CurrentTick);
+                    CurrentTick = new NetworkProfileTick();
+                }
+                CurrentTick.frameCount = Time.frameCount;
             }
         }
 
@@ -166,20 +185,24 @@ namespace Mirror
         /// <param name="numBytes"></param>
         public static void RecordTraffic(NetworkDirection direction, int channelId, int numBytes)
         {
-            if (NetworkProfiler.IsRecording)
+            if (IsRecording)
             {
-                foreach (NetworkProfileChannel c in NetworkProfiler.CurrentTick.Channels)
+                for (int i = 0; i< CurrentTick.Channels.Count; i++)
                 {
-                    if (c.Id == channelId)
+                    NetworkProfileChannel channel = CurrentTick.Channels[i];
+
+                    if (CurrentTick.Channels[i].Id == channelId)
                     {
                         if (direction == NetworkDirection.Incoming)
                         {
-                            c.BytesIncoming += numBytes;
+                            channel.BytesIncoming += numBytes;
                         }
                         else
                         {
-                            c.BytesOutgoing += numBytes;
+                            channel.BytesOutgoing += numBytes;
                         }
+
+                        CurrentTick.Channels[i] = channel;
                         return;
                     }
                 }

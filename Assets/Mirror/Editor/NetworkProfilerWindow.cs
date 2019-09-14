@@ -52,7 +52,7 @@ namespace Mirror
             for (int x = this.ticks.Count - 1; x > -1; x--)
             {
                 NetworkProfileTick t = this.ticks[x];
-                if (GUILayout.Button($"{t.Time} - {t.TotalMessages} Messages ")) { this.Show(t); };
+                if (GUILayout.Button($"{t.frameCount} - {t.TotalMessages} Messages ")) { this.Show(t); };
             }
             
             EditorGUILayout.EndScrollView();
@@ -61,9 +61,9 @@ namespace Mirror
             // Tick Inspector Window
             EditorGUILayout.BeginVertical();
             this.rightScrollPosition = EditorGUILayout.BeginScrollView(this.rightScrollPosition);
-            if (this.selectedTick != null)
+            if (this.selectedTick.TotalMessages > 0)
             {
-                EditorGUILayout.LabelField($"Time : {this.selectedTick.Time}", this.headerStyle);
+                EditorGUILayout.LabelField($"Time : {this.selectedTick.frameCount}", this.headerStyle);
 
                 EditorGUILayout.Space();
 
@@ -96,7 +96,7 @@ namespace Mirror
                     GUILayout.Label(m.Direction.ToString(), GUILayout.Width(75));
                     GUILayout.Label(m.Count.ToString(), GUILayout.Width(75));
                     GUILayout.Label(m.Type.ToString(), GUILayout.Width(MessageColumnWidth * 4));
-                    GUILayout.Label(m.Name.ToString(), GUILayout.Width(MessageColumnWidth * 4));
+                    GUILayout.Label(m.Name, GUILayout.Width(MessageColumnWidth * 4));
                     GUILayout.EndHorizontal();
                 }
 
