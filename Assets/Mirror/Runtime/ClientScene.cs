@@ -228,7 +228,7 @@ namespace Mirror
         }
 
         // spawn handlers and prefabs
-        static bool GetPrefab(Guid assetId, out GameObject prefab)
+        internal static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
             return assetId != Guid.Empty &&

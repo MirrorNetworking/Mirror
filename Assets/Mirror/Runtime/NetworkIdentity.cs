@@ -186,7 +186,7 @@ namespace Mirror
         #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
-        static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+        internal static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)

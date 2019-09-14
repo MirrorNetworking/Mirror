@@ -11,6 +11,33 @@ namespace Mirror
         void Serialize(NetworkWriter writer);
     }
 
+    // An RPC message for a component
+    public interface IRpcMessage : IMessageBase
+    {
+        /// <summary>
+        /// Gets the name of the Rpc Method
+        /// </summary>
+        /// <returns>The name of the method</returns>
+        string Name();
+
+        /// <summary>
+        /// Gets the component that will receive the rpc call
+        /// </summary>
+        /// <returns>A NetworkBehaviour that will receive the call</returns>
+        NetworkBehaviour Recipient(); 
+    }
+
+    // A message regarding the lifecycle of an object (spawn/destroy/authority)
+    public interface ILifecycleMessage : IMessageBase
+    {
+
+        /// <summary>
+        /// Gets the component that will receive the rpc call
+        /// </summary>
+        /// <returns>A NetworkBehaviour that will receive the call</returns>
+        NetworkIdentity Recipient();
+    }
+
     public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
@@ -215,7 +242,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    struct CommandMessage : IMessageBase
+    struct CommandMessage : IRpcMessage
     {
         public uint netId;
         public int componentIndex;
@@ -238,10 +265,20 @@ namespace Mirror
             writer.WritePackedUInt32((uint)componentIndex);
             writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
+        }
+
+        public string Name()
+        {
+            return NetworkBehaviour.GetCmdHashCmdName(functionHash);
+        }
+
+        public NetworkBehaviour Recipient()
+        {
+            return NetworkIdentity.spawned[netId]?.NetworkBehaviours[componentIndex];
         }
     }
 
-    struct RpcMessage : IMessageBase
+    struct RpcMessage : IRpcMessage
     {
         public uint netId;
         public int componentIndex;
@@ -264,10 +301,20 @@ namespace Mirror
             writer.WritePackedUInt32((uint)componentIndex);
             writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
+        }
+
+        public string Name()
+        {
+            return NetworkBehaviour.GetCmdHashRpcName(functionHash);
+        }
+
+        public NetworkBehaviour Recipient()
+        {
+            return NetworkIdentity.spawned[netId]?.NetworkBehaviours[componentIndex];
         }
     }
 
-    struct SyncEventMessage : IMessageBase
+    struct SyncEventMessage : IRpcMessage
     {
         public uint netId;
         public int componentIndex;
@@ -290,12 +337,22 @@ namespace Mirror
             writer.WritePackedUInt32((uint)componentIndex);
             writer.WriteInt32(functionHash);
             writer.WriteBytesAndSizeSegment(payload);
+        }
+
+        public string Name()
+        {
+            return NetworkBehaviour.GetCmdHashEventName(functionHash);
+        }
+
+        public NetworkBehaviour Recipient()
+        {
+            return NetworkIdentity.spawned[netId]?.NetworkBehaviours[componentIndex];
         }
     }
     #endregion
 
     #region Internal System Messages
-    struct SpawnPrefabMessage : IMessageBase
+    struct SpawnPrefabMessage : ILifecycleMessage
     {
         public uint netId;
         public bool owner;
@@ -328,9 +385,19 @@ namespace Mirror
             writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
+
+        public NetworkIdentity Recipient()
+        {
+            if (ClientScene.GetPrefab(assetId, out GameObject prefab))
+            {
+                return prefab.GetComponent<NetworkIdentity>();
+            }
+            return null;
+        }
+
     }
 
-    struct SpawnSceneObjectMessage : IMessageBase
+    struct SpawnSceneObjectMessage : ILifecycleMessage
     {
         public uint netId;
         public bool owner;
@@ -363,6 +430,11 @@ namespace Mirror
             writer.WriteVector3(scale);
             writer.WriteBytesAndSizeSegment(payload);
         }
+
+        public NetworkIdentity Recipient()
+        {
+            return NetworkIdentity.sceneIds[sceneId];
+        }
     }
 
     struct ObjectSpawnStartedMessage : IMessageBase
@@ -379,7 +451,27 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { }
     }
 
-    struct ObjectDestroyMessage : IMessageBase
+    struct ObjectDestroyMessage : ILifecycleMessage
+    {
+        public uint netId;
+
+        public void Deserialize(NetworkReader reader)
+        {
+            netId = reader.ReadPackedUInt32();
+        }
+
+        public NetworkIdentity Recipient()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Serialize(NetworkWriter writer)
+        {
+            writer.WritePackedUInt32(netId);
+        }
+    }
+
+    struct ObjectHideMessage : ILifecycleMessage
     {
         public uint netId;
 
@@ -392,24 +484,14 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
         }
-    }
 
-    struct ObjectHideMessage : IMessageBase
-    {
-        public uint netId;
-
-        public void Deserialize(NetworkReader reader)
+        public NetworkIdentity Recipient()
         {
-            netId = reader.ReadPackedUInt32();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
+            return NetworkIdentity.spawned[netId];
         }
     }
 
-    struct ClientAuthorityMessage : IMessageBase
+    struct ClientAuthorityMessage : ILifecycleMessage
     {
         public uint netId;
         public bool authority;
@@ -425,9 +507,14 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(authority);
         }
+
+        public NetworkIdentity Recipient()
+        {
+            return NetworkIdentity.spawned[netId];
+        }
     }
 
-    struct UpdateVarsMessage : IMessageBase
+    struct UpdateVarsMessage : ILifecycleMessage
     {
         public uint netId;
         // the serialized component data
@@ -444,6 +531,11 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBytesAndSizeSegment(payload);
+        }
+
+        public NetworkIdentity Recipient()
+        {
+            return NetworkIdentity.spawned[netId];
         }
     }
 

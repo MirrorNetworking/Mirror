@@ -346,9 +346,44 @@ namespace Mirror
         {
             return InvokeHandlerDelegate(eventHash, MirrorInvokeType.SyncEvent, reader);
         }
-        #endregion
+#endregion
 
-        #region Code Gen Path Helpers
+#region Unity Profiler Helper Functions
+        static string GetRemoteName(int cmdHash, string prefix)
+        {
+            if (!cmdHandlerDelegates.ContainsKey(cmdHash))
+            {
+                return $"Unknown id {cmdHash}";
+            }
+            Invoker inv = cmdHandlerDelegates[cmdHash];
+            string name = inv.invokeFunction.GetMethodName();
+
+            if (name.StartsWith(prefix))
+            {
+                name = name.Substring(prefix.Length);
+            }
+            return name;
+        }
+
+        internal static string GetCmdName(int cmdHash)
+        {
+            return GetRemoteName(cmdHash, "InvokeCmd");
+        }
+
+        internal static string GetRpcName(int cmdHash)
+        {
+            return GetRemoteName(cmdHash, "InvokeRpc");
+        }
+
+        internal static string GetEventName(int cmdHash)
+        {
+            return GetRemoteName(cmdHash, "InvokeSyncEvent");
+        }
+
+#endregion
+
+
+#region Code Gen Path Helpers
         /// <summary>
         /// Delegate for Command functions.
         /// </summary>
