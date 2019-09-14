@@ -456,7 +456,7 @@ namespace Mirror
                 // get ip address from connection
                 string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
 
-                // add player info
+                // add connection
                 NetworkConnection conn = new NetworkConnection(address, connectionId);
                 OnConnected(conn);
             }
