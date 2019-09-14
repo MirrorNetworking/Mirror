@@ -345,7 +345,7 @@ namespace Mirror
                     Debug.Log("NetworkManager: added missing NetworkAuthenticator.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(this, "Added Authenticator");
+                UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
             }
 
