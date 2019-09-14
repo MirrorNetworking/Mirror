@@ -138,19 +138,22 @@ namespace Mirror
         private static NetworkProfileTick CurrentTick = new NetworkProfileTick();
 
         /// <summary>
-        /// Records a message
+        /// Records an ougoing message
         /// </summary>
-        /// <param name="direction"></param>
-        /// <param name="messageType"></param>
-        /// <param name="entryName"></param>
-        /// <param name="count"></param>
-        public static void RecordMessage(Type messageType, string entryName, int count)
+        /// <typeparam name="T">Message type being sent</typeparam>
+        /// <param name="message">message being sent</param>
+        /// <param name="channel"></param>
+        /// <param name="bytes">message size in bytes</param>
+        /// <param name="count">How many connections was this message sent to</param>
+        [Conditional("MIRROR_PROFILING")]
+        public static void Send<T>(T message, int channel, int bytes, int count)
         {
-            if (IsRecording)
+            if (IsRecording && count > 0)
             {
-                CurrentTick.RecordMessage(NetworkDirection.Outgoing, messageType, 0, entryName, count);
+                CurrentTick.RecordMessage(NetworkDirection.Outgoing, typeof(T), bytes, null, count);
             }
         }
+
 
         [Conditional("MIRROR_PROFILING")]
         public static void Receive<T>(T message, int bytes) where T : IMessageBase

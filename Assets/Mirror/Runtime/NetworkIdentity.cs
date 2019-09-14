@@ -720,9 +720,6 @@ namespace Mirror
                 if (initialState || comp.IsDirty())
                 {
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
-#if MIRROR_PROFILING
-                    NetworkProfiler.RecordMessage(typeof(UpdateVarsMessage), $"{comp.GetType()} {name}", 1);
-#endif
 
                     // serialize into ownerWriter first
                     // (owner always gets everything!)

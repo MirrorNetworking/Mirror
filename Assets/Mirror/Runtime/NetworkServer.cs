@@ -251,6 +251,8 @@ namespace Mirror
                 {
                     result &= kvp.Value.SendBytes(bytes);
                 }
+                NetworkProfiler.Send(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
+
                 return result;
             }
             return false;
@@ -296,6 +298,9 @@ namespace Mirror
             {
                 result &= kvp.Value.SendBytes(bytes, channelId);
             }
+
+            NetworkProfiler.Send(msg, channelId, bytes.Length, connections.Count);
+
             return result;
         }
 
@@ -344,6 +349,7 @@ namespace Mirror
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
+                int count = 0;
 
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
@@ -353,8 +359,11 @@ namespace Mirror
                         kvp.Value.isReady)
                     {
                         result &= kvp.Value.SendBytes(bytes, channelId);
+                        count++;
                     }
                 }
+
+                NetworkProfiler.Send(msg, channelId, bytes.Length, count);
                 return result;
             }
             return false;

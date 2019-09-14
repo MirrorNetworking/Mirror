@@ -150,10 +150,6 @@ namespace Mirror
             if (readyConnection.playerController != null)
             {
                 readyConnection.Send(new RemovePlayerMessage());
-#if MIRROR_PROFILING
-                NetworkProfiler.RecordMessage(typeof(RemovePlayerMessage), readyConnection.playerController.gameObject.name, 1);
-#endif
-
                 Object.Destroy(readyConnection.playerController.gameObject);
 
                 readyConnection.playerController = null;
@@ -179,9 +175,6 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("ClientScene.Ready() called with connection [" + conn + "]");
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(typeof(ReadyMessage), null, 1);
-#endif
             if (conn != null)
             {
                 conn.Send(new ReadyMessage());

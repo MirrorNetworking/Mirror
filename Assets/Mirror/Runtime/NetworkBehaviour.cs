@@ -217,9 +217,6 @@ namespace Mirror
             };
 
             ClientScene.readyConnection.Send(message, channelId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(typeof(CommandMessage), $"{invokeClass.GetType()}.{cmdName}", 1);
-#endif
         }
 
         /// <summary>
@@ -262,9 +259,6 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
-#endif
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -304,9 +298,6 @@ namespace Mirror
             };
 
             conn.Send(message, channelId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(typeof(RpcMessage), $"{invokeClass.GetType()}.{rpcName}", 1);
-#endif
         }
 
         /// <summary>
@@ -342,9 +333,6 @@ namespace Mirror
             };
 
             NetworkServer.SendToReady(netIdentity, message, channelId);
-#if MIRROR_PROFILING
-            NetworkProfiler.RecordMessage(typeof(SyncEventMessage), $"{invokeClass.GetType()}.{eventName}", 1);
-#endif
         }
 
         /// <summary>
@@ -708,10 +696,6 @@ namespace Mirror
                 if (syncObject.IsDirty)
                 {
                     dirtyObjects |= 1UL << i;
-#if MIRROR_PROFILING
-                    NetworkProfiler.RecordMessage(typeof(UpdateVarsMessage), syncObject.GetType().Name, 1);
-#endif
-
                 }
             }
 
