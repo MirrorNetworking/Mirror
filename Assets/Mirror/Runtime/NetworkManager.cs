@@ -92,6 +92,10 @@ namespace Mirror
         [FormerlySerializedAs("m_MaxConnections")]
         public int maxConnections = 4;
 
+        [Header("Authentication")]
+
+        public NetworkAuthenticator authenticator;
+
         [Header("Spawn Info")]
 
         /// <summary>
@@ -330,6 +334,21 @@ namespace Mirror
         /// </summary>
         public virtual void OnValidate()
         {
+            // add authenticator if there is none yet. makes upgrading easier.
+            if (authenticator == null)
+            {
+                // was an authenticator added yet? if not, add one
+                authenticator = GetComponent<NetworkAuthenticator>();
+                if (authenticator == null)
+                {
+                    authenticator = gameObject.AddComponent<NetworkAuthenticator>();
+                    Debug.Log("NetworkManager: added default NetworkAuthenticator.");
+                }
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(this, "Added default NetworkAuthenticator");
+#endif
+            }
+
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
@@ -356,7 +375,7 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
+            NetworkServer.RegisterHandler<ConnectMessage>(OnServerAuthenticateInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
@@ -390,6 +409,9 @@ namespace Mirror
         public bool StartServer()
         {
             InitializeSingleton();
+
+            authenticator.OnStartServer();
+            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -433,7 +455,7 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientAuthenticateInternal);
             NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
@@ -460,6 +482,9 @@ namespace Mirror
         public void StartClient()
         {
             InitializeSingleton();
+
+            authenticator.OnStartClient();
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -497,6 +522,10 @@ namespace Mirror
         void ConnectLocalClient()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
+
+            authenticator.OnStartClient();
+            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
             NetworkClient.ConnectLocalServer();
@@ -522,6 +551,8 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
+            authenticator.OnServerAuthenticated.RemoveAllListeners();
+
             OnStopServer();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
@@ -541,6 +572,8 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
+            authenticator.OnClientAuthenticated.RemoveAllListeners();
+
             OnStopClient();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
@@ -748,7 +781,14 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        void OnServerAuthenticateInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticateInternal");
+
+            authenticator.OnServerAuthenticateInternal(conn);
+        }
+
+        void OnServerConnectInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
@@ -819,7 +859,14 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
+        void OnClientAuthenticateInternal(NetworkConnection conn, ConnectMessage message)
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticateInternal");
+
+            authenticator.OnClientAuthenticateInternal(conn);
+        }
+
+        void OnClientConnectInternal(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
