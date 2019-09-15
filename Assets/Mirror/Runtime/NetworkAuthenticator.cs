@@ -42,11 +42,17 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartClient() { }
 
+        // This will get more code in the near future
+        internal void OnServerAuthenticateInternal(NetworkConnection conn)
+        {
+            OnServerAuthenticate(conn);
+        }
+
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void ServerAuthenticate(NetworkConnection conn)
+        public virtual void OnServerAuthenticate(NetworkConnection conn)
         {
             // setting NetworkConnection.isAuthenticated = true is Required
             conn.isAuthenticated = true;
@@ -55,11 +61,17 @@ namespace Mirror
             OnServerAuthenticated.Invoke(conn);
         }
 
+        // This will get more code in the near future
+        internal void OnClientAuthenticateInternal(NetworkConnection conn)
+        {
+            OnClientAuthenticate(conn);
+        }
+
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void ClientAuthenticate(NetworkConnection conn)
+        public virtual void OnClientAuthenticate(NetworkConnection conn)
         {
             // setting NetworkConnection.isAuthenticated = true is Required
             conn.isAuthenticated = true;

@@ -785,7 +785,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticateInternal");
 
-            authenticator.ServerAuthenticate(conn);
+            authenticator.OnServerAuthenticateInternal(conn);
         }
 
         void OnServerConnectInternal(NetworkConnection conn)
@@ -863,7 +863,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticateInternal");
 
-            authenticator.ClientAuthenticate(conn);
+            authenticator.OnClientAuthenticateInternal(conn);
         }
 
         void OnClientConnectInternal(NetworkConnection conn)
