@@ -410,11 +410,11 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.OnStartServer();
-            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
-
             if (runInBackground)
                 Application.runInBackground = true;
+
+            authenticator.OnStartServer();
+            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
 
             ConfigureServerFrameRate();
 
