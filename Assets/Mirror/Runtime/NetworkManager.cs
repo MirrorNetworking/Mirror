@@ -345,7 +345,7 @@ namespace Mirror
                     Debug.Log("NetworkManager: added default NetworkAuthenticator.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(this, "Added default NetworkAuthenticator");
+                UnityEditor.Undo.RecordObject(gameObject, "Added default NetworkAuthenticator");
 #endif
             }
 
