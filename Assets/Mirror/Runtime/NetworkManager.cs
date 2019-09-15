@@ -360,7 +360,7 @@ namespace Mirror
                     Debug.Log("NetworkManager: added default Transport because there was none yet.");
                 }
 #if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(this, "Added default Transport");
+                UnityEditor.EditorUtility.SetDirty(gameObject);
 #endif
             }
 
