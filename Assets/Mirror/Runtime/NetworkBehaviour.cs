@@ -438,6 +438,22 @@ namespace Mirror
             }
             return false;
         }
+
+        /// <summary>
+        /// Gets the handler function for a given hash
+        /// Can be used by profilers and debuggers
+        /// </summary>
+        /// <param name="cmdHash">rpc function hash</param>
+        /// <returns>The function delegate that will handle the command</returns>
+        public CmdDelegate GetRpcHandler(int cmdHash)
+        {
+            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
+            {
+                return invoker.invokeFunction;
+            }
+            return null;
+        }
+
         #endregion
 
         #region Helpers
