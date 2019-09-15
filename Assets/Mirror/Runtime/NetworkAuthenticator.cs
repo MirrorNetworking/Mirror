@@ -14,18 +14,20 @@ namespace Mirror
     /// </summary>
     [AddComponentMenu("Network/NetworkAuthenticator")]
     [HelpURL("https://mirror-networking.com/xmldocs/articles/Concepts/Authentication.html")]
-    public class NetworkAuthenticator : MonoBehaviour
+    public abstract class NetworkAuthenticator : MonoBehaviour
     {
         [Header("Event Listeners (optional)")]
 
         /// <summary>
-        /// Notify subscribers on the server when a client is authenticated
+        /// Notify subscribers on the server when a client is authenticated.
+        /// Call this from OnServerAuthenticate when successfully authenticated.
         /// </summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventNetworkConnection OnServerAuthenticated = new UnityEventNetworkConnection();
 
         /// <summary>
         /// Notify subscribers on the client when the client is authenticated
+        /// Call this from OnServerAuthenticate when successfully authenticated.
         /// </summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventNetworkConnection OnClientAuthenticated = new UnityEventNetworkConnection();
@@ -42,42 +44,20 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartClient() { }
 
-        // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnection conn)
-        {
-            OnServerAuthenticate(conn);
-        }
-
         /// <summary>
-        /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
+        /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate.
+        ///
+        /// Make sure to call OnServerAuthenticated.Invoke() after a successful authentication!
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void OnServerAuthenticate(NetworkConnection conn)
-        {
-            // setting NetworkConnection.isAuthenticated = true is Required
-            conn.isAuthenticated = true;
-
-            // invoking the event is Required
-            OnServerAuthenticated.Invoke(conn);
-        }
-
-        // This will get more code in the near future
-        internal void OnClientAuthenticateInternal(NetworkConnection conn)
-        {
-            OnClientAuthenticate(conn);
-        }
+        public abstract void OnServerAuthenticate(NetworkConnection conn);
 
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
+        ///
+        /// Make sure to call OnClientAuthenticated.Invoke() after a successful authentication!
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public virtual void OnClientAuthenticate(NetworkConnection conn)
-        {
-            // setting NetworkConnection.isAuthenticated = true is Required
-            conn.isAuthenticated = true;
-
-            // invoking the event is Required
-            OnClientAuthenticated.Invoke(conn);
-        }
+        public abstract void OnClientAuthenticate(NetworkConnection conn);
     }
 }
