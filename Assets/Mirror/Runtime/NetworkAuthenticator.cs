@@ -59,5 +59,19 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         public abstract void OnClientAuthenticate(NetworkConnection conn);
+
+        void OnValidate()
+        {
+#if UNITY_EDITOR
+            // automatically assign NetworkManager field if we add this to
+            // NetworkManager
+            NetworkManager manager = GetComponent<NetworkManager>();
+            if (manager != null && manager.authenticator == null)
+            {
+                manager.authenticator = this;
+                UnityEditor.Undo.RecordObject(gameObject, "Assigned NetworkManager authenticator");
+            }
+        }
+#endif
     }
 }
