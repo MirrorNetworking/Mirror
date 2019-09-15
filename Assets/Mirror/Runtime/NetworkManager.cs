@@ -532,7 +532,7 @@ namespace Mirror
                 ServerChangeScene(offlineScene);
             }
             CleanupNetworkIdentities();
-            
+
             startPositionIndex = 0;
         }
 
