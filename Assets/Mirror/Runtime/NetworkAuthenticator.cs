@@ -45,7 +45,7 @@ namespace Mirror
         public virtual void OnStartClient() { }
 
         /// <summary>
-        /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate.
+        /// Called on server from OnServerAuthenticateInternal when a server needs to authenticate.
         ///
         /// Make sure to call OnServerAuthenticated.Invoke() after a successful authentication!
         /// </summary>
