@@ -49,7 +49,7 @@ namespace Mirror
         ///
         /// Make sure to call OnServerAuthenticated.Invoke() after a successful authentication!
         /// </summary>
-        /// <param name="conn">Connection from client.</param>
+        /// <param name="conn">Connection from server.</param>
         public abstract void OnServerAuthenticate(NetworkConnection conn);
 
         /// <summary>
