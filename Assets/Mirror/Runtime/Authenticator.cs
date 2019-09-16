@@ -57,15 +57,6 @@ namespace Mirror
             conn.isAuthenticated = true;
         }
 
-        /// <summary>
-        /// Called on client when the timeout expires without being authenticated
-        /// </summary>
-        /// <param name="conn">Connection to client.</param>
-        public virtual void OnServerAuthenticationTimeout(NetworkConnection conn)
-        {
-            conn.Disconnect();
-        }
-
         // This will get more code in the near future
         internal void OnClientAuthenticateInternal(NetworkConnection conn)
         {
@@ -79,15 +70,6 @@ namespace Mirror
         public virtual void OnClientAuthenticate(NetworkConnection conn)
         {
             conn.isAuthenticated = true;
-        }
-
-        /// <summary>
-        /// Called on client when the timeout expires without being authenticated
-        /// </summary>
-        /// <param name="conn">Connection of the client.</param>
-        public virtual void OnClientAuthenticationTimeout(NetworkConnection conn)
-        {
-            conn.Disconnect();
         }
 
         void OnValidate()
