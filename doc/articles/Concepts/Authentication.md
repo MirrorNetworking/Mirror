@@ -16,59 +16,21 @@ When you have a multiplayer game, often you need to store information about your
 
 -   Use a web service in your website
 
-Mirror includes a  `NetworkAuthenticator` component that allows you to implement any authentication scheme you need.
+Mirror includes an  `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
 ## Encryption Warning
 
 By default Mirror uses Telepathy, which is not encrypted, so if you want to do authentication through Mirror, we highly recommend you use a transport that supports encryption.
 
-## Default Authenticator
-
-Mirror automatically adds the `NetworkAuthenticator` component to any object where the Network Manager component is present. Here's what that looks like:
-
-``` cs
-namespace Mirror
-{
-    public class NetworkAuthenticator : MonoBehaviour
-    {
-        // Notify subscribers on the server when a client is authenticated
-        public UnityEventConnection OnServerAuthenticated = new UnityEventConnection();
-
-        // Notify subscribers on the client when the client is authenticated
-        public UnityEventConnection OnClientAuthenticated = new UnityEventConnection();
-
-        // Override this method to register server message handlers
-        public virtual void OnStartServer() { }
-
-        // Override this method to register client message handlers
-        public virtual void OnStartClient() { }
-
-        // Called on server when a client needs to authenticate
-        public virtual void ServerAuthenticate(NetworkConnection conn)
-        {
-            conn.isAuthenticated = true;
-            OnServerAuthenticated.Invoke(conn);
-        }
-
-        // Called on client when a client needs to authenticate
-        public virtual void ClientAuthenticate(NetworkConnection conn)
-        {
-            conn.isAuthenticated = true;
-            OnClientAuthenticated.Invoke(conn);
-        }
-    }
-}
-```
-
 ## Custom Authenticators
 
-To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `NetworkAuthenticator` and override the methods as needed:
+To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `Authenticator` and override the methods as needed.
 
--   When a client is authenticated to your satisfaction, you **must** set the `isAuthenticated` flag on the `NetworkConnection` to true on **both** the server and client
+-   When a client is authenticated to your satisfaction, you simple call `base.OnServerAuthenticated.Invoke(conn);` on **both** the server and client
 
--   When a client is authenticated to your satisfaction, you **must** invoke the `OnServerAuthenticated` and `OnClientAuthenticated` events on **both** the server and client
+-   The base Authenticor includes a timeout feature and Unity events you can subscribe to.
 
-In addition to these requirements, we also *suggest* the following:
+Here are some tips for custom Authenticators:
 
 -   `OnStartServer` and `OnStartClient` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
@@ -82,19 +44,13 @@ In addition to these requirements, we also *suggest* the following:
 
 Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom messages between the server and client as necessary to complete your authentication process before approving the client.
 
-## Basic Authentication
+## Basic Authenticator
 
-To get you started, here's a complete example of a custom Authenticator.
+Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
 
--   Create a new script in your project (not in the Mirror folders) called `BasicAuthenticator`
+-   Drag the Basic Authenticator script to the inspector of the object in your scene that has Network Manager
 
--   Replace the boilerplate code that Unity provides with the code below and save
-
--   Drag the script to the inspector of the object in your scene that has Network Manager
-
--   Drag the Basic Authenticator component in the inspector to the Authenticator field in Network Manager
-
--   Remove the default Network Authenticator component.
+-   The Basic Authenticator component will automatically be assigned to the Authenticator field in Network Manager
 
 When you're done, it should look like this:
 
@@ -102,125 +58,3 @@ When you're done, it should look like this:
 
 >   **Note:** You don't need to assign anything to the event lists unless you want to subscribe to the events in your own code for your own purposes. Mirror has internal listeners for both events.
 
-### Basic Authenticator
-
-``` cs
-using UnityEngine;
-using Mirror;
-
-public class BasicAuthenticator : NetworkAuthenticator
-{
-    [Header("Custom Properties")]
-
-    // for demo purposes, set these in the inspector
-    public string username;
-    public string password;
-
-    public class AuthRequestMessage : MessageBase
-    {
-        // use whatever credentials make sense for your game
-        // for example, you might want to pass the accessToken if using oauth
-        public string authUsername;
-        public string authPassword;
-    }
-
-    public class AuthResponseMessage : MessageBase
-    {
-        public byte code;
-        public string message;
-    }
-
-    public override void OnStartServer()
-    {
-        // register a handler for the authentication request we expect from client
-        NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
-    }
-
-    public override void OnStartClient()
-    {
-        // register a handler for the authentication response we expect from server
-        NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
-    }
-
-    public override void ServerAuthenticate(NetworkConnection conn)
-    {
-        // Do nothing...wait for AuthRequestMessage from client
-    }
-
-    public override void ClientAuthenticate(NetworkConnection conn)
-    {
-        AuthRequestMessage authRequestMessage = new AuthRequestMessage
-        {
-            authUsername = username,
-            authPassword = password
-        };
-
-        NetworkClient.Send(authRequestMessage);
-    }
-
-    public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
-    {
-        Debug.LogFormat("Authentication Request: {0} {1}", msg.authUsername, msg.authPassword);
-
-        // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-        if (msg.authUsername == username && msg.authPassword == password)
-        {
-            // must set NetworkConnection isAuthenticated = true
-            conn.isAuthenticated = true;
-
-            // create and send msg to client so it knows to proceed
-            AuthResponseMessage authResponseMessage = new AuthResponseMessage
-            {
-                code = 100,
-                message = "Success"
-            };
-
-            NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
-
-            // must invoke server event when this connection is authenticated
-            OnServerAuthenticated.Invoke(conn);
-        }
-        else
-        {
-            // must set NetworkConnection isAuthenticated = false
-            conn.isAuthenticated = false;
-
-            // create and send msg to client so it knows to disconnect
-            AuthResponseMessage authResponseMessage = new AuthResponseMessage
-            {
-                code = 200,
-                message = "Invalid Credentials"
-            };
-
-            NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
-
-            // disconnect the client after 1 second so that response message gets delivered
-            Invoke(nameof(conn.Disconnect), 1);
-        }
-    }
-
-    public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
-    {
-        if (msg.code == 100)
-        {
-            Debug.LogFormat("Authentication Response: {0}", msg.message);
-
-            // Set this on the client for local reference
-            conn.isAuthenticated = true;
-
-            // must invoke client event when this connection is authenticated
-            OnClientAuthenticated.Invoke(conn);
-        }
-        else
-        {
-            Debug.LogErrorFormat("Authentication Response: {0}", msg.message);
-
-            // Set this on the client for local reference
-            conn.isAuthenticated = false;
-
-            // disconnect the client
-            conn.Disconnect();
-        }
-    }
-}
-```

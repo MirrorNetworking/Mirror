@@ -13,9 +13,8 @@ namespace Mirror
     /// <summary>
     /// Base class for implementing component-based authentication during the Connect phase
     /// </summary>
-    [AddComponentMenu("Network/NetworkAuthenticator")]
     [HelpURL("https://mirror-networking.com/xmldocs/articles/Concepts/Authentication.html")]
-    public class NetworkAuthenticator : MonoBehaviour
+    public abstract class Authenticator : MonoBehaviour
     {
         [Header("Configuration")]
 
@@ -40,13 +39,13 @@ namespace Mirror
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartServer() { }
+        public abstract void OnStartServer();
 
         /// <summary>
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartClient() { }
+        public abstract void OnStartClient();
 
         // This will get more code in the near future
         internal void OnServerAuthenticateInternal(NetworkConnection conn)
@@ -63,11 +62,7 @@ namespace Mirror
         /// <param name="conn">Connection to client.</param>
         public virtual void OnServerAuthenticate(NetworkConnection conn)
         {
-            // setting NetworkConnection.isAuthenticated = true is Required
             conn.isAuthenticated = true;
-
-            // invoking the event is Required
-            OnServerAuthenticated.Invoke(conn);
         }
 
         /// <summary>
@@ -94,11 +89,7 @@ namespace Mirror
         /// <param name="conn">Connection of the client.</param>
         public virtual void OnClientAuthenticate(NetworkConnection conn)
         {
-            // setting NetworkConnection.isAuthenticated = true is Required
             conn.isAuthenticated = true;
-
-            // invoking the event is Required
-            OnClientAuthenticated.Invoke(conn);
         }
 
         /// <summary>
@@ -129,6 +120,19 @@ namespace Mirror
                 else
                     OnClientAuthenticationTimeout(conn);
             }
+        }
+
+        void OnValidate()
+        {
+#if UNITY_EDITOR
+            // automatically assign NetworkManager field if we add this to NetworkManager
+            NetworkManager manager = GetComponent<NetworkManager>();
+            if (manager != null && manager.authenticator == null)
+            {
+                manager.authenticator = this;
+                UnityEditor.Undo.RecordObject(gameObject, "Assigned NetworkManager authenticator");
+            }
+#endif
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Mirror
 
         [Header("Authentication")]
 
-        public NetworkAuthenticator authenticator;
+        public Authenticator authenticator;
 
         [Header("Spawn Info")]
 
@@ -334,21 +334,6 @@ namespace Mirror
         /// </summary>
         public virtual void OnValidate()
         {
-            // add authenticator if there is none yet. makes upgrading easier.
-            if (authenticator == null)
-            {
-                // was an authenticator added yet? if not, add one
-                authenticator = GetComponent<NetworkAuthenticator>();
-                if (authenticator == null)
-                {
-                    authenticator = gameObject.AddComponent<NetworkAuthenticator>();
-                    Debug.Log("NetworkManager: added default NetworkAuthenticator.");
-                }
-#if UNITY_EDITOR
-                UnityEditor.Undo.RecordObject(gameObject, "Added default NetworkAuthenticator");
-#endif
-            }
-
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
@@ -413,8 +398,11 @@ namespace Mirror
             if (runInBackground)
                 Application.runInBackground = true;
 
-            authenticator.OnStartServer();
-            authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+            if (authenticator != null)
+            {
+                authenticator.OnStartServer();
+                authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+            }
 
             ConfigureServerFrameRate();
 
@@ -483,8 +471,11 @@ namespace Mirror
         {
             InitializeSingleton();
 
-            authenticator.OnStartClient();
-            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            }
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -523,8 +514,11 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
 
-            authenticator.OnStartClient();
-            authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+            }
 
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
@@ -551,7 +545,7 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
-            authenticator.OnServerAuthenticated.RemoveAllListeners();
+            authenticator?.OnServerAuthenticated.RemoveListener(OnServerConnectInternal);
 
             OnStopServer();
 
@@ -572,7 +566,7 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
-            authenticator.OnClientAuthenticated.RemoveAllListeners();
+            authenticator?.OnClientAuthenticated.RemoveListener(OnClientConnectInternal);
 
             OnStopClient();
 
@@ -785,7 +779,26 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticateInternal");
 
-            authenticator.OnServerAuthenticateInternal(conn);
+            if (authenticator != null)
+            {
+                // if we have an authenticator then let it handle authentication
+                authenticator.OnServerAuthenticateInternal(conn);
+            }
+            else
+            {
+                // otherwise authenticate immediately
+                OnServerAuthenticated(conn);
+            }
+        }
+
+        // called after successful authentication
+        void OnServerAuthenticated(NetworkConnection conn)
+        {
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            // proceed with the login handshake by calling OnServerConnect
+            OnServerConnectInternal(conn);
         }
 
         void OnServerConnectInternal(NetworkConnection conn)
@@ -863,7 +876,26 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticateInternal");
 
-            authenticator.OnClientAuthenticateInternal(conn);
+            if (authenticator != null)
+            {
+                // if we have an authenticator then let it handle authentication
+                authenticator.OnClientAuthenticateInternal(conn);
+            }
+            else
+            {
+                // otherwise authenticate immediately
+                OnClientAuthenticated(conn);
+            }
+        }
+
+        // called after successful authentication
+        void OnClientAuthenticated(NetworkConnection conn)
+        {
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            // proceed with the login handshake by calling OnClientConnect
+            OnClientConnectInternal(conn);
         }
 
         void OnClientConnectInternal(NetworkConnection conn)
