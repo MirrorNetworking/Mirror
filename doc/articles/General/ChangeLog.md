@@ -2,7 +2,7 @@
 
 ## Version 3.x.x - In Progress
 
-- Pending: Component-based Authentication support to authenticate clients in the Connect phase.
+- Pending: Authentication support to authenticate clients in the Connect phase.
 - Pending: NetworkClient handlers are now cleared in Shutdown.
 - Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected.
 - Fixed: Start Position Index is now reset to zero when server is stopped.
