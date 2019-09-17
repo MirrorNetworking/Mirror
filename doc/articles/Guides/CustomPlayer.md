@@ -2,7 +2,7 @@
 
 In many games you want to customize character creation.  You may want to pick the color of the hair, eyes, skin, height, race, etc.
 
-Out of the box Mirror will instantiate the player for you, which might prevent you from customizing your character. However Mirror provides the option of overriding player creation to anything.
+By default Mirror will instantiate the player for you, which might prevent you from customizing it. However Mirror provides the option of overriding player creation and customize it.
 
 1) Create a class that extends NetworkManager if you have not done so. For example:
 ```cs
