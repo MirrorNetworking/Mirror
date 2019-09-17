@@ -401,7 +401,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartServer();
-                authenticator.OnServerAuthenticated.AddListener(OnServerConnectInternal);
+                authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
 
             ConfigureServerFrameRate();
@@ -474,7 +474,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
             if (runInBackground)
@@ -517,7 +517,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientConnectInternal);
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
             networkAddress = "localhost";
@@ -545,7 +545,7 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
-            authenticator?.OnServerAuthenticated.RemoveListener(OnServerConnectInternal);
+            authenticator?.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
 
             OnStopServer();
 
@@ -566,7 +566,7 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
-            authenticator?.OnClientAuthenticated.RemoveListener(OnClientConnectInternal);
+            authenticator?.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
 
             OnStopClient();
 
@@ -781,12 +781,12 @@ namespace Mirror
 
             if (authenticator != null)
             {
-                // if we have an authenticator then let it handle authentication
+                // we have an authenticator - let it handle authentication
                 authenticator.OnServerAuthenticateInternal(conn);
             }
             else
             {
-                // otherwise authenticate immediately
+                // authenticate immediately
                 OnServerAuthenticated(conn);
             }
         }
@@ -878,12 +878,12 @@ namespace Mirror
 
             if (authenticator != null)
             {
-                // if we have an authenticator then let it handle authentication
+                // we have an authenticator - let it handle authentication
                 authenticator.OnClientAuthenticateInternal(conn);
             }
             else
             {
-                // otherwise authenticate immediately
+                // authenticate immediately
                 OnClientAuthenticated(conn);
             }
         }
