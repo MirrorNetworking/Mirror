@@ -794,6 +794,8 @@ namespace Mirror
         // called after successful authentication
         void OnServerAuthenticated(NetworkConnection conn)
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
+
             // set connection to authenticated
             conn.isAuthenticated = true;
 
@@ -867,7 +869,7 @@ namespace Mirror
 
         void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticateInternal");
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
             if (authenticator != null)
             {
@@ -884,6 +886,8 @@ namespace Mirror
         // called after successful authentication
         void OnClientAuthenticated(NetworkConnection conn)
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
+
             // set connection to authenticated
             conn.isAuthenticated = true;
 
