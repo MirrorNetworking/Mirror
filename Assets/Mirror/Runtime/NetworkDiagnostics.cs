@@ -51,7 +51,7 @@ namespace Mirror
         public static event Action<MessageInfo> OutMessageEvent;
 
         [Conditional("ENABLE_PROFILER")]
-        internal static void Send<T>(T message, int channel, int bytes, int count) where T : IMessageBase
+        internal static void OnSend<T>(T message, int channel, int bytes, int count) where T : IMessageBase
         {
             MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
             OutMessageEvent?.Invoke(outMessage);
@@ -67,7 +67,7 @@ namespace Mirror
         public static event Action<MessageInfo> InMessageEvent;
         
         [Conditional("ENABLE_PROFILER")]
-        internal static void Receive<T>(T message, int channel, int bytes) where T : IMessageBase
+        internal static void OnReceive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
             MessageInfo inMessage = new MessageInfo(message, channel, bytes, 1);
             InMessageEvent?.Invoke(inMessage);

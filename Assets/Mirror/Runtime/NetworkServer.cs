@@ -251,7 +251,7 @@ namespace Mirror
                 {
                     result &= kvp.Value.SendBytes(bytes);
                 }
-                NetworkDiagnostics.Send(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
+                NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
                 return result;
             }
             return false;
@@ -298,7 +298,7 @@ namespace Mirror
                 result &= kvp.Value.SendBytes(bytes, channelId);
             }
 
-            NetworkDiagnostics.Send(msg, channelId, bytes.Length, connections.Count);
+            NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
 
             return result;
         }
@@ -361,7 +361,7 @@ namespace Mirror
                         count++;
                     }
                 }
-                NetworkDiagnostics.Send(msg, channelId, bytes.Length, count);
+                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, count);
                 return result;
             }
             return false;
