@@ -545,7 +545,8 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
-            authenticator?.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
+            if (authenticator != null)
+                authenticator.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
 
             OnStopServer();
 
@@ -566,7 +567,8 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
-            authenticator?.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+            if (authenticator != null)
+                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
 
             OnStopClient();
 
