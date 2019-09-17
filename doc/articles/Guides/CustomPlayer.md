@@ -1,6 +1,6 @@
 # Customizable Players
 
-In many games you want to customize character creation.  You may want to pick the color of the hair, eyes, skin, height, race, etc.
+Many games need character customization.  You may want to pick the color of the hair, eyes, skin, height, race, etc.
 
 By default Mirror will instantiate the player for you, which might prevent you from customizing it. However Mirror provides the option of overriding player creation and customize it.
 
