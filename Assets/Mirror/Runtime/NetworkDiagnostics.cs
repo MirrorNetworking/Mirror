@@ -50,6 +50,7 @@ namespace Mirror
         /// </summary>
         public static event Action<MessageInfo> OutMessageEvent;
 
+        // ENABLE_PROFILER is enabled by Unity when enabling profiling.
         [Conditional("ENABLE_PROFILER")]
         internal static void OnSend<T>(T message, int channel, int bytes, int count) where T : IMessageBase
         {
@@ -66,6 +67,7 @@ namespace Mirror
         /// </summary>
         public static event Action<MessageInfo> InMessageEvent;
         
+        // ENABLE_PROFILER is enabled by Unity when enabling profiling.
         [Conditional("ENABLE_PROFILER")]
         internal static void OnReceive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
