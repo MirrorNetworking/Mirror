@@ -130,6 +130,12 @@ namespace Mirror
                 networkMessage.conn.Disconnect();
                 return;
             }
+            finally
+            {
+                // TODO: Figure out the correct channel
+                ProfilerData.Receive(message, Channels.DefaultReliable, networkMessage.reader.Length);
+            }
+
             handler(networkMessage.conn, message);
         };
     }

@@ -212,6 +212,7 @@ namespace Mirror
         {
             // pack message and send
             byte[] message = MessagePacker.Pack(msg);
+            ProfilerData.Send(msg, channelId, message.Length, 1);
             return SendBytes(message, channelId);
         }
 
