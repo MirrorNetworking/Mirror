@@ -18,16 +18,8 @@ namespace Mirror.Examples.Additive
         {
             Debug.LogFormat("Loading {0}", subScene);
 
-            //// Get a reference to the SceneLoader component on the player prefab
-            //SceneLoader sceneLoader = other.gameObject.GetComponent<SceneLoader>();
-
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-
             NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive });
-
-            //// One or both of these might be null if you don't have Layers set up properly
-            //if (sceneLoader != null && networkIdentity != null)
-            //    sceneLoader.TargetLoadUnloadScene(networkIdentity.connectionToClient, subScene, SceneLoader.LoadAction.Load);
         }
 
         [Server]
@@ -35,16 +27,8 @@ namespace Mirror.Examples.Additive
         {
             Debug.LogFormat("Unloading {0}", subScene);
 
-            //// Get a reference to the SceneLoader component on the player prefab
-            //SceneLoader sceneLoader = other.gameObject.GetComponent<SceneLoader>();
-
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
-
             NetworkServer.SendToClientOfPlayer(networkIdentity, new SceneMessage { sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive });
-
-            //// One or both of these might be null if you don't have Layers set up properly
-            //if (sceneLoader != null && networkIdentity != null)
-            //    sceneLoader.TargetLoadUnloadScene(networkIdentity.connectionToClient, subScene, SceneLoader.LoadAction.Unload);
         }
     }
 }
