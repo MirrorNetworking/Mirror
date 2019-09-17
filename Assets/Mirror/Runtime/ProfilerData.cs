@@ -11,12 +11,10 @@ namespace Mirror
     /// </summary>
     public static class ProfilerData
     {
-        #region Out messages
-
         /// <summary>
         /// Describes an outgoing message
         /// </summary>
-        public readonly struct OutMessage
+        public readonly struct MessageInfo
         {
             /// <summary>
             /// The message being sent
@@ -36,7 +34,7 @@ namespace Mirror
             /// </summary>
             public readonly int count;
 
-            internal OutMessage(IMessageBase message, int channel, int bytes, int count)
+            internal MessageInfo(IMessageBase message, int channel, int bytes, int count)
             {
                 this.message = message;
                 this.channel = channel;
@@ -45,16 +43,17 @@ namespace Mirror
             }
         }
 
+        #region Out messages
         /// <summary>
         /// Event that gets raised when Mirror sends a message
         /// Subscribe to this if you want to profile the network
         /// </summary>
-        public static event Action<OutMessage> OutMessageEvent;
+        public static event Action<MessageInfo> OutMessageEvent;
 
         [Conditional("ENABLE_PROFILER")]
         internal static void Send<T>(T message, int channel, int bytes, int count) where T : IMessageBase
         {
-            OutMessage outMessage = new OutMessage(message, channel, bytes, count);
+            MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
             OutMessageEvent?.Invoke(outMessage);
         }
         #endregion
@@ -62,41 +61,15 @@ namespace Mirror
         #region In messages
 
         /// <summary>
-        /// Describe a message received by mirror
-        /// </summary>
-        public readonly struct InMessage
-        {
-            /// <summary>
-            /// The message received
-            /// </summary>
-            public readonly IMessageBase message;
-            /// <summary>
-            /// The channel through which the message was received
-            /// </summary>
-            public readonly int channel;
-            /// <summary>
-            /// How big was the message (not including transport headers)
-            /// </summary>
-            public readonly int bytes;
-
-            internal InMessage(IMessageBase message, int channel, int bytes)
-            {
-                this.message = message;
-                this.channel = channel;
-                this.bytes = bytes;
-            }
-        }
-
-        /// <summary>
         /// Event that gets raised when Mirror receives a message
         /// Subscribe to this if you want to profile the network
         /// </summary>
-        public static event Action<InMessage> InMessageEvent;
+        public static event Action<MessageInfo> InMessageEvent;
         
         [Conditional("ENABLE_PROFILER")]
         internal static void Receive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
-            InMessage inMessage = new InMessage(message, channel, bytes);
+            MessageInfo inMessage = new MessageInfo(message, channel, bytes, 1);
             InMessageEvent?.Invoke(inMessage);
         }
 
