@@ -149,23 +149,24 @@ namespace Mirror
             isReady = false;
             ClientScene.HandleClientDisconnect(this);
 
+            // server is running
             if (Transport.activeTransport.ServerActive())
             {
+                // server and local host player - disconnect this client
                 if (connectionId == 0)
                 {
-                    // server and local host player - disconnect this client
                     NetworkClient.connectState = ConnectState.Disconnected;
                     InvokeHandler(new DisconnectMessage());
                 }
+                // server but not local host player - disconnect that client
                 else
                 {
-                    // server but not local host player - disconnect that client
                     Transport.activeTransport.ServerDisconnect(connectionId);
                 }
             }
+            // not server - disconnect this client
             else
             {
-                // not server - disconnect this client
                 Transport.activeTransport.ClientDisconnect();
             }
 
