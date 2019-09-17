@@ -165,7 +165,7 @@ namespace Mirror
             }
             else
             {
-                // not server -  disconnect this client
+                // not server - disconnect this client
                 Transport.activeTransport.ClientDisconnect();
             }
 
