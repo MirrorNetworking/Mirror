@@ -12,7 +12,7 @@ public class MMONetworkManager : NetworkManager
 }
 ```
 and use it as your Network manager.
-2) Open your Network Manager and disable the "Auto Create Player" boolean.
+2) Open your Network Manager in the inspector and disable the "Auto Create Player" boolean.
 3) Create a message that describes your player.  For example:
 ```cs
 public class CreateMMOCharacterMessage : MessageBase
