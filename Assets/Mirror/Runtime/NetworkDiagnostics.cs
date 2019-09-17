@@ -46,7 +46,7 @@ namespace Mirror
         #region Out messages
         /// <summary>
         /// Event that gets raised when Mirror sends a message
-        /// Subscribe to this if you want to profile the network
+        /// Subscribe to this if you want to diagnose the network
         /// </summary>
         public static event Action<MessageInfo> OutMessageEvent;
 
