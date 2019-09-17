@@ -16,67 +16,45 @@ When you have a multiplayer game, often you need to store information about your
 
 -   Use a web service in your website
 
-Trying to write a comprehensive authentication framework that cover all these is very complex. There is no one size fit all, and we would quickly end up with bloated code.
+Mirror includes an  `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
-Instead, **Mirror does not perform authentication**, but we provide hooks you can use to implement any of these.
+## Encryption Warning
 
-Here is an example of how to implement simple username/password authentication:
+By default Mirror uses Telepathy, which is not encrypted, so if you want to do authentication through Mirror, we highly recommend you use a transport that supports encryption.
 
-1.  Select your `NetworkManager` game object in the unity editor.
+## Custom Authenticators
 
-2.  In the inspector, under `Spawn Info`, disable `Auto Create Player`
+To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `Authenticator` and override the methods as needed.
 
-3.  Call `AddPlayer` in your client to pass the credentials.
+-   When a client is authenticated to your satisfaction, you simply call `base.OnServerAuthenticated.Invoke(conn)` and `base.OnClientAuthenticated.Invoke(conn)` on the server and client, respectively.  Mirror is listening for these events to proceed with the connection sequence.
 
-4.  Override the `OnServerAddPlayer` method and validate the user's credential.
+-   In the inspector you can optionally subscribe your own methods to the OnServerAuthenticated and OnClientAuthenticated events.
 
-For example this would be part of your `NetworkManager` class:
+Here are some tips for custom Authenticators:
 
-```cs
-class MyGameNetworkManager : NetworkManager
-{
-    class CredentialsMessage : MessageBase
-    {
-        // use whatever credentials make sense for your game
-        // for example, you might want to pass the accessToken if using oauth
-        public string username;
-        public string password;
-    }
+-   `OnStartServer` and `OnStartClient` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
 
-    // this gets called on the client after it has connected to the server
-    public override void OnClientConnect(NetworkConnection conn)
-    {
-        base.OnClientConnect(conn);
+-   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 
-        CredentialsMessage msg = new CredentialsMessage()
-        {
-            // perhaps get the username and password from textboxes instead
-            username = "Joe",
-            password = "Gaba Gaba"
-        };
+-   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
 
-        ClientScene.AddPlayer(conn, MessagePacker.Pack(msg));
-    }
+    -   Remember to put a small delay on the Disconnect call on the server if you send a failure message so that it has a chance to be delivered before the connection is dropped.
 
-    // this gets called in your server when the client requests to add a player.
-    public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-    {
-        CredentialsMessage msg = MessagePacker.Unpack<CredentialsMessage>(extraMessage.value);
+-   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
 
-        // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-        if (msg.username == "Joe" && msg.password == "Gaba Gaba")
-        {
-            // proceed to regular add player
-            base.OnServerAddPlayer(conn, extraMessage);
-        }
-        else
-        {
-            conn.Disconnect();
-        }
-    }
-}
-```
+Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom messages between the server and client as necessary to complete your authentication process before approving the client.
 
-## Warning
+## Basic Authenticator
 
-By default Mirror uses Telepathy, which is not encrypted. The above code sample works, but if you want to do authentication through Mirror, we highly recommend you use a transport that supports encryption.
+Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
+
+-   Drag the Basic Authenticator script to the inspector of the object in your scene that has Network Manager
+
+-   The Basic Authenticator component will automatically be assigned to the Authenticator field in Network Manager
+
+When you're done, it should look like this:
+
+![Inspector showing Basic Authentication component](BasicAuthentication.PNG)
+
+>   **Note:** You don't need to assign anything to the event lists unless you want to subscribe to the events in your own code for your own purposes. Mirror has internal listeners for both events.
+
