@@ -1,8 +1,0 @@
-- name: Application Events
-  href: Application.md
-- name: Server Events
-  href: Server.md
-- name: Client Events
-  href: Client.md
-- name: Other Events
-  href: Other.md

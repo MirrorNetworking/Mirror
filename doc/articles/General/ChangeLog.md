@@ -2,8 +2,8 @@
 
 ## Version 3.x.x - In Progress
 
-- Pending: Component-based Authentication support to authenticate clients in the Connect phase.
-- Pending: NetworkClient handlers are now cleared in Shutdown.
+- Added: Authentication support to authenticate clients in the Connect phase.
+- Fixed: NetworkClient handlers are now cleared in Shutdown.
 - Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected.
 - Fixed: Start Position Index is now reset to zero when server is stopped.
 - Fixed: Network Room Players are now all in DontDestroyOnLoad so they don't respawn in the game scene.
@@ -139,9 +139,9 @@
 - Changed: Documentation for [Transports](../Transports/index.md)
 - Changed: Weaver is now full source...FINALLY!
 - Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
-    - Please refer to the code sample [here](../Concepts/Authentication.md) to see how to update your code.
+    - Please refer to the code sample [here](../Guides/Authentication.md) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
-- Changed: Removed Message ID's for all messages - See [Network Messages](../Concepts/Communications/NetworkMessages.md) for details  
+- Changed: Removed Message ID's for all messages - See [Network Messages](../Guides/Communications/NetworkMessages.md) for details  
     - Message IDs are now generated automatically based on the message name.  
     - Previously you would call Send(MyMessage.MsgId, message), now you call Send(message)
 - Removed: Documentation for Groove Transport - use Websockets Transport instead

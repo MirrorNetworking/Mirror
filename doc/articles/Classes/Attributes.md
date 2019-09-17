@@ -20,13 +20,13 @@ These attributes can be used for Unity game loop methods like Start or Update, a
     A Custom Attribute that can be added to member functions of NetworkBehaviour scripts, to make them only run on clients, but not generate warnings.
 
 -   **ClientRpc**  
-    The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](../Concepts/Communications/RemoteActions.md)
+    The server uses a Remote Procedure Call (RPC) to run that function on clients. See also: [Remote Actions](../Guides/Communications/RemoteActions.md)
 
 -   **TargetRpc**  
-    This is an attribute that can be put on methods of NetworkBehaviour classes to allow them to be invoked on clients from a server. Unlike the ClientRpc attribute, these functions are invoked on one individual target client, not all of the ready clients. See also: [Remote Actions](../Concepts/Communications/RemoteActions.md)
+    This is an attribute that can be put on methods of NetworkBehaviour classes to allow them to be invoked on clients from a server. Unlike the ClientRpc attribute, these functions are invoked on one individual target client, not all of the ready clients. See also: [Remote Actions](../Guides/Communications/RemoteActions.md)
 
 -   **Command**  
-    Call this from a client to run this function on the server. Make sure to validate input etc. It's not possible to call this from a server. Use this as a wrapper around another function, if you want to call it from the server too. See also [Remote Actions​](../Concepts/Communications/RemoteActions.md)  
+    Call this from a client to run this function on the server. Make sure to validate input etc. It's not possible to call this from a server. Use this as a wrapper around another function, if you want to call it from the server too. See also [Remote Actions​](../Guides/Communications/RemoteActions.md)  
     The allowed argument types are:
 
     -   Basic type (byte, int, float, string, UInt64, etc)

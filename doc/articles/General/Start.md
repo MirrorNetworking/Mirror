@@ -24,7 +24,7 @@ See [Using the NetworkManager](../Components/NetworkManager.md).
 
 -   Remove the player game object instance from the Scene if it exists in the Scene
 
-See [Player Objects](../Concepts/GameObjects/SpawnPlayer.md) for more information.
+See [Player Objects](../Guides/GameObjects/SpawnPlayer.md) for more information.
 
 ## Player movement
 
@@ -61,7 +61,7 @@ public class Controls : NetworkBehaviour
 
 -   Make important member variables into SyncVars
 
-See [State Synchronization](../Concepts/StateSync.md).
+See [State Synchronization](../Guides/StateSync.md).
 
 ## Networked actions
 
@@ -69,7 +69,7 @@ See [State Synchronization](../Concepts/StateSync.md).
 
 -   Update functions that perform important player actions to be commands
 
-See [Networked Actions](../Concepts/Communications/index.md).
+See [Networked Actions](../Guides/Communications/index.md).
 
 ## Non-player game objects
 

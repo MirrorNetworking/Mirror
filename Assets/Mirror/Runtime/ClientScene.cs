@@ -227,8 +227,14 @@ namespace Mirror
             return null;
         }
 
-        // spawn handlers and prefabs
-        static bool GetPrefab(Guid assetId, out GameObject prefab)
+        /// <summary>
+        /// Find the registered prefab for this asset id.
+        /// Useful for debuggers
+        /// </summary>
+        /// <param name="assetId">asset id of the prefab</param>
+        /// <param name="prefab">the prefab gameobject</param>
+        /// <returns>true if prefab was registered</returns>
+        public static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
             return assetId != Guid.Empty &&

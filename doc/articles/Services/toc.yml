@@ -1,8 +1,0 @@
-- name: Match Service
-  href: Match.md
-- name: Chat Service
-  href: Chat.md
-- name: NAT Service
-  href: NAT.md
-- name: Relay Service
-  href: Relay.md
