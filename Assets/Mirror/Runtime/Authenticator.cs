@@ -30,6 +30,8 @@ namespace Mirror
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEventNetworkConnection OnClientAuthenticated = new UnityEventNetworkConnection();
 
+        #region server
+
         /// <summary>
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
@@ -57,6 +59,10 @@ namespace Mirror
             conn.isAuthenticated = true;
         }
 
+        #endregion
+
+        #region client
+
         // This will get more code in the near future
         internal void OnClientAuthenticateInternal(NetworkConnection conn)
         {
@@ -71,6 +77,8 @@ namespace Mirror
         {
             conn.isAuthenticated = true;
         }
+
+        #endregion
 
         void OnValidate()
         {

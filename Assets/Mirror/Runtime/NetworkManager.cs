@@ -360,7 +360,7 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler<ConnectMessage>(OnServerAuthenticateInternal);
+            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
@@ -443,7 +443,7 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientAuthenticateInternal);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
             NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
@@ -775,9 +775,9 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void OnServerAuthenticateInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticateInternal");
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
             if (authenticator != null)
             {
@@ -798,13 +798,6 @@ namespace Mirror
             conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnServerConnect
-            OnServerConnectInternal(conn);
-        }
-
-        void OnServerConnectInternal(NetworkConnection conn)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
-
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
@@ -872,7 +865,7 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientAuthenticateInternal(NetworkConnection conn, ConnectMessage message)
+        void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticateInternal");
 
@@ -895,13 +888,6 @@ namespace Mirror
             conn.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnClientConnect
-            OnClientConnectInternal(conn);
-        }
-
-        void OnClientConnectInternal(NetworkConnection conn)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
-
             string loadedSceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
