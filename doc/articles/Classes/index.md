@@ -2,13 +2,13 @@
 
 Mirror includes the following classes:
 
--   [NetworkServer](NetworkServer.md)  
+-   [NetworkServer](../../api/Mirror.NetworkServer.html)  
     Network Server is a High-Level-API class that manages connections from multiple clients.
 
--   [NetworkClient](NetworkClient.md)  
+-   [NetworkClient](../../api/Mirror.NetworkClient.html)  
     Network Client is a high-level API class that manages a network connection from a client to a server, and can send and receive messages between the client and the server.
 
--   [NetworkConnection](NetworkConnection.md)  
+-   [NetworkConnection](../../api/Mirror.NetworkConnecion.html)  
     Network Connection is a high-level API class that encapsulates a network connection.
 
 -   [NetworkBehaviour](NetworkBehaviour.md)  

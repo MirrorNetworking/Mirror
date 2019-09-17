@@ -120,7 +120,7 @@ Commands are called just by invoking the function normally on the client. Instea
 
 Commands are type-safe, have built-in security and routing to the player, and use an efficient serialization mechanism for the arguments to make calling them fast.
 
-See [Communications](../Concepts/Communications/index.md) and related sections for more information.
+See [Communications](../Guides/Communications/index.md) and related sections for more information.
 
 ## Client RPC Calls
 
@@ -134,7 +134,7 @@ To define a Client RPC call in your code, you must write a function which:
 
 -   Has the `ClientRPC` attribute
 
-See [Communications](../Concepts/Communications/index.md) and related sections for more information.
+See [Communications](../Guides/Communications/index.md) and related sections for more information.
 
 ## Networked Events
 
