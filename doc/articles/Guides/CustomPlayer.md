@@ -64,7 +64,7 @@ public class MMONetworkManager : NetworkManager
         // however appropriate for your game
         // Typically Player would be a component you write
         // with syncvars or properties
-        var player = gameobject.getComponent<Player>();
+        Player player = gameobject.GetComponent<Player>();
         player.hairColor = message.hairColor;
         player.eyeColor = message.eyeColor;
         player.name = message.name;
