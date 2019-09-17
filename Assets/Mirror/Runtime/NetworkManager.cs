@@ -92,6 +92,10 @@ namespace Mirror
         [FormerlySerializedAs("m_MaxConnections")]
         public int maxConnections = 4;
 
+        [Header("Authentication")]
+
+        public NetworkAuthenticator authenticator;
+
         [Header("Spawn Info")]
 
         /// <summary>
@@ -394,6 +398,12 @@ namespace Mirror
             if (runInBackground)
                 Application.runInBackground = true;
 
+            if (authenticator != null)
+            {
+                authenticator.OnStartServer();
+                authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
+            }
+
             ConfigureServerFrameRate();
 
             if (!NetworkServer.Listen(maxConnections))
@@ -461,6 +471,12 @@ namespace Mirror
         {
             InitializeSingleton();
 
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+
             if (runInBackground)
                 Application.runInBackground = true;
 
@@ -497,6 +513,13 @@ namespace Mirror
         void ConnectLocalClient()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
             NetworkClient.ConnectLocalServer();
@@ -522,6 +545,9 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
+            if (authenticator != null)
+                authenticator.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
+
             OnStopServer();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
@@ -541,6 +567,9 @@ namespace Mirror
         /// </summary>
         public void StopClient()
         {
+            if (authenticator != null)
+                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+
             OnStopClient();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
@@ -752,6 +781,27 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
+            if (authenticator != null)
+            {
+                // we have an authenticator - let it handle authentication
+                authenticator.OnServerAuthenticateInternal(conn);
+            }
+            else
+            {
+                // authenticate immediately
+                OnServerAuthenticated(conn);
+            }
+        }
+
+        // called after successful authentication
+        void OnServerAuthenticated(NetworkConnection conn)
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
+
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            // proceed with the login handshake by calling OnServerConnect
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
                 SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
@@ -823,6 +873,27 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 
+            if (authenticator != null)
+            {
+                // we have an authenticator - let it handle authentication
+                authenticator.OnClientAuthenticateInternal(conn);
+            }
+            else
+            {
+                // authenticate immediately
+                OnClientAuthenticated(conn);
+            }
+        }
+
+        // called after successful authentication
+        void OnClientAuthenticated(NetworkConnection conn)
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientAuthenticated");
+
+            // set connection to authenticated
+            conn.isAuthenticated = true;
+
+            // proceed with the login handshake by calling OnClientConnect
             string loadedSceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || loadedSceneName == onlineScene)
             {
