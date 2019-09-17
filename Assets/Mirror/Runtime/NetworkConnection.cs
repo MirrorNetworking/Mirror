@@ -64,7 +64,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
-        [Obsolete("renamed to identity")]
+        [Obsolete("Use NetworkConnection.identity instead")]
         public NetworkIdentity playerController
         {
             get
