@@ -581,7 +581,7 @@ namespace Mirror
 
             if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
             {
-                ClientChangeScene(offlineScene, LoadSceneMode.Single, LocalPhysicsMode.None);
+                ClientChangeScene(offlineScene, SceneOperation.Normal);
             }
 
             CleanupNetworkIdentities();
@@ -619,15 +619,11 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
-            LoadSceneParameters loadSceneParameters = new LoadSceneParameters(sceneMode, physicsMode);
-
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, loadSceneParameters);
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             SceneMessage msg = new SceneMessage()
             {
                 sceneName = newSceneName,
-                sceneMode = loadSceneParameters.loadSceneMode,
-                physicsMode = loadSceneParameters.localPhysicsMode
             };
 
             NetworkServer.SendToAll(msg);
@@ -644,7 +640,7 @@ namespace Mirror
             }
         }
 
-        internal void ClientChangeScene(string newSceneName, LoadSceneMode sceneMode, LocalPhysicsMode physicsMode)
+        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -661,16 +657,32 @@ namespace Mirror
             Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
-            OnClientChangeScene(newSceneName);
+            OnClientChangeScene(newSceneName, sceneOperation);
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, new LoadSceneParameters()
+            switch (sceneOperation)
             {
-                loadSceneMode = sceneMode,
-                localPhysicsMode = physicsMode,
-            });
+                case SceneOperation.Normal:
+                    loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+                    break;
+                case SceneOperation.LoadAdditive:
+                    if (!SceneManager.GetSceneByName(newSceneName).IsValid())
+                        loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
+                    else
+                        Debug.LogWarningFormat("Scene {0} is already loaded", newSceneName);
+                    break;
+                case SceneOperation.UnloadAdditive:
+                    if (SceneManager.GetSceneByName(newSceneName).IsValid())
+                    {
+                        if (SceneManager.GetSceneByName(newSceneName) != null)
+                            loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                    }
+                    else
+                        Debug.LogWarning("Cannot unload the active scene with UnloadAdditive operation");
+                    break;
+            }
 
             // don't change the client's current networkSceneName when loading additive scene content
-            if (sceneMode == LoadSceneMode.Single)
+            if (sceneOperation == SceneOperation.Normal)
                 networkSceneName = newSceneName;
         }
 
@@ -935,7 +947,7 @@ namespace Mirror
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(msg.sceneName, msg.sceneMode, msg.physicsMode);
+                ClientChangeScene(msg.sceneName, msg.sceneOperation);
             }
         }
 
@@ -1098,11 +1110,22 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
+        /// Obsolete: Use <see cref="OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)"/> instead.).
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) instead")]
+        public virtual void OnClientChangeScene(string newSceneName)
+        {
+            OnClientChangeScene(newSceneName, SceneOperation.Normal);
+        }
+
+        /// <summary>
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        public virtual void OnClientChangeScene(string newSceneName) { }
+        /// <param name="sceneOperation">Scene operation that's about to happen</param>
+        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) { }
 
         /// <summary>
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
