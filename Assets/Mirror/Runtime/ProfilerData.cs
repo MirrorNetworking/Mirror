@@ -45,19 +45,17 @@ namespace Mirror
             }
         }
 
-        public class OutMessageUnityEvent : UnityEvent<OutMessage> { };
-
         /// <summary>
         /// Event that gets raised when Mirror sends a message
         /// Subscribe to this if you want to profile the network
         /// </summary>
-        public static OutMessageUnityEvent OutMessageEvent = new OutMessageUnityEvent();
+        public static event Action<OutMessage> OutMessageEvent;
 
         [Conditional("ENABLE_PROFILER")]
         internal static void Send<T>(T message, int channel, int bytes, int count) where T : IMessageBase
         {
             OutMessage outMessage = new OutMessage(message, channel, bytes, count);
-            OutMessageEvent.Invoke(outMessage);
+            OutMessageEvent?.Invoke(outMessage);
         }
         #endregion
 
@@ -89,19 +87,17 @@ namespace Mirror
             }
         }
 
-        public class InMessageUnityEvent : UnityEvent<InMessage> { };
-
         /// <summary>
         /// Event that gets raised when Mirror receives a message
         /// Subscribe to this if you want to profile the network
         /// </summary>
-        public static InMessageUnityEvent InMessageEvent = new InMessageUnityEvent();
+        public static event Action<InMessage> InMessageEvent;
         
         [Conditional("ENABLE_PROFILER")]
         internal static void Receive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
             InMessage inMessage = new InMessage(message, channel, bytes);
-            InMessageEvent.Invoke(inMessage);
+            InMessageEvent?.Invoke(inMessage);
         }
 
         #endregion
