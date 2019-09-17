@@ -1110,12 +1110,22 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
+        /// Obsolete: Use <see cref="OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)"/> instead.).
+        /// </summary>
+        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) instead")]
+        public virtual void OnClientChangeScene(string newSceneName)
+        {
+            OnClientChangeScene(newSceneName, SceneOperation.Normal);
+        }
+
+        /// <summary>
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal) { }
+        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) { }
 
         /// <summary>
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
