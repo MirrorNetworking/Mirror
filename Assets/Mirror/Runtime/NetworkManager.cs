@@ -94,7 +94,7 @@ namespace Mirror
 
         [Header("Authentication")]
 
-        public Authenticator authenticator;
+        public NetworkAuthenticator authenticator;
 
         [Header("Spawn Info")]
 
