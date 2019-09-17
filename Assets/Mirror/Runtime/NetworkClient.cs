@@ -402,15 +402,15 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="handler"></param>
-        /// <param name="authenticated">true if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool authenticated = true) where T : IMessageBase, new()
+        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) Debug.Log("NetworkClient.RegisterHandler replacing " + handler + " - " + msgType);
             }
-            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, authenticated);
+            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
         }
 
         /// <summary>
