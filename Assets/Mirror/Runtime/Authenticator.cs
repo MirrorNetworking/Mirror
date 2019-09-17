@@ -54,10 +54,7 @@ namespace Mirror
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public virtual void OnServerAuthenticate(NetworkConnection conn)
-        {
-            conn.isAuthenticated = true;
-        }
+        public abstract void OnServerAuthenticate(NetworkConnection conn);
 
         #endregion
 
@@ -73,10 +70,7 @@ namespace Mirror
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection of the client.</param>
-        public virtual void OnClientAuthenticate(NetworkConnection conn)
-        {
-            conn.isAuthenticated = true;
-        }
+        public abstract void OnClientAuthenticate(NetworkConnection conn);
 
         #endregion
 
