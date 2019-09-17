@@ -24,7 +24,7 @@ public class CreateMMOCharacterMessage : MessageBase
     ...
 }
 ```
-4) Create your player prefabs (as many as you need) and add them to the "Register Spawnable Prefabs" in your Network Manager
+4) Create your player prefabs (as many as you need) and add them to the "Register Spawnable Prefabs" in your Network Manager,  or add a single prefab to the player prefab field in the inspector.
 5) Send your message and register a player
 ```cs
 public class MMONetworkManager : NetworkManager
@@ -34,22 +34,6 @@ public class MMONetworkManager : NetworkManager
         base.OnStartServer();
 
         NetworkServer.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
-    }
-
-    private void OnCreateCharacter(NetworkConnection conn, CreateMMOCharacterMessage message)
-    {
-        // use message data to locate the prefab 
-        // and intitialize whatever attribute you want
-        Race race = message.race;
-        String name = message.name;
-        Color hairColor = message.hairColor;
-        Color eyeColor = message.eyeColor;
-
-        GameObject player = Instantiate(somePrefab);
-
-        // call this to use this gameobject as the 
-        // primary controller
-        NetworkServer.AddPlayerForConnection(conn, player);
     }
 
     public override void OnClientConnect(NetworkConnection conn)
@@ -67,5 +51,29 @@ public class MMONetworkManager : NetworkManager
 
         conn.Send(characterMessage);
     }
+
+    private void OnCreateCharacter(NetworkConnection conn, CreateMMOCharacterMessage message)
+    {
+        // playerPrefab is the one assigned
+        // in the inspector in Network Manager
+        // but you can use different prefabs
+        // per race for example
+        GameObject gameobject = Instantiate(playerPrefab);
+
+        // apply data from the message
+        // however appropriate for your game
+        // Typically Player would be a component you write
+        // with syncvars or properties
+        var player = gameobject.getComponent<Player>();
+        player.hairColor = message.hairColor;
+        player.eyeColor = message.eyeColor;
+        player.name = message.name;
+
+        // call this to use this gameobject as the 
+        // primary controller
+        NetworkServer.AddPlayerForConnection(conn, player);
+    }
+
+   
 }
 ```
