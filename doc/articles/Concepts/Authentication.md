@@ -26,9 +26,9 @@ By default Mirror uses Telepathy, which is not encrypted, so if you want to do a
 
 To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `Authenticator` and override the methods as needed.
 
--   When a client is authenticated to your satisfaction, you simple call `base.OnServerAuthenticated.Invoke(conn);` on **both** the server and client
+-   When a client is authenticated to your satisfaction, you simply call `base.OnServerAuthenticated.Invoke(conn)` and `base.OnClientAuthenticated.Invoke(conn)` on the server and client, respectively.  Mirror is listening for these events to proceed with the connection sequence.
 
--   The base Authenticor includes a timeout feature and Unity events you can subscribe to.
+-   In the inspector you can optionally subscribe your own methods to the OnServerAuthenticated and OnClientAuthenticated events.
 
 Here are some tips for custom Authenticators:
 
