@@ -28,6 +28,8 @@ To make your own custom Authenticator, you can just create a new script in your 
 
 -   When a client is authenticated to your satisfaction, you simply call `base.OnServerAuthenticated.Invoke(conn)` and `base.OnClientAuthenticated.Invoke(conn)` on the server and client, respectively.  Mirror is listening for these events to proceed with the connection sequence.
 
+-   The base Authenticor includes a timeout feature so you can prevent rogue clients from locking up your connections.
+
 -   In the inspector you can optionally subscribe your own methods to the OnServerAuthenticated and OnClientAuthenticated events.
 
 Here are some tips for custom Authenticators:
