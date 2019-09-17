@@ -11,25 +11,62 @@ namespace Mirror
     /// </summary>
     public static class ProfilerData
     {
-        public class SendMessageEvent : UnityEvent<IMessageBase, int, int, int> { };
-
-        public static SendMessageEvent SendMessage = new SendMessageEvent();
-
-
-        [Conditional("ENABLE_PROFILER")]
-        public static void Send<T>(T message, int channel, int bytes, int count) where T : IMessageBase
+        #region Out messages
+        public readonly struct OutMessage
         {
-            SendMessage.Invoke(message, channel, bytes, count);
+            public readonly IMessageBase message;
+            public readonly int channel;
+            public readonly int bytes;
+            public readonly int count;
+
+            internal OutMessage(IMessageBase message, int channel, int bytes, int count)
+            {
+                this.message = message;
+                this.channel = channel;
+                this.bytes = bytes;
+                this.count = count;
+            }
         }
 
-        public class ReceiveMessageEvent : UnityEvent<IMessageBase, int, int> { };
+        public class OutMessageUnityEvent : UnityEvent<OutMessage> { };
 
-        public static ReceiveMessageEvent ReceiveMessage = new ReceiveMessageEvent();
+        public static OutMessageUnityEvent OutMessageEvent = new OutMessageUnityEvent();
+
+        [Conditional("ENABLE_PROFILER")]
+        internal static void Send<T>(T message, int channel, int bytes, int count) where T : IMessageBase
+        {
+            OutMessage outMessage = new OutMessage(message, channel, bytes, count);
+            OutMessageEvent.Invoke(outMessage);
+        }
+        #endregion
+
+        #region In messages
+
+        public readonly struct InMessage
+        {
+            public readonly IMessageBase message;
+            public readonly int channel;
+            public readonly int bytes;
+
+            internal InMessage(IMessageBase message, int channel, int bytes)
+            {
+                this.message = message;
+                this.channel = channel;
+                this.bytes = bytes;
+            }
+        }
+
+        public class InMessageUnityEvent : UnityEvent<InMessage> { };
+
+        public static InMessageUnityEvent InMessageEvent = new InMessageUnityEvent();
         
         [Conditional("ENABLE_PROFILER")]
-        public static void Receive<T>(T message, int channel, int bytes) where T : IMessageBase
+        internal static void Receive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
-            ReceiveMessage.Invoke(message, channel, bytes);
+            InMessage inMessage = new InMessage(message, channel, bytes);
+            InMessageEvent.Invoke(inMessage);
         }
+
+        #endregion
     }
 }
