@@ -208,11 +208,11 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
+        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             // pack message and send
             byte[] message = MessagePacker.Pack(msg);
-            ProfilerData.Send(msg, channelId, message.Length, 1);
+            NetworkDiagnostics.Send(msg, channelId, message.Length, 1);
             return SendBytes(message, channelId);
         }
 

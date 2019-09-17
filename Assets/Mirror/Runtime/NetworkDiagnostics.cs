@@ -9,7 +9,7 @@ namespace Mirror
     /// A profiler can subscribe to these events and
     /// present the data in a friendly way to the user
     /// </summary>
-    public static class ProfilerData
+    public static class NetworkDiagnostics
     {
         /// <summary>
         /// Describes an outgoing message
