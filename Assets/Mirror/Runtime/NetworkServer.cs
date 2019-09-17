@@ -114,7 +114,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
-            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing);
+            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
         }
 
         /// <summary>
@@ -550,14 +550,15 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: IMessageBase, new()
+        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T: IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
-            handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
+            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
         }
 
         /// <summary>

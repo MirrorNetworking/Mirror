@@ -360,12 +360,12 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal);
-            NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal);
+            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
+            NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal);
+            NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
         }
 
         /// <summary>
@@ -443,10 +443,10 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal);
+            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
+            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal);
+            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal);
 
             if (playerPrefab != null)
