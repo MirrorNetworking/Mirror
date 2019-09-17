@@ -4,7 +4,7 @@
 
 Unlike SyncHashSets, all elements in a SyncSortedSet are sorted when they are inserted. Please note this has some performance implications.
 
-A SyncSortedSet can contain any [supported mirror type](../Concepts/DataTypes.md) 
+A SyncSortedSet can contain any [supported mirror type](../Guides/DataTypes.md) 
 
 ## Usage
 

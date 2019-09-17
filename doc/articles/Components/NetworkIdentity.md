@@ -15,13 +15,13 @@ If none of these options is checked, the server will have authority over the obj
 
 With the Unity’s server-authoritative networking system, the server must spawn networked game objects with network identities, using `NetworkServer.Spawn`. This automatically creates them on clients that are connected to the server, and assigns them a `netId`.
 
-You must put a Network Identity component on any Prefabs that spawn at runtime for the network system to use them. See [Object Spawning](../Concepts/GameObjects/SpawnObject.md) for more information.
+You must put a Network Identity component on any Prefabs that spawn at runtime for the network system to use them. See [Object Spawning](../Guides/GameObjects/SpawnObject.md) for more information.
 
 ## Scene-based Network Game Objects
 
 You can also network game objects that are saved as part of your Scene (for example, environmental props). Networking game objects makes them behave slightly differently, because you need to have them spawn across the network.
 
-When building your game, Unity disables all Scene-based game objects with Network Identity components. When a client connects to the server, the server sends spawn messages to tell the client which Scene game objects to enable and what their most up-to-date state information is. This ensures the client’s game does not contain game objects at incorrect locations when they start playing, or that Unity does not spawn and immediately destroy game objects on connection (for example, if an event removed the game object before that client connected). See [Networked Scene Game Objects](../Concepts/GameObjects/SceneObjects.md) for more information.
+When building your game, Unity disables all Scene-based game objects with Network Identity components. When a client connects to the server, the server sends spawn messages to tell the client which Scene game objects to enable and what their most up-to-date state information is. This ensures the client’s game does not contain game objects at incorrect locations when they start playing, or that Unity does not spawn and immediately destroy game objects on connection (for example, if an event removed the game object before that client connected). See [Networked Scene Game Objects](../Guides/GameObjects/SceneObjects.md) for more information.
 
 ## Preview Pane Information
 
