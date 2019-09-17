@@ -133,7 +133,7 @@ namespace Mirror
             finally
             {
                 // TODO: Figure out the correct channel
-                ProfilerData.Receive(message, Channels.DefaultReliable, networkMessage.reader.Length);
+                ProfilerData.Receive(message, -1, networkMessage.reader.Length);
             }
 
             handler(networkMessage.conn, message);
