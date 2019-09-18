@@ -5,7 +5,6 @@ State synchronization refers to the synchronization of values such as integers, 
 State synchronization is done from the Server to remote clients. The local client does not have data serialized to it. It does not need it, because it shares the Scene with the server. However, SyncVar hooks are called on local clients.
 
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
-
 -   [SyncVars](../Classes/SyncVars.md)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
 -   [SyncEvents](../Classes/SyncEvent.md)  
@@ -46,7 +45,6 @@ The `OnSerialize` function should return true to indicate that an update should 
 Game objects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these game objects is:
 
 On the server:
-
 -   Each `NetworkBehaviour` has a dirty mask. This mask is available inside `OnSerialize` as `syncVarDirtyBits`
 -   Each SyncVar in a `NetworkBehaviour` script is assigned a bit in the dirty mask.
 -   Changing the value of SyncVars causes the bit for that SyncVar to be set in the dirty mask
@@ -60,7 +58,6 @@ On the server:
 -   The `UpdateVars` packet is sent to ready clients that are observing the game object
 
 On the client:
-
 -   an `UpdateVars packet` is received for a game object
 -   The `OnDeserialize` function is called for each `NetworkBehaviour` script on the game object
 -   Each `NetworkBehaviour` script on the game object reads a dirty mask.

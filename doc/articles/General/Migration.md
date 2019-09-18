@@ -218,7 +218,6 @@ See for yourself how uMMORPG was migrated to Mirror
 [![Manually upgrading uMMORPG V1.130 to V1.131 (Mirror)](MigrationVideo.jpg)](http://www.youtube.com/watch?v=LF9rTSS3rlI)
 
 ## Possible Error Messages
-
 -   TypeLoadException: A type load exception has occurred. - happens if you still have SyncListStruct instead of SyncListSTRUCT in your project.
 -   NullPointerException: The most likely cause is that you replaced NetworkIdentities or other components but you had them assigned somewhere. Reassign those references.
 -   `error CS0246: The type or namespace name 'UnityWebRequest'  could not be found. Are you missing 'UnityEngine.Networking' using  directive?`

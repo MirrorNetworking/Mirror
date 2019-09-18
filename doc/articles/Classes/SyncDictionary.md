@@ -1,15 +1,10 @@
 # SyncDictionary
 
 A SyncDictionary is an associative array containing an unordered list of key, value pairs. Keys and values can be of the following types:
-
 -   Basic type (byte, int, float, string, UInt64, etc)
-
 -   Built-in Unity math type (Vector3, Quaternion, etc)
-
 -   NetworkIdentity
-
 -   Game object with a NetworkIdentity component attached.
-
 -   Struct with any of the above
 
 SyncDictionary works much like [SyncLists](SyncLists.md): when you make a change on the server the change is propagated to all clients and the Callback is called.

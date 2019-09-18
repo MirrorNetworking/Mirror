@@ -5,16 +5,12 @@ The Network Room Player stores per-player state for the [Network Room Manager](N
 A game object with a Network Room Player component must also have a Network Identity component. When you create a Network Room Player component on a game object, Unity also creates a Network Identity component on that game object if it does not already have one.
 
 ![Network Room Player](NetworkRoomPlayer.png)
-
 -   **Show Room GUI**  
     Enable this to show the developer GUI for players in the room. This UI is only intended to be used for ease of development. This is enabled by default.
-
 -   **Ready To Begin**  
     Enable this to have room players automatically be set to Ready.
-
 -   **Index**  
     Sequential index of the player, e.g. Player 1, Player 2, etc.
-
 -   **Network Sync Interval**  
     The rate at which information is sent from the Network Room Player to the server.
 

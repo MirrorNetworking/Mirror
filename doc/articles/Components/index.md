@@ -1,7 +1,6 @@
 # Components Overview
 
 General description of Components
-
 -   [NetworkManager](NetworkManager.md)  
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
 -   [NetworkRoomManager](NetworkRoomManager.md)  

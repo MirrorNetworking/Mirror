@@ -1,7 +1,6 @@
 # NetworkIdentity
 
 The Network Identity component is at the heart of the Unity networking high-level API. It controls a game object’s unique identity on the network, and it uses that identity to make the networking system aware of the game object. It offers two different options for configuration and they are mutually exclusive, which means either one of the options or none can be checked.
-
 -   **Server Only**  
     Tick this checkbox to ensure that Unity only spawns the game object on the server, and not on clients.
 -   **Local Player Authority**  
@@ -34,7 +33,6 @@ At runtime there is more information to display here (a disabled NetworkBehaviou
 ![Runtime Preview](NetworkIdentityPreviewRuntime.png)
 
 ## Properties
-
 -   **assetId**  
     This identifies the prefab associated with this object (for spawning).
 -   **clientAuthorityOwner**  
@@ -67,7 +65,6 @@ At runtime there is more information to display here (a disabled NetworkBehaviou
     A flag to make this object not be spawned on clients.
 
 ## Methods
-
 -   **AssignClientAuthority**  
     This assigns control of an object to a client via the client's NetworkConnection.
 -   **RebuildObservers**  

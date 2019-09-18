@@ -9,10 +9,8 @@ The Network Proximity Checker is implemented using the public visibility interfa
 The Network Proximity Checker calls the `RebuildObservers` method on the Network Identity component at a fixed interval (set using the “Vis Update Interval” value in the inspector), so that the set of network-visible game objects for each player is updated as they move around.
 
 On the `NetworkBehaviour`class (which your networked scripts inherit from), there are some virtual functions for determining visibility. These are:
-
 -   **OnCheckObserver**  
     This method is called on the server, on each networked game object when a new player enters the game. If it returns true, that player is added to the object’s observers. The Network Proximity Checker does a simple distance check in its implementation of this function, and uses `Physics.OverlapSphereNonAlloc` to find the players that are within the visibility distance for this object.
-
 -   **OnRebuildObservers**  
     This method is called on the server when `RebuildObservers` is invoked. This method expects the set of observers to be populated with the players that can see the object. The NetworkServer then handles sending `ObjectHide` and `ObjectSpawn` messages based on the differences between the old and new visibility sets.
 

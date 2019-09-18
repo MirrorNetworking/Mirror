@@ -3,46 +3,31 @@
 Network Connection is a high-level API class that encapsulates a network connection. `NetworkClient` objects have a single connection, and `NetworkServer`'s have multiple connections - one from each client. Network Connections have the ability to send byte arrays or serialized objects as network messages.
 
 ## Constructors
-
 -   **NetworkConnection**()
-
 -   **NetworkConnection**(string networkAddress)
-
 -   **NetworkConnection**(string networkAddress, int networkConnectionId)
 
 ## Properties
-
 -   **address**  
     The IP address of the end-point that this connection is connected to.
-
 -   **clientOwnedObjects**  
     The `HashSet` of objects that this connection has authority over.
-
 -   **connectionId**  
     The incremented connectionId for this connection.
-
 -   **hostId**  
     Deprecated.  Use `connection.GetType() == typeof(NetworkConnection.md)` to check if it's a regular or local connection.
-
 -   **isReady**  
     Flag to control whether state updates are sent to this connection
-
 -   **lastMessageTime**  
     The last time that a message was received on this connection.
-
 -   **playerController**  
     A reference to the [NetworkIdentity](../Components/NetworkIdentity.md) playerController.
 
 ## Methods
-
 -   void **Disconnect**()
-
 -   bool **InvokeHandler**\<T\>(T msg)
-
 -   virtual bool **Send**\<T\>(T msg, int channelId = Channels.DefaultReliable)
-
 -   virtual void **TransportReceive**(ArraySegment\<byte\> buffer)
-
 -   virtual bool **TransportSend**(int channelId, byte[] bytes)
 
 The NetworkConnection class has virtual functions that are called when data is sent to the transport layer or received from the transport layer. These functions allow specialized versions of NetworkConnection to inspect or modify this data, or even route it to different sources. These function are shown below, including the default behaviour:

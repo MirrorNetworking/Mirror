@@ -1,7 +1,6 @@
 # Room Example
 
 In Build Settings, remove all scenes and add all of the scenes from the Examples\Room\Scenes folder in the following order:
-
 -	Offline
 -	Room
 -	Online

@@ -34,7 +34,6 @@ In classic UNET, QoS Flags were used to determine how packets got to the remote 
 In Mirror, QoS flags were replaced with a "Channels" system. This system paves the way for future Mirror improvements, so you can send data on different channels - for example, you could have all game activity on channel 0, while in-game text chat is sent on channel 1 and voice chat is sent on channel 2. In the future, it may be possible to assign a transport system per channel, allowing one to have a TCP transport for critical game network data on channel 0, while in-game text and voice chat is running on a UDP transport in parallel on channel 1. Some transports (such as Ignorance.md) also provide legacy compatibility for those attached to QoS flags.
 
 The currently defined channels are:
-
 - Channels.DefaultReliable = 0
 - Channels.DefaultUnreliable = 1
 
