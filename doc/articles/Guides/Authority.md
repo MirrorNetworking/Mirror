@@ -40,7 +40,6 @@ void CmdSpawn()
 
 The `NetworkBehaviour` class contains properties that allow scripts  
 to know what the context of a networked game object is at any time.
-
 -   isServer - true if the game object is on a server (or host) and has been spawned.
 -   isClient - true if the game object is on a client, and was created by the server.
 -   isLocalPlayer - true if the game object is a player game object for this client.

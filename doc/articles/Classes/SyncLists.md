@@ -7,13 +7,9 @@ A SyncList can contain any [supported mirror type](../Guides/DataTypes.md).
 ## Differences with HLAPI
 
 HLAPI also supports SyncLists, but we have redesigned them to better suit our needs. Some of the key differences include:
-
 -   In HLAPI, SyncLists were synchronized immediately when they changed. If you add 10 elements, that means 10 separate messages. Mirror synchronizes SyncLists with the SyncVars. The 10 elements and other SyncVars are batched together into a single message. Mirror also respects the sync interval when synchronizing lists.
-
 -   In HLAPI if you want a list of structs, you have to use `SyncListStruct<MyStructure>`, we changed it to just `SyncList<MyStructure>`
-
 -   In HLAPI the Callback is a delegate. In Mirror we changed it to an event, so that you can add many subscribers.
-
 -   In HLAPI the Callback tells you the operation and index. In Mirror, the callback also receives an item. We made this change so that we could tell what item was removed.
 
 ## Usage
@@ -58,15 +54,10 @@ class Player : NetworkBehaviour
 ```
 
 There are some ready made SyncLists you can use:
-
 -   SyncListString
-
 -   SyncListFloat
-
 -   SyncListInt
-
 -   SyncListUInt
-
 -   SyncListBool
 
 You can also detect when a SyncList changes in the client or server. This is useful for refreshing your character when you add equipment or determining when you need to update your database. Subscribe to the Callback event typically during `Start`, `OnClientStart`, or `OnServerStart` for that. 

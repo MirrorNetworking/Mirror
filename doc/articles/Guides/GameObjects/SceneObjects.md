@@ -1,7 +1,6 @@
 # Scene Game Objects
 
 There are two types of networked game objects in Mirror’s multiplayer system:
-
 -   Those that are created dynamically at runtime
 -   Those that are saved as part of a Scene
 
@@ -12,7 +11,6 @@ However, networked game objects that you save as part of a Scene (and therefore 
 When the Scene is loaded, all networked game objects in the Scene are disabled on both the client and the server. Then, when the Scene is fully loaded, the Network Manager automatically processes the Scene’s networked game objects, registering them all (and therefore causing them to be synchronized across clients), and enabling them, as if they were spawned at runtime.
 
 Saving networked game objects in your Scene (rather than dynamically spawning them after the scene has loaded) has some benefits:
-
 -   They are loaded with the level, so there will be no pause at runtime.
 -   They can have specific modifications that differ from prefabs
 -   Other game object instances in the Scene can reference them, which can avoid you having to use code to finding the game objects and make references to them up at runtime.

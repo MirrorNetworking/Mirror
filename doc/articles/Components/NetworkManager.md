@@ -3,15 +3,10 @@
 The Network Manager is a component for managing the networking aspects of a multiplayer game.
 
 The Network Manager features include:
-
 -   Game state management
-
 -   Spawn management
-
 -   Scene management
-
 -   Debugging information
-
 -   Customization
 
 ## Getting Started with the Network Manager
@@ -37,19 +32,14 @@ Transports are available for TCP, UDP, WebGL, and Steam. Additionally, there's a
 A Networking multiplayer game can run in three modes - as a client, as a dedicated server, or as a host which is both a client and a server at the same time.
 
 If you’re using the Network Manager HUD, it automatically tells the Network Manager which mode to start in, based on which button the player clicks. If you’re writing your own UI that allows the player to start the game, you’ll need to call these from your own code. These methods are:
-
 -   NetworkManager.StartClient
-
 -   NetworkManager.StartServer
-
 -   NetworkManager.StartHost
 
 ![The network address and port settings in the Network Manager and Telepathy components](NetworkAddressAndPortSettings.png)
 
 Whichever mode the game starts in (client, server, or host), the Network Address and Transport Port properties are used.
-
 -   In client mode, the game attempts to connect to the address and port specified. A fully-qualified domain name (FQDN) can also be used for the Network Address, e.g. "game.example.com".
-
 -   In server or host mode, the game listens for incoming connections on the port specified, but does not bind to any specific IP address (it listens on all available).
 
 ## Spawn Management
@@ -71,9 +61,7 @@ If you have one Network Manager that is persisted through scenes via Don't Destr
 ## Start Positions
 
 The Network Manager will spawn Player Prefab at their defined transform position and rotation by default, however the Player Spawn Method property allows you to control how start positions are chosen in conjunction with [Network Start Position](NetworkStartPosition.md) components.
-
 -   Choose Random to spawn players at randomly chosen startPosition options.
-
 -   Choose Round Robin to cycle through startPosition options in a set list.
 
 If the Random or Round Robin modes don’t suit your game, you can customize how the start positions are selected by using code. You can access the available Network Start Position components by the list `NetworkManager.startPositions`, and you can use the helper method `GetStartPosition` on the Network Manager that can be used in an implementation of `OnServerAddPlayer` to find a start position.
@@ -103,28 +91,20 @@ There are virtual functions on the `NetworkManager` class that you can customize
 See [Application](../Events/Application.md), [Server](../Events/Server.md), [Client](../Events/Client.md), and [Other](../Events/Other.md) events for more information.
 
 ## Properties
-
 -   **dontDestroyOnLoad**  
     Use this property to control whether or not Mirror should destroy the game object with the Network Manager when the Scene changes. Tick this checkbox to ensure Mirror does not destroy your Network Manager game object when the Scene changes in your game. Untick the checkbox if you want Mirror to destroy the game object when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager game objects in each of your Scenes. This checkbox is ticked by default.
-
 -   **runInBackground**  
     Use this property to control whether the networked game runs when the window it is running in is not focused. Tick the checkbox if you want it to run; untick it if you want the game to stop running when the window is not focused. This checkbox is ticked by default. You need to enable this property if you want to run multiple instances of a program on the same machine, such as when testing using localhost. You should disable it when deploying to mobile platforms. When enabled, it sets Application.runInBackground to true when the Network Manager starts up. You can also set this property from the Unity menu: Edit \> Project Settings, then select the Player category, and navigate to the Resolution and Presentation panel.
-
 -   **startOnHeadless**  
     If this box is checked (property is true) *and* computer that runs the program has no graphic device, program will start in server mode.
-
 -   **serverTickRate**  
     Sets the target frame rate for the server. Default is 30.
-
 -   **showDebugMessages**  
     Use this property to control the amount of information Mirror outputs to the console window.
-
 -   **offlineScene**  
     If you assign a Scene to this field, the Network Manager automatically switches to the specified Scene when a network session stops - for example, when the client disconnects, or when the server shuts down.
-
 -   **onlineScene**  
     If you assign a Scene to this field, the Network Manager automatically switches to the specified Scene when a network session starts - for example, when the client connects to a server, or when the server starts listening for connections.
-
 -   **Network Info**
 
     -   **transport**  
@@ -135,7 +115,6 @@ See [Application](../Events/Application.md), [Server](../Events/Server.md), [Cli
 
     -   **maxConnections**  
         Maximum number of clients connected to a server. Note that host is a server and one client. Transports may also have their own setting for this, otherwise they either copy this value or leave it to Mirror to manage the limit.
-
 -   **SpawnInfo**  
     You can expand this section of the inspector to access spawn-related settings, listed below
 
