@@ -16,7 +16,7 @@ Network Manager's `networkPort` property was removed now that all transports are
 
 ## playerController in NetworkConnection
 
-This was renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection.  If you need to convert a project after this change, Visual Studio / VS Code can help...read more here.
+This was renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection. If you need to convert a project after this change, Visual Studio / VS Code can help...read more [here](PlayerControllerToIdentity.md).
 
 ## Network Server Simple
 
