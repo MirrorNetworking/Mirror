@@ -140,7 +140,7 @@ namespace Mirror
         /// Number of active player objects across all connections on the server.
         /// <para>This is only valid on the host / server.</para>
         /// </summary>
-        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.playerController != null);
+        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         /// <summary>
         /// The name of the current network scene.
@@ -851,7 +851,7 @@ namespace Mirror
                 return;
             }
 
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
                 Debug.LogError("There is already a player for this connection.");
                 return;
@@ -864,10 +864,10 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
 
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
-                OnServerRemovePlayer(conn, conn.playerController);
-                conn.playerController = null;
+                OnServerRemovePlayer(conn, conn.identity);
+                conn.identity = null;
             }
         }
 
@@ -980,7 +980,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public virtual void OnServerReady(NetworkConnection conn)
         {
-            if (conn.playerController == null)
+            if (conn.identity == null)
             {
                 // this is now allowed (was not for a while)
                 if (LogFilter.Debug) Debug.Log("Ready with no player object");

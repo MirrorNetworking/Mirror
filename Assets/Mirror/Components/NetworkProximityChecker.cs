@@ -88,7 +88,7 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.playerController.transform.position, transform.position) < visRange;
+            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
         }
 
         /// <summary>
