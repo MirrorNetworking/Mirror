@@ -16,7 +16,7 @@ Network Manager's `networkPort` property was removed now that all transports are
 
 ## playerController in NetworkConnection
 
-This was renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection.  If you need to convert a project after this change, Visual Studio / VS Code can help...read more here.
+This was renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection. If you need to convert a project after this change, Visual Studio / VS Code can help...read more [here](PlayerControllerToIdentity.md).
 
 ## Network Server Simple
 
@@ -24,7 +24,7 @@ This was too complex and impractical to maintain for what little it did, and was
 
 ## Couch Co-Op
 
-The core networking was greatly simplified by removing this low-hanging fruit. It was buggy, and too convoluted to be worth fixing.  For those that need something like this, consider defining a non-visible player prefab as a message conduit that spawns actual player prefabs with client authority.  All inputs would route through the conduit prefab to control the player objects.
+The core networking was greatly simplified by removing this low-hanging fruit. It was buggy, and too convoluted to be worth fixing. For those that need something like this, consider defining a non-visible player prefab as a message conduit that spawns actual player prefabs with client authority. All inputs would route through the conduit prefab to control the player objects.
 
 ## Network Transform
 
