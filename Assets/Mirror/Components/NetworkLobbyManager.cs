@@ -15,6 +15,7 @@ namespace Mirror
     /// <para>NetworkLobbyManager is derived from NetworkManager, and so it implements many of the virtual functions provided by the NetworkManager class. To avoid accidentally replacing functionality of the NetworkLobbyManager, there are new virtual functions on the NetworkLobbyManager that begin with "OnLobby". These should be used on classes derived from NetworkLobbyManager instead of the virtual functions on NetworkManager.</para>
     /// <para>The OnLobby*() functions have empty implementations on the NetworkLobbyManager base class, so the base class functions do not have to be called.</para>
     /// </remarks>
+    [AddComponentMenu("Network/NetworkLobbyManager")]
     [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkRoomManager.html")]
     [Obsolete("Use / inherit from NetworkRoomManager instead")]
     public class NetworkLobbyManager : NetworkRoomManager { }
