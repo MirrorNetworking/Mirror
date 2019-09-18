@@ -13,7 +13,6 @@ These are the callbacks that occur when the game is running on a Local Area Conn
 ### LAN callbacks in host mode:
 
 When the host is started:
-
 -   `Start()` function is called
 -   `OnStartHost`
 -   `OnStartServer`
@@ -27,17 +26,14 @@ When the host is started:
 -   `OnClientSceneChanged`
 
 When a client connects:
-
 -   `OnServerConnect`
 -   `OnServerReady`
 -   `OnServerAddPlayer`
 
 When a client disconnects:
-
 -   `OnServerDisconnect`
 
 When the host is stopped:
-
 -   `OnStopHost`
 -   `OnStopServer`
 -   `OnStopClient`
@@ -45,7 +41,6 @@ When the host is stopped:
 ### LAN callbacks in client mode
 
 When the client starts:
-
 -   `Start()` function is called
 -   `OnStartClient`
 -   `OnClientConnect`
@@ -53,28 +48,23 @@ When the client starts:
 -   `OnClientSceneChanged`
 
 When the client stops:
-
 -   `OnStopClient`
 -   `OnClientDisconnect`
 
 ### LAN callbacks in server mode
 
 When the server starts:
-
 -   `Start()` function is called
 -   `OnStartServer`
 -   `OnServerSceneChanged`
 
 When a client connects:
-
 -   `OnServerConnect`
 -   `OnServerReady`
 -   `OnServerAddPlayer`
 
 When a client disconnects:
-
 -   `OnServerDisconnect`
 
 When the server stops:
-
 -   `OnStopServer`

@@ -29,13 +29,13 @@ namespace Mirror.Authenticators
         public override void OnStartServer()
         {
             // register a handler for the authentication request we expect from client
-            NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage);
+            NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
         }
 
         public override void OnStartClient()
         {
             // register a handler for the authentication response we expect from server
-            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage);
+            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
         }
 
         public override void OnServerAuthenticate(NetworkConnection conn)

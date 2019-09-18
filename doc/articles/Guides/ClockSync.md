@@ -13,7 +13,6 @@ It will return the same value in the client and the servers. It starts at 0 when
 the server starts. Note the time is a double and should never be casted to a
 float. Casting this down to a float means the clock will lose precision after
 some time:
-
 -   after 1 day, accuracy goes down to 8 ms
 -   after 10 days, accuracy is 62 ms
 -   after 30 days , accuracy is 250 ms

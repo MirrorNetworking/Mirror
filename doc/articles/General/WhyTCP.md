@@ -3,7 +3,6 @@
 It's the year 2019 and every game developer swears by UDP. Yet we chose TCP as default for Mirror. Why is that?
 
 First of all, a quick word about the major differences between UDP and TCP.
-
 -   UDP has lower latency, unreliable and hard to use correctly
 -   TCP has higher latency, reliable and easy to use
 
@@ -44,7 +43,6 @@ Back in 2015 when we started uMMORPG and Cubica, we originally used Unity's buil
 What sounds good in theory, was terrible in practice. We spent about half our work hours from 2015 to 2018 dealing with UNET bugs. There was packet loss, highly complex code due to GC avoidance, synchronization issues, memory leaks and random errors. Most importantly, no decent way to debug any of it.
 
 If a monster didn't spawn on a client, we wouldn't know what caused it.
-
 -   Was the packet dropped by UDP?
 -   Was it a bug in the highly complex UNET source code?
 -   Was the reliable layer on top of UDP not working as intended?

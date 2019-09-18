@@ -3,7 +3,6 @@
 This document describes steps to converting a single player game to a multiplayer game, using Mirror. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
 ## NetworkManager set-up
-
 -   Add a new game object and rename it “NetworkManager”.
 -   Add the NetworkManager component to the “NetworkManager” game object.
 -   Add the NetworkManagerHUD component to the game object. This provides the default UI​ for managing the network game state.
@@ -11,7 +10,6 @@ This document describes steps to converting a single player game to a multiplaye
 See Using the NetworkManager.
 
 ## Player Prefab Setup
-
 -   Find the Prefab for the player game object in the game, or create a Prefab from the player game object
 -   Add the NetworkIdentity component to the player Prefab
 -   Check the LocalPlayerAuthority box on the NetworkIdentity
@@ -21,7 +19,6 @@ See Using the NetworkManager.
 See Player Objects for more information.
 
 ## Player Movement
-
 -   Add a NetworkTransform component to the player Prefab
 -   Update input and control scripts to respect `isLocalPlayer`
 -   Fix Camera to use spawned player and `isLocalPlayer`
@@ -48,14 +45,12 @@ public class Controls : NetworkBehaviour
 ```
 
 ## Basic Player Game State
-
 -   Make scripts that contain important data into NetworkBehaviours instead of MonoBehaviours
 -   Make important member variables into SyncVars
 
 See State Synchronization.
 
 ## Networked Actions
-
 -   Make scripts that perform important actions into NetworkBehaviours instead of MonoBehaviours
 -   Update functions that perform important player actions to be commands
 
@@ -64,25 +59,21 @@ See Networked Actions.
 ## Non-player Game Objects
 
 Fix non-player prefabs such as enemies:
-
 -   Add the NetworkIdentify component
 -   Add the NetworkTransform component
 -   Register spawnable Prefabs with the NetworkManager
 -   Update scripts with game state and actions
 
 ## Spawners
-
 -   Potentially change spawner scripts to be NetworkBehaviours
 -   Modify spawners to only run on the server (use isServer property or the `OnStartServer()` function)
 -   Call `NetworkServer.Spawn()` for created game objects
 
 ## Spawn Positions for Players
-
 -   Add a new game object and place it at player’s start location
 -   Add the NetworkStartPosition component to the new game object
 
 ## Room
-
 -   Create Room Scene
 -   Add a new game object to the Scene and rename it to “NetworkRoomManager”.
 -   Add the NetworkRoomManager component to the new game object.

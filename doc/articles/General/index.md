@@ -3,7 +3,6 @@
 Mirror’s multiplayer High Level API (HLAPI) is a system for building multiplayer capabilities for Unity games. It is built on top of the lower level transport real-time communication layer, and handles many of the common tasks that are required for multiplayer games. While the transport layer supports any kind of network topology, the HLAPI is a server authoritative system; although it allows one of the participants to be a client and the server at the same time, so no dedicated server process is required. Working in conjunction with the internet services, this allows multiplayer games to be played over the internet with little work from developers.
 
 The HLAPI is focused on ease of use and iterative development and provides useful functionality for multiplayer games, such as:
-
 -   Message handlers
 -   General purpose high performance serialization
 -   Distributed object management
@@ -17,20 +16,16 @@ The HLAPI is built from a series of layers that add functionality:
 ## Server and Host
 
 In Mirror’s High Level API (HLAPI) system, multiplayer games include:
-
 -   **Server**  
     A server is an instance of the game which all other players connect to when they want to play together. A server often manages various aspects of the game, such as keeping score, and transmit that data back to the client.
-
 -   **Clients**  
     Clients are instances of the game that usually connect from different computers to the server. Clients can connect over a local network, or online.
 
 A client is an instance of the game that connects to the server, so that the person playing it can play the game with other people, who connect on their own clients.
 
 The server might be either a “dedicated server”, or a “host server”.
-
 -   **Dedicated server**  
     This is an instance of the game that only runs to act as a server.
-
 -   **Host server**  
     When there is no dedicated server, one of the clients also plays the role of the server. This client is the “host server”. The host server creates a single instance of the game (called the host), which acts as both server and client.
 

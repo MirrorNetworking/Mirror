@@ -14,10 +14,10 @@ namespace Mirror
     public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
-        public virtual void Deserialize(NetworkReader reader) {}
+        public virtual void Deserialize(NetworkReader reader) { }
 
         // Serialize the contents of this message into the writer
-        public virtual void Serialize(NetworkWriter writer) {}
+        public virtual void Serialize(NetworkWriter writer) { }
     }
 
     #region General Typed Messages
@@ -25,7 +25,7 @@ namespace Mirror
     {
         public string value;
 
-        public StringMessage() {}
+        public StringMessage() { }
 
         public StringMessage(string v)
         {
@@ -47,7 +47,7 @@ namespace Mirror
     {
         public byte value;
 
-        public ByteMessage() {}
+        public ByteMessage() { }
 
         public ByteMessage(byte v)
         {
@@ -69,7 +69,7 @@ namespace Mirror
     {
         public byte[] value;
 
-        public BytesMessage() {}
+        public BytesMessage() { }
 
         public BytesMessage(byte[] v)
         {
@@ -91,7 +91,7 @@ namespace Mirror
     {
         public int value;
 
-        public IntegerMessage() {}
+        public IntegerMessage() { }
 
         public IntegerMessage(int v)
         {
@@ -113,7 +113,7 @@ namespace Mirror
     {
         public double value;
 
-        public DoubleMessage() {}
+        public DoubleMessage() { }
 
         public DoubleMessage(double v)
         {
@@ -133,14 +133,14 @@ namespace Mirror
 
     public class EmptyMessage : MessageBase
     {
-        public override void Deserialize(NetworkReader reader) {}
+        public override void Deserialize(NetworkReader reader) { }
 
-        public override void Serialize(NetworkWriter writer) {}
+        public override void Serialize(NetworkWriter writer) { }
     }
     #endregion
 
     #region Public System Messages
-    public class ErrorMessage : ByteMessage {}
+    public class ErrorMessage : ByteMessage { }
 
     public struct ReadyMessage : IMessageBase
     {
@@ -195,23 +195,28 @@ namespace Mirror
     public struct SceneMessage : IMessageBase
     {
         public string sceneName;
-        public LoadSceneMode sceneMode; // Single = 0, Additive = 1
-        public LocalPhysicsMode physicsMode; // None = 0, Physics3D = 1, Physics2D = 2
+        public SceneOperation sceneOperation; // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
 
         public void Deserialize(NetworkReader reader)
         {
             sceneName = reader.ReadString();
-            sceneMode = (LoadSceneMode)reader.ReadByte();
-            physicsMode = (LocalPhysicsMode)reader.ReadByte();
+            sceneOperation = (SceneOperation)reader.ReadByte();
         }
 
         public void Serialize(NetworkWriter writer)
         {
             writer.WriteString(sceneName);
-            writer.WriteByte((byte)sceneMode);
-            writer.WriteByte((byte)physicsMode);
+            writer.WriteByte((byte)sceneOperation);
         }
     }
+
+    public enum SceneOperation : byte
+    {
+        Normal,
+        LoadAdditive,
+        UnloadAdditive
+    }
+
     #endregion
 
     #region System Messages requried for code gen path
@@ -466,7 +471,7 @@ namespace Mirror
         public void Serialize(NetworkWriter writer)
         {
             writer.WriteDouble(clientTime);
-        }        
+        }
     }
 
     // The server responds with this message

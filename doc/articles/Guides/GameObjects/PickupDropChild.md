@@ -17,9 +17,7 @@ The inspector shows `RightHand` assigned in 2 places, the Player Equip script, a
 ![Screenshot of Player with Equip Script](ChildObjects1.PNG)
 
 Below is the Player Equip script to handle the changing of the equipped item, and some notes for consideration:
-
 -   While we could just have all the art items attached at design time and just enable / disable them based on the enum, this doesn't scale well to a lot of items and if they have scripts on them for how they behave in the game, such as animations, special effects, etc. it could get ugly pretty fast, so this example locally instantiates and destroys instead as a design choice.
-
 -   The example makes no effort to deal with position offset between the item and the attach point, e.g. having the grip or handle of an item align with the hand. This is best dealt with in a monobehaviour script on the item that has public fields for the local position and rotation that can be set in the designer and a bit of code in Start to apply those values in local coordinates relative to the parent attach point.
 
 ``` cs

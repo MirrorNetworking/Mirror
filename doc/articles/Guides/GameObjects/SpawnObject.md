@@ -125,65 +125,39 @@ void SpawnTrees()
 Attach the `Tree` script to the `treePrefab` script created earlier to see this in action.
 
 ### Constraints
-
 -   A NetworkIdentity must be on the root game object of a spawnable Prefab. Without this, the Network Manager can’t register the Prefab.
-
 -   NetworkBehaviour scripts must be on the same game object as the NetworkIdentity, not on child game objects
 
 ## Game Object Creation Flow
 
 The actual flow of internal operations that takes place for spawning game objects is:
-
 -   Prefab with Network Identity component is registered as spawnable.
-
 -   game object is instantiated from the Prefab on the server.
-
 -   Game code sets initial values on the instance (note that 3D physics forces applied here do not take effect immediately).
-
 -   `NetworkServer.Spawn` is called with the instance.
-
 -   The state of the SyncVars on the instance on the server are collected by calling `OnSerialize` on [Network Behaviour] components.
-
 -   A network message of type `ObjectSpawn` is sent to connected clients that includes the SyncVar data.
-
 -   `OnStartServer` is called on the instance on the server, and `isServer` is set to `true`
-
 -   Clients receive the `ObjectSpawn` message and create a new instance from the registered Prefab.
-
 -   The SyncVar data is applied to the new instance on the client by calling OnDeserialize on Network Behaviour components.
-
 -   `OnStartClient` is called on the instance on each client, and `isClient` is set to `true`
-
 -   As game play progresses, changes to SyncVar values are automatically synchronized to clients. This continues until game ends.
-
 -   `NetworkServer.Destroy` is called on the instance on the server.
-
 -   A network message of type `ObjectDestroy` is sent to clients.
-
 -   `OnNetworkDestroy` is called on the instance on clients, then the instance is destroyed.
 
 ### Player Game Objects
 
 Player game objects in the HLAPI work slightly differently to non-player game objects. The flow for spawning player game objects with the Network Manager is:
-
 -   Prefab with `NetworkIdentity` is registered as the `PlayerPrefab`
-
 -   Client connects to the server
-
 -   Client calls `AddPlayer`, network message of type `MsgType.AddPlayer` is sent to the server
-
 -   Server receives message and calls `NetworkManager.OnServerAddPlayer`
-
 -   game object is instantiated from the Player Prefab on the server
-
 -   `NetworkManager.AddPlayerForConnection` is called with the new player instance on the server
-
 -   The player instance is spawned - you do not have to call `NetworkServer.Spawn` for the player instance. The spawn message is sent to all clients like on a normal spawn.
-
 -   A network message of type `Owner` is sent to the client that added the player (only that client!)
-
 -   The original client receives the network message
-
 -   `OnStartLocalPlayer` is called on the player instance on the original client, and `isLocalPlayer` is set to true
 
 Note that `OnStartLocalPlayer` is called after `OnStartClient`, because it only happens when the ownership message arrives from the server after the player game object is spawned, so `isLocalPlayer` is not set in `OnStartClient`.

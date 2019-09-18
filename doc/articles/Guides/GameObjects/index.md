@@ -7,7 +7,6 @@ Multiplayer games in Mirror are typically built using Scenes that contain a mix 
 A networked game object is one which has a Network Identity component attached. However, a Network Identity component alone is not enough for your game object to be functional and active in your multiplayer game. The Network Identity component is the starting point for synchronization, and it allows the Network Manager to synchronize the creation and destruction of the game object, but other than that, it does not specify *which properties* of your game object should be synchronized.
 
 What exactly should be synchronized on each networked game object depends on the type of game you are making, and what each game object’s purpose is. Some examples of what you might want to synchronize are:
-
 -   The position and rotation of moving game objects such as the players and non-player characters.
 -   The animation state of an animated game object
 -   The value of a variable, for example how much time is left in the current round of a game, or how much energy a player has.

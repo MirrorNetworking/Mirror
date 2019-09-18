@@ -5,9 +5,7 @@ Multiplayer games use the concept of network visibility to determine which playe
 If a particular player, at a certain point in time during game play, cannot see most of the other players, non-player characters, or other moving or interactive things in your game, there is usually no need for the host to send information about those things to the player’s client.
 
 This can benefit your game in two ways:
-
 -   It reduces the amount of data sent across the network between players. This can help improve the responsiveness of your game, and reduce bandwidth use. The bigger and more complex your multiplayer game, the more important this issue is.
-
 -   It also helps prevent hacking. Since a player client does not have information about things that can’t be seen, a hack on that player’s computer cannot reveal the information.
 
 The idea of “visibility” in the context of networking doesn’t necessarily relate to whether game objects are directly visible on-screen. Instead, it relates to whether data should or shouldn’t be sent about the game object in question to a particular client. Put simply, if a client can’t ‘see’ an game object, it does not need to be sent information about that game object across the network. Ideally you want to limit the amount of data you are sending across the network to only what is necessary, because sending large amounts of unnecessary data across the network can cause network performance problems.

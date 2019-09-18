@@ -7,13 +7,10 @@ It is not, however, intended to be included in finished games. The idea is that 
 To start using the Network Manager HUD, either add the component to the same scene object that has the Network Manager component, or create an empty game object in your scene (menu: game object \> Create Empty) and add the Network Manager HUD component to the new game object.
 
 ![The Network Manager HUD component, as viewed in the inspector](NetworkManagerHUDComponent.png)
-
 -   **Show GUI**  
     Tick this checkbox to show the HUD GUI at run time. This allows you to reveal or hide it for quick debugging.
-
 -   **Offset X**  
     Set the horizontal **pixel** offset of the HUD GUI, measured from the left edge of the screen.
-
 -   **Offset Y**  
     Set the vertical pixel offset of the HUD GUI, measured from the top edge of the screen.
 

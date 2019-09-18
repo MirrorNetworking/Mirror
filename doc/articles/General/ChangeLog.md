@@ -1,18 +1,18 @@
 # Change Log
 
 ## Version 3.x.x - In Progress
-
-- Added: Authentication support to authenticate clients in the Connect phase.
-- Fixed: NetworkClient handlers are now cleared in Shutdown.
-- Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected.
-- Fixed: Start Position Index is now reset to zero when server is stopped.
-- Fixed: Network Room Players are now all in DontDestroyOnLoad so they don't respawn in the game scene.
-- Fixed: Network Room example player controller restores main camera on disable.
-- Fixed: Components with different sync intervals were not sending updates to clients.
-- Changed: Lobby system renamed to Room to better align the name for what it is and make way for a future Lobby framework.
+- Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase
+- Added: Profiler events. These events can be subscribed to by a profiler to provide visual information
+- Fixed: SceneMessage now has sceneOperation enum so clients can properly handle additive scenes
+- Fixed: NetworkClient handlers are now cleared in Shutdown
+- Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected
+- Fixed: Start Position Index is now reset to zero when server is stopped
+- Fixed: Network Room Players are now all in DontDestroyOnLoad so they don't respawn in the game scene
+- Fixed: Network Room example player controller restores main camera on disable
+- Fixed: Components with different sync intervals were not sending updates to clients
+- Changed: Lobby system renamed to Room to better align the name for what it is and make way for a future Lobby framework
 
 ## Version 3.17.4 - 2019-Sep-04
-
 - Added: Custom Network Readers & Writers via extension methods
 - Added: Network Sync Mode selector on components to sync to observers (default) or just the owner
 - Added: SyncVars now support structs and enums in other assemblies
@@ -36,7 +36,6 @@
 - Changed: A bunch of messages converted to value types for performance
 
 ## Version 3.11.6 - 2019-Jul-10
-
 - Fixed: Telepathy IPv4, IPv6, and FQDN should all work now
 - Fixed: TelepathyTransport error in UWP builds
 - Fixed: OnApplicationQuit is handled better now
@@ -44,7 +43,6 @@
 - Changed: Telepathy Source is now included instead of a DLL
 
 ## Version 3.10.10 - 2019-Jun-19
-
 - Added: Scene Message now supports params for SceneMode (Normal / Additive) and PhysicsMode (2D / 3D)
 - Added: ClientScene.Send now has an optional ChannelId parameter
 - Added: ASMDEF to Examples folder
@@ -58,43 +56,37 @@
 - Removed: Websockets send queues (they never worked) and SSL (temporarily because it didn't work)
 
 ## Version 3.6.7 -- 2019-Apr-28
-
 - Changed: NetworkReader now uses ArraySegment\<byte\> to minimize allocations.
 
 ## Version 3.6.6 -- 2019-Apr-24
-
-- Fixed: Reverted two internal refactor commits that had unintended consequences.
+- Fixed: Reverted two internal refactor commits that had unintended consequences
 
 ## Version 3.6.5 -- 2019-Apr-23
-
 - Fixed: Unity 2019.1 compatibility
 - Fixed: Erroneous error indicating prefabs were missing Scene ID's
 - Fixed: OnDeserializeSafely now works without allocations
 - Fixed: Weaver not writing symbol files, preventing breakpoints from working in Visual Studio
-- Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider 
+- Fixed: NetworkIdentity SceneID generation now uses RNG Crypto Service Provider
 - Fixed: Scene lighting in Additive example
 - Fixed: Player Prefab transform details now respected when instantiated in the absence of NetworkStartPosition
 - Removed: Tests folder from Unity package generation (no end-user value)
 
 ## Version 3.5.9 -- 2019-Apr-12
-
-- Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses hierarchy sibling order.
+- Fixed: NetworkManager round-robin mode using NetworkStartPosition objects now uses hierarchy sibling order
 - Fixed: IsLocalPlayer is now reliably accurate in `Start()` by combining OwnerMessage and SpawnPrefabMessage
 - Fixed: Stack overflow issues with Weaver and Cecil
 - Fixed: Corrected assembly paths passed to weaver
 - Fixed: Enum bandwdith reduced in SyncVars, Commands, and Rpcs
 - Fixed: Placeholder files added for removed code files so updating works better
-- Changed: NetworkManager `isHeadless` is a static property now, changed from `IsHeadless()`.
+- Changed: NetworkManager `isHeadless` is a static property now, changed from `IsHeadless()`
 
 ## Version 3.5.3 -- 2019-Apr-10
-
 - Fixed: Exceptions in overrides of Network Manager and other components incorrectly silenced.
 - Fixed: Lobby system sometimes would not spawn and swap game player prefabs into the game scene
 - Fixed: Application.targetFrameRate no longer set in host mode
 - Changed: Telepathy: Split MaxMessageSize to allow setting a different value for client and server
 
 ## Version 3.4.9 -- 2019-Apr-6
-
 - Added: Semantic Versioning (which is why we jumped from 1.6 to 3.4.9)
 - Added: [SyncDictionary](../Classes/SyncDictionary.md)
 - Added: [SyncHashSet](../Classes/SyncHashSet.md)
@@ -109,8 +101,9 @@
 - Added: List Server example
 - Added: Additive Scenes example
 - Fixed: SyncLists now work correctly for primitives and structs
-- Fixed: SyncVar Hooks now will update the local property value after the hook is called  
-  - You no longer need to have a line of code in your hook method to manualy update the local property.
+- Fixed: SyncVar Hooks now will update the local property value after the hook is called
+
+    -   You no longer need to have a line of code in your hook method to manualy update the local property.
 - Fixed: Host should not call Disconnect on transports
 - Fixed: NetworkAnimimator now supports up to 64 animator parameters
 - Fixed: NetworkManager `StartServer` no longer assumes scene zero is the default scene...uses `GetActiveScene` now
@@ -125,29 +118,31 @@
 - Fixed: Source Weaver was deleting PDB files, preventing breakpoints and debugging from working.
 - Changed: TargetRpc NetworkConnection paramater is now optional...the calling client's NetworkConnection is default
 - Changed: Movement example replaced with Tank example
-- Changed: NetworkClient functions are all static now, so the singleton is gone.  Use NetworkClient directly.
+- Changed: NetworkClient functions are all static now, so the singleton is gone. Use NetworkClient directly.
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
 - Removed: SyncListSTRUCT - Use SyncList instead.
 - Removed: NetworkClient.ShutdownAll is obsolete -- Use NetworkClient.Shutdown instead
 
 ## Version 1.6 -- 2019-Mar-14
-
 - Fixed: Websockets transport moved to Mirror.Websocket namespace
 - Fixed: NetworkAnimator bandwidth abuse
 - Fixed: NetworkAnimator float sync bug
 - Fixed: Persistent SceneID's for Networked objects
 - Changed: Documentation for [Transports](../Transports/index.md)
 - Changed: Weaver is now full source...FINALLY!
-- Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage` 
-    - Please refer to the code sample [here](../Guides/Authentication.md) to see how to update your code.
+- Changed: ClientScene.AddPlayer 2nd parameter is now `byte[] extraData` instead of `MessageBase extraMessage`
+
+    -   Please refer to the code sample [here](../Guides/Authentication.md) to see how to update your code.
 - Changed: NetworkManager -- Headless Auto-Start moved to `Start()` from `Awake()`
-- Changed: Removed Message ID's for all messages - See [Network Messages](../Guides/Communications/NetworkMessages.md) for details  
-    - Message IDs are now generated automatically based on the message name.  
-    - Previously you would call Send(MyMessage.MsgId, message), now you call Send(message)
+- Changed: Removed Message ID's for all messages - See [Network Messages](../Guides/Communications/NetworkMessages.md) for details
+
+    -   Message IDs are now generated automatically based on the message name.  
+        
+
+    -   Previously you would call Send(MyMessage.MsgId, message), now you call Send(message)
 - Removed: Documentation for Groove Transport - use Websockets Transport instead
 
 ## Version 1.5 -- 2019-Mar-01
-
 - Added: **Migration Tool** to (mostly) automate conversion from UNet
 - Added: Full support for WebSockets and WebSocketsSecure to replace UNet LLAPI
 - Added: Transport Multiplexer - allows the use of multiple concurrent transports
@@ -169,7 +164,6 @@
 - Removed: Transport.GetConnectionInfo (Use ServerGetClientAddress instead)
 
 ## Version 1.4 -- 2019-Feb-01
-
 - Added: HelpURL attirbutes to components
 - Added: Automatic targetFramerate for headless builds
 - Added: ByteMessage to Messages class
@@ -190,5 +184,5 @@
 - Changed: NetworkReader.ReadTransform uses NetworkIdentity.spawned now
 - Changed: NetworkTransform reimplemented -- physics removed, code simplified
 - Removed: NetworkClient.hostPort (port is handled at Transport level)
-- Removed: NetworkServer.FindLocalObject (Use NetworkIdentity.spawned\[netId\] instead)
-- Removed: ClientScene.FindLocalObject (Use NetworkIdentity.spawned\[netId\] instead)
+- Removed: NetworkServer.FindLocalObject (Use NetworkIdentity.spawned[netId] instead)
+- Removed: ClientScene.FindLocalObject (Use NetworkIdentity.spawned[netId] instead)
