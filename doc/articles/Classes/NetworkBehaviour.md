@@ -1,5 +1,7 @@
 # NetworkBehaviour
 
+**See also [NetworkBehaviour API](../../api/Mirror.NetworkBehaviour.html).**
+
 Network Behaviour scripts work with game objects that have a NetworkIdentity component. These scripts can perform high-level API functions such as Commands, ClientRpc's, SyncEvents and SyncVars.
 
 With the server-authoritative system of Mirror, the server must use the `NetworkServer.Spawn` function to spawn game objects with Network Identity components. Spawning them this way assigns them a `netId` and creates them on clients connected to the server.

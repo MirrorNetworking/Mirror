@@ -9,13 +9,13 @@ When you have a multiplayer game, often you need to store information about your
 -   Use Game Center in IOS
 -   Use a web service in your website
 
-Mirror includes an  `Authenticator` abstract class that allows you to implement any authentication scheme you need.
-
 ## Encryption Warning
 
 By default Mirror uses Telepathy, which is not encrypted, so if you want to do authentication through Mirror, we highly recommend you use a transport that supports encryption.
 
 ## Custom Authenticators
+
+Mirror includes an  `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
 To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `Authenticator` and override the methods as needed.
 -   When a client is authenticated to your satisfaction, you simply call `base.OnServerAuthenticated.Invoke(conn)` and `base.OnClientAuthenticated.Invoke(conn)` on the server and client, respectively.  Mirror is listening for these events to proceed with the connection sequence.
@@ -23,6 +23,7 @@ To make your own custom Authenticator, you can just create a new script in your 
 
 Here are some tips for custom Authenticators:
 -   `OnStartServer` and `OnStartClient` are the appropriate methods to register server and client messages and their handlers.  They're called from StartServer/StartHost, and StartClient, respectively.
+    -   `RegisterMessage` has a boolean parameter `requireAuthentication`.  This defaults to true and **must** be specified false for any messages you need to exchange with the client before they're authenticated.
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 -   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
 
@@ -33,13 +34,4 @@ Now that you have the foundation of a custom Authenticator component, the rest i
 
 ## Basic Authenticator
 
-Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
--   Drag the Basic Authenticator script to the inspector of the object in your scene that has Network Manager
--   The Basic Authenticator component will automatically be assigned to the Authenticator field in Network Manager
-
-When you're done, it should look like this:
-
-![Inspector showing Basic Authentication component](BasicAuthentication.PNG)
-
->   **Note:** You don't need to assign anything to the event lists unless you want to subscribe to the events in your own code for your own purposes. Mirror has internal listeners for both events.
-
+Mirror includes a [Basic Authenticator](../Components/BasicAuthenticator.md) in the Mirror / Authenticators folder which just uses a simple username and password.

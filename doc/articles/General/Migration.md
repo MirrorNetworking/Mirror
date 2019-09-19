@@ -49,6 +49,10 @@ At this point, you might get some compilation errors. Don't panic, these are eas
 
 ### 4. Remove NetworkSettings
 
+Replace references to 'NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
+
+### 5. Remove NetworkSettings
+
 NetworkSettings in UNet have channels, but this is flat out broken. Rather than ignoring your settings we removed channels from NetworkSettings completely.  `sendInterval` is now set in code and / or the inspector too.
 
 For example, if you have this code:
@@ -73,9 +77,9 @@ public class NetStreamer : NetworkBehaviour
 }
 ```
 
-Please note that the default transport (Telepathy.md), completely ignores channels, all messages are reliable, sequenced and fragmented. They just work with no fuss. If you want to take advantage of unreliable channels use LLAPITransport instead.
+Please note that the default transport [Telpathy](../Transports/Telepathy.md), completely ignores channels, all messages are reliable, sequenced and fragmented. They just work with no fuss. If you want to take advantage of unreliable channels use LLAPITransport instead.
 
-### 5. Change SyncListStruct to SyncList
+### 6. Change SyncListStruct to SyncList
 
 There is a bug in the original UNet Weaver that makes it mess with our `Mirror.SyncListStruct` without checking the namespace. In Mirror, we fixed SyncLists so that they work with structs by default.
 
@@ -91,7 +95,7 @@ replace them with:
 public class SyncListQuest : SyncList<Quest> { }
 ```
 
-### 6. Replace NetworkHash128 and NetworkInstanceId
+### 7. Replace NetworkHash128 and NetworkInstanceId
 
 These have been changed to System.Guid and uint, respectively.
 
@@ -119,7 +123,7 @@ public sealed class SpawnItemMessage : MessageBase
 }
 ```
 
-### 7. Update your synclist callbacks
+### 8. Update your synclist callbacks
 
 In UNet, SyncLists have a callback delegate that gets called in the client whenever the list is updated.  We have changed the callback to be a C\# event instead and we also pass the item that was updated/removed.
 
@@ -169,13 +173,13 @@ public  class MyBehaviour : NetworkBehaviour
 
 Notice the callback will also work in the server in Mirror.
 
-### 8. Replace Components
+### 9. Replace Components
 
 Every networked prefab and scene object needs to be adjusted. They will be using `NetworkIdentity` from Unet, and you need to replace that componenent with `NetworkIdentity` from Mirror. You may be using other network components, such as `NetworkAnimator` or `NetworkTransform`. All components from Unet should be replaced with their corresponding component from Mirror.
 
 Note that if you remove and add a NetworkIdentity, you will need to reassign it in any component that was referencing it.
 
-### 9. Update Extended Components
+### 10. Update Extended Components
 
 Some commonly extended components, such as NetworkManager, have changed method parameters in Mirror. A commonly used override is OnServerAddPlayer. Using the original HLAPI, your override may have looked like this:
 
@@ -199,15 +203,15 @@ public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage 
 
 Note that in UNet the parameter "extraMessageReader" is optional, but in Mirror it is required.
 
-### 10. Pick your transport
+### 11. Pick your transport
 
 You can choose one of several transports in Mirror.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTranport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
 
-### 11. Configure address and port
+### 12. Configure address and port
 
 In HLAPI, you configure the port and local address in the NetworkManager. One of our goals is to make Mirror transport independent. Not all transports need address and port.  Some transports might even use more than one port at the same time, so these settings were inadequate. We removed the port and address and all other Network Info properties from NetworkManager,  and we moved them to the transport components instead.
 
-### 12. Update your firewall and router
+### 13. Update your firewall and router
 
 LLAPI uses UDP. Mirror uses TCP by default. This means you may need to change your router port forwarding and firewall rules in your machine to expose the TCP port instead of UDP. This highly depends on your router and operating system.
 

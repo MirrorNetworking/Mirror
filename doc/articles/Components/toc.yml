@@ -1,26 +1,22 @@
-- name: NetworkManager
-  href: NetworkManager.md
-- name: NetworkRoomManager
-  href: NetworkRoomManager.md
-- name: NetworkRoomPlayer
-  href: NetworkRoomPlayer.md
-- name: NetworkManagerHUD
-  href: NetworkManagerHUD.md
+- name: NetworkAnimator
+  href: NetworkAnimator.md
 - name: NetworkIdentity
   href: NetworkIdentity.md
-- name: NetworkStartPosition
-  href: NetworkStartPosition.md
+- name: NetworkManager
+  href: NetworkManager.md
+- name: NetworkManagerHUD
+  href: NetworkManagerHUD.md
 - name: NetworkProximityChecker
   href: NetworkProximityChecker.md
+- name: NetworkStartPosition
+  href: NetworkStartPosition.md
 - name: NetworkTransform
   href: NetworkTransform.md
 - name: NetworkTransformChild
   href: NetworkTransformChild.md
-- name: NetworkAnimator
-  href: NetworkAnimator.md
-- name: NetworkNavMeshAgent
-  href: NetworkNavMeshAgent.md
-- name: NetworkController
-  href: NetworkController.md
-- name: NetworkRigidbody
-  href: NetworkRigidbody.md
+- name: BasicAuthenticator
+  href: BasicAuthenticator.md
+- name: NetworkRoomManager
+  href: NetworkRoomManager.md
+- name: NetworkRoomPlayer
+  href: NetworkRoomPlayer.md
