@@ -73,7 +73,5 @@ public class MMONetworkManager : NetworkManager
         // primary controller
         NetworkServer.AddPlayerForConnection(conn, player);
     }
-
-   
 }
 ```
