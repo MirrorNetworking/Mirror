@@ -220,7 +220,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    struct CommandMessage : IMessageBase
+    public struct CommandMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -246,7 +246,7 @@ namespace Mirror
         }
     }
 
-    struct RpcMessage : IMessageBase
+    public struct RpcMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -272,7 +272,7 @@ namespace Mirror
         }
     }
 
-    struct SyncEventMessage : IMessageBase
+    public struct SyncEventMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -300,7 +300,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    struct SpawnPrefabMessage : IMessageBase
+    public struct SpawnPrefabMessage : IMessageBase
     {
         public uint netId;
         public bool owner;
@@ -335,7 +335,7 @@ namespace Mirror
         }
     }
 
-    struct SpawnSceneObjectMessage : IMessageBase
+    public struct SpawnSceneObjectMessage : IMessageBase
     {
         public uint netId;
         public bool owner;
@@ -370,21 +370,21 @@ namespace Mirror
         }
     }
 
-    struct ObjectSpawnStartedMessage : IMessageBase
+    public struct ObjectSpawnStartedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    struct ObjectSpawnFinishedMessage : IMessageBase
+    public struct ObjectSpawnFinishedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    struct ObjectDestroyMessage : IMessageBase
+    public struct ObjectDestroyMessage : IMessageBase
     {
         public uint netId;
 
@@ -399,7 +399,7 @@ namespace Mirror
         }
     }
 
-    struct ObjectHideMessage : IMessageBase
+    public struct ObjectHideMessage : IMessageBase
     {
         public uint netId;
 
@@ -414,7 +414,7 @@ namespace Mirror
         }
     }
 
-    struct ClientAuthorityMessage : IMessageBase
+    public struct ClientAuthorityMessage : IMessageBase
     {
         public uint netId;
         public bool authority;
@@ -432,7 +432,7 @@ namespace Mirror
         }
     }
 
-    struct UpdateVarsMessage : IMessageBase
+    public struct UpdateVarsMessage : IMessageBase
     {
         public uint netId;
         // the serialized component data
@@ -454,7 +454,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    struct NetworkPingMessage : IMessageBase
+    public struct NetworkPingMessage : IMessageBase
     {
         public double clientTime;
 
@@ -476,7 +476,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    struct NetworkPongMessage : IMessageBase
+    public struct NetworkPongMessage : IMessageBase
     {
         public double clientTime;
         public double serverTime;
