@@ -54,8 +54,11 @@ namespace Mirror
         [Conditional("ENABLE_PROFILER")]
         internal static void OnSend<T>(T message, int channel, int bytes, int count) where T : IMessageBase
         {
-            MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
-            OutMessageEvent?.Invoke(outMessage);
+            if (count > 0)
+            {
+                MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
+                OutMessageEvent?.Invoke(outMessage);
+            }
         }
         #endregion
 
