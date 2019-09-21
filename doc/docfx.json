@@ -23,20 +23,21 @@
                 ]
             },
             {
-                "files": [
-                    "articles/**.md",
-                    "articles/**/toc.yml",
-                    "toc.yml",
-                    "*.md"
-                ]
+				"files": [
+					"**/**.md",
+					"**.md",
+					"**/toc.yml",
+					"toc.yml",
+					"*.md"
+				]
             }
         ],
         "resource": [
             {
                 "files": [
                     "images/**",
-                    "articles/**.png",
-                    "articles/**.jpg"
+                    "**.png",
+                    "**.jpg"
                 ]
             }
         ],
