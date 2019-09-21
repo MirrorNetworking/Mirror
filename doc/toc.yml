@@ -1,7 +1,14 @@
-- name: Articles
-  href: articles/General/index.md
-- name: Api Documentation
-  href: api/
-  homepage: api/index.md
-- name: Github
+- name: General
+  href: General/index.md
+- name: Guides
+  href: Guides/index.md
+- name: Components
+  href: Components/index.md
+- name: API Reference
+  href: https://mirror-networking.com/xmldocs/api/Mirror.html
+- name: Transports
+  href: Transports/index.md
+- name: Examples
+  href: Examples/index.md
+- name: GitHub
   href: https://github.com/vis2k/Mirror

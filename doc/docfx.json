@@ -23,20 +23,22 @@
                 ]
             },
             {
-                "files": [
-                    "articles/**.md",
-                    "articles/**/toc.yml",
-                    "toc.yml",
-                    "*.md"
-                ]
+				"files": [
+					"**/**.md",
+					"**.md",
+					"**/toc.yml",
+					"toc.yml",
+					"*.md"
+				]
             }
         ],
         "resource": [
             {
                 "files": [
                     "images/**",
-                    "articles/**.png",
-                    "articles/**.jpg"
+                    "**.png",
+                    "**.jpg",
+                    "**.svg"
                 ]
             }
         ],
@@ -53,6 +55,10 @@
         ],
         "dest": "_site",
         "globalMetadataFiles": [],
+        "globalMetadata": {
+            "_homepage": "http://mirror-networking.com",
+            "_appLogoPath": "Logo.svg"
+        },
         "fileMetadataFiles": [],
         "template": [
             "default",

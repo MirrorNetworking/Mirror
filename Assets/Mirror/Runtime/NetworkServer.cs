@@ -114,7 +114,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<RemovePlayerMessage>(OnRemovePlayerMessage);
-            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing);
+            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
         }
 
         /// <summary>
@@ -523,9 +523,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
@@ -536,9 +536,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);
@@ -550,14 +550,15 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler) where T: IMessageBase, new()
+        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T: IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
-            handlers[msgType] = MessagePacker.MessageHandler<T>(handler);
+            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -761,7 +762,7 @@ namespace Mirror
             identity.Reset();
 
             // cannot have a player object in "Add" version
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
                 Debug.Log("AddPlayer: player object already exists");
                 return false;
@@ -769,7 +770,7 @@ namespace Mirror
 
             // make sure we have a controller before we call SetClientReady
             // because the observers will be rebuilt only if we have a controller
-            conn.playerController = identity;
+            conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = conn;
@@ -847,13 +848,13 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
             // is there already an owner that is a different object??
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
-                conn.playerController.SetNotLocalPlayer();
-                conn.playerController.clientAuthorityOwner = null;
+                conn.identity.SetNotLocalPlayer();
+                conn.identity.clientAuthorityOwner = null;
             }
 
-            conn.playerController = identity;
+            conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = conn;
@@ -908,7 +909,7 @@ namespace Mirror
             conn.isReady = true;
 
             // client is ready to start spawning objects
-            if (conn.playerController != null)
+            if (conn.identity != null)
                 SpawnObserversForConnection(conn);
         }
 
@@ -966,10 +967,10 @@ namespace Mirror
         // default remove player handler
         static void OnRemovePlayerMessage(NetworkConnection conn, RemovePlayerMessage msg)
         {
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
-                Destroy(conn.playerController.gameObject);
-                conn.playerController = null;
+                Destroy(conn.identity.gameObject);
+                conn.identity = null;
             }
             else
             {
@@ -989,7 +990,7 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (conn.playerController != null && conn.playerController.netId != identity.netId)
+            if (conn.identity != null && conn.identity.netId != identity.netId)
             {
                 if (identity.clientAuthorityOwner != conn)
                 {
@@ -1053,7 +1054,7 @@ namespace Mirror
                 SpawnPrefabMessage msg = new SpawnPrefabMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.playerController == identity,
+                    owner = conn?.identity == identity,
                     assetId = identity.assetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1095,7 +1096,7 @@ namespace Mirror
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.playerController == identity,
+                    owner = conn?.identity == identity,
                     sceneId = identity.sceneId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1153,10 +1154,10 @@ namespace Mirror
                 }
             }
 
-            if (conn.playerController != null)
+            if (conn.identity != null)
             {
-                DestroyObject(conn.playerController, true);
-                conn.playerController = null;
+                DestroyObject(conn.identity, true);
+                conn.identity = null;
             }
         }
 

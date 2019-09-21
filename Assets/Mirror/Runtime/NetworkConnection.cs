@@ -62,9 +62,25 @@ namespace Mirror
         public float lastMessageTime;
 
         /// <summary>
+        /// Obsolete: use <see cref="identity"/> instead
+        /// </summary>
+        [Obsolete("Use NetworkConnection.identity instead")]
+        public NetworkIdentity playerController
+        {
+            get
+            {
+                return identity;
+            }
+            internal set
+            {
+                identity = value;
+            }
+        }
+
+        /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
-        public NetworkIdentity playerController { get; internal set; }
+        public NetworkIdentity identity { get; internal set; }
 
         /// <summary>
         /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
@@ -219,7 +235,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
+        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             // pack message and send
             byte[] message = MessagePacker.Pack(msg);

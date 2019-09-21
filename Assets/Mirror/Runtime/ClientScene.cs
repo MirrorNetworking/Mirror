@@ -77,7 +77,7 @@ namespace Mirror
             localPlayer = identity;
             if (readyConnection != null)
             {
-                readyConnection.playerController = identity;
+                readyConnection.identity = identity;
             }
             else
             {
@@ -121,7 +121,7 @@ namespace Mirror
                 return false;
             }
 
-            if (readyConnection.playerController != null)
+            if (readyConnection.identity != null)
             {
                 Debug.LogError("ClientScene.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
                 return false;
@@ -145,13 +145,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.RemovePlayer() called with connection [" + readyConnection + "]");
 
-            if (readyConnection.playerController != null)
+            if (readyConnection.identity != null)
             {
                 readyConnection.Send(new RemovePlayerMessage());
 
-                Object.Destroy(readyConnection.playerController.gameObject);
+                Object.Destroy(readyConnection.identity.gameObject);
 
-                readyConnection.playerController = null;
+                readyConnection.identity = null;
                 localPlayer = null;
 
                 return true;
@@ -727,9 +727,9 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + netId);
 
             // is there already an owner that is a different object??
-            if (readyConnection.playerController != null)
+            if (readyConnection.identity != null)
             {
-                readyConnection.playerController.SetNotLocalPlayer();
+                readyConnection.identity.SetNotLocalPlayer();
             }
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)

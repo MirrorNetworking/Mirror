@@ -97,6 +97,7 @@ namespace Mirror
         {
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }
+
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
         {
             if (value)
@@ -445,7 +446,7 @@ namespace Mirror
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public CmdDelegate GetRpcHandler(int cmdHash)
+        public static CmdDelegate GetRpcHandler(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -41,13 +40,7 @@ namespace Mirror
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
         /// </summary>
-        public abstract void OnStartServer();
-
-        /// <summary>
-        /// Called on client from StartClient to initialize the Authenticator
-        /// <para>Client message handlers should be registered in this method.</para>
-        /// </summary>
-        public abstract void OnStartClient();
+        public virtual void OnStartServer() {}
 
         // This will get more code in the near future
         internal void OnServerAuthenticateInternal(NetworkConnection conn)
@@ -77,6 +70,12 @@ namespace Mirror
         #endregion
 
         #region client
+
+        /// <summary>
+        /// Called on client from StartClient to initialize the Authenticator
+        /// <para>Client message handlers should be registered in this method.</para>
+        /// </summary>
+        public virtual void OnStartClient() {}
 
         // This will get more code in the near future
         internal void OnClientAuthenticateInternal(NetworkConnection conn)
