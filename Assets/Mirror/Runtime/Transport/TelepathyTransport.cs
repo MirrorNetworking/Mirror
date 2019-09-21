@@ -50,7 +50,14 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
-        public override bool ClientSend(int channelId, byte[] data) => client.Send(data);
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            // telepathy doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            client.Send(data);
+        }
 
         bool ProcessClientMessage()
         {
@@ -96,7 +103,14 @@ namespace Mirror
         // server
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
-        public override bool ServerSend(int connectionId, int channelId, byte[] data) => server.Send(connectionId, data);
+        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        {
+            // telepathy doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            return server.Send(connectionId, data);
+        }
         public bool ProcessServerMessage()
         {
             if (server.GetNextMessage(out Telepathy.Message message))
