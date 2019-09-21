@@ -123,7 +123,7 @@ namespace Mirror
             {
                 if (requireAuthenication && !networkMessage.conn.isAuthenticated)
                 {
-                    // message requires authentication, but the connection was no authnticated
+                    // message requires authentication, but the connection was not authenticated
                     Debug.LogWarning($"Closing connection: {networkMessage.conn.connectionId}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
                     networkMessage.conn.Disconnect();
                     return;
