@@ -71,9 +71,7 @@ namespace Mirror
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
             Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-            byte[] data = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            byte[] data = writer.ToArray();
 
             NetworkWriterPool.Recycle(writer);
 
