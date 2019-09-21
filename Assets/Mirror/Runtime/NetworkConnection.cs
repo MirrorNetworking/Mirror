@@ -223,9 +223,14 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
-            // pack message and send
-            byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(message, channelId);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack message and send allocation free
+            MessagePacker.PackMessage(msgType, msg, writer);
+            bool result = SendBytes(writer.ToArraySegment(), channelId);
+
+            NetworkWriterPool.Recycle(writer);
+            return result;
         }
 
         /// <summary>
@@ -237,32 +242,37 @@ namespace Mirror
         /// <returns></returns>
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            // pack message and send
-            byte[] message = MessagePacker.Pack(msg);
-            NetworkDiagnostics.OnSend(msg, channelId, message.Length, 1);
-            return SendBytes(message, channelId);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack message and send allocation free
+            MessagePacker.Pack(msg, writer);
+            NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+            bool result = SendBytes(writer.ToArraySegment(), channelId);
+
+            NetworkWriterPool.Recycle(writer);
+            return result;
         }
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal virtual bool SendBytes(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
+            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
-            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
+            if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
                 Debug.LogError("NetworkConnection.SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
-            if (bytes.Length == 0)
+            if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
                 Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
                 return false;
             }
 
-            return TransportSend(channelId, bytes);
+            return TransportSend(channelId, segment);
         }
 
         public override string ToString()
@@ -375,17 +385,17 @@ namespace Mirror
         /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
         /// </summary>
         /// <param name="channelId">Channel to send data on.</param>
-        /// <param name="bytes">Data to send.</param>
+        /// <param name="segment">Data to send. Will be recycled after returning, so use it directly.</param>
         /// <returns></returns>
-        public virtual bool TransportSend(int channelId, byte[] bytes)
+        public virtual bool TransportSend(int channelId, ArraySegment<byte> segment)
         {
             if (Transport.activeTransport.ClientConnected())
             {
-                return Transport.activeTransport.ClientSend(channelId, bytes);
+                return Transport.activeTransport.ClientSend(channelId, segment);
             }
             else if (Transport.activeTransport.ServerActive())
             {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
+                return Transport.activeTransport.ServerSend(connectionId, channelId, segment);
             }
             return false;
         }

@@ -26,47 +26,29 @@ namespace Mirror
         }
 
         // pack message before sending
+        // -> NetworkWriter passed as arg so that we can use .ToArraySegment
+        //    and do an allocation free send before recycling it.
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
-        public static byte[] PackMessage(int msgType, MessageBase msg)
+        public static void PackMessage(int msgType, MessageBase msg, NetworkWriter writer)
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            try
-            {
-                // write message type
-                writer.WriteInt16((short)msgType);
+            // write message type
+            writer.WriteInt16((short)msgType);
 
-                // serialize message into writer
-                msg.Serialize(writer);
-
-                // return byte[]
-                return writer.ToArray();
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
-            }
+            // serialize message into writer
+            msg.Serialize(writer);
         }
 
         // pack message before sending
-        public static byte[] Pack<T>(T message) where T : IMessageBase
+        // -> NetworkWriter passed as arg so that we can use .ToArraySegment
+        //    and do an allocation free send before recycling it.
+        public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-            try
-            {
-                // write message type
-                int msgType = GetId<T>();
-                writer.WriteUInt16((ushort)msgType);
+            // write message type
+            int msgType = GetId<T>();
+            writer.WriteUInt16((ushort)msgType);
 
-                // serialize message into writer
-                message.Serialize(writer);
-
-                // return byte[]
-                return writer.ToArray();
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
-            }
+            // serialize message into writer
+            message.Serialize(writer);
         }
 
         // unpack a message we received

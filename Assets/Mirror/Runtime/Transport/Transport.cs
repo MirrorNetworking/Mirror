@@ -17,7 +17,7 @@ namespace Mirror
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
-        /// The current transport used by Mirror. 
+        /// The current transport used by Mirror.
         /// </summary>
         public static Transport activeTransport;
 
@@ -71,9 +71,9 @@ namespace Mirror
         /// <param name="channelId">The channel to use.  0 is the default channel,
         /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
         /// as new channels</param>
-        /// <param name="data">The data to send to the server</param>
+        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, byte[] data);
+        public abstract bool ClientSend(int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect this client from the server
@@ -121,9 +121,9 @@ namespace Mirror
         /// <param name="connectionId">The id of the client to send the data to</param>
         /// <param name="channelId">The channel to be used.  Transports can use channels to implement
         /// other features such as unreliable, encryption, compression, etc...</param>
-        /// <param name="data"></param>
+        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the data was sent</returns>
-        public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+        public abstract bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.
