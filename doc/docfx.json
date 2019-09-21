@@ -54,6 +54,9 @@
         ],
         "dest": "_site",
         "globalMetadataFiles": [],
+        "globalMetadata": {
+            "_homepage": "http://mirror-networking.com"
+        },
         "fileMetadataFiles": [],
         "template": [
             "default",
