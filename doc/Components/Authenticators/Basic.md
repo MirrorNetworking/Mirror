@@ -6,6 +6,6 @@ Mirror includes a Basic Authenticator in the Mirror / Authenticators folder whic
 
 When you're done, it should look like this:
 
-![Inspector showing Basic Authenticator component](BasicAuthenticator.png)
+![Inspector showing Basic Authenticator component](Basic.png)
 
 >   **Note:** You don't need to assign anything to the event lists unless you want to subscribe to the events in your own code for your own purposes. Mirror has internal listeners for both events.

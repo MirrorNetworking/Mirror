@@ -13,9 +13,13 @@ When you have a multiplayer game, often you need to store information about your
 
 By default Mirror uses Telepathy, which is not encrypted, so if you want to do authentication through Mirror, we highly recommend you use a transport that supports encryption.
 
+## Basic Authenticator
+
+Mirror includes a [Basic Authenticator](../Components/Authenticators/Basic.md) in the Mirror / Authenticators folder which just uses a simple username and password.
+
 ## Custom Authenticators
 
-Mirror includes an  `Authenticator` abstract class that allows you to implement any authentication scheme you need.
+Authenticators are derived from an `Authenticator` abstract class that allows you to implement any authentication scheme you need.
 
 To make your own custom Authenticator, you can just create a new script in your project (not in the Mirror folders) that inherits from `Authenticator` and override the methods as needed.
 -   When a client is authenticated to your satisfaction, you simply call `base.OnServerAuthenticated.Invoke(conn)` and `base.OnClientAuthenticated.Invoke(conn)` on the server and client, respectively.  Mirror is listening for these events to proceed with the connection sequence.
@@ -31,7 +35,3 @@ Here are some tips for custom Authenticators:
 -   `NetworkConnection` has an `AuthenticationData` object where you can drop a class instance of any data you need to persist on the server related to the authentication, such as account id's, tokens, character selection, etc.
 
 Now that you have the foundation of a custom Authenticator component, the rest is up to you. You can exchange any number of custom messages between the server and client as necessary to complete your authentication process before approving the client.
-
-## Basic Authenticator
-
-Mirror includes a [Basic Authenticator](../Components/BasicAuthenticator.md) in the Mirror / Authenticators folder which just uses a simple username and password.

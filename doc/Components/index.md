@@ -12,6 +12,10 @@ These core components are included in Mirror:
     The Network Manager HUD is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your gameplay programming, and means you can build your own version of these controls later in your development schedule.
 -   [NetworkProximityChecker](NetworkProximityChecker.md)  
     The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
+-   [NetworkRoomManager](NetworkRoomManager.md)  
+    The Network Room Manager is an extension component of Network Manager that provides a basic functional room.
+-   [NetworkRoomPlayer](NetworkRoomPlayer.md)  
+    The Network Room Player is a component that's required on Player prefabs used in the Room Scene with the Network Room Manager above.
 -   [NetworkStartPosition](NetworkStartPosition.md)  
     Network Start Position is used by the Network Manager when creating player objects. The position and rotation of the Network Start Position are used to place the newly created player object.
 -   [NetworkTransform](NetworkTransform.md)  
@@ -19,11 +23,16 @@ These core components are included in Mirror:
 -   [NetworkTransformChild](NetworkTransformChild.md)  
     The Network Transform Child component synchronizes the position and rotation of the child game object of a game object with a Network Transform component.
 
-These additional components are also included:
+## Authenticators
 
--   [BasicAuthenticator](BasicAuthenticator.md)  
-    Simple username and password authenticator
--   [NetworkRoomManager](NetworkRoomManager.md)  
-    The Network Room Manager is an extension component of Network Manager that provides a basic functional room.
--   [NetworkRoomPlayer](NetworkRoomPlayer.md)  
-    The Network Room Player is a component that's required on Player prefabs used in the Room Scene with the Network Room Manager above.
+[Authenticators](Authenticators/index.md) are also available and more will be added soon:
+
+-   [Basic Authenticator](Authenticators/Basic.md)  
+    Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
+
+-   [Playfab Authenticator](Authenticators/Playfab.md)  
+    Coming Soon
+-   [Facebook Authenticator](Authenticators/Facebook.md)  
+    Coming Soon
+-   [Google Authenticator](Authenticators/Google.md)  
+    Coming Soon

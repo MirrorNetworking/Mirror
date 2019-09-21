@@ -10,15 +10,16 @@
   href: NetworkManagerHUD.md
 - name: NetworkProximityChecker
   href: NetworkProximityChecker.md
+- name: NetworkRoomManager
+  href: NetworkRoomManager.md
+- name: NetworkRoomPlayer
+  href: NetworkRoomPlayer.md
 - name: NetworkStartPosition
   href: NetworkStartPosition.md
 - name: NetworkTransform
   href: NetworkTransform.md
 - name: NetworkTransformChild
   href: NetworkTransformChild.md
-- name: BasicAuthenticator
-  href: BasicAuthenticator.md
-- name: NetworkRoomManager
-  href: NetworkRoomManager.md
-- name: NetworkRoomPlayer
-  href: NetworkRoomPlayer.md
+- name: Authenticators
+  href: Authenticators/toc.yml
+  topicHref: Authenticators/
