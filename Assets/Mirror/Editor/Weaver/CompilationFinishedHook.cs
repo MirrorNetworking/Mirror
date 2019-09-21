@@ -47,6 +47,26 @@ namespace Mirror.Weaver
         static void OnInitializeOnLoad()
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+
+            // the first time we load the weaver we need to weave existing assemblies
+            // and reload them.
+            // Store an environment variable that will survive assembly reloads
+            // so that we know if we have run the weaver before
+            if (Environment.GetEnvironmentVariable("MIRROR_WEAVER") != "true" )
+            {
+                Environment.SetEnvironmentVariable("MIRROR_WEAVER", "true");
+                WeaveExisingAssemblies();
+            }
+        }
+
+        private static void WeaveExisingAssemblies()
+        {
+            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
+            {
+                OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
+            }
+
+            UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
         }
 
         static string FindMirrorRuntime()
