@@ -3,11 +3,11 @@
 - name: NetworkBehaviour
   href: NetworkBehaviour.md
 - name: NetworkClient
-  href: ../../api/Mirror.NetworkClient.html
+  href: ../api/Mirror.NetworkClient.html
 - name: NetworkConnection
-  href: ../../api/Mirror.NetworkConnection.html
+  href: ../api/Mirror.NetworkConnection.html
 - name: NetworkServer
-  href: ../../api/Mirror.NetworkServer.html
+  href: ../api/Mirror.NetworkServer.html
 - name: SyncVars
   href: SyncVars.md
 - name: SyncVar Hooks

@@ -88,8 +88,6 @@ You should normally make sure the Network Manager persists between Scenes, other
 
 There are virtual functions on the `NetworkManager` class that you can customize by creating your own derived class that inherits from `NetworkManager`. When implementing these functions, be sure to take care of the functionality that the default implementations provide. For example, in `OnServerAddPlayer`, the function `NetworkServer.AddPlayer` must be called to activate the player game object for the connection.
 
-See [Application](../Events/Application.md), [Server](../Events/Server.md), [Client](../Events/Client.md), and [Other](../Events/Other.md) events for more information.
-
 ## Properties
 -   **dontDestroyOnLoad**  
     Use this property to control whether or not Mirror should destroy the game object with the Network Manager when the Scene changes. Tick this checkbox to ensure Mirror does not destroy your Network Manager game object when the Scene changes in your game. Untick the checkbox if you want Mirror to destroy the game object when the Scene it exists in is no longer the active Scene. This is useful if you want to manage multiple, separate Network Manager game objects in each of your Scenes. This checkbox is ticked by default.
