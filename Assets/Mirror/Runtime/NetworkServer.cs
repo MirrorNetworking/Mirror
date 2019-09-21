@@ -523,9 +523,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
@@ -536,9 +536,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T})"/> instead.
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);

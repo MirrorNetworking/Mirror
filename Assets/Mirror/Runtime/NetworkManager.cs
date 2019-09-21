@@ -1110,7 +1110,7 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)"/> instead.).
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation)"/> instead.).
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) instead")]
