@@ -344,9 +344,17 @@ namespace Mirror
         /// <returns></returns>
         public bool InvokeHandler<T>(T msg) where T : IMessageBase
         {
+            // get writer from pool
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack and invoke
             int msgType = MessagePacker.GetId<T>();
-            byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandler(msgType, new NetworkReader(data));
+            MessagePacker.Pack(msg, writer);
+            bool result = InvokeHandler(msgType, new NetworkReader(writer.ToArraySegment()));
+
+            // recycle writer and return
+            NetworkWriterPool.Recycle(writer);
+            return result;
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
