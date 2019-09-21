@@ -37,7 +37,8 @@
                 "files": [
                     "images/**",
                     "**.png",
-                    "**.jpg"
+                    "**.jpg",
+                    "**.svg"
                 ]
             }
         ],
@@ -55,7 +56,8 @@
         "dest": "_site",
         "globalMetadataFiles": [],
         "globalMetadata": {
-            "_homepage": "http://mirror-networking.com"
+            "_homepage": "http://mirror-networking.com",
+            "_appLogoPath": "Logo.svg"
         },
         "fileMetadataFiles": [],
         "template": [
