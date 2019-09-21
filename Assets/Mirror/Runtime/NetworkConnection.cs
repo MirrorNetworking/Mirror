@@ -383,6 +383,10 @@ namespace Mirror
             }
         }
 
+        [Obsolete("Use NetworkConnection.TransportSend instead.")]
+        public virtual bool TransportSend(int channelId, byte[] bytes) =>
+            TransportSend(channelId, new ArraySegment<byte>(bytes));
+
         /// <summary>
         /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
         /// </summary>
