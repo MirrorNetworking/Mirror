@@ -70,7 +70,7 @@ namespace Mirror
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
-            MessagePacker.Pack(message, writer);
+            Pack(message, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
             byte[] data = new byte[segment.Count];
             Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
