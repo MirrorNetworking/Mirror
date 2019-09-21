@@ -1,6 +1,6 @@
 # NetworkBehaviour
 
-**See also <xref:Mirror.NetworkBehaviour>.**
+**See also <xref:Mirror.NetworkBehaviour> in the API Reference.**
 
 Network Behaviour scripts work with game objects that have a NetworkIdentity component. These scripts can perform high-level API functions such as Commands, ClientRpc's, SyncEvents and SyncVars.
 
