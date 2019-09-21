@@ -114,7 +114,7 @@ namespace Mirror
             ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
             NetworkServer.SetLocalConnection(connectionToClient);
 
-            localClientPacketQueue.Enqueue(MessagePacker.Pack(new ConnectMessage()));
+            localClientPacketQueue.Enqueue(MessagePacker.PackWithAlloc(new ConnectMessage()));
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    localClientPacketQueue.Enqueue(MessagePacker.Pack(new DisconnectMessage()));
+                    localClientPacketQueue.Enqueue(MessagePacker.PackWithAlloc(new DisconnectMessage()));
                 }
                 NetworkServer.RemoveLocalConnection();
             }

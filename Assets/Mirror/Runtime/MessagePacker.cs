@@ -51,6 +51,24 @@ namespace Mirror
             message.Serialize(writer);
         }
 
+        // helper function to pack message into a simple byte[] (which allocates)
+        // => useful for tests
+        // => useful for local client message enqueue
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal static byte[] PackWithAlloc<T>(T message) where T : IMessageBase
+        {
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            MessagePacker.Pack(message, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+
+            NetworkWriterPool.Recycle(writer);
+
+            return data;
+        }
+
         // unpack a message we received
         public static T Unpack<T>(byte[] data) where T : IMessageBase, new()
         {
