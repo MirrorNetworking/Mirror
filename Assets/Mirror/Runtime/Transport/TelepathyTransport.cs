@@ -56,7 +56,7 @@ namespace Mirror
             // previously we allocated in Mirror. now we do it here.
             byte[] data = new byte[segment.Count];
             Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
-            client.Send(data);
+            return client.Send(data);
         }
 
         bool ProcessClientMessage()
