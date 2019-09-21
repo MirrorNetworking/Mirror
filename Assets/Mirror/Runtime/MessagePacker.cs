@@ -26,7 +26,6 @@ namespace Mirror
         }
 
         // pack message before sending
-        // -> pass writer instead of byte[] so we can reuse it
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
