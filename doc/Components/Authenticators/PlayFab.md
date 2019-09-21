@@ -1,3 +1,3 @@
-# Playfab Authenticator
+# PlayFab Authenticator
 
 Coming Soon

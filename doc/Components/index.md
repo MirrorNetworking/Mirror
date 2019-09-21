@@ -29,7 +29,7 @@ These core components are included in Mirror:
 
 -   [Basic Authenticator](Authenticators/Basic.md)  
     Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
--   [Playfab Authenticator](Authenticators/Playfab.md)  
+-   [PlayFab Authenticator](Authenticators/PlayFab.md)  
     Coming Soon
 -   [Facebook Authenticator](Authenticators/Facebook.md)  
     Coming Soon

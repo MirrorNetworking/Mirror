@@ -15,7 +15,7 @@ In addition to the Authenticators listed below, you can make your own! Check out
 
 -   [Basic Authenticator](Basic.md)  
     Mirror includes a Basic Authenticator in the Mirror / Authenticators folder which just uses a simple username and password.
--   [Playfab Authenticator](Playfab.md)  
+-   [PlayFab Authenticator](PlayFab.md)  
     Coming Soon
 -   [Facebook Authenticator](Facebook.md)  
     Coming Soon
