@@ -89,12 +89,12 @@
 
 ## Version 3.4.9 -- 2019-Apr-6
 - Added: Semantic Versioning (which is why we jumped from 1.6 to 3.4.9)
-- Added: [SyncDictionary](../Classes/SyncDictionary.md)
-- Added: [SyncHashSet](../Classes/SyncHashSet.md)
-- Added: [SyncSortedSet](../Classes/SyncSortedSet.md)
+- Added: [SyncDictionary](../Guides/Sync/SyncDictionary.md)
+- Added: [SyncHashSet](../Guides/Sync/SyncHashSet.md)
+- Added: [SyncSortedSet](../Guides/Sync/SyncSortedSet.md)
 - Added: SyncList and SyncDictionary support all IList and IDictionary derived types, respectively
-- Added: Documentation for [SyncVars](../Classes/SyncVars.md)
-- Added: Documentation for [SyncEvents](../Classes/SyncEvent.md)
+- Added: Documentation for [SyncVars](../Guides/Sync/SyncVars.md)
+- Added: Documentation for [SyncEvents](../Guides/Sync/SyncEvent.md)
 - Added: NoRotation to NetworkTransform
 - Added: Scale is now included in spawn payload along with position and rotation
 - Added: Generic `IMessageBase` to allow struct message types

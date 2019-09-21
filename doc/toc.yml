@@ -1,16 +1,14 @@
 - name: General
-  href: General/
+  href: General/index.md
 - name: Guides
-  href: Guides/
+  href: Guides/index.md
 - name: Components
-  href: Components/
-- name: Classes
-  href: Classes/
-- name: Api
-  href: api/
+  href: Components/index.md
+- name: API Reference
+  href: api/index.md
 - name: Transports
-  href: Transports/
+  href: Transports/index.md
 - name: Examples
-  href: Examples/
+  href: Examples/index.md
 - name: GitHub
   href: https://github.com/vis2k/Mirror

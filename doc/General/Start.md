@@ -48,7 +48,7 @@ public class Controls : NetworkBehaviour
 -   Make scripts that contain important data into NetworkBehaviours instead of MonoBehaviours
 -   Make important member variables into SyncVars
 
-See [State Synchronization](../Guides/StateSync.md).
+See [State Synchronization](../Guides/Sync/index.md).
 
 ## Networked actions
 -   Make scripts that perform important actions into NetworkBehaviours instead of MonoBehaviours

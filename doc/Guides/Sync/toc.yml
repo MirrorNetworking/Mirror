@@ -1,13 +1,3 @@
-- name: Attributes
-  href: Attributes.md
-- name: NetworkBehaviour
-  href: NetworkBehaviour.md
-- name: NetworkClient
-  href: xref:Mirror.NetworkClient
-- name: NetworkConnection
-  href: xref:Mirror.NetworkConnection
-- name: NetworkServer
-  href: xref:Mirror.NetworkServer
 - name: SyncVars
   href: SyncVars.md
 - name: SyncVar Hooks

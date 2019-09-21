@@ -5,17 +5,17 @@ State synchronization refers to the synchronization of values such as integers, 
 State synchronization is done from the Server to remote clients. The local client does not have data serialized to it. It does not need it, because it shares the Scene with the server. However, SyncVar hooks are called on local clients.
 
 Data is not synchronized in the opposite direction - from remote clients to the server. To do this, you need to use Commands.
--   [SyncVars](../Classes/SyncVars.md)  
+-   [SyncVars](SyncVars.md)  
     SyncVars are variables of scripts that inherit from NetworkBehaviour, which are synchronized from the server to clients. 
--   [SyncEvents](../Classes/SyncEvent.md)  
+-   [SyncEvents](SyncEvent.md)  
     SyncEvents are networked events like ClientRpc’s, but instead of calling a function on the game object, they trigger Events instead.
--   [SyncLists](../Classes/SyncLists.md)  
+-   [SyncLists](SyncLists.md)  
     SyncLists contain lists of values and synchronize data from servers to clients.
--   [SyncDictionary](../Classes/SyncDictionary.md)  
+-   [SyncDictionary](SyncDictionary.md)  
     A SyncDictionary is an associative array containing an unordered list of key, value pairs.
--   [SyncHashSet](../Classes/SyncHashSet.md)  
+-   [SyncHashSet](SyncHashSet.md)  
     An unordered set of values that do not repeat.
--   [SyncSortedSet](../Classes/SyncSortedSet.md)  
+-   [SyncSortedSet](SyncSortedSet.md)  
     A sorted set of values tha do not repeat.
 
 ## Advanced State Synchronization

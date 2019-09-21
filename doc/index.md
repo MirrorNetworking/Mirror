@@ -33,7 +33,7 @@ We've developed a [List Server](https://mirror-networking.com/list-server/) wher
 -   Network [Transform](Components/NetworkTransform.md)
 -   Network [Animator](Components/NetworkAnimator.md) with 64 parameters
 -   Network [Proximity Checker](Components/NetworkProximityChecker.md)
--   [SyncVar](Classes/SyncVars.md), [SyncList](Classes/SyncLists.md), [SyncEvent](Classes/SyncEvent.md), [SyncDictionary](Classes/SyncDictionary.md), and [SyncHashSet](Classes/SyncHashSet.md)
+-   [SyncVar](Guides/Sync/SyncVars.md), [SyncList](Guides/Sync/SyncLists.md), [SyncEvent](Guides/Sync/SyncEvent.md), [SyncDictionary](Guides/Sync/SyncDictionary.md), and [SyncHashSet](Guides/Sync/SyncHashSet.md)
 
 **Integrations**
 -   [Dissonance Voice Chat](https://assetstore.unity.com/packages/tools/audio/dissonance-voice-chat-70078)

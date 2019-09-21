@@ -1,6 +1,6 @@
 # Data types
 
-The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](StateSync.md) or via [Network Messages](Communications/NetworkMessages.md)
+The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](Sync/index.md) or via [Network Messages](Communications/NetworkMessages.md)
 
 Mirror supports a number of data types you can use with these,  including:
 - Basic c# types (byte, int, char, uint, float, string, UInt64, etc)
