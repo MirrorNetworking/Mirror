@@ -1,8 +1,7 @@
-# Transports
+# Transports Overview
 Mirror is a high level Networking Library that can use several different low level transports.
 To use a transport, simply add it as component to the NetworkManager and drag it into the NetworkManager's Transport field.
 
-# Transports Overview
 -   [TCP - Telepathy](Telepathy.md)  
     Simple, message based, MMO Scale TCP networking in C#. And no magic.
 -   [UDP - Ignorance](Ignorance.md)  
