@@ -231,7 +231,7 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.Send(bytes);
+                    result &= kvp.Value.Send(new ArraySegment<byte>(bytes));
                 }
                 return result;
             }
@@ -246,8 +246,12 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
+                // get writer from pool
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+
                 // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
@@ -258,7 +262,7 @@ namespace Mirror
                 {
                     // use local connection directly because it doesn't send via transport
                     if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(bytes);
+                        result &= localConnection.Send(segment);
                     // gather all internet connections
                     else
                         connectionIdsCache.Add(kvp.Key);
@@ -266,8 +270,11 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, bytes);
-                NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
+                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
+
+                // recycle writer and return
+                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;
@@ -288,7 +295,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.Send(bytes, channelId);
+                result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
             }
             return result;
         }
@@ -305,8 +312,13 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.Pack(msg);
+
+            // get writer from pool
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack message only once
+            MessagePacker.Pack(msg, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
 
             // filter and then send to all internet connections at once
             // -> makes code more complicated, but is HIGHLY worth it to
@@ -317,7 +329,7 @@ namespace Mirror
             {
                 // use local connection directly because it doesn't send via transport
                 if (kvp.Value is ULocalConnectionToClient)
-                    result &= localConnection.Send(bytes);
+                    result &= localConnection.Send(segment);
                 // gather all internet connections
                 else
                     connectionIdsCache.Add(kvp.Key);
@@ -325,8 +337,11 @@ namespace Mirror
 
             // send to all internet connections at once
             if (connectionIdsCache.Count > 0)
-                result &= NetworkConnection.Send(connectionIdsCache, bytes);
-            NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
+                result &= NetworkConnection.Send(connectionIdsCache, segment);
+            NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
+
+            // recycle writer and return
+            NetworkWriterPool.Recycle(writer);
             return result;
         }
 
@@ -349,7 +364,7 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.Send(bytes, channelId);
+                        result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
                     }
                 }
                 return result;
@@ -373,15 +388,19 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
-                int count = 0;
+                // get writer from pool
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+                // pack message only once
+                MessagePacker.Pack(msg, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
                 bool result = true;
+                int count = 0;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     bool isSelf = kvp.Value == identity.connectionToClient;
@@ -392,7 +411,7 @@ namespace Mirror
 
                         // use local connection directly because it doesn't send via transport
                         if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(bytes);
+                            result &= localConnection.Send(segment);
                         // gather all internet connections
                         else
                             connectionIdsCache.Add(kvp.Key);
@@ -401,8 +420,11 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, bytes);
-                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, count);
+                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+
+                // recycle writer and return
+                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;

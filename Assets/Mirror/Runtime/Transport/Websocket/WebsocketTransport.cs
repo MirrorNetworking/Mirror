@@ -60,7 +60,15 @@ namespace Mirror.Websocket
             }
         }
 
-        public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            // websocket transport doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            client.Send(data);
+            return true;
+        }
 
         public override void ClientDisconnect() => client.Disconnect();
 
@@ -86,8 +94,12 @@ namespace Mirror.Websocket
             server.Listen(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
+            // websocket transport doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
             server.Send(connectionId, data);
             return true;
         }

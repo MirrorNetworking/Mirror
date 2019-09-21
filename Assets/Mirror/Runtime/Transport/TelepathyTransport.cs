@@ -1,5 +1,6 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Sockets;
 using UnityEngine;
@@ -50,7 +51,14 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
-        public override bool ClientSend(int channelId, byte[] data) => client.Send(data);
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            // telepathy doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            return client.Send(data);
+        }
 
         bool ProcessClientMessage()
         {
@@ -96,7 +104,28 @@ namespace Mirror
         // server
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
-        public override bool ServerSend(int connectionId, int channelId, byte[] data) => server.Send(connectionId, data);
+        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        {
+            // telepathy doesn't support allocation-free sends yet.
+            // previously we allocated in Mirror. now we do it here.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            return server.Send(connectionId, data);
+        }
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        {
+            // we override ServerSend(list) to avoid allocating a byte array
+            // for each connection when sending to multiple connections.
+            // otherwise Rpcs/Cmds would be very costly.
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+
+            // true by default (for empty lists)
+            bool result = true;
+            foreach (int connectionId in connectionIds)
+                result &= server.Send(connectionId, data);
+            return result;
+        }
         public bool ProcessServerMessage()
         {
             if (server.GetNextMessage(out Telepathy.Message message))

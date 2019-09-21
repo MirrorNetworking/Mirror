@@ -72,9 +72,9 @@ namespace Mirror
         /// <param name="channelId">The channel to use.  0 is the default channel,
         /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
         /// as new channels</param>
-        /// <param name="data">The data to send to the server</param>
+        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, byte[] data);
+        public abstract bool ClientSend(int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect this client from the server
@@ -122,9 +122,9 @@ namespace Mirror
         /// <param name="connectionId">The id of the client to send the data to</param>
         /// <param name="channelId">The channel to be used.  Transports can use channels to implement
         /// other features such as unreliable, encryption, compression, etc...</param>
-        /// <param name="data"></param>
+        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the data was sent</returns>
-        public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+        public abstract bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Send data to multiple clients at once.
@@ -136,12 +136,12 @@ namespace Mirror
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
         /// <returns>true if the data was sent to all clients</returns>
-        internal virtual bool ServerSend(List<int> connectionIds, int channelId, byte[] data)
+        public virtual bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
             // true by default (for empty lists)
             bool result = true;
             foreach (int connectionId in connectionIds)
-                result &= ServerSend(connectionId, channelId, data);
+                result &= ServerSend(connectionId, channelId, segment);
             return result;
         }
 
