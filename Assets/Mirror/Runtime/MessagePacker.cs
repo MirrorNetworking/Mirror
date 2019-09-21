@@ -29,13 +29,24 @@ namespace Mirror
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
-        public static void PackMessage(int msgType, MessageBase msg, NetworkWriter writer)
+        public static byte[] PackMessage(int msgType, MessageBase msg)
         {
-            // write message type
-            writer.WriteInt16((short)msgType);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+            try
+            {
+                // write message type
+                writer.WriteInt16((short)msgType);
 
-            // serialize message into writer
-            msg.Serialize(writer);
+                // serialize message into writer
+                msg.Serialize(writer);
+
+                // return byte[]
+                return writer.ToArray();
+            }
+            finally
+            {
+                NetworkWriterPool.Recycle(writer);
+            }
         }
 
         // pack message before sending

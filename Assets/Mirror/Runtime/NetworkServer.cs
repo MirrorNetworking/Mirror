@@ -221,22 +221,15 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // get writer from pool
-                NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-                // pack message only once
-                MessagePacker.PackMessage((ushort)msgType, msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                // pack message into byte[] once
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all observers
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(segment);
+                    result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes));
                 }
-
-                // recycle writer and return
-                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;
@@ -279,22 +272,15 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + msgType);
 
-            // get writer from pool
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-            // pack message only once
-            MessagePacker.PackMessage((ushort)msgType, msg, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
+            // pack message into byte[] once
+            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
             // send to all
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendBytes(segment, channelId);
+                result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes), channelId);
             }
-
-            // recycle writer and return
-            NetworkWriterPool.Recycle(writer);
             return result;
         }
 
@@ -340,12 +326,8 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // get writer from pool
-                NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-                // pack message only once
-                MessagePacker.PackMessage((ushort)msgType, msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                // pack message into byte[] once
+                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
 
                 // send to all ready observers
                 bool result = true;
@@ -353,12 +335,9 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(segment, channelId);
+                        result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes), channelId);
                     }
                 }
-
-                // recycle writer and return
-                NetworkWriterPool.Recycle(writer);
                 return result;
             }
             return false;

@@ -223,14 +223,8 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
-            NetworkWriter writer = NetworkWriterPool.GetWriter();
-
-            // pack message and send allocation free
-            MessagePacker.PackMessage(msgType, msg, writer);
-            bool result = SendBytes(writer.ToArraySegment(), channelId);
-
-            NetworkWriterPool.Recycle(writer);
-            return result;
+            byte[] message = MessagePacker.PackMessage(msgType, msg);
+            return SendBytes(new ArraySegment<byte>(message), channelId);
         }
 
         /// <summary>
