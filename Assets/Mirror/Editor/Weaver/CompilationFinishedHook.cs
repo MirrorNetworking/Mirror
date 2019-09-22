@@ -63,7 +63,10 @@ namespace Mirror.Weaver
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
-                OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
+                if (File.Exists(assembly.outputPath))
+                {
+                    OnCompilationFinished(assembly.outputPath, new CompilerMessage[0]);
+                }
             }
 
             UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
