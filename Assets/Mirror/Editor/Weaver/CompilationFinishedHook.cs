@@ -59,7 +59,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void WeaveExisingAssemblies()
+        static void WeaveExisingAssemblies()
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {
