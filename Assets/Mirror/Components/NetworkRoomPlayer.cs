@@ -56,8 +56,17 @@ namespace Mirror
 
         #region Commands
 
+        /// <summary>
+        /// Call from client to notify server of Ready state change
+        /// </summary>
+        /// <param name="readyState"></param>
+        public void ChangeReadyState(bool readyState)
+        {
+            CmdChangeReadyState(readyState);
+        }
+
         [Command]
-        public void CmdChangeReadyState(bool readyState)
+        void CmdChangeReadyState(bool readyState)
         {
             readyToBegin = readyState;
             NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
