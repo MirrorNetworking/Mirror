@@ -28,7 +28,6 @@ Certain internal messages already have been set to bypass authentication:
     -   `SceneMessage`
     -   `NetworkPongMessage`
 
-
 ## Basic Authenticator
 
 Mirror includes a [Basic Authenticator](../Components/Authenticators/Basic.md) in the Mirror / Authenticators folder which just uses a simple username and password.
