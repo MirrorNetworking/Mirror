@@ -52,9 +52,9 @@ namespace Mirror.Weaver
             // and reload them.
             // Store an environment variable that will survive assembly reloads
             // so that we know if we have run the weaver before
-            if (Environment.GetEnvironmentVariable("MIRROR_WEAVER") != "true" )
+            if (Environment.GetEnvironmentVariable("MIRROR_WEAVED") != "true" )
             {
-                Environment.SetEnvironmentVariable("MIRROR_WEAVER", "true");
+                Environment.SetEnvironmentVariable("MIRROR_WEAVED", "true");
                 WeaveExisingAssemblies();
             }
         }
