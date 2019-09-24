@@ -48,13 +48,11 @@ namespace Mirror.Weaver
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
 
-            // the first time we load the weaver we need to weave existing assemblies
-            // and reload them.
-            // Store an environment variable that will survive assembly reloads
-            // so that we know if we have run the weaver before
-            if (Environment.GetEnvironmentVariable("MIRROR_WEAVED") != "true" )
+            // We only need to run this once per session
+            // after that, all assemblies will be weaved by the event
+            if (!SessionState.GetBool("MIRROR_WEAVED", false) )
             {
-                Environment.SetEnvironmentVariable("MIRROR_WEAVED", "true");
+                SessionState.SetBool("MIRROR_WEAVED", true);
                 WeaveExisingAssemblies();
             }
         }
