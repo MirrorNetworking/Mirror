@@ -49,7 +49,7 @@ To make your own custom Authenticator, you can just create a new script in your 
 Here are some tips for custom Authenticators:
 
 -   `OnStartServer` and `OnStartClient` are the appropriate methods to register server and client messages and their handlers. They're called from StartServer/StartHost, and StartClient, respectively.
--   The base Authenticor includes a timeout feature so you can prevent rogue clients from locking up your connections.
+-   The base Authenticator includes a timeout feature so you can prevent rogue clients from locking up your connections.
 -   Send a message to the client if authentication fails, especially if there's some issue they can resolve.
 -   Call the `Disconnect()` method of the `NetworkConnection` on the server and client when authentication fails. If you want to give the user a few tries to get their credentials right, you certainly can, but Mirror will not do the disconnect for you.
     -   Remember to put a small delay on the Disconnect call on the server if you send a failure message so that it has a chance to be delivered before the connection is dropped.
