@@ -10,7 +10,7 @@
 
 Mirror is a **high level** Networking API for Unity, built on top of the **low level** [Telepathy](https://github.com/vis2k/Telepathy) library.
 
-Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212), [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015) and [Cubica](https://cubica.net).
+Mirror is built [and tested](https://www.youtube.com/watch?v=mDCNff1S9ZU) for **MMO Scale** Networking by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212), [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015) and [Cubica](https://cubica.net).
 
 Mirror is optimized for **ease of use** and **probability of success**. Projects that use Mirror are small, concise and maintainable. uMMORPG was possible with <6000 lines of code. We needed a networking library that allows us to [launch our games](https://mirror-networking.com/showcase/), period.
 
@@ -26,17 +26,17 @@ _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it 
 ## Documentation
 Check out our [Documentation](https://mirror-networking.com/xmldocs/).
 
-If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/xmldocs/articles/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
+If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/xmldocs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
-We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://www.assetstore.unity3d.com/#!/content/129321)!
+We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321)!
 
 For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
 
 ## Examples
 We included several smaller example projects in Mirror.
 
-For a fully polished, complete project example, consider [uMMORPG](https://www.assetstore.unity3d.com/#!/content/51212) or [uSurvival](https://www.assetstore.unity3d.com/#!/content/95015).
+For a fully polished, complete project example, consider [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) or [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015).
 
 ## Transports
 Mirror supports many different low level networking transports:
