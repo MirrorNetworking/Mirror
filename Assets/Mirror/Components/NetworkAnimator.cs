@@ -237,9 +237,9 @@ namespace Mirror
             return dirtyBits;
         }
 
-        bool WriteParameters(NetworkWriter writer)
+        bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
-            ulong dirtyBits = NextDirtyBits();
+            ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
             writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -318,7 +318,7 @@ namespace Mirror
                         writer.WriteSingle(st.normalizedTime);
                     }
                 }
-                WriteParameters(writer);
+                WriteParameters(writer, forceAll);
                 return true;
             }
             return false;
