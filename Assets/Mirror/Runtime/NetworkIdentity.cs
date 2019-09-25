@@ -227,21 +227,6 @@ namespace Mirror
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
-        /// <summary>
-        /// The delegate type for the clientAuthorityCallback.
-        /// </summary>
-        /// <param name="conn">The network connection that is gaining or losing authority.</param>
-        /// <param name="identity">The object whose client authority status is being changed.</param>
-        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
-
-        /// <summary>
-        /// A callback that can be populated to be notified when the client-authority state of objects changes.
-        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
-        /// <para>This callback is used by the NetworkMigrationManager to distribute client authority state to peers for host migration. If the NetworkMigrationManager is not being used, this callback does not need to be populated.</para>
-        /// </summary>
-        public static ClientAuthorityCallback clientAuthorityCallback;
-
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
         {
@@ -1107,7 +1092,6 @@ namespace Mirror
                 };
 
                 clientAuthorityOwner.Send(msg);
-                clientAuthorityCallback?.Invoke(clientAuthorityOwner, this, false);
             }
 
             clientAuthorityOwner.RemoveOwnedObject(this);
@@ -1163,7 +1147,6 @@ namespace Mirror
             };
             conn.Send(msg);
 
-            clientAuthorityCallback?.Invoke(conn, this, true);
             return true;
         }
 
