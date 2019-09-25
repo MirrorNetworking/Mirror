@@ -15,7 +15,7 @@ namespace Mirror
     /// <para>The OnRoom*() functions have empty implementations on the NetworkRoomManager base class, so the base class functions do not have to be called.</para>
     /// </remarks>
     [AddComponentMenu("Network/NetworkRoomManager")]
-    [HelpURL("https://mirror-networking.com/xmldocs/Components/NetworkRoomManager.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomManager.html")]
     public class NetworkRoomManager : NetworkManager
     {
         public struct PendingPlayer

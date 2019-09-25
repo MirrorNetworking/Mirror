@@ -19,7 +19,7 @@ namespace Mirror
     }
 
     [AddComponentMenu("Network/NetworkManager")]
-    [HelpURL("https://mirror-networking.com/xmldocs/Components/NetworkManager.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
     {
         /// <summary>

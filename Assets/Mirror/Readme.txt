@@ -8,7 +8,7 @@ Requirements:
   Runtime .Net 4.x (Project Settings > Player > Other Settings)
 
 Documentation:
-  https://mirror-networking.com/xmldocs/
+  https://mirror-networking.com/docs/
 
 Support:
   Discord: https://discordapp.com/invite/N9QVxbM
