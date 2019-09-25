@@ -1088,11 +1088,13 @@ namespace Mirror
             if (!isServer)
             {
                 Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
+                return;
             }
 
             if (connectionToClient != null)
             {
                 Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
+                return;
             }
 
             if (clientAuthorityOwner != null)
