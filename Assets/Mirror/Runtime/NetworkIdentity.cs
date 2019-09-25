@@ -181,9 +181,9 @@ namespace Mirror
         // (see AssignSceneID comments)
         //  suppress "Field 'NetworkIdentity.m_SceneId' is never assigned to, and will always have its default value 0"
         // when building standalone
-        #pragma warning disable CS0649
+#pragma warning disable CS0649
         [SerializeField] ulong m_SceneId;
-        #pragma warning restore CS0649
+#pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
@@ -801,7 +801,7 @@ namespace Mirror
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + contentSize +" bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e);
+                Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data(" + contentSize + " bytes)? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" + e);
             }
 
             // now the reader should be EXACTLY at 'before + size'.
@@ -1067,35 +1067,47 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Removes ownership for an object for a client by its connection.
-        /// <para>This applies to objects that had authority set by AssignClientAuthority, or NetworkServer.SpawnWithClientAuthority. Authority cannot be removed for player objects.</para>
+        /// Obsolete: Use <see cref="RemoveClientAuthority()"/> instead
         /// </summary>
         /// <param name="conn">The connection of the client to remove authority for.</param>
         /// <returns>True if authority is removed.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("NetworkConnection parameter is no longer needed and nothing is returned")]
         public bool RemoveClientAuthority(NetworkConnection conn)
+        {
+            RemoveClientAuthority();
+            return true;
+        }
+
+        /// <summary>
+        /// Removes ownership for an object.
+        /// <para>This applies to objects that had authority set by AssignClientAuthority, or NetworkServer.SpawnWithClientAuthority.</para>
+        /// <para>Authority cannot be removed for player objects.</para>
+        /// </summary>
+        public void RemoveClientAuthority()
         {
             if (!isServer)
             {
                 Debug.LogError("RemoveClientAuthority can only be call on the server for spawned objects.");
-                return false;
+                return;
             }
 
             if (connectionToClient != null)
             {
                 Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
-                return false;
+                return;
             }
 
-            if (clientAuthorityOwner == null)
+            if (clientAuthorityOwner != null)
             {
-                Debug.LogError("RemoveClientAuthority for " + gameObject + " has no clientAuthority owner.");
-                return false;
-            }
+                // send msg to that client
+                ClientAuthorityMessage msg = new ClientAuthorityMessage
+                {
+                    netId = netId,
+                    authority = false
+                };
 
-            if (clientAuthorityOwner != conn)
-            {
-                Debug.LogError("RemoveClientAuthority for " + gameObject + " has different owner.");
-                return false;
+                clientAuthorityOwner.Send(msg);
+                clientAuthorityCallback?.Invoke(clientAuthorityOwner, this, false);
             }
 
             clientAuthorityOwner.RemoveOwnedObject(this);
@@ -1103,17 +1115,6 @@ namespace Mirror
 
             // server now has authority (this is only called on server)
             ForceAuthority(true);
-
-            // send msg to that client
-            ClientAuthorityMessage msg = new ClientAuthorityMessage
-            {
-                netId = netId,
-                authority = false
-            };
-            conn.Send(msg);
-
-            clientAuthorityCallback?.Invoke(conn, this, false);
-            return true;
         }
 
         /// <summary>
