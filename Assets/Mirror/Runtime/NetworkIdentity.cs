@@ -228,18 +228,20 @@ namespace Mirror
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
         /// <summary>
-        /// The delegate type for the clientAuthorityCallback.
+        /// Obsolete: Host Migration was removed
         /// </summary>
         /// <param name="conn">The network connection that is gaining or losing authority.</param>
         /// <param name="identity">The object whose client authority status is being changed.</param>
         /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
 
         /// <summary>
-        /// A callback that can be populated to be notified when the client-authority state of objects changes.
+        /// Obsolete: Host Migration was removed
         /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
         /// <para>This callback is used by the NetworkMigrationManager to distribute client authority state to peers for host migration. If the NetworkMigrationManager is not being used, this callback does not need to be populated.</para>
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
         public static ClientAuthorityCallback clientAuthorityCallback;
 
         // used when the player object for a connection changes
@@ -1107,7 +1109,9 @@ namespace Mirror
                 };
 
                 clientAuthorityOwner.Send(msg);
+#pragma warning disable CS0618 // Type or member is obsolete
                 clientAuthorityCallback?.Invoke(clientAuthorityOwner, this, false);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             clientAuthorityOwner.RemoveOwnedObject(this);
@@ -1163,7 +1167,9 @@ namespace Mirror
             };
             conn.Send(msg);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             clientAuthorityCallback?.Invoke(conn, this, true);
+#pragma warning restore CS0618 // Type or member is obsolete
             return true;
         }
 
