@@ -1,6 +1,7 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -73,7 +74,23 @@ namespace Mirror
         /// as new channels</param>
         /// <param name="data">The data to send to the server</param>
         /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, byte[] data);
+        public virtual bool ClientSend(int channelId, byte[] data)
+        {
+            throw new NotImplementedException("Transports must override one of the ClientSend methods");
+        }
+
+        /// <summary>
+        /// Send a message to the server
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="channelId"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public virtual bool ClientSend<T>(int channelId, T msg) where T: IMessageBase
+        {
+            byte[] data = MessagePacker.Pack(msg);
+            return ClientSend(channelId, data);
+        }
 
         /// <summary>
         /// Disconnect this client from the server
@@ -123,7 +140,28 @@ namespace Mirror
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
         /// <returns>true if the data was sent</returns>
-        public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+        public virtual bool ServerSend(int connectionId, int channelId, byte[] data)
+        {
+            throw new NotImplementedException("Transports must implement one of the SendServer methods");
+        }
+
+        /// <summary>
+        /// Send a message to a list of recipients
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="msg">The message to send</param>
+        /// <param name="recipients">All the connections we need to send the message to</param>
+        /// <param name="channelId">The channel for the message</param>
+        public virtual void ServerSend<T>(IList<int> recipients, int channelId, T msg) where T : IMessageBase
+        {
+            byte[] data = MessagePacker.Pack(msg);
+            NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, data.Length, recipients.Count);
+            foreach (int connectionId in recipients)
+            {
+                ServerSend(connectionId, channelId, data);
+            }
+        }
+
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

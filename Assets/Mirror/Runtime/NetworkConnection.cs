@@ -61,6 +61,9 @@ namespace Mirror
         /// </summary>
         public float lastMessageTime;
 
+        // recipient list used to send to transport
+        private static readonly List<int> recipientsCache = new List<int>();
+
         /// <summary>
         /// Obsolete: use <see cref="identity"/> instead
         /// </summary>
@@ -237,14 +240,23 @@ namespace Mirror
         /// <returns></returns>
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            // pack message and send
-            byte[] message = MessagePacker.Pack(msg);
-            NetworkDiagnostics.OnSend(msg, channelId, message.Length, 1);
-            return SendBytes(message, channelId);
+            if (Transport.activeTransport.ClientConnected())
+            {
+                return Transport.activeTransport.ClientSend(channelId, msg);
+            }
+            else if (Transport.activeTransport.ServerActive())
+            {
+                recipientsCache.Clear();
+                recipientsCache.Add(connectionId);
+                Transport.activeTransport.ServerSend(recipientsCache, channelId, msg);
+                return true;
+            }
+            return false;
         }
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
+        [Obsolete]
         internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
@@ -261,7 +273,6 @@ namespace Mirror
                 Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
                 return false;
             }
-
             return TransportSend(channelId, bytes);
         }
 
@@ -377,13 +388,15 @@ namespace Mirror
         /// <param name="channelId">Channel to send data on.</param>
         /// <param name="bytes">Data to send.</param>
         /// <returns></returns>
+        [Obsolete("Use Send<T>(T message) instead") ]
         public virtual bool TransportSend(int channelId, byte[] bytes)
         {
             if (Transport.activeTransport.ClientConnected())
             {
                 return Transport.activeTransport.ClientSend(channelId, bytes);
             }
-            else if (Transport.activeTransport.ServerActive())
+
+            if (Transport.activeTransport.ServerActive())
             {
                 return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
             }

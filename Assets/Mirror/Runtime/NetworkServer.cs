@@ -235,6 +235,8 @@ namespace Mirror
             return false;
         }
 
+        private static readonly List<int> recipients = new List<int>();
+
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
@@ -243,16 +245,23 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
+                recipients.Clear();
 
-                bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(bytes);
+                    NetworkConnection conn = kvp.Value;
+                    if (conn is ULocalConnectionToClient localConnectionToClient)
+                    {
+                        conn.Send(msg);
+                    }
+                    else
+                    {
+                        recipients.Add(kvp.Key);
+                    }
                 }
-                NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
-                return result;
+                if (recipients.Count > 0)
+                    Transport.activeTransport.ServerSend(recipients, Channels.DefaultReliable, msg);
+                return true;
             }
             return false;
         }
@@ -289,18 +298,22 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.Pack(msg);
-
-            bool result = true;
+            recipients.Clear();
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendBytes(bytes, channelId);
+                NetworkConnection conn = kvp.Value;
+                if (conn is ULocalConnectionToClient localConnectionToClient)
+                {
+                    conn.Send(msg);
+                }
+                else
+                {
+                    recipients.Add(kvp.Key);
+                }
             }
-
-            NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
-
-            return result;
+            if (recipients.Count > 0)
+                Transport.activeTransport.ServerSend(recipients, Channels.DefaultReliable, msg);
+            return true;
         }
 
         /// <summary>
@@ -346,23 +359,28 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.Pack(msg);
-                int count = 0;
-
-                bool result = true;
+                recipients.Clear();
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     bool isSelf = kvp.Value == identity.connectionToClient;
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(bytes, channelId);
-                        count++;
+                        NetworkConnection conn = kvp.Value;
+                        if (conn is ULocalConnectionToClient localConnectionToClient)
+                        {
+                            conn.Send(msg);
+                        }
+                        else
+                        {
+                            recipients.Add(kvp.Key);
+                        }
                     }
                 }
-                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, count);
-                return result;
+                if (recipients.Count > 0)
+                    Transport.activeTransport.ServerSend(recipients, Channels.DefaultReliable, msg);
+
+                return true;
             }
             return false;
         }

@@ -113,8 +113,7 @@ namespace Mirror
             // create server connection to local client
             ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
             NetworkServer.SetLocalConnection(connectionToClient);
-
-            localClientPacketQueue.Enqueue(MessagePacker.Pack(new ConnectMessage()));
+            connectionToClient.Send(new ConnectMessage());
         }
 
         /// <summary>
@@ -197,7 +196,7 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    localClientPacketQueue.Enqueue(MessagePacker.Pack(new DisconnectMessage()));
+                    NetworkServer.localConnection.Send(new DisconnectMessage());
                 }
                 NetworkServer.RemoveLocalConnection();
             }
@@ -274,6 +273,8 @@ namespace Mirror
                 while (localClientPacketQueue.Count > 0)
                 {
                     byte[] packet = localClientPacketQueue.Dequeue();
+                    // TODO avoid serializing and deserializng the message
+                    // just pass it as is
                     OnDataReceived(new ArraySegment<byte>(packet));
                 }
             }

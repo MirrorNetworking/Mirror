@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -9,6 +10,10 @@ namespace Mirror
     public class MultiplexTransport : Transport
     {
         public Transport[] transports;
+
+        // used to partition recipients for each one of the base transports
+        // without allocating a new list every time
+        private List<int>[] recipientsCache;
 
         public void Awake()
         {
@@ -62,9 +67,9 @@ namespace Mirror
             GetAvailableTransport().ClientDisconnect();
         }
 
-        public override bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend<T>(int channelId, T msg)
         {
-            return GetAvailableTransport().ClientSend(channelId, data);
+            return GetAvailableTransport().ClientSend(channelId, msg);
         }
 
         public override int GetMaxPacketSize(int channelId = 0)
@@ -98,9 +103,13 @@ namespace Mirror
 
         void InitServer()
         {
+            recipientsCache = new List<int>[transports.Length];
+
             // wire all the base transports to my events
             for (int i = 0; i < transports.Length; i++)
             {
+                recipientsCache[i] = new List<int>();
+
                 // this is required for the handlers,  if I use i directly
                 // then all the handlers will use the last i
                 int locali = i;
@@ -146,11 +155,30 @@ namespace Mirror
             return transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override void ServerSend<T>(IList<int> recipients, int channelId, T msg)
         {
-            int baseConnectionId = ToBaseId(connectionId);
-            int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerSend(baseConnectionId, channelId, data);
+            // the message may be for different transports,
+            // partition the recipients by transport send the message
+            foreach (List<int> list in recipientsCache)
+            {
+                list.Clear();
+            }
+
+            foreach (int connectionId in recipients)
+            {
+                int baseConnectionId = ToBaseId(connectionId);
+                int transportId = ToTransportId(connectionId);
+                recipientsCache[transportId].Add(baseConnectionId);
+            }
+
+            for (int i=0; i< transports.Length; i++)
+            {
+                List<int> baseRecipiens = recipientsCache[i];
+                if (baseRecipiens.Count > 0)
+                {
+                    transports[i].ServerSend(baseRecipiens, channelId, msg);
+                }
+            }
         }
 
         public override void ServerStart()
