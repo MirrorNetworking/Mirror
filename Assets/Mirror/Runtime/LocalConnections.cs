@@ -13,6 +13,16 @@ namespace Mirror
             connectionId = 0;
         }
 
+        public override bool Send<T>(T msg, int channelId = 0)
+        {
+            // TODO this can be done by queueing the msg itsef
+            // instead of serializing and deserializing
+            byte[] packet = MessagePacker.Pack(msg);
+            NetworkClient.localClientPacketQueue.Enqueue(packet);
+            return true;
+        }
+
+        [Obsolete]
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             NetworkClient.localClientPacketQueue.Enqueue(bytes);
@@ -30,6 +40,18 @@ namespace Mirror
             connectionId = 0;
         }
 
+        public override bool Send<T>(T msg, int channelId = Channels.DefaultReliable)
+        {
+
+            // handle the server's message directly
+            // TODO any way to do this without serializing the message?
+            byte[] data = MessagePacker.Pack(msg);
+            NetworkServer.localConnection.TransportReceive(new ArraySegment<byte>(data));
+            return true;
+        }
+
+
+        [Obsolete]
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)

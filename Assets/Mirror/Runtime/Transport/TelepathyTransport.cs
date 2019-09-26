@@ -97,6 +97,7 @@ namespace Mirror
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
         public override bool ServerSend(int connectionId, int channelId, byte[] data) => server.Send(connectionId, data);
+
         public bool ProcessServerMessage()
         {
             if (server.GetNextMessage(out Telepathy.Message message))
