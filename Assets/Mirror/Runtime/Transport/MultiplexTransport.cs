@@ -158,8 +158,7 @@ namespace Mirror
         public override void ServerSend<T>(IList<int> recipients, int channelId, T msg)
         {
             // the message may be for different transports,
-            // partition the recipients by transport and update the base
-
+            // partition the recipients by transport send the message
             foreach (List<int> list in recipientsCache)
             {
                 list.Clear();
