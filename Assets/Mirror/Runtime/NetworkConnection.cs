@@ -240,7 +240,6 @@ namespace Mirror
         /// <returns></returns>
         public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            // pack message and send
             if (Transport.activeTransport.ClientConnected())
             {
                 return Transport.activeTransport.ClientSend(channelId, msg);
