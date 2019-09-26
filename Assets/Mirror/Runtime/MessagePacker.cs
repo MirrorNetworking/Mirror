@@ -25,6 +25,11 @@ namespace Mirror
             return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
         }
 
+        public static int GetId(Type type)
+        {
+            return type.FullName.GetStableHashCode() & 0xFFFF;
+        }
+
         // pack message before sending
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
@@ -54,7 +59,7 @@ namespace Mirror
             try
             {
                 // write message type
-                int msgType = GetId<T>();
+                int msgType = GetId(message.GetType());
                 writer.WriteUInt16((ushort)msgType);
 
                 // serialize message into writer

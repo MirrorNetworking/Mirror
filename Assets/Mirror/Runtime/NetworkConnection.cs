@@ -334,7 +334,7 @@ namespace Mirror
         /// <returns></returns>
         public bool InvokeHandler<T>(T msg) where T : IMessageBase
         {
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacker.GetId(msg.GetType());
             byte[] data = MessagePacker.Pack(msg);
             return InvokeHandler(msgType, new NetworkReader(data));
         }
