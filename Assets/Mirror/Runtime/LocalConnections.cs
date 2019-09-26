@@ -42,14 +42,12 @@ namespace Mirror
 
         public override bool Send<T>(T msg, int channelId = Channels.DefaultReliable)
         {
-
             // handle the server's message directly
             // TODO any way to do this without serializing the message?
             byte[] data = MessagePacker.Pack(msg);
             NetworkServer.localConnection.TransportReceive(new ArraySegment<byte>(data));
             return true;
         }
-
 
         [Obsolete]
         internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
