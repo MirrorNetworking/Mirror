@@ -274,6 +274,8 @@ namespace Mirror
                 while (localClientPacketQueue.Count > 0)
                 {
                     byte[] packet = localClientPacketQueue.Dequeue();
+                    // TODO avoid serializing and deserializng the message
+                    // just pass it as is
                     OnDataReceived(new ArraySegment<byte>(packet));
                 }
             }
