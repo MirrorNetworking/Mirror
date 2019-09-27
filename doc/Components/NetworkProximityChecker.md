@@ -2,7 +2,7 @@
 
 The Network Proximity Checker component controls the visibility of game objects for network clients, based on proximity to players.
 
-![The Network Proximity Checker component](NetworkProximityCheck.png)
+![Network Proximity Checker component](NetworkProximityCheck.png)
 -   **Vis Range**  
     Define the range that the game object should be visible to observers.
 -   **Vis Update Interval**  
