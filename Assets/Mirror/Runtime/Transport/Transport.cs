@@ -65,6 +65,20 @@ namespace Mirror
         /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
         public abstract void ClientConnect(string address);
 
+
+        /// <summary>
+        /// Send data to the server
+        /// </summary>
+        /// <param name="channelId">The channel to use.  0 is the default channel,
+        /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
+        /// as new channels</param>
+        /// <param name="data">The data to send to the server.</param>
+        /// <returns>true if the send was successful</returns>
+        public virtual bool ClientSend(int channelId, byte[] data)
+        {
+            throw new NotImplementedException("Transports should implement one of ClientSend methods");
+        }
+
         /// <summary>
         /// Send data to the server
         /// </summary>
@@ -73,7 +87,13 @@ namespace Mirror
         /// as new channels</param>
         /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the send was successful</returns>
-        public abstract bool ClientSend(int channelId, ArraySegment<byte> segment);
+        public virtual bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            // just call the legacy Client send
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            return ClientSend(channelId, data);
+        }
 
         /// <summary>
         /// Disconnect this client from the server
