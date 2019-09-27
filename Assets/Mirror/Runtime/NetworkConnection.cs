@@ -342,7 +342,7 @@ namespace Mirror
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
             // pack and invoke
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacker.GetId(msg.GetType());
             MessagePacker.Pack(msg, writer);
             bool result = InvokeHandler(msgType, new NetworkReader(writer.ToArraySegment()));
 

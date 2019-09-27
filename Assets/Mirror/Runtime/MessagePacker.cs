@@ -25,6 +25,11 @@ namespace Mirror
             return typeof(T).FullName.GetStableHashCode() & 0xFFFF;
         }
 
+        public static int GetId(Type type)
+        {
+            return type.FullName.GetStableHashCode() & 0xFFFF;
+        }
+
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
@@ -55,7 +60,7 @@ namespace Mirror
         public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
         {
             // write message type
-            int msgType = GetId<T>();
+            int msgType = GetId(message.GetType());
             writer.WriteUInt16((ushort)msgType);
 
             // serialize message into writer
@@ -69,7 +74,6 @@ namespace Mirror
         internal static byte[] PackWithAlloc<T>(T message) where T : IMessageBase
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
-
             Pack(message, writer);
             byte[] data = writer.ToArray();
 

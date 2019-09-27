@@ -41,5 +41,5 @@ environment:
 
 deploy_script:
   - semantic-release
-  - IF "%APPVEYOR_REPO_BRANCH%"=="master" ( lftp -e 'set ftp:ssl-allow no ; mirror -R -c -e -p doc/_site public_html/xmldocs; chmod -R a+X public_html/xmldocs ; ls -l public_html/xmldocs/ ; ls -l public_html/xmldocs/styles/ ; bye' -u mirreofx --env-password ftp://mirror-networking.com 2>&1 )
+  - IF "%APPVEYOR_REPO_BRANCH%"=="master" ( lftp -e 'set ftp:ssl-allow no ; mirror -R -c -e -p doc/_site public_html/docs; chmod -R a+X public_html/docs ; ls -l public_html/docs/ ; ls -l public_html/docs/styles/ ; bye' -u mirreofx --env-password ftp://mirror-networking.com 2>&1 )
 

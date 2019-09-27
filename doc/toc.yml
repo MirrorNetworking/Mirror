@@ -5,7 +5,7 @@
 - name: Components
   href: Components/index.md
 - name: API Reference
-  href: https://mirror-networking.com/xmldocs/api/Mirror.html
+  href: https://mirror-networking.com/docs/api/Mirror.html
 - name: Transports
   href: Transports/index.md
 - name: Examples

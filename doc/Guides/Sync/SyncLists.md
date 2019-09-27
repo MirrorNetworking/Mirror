@@ -38,18 +38,17 @@ class Player : NetworkBehaviour
         if (coins > 10)
         {
             coins -= 10;
-            Item item = new Item 
+            Item item = new Item
             {
                 name = "Sword",
                 amount = 3,
-                color = new Color32(125,125,125);
+                color = new Color32(125, 125, 125, 255)
             };
 
             // during next synchronization,  all clients will see the item
-            inventory.Add(item)
+            inventory.Add(item);
         }
     }
-
 }
 ```
 

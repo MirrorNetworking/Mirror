@@ -161,41 +161,27 @@ MonoBehaviour:
   OnClientConnected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   OnClientDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
   OnClientError:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventException, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
   OnClientDisconnected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   OnServerConnected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   OnServerDataReceived:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventIntArraySegment, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
   OnServerError:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventIntException, Mirror, Version=0.0.0.0, Culture=neutral,
-      PublicKeyToken=null
   OnServerDisconnected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Mirror.UnityEventInt, Mirror, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   port: 7777
   NoDelay: 1
   serverMaxMessageSize: 16384
@@ -222,6 +208,7 @@ MonoBehaviour:
   transport: {fileID: 249891955}
   networkAddress: localhost
   maxConnections: 16
+  authenticator: {fileID: 0}
   playerPrefab: {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30,
     type: 3}
   autoCreatePlayer: 1
@@ -378,8 +365,6 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
-      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0

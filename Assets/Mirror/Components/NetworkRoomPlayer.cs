@@ -9,7 +9,7 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkRoomPlayer")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkRoomPlayer.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomPlayer.html")]
     public class NetworkRoomPlayer : NetworkBehaviour
     {
         /// <summary>

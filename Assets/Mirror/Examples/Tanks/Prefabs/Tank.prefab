@@ -51,8 +51,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  serverOnly: 0
+  localPlayerAuthority: 1
   m_AssetId: 6f43bf5488a7443d19ab2a83c6b91f35
   m_SceneId: 0
 --- !u!95 &2240606817507776182
@@ -86,6 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
   syncInterval: 0.1
   compressRotation: 1
 --- !u!195 &6900008319038825817
@@ -135,6 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7deadf756194d461e9140e42d651693b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
   syncInterval: 0.1
   agent: {fileID: 6900008319038825817}
   animator: {fileID: 2240606817507776182}

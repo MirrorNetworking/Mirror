@@ -10,6 +10,9 @@
 - Fixed: Network Room Players are now all in DontDestroyOnLoad so they don't respawn in the game scene
 - Fixed: Network Room example player controller restores main camera on disable
 - Fixed: Components with different sync intervals were not sending updates to clients
+- Fixed: In certain cases, weaver wouldn't weave some external assemblies
+- Fixed: NetworkAnimator now does a full sync for new clients
+- Changed: NetworkIdentity.RemoveAuthorityForConnection is now easier to use: no need to supply the current "owner" anymore.
 - Changed: Renamed `NetworkConnection.playerController` to `identity` ... see [Deprecations](Deprecations.md) for details.
 - Changed: Lobby system renamed to Room to better align the name for what it is and make way for a future Lobby framework
 
