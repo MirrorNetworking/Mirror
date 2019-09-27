@@ -262,7 +262,16 @@ namespace Mirror
                 return false;
             }
 
-            return TransportSend(channelId, bytes);
+            // send to client or server
+            if (Transport.activeTransport.ClientConnected())
+            {
+                return Transport.activeTransport.ClientSend(channelId, bytes);
+            }
+            else if (Transport.activeTransport.ServerActive())
+            {
+                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
+            }
+            return false;
         }
 
         public override string ToString()
@@ -369,25 +378,6 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
             }
-        }
-
-        /// <summary>
-        /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
-        /// </summary>
-        /// <param name="channelId">Channel to send data on.</param>
-        /// <param name="bytes">Data to send.</param>
-        /// <returns></returns>
-        public virtual bool TransportSend(int channelId, byte[] bytes)
-        {
-            if (Transport.activeTransport.ClientConnected())
-            {
-                return Transport.activeTransport.ClientSend(channelId, bytes);
-            }
-            else if (Transport.activeTransport.ServerActive())
-            {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
-            }
-            return false;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)
