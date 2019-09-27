@@ -71,7 +71,7 @@ namespace Mirror
         // => useful for tests
         // => useful for local client message enqueue
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal static byte[] PackWithAlloc<T>(T message) where T : IMessageBase
+        public static byte[] Pack<T>(T message) where T : IMessageBase
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
             Pack(message, writer);
