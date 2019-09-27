@@ -54,6 +54,9 @@ namespace Mirror
         /// </summary>
         public static bool localClientActive { get; private set; }
 
+        // cache the Send(connectionIds) list to avoid allocating each time
+        static List<int> connectionIdsCache = new List<int>();
+
         /// <summary>
         /// Reset the NetworkServer singleton.
         /// </summary>
@@ -243,14 +246,18 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-                // pack message into byte[] once
+// pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
 
-                bool result = true;
+                // put connection ids into a list (cached to avoid allocations)
+                connectionIdsCache.Clear();
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.Send(bytes);
+                    connectionIdsCache.Add(kvp.Key);
                 }
+
+                // send
+                bool result = NetworkConnection.Send(connectionIdsCache, bytes);
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
                 return result;
             }
@@ -292,14 +299,16 @@ namespace Mirror
             // pack message into byte[] once
             byte[] bytes = MessagePacker.Pack(msg);
 
-            bool result = true;
+            // put connection ids into a list (cached to avoid allocations)
+            connectionIdsCache.Clear();
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.Send(bytes, channelId);
+                connectionIdsCache.Add(kvp.Key);
             }
 
+            // send
+            bool result = NetworkConnection.Send(connectionIdsCache, bytes);
             NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
-
             return result;
         }
 
@@ -348,20 +357,22 @@ namespace Mirror
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
-                int count = 0;
 
-                bool result = true;
+                // put connection ids into a list (cached to avoid allocations)
+                connectionIdsCache.Clear();
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     bool isSelf = kvp.Value == identity.connectionToClient;
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
-                        result &= kvp.Value.Send(bytes, channelId);
-                        count++;
+                        connectionIdsCache.Add(kvp.Key);
                     }
                 }
-                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, count);
+
+                // send
+                bool result = NetworkConnection.Send(connectionIdsCache, bytes);
+                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connectionIdsCache.Count);
                 return result;
             }
             return false;
