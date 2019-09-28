@@ -140,7 +140,6 @@ namespace Mirror
             return result;
         }
 
-
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.
         /// </summary>
