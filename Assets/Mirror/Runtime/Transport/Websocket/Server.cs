@@ -84,7 +84,7 @@ namespace Mirror.Websocket
             public bool CheckCertificateRevocation;
         }
 
-        public async void Listen(int port)
+        public async Task Listen(int port)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Mirror.Websocket
                 while (true)
                 {
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
-                    ProcessTcpClient(tcpClient, cancellation.Token);
+                    _ = ProcessTcpClient(tcpClient, cancellation.Token);
                 }
             }
             catch (ObjectDisposedException)
@@ -110,7 +110,7 @@ namespace Mirror.Websocket
             }
         }
 
-        async void ProcessTcpClient(TcpClient tcpClient, CancellationToken token)
+        async Task ProcessTcpClient(TcpClient tcpClient, CancellationToken token)
         {
 
             try

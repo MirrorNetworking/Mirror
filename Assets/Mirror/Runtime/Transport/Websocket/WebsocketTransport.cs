@@ -83,7 +83,7 @@ namespace Mirror.Websocket
                     EnabledSslProtocols = System.Security.Authentication.SslProtocols.Default
                 };
             }
-            server.Listen(port);
+            _ = server.Listen(port);
         }
 
         public override bool ServerSend(int connectionId, int channelId, byte[] data)
