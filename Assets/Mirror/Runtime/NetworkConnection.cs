@@ -243,33 +243,48 @@ namespace Mirror
             return Send(message, channelId);
         }
 
-        // internal because no one except Mirror should send bytes directly to
-        // the client. they would be detected as a message. send messages instead.
-        internal virtual bool Send(byte[] bytes, int channelId = Channels.DefaultReliable)
+        // validate packet size before sending. show errors if too big/small.
+        // => it's best to check this here, we can't assume that all transports
+        //    would check max size and show errors internally. best to do it
+        //    in one place in hlapi.
+        // => it's important to log errors, so the user knows what went wrong.
+        static bool ValidatePacketSize(byte[] bytes, int channelId)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
-
             if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection.SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
             if (bytes.Length == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
-            // send to client or server
-            if (Transport.activeTransport.ClientConnected())
+            // good size
+            return true;
+        }
+
+        // internal because no one except Mirror should send bytes directly to
+        // the client. they would be detected as a message. send messages instead.
+        internal virtual bool Send(byte[] bytes, int channelId = Channels.DefaultReliable)
+        {
+            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
+
+            // validate packet size first.
+            if (ValidatePacketSize(bytes, channelId))
             {
-                return Transport.activeTransport.ClientSend(channelId, bytes);
-            }
-            else if (Transport.activeTransport.ServerActive())
-            {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
+                // send to client or server
+                if (Transport.activeTransport.ClientConnected())
+                {
+                    return Transport.activeTransport.ClientSend(channelId, bytes);
+                }
+                else if (Transport.activeTransport.ServerActive())
+                {
+                    return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
+                }
             }
             return false;
         }
