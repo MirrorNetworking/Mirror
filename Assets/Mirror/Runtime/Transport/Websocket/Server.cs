@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
+using Ninja.WebSockets.Internal;
 using UnityEngine;
 
 namespace Mirror.Websocket
@@ -128,7 +129,7 @@ namespace Mirror.Websocket
                     sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
                     stream = sslStream;
                 }
-                WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
+                WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
                     WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
@@ -312,7 +313,9 @@ namespace Mirror.Websocket
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
-                return "";
+                WebSocketImplementation wsClient = client as WebSocketImplementation;
+                return wsClient.Context.Client.Client.RemoteEndPoint.ToString();
+
             }
             return null;
         }
