@@ -225,7 +225,7 @@ namespace Mirror
         {
             // pack message and send
             byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(message, channelId);
+            return Send(message, channelId);
         }
 
         /// <summary>
@@ -240,12 +240,12 @@ namespace Mirror
             // pack message and send
             byte[] message = MessagePacker.Pack(msg);
             NetworkDiagnostics.OnSend(msg, channelId, message.Length, 1);
-            return SendBytes(message, channelId);
+            return Send(message, channelId);
         }
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal virtual bool Send(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
 
