@@ -146,11 +146,11 @@ namespace Mirror
             return transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerSend(baseConnectionId, channelId, segment);
+            return transports[transportId].ServerSend(baseConnectionId, channelId, data);
         }
 
         public override void ServerStart()

@@ -1,6 +1,7 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -143,7 +144,33 @@ namespace Mirror
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
         /// <returns>true if the data was sent</returns>
-        public abstract bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
+        public virtual bool ServerSend(int connectionId, int channelId, byte[] data)
+        {
+            throw new NotImplementedException("Transports must implement one of the SendServer methods");
+        }
+
+        /// <summary>
+        /// Send a message to a bunch of clients
+        /// </summary>
+        /// <param name="connectionIds">ids of the clients to send he data to</param>
+        /// <param name="channelId">The channel to be used.  Transports can use channels to implement
+        /// other features such as unreliable, encryption, compression, etc...</param>
+        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
+        /// <returns>true if the data was sent</returns>
+        public virtual bool ServerSend(IEnumerable<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        {
+            // by default call the legacy SendServer
+            // transports are encouraged to override this method instead to provide efficient
+            // allocation free sends
+            byte[] data = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
+            bool result = true; 
+            foreach (int connectionId in connectionIds)
+            {
+                result &= ServerSend(connectionId, channelId, data);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

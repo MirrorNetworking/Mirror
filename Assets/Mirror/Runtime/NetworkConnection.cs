@@ -387,6 +387,8 @@ namespace Mirror
         public virtual bool TransportSend(int channelId, byte[] bytes) =>
             TransportSend(channelId, new ArraySegment<byte>(bytes));
 
+
+        private static List<int> sendConnectionIdCache = new List<int>();
         /// <summary>
         /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
         /// </summary>
@@ -401,7 +403,9 @@ namespace Mirror
             }
             else if (Transport.activeTransport.ServerActive())
             {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, segment);
+                sendConnectionIdCache.Clear();
+                sendConnectionIdCache.Add(connectionId);
+                return Transport.activeTransport.ServerSend(sendConnectionIdCache, channelId, segment);
             }
             return false;
         }

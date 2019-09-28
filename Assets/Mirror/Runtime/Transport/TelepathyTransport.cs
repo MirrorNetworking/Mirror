@@ -99,12 +99,8 @@ namespace Mirror
         // server
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(int connectionId, int channelId, byte[] data)
         {
-            // telepathy doesn't support allocation-free sends yet.
-            // previously we allocated in Mirror. now we do it here.
-            byte[] data = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
             return server.Send(connectionId, data);
         }
         public bool ProcessServerMessage()
