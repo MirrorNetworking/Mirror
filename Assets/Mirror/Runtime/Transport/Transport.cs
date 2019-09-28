@@ -1,6 +1,7 @@
 // abstract transport layer component
 // note: not all transports need a port, so add it to yours if needed.
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,7 +18,7 @@ namespace Mirror
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
-        /// The current transport used by Mirror. 
+        /// The current transport used by Mirror.
         /// </summary>
         public static Transport activeTransport;
 
@@ -124,6 +125,20 @@ namespace Mirror
         /// <param name="data"></param>
         /// <returns>true if the data was sent</returns>
         public abstract bool ServerSend(int connectionId, int channelId, byte[] data);
+
+        /// <summary>
+        /// Send data to multiple clients at once.
+        /// Calls ServerSend by default. Can be overwritten by transports that can send to multiple
+        /// clients at once more efficiently if needed.
+        /// </summary>
+        internal virtual bool ServerSend(List<int> connectionIds, int channelId, byte[] data)
+        {
+            // true by default (for empty lists)
+            bool result = true;
+            foreach (int connectionId in connectionIds)
+                result &= ServerSend(connectionId, channelId, data);
+            return result;
+        }
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

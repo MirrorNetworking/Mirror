@@ -289,6 +289,22 @@ namespace Mirror
             return false;
         }
 
+        // Send to many. basically Transport.Send(connections) + checks.
+        internal static bool Send(List<int> connectionIds, byte[] bytes, int channelId = Channels.DefaultReliable)
+        {
+            // validate packet size first.
+            if (ValidatePacketSize(bytes, channelId))
+            {
+                // only the server sends to many, we don't have that function on
+                // a client.
+                if (Transport.activeTransport.ServerActive())
+                {
+                    return Transport.activeTransport.ServerSend(connectionIds, channelId, bytes);
+                }
+            }
+            return false;
+        }
+
         public override string ToString()
         {
             return $"connectionId: {connectionId} isReady: {isReady}";
