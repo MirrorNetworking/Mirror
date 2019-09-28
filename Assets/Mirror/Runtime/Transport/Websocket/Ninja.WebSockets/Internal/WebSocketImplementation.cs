@@ -101,9 +101,7 @@ namespace Ninja.WebSockets.Internal
             {
                 // the ping pong manager starts a task
                 // but we don't have to keep a reference to it
-#pragma warning disable 0219
-                PingPongManager pingPongManager = new PingPongManager(guid, this, keepAliveInterval, _internalReadCts.Token);
-#pragma warning restore 0219
+                _ = new PingPongManager(guid, this, keepAliveInterval, _internalReadCts.Token);
             }
         }
 
