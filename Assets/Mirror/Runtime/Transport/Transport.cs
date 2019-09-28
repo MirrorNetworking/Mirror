@@ -131,6 +131,11 @@ namespace Mirror
         /// Calls ServerSend by default. Can be overwritten by transports that can send to multiple
         /// clients at once more efficiently if needed.
         /// </summary>
+        /// <param name="connectionIds">The list of client connection ids to send the data to</param>
+        /// <param name="channelId">The channel to be used.  Transports can use channels to implement
+        /// other features such as unreliable, encryption, compression, etc...</param>
+        /// <param name="data"></param>
+        /// <returns>true if the data was sent to all clients</returns>
         internal virtual bool ServerSend(List<int> connectionIds, int channelId, byte[] data)
         {
             // true by default (for empty lists)
