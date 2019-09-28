@@ -289,7 +289,7 @@ namespace Mirror
             return false;
         }
 
-        // SendBytes to many. basically Transport.Send(connections) + checks.
+        // Send to many. basically Transport.Send(connections) + checks.
         internal static bool Send(List<int> connectionIds, byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             // validate packet size first.
