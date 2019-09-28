@@ -131,7 +131,7 @@ namespace Mirror
         /// Calls ServerSend by default. Can be overwritten by transports that can send to multiple
         /// clients at once more efficiently if needed.
         /// </summary>
-        public virtual bool ServerSend(List<int> connectionIds, int channelId, byte[] data)
+        internal virtual bool ServerSend(List<int> connectionIds, int channelId, byte[] data)
         {
             // true by default (for empty lists)
             bool result = true;
