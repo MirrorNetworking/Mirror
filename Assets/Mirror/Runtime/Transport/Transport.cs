@@ -9,10 +9,10 @@ using UnityEngine.Events;
 namespace Mirror
 {
     // UnityEvent definitions
-    [Serializable] public class UnityEventArraySegment : UnityEvent<ArraySegment<byte>> {}
+    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> {}
     [Serializable] public class UnityEventException : UnityEvent<Exception> {}
     [Serializable] public class UnityEventInt : UnityEvent<int> {}
-    [Serializable] public class UnityEventIntArraySegment : UnityEvent<int, ArraySegment<byte>> {}
+    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> {}
     [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> {}
 
     public abstract class Transport : MonoBehaviour
@@ -42,7 +42,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// </summary>
-        [HideInInspector] public UnityEventArraySegment OnClientDataReceived = new UnityEventArraySegment();
+        [HideInInspector] public ClientDataReceivedEvent OnClientDataReceived = new ClientDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this clianet encounters an error communicating with the server
@@ -93,7 +93,7 @@ namespace Mirror
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// </summary>
-        [HideInInspector] public UnityEventIntArraySegment OnServerDataReceived = new UnityEventIntArraySegment();
+        [HideInInspector] public ServerDataReceivedEvent OnServerDataReceived = new ServerDataReceivedEvent();
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client

@@ -157,7 +157,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage());
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data)
+        internal static void OnDataReceived(ArraySegment<byte> data, int channel)
         {
             if (connection != null)
             {
@@ -275,7 +275,7 @@ namespace Mirror
                     byte[] packet = localClientPacketQueue.Dequeue();
                     // TODO avoid serializing and deserializng the message
                     // just pass it as is
-                    OnDataReceived(new ArraySegment<byte>(packet));
+                    OnDataReceived(new ArraySegment<byte>(packet), Channels.DefaultReliable);
                 }
             }
             else
