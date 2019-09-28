@@ -246,18 +246,27 @@ namespace Mirror
 
             if (identity != null && identity.observers != null)
             {
-// pack message into byte[] once
+                // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
 
-                // put connection ids into a list (cached to avoid allocations)
+                // filter and then send to all internet connections at once
+                // -> makes code more complicated, but is HIGHLY worth it to
+                //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
+                bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    connectionIdsCache.Add(kvp.Key);
+                    // use local connection directly because it doesn't send via transport
+                    if (kvp.Value is ULocalConnectionToClient)
+                        result &= localConnection.Send(bytes);
+                    // gather all internet connections
+                    else
+                        connectionIdsCache.Add(kvp.Key);
                 }
 
-                // send
-                bool result = NetworkConnection.Send(connectionIdsCache, bytes);
+                // send to all internet connections at once
+                if (connectionIdsCache.Count > 0)
+                    result &= NetworkConnection.Send(connectionIdsCache, bytes);
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
                 return result;
             }
@@ -299,15 +308,24 @@ namespace Mirror
             // pack message into byte[] once
             byte[] bytes = MessagePacker.Pack(msg);
 
-            // put connection ids into a list (cached to avoid allocations)
+            // filter and then send to all internet connections at once
+            // -> makes code more complicated, but is HIGHLY worth it to
+            //    avoid allocations, allow for multicast, etc.
             connectionIdsCache.Clear();
+            bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                connectionIdsCache.Add(kvp.Key);
+                // use local connection directly because it doesn't send via transport
+                if (kvp.Value is ULocalConnectionToClient)
+                    result &= localConnection.Send(bytes);
+                // gather all internet connections
+                else
+                    connectionIdsCache.Add(kvp.Key);
             }
 
-            // send
-            bool result = NetworkConnection.Send(connectionIdsCache, bytes);
+            // send to all internet connections at once
+            if (connectionIdsCache.Count > 0)
+                result &= NetworkConnection.Send(connectionIdsCache, bytes);
             NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
             return result;
         }
@@ -357,22 +375,34 @@ namespace Mirror
             {
                 // pack message into byte[] once
                 byte[] bytes = MessagePacker.Pack(msg);
+                int count = 0;
 
-                // put connection ids into a list (cached to avoid allocations)
+                // filter and then send to all internet connections at once
+                // -> makes code more complicated, but is HIGHLY worth it to
+                //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
+                bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     bool isSelf = kvp.Value == identity.connectionToClient;
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
-                        connectionIdsCache.Add(kvp.Key);
+                        count++;
+
+                        // use local connection directly because it doesn't send via transport
+                        if (kvp.Value is ULocalConnectionToClient)
+                            result &= localConnection.Send(bytes);
+                        // gather all internet connections
+                        else
+                            connectionIdsCache.Add(kvp.Key);
                     }
                 }
 
-                // send
-                bool result = NetworkConnection.Send(connectionIdsCache, bytes);
-                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connectionIdsCache.Count);
+                // send to all internet connections at once
+                if (connectionIdsCache.Count > 0)
+                    result &= NetworkConnection.Send(connectionIdsCache, bytes);
+                NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, count);
                 return result;
             }
             return false;
