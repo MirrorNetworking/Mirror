@@ -387,7 +387,8 @@ namespace Mirror
             // pack and invoke
             int msgType = MessagePacker.GetId(msg.GetType());
             MessagePacker.Pack(msg, writer);
-            bool result = InvokeHandler(msgType, new NetworkReader(writer.ToArraySegment()), channelId);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            bool result = InvokeHandler(msgType, new NetworkReader(segment), channelId);
 
             // recycle writer and return
             NetworkWriterPool.Recycle(writer);
