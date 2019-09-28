@@ -247,6 +247,7 @@ namespace Mirror
             return result;
         }
 
+        private static List<int> sendConnectionIdCache = new List<int>();
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal virtual bool SendBytes(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -266,7 +267,17 @@ namespace Mirror
                 return false;
             }
 
-            return TransportSend(channelId, segment);
+            if (Transport.activeTransport.ClientConnected())
+            {
+                return Transport.activeTransport.ClientSend(channelId, segment);
+            }
+            else if (Transport.activeTransport.ServerActive())
+            {
+                sendConnectionIdCache.Clear();
+                sendConnectionIdCache.Add(connectionId);
+                return Transport.activeTransport.ServerSend(sendConnectionIdCache, channelId, segment);
+            }
+            return false;
         }
 
         public override string ToString()
@@ -381,33 +392,6 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
             }
-        }
-
-        [Obsolete("Use NetworkConnection.TransportSend instead.")]
-        public virtual bool TransportSend(int channelId, byte[] bytes) =>
-            TransportSend(channelId, new ArraySegment<byte>(bytes));
-
-
-        private static List<int> sendConnectionIdCache = new List<int>();
-        /// <summary>
-        /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
-        /// </summary>
-        /// <param name="channelId">Channel to send data on.</param>
-        /// <param name="segment">Data to send. Will be recycled after returning, so use it directly.</param>
-        /// <returns></returns>
-        private bool TransportSend(int channelId, ArraySegment<byte> segment)
-        {
-            if (Transport.activeTransport.ClientConnected())
-            {
-                return Transport.activeTransport.ClientSend(channelId, segment);
-            }
-            else if (Transport.activeTransport.ServerActive())
-            {
-                sendConnectionIdCache.Clear();
-                sendConnectionIdCache.Add(connectionId);
-                return Transport.activeTransport.ServerSend(sendConnectionIdCache, channelId, segment);
-            }
-            return false;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)
