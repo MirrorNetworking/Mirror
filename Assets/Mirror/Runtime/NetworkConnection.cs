@@ -393,7 +393,7 @@ namespace Mirror
         /// <param name="channelId">Channel to send data on.</param>
         /// <param name="segment">Data to send. Will be recycled after returning, so use it directly.</param>
         /// <returns></returns>
-        public virtual bool TransportSend(int channelId, ArraySegment<byte> segment)
+        private bool TransportSend(int channelId, ArraySegment<byte> segment)
         {
             if (Transport.activeTransport.ClientConnected())
             {
