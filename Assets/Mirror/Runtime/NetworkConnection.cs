@@ -224,7 +224,7 @@ namespace Mirror
         public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(new ArraySegment<byte>(message), channelId);
+            return Send(new ArraySegment<byte>(message), channelId);
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace Mirror
             // pack message and send allocation free
             MessagePacker.Pack(msg, writer);
             NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-            bool result = SendBytes(writer.ToArraySegment(), channelId);
+            bool result = Send(writer.ToArraySegment(), channelId);
 
             NetworkWriterPool.Recycle(writer);
             return result;
@@ -250,7 +250,7 @@ namespace Mirror
         private static List<int> sendConnectionIdCache = new List<int>();
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 

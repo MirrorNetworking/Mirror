@@ -228,7 +228,8 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes));
+                    result &= kvp.Value.Send(new ArraySegment<byte>(bytes));
+
                 }
                 return result;
             }
@@ -257,9 +258,10 @@ namespace Mirror
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     if (kvp.Value is ULocalConnectionToClient localConnection)
-                        result &= localConnection.SendBytes(segment);
+                        result &= localConnection.Send(segment);
                     else
                         sendIdsCache.Add(kvp.Key);
+
                 }
 
                 if (sendIdsCache.Count > 0)
@@ -289,7 +291,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes), channelId);
+                result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
             }
             return result;
         }
@@ -318,7 +320,7 @@ namespace Mirror
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
                 if (kvp.Value is ULocalConnectionToClient localConnection)
-                    result &= localConnection.SendBytes(segment);
+                    result &= localConnection.Send(segment);
                 else
                     sendIdsCache.Add(kvp.Key);
             }
@@ -351,7 +353,7 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(new ArraySegment<byte>(bytes), channelId);
+                        result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
                     }
                 }
                 return result;
@@ -391,8 +393,9 @@ namespace Mirror
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
+
                         if (kvp.Value is ULocalConnectionToClient localConnection)
-                            result &= localConnection.SendBytes(segment);
+                            result &= localConnection.Send(segment);
                         else
                             sendIdsCache.Add(kvp.Key);
 

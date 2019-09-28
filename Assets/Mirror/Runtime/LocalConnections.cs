@@ -13,7 +13,7 @@ namespace Mirror
             connectionId = 0;
         }
 
-        internal override bool SendBytes(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             // LocalConnection doesn't support allocation-free sends yet.
             // previously we allocated in Mirror. now we do it here.
@@ -34,7 +34,7 @@ namespace Mirror
             connectionId = 0;
         }
 
-        internal override bool SendBytes(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)
             {
