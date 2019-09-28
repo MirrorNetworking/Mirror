@@ -154,14 +154,14 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandler(new DisconnectMessage());
+            connection?.InvokeHandler(new DisconnectMessage(), -1);
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data)
+        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
-                connection.TransportReceive(data);
+                connection.TransportReceive(data, channelId);
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
@@ -177,7 +177,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                connection.InvokeHandler(new ConnectMessage());
+                connection.InvokeHandler(new ConnectMessage(), -1);
             }
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
@@ -275,7 +275,7 @@ namespace Mirror
                     byte[] packet = localClientPacketQueue.Dequeue();
                     // TODO avoid serializing and deserializng the message
                     // just pass it as is
-                    OnDataReceived(new ArraySegment<byte>(packet));
+                    OnDataReceived(new ArraySegment<byte>(packet), Channels.DefaultReliable);
                 }
             }
             else

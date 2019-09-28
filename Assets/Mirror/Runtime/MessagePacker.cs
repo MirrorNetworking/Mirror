@@ -145,7 +145,7 @@ namespace Mirror
             finally
             {
                 // TODO: Figure out the correct channel
-                NetworkDiagnostics.OnReceive(message, -1, networkMessage.reader.Length);
+                NetworkDiagnostics.OnReceive(message, networkMessage.channelId, networkMessage.reader.Length);
             }
 
             handler(networkMessage.conn, message);

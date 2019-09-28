@@ -344,10 +344,10 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
-            return InvokeHandler(msgType, null);
+            return InvokeHandler(msgType, null, -1);
         }
 
-        internal bool InvokeHandler(int msgType, NetworkReader reader)
+        internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -355,7 +355,8 @@ namespace Mirror
                 {
                     msgType = msgType,
                     reader = reader,
-                    conn = this
+                    conn = this,
+                    channelId = channelId
                 };
 
                 msgDelegate(message);
@@ -372,11 +373,11 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns></returns>
-        public bool InvokeHandler<T>(T msg) where T : IMessageBase
+        public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
             int msgType = MessagePacker.GetId(msg.GetType());
             byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandler(msgType, new NetworkReader(data));
+            return InvokeHandler(msgType, new NetworkReader(data), channelId);
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -389,7 +390,7 @@ namespace Mirror
         /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data recieved.</param>
-        public virtual void TransportReceive(ArraySegment<byte> buffer)
+        public virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
@@ -399,7 +400,7 @@ namespace Mirror
                 if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
-                if (InvokeHandler(msgType, reader))
+                if (InvokeHandler(msgType, reader, channelId))
                 {
                     lastMessageTime = Time.time;
                 }

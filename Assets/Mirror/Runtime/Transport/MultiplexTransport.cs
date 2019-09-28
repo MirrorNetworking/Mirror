@@ -111,9 +111,9 @@ namespace Mirror
                     OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId));
                 });
 
-                transport.OnServerDataReceived.AddListener((baseConnectionId, data) =>
+                transport.OnServerDataReceived.AddListener((baseConnectionId, data, channel) =>
                 {
-                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data);
+                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
                 });
 
                 transport.OnServerError.AddListener((baseConnectionId, error) =>

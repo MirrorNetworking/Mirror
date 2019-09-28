@@ -40,7 +40,7 @@ namespace Mirror
 
             // handle the server's message directly
             // TODO any way to do this without NetworkServer.localConnection?
-            NetworkServer.localConnection.TransportReceive(new ArraySegment<byte>(bytes));
+            NetworkServer.localConnection.TransportReceive(new ArraySegment<byte>(bytes), channelId);
             return true;
         }
     }

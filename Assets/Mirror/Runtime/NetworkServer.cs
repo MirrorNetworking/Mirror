@@ -522,7 +522,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandler(new ConnectMessage());
+            conn.InvokeHandler(new ConnectMessage(), -1);
         }
 
         static void OnDisconnected(int connectionId)
@@ -541,15 +541,15 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandler(new DisconnectMessage());
+            conn.InvokeHandler(new DisconnectMessage(), -1);
             if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
         }
 
-        static void OnDataReceived(int connectionId, ArraySegment<byte> data)
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
             {
-                conn.TransportReceive(data);
+                conn.TransportReceive(data, channelId);
             }
             else
             {
