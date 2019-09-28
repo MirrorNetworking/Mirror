@@ -17,7 +17,7 @@ namespace Mirror.Tests
                 array = null
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
 
@@ -32,7 +32,7 @@ namespace Mirror.Tests
                 array = new byte[] { }
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
 
@@ -49,7 +49,7 @@ namespace Mirror.Tests
                 array = new byte[] { 3, 4, 5 }
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayByteMessage unpacked = MessagePacker.Unpack<ArrayByteMessage>(data);
 
@@ -71,7 +71,7 @@ namespace Mirror.Tests
                 array = null
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
 
@@ -86,7 +86,7 @@ namespace Mirror.Tests
                 array = new int [] { }
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
 
@@ -101,7 +101,7 @@ namespace Mirror.Tests
                 array = new[] { 3, 4, 5}
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(intMessage);
+            byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
 

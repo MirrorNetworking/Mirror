@@ -50,7 +50,7 @@ namespace Mirror.Tests
                 quest = new MockQuest(100)
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(message);
+            byte[] data = MessagePacker.Pack(message);
 
             QuestMessage unpacked = MessagePacker.Unpack<QuestMessage>(data);
 

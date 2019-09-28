@@ -13,7 +13,7 @@ namespace Mirror.Tests
                 sceneOperation = SceneOperation.LoadAdditive
             };
 
-            byte[] data = MessagePacker.PackWithAlloc(message);
+            byte[] data = MessagePacker.Pack(message);
 
             SceneMessage unpacked = MessagePacker.Unpack<SceneMessage>(data);
 
