@@ -52,8 +52,7 @@ namespace Ninja.WebSockets
         /// <summary>
         /// Initialises a new instance of the WebSocketClientFactory class with control over internal buffer creation
         /// </summary>
-        /// <param name="bufferPool">Used to get a memory stream. Feel free to implement your own buffer pool. MemoryStreams will be disposed when no longer needed and can be returned to the pool.</param>
-        /// </param>
+        /// <param name="bufferFactory">Used to get a memory stream. Feel free to implement your own buffer pool. MemoryStreams will be disposed when no longer needed and can be returned to the pool.</param>
         public WebSocketServerFactory(Func<MemoryStream> bufferFactory)
         {
             _bufferFactory = bufferFactory;
