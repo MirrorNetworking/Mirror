@@ -377,6 +377,7 @@ namespace Mirror
             {
                 // get writer from pool
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
+                sendIdsCache.Clear();
 
                 // pack message only once
                 MessagePacker.Pack(msg, writer);
@@ -390,10 +391,17 @@ namespace Mirror
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(segment, channelId);
+                        if (kvp.Value is ULocalConnectionToClient localConnection)
+                            result &= localConnection.SendBytes(segment);
+                        else
+                            sendIdsCache.Add(kvp.Key);
+
                         count++;
                     }
                 }
+                if (sendIdsCache.Count > 0)
+                    result &= Transport.activeTransport.ServerSend(sendIdsCache, Channels.DefaultReliable, segment);
+
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 // recycle writer and return
