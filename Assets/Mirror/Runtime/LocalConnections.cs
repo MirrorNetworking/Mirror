@@ -13,7 +13,7 @@ namespace Mirror
             connectionId = 0;
         }
 
-        internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal override bool Send(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             NetworkClient.localClientPacketQueue.Enqueue(bytes);
             return true;
@@ -30,7 +30,7 @@ namespace Mirror
             connectionId = 0;
         }
 
-        internal override bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        internal override bool Send(byte[] bytes, int channelId = Channels.DefaultReliable)
         {
             if (bytes.Length == 0)
             {

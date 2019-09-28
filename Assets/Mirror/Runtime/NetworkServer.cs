@@ -228,7 +228,7 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(bytes);
+                    result &= kvp.Value.Send(bytes);
                 }
                 return result;
             }
@@ -249,7 +249,7 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(bytes);
+                    result &= kvp.Value.Send(bytes);
                 }
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, bytes.Length, identity.observers.Count);
                 return result;
@@ -272,7 +272,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendBytes(bytes, channelId);
+                result &= kvp.Value.Send(bytes, channelId);
             }
             return result;
         }
@@ -295,7 +295,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
             {
-                result &= kvp.Value.SendBytes(bytes, channelId);
+                result &= kvp.Value.Send(bytes, channelId);
             }
 
             NetworkDiagnostics.OnSend(msg, channelId, bytes.Length, connections.Count);
@@ -322,7 +322,7 @@ namespace Mirror
                 {
                     if (kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(bytes, channelId);
+                        result &= kvp.Value.Send(bytes, channelId);
                     }
                 }
                 return result;
@@ -357,7 +357,7 @@ namespace Mirror
                     if ((!isSelf || includeSelf) &&
                         kvp.Value.isReady)
                     {
-                        result &= kvp.Value.SendBytes(bytes, channelId);
+                        result &= kvp.Value.Send(bytes, channelId);
                         count++;
                     }
                 }
