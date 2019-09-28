@@ -235,6 +235,8 @@ namespace Mirror
             return false;
         }
 
+        private static List<int> sendIdsCache = new List<int>();
+
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
@@ -245,6 +247,7 @@ namespace Mirror
             {
                 // get writer from pool
                 NetworkWriter writer = NetworkWriterPool.GetWriter();
+                sendIdsCache.Clear();
 
                 // pack message only once
                 MessagePacker.Pack(msg, writer);
@@ -253,8 +256,15 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    result &= kvp.Value.SendBytes(segment);
+                    if (kvp.Value is ULocalConnectionToClient localConnection)
+                        result &= localConnection.SendBytes(segment);
+                    else
+                        sendIdsCache.Add(kvp.Key);
                 }
+
+                if (sendIdsCache.Count > 0)
+                    result &= Transport.activeTransport.ServerSend(sendIdsCache, Channels.DefaultReliable, segment);
+
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                 // recycle writer and return
