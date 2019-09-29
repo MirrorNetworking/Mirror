@@ -3,7 +3,6 @@
 IMPORTANT: Make sure you have a layer in project settings called Player for this example to work well.
 
 In Build Settings, remove all scenes and add all of the scenes from the Examples\AdditiveScenes\Scenes folder in the following order:
-
 - MainScene
 - SubScene
 

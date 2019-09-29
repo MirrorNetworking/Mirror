@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
+using Ninja.WebSockets.Internal;
 using UnityEngine;
 
 namespace Mirror.Websocket
@@ -84,7 +85,7 @@ namespace Mirror.Websocket
             public bool CheckCertificateRevocation;
         }
 
-        public async void Listen(int port)
+        public async Task Listen(int port)
         {
             try
             {
@@ -97,7 +98,7 @@ namespace Mirror.Websocket
                 while (true)
                 {
                     TcpClient tcpClient = await listener.AcceptTcpClientAsync();
-                    ProcessTcpClient(tcpClient, cancellation.Token);
+                    _ = ProcessTcpClient(tcpClient, cancellation.Token);
                 }
             }
             catch (ObjectDisposedException)
@@ -110,7 +111,7 @@ namespace Mirror.Websocket
             }
         }
 
-        async void ProcessTcpClient(TcpClient tcpClient, CancellationToken token)
+        async Task ProcessTcpClient(TcpClient tcpClient, CancellationToken token)
         {
 
             try
@@ -128,7 +129,7 @@ namespace Mirror.Websocket
                     sslStream.AuthenticateAsServer(_sslConfig.Certificate, _sslConfig.ClientCertificateRequired, _sslConfig.EnabledSslProtocols, _sslConfig.CheckCertificateRevocation);
                     stream = sslStream;
                 }
-                WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(stream, token);
+                WebSocketHttpContext context = await webSocketServerFactory.ReadHttpHeaderFromStreamAsync(tcpClient, stream, token);
                 if (context.IsWebSocketRequest)
                 {
                     WebSocketServerOptions options = new WebSocketServerOptions() { KeepAliveInterval = TimeSpan.FromSeconds(30), SubProtocol = "binary" };
@@ -269,14 +270,14 @@ namespace Mirror.Websocket
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, byte[] data)
+        public async void Send(int connectionId, ArraySegment<byte> segment)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 try
                 {
-                    await client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, cancellation.Token);
+                    await client.SendAsync(segment, WebSocketMessageType.Binary, true, cancellation.Token);
                 }
                 catch (ObjectDisposedException) {
                     // connection has been closed,  swallow exception
@@ -312,7 +313,9 @@ namespace Mirror.Websocket
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
-                return "";
+                WebSocketImplementation wsClient = client as WebSocketImplementation;
+                return wsClient.Context.Client.Client.RemoteEndPoint.ToString();
+
             }
             return null;
         }
