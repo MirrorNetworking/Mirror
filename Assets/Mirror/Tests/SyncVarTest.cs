@@ -52,6 +52,64 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestSyncIntervalAndClearDirtyComponents()
+        {
+
+            GameObject gameObject = new GameObject();
+
+            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            player.lastSyncTime = Time.time;
+            // synchronize immediately
+            player.syncInterval = 1f;
+
+            player.guild = new MockPlayer.Guild
+            {
+                name = "Back street boys"
+            };
+
+            Assert.That(player.IsDirty(), Is.False, "Sync interval not met, so not dirty yet");
+
+            // ClearDirtyComponents should do nothing since syncInterval is not
+            // elapsed yet
+            player.netIdentity.ClearDirtyComponentsDirtyBits();
+
+            // set lastSyncTime far enough back to be ready for syncing
+            player.lastSyncTime = Time.time - player.syncInterval;
+
+            // should be dirty now
+            Assert.That(player.IsDirty(), Is.True, "Sync interval met, should be dirty");
+        }
+
+        [Test]
+        public void TestSyncIntervalAndClearAllComponents()
+        {
+
+            GameObject gameObject = new GameObject();
+
+            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            player.lastSyncTime = Time.time;
+            // synchronize immediately
+            player.syncInterval = 1f;
+
+            player.guild = new MockPlayer.Guild
+            {
+                name = "Back street boys"
+            };
+
+            Assert.That(player.IsDirty(), Is.False, "Sync interval not met, so not dirty yet");
+
+            // ClearAllComponents should clear dirty even if syncInterval not
+            // elapsed yet
+            player.netIdentity.ClearAllComponentsDirtyBits();
+
+            // set lastSyncTime far enough back to be ready for syncing
+            player.lastSyncTime = Time.time - player.syncInterval;
+
+            // should be dirty now
+            Assert.That(player.IsDirty(), Is.False, "Sync interval met, should still not be dirty");
+        }
+
+        [Test]
         public void TestSynchronizingObjects()
         {
             // set up a "server" object

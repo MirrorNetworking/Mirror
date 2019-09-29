@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -52,8 +53,7 @@ namespace Ninja.WebSockets
         /// <summary>
         /// Initialises a new instance of the WebSocketClientFactory class with control over internal buffer creation
         /// </summary>
-        /// <param name="bufferPool">Used to get a memory stream. Feel free to implement your own buffer pool. MemoryStreams will be disposed when no longer needed and can be returned to the pool.</param>
-        /// </param>
+        /// <param name="bufferFactory">Used to get a memory stream. Feel free to implement your own buffer pool. MemoryStreams will be disposed when no longer needed and can be returned to the pool.</param>
         public WebSocketServerFactory(Func<MemoryStream> bufferFactory)
         {
             _bufferFactory = bufferFactory;
@@ -65,13 +65,13 @@ namespace Ninja.WebSockets
         /// <param name="stream">The network stream</param>
         /// <param name="token">The optional cancellation token</param>
         /// <returns>Http data read from the stream</returns>
-        public async Task<WebSocketHttpContext> ReadHttpHeaderFromStreamAsync(Stream stream, CancellationToken token = default(CancellationToken))
+        public async Task<WebSocketHttpContext> ReadHttpHeaderFromStreamAsync(TcpClient client, Stream stream, CancellationToken token = default(CancellationToken))
         {
             string header = await HttpHelper.ReadHttpHeaderAsync(stream, token);
             string path = HttpHelper.GetPathFromHeader(header);
             bool isWebSocketRequest = HttpHelper.IsWebSocketUpgradeRequest(header);
             IList<string> subProtocols = HttpHelper.GetSubProtocols(header);
-            return new WebSocketHttpContext(isWebSocketRequest, subProtocols, header, path, stream);
+            return new WebSocketHttpContext(isWebSocketRequest, subProtocols, header, path, client, stream);
         }
 
         /// <summary>
@@ -101,7 +101,10 @@ namespace Ninja.WebSockets
             await PerformHandshakeAsync(guid, context.HttpHeader, options.SubProtocol, context.Stream, token);
             Events.Log.ServerHandshakeSuccess(guid);
             string secWebSocketExtensions = null;
-            return new WebSocketImplementation(guid, _bufferFactory, context.Stream, options.KeepAliveInterval, secWebSocketExtensions, options.IncludeExceptionInCloseResponse, false, options.SubProtocol);
+            return new WebSocketImplementation(guid, _bufferFactory, context.Stream, options.KeepAliveInterval, secWebSocketExtensions, options.IncludeExceptionInCloseResponse, false, options.SubProtocol)
+            {
+                Context = context
+            };
         }
 
         static void CheckWebSocketVersion(string httpHeader)

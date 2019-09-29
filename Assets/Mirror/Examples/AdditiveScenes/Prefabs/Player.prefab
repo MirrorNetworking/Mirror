@@ -92,7 +92,6 @@ GameObject:
   - component: {fileID: 8537344390966522168}
   - component: {fileID: 8704659178864205755}
   - component: {fileID: 887491563423388292}
-  - component: {fileID: 3117920708280701079}
   m_Layer: 9
   m_Name: Player
   m_TagString: Untagged
@@ -206,8 +205,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f68561248aaca4fb96847ce24742ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
   syncInterval: 0
-  playerColor: {r: 0, g: 0, b: 0, a: 1}
   moveSpeed: 8
   turnSpeedAccel: 5
   turnSpeedDecel: 5
@@ -232,18 +231,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
   syncInterval: 0.1
   compressRotation: 1
---- !u!114 &3117920708280701079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8872462076811691049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2925d2020e4083646acf0ba4f4a06858, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncInterval: 0.1

@@ -33,6 +33,17 @@ namespace Mirror
         public int connectionId = -1;
 
         /// <summary>
+        /// Flag that indicates the client has been authenticated.
+        /// </summary>
+        public bool isAuthenticated;
+
+        /// <summary>
+        /// General purpose object to hold authentication data, character selection, tokens, etc.
+        /// associated with the connection for reference after Authentication completes.
+        /// </summary>
+        public object authenticationData;
+
+        /// <summary>
         /// Flag that tells if the connection has been marked as "ready" by a client calling ClientScene.Ready().
         /// <para>This property is read-only. It is set by the system on the client when ClientScene.Ready() is called, and set by the system on the server when a ready message is received from a client.</para>
         /// <para>A client that is ready is sent spawned objects by the server and updates to the state of spawned objects. A client that is not ready is not sent spawned objects.</para>
@@ -51,9 +62,25 @@ namespace Mirror
         public float lastMessageTime;
 
         /// <summary>
+        /// Obsolete: use <see cref="identity"/> instead
+        /// </summary>
+        [Obsolete("Use NetworkConnection.identity instead")]
+        public NetworkIdentity playerController
+        {
+            get
+            {
+                return identity;
+            }
+            internal set
+            {
+                identity = value;
+            }
+        }
+
+        /// <summary>
         /// The NetworkIdentity for this connection.
         /// </summary>
-        public NetworkIdentity playerController { get; internal set; }
+        public NetworkIdentity identity { get; internal set; }
 
         /// <summary>
         /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
@@ -161,36 +188,81 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
+        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            // pack message and send
             NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack message and send allocation free
             MessagePacker.Pack(msg, writer);
-            bool result = SendBytes(writer.ToArray(), channelId);
+            NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+            bool result = Send(writer.ToArraySegment(), channelId);
+
             NetworkWriterPool.Recycle(writer);
             return result;
         }
 
-        // internal because no one except Mirror should send bytes directly to
-        // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
+        // validate packet size before sending. show errors if too big/small.
+        // => it's best to check this here, we can't assume that all transports
+        //    would check max size and show errors internally. best to do it
+        //    in one place in hlapi.
+        // => it's important to log errors, so the user knows what went wrong.
+        static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes ));
-
-            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
+            if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection.SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
-            if (bytes.Length == 0)
+            if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
-            return TransportSend(channelId, bytes);
+            // good size
+            return true;
+        }
+
+        // internal because no one except Mirror should send bytes directly to
+        // the client. they would be detected as a message. send messages instead.
+        List<int> singleConnectionId = new List<int>{-1};
+        internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        {
+            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+
+            // validate packet size first.
+            if (ValidatePacketSize(segment, channelId))
+            {
+                // send to client or server
+                if (Transport.activeTransport.ClientConnected())
+                {
+                    return Transport.activeTransport.ClientSend(channelId, segment);
+                }
+                else if (Transport.activeTransport.ServerActive())
+                {
+                    singleConnectionId[0] = connectionId;
+                    return Transport.activeTransport.ServerSend(singleConnectionId, channelId, segment);
+                }
+            }
+            return false;
+        }
+
+        // Send to many. basically Transport.Send(connections) + checks.
+        internal static bool Send(List<int> connectionIds, ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        {
+            // validate packet size first.
+            if (ValidatePacketSize(segment, channelId))
+            {
+                // only the server sends to many, we don't have that function on
+                // a client.
+                if (Transport.activeTransport.ServerActive())
+                {
+                    return Transport.activeTransport.ServerSend(connectionIds, channelId, segment);
+                }
+            }
+            return false;
         }
 
         public override string ToString()
@@ -226,7 +298,7 @@ namespace Mirror
             visList.Clear();
         }
 
-        internal bool InvokeHandler(int msgType, NetworkReader reader)
+        internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -234,7 +306,8 @@ namespace Mirror
                 {
                     msgType = msgType,
                     reader = reader,
-                    conn = this
+                    conn = this,
+                    channelId = channelId
                 };
 
                 msgDelegate(message);
@@ -251,11 +324,20 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns></returns>
-        public bool InvokeHandler<T>(T msg) where T : IMessageBase
+        public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
-            int msgType = MessagePacker.GetId<T>();
-            byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandler(msgType, new NetworkReader(data));
+            // get writer from pool
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack and invoke
+            int msgType = MessagePacker.GetId(msg.GetType());
+            MessagePacker.Pack(msg, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            bool result = InvokeHandler(msgType, new NetworkReader(segment), channelId);
+
+            // recycle writer and return
+            NetworkWriterPool.Recycle(writer);
+            return result;
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -268,7 +350,7 @@ namespace Mirror
         /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data recieved.</param>
-        public virtual void TransportReceive(ArraySegment<byte> buffer)
+        public virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
@@ -278,7 +360,7 @@ namespace Mirror
                 if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
-                if (InvokeHandler(msgType, reader))
+                if (InvokeHandler(msgType, reader, channelId))
                 {
                     lastMessageTime = Time.time;
                 }
@@ -288,25 +370,6 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
                 Disconnect();
             }
-        }
-
-        /// <summary>
-        /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
-        /// </summary>
-        /// <param name="channelId">Channel to send data on.</param>
-        /// <param name="bytes">Data to send.</param>
-        /// <returns></returns>
-        public virtual bool TransportSend(int channelId, byte[] bytes)
-        {
-            if (Transport.activeTransport.ClientConnected())
-            {
-                return Transport.activeTransport.ClientSend(channelId, bytes);
-            }
-            else if (Transport.activeTransport.ServerActive())
-            {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
-            }
-            return false;
         }
 
         internal void AddOwnedObject(NetworkIdentity obj)

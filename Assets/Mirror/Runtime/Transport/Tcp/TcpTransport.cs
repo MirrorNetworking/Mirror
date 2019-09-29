@@ -1,5 +1,6 @@
 // wraps Telepathy for use as HLAPI TransportLayer
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Tcp
@@ -19,13 +20,13 @@ namespace Mirror.Tcp
             // dispatch the events from the server
             server.Connected += (connectionId) => OnServerConnected.Invoke(connectionId);
             server.Disconnected += (connectionId) => OnServerDisconnected.Invoke(connectionId);
-            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, new ArraySegment<byte>(data));
+            server.ReceivedData += (connectionId, data) => OnServerDataReceived.Invoke(connectionId, new ArraySegment<byte>(data), Channels.DefaultReliable);
             server.ReceivedError += (connectionId, error) => OnServerError.Invoke(connectionId, error);
 
             // dispatch events from the client
             client.Connected += () => OnClientConnected.Invoke();
             client.Disconnected += () => OnClientDisconnected.Invoke();
-            client.ReceivedData += (data) => OnClientDataReceived.Invoke(new ArraySegment<byte>(data));
+            client.ReceivedData += (data) => OnClientDataReceived.Invoke(new ArraySegment<byte>(data), Channels.DefaultReliable);
             client.ReceivedError += (error) => OnClientError.Invoke(error);
 
             // configure
@@ -38,9 +39,9 @@ namespace Mirror.Tcp
         // client
         public override bool ClientConnected() { return client.IsConnected; }
         public override void ClientConnect(string address) { client.Connect(address, port); }
-        public override bool ClientSend(int channelId, byte [] data)
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            _ = client.SendAsync(new ArraySegment<byte>(data));
+            _ = client.SendAsync(segment);
             return true;
         }
         public override void ClientDisconnect() 
@@ -55,9 +56,11 @@ namespace Mirror.Tcp
             _ = server.ListenAsync(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
-            server.Send(connectionId, new ArraySegment<byte>(data));
+            foreach (int connectionId in connectionIds)            
+                server.Send(connectionId, segment);
+            
             return true;
         }
 
