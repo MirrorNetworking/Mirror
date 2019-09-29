@@ -69,9 +69,11 @@ namespace Mirror
         int clientId = -1;
         int clientConnectionId = -1;
         readonly byte[] clientReceiveBuffer = new byte[4096];
+        byte[] clientSendBuffer;
 
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
+        byte[] serverSendBuffer;
 
         void OnValidate()
         {
@@ -89,6 +91,10 @@ namespace Mirror
         {
             NetworkTransport.Init(globalConfig);
             Debug.Log("LLAPITransport initialized!");
+
+            // initialize send buffers
+            clientSendBuffer = new byte[globalConfig.MaxPacketSize];
+            serverSendBuffer = new byte[globalConfig.MaxPacketSize];
         }
 
         #region client
@@ -120,11 +126,17 @@ namespace Mirror
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            // LLAPI transport doesn't support allocation-free sends yet.
-            // previously we allocated in Mirror. now we do it here.
-            byte[] data = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
-            return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
+            // Send buffer is copied internally, so we can get rid of segment
+            // immediately after returning and it still works.
+            // -> BUT segment has an offset, Send doesn't. we need to manually
+            //    copy it into a 0-offset array
+            if (segment.Count <= clientSendBuffer.Length)
+            {
+                Array.Copy(segment.Array, segment.Offset, clientSendBuffer, 0, segment.Count);
+                return NetworkTransport.Send(clientId, clientConnectionId, channelId, clientSendBuffer, segment.Count, out error);
+            }
+            Debug.LogError("LLAPI.ClientSend: buffer( " + clientSendBuffer.Length + ") too small for: " + segment.Count);
+            return false;
         }
 
         public bool ProcessClientMessage()
@@ -206,11 +218,17 @@ namespace Mirror
 
         public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
-            // LLAPI transport doesn't support allocation-free sends yet.
-            // previously we allocated in Mirror. now we do it here.
-            byte[] data = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
-            return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
+            // Send buffer is copied internally, so we can get rid of segment
+            // immediately after returning and it still works.
+            // -> BUT segment has an offset, Send doesn't. we need to manually
+            //    copy it into a 0-offset array
+            if (segment.Count <= serverSendBuffer.Length)
+            {
+                Array.Copy(segment.Array, segment.Offset, serverSendBuffer, 0, segment.Count);
+                return NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
+            }
+            Debug.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
+            return false;
         }
 
         public bool ProcessServerMessage()
