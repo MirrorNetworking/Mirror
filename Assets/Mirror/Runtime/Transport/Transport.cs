@@ -117,33 +117,18 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>
-        /// Send data to a client
-        /// </summary>
-        /// <param name="connectionId">The id of the client to send the data to</param>
-        /// <param name="channelId">The channel to be used.  Transports can use channels to implement
-        /// other features such as unreliable, encryption, compression, etc...</param>
-        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
-        /// <returns>true if the data was sent</returns>
-        public abstract bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment);
-
-        /// <summary>
-        /// Send data to multiple clients at once.
-        /// Calls ServerSend by default. Can be overwritten by transports that can send to multiple
-        /// clients at once more efficiently if needed.
+        /// Send data to one or multiple clients. We provide a list, so that transports can make use
+        /// of multicasting, and avoid allocations where possible.
+        ///
+        /// We don't provide a single ServerSend function to reduce complexity. Simply overwrite this
+        /// one in your Transport.
         /// </summary>
         /// <param name="connectionIds">The list of client connection ids to send the data to</param>
         /// <param name="channelId">The channel to be used.  Transports can use channels to implement
         /// other features such as unreliable, encryption, compression, etc...</param>
         /// <param name="data"></param>
         /// <returns>true if the data was sent to all clients</returns>
-        public virtual bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
-        {
-            // true by default (for empty lists)
-            bool result = true;
-            foreach (int connectionId in connectionIds)
-                result &= ServerSend(connectionId, channelId, segment);
-            return result;
-        }
+        public abstract bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment);
 
         /// <summary>
         /// Disconnect a client from this server.  Useful to kick people out.

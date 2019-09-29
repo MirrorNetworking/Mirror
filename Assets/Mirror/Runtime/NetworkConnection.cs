@@ -275,6 +275,7 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
+        List<int> singleConnectionId = new List<int>{-1};
         internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
@@ -289,7 +290,8 @@ namespace Mirror
                 }
                 else if (Transport.activeTransport.ServerActive())
                 {
-                    return Transport.activeTransport.ServerSend(connectionId, channelId, segment);
+                    singleConnectionId[0] = connectionId;
+                    return Transport.activeTransport.ServerSend(singleConnectionId, channelId, segment);
                 }
             }
             return false;

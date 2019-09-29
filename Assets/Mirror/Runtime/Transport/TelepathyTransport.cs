@@ -104,23 +104,14 @@ namespace Mirror
         // server
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.
             // previously we allocated in Mirror. now we do it here.
             byte[] data = new byte[segment.Count];
             Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
-            return server.Send(connectionId, data);
-        }
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
-        {
-            // we override ServerSend(list) to avoid allocating a byte array
-            // for each connection when sending to multiple connections.
-            // otherwise Rpcs/Cmds would be very costly.
-            byte[] data = new byte[segment.Count];
-            Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
 
-            // true by default (for empty lists)
+            // send to all
             bool result = true;
             foreach (int connectionId in connectionIds)
                 result &= server.Send(connectionId, data);

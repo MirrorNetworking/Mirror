@@ -7,6 +7,7 @@
 #if !(UNITY_WSA || UNITY_WSA_10_0 || UNITY_WINRT || UNITY_WINRT_10_0 || NETFX_CORE)
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -216,7 +217,7 @@ namespace Mirror
             }
         }
 
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
             // Send buffer is copied internally, so we can get rid of segment
             // immediately after returning and it still works.
@@ -224,8 +225,16 @@ namespace Mirror
             //    copy it into a 0-offset array
             if (segment.Count <= serverSendBuffer.Length)
             {
+                // copy to 0-offset
                 Array.Copy(segment.Array, segment.Offset, serverSendBuffer, 0, segment.Count);
-                return NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
+
+                // send to all
+                bool result = true;
+                foreach (int connectionId in connectionIds)
+                {
+                    result &= NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
+                }
+                return result;
             }
             Debug.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
             return false;

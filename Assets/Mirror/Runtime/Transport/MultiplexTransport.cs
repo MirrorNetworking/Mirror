@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -146,11 +147,13 @@ namespace Mirror
             return transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
-            int baseConnectionId = ToBaseId(connectionId);
-            int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerSend(baseConnectionId, channelId, segment);
+            // TODO
+            return false;
+            //int baseConnectionId = ToBaseId(connectionId);
+            //int transportId = ToTransportId(connectionId);
+            //return transports[transportId].ServerSend(baseConnectionId, channelId, segment);
         }
 
         public override void ServerStart()
