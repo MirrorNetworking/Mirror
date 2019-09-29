@@ -12,14 +12,10 @@ public class MMONetworkManager : NetworkManager
     ...
 }
 ```
-
 and use it as your Network manager.
-
- 
 
 2) Open your Network Manager in the inspector and disable the "Auto Create Player" Boolean.
 
-  
 3) Create a message that describes your player. For example:
 
 ``` cs
@@ -40,11 +36,7 @@ public enum Race
 }
 ```
 
- 
-
 4) Create your player prefabs (as many as you need) and add them to the "Register Spawnable Prefabs" in your Network Manager, or add a single prefab to the player prefab field in the inspector.
-
- 
 
 5) Send your message and register a player:
 
@@ -81,8 +73,7 @@ public class MMONetworkManager : NetworkManager
         GameObject gameobject = Instantiate(playerPrefab);
 
         // Apply data from the message however appropriate for your game
-        // Typically Player would be a component you write with
-        // syncvars or properties
+        // Typically Player would be a component you write with syncvars or properties
         Player player = gameobject.GetComponent<Player>();
         player.hairColor = message.hairColor;
         player.eyeColor = message.eyeColor;
