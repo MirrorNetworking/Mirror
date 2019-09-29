@@ -347,7 +347,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="InvokeHandler{T}(T)"/> instead
+        /// Obsolete: Use <see cref="InvokeHandler(int, NetworkReader, int)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)

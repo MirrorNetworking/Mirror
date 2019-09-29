@@ -123,19 +123,19 @@ namespace Mirror
         /// <para>I measured the accuracy of float and I got this:</para>
         /// <list type="bullet">
         ///     <item>
-        ///         <description>for the same day,  accuracy is better than 1 ms<description>
+        ///         <description>for the same day,  accuracy is better than 1 ms</description>
         ///     </item>
         ///     <item>
-        ///         <description>after 1 day,  accuracy goes down to 7 ms<description>
+        ///         <description>after 1 day,  accuracy goes down to 7 ms</description>
         ///     </item>
         ///     <item>
-        ///         <description>after 10 days, accuracy is 61 ms<description>
+        ///         <description>after 10 days, accuracy is 61 ms</description>
         ///     </item>
         ///     <item>
-        ///         <description>after 30 days , accuracy is 238 ms<description>
+        ///         <description>after 30 days , accuracy is 238 ms</description>
         ///     </item>
         ///     <item>
-        ///         <description>after 60 days, accuracy is 454 ms<description>
+        ///         <description>after 60 days, accuracy is 454 ms</description>
         ///     </item>
         /// </list>
         /// <para>in other words,  if the server is running for 2 months,
