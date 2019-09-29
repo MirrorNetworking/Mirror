@@ -131,7 +131,9 @@ namespace Mirror
 
             AddPlayerMessage message = new AddPlayerMessage()
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 value = extraData
+#pragma warning restore CS0618 // Type or member is obsolete
             };
             readyConnection.Send(message);
             return true;

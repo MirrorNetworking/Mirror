@@ -158,13 +158,16 @@ namespace Mirror
 
     public struct AddPlayerMessage : IMessageBase
     {
+        [Obsolete("Create your own message instead, see Guides / Customizable players")]
         public byte[] value;
 
+        [Obsolete("Create your own message instead, see Guides / Customizable players")]
         public void Deserialize(NetworkReader reader)
         {
             value = reader.ReadBytesAndSize();
         }
 
+        [Obsolete("Create your own message instead, see Guides / Customizable players")]
         public void Serialize(NetworkWriter writer)
         {
             writer.WriteBytesAndSize(value);
