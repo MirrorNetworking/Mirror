@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Websocket
@@ -60,7 +61,11 @@ namespace Mirror.Websocket
             }
         }
 
-        public override bool ClientSend(int channelId, byte[] data) { client.Send(data); return true; }
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            client.Send(segment);
+            return true;
+        }
 
         public override void ClientDisconnect() => client.Disconnect();
 
@@ -86,9 +91,11 @@ namespace Mirror.Websocket
             _ = server.Listen(port);
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
-            server.Send(connectionId, data);
+            // send to all
+            foreach (int connectionId in connectionIds)
+                server.Send(connectionId, segment);
             return true;
         }
 

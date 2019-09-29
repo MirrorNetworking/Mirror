@@ -31,6 +31,8 @@ namespace Mirror
         }
 
         // pack message before sending
+        // -> NetworkWriter passed as arg so that we can use .ToArraySegment
+        //    and do an allocation free send before recycling it.
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Pack<T> instead")]
         public static byte[] PackMessage(int msgType, MessageBase msg)
         {
@@ -53,25 +55,32 @@ namespace Mirror
         }
 
         // pack message before sending
+        // -> NetworkWriter passed as arg so that we can use .ToArraySegment
+        //    and do an allocation free send before recycling it.
+        public static void Pack<T>(T message, NetworkWriter writer) where T : IMessageBase
+        {
+            // write message type
+            int msgType = GetId(message.GetType());
+            writer.WriteUInt16((ushort)msgType);
+
+            // serialize message into writer
+            message.Serialize(writer);
+        }
+
+        // helper function to pack message into a simple byte[] (which allocates)
+        // => useful for tests
+        // => useful for local client message enqueue
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static byte[] Pack<T>(T message) where T : IMessageBase
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
-            try
-            {
-                // write message type
-                int msgType = GetId(message.GetType());
-                writer.WriteUInt16((ushort)msgType);
 
-                // serialize message into writer
-                message.Serialize(writer);
+            Pack(message, writer);
+            byte[] data = writer.ToArray();
 
-                // return byte[]
-                return writer.ToArray();
-            }
-            finally
-            {
-                NetworkWriterPool.Recycle(writer);
-            }
+            NetworkWriterPool.Recycle(writer);
+
+            return data;
         }
 
         // unpack a message we received

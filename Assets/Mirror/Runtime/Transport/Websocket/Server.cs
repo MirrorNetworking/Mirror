@@ -270,14 +270,14 @@ namespace Mirror.Websocket
         }
 
         // send message to client using socket connection or throws exception
-        public async void Send(int connectionId, byte[] data)
+        public async void Send(int connectionId, ArraySegment<byte> segment)
         {
             // find the connection
             if (clients.TryGetValue(connectionId, out WebSocket client))
             {
                 try
                 {
-                    await client.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, cancellation.Token);
+                    await client.SendAsync(segment, WebSocketMessageType.Binary, true, cancellation.Token);
                 }
                 catch (ObjectDisposedException) {
                     // connection has been closed,  swallow exception
