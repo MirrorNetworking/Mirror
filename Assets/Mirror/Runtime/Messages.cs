@@ -159,13 +159,13 @@ namespace Mirror
     public struct AddPlayerMessage : IMessageBase
     {
         /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.html">Custom Players</a>
+        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.md">Custom Players</a>
         /// </summary>
         [Obsolete("Create your own message instead. See Guides / Custom Players")]
         public byte[] value;
 
         /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.html">Custom Players</a>
+        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.md">Custom Players</a>
         /// </summary>
         [Obsolete("Create your own message instead. See Guides / Custom Players")]
         public void Deserialize(NetworkReader reader)
@@ -174,7 +174,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.html">Custom Players</a>
+        /// Obsolete: Create your own message instead. See <a href="../Guides/CustomPlayer.md">Custom Players</a>
         /// </summary>
         [Obsolete("Create your own message instead. See Guides / Custom Players")]
         public void Serialize(NetworkWriter writer)
