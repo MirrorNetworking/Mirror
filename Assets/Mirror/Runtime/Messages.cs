@@ -190,20 +190,6 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { }
     }
 
-    internal struct DisconnectMessage : IMessageBase
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
-    internal struct ConnectMessage : IMessageBase
-    {
-        public void Deserialize(NetworkReader reader) { }
-
-        public void Serialize(NetworkWriter writer) { }
-    }
-
     public struct SceneMessage : IMessageBase
     {
         public string sceneName;
@@ -312,6 +298,20 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
+    internal struct DisconnectMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
+
+    internal struct ConnectMessage : IMessageBase
+    {
+        public void Deserialize(NetworkReader reader) { }
+
+        public void Serialize(NetworkWriter writer) { }
+    }
+
     internal struct SpawnPrefabMessage : IMessageBase
     {
         public uint netId;
