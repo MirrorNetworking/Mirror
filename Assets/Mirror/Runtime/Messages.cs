@@ -190,14 +190,14 @@ namespace Mirror
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct DisconnectMessage : IMessageBase
+    internal struct DisconnectMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ConnectMessage : IMessageBase
+    internal struct ConnectMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
@@ -232,7 +232,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    public struct CommandMessage : IMessageBase
+    internal struct CommandMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -258,7 +258,7 @@ namespace Mirror
         }
     }
 
-    public struct RpcMessage : IMessageBase
+    internal struct RpcMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -284,7 +284,7 @@ namespace Mirror
         }
     }
 
-    public struct SyncEventMessage : IMessageBase
+    internal struct SyncEventMessage : IMessageBase
     {
         public uint netId;
         public int componentIndex;
@@ -312,7 +312,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    public struct SpawnPrefabMessage : IMessageBase
+    internal struct SpawnPrefabMessage : IMessageBase
     {
         public uint netId;
         public bool owner;
@@ -347,7 +347,7 @@ namespace Mirror
         }
     }
 
-    public struct SpawnSceneObjectMessage : IMessageBase
+    internal struct SpawnSceneObjectMessage : IMessageBase
     {
         public uint netId;
         public bool owner;
@@ -382,21 +382,21 @@ namespace Mirror
         }
     }
 
-    public struct ObjectSpawnStartedMessage : IMessageBase
+    internal struct ObjectSpawnStartedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ObjectSpawnFinishedMessage : IMessageBase
+    internal struct ObjectSpawnFinishedMessage : IMessageBase
     {
         public void Deserialize(NetworkReader reader) { }
 
         public void Serialize(NetworkWriter writer) { }
     }
 
-    public struct ObjectDestroyMessage : IMessageBase
+    internal struct ObjectDestroyMessage : IMessageBase
     {
         public uint netId;
 
@@ -411,7 +411,7 @@ namespace Mirror
         }
     }
 
-    public struct ObjectHideMessage : IMessageBase
+    internal struct ObjectHideMessage : IMessageBase
     {
         public uint netId;
 
@@ -426,7 +426,7 @@ namespace Mirror
         }
     }
 
-    public struct ClientAuthorityMessage : IMessageBase
+    internal struct ClientAuthorityMessage : IMessageBase
     {
         public uint netId;
         public bool authority;
@@ -444,7 +444,7 @@ namespace Mirror
         }
     }
 
-    public struct UpdateVarsMessage : IMessageBase
+    internal struct UpdateVarsMessage : IMessageBase
     {
         public uint netId;
         // the serialized component data
@@ -466,7 +466,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    public struct NetworkPingMessage : IMessageBase
+    internal struct NetworkPingMessage : IMessageBase
     {
         public double clientTime;
 
@@ -488,7 +488,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    public struct NetworkPongMessage : IMessageBase
+    internal struct NetworkPongMessage : IMessageBase
     {
         public double clientTime;
         public double serverTime;
