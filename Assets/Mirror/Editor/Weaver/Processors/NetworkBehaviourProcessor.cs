@@ -841,17 +841,17 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             commands.Add(md);
 
-            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md);
+            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
+
+            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)
             {
                 commandInvocationFuncs.Add(cmdFunc);
             }
 
-            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, ca);
             if (cmdCallFunc != null)
             {
                 commandCallFuncs.Add(cmdCallFunc);
-                Weaver.WeaveLists.replaceMethods[md.FullName] = cmdCallFunc;
             }
         }
     }
