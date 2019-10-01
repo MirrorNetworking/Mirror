@@ -286,18 +286,6 @@ namespace Mirror.Weaver
                     }
                 }
             }
-            else
-            {
-                // should it be replaced?
-                // NOTE: original weaver compared .FullName, not just the MethodDefinition,
-                //       that's why we use dict<string,method>.
-                if (Weaver.WeaveLists.replaceMethods.TryGetValue(opMethodRef.FullName, out MethodDefinition replacement))
-                {
-                    //DLog(td, "    replacing "  + md.Name + ":" + i);
-                    instr.Operand = replacement;
-                    //DLog(td, "    replaced  "  + md.Name + ":" + i);
-                }
-            }
         }
 
 

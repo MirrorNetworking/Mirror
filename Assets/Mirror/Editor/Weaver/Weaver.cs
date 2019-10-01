@@ -15,9 +15,6 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
 
-        // [Command]/[ClientRpc] functions that should be replaced. dict<originalMethodFullName, replacement>
-        public Dictionary<string, MethodDefinition> replaceMethods = new Dictionary<string, MethodDefinition>();
-
         // [SyncEvent] invoke functions that should be replaced. dict<originalEventName, replacement>
         public Dictionary<string, MethodDefinition> replaceEvents = new Dictionary<string, MethodDefinition>();
 
