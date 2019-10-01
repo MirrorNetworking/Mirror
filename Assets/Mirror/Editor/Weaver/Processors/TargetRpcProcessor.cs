@@ -53,20 +53,37 @@ namespace Mirror.Weaver
         }
 
         /* generates code like:
-        public void CallTargetTest (NetworkConnection conn, int param)
-        {
-            NetworkWriter writer = new NetworkWriter ();
-            writer.WritePackedUInt32 ((uint)param);
-            base.SendTargetRPCInternal (conn, typeof(class), "TargetTest", val);
-        }
+            public void TargetTest (NetworkConnection conn, int param)
+            {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32 ((uint)param);
+                base.SendTargetRPCInternal (conn, typeof(class), "TargetTest", val);
+            }
+            public void CallTargetTest (NetworkConnection conn, int param)
+            {
+                // whatever the user did before
+            }
 
-        or if optional:
-        public void CallTargetTest (int param)
-        {
-            NetworkWriter writer = new NetworkWriter ();
-            writer.WritePackedUInt32 ((uint)param);
-            base.SendTargetRPCInternal (null, typeof(class), "TargetTest", val);
-        }
+            or if optional:
+            public void TargetTest (int param)
+            {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32 ((uint)param);
+                base.SendTargetRPCInternal (null, typeof(class), "TargetTest", val);
+            }
+            public void CallTargetTest (int param)
+            {
+                // whatever the user did before
+            }
+
+            Originally HLAPI put the send message code inside the Call function
+            and then proceeded to replace every call to TargetTest with CallTargetTest
+
+            This method moves all the user's code into the "Call" method
+            and replaces the body of the original method with the send message code.
+            This way we do not need to modify the code anywhere else,  and this works
+            correctly in dependent assemblies
+            
         */
         public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
