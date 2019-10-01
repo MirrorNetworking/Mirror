@@ -10,7 +10,7 @@ namespace Mirror.Weaver
 
         /*
             // generates code like:
-            public void CallCmdThrust(float thrusting, int spin)
+            public void CmdThrust(float thrusting, int spin)
             {
                 if (isServer)
                 {
@@ -24,6 +24,19 @@ namespace Mirror.Weaver
                 networkWriter.WritePackedUInt32((uint)spin);
                 base.SendCommandInternal(cmdName, networkWriter, cmdName);
             }
+
+            public void CallCmdThrust(float thrusting, int spin)
+            {
+                // whatever the user was doing before
+            }
+
+            Originally HLAPI put the send message code inside the Call function
+            and then proceeded to replace every call to CmdTrust with CallCmdTrust
+
+            This method moves all the user's code into the "Call" method
+            and replaces the body of the original method with the send message code.
+            This way we do not need to modify the code anywhere else,  and this works
+            correctly in dependent assemblies
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
