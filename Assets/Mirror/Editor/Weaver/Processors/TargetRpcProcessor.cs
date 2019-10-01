@@ -15,7 +15,7 @@ namespace Mirror.Weaver
                    md.Parameters[0].ParameterType.FullName == Weaver.NetworkConnectionType.FullName;
         }
 
-        public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md)
+        public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(RpcProcessor.RpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
@@ -44,7 +44,7 @@ namespace Mirror.Weaver
                 return null;
 
             // invoke actual command function
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, md));
+            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, rpcCallFunc));
             rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
@@ -80,7 +80,12 @@ namespace Mirror.Weaver
                 rpc.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
             }
 
-            ILProcessor rpcWorker = rpc.Body.GetILProcessor();
+            // move the old body to the new function
+            MethodBody newBody = rpc.Body;
+            rpc.Body = md.Body;
+            md.Body = newBody;
+
+            ILProcessor rpcWorker = md.Body.GetILProcessor();
 
             NetworkBehaviourProcessor.WriteSetupLocals(rpcWorker);
 
