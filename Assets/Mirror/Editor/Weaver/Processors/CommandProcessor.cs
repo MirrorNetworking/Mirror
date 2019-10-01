@@ -37,7 +37,12 @@ namespace Mirror.Weaver
                 cmd.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
             }
 
-            ILProcessor cmdWorker = cmd.Body.GetILProcessor();
+            // move the old body to the new function
+            MethodBody newBody = cmd.Body;
+            cmd.Body = md.Body;
+            md.Body = newBody;
+
+            ILProcessor cmdWorker = md.Body.GetILProcessor();
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
@@ -59,7 +64,7 @@ namespace Mirror.Weaver
             {
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg, i + 1));
             }
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, md));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, cmd));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
             cmdWorker.Append(localClientLabel);
 
@@ -104,7 +109,7 @@ namespace Mirror.Weaver
                 ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
             }
         */
-        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md)
+        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition cmdCallFunc)
         {
             MethodDefinition cmd = new MethodDefinition(CmdPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
@@ -123,7 +128,7 @@ namespace Mirror.Weaver
                 return null;
 
             // invoke actual command function
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, md));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, cmdCallFunc));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
