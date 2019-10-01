@@ -872,7 +872,9 @@ namespace Mirror
                 return;
             }
 
-            OnServerAddPlayer(conn);
+#pragma warning disable CS0618 // Type or member is obsolete
+            OnServerAddPlayer(conn, extraMessage);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
