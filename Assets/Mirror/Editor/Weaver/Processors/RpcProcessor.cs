@@ -35,13 +35,27 @@ namespace Mirror.Weaver
             return rpc;
         }
 
-        /* generates code like:
-        public void CallRpcTest (int param)
-        {
-            NetworkWriter writer = new NetworkWriter ();
-            writer.WritePackedUInt32((uint)param);
-            base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
-        }
+        /*
+         * generates code like:
+
+            public void RpcTest (int param)
+            {
+                NetworkWriter writer = new NetworkWriter ();
+                writer.WritePackedUInt32((uint)param);
+                base.SendRPCInternal(typeof(class),"RpcTest", writer, 0);
+            }
+            public void CallRpcTest (int param)
+            {
+                // whatever the user did before
+            }
+
+            Originally HLAPI put the send message code inside the Call function
+            and then proceeded to replace every call to RpcTest with CallRpcTest
+
+            This method moves all the user's code into the "Call" method
+            and replaces the body of the original method with the send message code.
+            This way we do not need to modify the code anywhere else,  and this works
+            correctly in dependent assemblies
         */
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
