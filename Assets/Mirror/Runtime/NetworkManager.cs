@@ -1006,11 +1006,12 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.).
+        /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.
+        /// <para>See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a> for details.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
         /// <param name="extraMessage">An extra message object passed for the new player.</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html for details.")]
         public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
         {
             OnServerAddPlayer(conn);
