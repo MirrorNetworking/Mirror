@@ -786,17 +786,17 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             clientRpcs.Add(md);
 
-            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md);
+            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
+
+            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
             {
                 clientRpcInvocationFuncs.Add(rpcFunc);
             }
 
-            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, ca);
             if (rpcCallFunc != null)
             {
                 clientRpcCallFuncs.Add(rpcCallFunc);
-                Weaver.WeaveLists.replaceMethods[md.FullName] = rpcCallFunc;
             }
         }
 
