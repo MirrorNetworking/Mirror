@@ -56,7 +56,8 @@ namespace Mirror.Weaver
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
             if (md.Name == ".cctor" ||
-                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName)
+                md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
+                md.Name.StartsWith("InvokeSyn"))
                 return;
 
             if (md.Body != null && md.Body.Instructions != null)
