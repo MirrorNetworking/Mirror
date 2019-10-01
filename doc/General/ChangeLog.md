@@ -20,7 +20,7 @@
 - Fixed: Websockets Transport now properly returns the client endpoint information via `ServerGetClientAddress`
 - Changed: Mirror is now free of garbage memory allocation on the sending side.
     - Some transports may still have a little garbage allocation yet.
-- Changed: Deprecated the AddPlayerMessage extraMessage byte\[\] in favor of an easier approach to [Custom Players](../Guides/CustomPlayer.md)
+- Changed: Deprecated the AddPlayerMessage extraMessage byte\[\] in favor of an easier approach to [Custom Players](../Guides/GameObjects/SpawnPlayerCustom.md)
     - This is a breaking change: The virtual method OnServerAddPlayer loses the AddPlayerMessage parameter.
 - Changed: NetworkIdentity.RemoveAuthorityForConnection is now easier to use: no need to supply the current "owner" anymore.
 - Changed: Renamed `NetworkConnection.playerController` to `identity` ... see [Deprecations](Deprecations.md) for details.
