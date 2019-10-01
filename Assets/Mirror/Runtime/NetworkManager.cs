@@ -1004,12 +1004,22 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.).
+        /// </summary>
+        /// <param name="conn">Connection from client.</param>
+        /// <param name="extraMessage">An extra message object passed for the new player.</param>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead")]
+        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        {
+            OnServerAddPlayer(conn);
+        }
+
+        /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        /// <param name="extraMessage">An extra message object passed for the new player.</param>
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null
