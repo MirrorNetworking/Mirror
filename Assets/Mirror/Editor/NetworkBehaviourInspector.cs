@@ -38,7 +38,9 @@ namespace Mirror
             // search for SyncObjects manually.
             // (look for 'Mirror.Sync'. not '.SyncObject' because we'd have to
             //  check base type for that again)
-            foreach (FieldInfo field in scriptClass.GetFields())
+            // => scan both public and non-public fields! SyncVars can be private
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            foreach (FieldInfo field in scriptClass.GetFields(flags))
             {
                 if (field.FieldType.BaseType != null &&
                     field.FieldType.BaseType.FullName != null &&
