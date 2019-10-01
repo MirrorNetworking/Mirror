@@ -57,9 +57,6 @@ namespace Mirror.Weaver
 
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
-                md.Name.StartsWith("CallCmd") ||
-                md.Name.StartsWith("InvokeCmd") ||
-                md.Name.StartsWith("InvokeRpc") ||
                 md.Name.StartsWith("InvokeSyn"))
                 return;
 
