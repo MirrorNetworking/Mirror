@@ -872,7 +872,7 @@ namespace Mirror
                 return;
             }
 
-            OnServerAddPlayer(conn, extraMessage);
+            OnServerAddPlayer(conn);
         }
 
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
