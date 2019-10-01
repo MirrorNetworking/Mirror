@@ -6,9 +6,13 @@ namespace Mirror.Weaver
 {
     public static class PropertySiteProcessor
     {
+        private static ModuleDefinition module;
+
         public static void ProcessSitesModule(ModuleDefinition moduleDef)
         {
             DateTime startTime = DateTime.Now;
+
+            module = moduleDef;
 
             //Search through the types
             foreach (TypeDefinition td in moduleDef.Types)
@@ -148,7 +152,7 @@ namespace Mirror.Weaver
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
                 i.OpCode = OpCodes.Call;
-                i.Operand = replacement;
+                i.Operand = module.ImportReference(replacement);
                 //DLog(td, "    replaced  "  + md.Name + ":" + i);
             }
         }
@@ -166,7 +170,7 @@ namespace Mirror.Weaver
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
                 i.OpCode = OpCodes.Call;
-                i.Operand = replacement;
+                i.Operand = module.ImportReference(replacement);
                 //DLog(td, "    replaced  "  + md.Name + ":" + i);
             }
         }
@@ -238,7 +242,7 @@ namespace Mirror.Weaver
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Initobj, opField.FieldType));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloc, tmpVariable));
-                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, replacement));
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, module.ImportReference(replacement)));
 
                     worker.Remove(instr);
                     worker.Remove(nextInstr);
@@ -276,7 +280,7 @@ namespace Mirror.Weaver
                         //       that's why we use dict<string,method>.
                         if (Weaver.WeaveLists.replaceEvents.TryGetValue(opField.Name, out MethodDefinition replacement))
                         {
-                            instr.Operand = replacement;
+                            instr.Operand = module.ImportReference(replacement);
                             inst.OpCode = OpCodes.Nop;
                             found = true;
                         }
