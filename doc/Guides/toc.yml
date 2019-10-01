@@ -8,8 +8,6 @@
   href: ClientsServers.md
 - name: Authentication
   href: Authentication.md
-- name: Custom Players
-  href: CustomPlayer.md
 - name: Conversion
   href: Conversion.md
 - name: Network Profiler
