@@ -24,7 +24,7 @@ public class CreateMMOCharacterMessage : MessageBase
     public Race race;
     public string name;
     public Color hairColor;
-    public Color eyeColor
+    public Color eyeColor;
 }
 
 public enum Race
@@ -55,13 +55,13 @@ public class MMONetworkManager : NetworkManager
         base.OnClientConnect(conn);
 
         // you can send the message here, or wherever else you want
-        CreateMMOCharacterMessage characterMessage = new CreateMMOCharacterMessage() 
+        CreateMMOCharacterMessage characterMessage = new CreateMMOCharacterMessage
         {
             race = Race.Elvish,
             name = "Joe Gaba Gaba",
-            hairColor = Color.Red,
-            eyeColor = Color.Green
-        }
+            hairColor = Color.red,
+            eyeColor = Color.green
+        };
 
         conn.Send(characterMessage);
     }
@@ -106,7 +106,7 @@ public class MyNetworkManager : NetworkManager
         NetworkConnection conn = NetworkClient.connection;
 
         // Cache a reference to the current player object
-        GameObject oldPlayer = conn.playerController.gameObject;
+        GameObject oldPlayer = conn.identity.gameObject;
 
         // Instantiate the new player object and broadcast to clients
         NetworkServer.ReplacePlayerForConnection(conn, Instantiate(newPrefab));
