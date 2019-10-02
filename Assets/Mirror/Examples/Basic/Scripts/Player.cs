@@ -26,6 +26,7 @@ namespace Mirror.Examples.Basic
         // This is called by the hook of playerData SyncVar above 
         void OnPlayerDataChanged(int newPlayerData)
         {
+            // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
         }
 
@@ -54,12 +55,15 @@ namespace Mirror.Examples.Basic
         {
             base.OnStartClient();
 
+            // Make this a child of the layout panel in the Canvas
             transform.SetParent(GameObject.Find("PlayersPanel").transform);
 
+            // Calculate position in the layout panel
             int x = 100 + ((playerNo % 4) * 150);
             int y = -170 - ((playerNo / 4) * 80);
             rectTransform.anchoredPosition = new Vector2(x, y);
 
+            // Apply SyncVar values
             playerNameText.color = playerColor;
             playerNameText.text = string.Format("Player {0:00}", playerNo);
         }
