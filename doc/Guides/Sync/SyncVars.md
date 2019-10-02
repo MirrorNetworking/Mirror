@@ -22,7 +22,7 @@ public class Enemy : NetworkBehaviour
 
     void OnMouseUp()
     {
-        NetworkIdentity ni = NetworkClient.connection.playerController;
+        NetworkIdentity ni = NetworkClient.connection.identity;
         PlayerController pc = ni.GetComponent<PlayerController>();
         pc.currentTarget = gameObject;
     }
@@ -38,15 +38,17 @@ public class PlayerController : NetworkBehaviour
 
     void Update()
     {
-        if (currentTarget != null)
-            if (currentTarget.tag == "Enemy")
-                if (Input.GetKeyDown(KeyCode.X))
-                    CmdShoot(currentTarget);
+        if (isLocalPlayer)
+            if (currentTarget != null)
+                if (currentTarget.tag == "Enemy")
+                    if (Input.GetKeyDown(KeyCode.X))
+                        CmdShoot(currentTarget);
     }
 
     [Command]
     public void CmdShoot(GameObject enemy)
     {
+        // Do your own shot validation here because this runs on the server
         enemy.GetComponent<Enemy>().health -= 5;
     }
 }
