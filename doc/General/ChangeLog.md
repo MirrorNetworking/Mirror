@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 4.x.x - In Progress
+## Version 4.0.7 - 2019-Oct-03
 - Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information
 - Added: Transports now include channel in profiler events
@@ -18,6 +18,7 @@
 - Fixed: Calling Commands and Rpcs of parent classes from inherited classes works as it should
 - Fixed: Telepathy no longer hangs when attempting to connect to a nonexistent host
 - Fixed: Websockets Transport now properly returns the client endpoint information via `ServerGetClientAddress`
+- Fixed: WebGL build now works with ArraySegment
 - Changed: Mirror is now free of garbage memory allocation on the sending side.
     - Some transports may still have a little garbage allocation yet.
 - Changed: Deprecated the AddPlayerMessage extraMessage byte\[\] in favor of an easier approach to [Custom Players](../Guides/GameObjects/SpawnPlayerCustom.md)
