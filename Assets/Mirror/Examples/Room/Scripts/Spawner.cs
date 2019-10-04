@@ -12,12 +12,10 @@ namespace Mirror.Examples.NetworkRoom
         GameObject newPrize;
         Reward reward;
 
-        void Start()
+        public override void OnStartServer()
         {
             for (int i = 0; i < 10; i++)
-            {
                 SpawnPrize();
-            }
         }
 
         public void SpawnPrize()
