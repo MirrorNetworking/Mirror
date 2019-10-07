@@ -1,8 +1,10 @@
 # Change Log
 
-## Version 3.x.x - In Progress
+## Version 4.0.7 - 2019-Oct-03
 - Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase
-- Added: Profiler events. These events can be subscribed to by a profiler to provide visual information
+- Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information
+- Added: Transports now include channel in profiler events
+- Added: Transport abstract class now supports sending a message to a list of connection id's
 - Fixed: SceneMessage now has sceneOperation enum so clients can properly handle additive scenes
 - Fixed: NetworkClient handlers are now cleared in Shutdown
 - Fixed: Offline scene is no longer reloaded when client fails to connect or is rejected
@@ -12,6 +14,15 @@
 - Fixed: Components with different sync intervals were not sending updates to clients
 - Fixed: In certain cases, weaver wouldn't weave some external assemblies
 - Fixed: NetworkAnimator now does a full sync for new clients
+- Fixed: NetworkBehaviour inspector now shows SyncMode for private SyncVars
+- Fixed: Calling Commands and Rpcs of parent classes from inherited classes works as it should
+- Fixed: Telepathy no longer hangs when attempting to connect to a nonexistent host
+- Fixed: Websockets Transport now properly returns the client endpoint information via `ServerGetClientAddress`
+- Fixed: WebGL build now works with ArraySegment
+- Changed: Mirror is now free of garbage memory allocation on the sending side.
+    - Some transports may still have a little garbage allocation yet.
+- Changed: Deprecated the AddPlayerMessage extraMessage byte\[\] in favor of an easier approach to [Custom Players](../Guides/GameObjects/SpawnPlayerCustom.md)
+    - This is a breaking change: The virtual method OnServerAddPlayer loses the AddPlayerMessage parameter.
 - Changed: NetworkIdentity.RemoveAuthorityForConnection is now easier to use: no need to supply the current "owner" anymore.
 - Changed: Renamed `NetworkConnection.playerController` to `identity` ... see [Deprecations](Deprecations.md) for details.
 - Changed: Lobby system renamed to Room to better align the name for what it is and make way for a future Lobby framework

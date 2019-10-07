@@ -65,7 +65,7 @@ namespace Mirror
             lastIntParameters = new int[parameters.Length];
             lastFloatParameters = new float[parameters.Length];
             lastBoolParameters = new bool[parameters.Length];
-            
+
             animationHash = new int[animator.layerCount];
             transitionHash = new int[animator.layerCount];
         }
@@ -76,8 +76,8 @@ namespace Mirror
                 return;
 
             CheckSendRate();
-            
-            for(int i = 0; i < animator.layerCount; i++)
+
+            for (int i = 0; i < animator.layerCount; i++)
             {
                 int stateHash;
                 float normalizedTime;
@@ -92,7 +92,7 @@ namespace Mirror
                 SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
             }
         }
-        
+
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime, int layerId)
         {
             stateHash = 0;
@@ -303,7 +303,7 @@ namespace Mirror
         {
             if (forceAll)
             {
-                for(int i = 0; i < animator.layerCount; i++)
+                for (int i = 0; i < animator.layerCount; i++)
                 {
                     if (animator.IsInTransition(i))
                     {
@@ -333,7 +333,7 @@ namespace Mirror
         {
             if (initialState)
             {
-                for(int i = 0; i < animator.layerCount; i++)
+                for (int i = 0; i < animator.layerCount; i++)
                 {
                     int stateHash = reader.ReadInt32();
                     float normalizedTime = reader.ReadSingle();

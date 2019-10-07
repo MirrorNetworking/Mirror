@@ -7,7 +7,7 @@ Mirror supports a number of data types you can use with these,  including:
 - Built-in Unity math type (Vector3, Quaternion, Rect, Plane, Vector3Int, etc)
 - NetworkIdentity
 - Game object with a NetworkIdentity component attached.
-- Structures with any of the above
+- Structures with any of the above (it's recommended to implement IEquatable\<T\> to avoid boxing and to have the struct readonly, cause modifying one of fields doesn't cause a resync)
 - Arrays of any of the above (not supported with syncvars or synclists)
 - ArraySegments of any of the above (not supported with syncvars or synclists)
 

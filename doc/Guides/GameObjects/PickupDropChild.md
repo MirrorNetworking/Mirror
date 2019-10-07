@@ -207,7 +207,7 @@ This method is simply called from `OnMouseDown` in the Scene Object script:
 ``` cs
     void OnMouseDown()
     {
-        NetworkClient.connection.playerController.GetComponent<PlayerEquip>().CmdPickupItem(gameObject);
+        NetworkClient.connection.identity.GetComponent<PlayerEquip>().CmdPickupItem(gameObject);
     }
 ```
 

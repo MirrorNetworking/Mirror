@@ -1,45 +1,90 @@
-# Custom Player Spawning
+# Custom Character Spawning
 
-The Network Manager offers a built-in simple player spawning feature, however you may want to customize the player spawning process - for example to assign a color to each new player spawned.
+Many games need character customization. You may want to pick the color of the hair, eyes, skin, height, race, etc.
 
-To do this you need to override the default behavior of the Network Manager with your own script.
+By default Mirror will instantiate the player for you. While that is convenient, it might prevent you from customizing it. Mirror provides the option of overriding player creation and customize it.
 
-When the Network Manager adds a player, it also instantiates a game object from the Player Prefab and associates it with the connection. To do this, the Network Manager calls `NetworkServer.AddPlayerForConnection`. You can modify this behavior by overriding `NetworkManager.OnServerAddPlayer`. The default implementation of `OnServerAddPlayer` instantiates a new player instance from the player Prefab and calls `NetworkServer.AddPlayerForConnection` to spawn the new player instance. Your custom implementation of `OnServerAddPlayer` must also call `NetworkServer.AddPlayerForConnection`, but your are free to perform any other initialization you require in that method too.
-
-The example below customizes the color of a player. First, add the Player script to the player prefab:
+1) Create a class that extends `NetworkManager` if you have not done so. For example:
 
 ``` cs
-using UnityEngine;
-using Mirror;
-class Player : NetworkBehaviour
+public class MMONetworkManager : NetworkManager
 {
-    [SyncVar]
-    public Color color;
+    ...
+}
+```
+and use it as your Network manager.
+
+2) Open your Network Manager in the inspector and disable the "Auto Create Player" Boolean.
+
+3) Create a message that describes your player. For example:
+
+``` cs
+public class CreateMMOCharacterMessage : MessageBase
+{
+    public Race race;
+    public string name;
+    public Color hairColor;
+    public Color eyeColor;
+}
+
+public enum Race
+{
+    None,
+    Elvish,
+    Dwarvish,
+    Human
 }
 ```
 
-Next, create a custom Network Manager to handle spawning.
+4) Create your player prefabs (as many as you need) and add them to the "Register Spawnable Prefabs" in your Network Manager, or add a single prefab to the player prefab field in the inspector.
+
+5) Send your message and register a player:
 
 ``` cs
-using UnityEngine;
-using Mirror;
-
-public class MyNetworkManager : NetworkManager
+public class MMONetworkManager : NetworkManager
 {
-    public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+    public override void OnStartServer()
     {
-        GameObject player = Instantiate(playerPrefab);
-        player.GetComponent<Player>().color = Color.red;
+        base.OnStartServer();
+
+        NetworkServer.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
+    }
+
+    public override void OnClientConnect(NetworkConnection conn)
+    {
+        base.OnClientConnect(conn);
+
+        // you can send the message here, or wherever else you want
+        CreateMMOCharacterMessage characterMessage = new CreateMMOCharacterMessage
+        {
+            race = Race.Elvish,
+            name = "Joe Gaba Gaba",
+            hairColor = Color.red,
+            eyeColor = Color.green
+        };
+
+        conn.Send(characterMessage);
+    }
+
+    void OnCreateCharacter(NetworkConnection conn, CreateMMOCharacterMessage message)
+    {
+        // playerPrefab is the one assigned in the inspector in Network
+        // Manager but you can use different prefabs per race for example
+        GameObject gameobject = Instantiate(playerPrefab);
+
+        // Apply data from the message however appropriate for your game
+        // Typically Player would be a component you write with syncvars or properties
+        Player player = gameobject.GetComponent<Player>();
+        player.hairColor = message.hairColor;
+        player.eyeColor = message.eyeColor;
+        player.name = message.name;
+        player.race = message.race;
+
+        // call this to use this gameobject as the primary controller
         NetworkServer.AddPlayerForConnection(conn, player);
     }
 }
 ```
-
-The function `NetworkServer.AddPlayerForConnection` does not have to be called from within `OnServerAddPlayer`. As long as the correct connection object and `playerControllerId` are passed in, it can be called after `OnServerAddPlayer` has returned. This allows asynchronous steps to happen in between, such as loading player data from a remote data source.
-
-The system automatically spawns the player game object passed to` NetworkServer.AddPlayerForConnection` on the server, so you don’t need to call `NetworkServer.Spawn` for the player. Once a player is ready, the active networked game objects (that is, game objects with an associated `NetworkIdentity`) in the Scene spawn on the player’s client. All networked game objects in the game are created on that client with their latest state, so they are in sync with the other participants of the game.
-
-You don’t need to use `playerPrefab` on the `NetworkManager` to create player game objects. You could use different methods of creating different players.
 
 ## Ready State
 
@@ -61,7 +106,7 @@ public class MyNetworkManager : NetworkManager
         NetworkConnection conn = NetworkClient.connection;
 
         // Cache a reference to the current player object
-        GameObject oldPlayer = conn.playerController.gameObject;
+        GameObject oldPlayer = conn.identity.gameObject;
 
         // Instantiate the new player object and broadcast to clients
         NetworkServer.ReplacePlayerForConnection(conn, Instantiate(newPrefab));

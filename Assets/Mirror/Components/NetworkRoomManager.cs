@@ -261,7 +261,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         /// <param name="extraMessage"></param>
-        public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+        public override void OnServerAddPlayer(NetworkConnection conn)
         {
             if (SceneManager.GetActiveScene().name != RoomScene) return;
 
