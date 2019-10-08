@@ -89,8 +89,8 @@ GameObject:
   - component: {fileID: 33762848230157288}
   - component: {fileID: 23313067197120050}
   - component: {fileID: 143011667059871024}
-  - component: {fileID: 114892629901890886}
   - component: {fileID: 114402732107420660}
+  - component: {fileID: 114892629901890886}
   - component: {fileID: 114265392388239132}
   m_Layer: 0
   m_Name: GamePlayer
@@ -177,6 +177,22 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114402732107420660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480027675339556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverOnly: 0
+  localPlayerAuthority: 1
+  m_AssetId: 21daf89214c6ee443ad6875b73083c60
+  m_SceneId: 0
 --- !u!114 &114892629901890886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,34 +210,17 @@ MonoBehaviour:
   index: 0
   score: 0
   playerColor: {r: 0, g: 0, b: 0, a: 1}
-  moveSpeed: 6
+  moveSpeed: 8
   turnSpeedAccel: 5
   turnSpeedDecel: 5
   maxTurnSpeed: 150
   jumpSpeed: 0
-  maxJumpSpeed: 5
-  jumpFactor: 0.05
+  jumpFactor: 0.025
   horizontal: 0
   vertical: 0
   turn: 0
   isGrounded: 1
   isFalling: 0
---- !u!114 &114402732107420660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1480027675339556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  serverOnly: 0
-  localPlayerAuthority: 1
-  m_AssetId: 21daf89214c6ee443ad6875b73083c60
-  m_SceneId: 0
 --- !u!114 &114265392388239132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,5 +234,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   compressRotation: 1
