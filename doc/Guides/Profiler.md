@@ -19,9 +19,9 @@ As of this writing it is accessible to our patreons.
 3. Start your game in the editor
 4. Press "Record" in the profiler
 5. Begin your game as host, client or server
-6. In the left,  buttons will appear for every frame that sends or receives messages.   
-7. Click on a frame
-8. The profiler will display information about all the messages sent and received.
+6. At the top a chart will show messages comming in and out   
+7. Click the chart to select a frame
+8. The profiler will display information about all the messages sent and received in that frame
 
 Currently the messages display the following fields:
 
