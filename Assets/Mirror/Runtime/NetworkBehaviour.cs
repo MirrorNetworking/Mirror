@@ -552,15 +552,18 @@ namespace Mirror
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
+        protected bool SyncVarEqual<T>(T value, ref T fieldValue)
         {
             // newly initialized or changed value?
-            if (!EqualityComparer<T>.Default.Equals(value, fieldValue))
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
-                SetDirtyBit(dirtyBit);
-                fieldValue = value;
-            }
+            return EqualityComparer<T>.Default.Equals(value, fieldValue);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
+        {
+            if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
+            SetDirtyBit(dirtyBit);
+            fieldValue = value;
         }
         #endregion
 

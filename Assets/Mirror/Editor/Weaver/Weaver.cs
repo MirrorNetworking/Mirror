@@ -108,6 +108,7 @@ namespace Mirror.Weaver
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
 
+        public static MethodReference syncVarEqualReference;
         public static MethodReference setSyncVarReference;
         public static MethodReference setSyncVarHookGuard;
         public static MethodReference getSyncVarHookGuard;
@@ -286,6 +287,7 @@ namespace Mirror.Weaver
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
 
             getBehaviourIsServer = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_isServer");
+            syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarEqual");
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVar");
             setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "setSyncVarHookGuard");
             getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "getSyncVarHookGuard");

@@ -110,6 +110,23 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
+
+            // if (syncVarEqual(value, ref playerData)) 
+            Instruction endOfMethod = setWorker.Create(OpCodes.Nop);
+
+            // this
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            // new value to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
+            // reference to field to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
+            // make generic version of SetSyncVar with field type
+            GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+            syncVarEqualGm.GenericArguments.Add(fd.FieldType);
+            setWorker.Append(setWorker.Create(OpCodes.Call, syncVarEqualGm));
+            setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
+
             CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
 
             if (hookFunctionMethod != null)
@@ -182,6 +199,8 @@ namespace Mirror.Weaver
                 // invoke SetSyncVar
                 setWorker.Append(setWorker.Create(OpCodes.Call, gm));
             }
+
+            setWorker.Append(endOfMethod);
 
             setWorker.Append(setWorker.Create(OpCodes.Ret));
 
