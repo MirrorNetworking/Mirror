@@ -111,7 +111,7 @@ namespace Mirror.Weaver
             ILProcessor setWorker = set.Body.GetILProcessor();
 
 
-            // if (syncVarEqual(value, ref playerData)) 
+            // if (syncVarEqual(value, ref playerData))
             Instruction endOfMethod = setWorker.Create(OpCodes.Nop);
 
             // this
