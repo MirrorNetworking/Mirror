@@ -390,7 +390,7 @@ namespace Mirror
             // this works because value types cannot be derived
             // if it is a reference type (for example IMessageBase),
             // ask the message for the real type
-            int msgType = typeof(T).IsValueType ? MessagePacker.GetId(typeof(T)) : MessagePacker.GetId(msg.GetType());
+            int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
 
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
