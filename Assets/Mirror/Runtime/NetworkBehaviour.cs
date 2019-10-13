@@ -458,6 +458,29 @@ namespace Mirror
         #endregion
 
         #region Helpers
+
+        // helper function for [SyncVar] GameObjects.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        {
+            uint newNetId = 0;
+            if (newGameObject != null)
+            {
+                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
+                if (identity != null)
+                {
+                    newNetId = identity.netId;
+                    if (newNetId == 0)
+                    {
+                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                    }
+                }
+            }
+
+            return newNetId == netIdField;
+        }
+
+
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -505,6 +528,25 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
                 return identity.gameObject;
             return null;
+        }
+
+
+        // helper function for [SyncVar] NetworkIdentities.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        {
+            uint newNetId = 0;
+            if (newIdentity != null)
+            {
+                newNetId = newIdentity.netId;
+                if (newNetId == 0)
+                {
+                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                }
+            }
+
+            // netId changed?
+            return newNetId == netIdField;
         }
 
         // helper function for [SyncVar] NetworkIdentities.

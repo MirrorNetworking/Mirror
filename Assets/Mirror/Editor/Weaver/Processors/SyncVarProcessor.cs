@@ -119,12 +119,33 @@ namespace Mirror.Weaver
             // new value to set
             setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
             // reference to field to set
-            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-            setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
             // make generic version of SetSyncVar with field type
-            GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
-            syncVarEqualGm.GenericArguments.Add(fd.FieldType);
-            setWorker.Append(setWorker.Create(OpCodes.Call, syncVarEqualGm));
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldfld, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.syncVarGameObjectEqualReference));
+            }
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldfld, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.syncVarNetworkIdentityEqualReference));
+            }
+            else
+            {
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
+
+                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                syncVarEqualGm.GenericArguments.Add(fd.FieldType);
+                setWorker.Append(setWorker.Create(OpCodes.Call, syncVarEqualGm));
+            }
+
             setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
 
             CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
