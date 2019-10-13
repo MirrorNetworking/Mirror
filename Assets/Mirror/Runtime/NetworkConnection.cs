@@ -386,8 +386,12 @@ namespace Mirror
             // get writer from pool
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
-            // pack and invoke
-            int msgType = MessagePacker.GetId(msg.GetType());
+            // if it is a value type,  just use typeof(T) to avoid boxing
+            // this works because value types cannot be derived
+            // if it is a reference type (for example IMessageBase),
+            // ask the message for the real type
+            int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
+
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
             bool result = InvokeHandler(msgType, new NetworkReader(segment), channelId);
