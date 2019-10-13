@@ -38,17 +38,27 @@ public class PlayerEquip : NetworkBehaviour
 
     public GameObject rightHand;
 
-    [SyncVar(hook = nameof(OnChangeEquipment))]
-    public EquippedItem equippedItem;
-
     public GameObject ballPrefab;
     public GameObject boxPrefab;
     public GameObject cylinderPrefab;
 
+    [SyncVar(hook = nameof(OnChangeEquipment))]
+    public EquippedItem equippedItem;
+
     void OnChangeEquipment(EquippedItem newEquippedItem)
     {
+        StartCoroutine(ChangeEquipment(newEquippedItem));
+    }
+
+    // Since Destroy is delayed to the end of the current frame, we use a coroutine
+    // to clear out any child objects before instantiating the new one
+    IEnumerator ChangeEquipment(EquippedItem newEquippedItem)
+    {
         while (rightHand.transform.childCount > 0)
-            DestroyImmediate(rightHand.transform.GetChild(0).gameObject);
+        {
+            Destroy(rightHand.transform.GetChild(0).gameObject);
+            yield return null;
+        }
 
         switch (newEquippedItem)
         {
