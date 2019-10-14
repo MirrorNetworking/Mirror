@@ -55,7 +55,7 @@ namespace Mirror
         public static bool localClientActive { get; private set; }
 
         // cache the Send(connectionIds) list to avoid allocating each time
-        static List<int> connectionIdsCache = new List<int>();
+        static readonly List<int> connectionIdsCache = new List<int>();
 
         /// <summary>
         /// Reset the NetworkServer singleton.
