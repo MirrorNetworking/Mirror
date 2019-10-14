@@ -217,29 +217,6 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use SendToObservers<T> instead")]
-        static bool SendToObservers(NetworkIdentity identity, short msgType, MessageBase msg)
-        {
-            if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + msgType);
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-                // send to all observers
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    result &= kvp.Value.Send(new ArraySegment<byte>(bytes));
-                }
-                return result;
-            }
-            return false;
-        }
-
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
         static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
