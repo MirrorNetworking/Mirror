@@ -502,14 +502,10 @@ namespace Mirror
                 }
             }
 
-            // netId changed?
-            if (newNetId != netIdField)
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
-                SetDirtyBit(dirtyBit);
-                gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
-                netIdField = newNetId;
-            }
+            if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
+            SetDirtyBit(dirtyBit);
+            gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
+            netIdField = newNetId;
         }
 
         // helper function for [SyncVar] GameObjects.
@@ -566,14 +562,10 @@ namespace Mirror
                 }
             }
 
-            // netId changed?
-            if (newNetId != netIdField)
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
-                SetDirtyBit(dirtyBit);
-                netIdField = newNetId;
-                identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
-            }
+            if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
+            SetDirtyBit(dirtyBit);
+            netIdField = newNetId;
+            identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
         }
 
         // helper function for [SyncVar] NetworkIdentities.
