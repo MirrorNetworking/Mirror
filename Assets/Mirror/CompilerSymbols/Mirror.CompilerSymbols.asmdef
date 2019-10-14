@@ -1,10 +1,10 @@
 {
-    "name": "Mirror",
-    "references": [
-        "Mirror.CompilerSymbols"
-    ],
+    "name": "Mirror.CompilerSymbols",
+    "references": [],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
