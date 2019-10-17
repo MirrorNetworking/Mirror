@@ -34,6 +34,33 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable} has unsupported type. Use one of Mirror supported types instead");
                 return null;
             }
+            TypeDefinition td = variable.Resolve();
+            if (td == null)
+            {
+                Weaver.Error($"{variable} is not a supported type");
+                return null;
+            }
+            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            {
+                Weaver.Error($"Cannot generate writer for scriptable eobject {variable}");
+                return null;
+            }
+            if (td.IsDerivedFrom(Weaver.NetworkBehaviourType))
+            {
+                Weaver.Error($"Cannot generate writer for NetworkBehaviour {variable}");
+                return null;
+            }
+            if (td.HasGenericParameters)
+            {
+                Weaver.Error($"Cannot generate writer for generic variable {variable}");
+                return null;
+            }
+            if (td.IsInterface)
+            {
+                Weaver.Error($"Cannot generate writer for interface variable {variable}");
+                return null;
+            }
+
 
             MethodDefinition newWriterFunc;
 
@@ -111,18 +138,6 @@ namespace Mirror.Weaver
             {
                 if (field.IsStatic || field.IsPrivate)
                     continue;
-
-                if (field.FieldType.Resolve().HasGenericParameters)
-                {
-                    Weaver.Error($"{field} has unsupported type. Create a derived class instead of using generics");
-                    return null;
-                }
-
-                if (field.FieldType.Resolve().IsInterface)
-                {
-                    Weaver.Error($"{field} has unsupported type. Use a concrete class instead of an interface");
-                    return null;
-                }
 
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)

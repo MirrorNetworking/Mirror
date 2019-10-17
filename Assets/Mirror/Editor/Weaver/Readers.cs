@@ -34,11 +34,30 @@ namespace Mirror.Weaver
                 Weaver.Error($"{variable} is not a supported type");
                 return null;
             }
-
+            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            {
+                Weaver.Error($"Cannot generate reader for scriptable eobject {variable}");
+                return null;
+            }
+            if (td.IsDerivedFrom(Weaver.NetworkBehaviourType))
+            {
+                Weaver.Error($"Cannot generate reader for NetworkBehaviour {variable}");
+                return null;
+            }
             if (variable.IsByReference)
             {
                 // error??
                 Weaver.Error($"{variable} is not a supported reference type");
+                return null;
+            }
+            if (td.HasGenericParameters)
+            {
+                Weaver.Error($"Cannot generate reader for generic variable {variable}");
+                return null;
+            }
+            if (td.IsInterface)
+            {
+                Weaver.Error($"Cannot generate reader for interface variable {variable}");
                 return null;
             }
 
