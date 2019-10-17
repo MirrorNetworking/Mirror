@@ -110,6 +110,44 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
+
+            // if (!SyncVarEqual(value, ref playerData))
+            Instruction endOfMethod = setWorker.Create(OpCodes.Nop);
+
+            // this
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            // new value to set
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
+            // reference to field to set
+            // make generic version of SetSyncVar with field type
+            if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldfld, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.syncVarGameObjectEqualReference));
+            }
+            else if (fd.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
+            {
+                // reference to netId Field to set
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldfld, netFieldId));
+
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.syncVarNetworkIdentityEqualReference));
+            }
+            else
+            {
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldflda, fd));
+
+                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                syncVarEqualGm.GenericArguments.Add(fd.FieldType);
+                setWorker.Append(setWorker.Create(OpCodes.Call, syncVarEqualGm));
+            }
+
+            setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
+
             CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
 
             if (hookFunctionMethod != null)
@@ -182,6 +220,8 @@ namespace Mirror.Weaver
                 // invoke SetSyncVar
                 setWorker.Append(setWorker.Create(OpCodes.Call, gm));
             }
+
+            setWorker.Append(endOfMethod);
 
             setWorker.Append(setWorker.Create(OpCodes.Ret));
 
