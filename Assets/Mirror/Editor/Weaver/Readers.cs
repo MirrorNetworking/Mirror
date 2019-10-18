@@ -36,28 +36,28 @@ namespace Mirror.Weaver
             }
             if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
             {
-                Weaver.Error($"Cannot generate reader for scriptable eobject {variable}");
+                Weaver.Error($"Cannot generate reader for scriptable eobject {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
             if (td.IsDerivedFrom(Weaver.NetworkBehaviourType))
             {
-                Weaver.Error($"Cannot generate reader for NetworkBehaviour {variable}");
+                Weaver.Error($"Cannot generate reader for NetworkBehaviour {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
             if (variable.IsByReference)
             {
                 // error??
-                Weaver.Error($"{variable} is not a supported reference type");
+                Weaver.Error($"Cannot pass type {variable} by reference");
                 return null;
             }
-            if (td.HasGenericParameters)
+            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
             {
-                Weaver.Error($"Cannot generate reader for generic variable {variable}");
+                Weaver.Error($"Cannot generate reader for generic variable {variable}. Use a concrete type or provide a custom reader");
                 return null;
             }
             if (td.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface variable {variable}");
+                Weaver.Error($"Cannot generate reader for interface variable {variable}. Use a concrete type or provide a custom reader");
                 return null;
             }
 
