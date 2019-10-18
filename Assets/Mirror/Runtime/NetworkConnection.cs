@@ -221,7 +221,7 @@ namespace Mirror
         /// Obsolete: use <see cref="Send{T}(T, int)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
-        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
             byte[] message = MessagePacker.PackMessage(msgType, msg);
@@ -236,7 +236,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
@@ -411,7 +411,7 @@ namespace Mirror
         /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data recieved.</param>
-        public virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        public void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
