@@ -381,8 +381,7 @@ namespace Mirror
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
                     bool isSelf = kvp.Value == identity.connectionToClient;
-                    if ((!isSelf || includeSelf) &&
-                        kvp.Value.isReady)
+                    if ((!isSelf || includeSelf || kvp.Value is ULocalConnectionToClient) && kvp.Value.isReady)
                     {
                         count++;
 
