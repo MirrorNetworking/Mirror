@@ -177,16 +177,16 @@ namespace Mirror.Tests
         public void SyncVarsDerivedNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot be NetworkBehaviours"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/MySyncVar. Use a supported type or provide a custom writer"));
         }
 
         [Test]
         public void SyncVarsDerivedScriptableObject()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot be scriptable objects"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for scriptable object MirrorTest.MirrorTestPlayer/MySyncVar. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -201,24 +201,24 @@ namespace Mirror.Tests
         public void SyncVarsGenericParam()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32> MirrorTest.MirrorTestPlayer::invalidVar has invalid type. SyncVars cannot have generic parameters"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MySyncVar`1<System.Int32>. Use a concrete type or provide a custom writer"));
         }
 
         [Test]
         public void SyncVarsInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MySyncVar MirrorTest.MirrorTestPlayer::invalidVar has invalid type. Use a concrete type instead of interface MirrorTest.MirrorTestPlayer/MySyncVar"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/MySyncVar. Use a concrete type or provide a custom writer"));
         }
 
         [Test]
         public void SyncVarsDifferentModule()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: UnityEngine.TextMesh MirrorTest.MirrorTestPlayer::invalidVar has unsupported type. Use a supported Mirror type instead"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for component type UnityEngine.TextMesh. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -292,16 +292,16 @@ namespace Mirror.Tests
         public void SyncListStructMemberGeneric()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single> MirrorTest.MirrorTestPlayer/MyStruct::potato has unsupported type. Create a derived class instead of using generics"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.MirrorTestPlayer/MyGenericStruct`1<System.Single>. Use a concrete type or provide a custom writer"));
         }
 
         [Test]
         public void SyncListStructMemberInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/IPotato MirrorTest.MirrorTestPlayer/MyStruct::potato has unsupported type. Use a concrete class instead of an interface"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.MirrorTestPlayer/IPotato. Use a concrete type or provide a custom writer"));
         }
 
         [Test]
@@ -404,24 +404,24 @@ namespace Mirror.Tests
         public void NetworkBehaviourTargetRpcParamRef()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamRef(Mirror.NetworkConnection,System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot pass System.Int32& by reference"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamAbstract(Mirror.NetworkConnection,MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized bcause i has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourTargetRpcParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::TargetRpcCantHaveParamComponent(Mirror.NetworkConnection,MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -483,24 +483,24 @@ namespace Mirror.Tests
         public void NetworkBehaviourClientRpcParamRef()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamRef(System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot pass System.Int32& by reference"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamAbstract(MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized bcause i has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::RpcCantHaveParamComponent(MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -539,24 +539,24 @@ namespace Mirror.Tests
         public void NetworkBehaviourCmdParamRef()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamRef(System.Int32&) has invalid parameter monkeys. Use supported type instead of reference type System.Int32&"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot pass System.Int32& by reference"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamAbstract(MirrorTest.MirrorTestPlayer/AbstractClass) has invalid parameter monkeys.  Use concrete type instead of abstract type MirrorTest.MirrorTestPlayer/AbstractClass"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(3));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/AbstractClass can't be deserialized bcause i has no default constructor"));
         }
 
         [Test]
         public void NetworkBehaviourCmdParamComponent()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::CmdCantHaveParamComponent(MirrorTest.MirrorTestPlayer/ComponentClass) has invalid parameter monkeyComp. Cannot pass components in remote method calls"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(4));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for component type MirrorTest.MirrorTestPlayer/ComponentClass. Use a supported type or provide a custom writer"));
         }
 
         [Test]
@@ -794,16 +794,16 @@ namespace Mirror.Tests
         public void MessageMemberGeneric()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.HasGeneric`1<System.Int32> MirrorTest.PrefabClone::invalidField cannot have generic type MirrorTest.HasGeneric`1<System.Int32>.  Consider creating a class that derives the generic type"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for generic type MirrorTest.HasGeneric`1<System.Int32>. Use a concrete type or provide a custom writer"));
         }
 
         [Test]
         public void MessageMemberInterface()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors.Count, Is.EqualTo(1));
-            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: MirrorTest.SuperCoolInterface MirrorTest.PrefabClone::invalidField has unsupported type. Use a concrete class instead of interface MirrorTest.SuperCoolInterface"));
+            Assert.That(m_weaverErrors.Count, Is.EqualTo(2));
+            Assert.That(m_weaverErrors[0], Is.EqualTo("Mirror.Weaver error: Cannot generate writer for interface MirrorTest.SuperCoolInterface. Use a concrete type or provide a custom writer"));
         }
         #endregion
     }
