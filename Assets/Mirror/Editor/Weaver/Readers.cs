@@ -36,12 +36,12 @@ namespace Mirror.Weaver
             }
             if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
             {
-                Weaver.Error($"Cannot generate reader for scriptable eobject {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for scriptable object {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.NetworkBehaviourType))
+            if (td.IsDerivedFrom(Weaver.ComponentType))
             {
-                Weaver.Error($"Cannot generate reader for NetworkBehaviour {variable}. Use a supported type or provide a custom reader");
+                Weaver.Error($"Cannot generate reader for component type {variable}. Use a supported type or provide a custom reader");
                 return null;
             }
             if (variable.IsByReference)

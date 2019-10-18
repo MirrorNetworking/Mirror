@@ -45,9 +45,9 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for scriptable object {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
-            if (td.IsDerivedFrom(Weaver.NetworkBehaviourType))
+            if (td.IsDerivedFrom(Weaver.ComponentType))
             {
-                Weaver.Error($"Cannot generate writer for NetworkBehaviour {variable}. Use a supported type or provide a custom writer");
+                Weaver.Error($"Cannot generate writer for component type {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
             if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
