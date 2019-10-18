@@ -273,8 +273,8 @@ namespace Mirror
                 while (localClientPacketQueue.Count > 0)
                 {
                     byte[] packet = localClientPacketQueue.Dequeue();
-                    // TODO avoid serializing and deserializng the message
-                    // just pass it as is
+                    // Treat host player messages exactly like connected client
+                    // to avoid deceptive / misleading behavior differences
                     OnDataReceived(new ArraySegment<byte>(packet), Channels.DefaultReliable);
                 }
             }
