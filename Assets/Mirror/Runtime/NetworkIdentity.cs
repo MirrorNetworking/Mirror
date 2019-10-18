@@ -511,7 +511,6 @@ namespace Mirror
                 return;
             }
             m_IsServer = true;
-            hasAuthority = !localPlayerAuthority;
 
             observers = new Dictionary<int, NetworkConnection>();
 
