@@ -684,30 +684,12 @@ namespace Mirror.Weaver
                     Weaver.Error($"{md} cannot have optional parameters");
                     return false;
                 }
-                if (p.ParameterType.Resolve().IsAbstract)
-                {
-                    Weaver.Error($"{md} has invalid parameter {p}.  Use concrete type instead of abstract type {p.ParameterType}");
-                    return false;
-                }
-                if (p.ParameterType.IsByReference)
-                {
-                    Weaver.Error($"{md} has invalid parameter {p}. Use supported type instead of reference type {p.ParameterType}");
-                    return false;
-                }
                 // TargetRPC is an exception to this rule and can have a NetworkConnection as first parameter
                 if (p.ParameterType.FullName == Weaver.NetworkConnectionType.FullName &&
                     !(ca.AttributeType.FullName == Weaver.TargetRpcType.FullName && i == 0))
                 {
                     Weaver.Error($"{md} has invalid parameer {p}. Cannot pass NeworkConnections");
                     return false;
-                }
-                if (p.ParameterType.Resolve().IsDerivedFrom(Weaver.ComponentType))
-                {
-                    if (p.ParameterType.FullName != Weaver.NetworkIdentityType.FullName)
-                    {
-                        Weaver.Error($"{md} has invalid parameter {p}. Cannot pass components in remote method calls");
-                        return false;
-                    }
                 }
             }
             return true;
