@@ -1118,7 +1118,7 @@ namespace Mirror
             clientAuthorityOwner = null;
 
             // server now has authority (this is only called on server)
-            ForceAuthority(true);
+            ForceAuthority(false);
         }
 
         /// <summary>
