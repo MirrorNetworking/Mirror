@@ -285,7 +285,7 @@ namespace Mirror.Tests
         public void SyncListStructMemberBasicType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(m_weaverErrors[1], Is.EqualTo("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
+            Assert.That(m_weaverErrors, Contains.Item("Mirror.Weaver error: MirrorTest.MirrorTestPlayer/MyStructClass cannot have item of type MirrorTest.MirrorTestPlayer/MyStruct.  Use a type supported by mirror instead"));
         }
         #endregion
 
