@@ -273,7 +273,7 @@ namespace Mirror.Weaver
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
 
-            TypeDefinition DebugClass = UnityAssembly.MainModule.GetType("UnityEngine.Debug");            
+            TypeDefinition DebugClass = UnityAssembly.MainModule.GetType("UnityEngine.Debug");
             getDebugIsDebugBuild = Resolvers.ResolveMethod(DebugClass, CurrentAssembly, "get_isDebugBuild");
 
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
