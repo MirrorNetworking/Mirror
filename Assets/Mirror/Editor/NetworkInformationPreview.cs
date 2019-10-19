@@ -91,6 +91,9 @@ namespace Mirror
             if (Event.current.type != EventType.Repaint)
                 return;
 
+            // refresh the data
+            GetNetworkInformation(target as GameObject);
+
             if (info == null || info.Count == 0)
                 return;
 
