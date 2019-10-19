@@ -380,8 +380,8 @@ namespace Mirror
                 int count = 0;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    bool isSelf = kvp.Value == identity.connectionToClient;
-                    if ((!isSelf || includeOwner) && kvp.Value.isReady)
+                    bool isOwner = kvp.Value == identity.connectionToClient;
+                    if ((!isOwner || includeOwner) && kvp.Value.isReady)
                     {
                         count++;
 
