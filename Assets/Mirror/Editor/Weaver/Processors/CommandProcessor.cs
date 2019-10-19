@@ -12,7 +12,7 @@ namespace Mirror.Weaver
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
             {
-                if (isServer)
+                if (isServer && !Debug.get_isDebugBuild())
                 {
                     // we are ON the server, invoke directly
                     CmdThrust(thrusting, spin);
@@ -70,6 +70,12 @@ namespace Mirror.Weaver
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getBehaviourIsServer));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Brfalse, localClientLabel));
+
+            // If in debug mode, even for host mode send the message
+            // this way we don't short circuit [Commands] and find bugs during
+            // development.  See https://github.com/vis2k/Mirror/issues/1160
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getDebugIsDebugBuild));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Brtrue, localClientLabel));
 
             // call the cmd function directly.
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));

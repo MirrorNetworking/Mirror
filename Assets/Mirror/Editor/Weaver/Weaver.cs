@@ -108,6 +108,8 @@ namespace Mirror.Weaver
         public static TypeReference gameObjectType;
         public static TypeReference transformType;
 
+        public static MethodReference getDebugIsDebugBuild;
+
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference syncVarGameObjectEqualReference;
@@ -270,6 +272,9 @@ namespace Mirror.Weaver
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");
+
+            TypeDefinition DebugClass = UnityAssembly.MainModule.GetType("UnityEngine.Debug");            
+            getDebugIsDebugBuild = Resolvers.ResolveMethod(DebugClass, CurrentAssembly, "get_isDebugBuild");
 
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
