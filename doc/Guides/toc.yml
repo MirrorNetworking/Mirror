@@ -24,7 +24,7 @@
   href: Visibility.md
 - name: Custom Visibility
   href: VisibilityCustom.md
-- name: Syncronization
+- name: Synchronization
   href: Sync/toc.yml
   topicHref: Sync/
 - name: Communications
