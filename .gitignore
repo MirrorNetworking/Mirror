@@ -60,4 +60,4 @@ docs/.sass-cache
 .Trashes
 ehthumbs.db
 Thumbs.db
-*.txt
+/VisRepo.txt
