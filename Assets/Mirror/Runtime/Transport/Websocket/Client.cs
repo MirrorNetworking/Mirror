@@ -152,7 +152,7 @@ namespace Mirror.Websocket
         }
 
         // send the data or throw exception
-        public async void Send(byte[] data)
+        public async void Send(ArraySegment<byte> segment)
         {
             if (webSocket == null)
             {
@@ -162,7 +162,7 @@ namespace Mirror.Websocket
 
             try
             {
-                await webSocket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, cancellation.Token);
+                await webSocket.SendAsync(segment, WebSocketMessageType.Binary, true, cancellation.Token);
             }
             catch (Exception ex)
             {

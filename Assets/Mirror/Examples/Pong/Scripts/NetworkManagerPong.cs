@@ -10,7 +10,7 @@ public class NetworkManagerPong : NetworkManager
     public Transform rightRacketSpawn;
     GameObject ball;
 
-    public override void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
+    public override void OnServerAddPlayer(NetworkConnection conn)
     {
         // add player at correct spawn position
         Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;

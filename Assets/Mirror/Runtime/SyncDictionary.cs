@@ -272,11 +272,11 @@ namespace Mirror
         {
             if (array == null)
             {
-                throw new System.ArgumentNullException("Array Is Null");
+                throw new System.ArgumentNullException(nameof(array), "Array Is Null");
             }
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new System.ArgumentOutOfRangeException("Array Index Out of Range");
+                throw new System.ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
             }
             if (array.Length - arrayIndex < Count)
             {
