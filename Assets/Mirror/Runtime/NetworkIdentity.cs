@@ -188,7 +188,7 @@ namespace Mirror
         // keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
 
-        public NetworkIdentity GetSceneIdenity(ulong id) => sceneIds[id];
+        public static NetworkIdentity GetSceneIdenity(ulong id) => sceneIds[id];
 
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
@@ -865,9 +865,10 @@ namespace Mirror
         {
             isLocalPlayer = true;
 
-            // there is an ordering issue here that originAuthority solves. OnStartAuthority should only be called if m_HasAuthority was false when this function began,
-            // or it will be called twice for this object. But that state is lost by the time OnStartAuthority is called below, so the original value is cached
-            // here to be checked below.
+            // There is an ordering issue here that originAuthority solves:
+            // OnStartAuthority should only be called if hasAuthority was false when this function began,
+            // or it will be called twice for this object, but that state is lost by the time OnStartAuthority
+            // is called below, so the original value is cached here to be checked below.
             bool originAuthority = hasAuthority;
             if (localPlayerAuthority)
             {
@@ -1061,10 +1062,10 @@ namespace Mirror
                     authority = false
                 };
 
+                clientAuthorityOwner.Send(msg);
+                clientAuthorityOwner.RemoveOwnedObject(this);
+                clientAuthorityOwner = null;
             }
-
-            clientAuthorityOwner.RemoveOwnedObject(this);
-            clientAuthorityOwner = null;
 
             // server now has authority (this is only called on server)
             ForceAuthority(true);

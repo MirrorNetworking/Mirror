@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Mirror.Examples.Basic
@@ -21,7 +21,7 @@ namespace Mirror.Examples.Basic
 
         // This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
-        int playerData;
+        public int playerData;
 
         // This is called by the hook of playerData SyncVar above 
         void OnPlayerDataChanged(int newPlayerData)

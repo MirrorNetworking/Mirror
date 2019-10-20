@@ -318,13 +318,11 @@ namespace Mirror
 
     public abstract class SyncHashSet<T> : SyncSet<T>
     {
-        protected SyncHashSet() : base(new HashSet<T>()) { }
+        protected SyncHashSet(IEqualityComparer<T> comparer = null) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
     }
 
     public abstract class SyncSortedSet<T> : SyncSet<T>
     {
-        protected SyncSortedSet() : base(new SortedSet<T>()) { }
-
-        protected SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer)) { }
+        protected SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
     }
 }

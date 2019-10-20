@@ -22,6 +22,7 @@ Below is the Player Equip script to handle the changing of the equipped item, an
 
 ``` cs
 using UnityEngine;
+using System.Collections;
 using Mirror;
 
 public class PlayerEquip : NetworkBehaviour
@@ -38,17 +39,27 @@ public class PlayerEquip : NetworkBehaviour
 
     public GameObject rightHand;
 
-    [SyncVar(hook = nameof(OnChangeEquipment))]
-    public EquippedItem equippedItem;
-
     public GameObject ballPrefab;
     public GameObject boxPrefab;
     public GameObject cylinderPrefab;
 
+    [SyncVar(hook = nameof(OnChangeEquipment))]
+    public EquippedItem equippedItem;
+
     void OnChangeEquipment(EquippedItem newEquippedItem)
     {
+        StartCoroutine(ChangeEquipment(newEquippedItem));
+    }
+
+    // Since Destroy is delayed to the end of the current frame, we use a coroutine
+    // to clear out any child objects before instantiating the new one
+    IEnumerator ChangeEquipment(EquippedItem newEquippedItem)
+    {
         while (rightHand.transform.childCount > 0)
-            DestroyImmediate(rightHand.transform.GetChild(0).gameObject);
+        {
+            Destroy(rightHand.transform.GetChild(0).gameObject);
+            yield return null;
+        }
 
         switch (newEquippedItem)
         {
@@ -139,6 +150,7 @@ In the image above, there's a `sceneObjectPrefab` field that is assigned to a pr
 
 ``` cs
 using UnityEngine;
+using System.Collections;
 using Mirror;
 
 public class SceneObject : NetworkBehaviour
@@ -152,8 +164,18 @@ public class SceneObject : NetworkBehaviour
 
     void OnChangeEquipment(EquippedItem newEquippedItem)
     {
+        StartCoroutine(ChangeEquipment(newEquippedItem));
+    }
+
+    // Since Destroy is delayed to the end of the current frame, we use a coroutine
+    // to clear out any child objects before instantiating the new one
+    IEnumerator ChangeEquipment(EquippedItem newEquippedItem)
+    {
         while (transform.childCount > 0)
-            DestroyImmediate(transform.GetChild(0).gameObject);
+        {
+            Destroy(transform.GetChild(0).gameObject);
+            yield return null;
+        }
 
         // Use the new value, not the SyncVar property value
         SetEquippedItem(newEquippedItem);

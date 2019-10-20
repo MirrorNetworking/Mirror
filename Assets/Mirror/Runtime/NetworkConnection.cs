@@ -172,7 +172,7 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
@@ -313,8 +313,12 @@ namespace Mirror
             // get writer from pool
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
-            // pack and invoke
-            int msgType = MessagePacker.GetId(msg.GetType());
+            // if it is a value type,  just use typeof(T) to avoid boxing
+            // this works because value types cannot be derived
+            // if it is a reference type (for example IMessageBase),
+            // ask the message for the real type
+            int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
+
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
             bool result = InvokeHandler(msgType, new NetworkReader(segment), channelId);
@@ -331,10 +335,10 @@ namespace Mirror
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// <summary>
-        /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
+        /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
-        /// <param name="buffer">The data recieved.</param>
-        public virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        /// <param name="buffer">The data received.</param>
+        public void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);

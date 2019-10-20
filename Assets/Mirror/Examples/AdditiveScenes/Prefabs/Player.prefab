@@ -212,8 +212,7 @@ MonoBehaviour:
   turnSpeedDecel: 5
   maxTurnSpeed: 150
   jumpSpeed: 0
-  maxJumpSpeed: 5
-  jumpFactor: 0.05
+  jumpFactor: 0.025
   horizontal: 0
   vertical: 0
   turn: 0
@@ -232,5 +231,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.1
+  syncInterval: 0
   compressRotation: 1

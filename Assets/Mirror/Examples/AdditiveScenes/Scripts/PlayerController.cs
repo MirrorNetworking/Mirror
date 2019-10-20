@@ -60,8 +60,7 @@ namespace Mirror.Examples.Additive
 
         [Header("Jump Settings")]
         public float jumpSpeed = 0f;
-        public float maxJumpSpeed = 5F;
-        public float jumpFactor = .05F;
+        public float jumpFactor = .025F;
 
         [Header("Diagnostics")]
         public float horizontal = 0f;
@@ -88,8 +87,8 @@ namespace Mirror.Examples.Additive
             else
                 turn = 0f;
 
-            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < maxJumpSpeed))
-                jumpSpeed += maxJumpSpeed * jumpFactor;
+            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < 1))
+                jumpSpeed +=  jumpFactor;
             else if (isGrounded)
                 isFalling = false;
             else
