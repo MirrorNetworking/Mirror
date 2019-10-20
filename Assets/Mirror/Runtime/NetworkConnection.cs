@@ -183,7 +183,7 @@ namespace Mirror
                 if (connectionId == 0)
                 {
                     NetworkClient.connectState = ConnectState.Disconnected;
-                    InvokeHandler(new DisconnectMessage());
+                    InvokeHandler(new DisconnectMessage(), 0);
                 }
                 // server but not local host player - disconnect that client
                 else
