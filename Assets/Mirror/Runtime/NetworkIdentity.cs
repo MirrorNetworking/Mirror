@@ -511,7 +511,6 @@ namespace Mirror
                 return;
             }
             m_IsServer = true;
-            hasAuthority = !localPlayerAuthority;
 
             observers = new Dictionary<int, NetworkConnection>();
 
@@ -1119,7 +1118,7 @@ namespace Mirror
             }
 
             // server now has authority (this is only called on server)
-            ForceAuthority(true);
+            ForceAuthority(false);
         }
 
         /// <summary>
