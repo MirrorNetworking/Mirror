@@ -645,6 +645,10 @@ namespace Mirror
 
             NetworkServer.SendToAll(msg);
 
+            // Suspend the server's transport while changing scenes
+            // It will be reneabled in FinishScene.
+            Transport.activeTransport.enabled = false;
+
             startPositionIndex = 0;
             startPositions.Clear();
         }
