@@ -9,7 +9,7 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkRoomPlayer")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkRoomPlayer.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomPlayer.html")]
     public class NetworkRoomPlayer : NetworkBehaviour
     {
         /// <summary>
@@ -57,7 +57,7 @@ namespace Mirror
         #region Commands
 
         [Command]
-        void CmdChangeReadyState(bool readyState)
+        public void CmdChangeReadyState(bool readyState)
         {
             readyToBegin = readyState;
             NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;

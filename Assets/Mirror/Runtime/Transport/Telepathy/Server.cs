@@ -230,6 +230,10 @@ namespace Telepathy
 
             // clear clients list
             clients.Clear();
+
+            // reset the counter in case we start up again so
+            // clients get connection ID's starting from 1
+            counter = 0;
         }
 
         // send message to client using socket connection.

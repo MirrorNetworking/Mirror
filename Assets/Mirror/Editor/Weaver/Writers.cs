@@ -31,9 +31,36 @@ namespace Mirror.Weaver
             if (variable.IsByReference)
             {
                 // error??
-                Weaver.Error($"{variable} has unsupported type. Use one of Mirror supported types instead");
+                Weaver.Error($"Cannot pass {variable} by reference");
                 return null;
             }
+            TypeDefinition td = variable.Resolve();
+            if (td == null)
+            {
+                Weaver.Error($"{variable} is not a supported type. Use a supported type or provide a custom writer");
+                return null;
+            }
+            if (td.IsDerivedFrom(Weaver.ScriptableObjectType))
+            {
+                Weaver.Error($"Cannot generate writer for scriptable object {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
+            if (td.IsDerivedFrom(Weaver.ComponentType))
+            {
+                Weaver.Error($"Cannot generate writer for component type {variable}. Use a supported type or provide a custom writer");
+                return null;
+            }
+            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            {
+                Weaver.Error($"Cannot generate writer for generic type {variable}. Use a concrete type or provide a custom writer");
+                return null;
+            }
+            if (td.IsInterface)
+            {
+                Weaver.Error($"Cannot generate writer for interface {variable}. Use a concrete type or provide a custom writer");
+                return null;
+            }
+
 
             MethodDefinition newWriterFunc;
 
@@ -111,18 +138,6 @@ namespace Mirror.Weaver
             {
                 if (field.IsStatic || field.IsPrivate)
                     continue;
-
-                if (field.FieldType.Resolve().HasGenericParameters)
-                {
-                    Weaver.Error($"{field} has unsupported type. Create a derived class instead of using generics");
-                    return null;
-                }
-
-                if (field.FieldType.Resolve().IsInterface)
-                {
-                    Weaver.Error($"{field} has unsupported type. Use a concrete class instead of an interface");
-                    return null;
-                }
 
                 MethodReference writeFunc = GetWriteFunc(field.FieldType, recursionCount + 1);
                 if (writeFunc != null)

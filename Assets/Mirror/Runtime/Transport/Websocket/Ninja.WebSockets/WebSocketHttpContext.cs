@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 
 namespace Ninja.WebSockets
 {
@@ -31,18 +32,24 @@ namespace Ninja.WebSockets
         public Stream Stream { get; private set; }
 
         /// <summary>
+        /// The tcp connection we are using
+        /// </summary>
+        public TcpClient Client { get; private set; }
+
+        /// <summary>
         /// Initialises a new instance of the WebSocketHttpContext class
         /// </summary>
         /// <param name="isWebSocketRequest">True if this is a valid WebSocket request</param>
         /// <param name="httpHeader">The raw http header extracted from the stream</param>
         /// <param name="path">The Path extracted from the http header</param>
         /// <param name="stream">The stream AFTER the header has already been read</param>
-        public WebSocketHttpContext(bool isWebSocketRequest, IList<string> webSocketRequestedProtocols, string httpHeader, string path, Stream stream)
+        public WebSocketHttpContext(bool isWebSocketRequest, IList<string> webSocketRequestedProtocols, string httpHeader, string path, TcpClient client, Stream stream)
         {
             IsWebSocketRequest = isWebSocketRequest;
             WebSocketRequestedProtocols = webSocketRequestedProtocols;
             HttpHeader = httpHeader;
             Path = path;
+            Client = client;
             Stream = stream;
         }
     }

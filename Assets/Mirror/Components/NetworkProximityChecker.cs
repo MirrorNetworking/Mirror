@@ -9,7 +9,7 @@ namespace Mirror
     /// </summary>
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkProximityChecker.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkProximityChecker.html")]
     public class NetworkProximityChecker : NetworkBehaviour
     {
         /// <summary>
@@ -88,7 +88,7 @@ namespace Mirror
             if (forceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.playerController.transform.position, transform.position) < visRange;
+            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
         }
 
         /// <summary>
