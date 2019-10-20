@@ -6,7 +6,9 @@ Network Behaviour scripts work with game objects that have a NetworkIdentity com
 
 With the server-authoritative system of Mirror, the server must use the `NetworkServer.Spawn` function to spawn game objects with Network Identity components. Spawning them this way assigns them a `netId` and creates them on clients connected to the server.
 
-**Note:** This is not a component that you can add to a game object directly. Instead, you must create a script which inherits from `NetworkBehaviour` (instead of the default `MonoBehaviour`), then you can add your script as a component to a game object.
+**Note 1:** This is not a component that you can add to a game object directly. Instead, you must create a script which inherits from `NetworkBehaviour` (instead of the default `MonoBehaviour`), then you can add your script as a component to a game object.
+
+**Note 2:** Do not apply DontDestroyOnLoad in Awake of a Netwwork Behaviour...do it in Start instead, otherwise it won't get spawned to clients.
 
 ## Properties
 -   **isLocalPlayer**  
