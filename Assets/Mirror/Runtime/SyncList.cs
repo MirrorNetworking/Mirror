@@ -61,6 +61,7 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_INSERT,
+            [Obsolete("Lists now pass OP_REMOVEAT")]
             OP_REMOVE,
             OP_REMOVEAT,
             OP_SET,
@@ -155,7 +156,6 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
-                    case Operation.OP_REMOVE:
                         SerializeItem(writer, change.item);
                         break;
 
@@ -243,15 +243,6 @@ namespace Mirror
                         }
                         break;
 
-                    case Operation.OP_REMOVE:
-                        item = DeserializeItem(reader);
-                        index = IndexOf(item);
-                        if (apply)
-                        {
-                            objects.RemoveAt(index);
-                        }
-                        break;
-
                     case Operation.OP_REMOVEAT:
                         index = (int)reader.ReadPackedUInt32();
                         if (apply)
@@ -328,8 +319,7 @@ namespace Mirror
             bool result = index >= 0;
             if (result)
             {
-                objects.RemoveAt(index);
-                AddOperation(Operation.OP_REMOVE, 0, item);
+                RemoveAt(index);
             }
             return result;
         }
