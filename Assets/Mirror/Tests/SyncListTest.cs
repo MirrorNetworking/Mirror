@@ -210,7 +210,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVE));
+                Assert.That(op, Is.EqualTo(SyncList<string>.Operation.OP_REMOVEAT));
                 Assert.That(item, Is.EqualTo("World"));
             };
             serverSyncList.Remove("World");

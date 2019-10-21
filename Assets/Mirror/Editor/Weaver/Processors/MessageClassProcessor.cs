@@ -56,18 +56,6 @@ namespace Mirror.Weaver
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
                     continue;
 
-                if (field.FieldType.Resolve().HasGenericParameters && !field.FieldType.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-                {
-                    Weaver.Error($"{field} cannot have generic type {field.FieldType}.  Consider creating a class that derives the generic type");
-                    return;
-                }
-
-                if (field.FieldType.Resolve().IsInterface)
-                {
-                    Weaver.Error($"{field} has unsupported type. Use a concrete class instead of interface {field.FieldType}");
-                    return;
-                }
-
                 MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
                 if (writeFunc != null)
                 {

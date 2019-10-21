@@ -294,33 +294,9 @@ namespace Mirror.Weaver
                     {
                         TypeDefinition resolvedField = fd.FieldType.Resolve();
 
-                        if (resolvedField.IsDerivedFrom(Weaver.NetworkBehaviourType))
-                        {
-                            Weaver.Error($"{fd} has invalid type. SyncVars cannot be NetworkBehaviours");
-                            return;
-                        }
-
-                        if (resolvedField.IsDerivedFrom(Weaver.ScriptableObjectType))
-                        {
-                            Weaver.Error($"{fd} has invalid type. SyncVars cannot be scriptable objects");
-                            return;
-                        }
-
                         if ((fd.Attributes & FieldAttributes.Static) != 0)
                         {
                             Weaver.Error($"{fd} cannot be static");
-                            return;
-                        }
-
-                        if (resolvedField.HasGenericParameters)
-                        {
-                            Weaver.Error($"{fd} has invalid type. SyncVars cannot have generic parameters");
-                            return;
-                        }
-
-                        if (resolvedField.IsInterface)
-                        {
-                            Weaver.Error($"{fd} has invalid type. Use a concrete type instead of interface {fd.FieldType}");
                             return;
                         }
 

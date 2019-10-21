@@ -50,6 +50,7 @@ namespace Mirror
         public delegate void SyncListChanged(Operation op, int itemIndex, T item);
 
         readonly IList<T> objects;
+        readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -60,6 +61,7 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_INSERT,
+            [Obsolete("Lists now pass OP_REMOVEAT")]
             OP_REMOVE,
             OP_REMOVEAT,
             OP_SET,
@@ -84,13 +86,15 @@ namespace Mirror
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
 
-        protected SyncList()
+        protected SyncList(IEqualityComparer<T> comparer = null)
         {
+            this.comparer = comparer ?? EqualityComparer<T>.Default;
             objects = new List<T>();
         }
 
-        protected SyncList(IList<T> objects)
+        protected SyncList(IList<T> objects, IEqualityComparer<T> comparer = null)
         {
+            this.comparer = comparer ?? EqualityComparer<T>.Default;
             this.objects = objects;
         }
 
@@ -152,7 +156,6 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
-                    case Operation.OP_REMOVE:
                         SerializeItem(writer, change.item);
                         break;
 
@@ -240,14 +243,6 @@ namespace Mirror
                         }
                         break;
 
-                    case Operation.OP_REMOVE:
-                        item = DeserializeItem(reader);
-                        if (apply)
-                        {
-                            objects.Remove(item);
-                        }
-                        break;
-
                     case Operation.OP_REMOVEAT:
                         index = (int)reader.ReadPackedUInt32();
                         if (apply)
@@ -292,11 +287,17 @@ namespace Mirror
             AddOperation(Operation.OP_CLEAR, 0);
         }
 
-        public bool Contains(T item) => objects.Contains(item);
+        public bool Contains(T item) => IndexOf(item) >= 0;
 
         public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
 
-        public int IndexOf(T item) => objects.IndexOf(item);
+        public int IndexOf(T item)
+        {
+            for (int i = 0; i < objects.Count; ++i)
+                if (comparer.Equals(item, objects[i]))
+                    return i;
+            return -1;
+        }
 
         public int FindIndex(Predicate<T> match)
         {
@@ -314,10 +315,11 @@ namespace Mirror
 
         public bool Remove(T item)
         {
-            bool result = objects.Remove(item);
+            int index = IndexOf(item);
+            bool result = index >= 0;
             if (result)
             {
-                AddOperation(Operation.OP_REMOVE, 0, item);
+                RemoveAt(index);
             }
             return result;
         }
@@ -338,7 +340,7 @@ namespace Mirror
             get => objects[i];
             set
             {
-                if (!EqualityComparer<T>.Default.Equals(objects[i], value))
+                if (!comparer.Equals(objects[i], value))
                 {
                     objects[i] = value;
                     AddOperation(Operation.OP_SET, i, value);

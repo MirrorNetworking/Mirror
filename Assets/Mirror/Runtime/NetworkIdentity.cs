@@ -511,7 +511,6 @@ namespace Mirror
                 return;
             }
             m_IsServer = true;
-            hasAuthority = !localPlayerAuthority;
 
             observers = new Dictionary<int, NetworkConnection>();
 
@@ -1113,13 +1112,13 @@ namespace Mirror
 #pragma warning disable CS0618 // Type or member is obsolete
                 clientAuthorityCallback?.Invoke(clientAuthorityOwner, this, false);
 #pragma warning restore CS0618 // Type or member is obsolete
+
+                clientAuthorityOwner.RemoveOwnedObject(this);
+                clientAuthorityOwner = null;
             }
 
-            clientAuthorityOwner.RemoveOwnedObject(this);
-            clientAuthorityOwner = null;
-
             // server now has authority (this is only called on server)
-            ForceAuthority(true);
+            ForceAuthority(false);
         }
 
         /// <summary>

@@ -408,9 +408,9 @@ namespace Mirror
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// <summary>
-        /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
+        /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
-        /// <param name="buffer">The data recieved.</param>
+        /// <param name="buffer">The data received.</param>
         public void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
