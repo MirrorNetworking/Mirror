@@ -22,6 +22,20 @@ namespace Mirror
             NetworkClient.localClientPacketQueue.Enqueue(data);
             return true;
         }
+
+        public override void Disconnect()
+        {
+            // set not ready and handle clientscene disconnect in any case
+            // (might be client or host mode here)
+            isReady = false;
+            ClientScene.HandleClientDisconnect(this);
+
+            // send the disconnect message to the local connection
+            NetworkClient.connectState = ConnectState.Disconnected;
+            InvokeHandler(new DisconnectMessage(), -1);
+
+            RemoveObservers();
+        }
     }
 
     // a localClient's connection TO a server.
