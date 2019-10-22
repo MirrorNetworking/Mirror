@@ -364,8 +364,8 @@ namespace Mirror
         // => this is extremely important for MMO scale networking
         public struct Enumerator : IEnumerator<T>
         {
-            private readonly SyncList<T> _list;
-            private int _curIndex;
+            readonly SyncList<T> _list;
+            int _curIndex;
             public T Current { get; private set; }
 
             public Enumerator(SyncList<T> list)
