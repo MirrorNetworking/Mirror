@@ -639,7 +639,7 @@ namespace Mirror
         /// <summary>
         /// Obsolete: Use <see cref="SendToClient{T}(int, T)"/> instead.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClient<T> instead.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead.")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
@@ -657,6 +657,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="connectionId">Client connection ID.</param>
         /// <param name="msg">Message struct to send</param>
+        [Obsolete("Use connection.Send(msg) instead")]
         public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
             if (connections.TryGetValue(connectionId, out NetworkConnection conn))
