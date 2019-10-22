@@ -52,6 +52,7 @@ namespace Mirror
 
         /// <summary>
         /// The IP address / URL / FQDN associated with the connection.
+        /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
         public string address;
 
