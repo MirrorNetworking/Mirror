@@ -5,12 +5,10 @@ namespace Mirror
 {
     // a server's connection TO a LocalClient.
     // sending messages on this connection causes the client's handler function to be invoked directly
-    class ULocalConnectionToClient : NetworkConnection
+    class ULocalConnectionToClient : NetworkConnectionToClient
     {
-        public ULocalConnectionToClient() : base ("localClient")
+        public ULocalConnectionToClient() : base ("localClient", 0)
         {
-            // local player always has connectionId == 0
-            connectionId = 0;
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -26,7 +24,7 @@ namespace Mirror
 
     // a localClient's connection TO a server.
     // send messages on this connection causes the server's handler function to be invoked directly.
-    internal class ULocalConnectionToServer : NetworkConnection
+    internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
         public ULocalConnectionToServer() : base("localServer")
         {

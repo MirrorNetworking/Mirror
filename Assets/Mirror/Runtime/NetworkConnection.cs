@@ -16,7 +16,7 @@ namespace Mirror
     /// <para>NetworkConnection objects can "own" networked game objects. Owned objects will be destroyed on the server by default when the connection is destroyed. A connection owns the player objects created by its client, and other objects with client-authority assigned to the corresponding client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
     /// </remarks>
-    public class NetworkConnection : IDisposable
+    public abstract class NetworkConnection : IDisposable
     {
         public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
