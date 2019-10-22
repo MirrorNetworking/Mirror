@@ -12,13 +12,6 @@ namespace Mirror.Weaver
             // generates code like:
             public void CmdThrust(float thrusting, int spin)
             {
-                if (isServer)
-                {
-                    // we are ON the server, invoke directly
-                    CmdThrust(thrusting, spin);
-                    return;
-                }
-
                 NetworkWriter networkWriter = new NetworkWriter();
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
@@ -64,22 +57,6 @@ namespace Mirror.Weaver
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
-
-            // local client check
-            Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getBehaviourIsServer));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Brfalse, localClientLabel));
-
-            // call the cmd function directly.
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            for (int i = 0; i < md.Parameters.Count; i++)
-            {
-                cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg, i + 1));
-            }
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, cmd));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
-            cmdWorker.Append(localClientLabel);
 
             // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteCreateWriter(cmdWorker);
