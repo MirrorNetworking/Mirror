@@ -726,7 +726,7 @@ namespace Mirror
         // called for the one object in the spawn message which is the owner!
         internal static void OnSpawnMessageForOwner(uint netId)
         {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + netId);
+            if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - " + readyConnection + " netId: " + netId);
 
             // is there already an owner that is a different object??
             if (readyConnection.identity != null)

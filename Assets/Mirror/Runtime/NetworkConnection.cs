@@ -279,7 +279,7 @@ namespace Mirror
         List<int> singleConnectionId = new List<int>{-1};
         internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))
@@ -316,7 +316,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return $"connectionId: {connectionId} isReady: {isReady}";
+            return $"connection({connectionId})";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -371,7 +371,7 @@ namespace Mirror
                 msgDelegate(message);
                 return true;
             }
-            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
+            Debug.LogError("Unknown message ID " + msgType + " " + this);
             return false;
         }
 
@@ -419,7 +419,7 @@ namespace Mirror
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
                 if (InvokeHandler(msgType, reader, channelId))
@@ -429,7 +429,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
+                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
             }
         }

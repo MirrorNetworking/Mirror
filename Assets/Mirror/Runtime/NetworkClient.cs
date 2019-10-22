@@ -122,7 +122,7 @@ namespace Mirror
         /// <param name="localPlayer"></param>
         internal static void AddLocalPlayer(NetworkIdentity localPlayer)
         {
-            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " conn=" + connection.connectionId);
+            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " " + connection);
             connection.isReady = true;
             connection.identity = localPlayer;
             if (localPlayer != null)
