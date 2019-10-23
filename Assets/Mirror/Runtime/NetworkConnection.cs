@@ -114,7 +114,7 @@ namespace Mirror
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
         /// <param name="networkAddress"></param>
-        public NetworkConnection(string networkAddress)
+        internal NetworkConnection(string networkAddress)
         {
             address = networkAddress;
         }
@@ -124,7 +124,7 @@ namespace Mirror
         /// </summary>
         /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
-        public NetworkConnection(string networkAddress, int networkConnectionId)
+        internal NetworkConnection(string networkAddress, int networkConnectionId)
         {
             address = networkAddress;
             connectionId = networkConnectionId;
