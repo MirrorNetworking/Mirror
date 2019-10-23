@@ -754,11 +754,6 @@ namespace Mirror
                 identity.SetLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-                if (readyConnection.connectionId < 0)
-                {
-                    Debug.LogError("Owner message received on a local client.");
-                    return;
-                }
                 InternalAddPlayer(identity);
 
                 identity.pendingOwner = false;
