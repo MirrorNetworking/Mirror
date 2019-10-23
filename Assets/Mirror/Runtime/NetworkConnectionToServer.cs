@@ -7,9 +7,6 @@ namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-        public NetworkConnectionToServer(string networkAddress) : base(networkAddress)
-        {
-        }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {

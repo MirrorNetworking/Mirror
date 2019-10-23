@@ -114,9 +114,9 @@ namespace Mirror
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
         /// <param name="networkAddress"></param>
-        internal NetworkConnection(string networkAddress)
+        internal NetworkConnection()
         {
-            address = networkAddress;
+            address = "";
             connectionId = 0;
         }
 
