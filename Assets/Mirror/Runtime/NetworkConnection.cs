@@ -167,30 +167,7 @@ namespace Mirror
         /// <summary>
         /// Disconnects this connection.
         /// </summary>
-        public void Disconnect()
-        {
-            // don't clear address so we can still access it in NetworkManager.OnServerDisconnect
-            // => it's reset in Initialize anyway and there is no address empty check anywhere either
-            //address = "";
-
-            // set not ready and handle clientscene disconnect in any case
-            // (might be client or host mode here)
-            isReady = false;
-            ClientScene.HandleClientDisconnect(this);
-
-            // server? then disconnect that client (not for host local player though)
-            if (Transport.activeTransport.ServerActive() && connectionId != 0)
-            {
-                Transport.activeTransport.ServerDisconnect(connectionId);
-            }
-            // not server and not host mode? then disconnect client
-            else
-            {
-                Transport.activeTransport.ClientDisconnect();
-            }
-
-            RemoveObservers();
-        }
+        public abstract void Disconnect();
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {

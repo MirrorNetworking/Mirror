@@ -23,6 +23,18 @@ namespace Mirror
             return false;
         }
 
+        /// <summary>
+        /// Disconnects this connection.
+        /// </summary>
+        public override void Disconnect()
+        {
+            // set not ready and handle clientscene disconnect in any case
+            // (might be client or host mode here)
+            isReady = false;
+            ClientScene.HandleClientDisconnect(this);
+            Transport.activeTransport.ClientDisconnect();
+        }
+
     }
 
 }
