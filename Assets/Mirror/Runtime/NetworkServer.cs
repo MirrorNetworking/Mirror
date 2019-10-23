@@ -247,7 +247,7 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                 // recycle writer and return
@@ -314,7 +314,7 @@ namespace Mirror
 
             // send to all internet connections at once
             if (connectionIdsCache.Count > 0)
-                result &= NetworkConnection.Send(connectionIdsCache, segment);
+                result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
             NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
 
             // recycle writer and return
@@ -396,7 +396,7 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 // recycle writer and return
