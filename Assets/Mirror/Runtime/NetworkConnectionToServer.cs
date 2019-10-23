@@ -7,9 +7,6 @@ namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-
-        public override string address => throw new NotImplementedException();
-
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
