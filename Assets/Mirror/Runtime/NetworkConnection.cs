@@ -54,7 +54,7 @@ namespace Mirror
         /// The IP address / URL / FQDN associated with the connection.
         /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public string address;
+        public abstract string address { get; }
 
         /// <summary>
         /// The last time that a message was received on this connection.
@@ -116,7 +116,6 @@ namespace Mirror
         /// <param name="networkAddress"></param>
         internal NetworkConnection()
         {
-            address = "";
             connectionId = 0;
         }
 
@@ -125,9 +124,8 @@ namespace Mirror
         /// </summary>
         /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
-        internal NetworkConnection(string networkAddress, int networkConnectionId)
+        internal NetworkConnection(int networkConnectionId)
         {
-            address = networkAddress;
             connectionId = networkConnectionId;
 #pragma warning disable 618
             isConnected = true;

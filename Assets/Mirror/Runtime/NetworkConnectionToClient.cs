@@ -7,13 +7,16 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
-        public NetworkConnectionToClient(string networkAddress, int networkConnectionId) : base(networkAddress, networkConnectionId)
+        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId)
         {
         }
+
+        public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         List<int> singleConnectionId = new List<int> { -1 };
+
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));

@@ -7,9 +7,11 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnectionToClient
     {
-        public ULocalConnectionToClient() : base ("localClient", 0)
+        public ULocalConnectionToClient() : base (0)
         {
         }
+
+        public override string address => "localhost";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
@@ -26,6 +28,9 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
+
+        public override string address => "localhost";
+
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)

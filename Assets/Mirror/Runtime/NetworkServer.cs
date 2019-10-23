@@ -499,11 +499,8 @@ namespace Mirror
             //  Transport can't do that)
             if (connections.Count < maxConnections)
             {
-                // get ip address from connection
-                string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
-
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(address, connectionId);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
