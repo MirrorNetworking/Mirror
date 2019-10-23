@@ -413,7 +413,7 @@ namespace Mirror
         /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data received.</param>
-        public void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
