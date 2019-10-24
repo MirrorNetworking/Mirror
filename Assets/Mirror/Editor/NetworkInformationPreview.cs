@@ -159,7 +159,7 @@ namespace Mirror
 
                     foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                     {
-                        GUI.Label(observerRect, ((NetworkConnectionToClient)kvp.Value).address + ":" + kvp.Value, styles.componentName);
+                        GUI.Label(observerRect, kvp.Value.ToString(), styles.componentName);
                         observerRect.y += observerRect.height;
                         lastY = observerRect.y;
                     }
