@@ -470,7 +470,7 @@ namespace Mirror
 
         static void OnConnected(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn.connectionId);
+            if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn);
 
             // add connection and invoke connected event
             AddConnection(conn);
@@ -494,7 +494,7 @@ namespace Mirror
         static void OnDisconnected(NetworkConnection conn)
         {
             conn.InvokeHandler(new DisconnectMessage(), -1);
-            if (LogFilter.Debug) Debug.Log("Server lost client:" + conn.connectionId);
+            if (LogFilter.Debug) Debug.Log("Server lost client:" + conn);
         }
 
         static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
@@ -548,23 +548,6 @@ namespace Mirror
         public static void ClearHandlers()
         {
             handlers.Clear();
-        }
-
-        /// <summary>
-        /// Send a message to the client which owns the given connection ID.
-        /// <para>It accepts the connection ID as a parameter as well as a message and MsgType. Remember to set the client up for receiving the messages by using NetworkClient.RegisterHandler. Also, for user messages you must use a MsgType with a higher ID number than MsgType.Highest.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="connectionId">Client connection ID.</param>
-        /// <param name="msg">Message struct to send</param>
-        public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
-            {
-                conn.Send(msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
         }
 
         /// <summary>
@@ -633,7 +616,7 @@ namespace Mirror
 
         static void SpawnObserversForConnection(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn.connectionId);
+            if (LogFilter.Debug) Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
 
             if (!conn.isReady)
             {
@@ -826,7 +809,7 @@ namespace Mirror
         /// <param name="conn">The connection of the client to make ready.</param>
         public static void SetClientReady(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn.connectionId);
+            if (LogFilter.Debug) Debug.Log("SetClientReadyInternal for conn:" + conn);
 
             // set ready
             conn.isReady = true;
@@ -1323,7 +1306,7 @@ namespace Mirror
                     Spawn(identity.gameObject);
 
                     // these objects are server authority - even if "localPlayerAuthority" is set on them
-                    identity.ForceAuthority(true);
+                    identity.ForceAuthority(false);
                 }
             }
             return true;

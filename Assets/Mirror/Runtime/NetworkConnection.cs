@@ -30,7 +30,7 @@ namespace Mirror
         /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
         /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
         /// </remarks>
-        public int connectionId = -1;
+        public readonly int connectionId;
 
         /// <summary>
         /// Flag that indicates the client has been authenticated.
@@ -52,6 +52,7 @@ namespace Mirror
 
         /// <summary>
         /// The IP address / URL / FQDN associated with the connection.
+        /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
         public string address;
 
@@ -87,7 +88,7 @@ namespace Mirror
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
         /// <param name="networkAddress"></param>
-        public NetworkConnection(string networkAddress)
+        internal NetworkConnection(string networkAddress)
         {
             address = networkAddress;
         }
@@ -97,7 +98,7 @@ namespace Mirror
         /// </summary>
         /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
-        public NetworkConnection(string networkAddress, int networkConnectionId)
+        internal NetworkConnection(string networkAddress, int networkConnectionId)
         {
             address = networkAddress;
             connectionId = networkConnectionId;
@@ -214,7 +215,7 @@ namespace Mirror
         List<int> singleConnectionId = new List<int>{-1};
         internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))
@@ -251,7 +252,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            return $"connectionId: {connectionId} isReady: {isReady}";
+            return $"connection({connectionId})";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -297,7 +298,7 @@ namespace Mirror
                 msgDelegate(message);
                 return true;
             }
-            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
+            Debug.LogError("Unknown message ID " + msgType + " " + this);
             return false;
         }
 
@@ -338,14 +339,14 @@ namespace Mirror
         /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data received.</param>
-        public void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
                 if (InvokeHandler(msgType, reader, channelId))
@@ -355,7 +356,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
+                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
             }
         }

@@ -701,7 +701,7 @@ namespace Mirror
         // called for the one object in the spawn message which is the owner!
         internal static void OnSpawnMessageForOwner(uint netId)
         {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - connectionId=" + readyConnection.connectionId + " netId: " + netId);
+            if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - " + readyConnection + " netId: " + netId);
 
             // is there already an owner that is a different object??
             if (readyConnection.identity != null)
@@ -729,11 +729,6 @@ namespace Mirror
                 identity.SetLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-                if (readyConnection.connectionId < 0)
-                {
-                    Debug.LogError("Owner message received on a local client.");
-                    return;
-                }
                 InternalAddPlayer(identity);
 
                 identity.pendingOwner = false;

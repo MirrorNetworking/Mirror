@@ -68,7 +68,7 @@ namespace Mirror.Authenticators
                     message = "Success"
                 };
 
-                NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
+                conn.Send(authResponseMessage);
 
                 // Invoke the event to complete a successful authentication
                 base.OnServerAuthenticated.Invoke(conn);
@@ -82,7 +82,7 @@ namespace Mirror.Authenticators
                     message = "Invalid Credentials"
                 };
 
-                NetworkServer.SendToClient(conn.connectionId, authResponseMessage);
+                conn.Send(authResponseMessage);
 
                 // must set NetworkConnection isAuthenticated = false
                 conn.isAuthenticated = false;
