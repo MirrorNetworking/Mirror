@@ -9,8 +9,6 @@ namespace Mirror
     {
         public ULocalConnectionToClient() : base ("localClient")
         {
-            // local player always has connectionId == 0
-            connectionId = 0;
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -30,8 +28,6 @@ namespace Mirror
     {
         public ULocalConnectionToServer() : base("localServer")
         {
-            // local player always has connectionId == 0
-            connectionId = 0;
         }
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)

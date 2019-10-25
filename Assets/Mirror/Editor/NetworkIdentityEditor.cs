@@ -79,9 +79,9 @@ namespace Mirror
                     foreach (KeyValuePair<int, NetworkConnection> kvp in networkIdentity.observers)
                     {
                         if (kvp.Value.identity != null)
-                            EditorGUILayout.ObjectField("Connection " + kvp.Value.connectionId, kvp.Value.identity.gameObject, typeof(GameObject), false);
+                            EditorGUILayout.ObjectField(kvp.Value.ToString(), kvp.Value.identity.gameObject, typeof(GameObject), false);
                         else
-                            EditorGUILayout.TextField("Connection " + kvp.Value.connectionId);
+                            EditorGUILayout.TextField(kvp.Value.ToString());
                     }
                     EditorGUI.indentLevel -= 1;
                 }

@@ -348,8 +348,48 @@ namespace Mirror
             }
         }
 
-        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
+        public Enumerator GetEnumerator() => new Enumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
+
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+
+        // default Enumerator allocates. we need a custom struct Enumerator to
+        // not allocate on the heap.
+        // (System.Collections.Generic.List<T> source code does the same)
+        //
+        // benchmark:
+        //   uMMORPG with 800 monsters, Skills.GetHealthBonus() which runs a
+        //   foreach on skills SyncList:
+        //      before: 81.2KB GC per frame
+        //      after:     0KB GC per frame
+        // => this is extremely important for MMO scale networking
+        public struct Enumerator : IEnumerator<T>
+        {
+            readonly SyncList<T> list;
+            int index;
+            public T Current { get; private set; }
+
+            public Enumerator(SyncList<T> list)
+            {
+                this.list = list;
+                index = -1;
+                Current = default;
+            }
+
+            public bool MoveNext()
+            {
+                if (++index >= list.Count)
+                {
+                    return false;
+                }
+                Current = list[index];
+                return true;
+            }
+
+            public void Reset() => index = -1;
+            object IEnumerator.Current => Current;
+            public void Dispose() {}
+        }
     }
 }
