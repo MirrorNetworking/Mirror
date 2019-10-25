@@ -1421,6 +1421,13 @@ namespace Mirror
                 return false;
 #endif
 
+            // Don't Reset or SetActive objects that are in DontDestroyOnLoad
+            // Alternatively could check for identity.gameObject.scene.buildIndex == -1
+            // but Unity doc says scenes loaded from Asset Bundles get -1 for buildIndex.
+            // Therefore, the name "DontDestroyOnLoad" seems the safest choice.
+            if (identity.gameObject.scene.name == "DontDestroyOnLoad")
+                return false;
+
             // If not a scene object
             return identity.sceneId != 0;
         }
@@ -1438,11 +1445,7 @@ namespace Mirror
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)
             {
-                // Don't Reset or SetActive objects that are in DontDestroyOnLoad
-                // Alternatively could check for identity.gameObject.scene.buildIndex == -1
-                // but Unity doc says scenes loaded from Asset Bundles get -1 for buildIndex.
-                // Therefore, the name "DontDestroyOnLoad" seems the safest choice.
-                if (ValidateSceneObject(identity) && (identity.gameObject.scene.name != "DontDestroyOnLoad"))
+                if (ValidateSceneObject(identity))
                 {
                     if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.Reset();
@@ -1455,9 +1458,6 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     Spawn(identity.gameObject);
-
-                    // these objects are server authority - even if "localPlayerAuthority" is set on them
-                    identity.ForceAuthority(false);
                 }
             }
             return true;
