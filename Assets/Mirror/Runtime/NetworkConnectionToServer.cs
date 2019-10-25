@@ -7,7 +7,6 @@ namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-
         public override string address => throw new NotImplementedException();
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -33,7 +32,5 @@ namespace Mirror
             ClientScene.HandleClientDisconnect(this);
             Transport.activeTransport.ClientDisconnect();
         }
-
     }
-
 }

@@ -57,8 +57,5 @@ namespace Mirror
             Transport.activeTransport.ServerDisconnect(connectionId);
             RemoveObservers();
         }
-
     }
-
-
 }
