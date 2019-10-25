@@ -1420,13 +1420,6 @@ namespace Mirror
                 return false;
 #endif
 
-            // Don't respawn objects that are in DontDestroyOnLoad
-            // Alternatively could check for identity.gameObject.scene.buildIndex == -1
-            // but Unity doc says scenes loaded from Asset Bundles get -1 for buildIndex
-            // Therefore, the name "DontDestroyOnLoad" seems the safest choice.
-            if (identity.gameObject.scene.name == "DontDestroyOnLoad")
-                return false;
-
             // If not a scene object
             return identity.sceneId != 0;
         }
@@ -1444,7 +1437,11 @@ namespace Mirror
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)
             {
-                if (ValidateSceneObject(identity))
+                // Don't Reset or SetActive objects that are in DontDestroyOnLoad
+                // Alternatively could check for identity.gameObject.scene.buildIndex == -1
+                // but Unity doc says scenes loaded from Asset Bundles get -1 for buildIndex.
+                // Therefore, the name "DontDestroyOnLoad" seems the safest choice.
+                if (ValidateSceneObject(identity) && (identity.gameObject.scene.name != "DontDestroyOnLoad"))
                 {
                     if (LogFilter.Debug) Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.Reset();

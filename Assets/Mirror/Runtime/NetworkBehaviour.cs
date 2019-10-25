@@ -17,7 +17,6 @@ namespace Mirror
     /// <para>This is a MonoBehaviour class so scripts which need to use the networking feature should inherit this class instead of MonoBehaviour. It allows you to invoke networked actions, receive various callbacks, and automatically synchronize state from server-to-client.</para>
     /// <para>The NetworkBehaviour component requires a NetworkIdentity on the game object. There can be multiple NetworkBehaviours on a single game object. For an object with sub-components in a hierarchy, the NetworkIdentity must be on the root object, and NetworkBehaviour scripts must also be on the root object.</para>
     /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
-    /// <para>Note: Do not apply DontDestroyOnLoad in Awake of a Netwwork Behaviour...do it in Start instead, otherwise it won't get spawned to clients.</para>
     /// </remarks>
     [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
