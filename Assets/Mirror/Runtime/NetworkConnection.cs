@@ -51,6 +51,12 @@ namespace Mirror
         public bool isReady;
 
         /// <summary>
+        /// The IP address / URL / FQDN associated with the connection.
+        /// Can be useful for a game master to do IP Bans etc.
+        /// </summary>
+        public abstract string address { get; }
+
+        /// <summary>
         /// The last time that a message was received on this connection.
         /// <para>This includes internal system messages (such as Commands and ClientRpc calls) and user messages.</para>
         /// </summary>

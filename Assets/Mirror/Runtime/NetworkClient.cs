@@ -52,7 +52,7 @@ namespace Mirror
         /// The IP address of the server that this client is connected to.
         /// <para>This will be empty if the client has not connected yet.</para>
         /// </summary>
-        public static string serverIp => ((NetworkConnectionToClient)connection).address;
+        public static string serverIp => connection.address;
 
         /// <summary>
         /// active is true while a client is connecting/connected
