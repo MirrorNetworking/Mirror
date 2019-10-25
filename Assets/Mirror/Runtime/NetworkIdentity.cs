@@ -957,7 +957,7 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("Observer " + conn + " added for " + gameObject);
+            if (LogFilter.Debug) Debug.Log("Added observer " + ((NetworkConnectionToClient)conn).address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
