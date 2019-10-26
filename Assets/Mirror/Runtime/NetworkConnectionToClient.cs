@@ -7,6 +7,13 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
+        /// <summary>
+        /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
+        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
+        /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
+        /// </summary>
+        public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
+
         public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId)
         {
         }
@@ -56,6 +63,29 @@ namespace Mirror
             isReady = false;
             Transport.activeTransport.ServerDisconnect(connectionId);
             RemoveObservers();
+            DestroyOwnedObjects();
+        }
+
+        internal void AddOwnedObject(NetworkIdentity obj)
+        {
+            clientOwnedObjects.Add(obj.netId);
+        }
+
+        internal void RemoveOwnedObject(NetworkIdentity obj)
+        {
+            clientOwnedObjects.Remove(obj.netId);
+        }
+
+        protected void DestroyOwnedObjects()
+        {
+            foreach (uint netId in clientOwnedObjects)
+            {
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                {
+                    NetworkServer.Destroy(identity.gameObject);
+                }
+            }
+            clientOwnedObjects.Clear();
         }
     }
 }
