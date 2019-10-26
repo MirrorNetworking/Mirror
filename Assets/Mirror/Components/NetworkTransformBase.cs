@@ -51,13 +51,10 @@ namespace Mirror
         DataPoint start;
         DataPoint goal;
 
-        // local authority send time
-        float lastClientSendTime;
-
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        // serialization is needed by OnSerialize and by manual sending from authority
+        // serialization is needed by OnSerialize
         static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
         {
             // serialize position
@@ -112,7 +109,7 @@ namespace Mirror
             return elapsed > 0 ? delta.magnitude / elapsed : 0; // avoid NaN
         }
 
-        // serialization is needed by OnSerialize and by manual sending from authority
+        // serialization is needed by OnSerialize
         void DeserializeFromReader(NetworkReader reader)
         {
             // put it into a data point immediately
@@ -225,23 +222,6 @@ namespace Mirror
         {
             // deserialize
             DeserializeFromReader(reader);
-        }
-
-        // local authority client sends sync message to server for broadcasting
-        [Command]
-        void CmdClientToServerSync(byte[] payload)
-        {
-            // deserialize payload
-            NetworkReader reader = new NetworkReader(payload);
-            DeserializeFromReader(reader);
-
-            // server-only mode does no interpolation to save computations,
-            // but let's set the position directly
-            if (isServer && !isClient)
-                ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
-
-            // set dirty so that OnSerialize broadcasts it
-            SetDirtyBit(1UL);
         }
 
         // where are we in the timeline between start and goal? [0,1]
@@ -358,52 +338,25 @@ namespace Mirror
                 // changed. set dirty bits 0 or 1
                 SetDirtyBit(HasEitherMovedRotatedScaled() ? 1UL : 0UL);
             }
-
-            // no 'else if' since host mode would be both
-            if (isClient)
+            // apply interpolation on client for all players
+            // (unless this is the server or host)
+            else
             {
-                // send to server if we have local authority (and aren't the server)
-                // -> only if connectionToServer has been initialized yet too
-                if (!isServer && hasAuthority)
+                // received one yet? (initialized?)
+                if (goal != null)
                 {
-                    // check only each 'syncInterval'
-                    if (Time.time - lastClientSendTime >= syncInterval)
+                    // teleport or interpolate
+                    if (NeedsTeleport())
                     {
-                        if (HasEitherMovedRotatedScaled())
-                        {
-                            // serialize
-                            // local position/rotation for VR support
-                            NetworkWriter writer = new NetworkWriter();
-                            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, compressRotation, targetComponent.transform.localScale);
-
-                            // send to server
-                            CmdClientToServerSync(writer.ToArray());
-                        }
-                        lastClientSendTime = Time.time;
+                        // local position/rotation for VR support
+                        ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
                     }
-                }
-
-                // apply interpolation on client for all players
-                // unless this client has authority over the object. could be
-                // himself or another object that he was assigned authority over
-                if (!hasAuthority)
-                {
-                    // received one yet? (initialized?)
-                    if (goal != null)
+                    else
                     {
-                        // teleport or interpolate
-                        if (NeedsTeleport())
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
-                        }
-                        else
-                        {
-                            // local position/rotation for VR support
-                            ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
-                                                       InterpolateRotation(start, goal, targetComponent.transform.localRotation),
-                                                       InterpolateScale(start, goal, targetComponent.transform.localScale));
-                        }
+                        // local position/rotation for VR support
+                        ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
+                                                   InterpolateRotation(start, goal, targetComponent.transform.localRotation),
+                                                   InterpolateScale(start, goal, targetComponent.transform.localScale));
                     }
                 }
             }

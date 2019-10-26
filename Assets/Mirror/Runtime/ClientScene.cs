@@ -713,16 +713,6 @@ namespace Mirror
             }
         }
 
-        internal static void OnClientAuthority(NetworkConnection _, ClientAuthorityMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnClientAuthority for netId: " + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
-                identity.HandleClientAuthority(msg.authority);
-            }
-        }
-
         // called for the one object in the spawn message which is the local player!
         internal static void OnSpawnMessageForLocalPlayer(uint netId)
         {

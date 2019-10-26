@@ -7,10 +7,9 @@ namespace Mirror
     /// A component to synchronize Mecanim animation states for networked objects.
     /// </summary>
     /// <remarks>
-    /// <para>The animation of game objects can be networked by this component. There are two models of authority for networked movement:</para>
-    /// <para>If the object has authority on the client, then it should animated locally on the owning client. The animation state information will be sent from the owning client to the server, then broadcast to all of the other clients. This is common for player objects.</para>
-    /// <para>If the object has authority on the server, then it should be animated on the server and state information will be sent to all clients. This is common for objects not related to a specific client, such as an enemy unit.</para>
-    /// <para>The NetworkAnimator synchronizes the animation parameters that are checked in the inspector view. It does not automatically sychronize triggers. The function SetTrigger can by used by an object with authority to fire an animation trigger on other clients.</para>
+    /// <para>The animation of game objects can be networked by this component.</para>
+    /// <para>The object should be animated on the server and state information will be sent to all clients. This is common for objects not related to a specific client, such as an enemy unit.</para>
+    /// <para>The NetworkAnimator synchronizes the animation parameters that are checked in the inspector view. It does not automatically sychronize triggers. The function SetTrigger can be used by the server to fire an animation trigger on other clients.</para>
     /// </remarks>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkAnimator")]
@@ -34,29 +33,6 @@ namespace Mirror
         int[] transitionHash;
         float sendTimer;
 
-        bool sendMessagesAllowed
-        {
-            get
-            {
-                if (isServer)
-                {
-                    if (!localPlayerAuthority)
-                        return true;
-
-                    // This is a special case where we have localPlayerAuthority set
-                    // on a NetworkIdentity but we have not assigned the client who has
-                    // authority over it, no animator data will be sent over the network by the server.
-                    //
-                    // So we check here for a clientAuthorityOwner and if it is null we will
-                    // let the server send animation data until we receive an owner.
-                    if (netIdentity != null && netIdentity.clientAuthorityOwner == null)
-                        return true;
-                }
-
-                return hasAuthority;
-            }
-        }
-
         void Awake()
         {
             // store the animator parameters in a variable - the "Animator.parameters" getter allocates
@@ -72,7 +48,7 @@ namespace Mirror
 
         void FixedUpdate()
         {
-            if (!sendMessagesAllowed)
+            if (!isServer)
                 return;
 
             CheckSendRate();
@@ -130,7 +106,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval != 0 && sendTimer < Time.time)
+            if (isServer && syncInterval != 0 && sendTimer < Time.time)
             {
                 sendTimer = Time.time + syncInterval;
 
@@ -148,10 +124,6 @@ namespace Mirror
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
             }
-            else if (ClientScene.readyConnection != null)
-            {
-                CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, parameters);
-            }
         }
 
         void SendAnimationParametersMessage(byte[] parameters)
@@ -160,15 +132,11 @@ namespace Mirror
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (ClientScene.readyConnection != null)
-            {
-                CmdOnAnimationParametersServerMessage(parameters);
-            }
         }
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (hasAuthority)
+            if (isServer)
                 return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
@@ -184,7 +152,7 @@ namespace Mirror
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (hasAuthority)
+            if (isServer)
                 return;
 
             ReadParameters(reader);
@@ -346,7 +314,6 @@ namespace Mirror
 
         /// <summary>
         /// Causes an animation trigger to be invoked for a networked object.
-        /// <para>If local authority is set, and this is called from the client, then the trigger will be invoked on the server and all clients. If not, then this is called on the server, and the trigger will be called on all clients.</para>
         /// </summary>
         /// <param name="triggerName">Name of trigger.</param>
         public void SetTrigger(string triggerName)
@@ -360,48 +327,11 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
-            if (hasAuthority && localPlayerAuthority)
-            {
-                if (ClientScene.readyConnection != null)
-                {
-                    CmdOnAnimationTriggerServerMessage(hash);
-                }
-                return;
-            }
-
-            if (isServer && !localPlayerAuthority)
+            if (isServer)
             {
                 RpcOnAnimationTriggerClientMessage(hash);
             }
         }
-
-        #region server message handlers
-        [Command]
-        void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
-        {
-            if (LogFilter.Debug) Debug.Log("OnAnimationMessage for netId=" + netId);
-
-            // handle and broadcast
-            HandleAnimMsg(stateHash, normalizedTime, layerId, new NetworkReader(parameters));
-            RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, parameters);
-        }
-
-        [Command]
-        void CmdOnAnimationParametersServerMessage(byte[] parameters)
-        {
-            // handle and broadcast
-            HandleAnimParamsMsg(new NetworkReader(parameters));
-            RpcOnAnimationParametersClientMessage(parameters);
-        }
-
-        [Command]
-        void CmdOnAnimationTriggerServerMessage(int hash)
-        {
-            // handle and broadcast
-            HandleAnimTriggerMsg(hash);
-            RpcOnAnimationTriggerClientMessage(hash);
-        }
-        #endregion
 
         #region client message handlers
         [ClientRpc]

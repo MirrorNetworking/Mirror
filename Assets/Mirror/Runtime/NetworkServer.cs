@@ -821,10 +821,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
             FinishPlayerForConnection(identity, player);
-            if (identity.localPlayerAuthority)
-            {
-                identity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -848,7 +844,6 @@ namespace Mirror
 
                 // Set up local player instance on the client instance and update local object map
                 NetworkClient.AddLocalPlayer(identity);
-                identity.SetClientOwner(conn);
 
                 // Trigger OnStartLocalPlayer
                 identity.SetLocalPlayer();
@@ -883,7 +878,6 @@ namespace Mirror
             if (conn.identity != null)
             {
                 conn.identity.SetNotLocalPlayer();
-                conn.identity.clientAuthorityOwner = null;
             }
 
             conn.identity = identity;
@@ -910,10 +904,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
             FinishPlayerForConnection(identity, player);
-            if (identity.localPlayerAuthority)
-            {
-                identity.SetClientOwner(conn);
-            }
             return true;
         }
 
@@ -1019,14 +1009,14 @@ namespace Mirror
                 return;
             }
 
-            // Commands can be for player objects, OR other objects with client-authority
+            // Commands can be for player objects
             // -> so if this connection's controller has a different netId then
-            //    only allow the command if clientAuthorityOwner
+            //    only allow the command if same connection
             if (conn.identity != null && conn.identity.netId != identity.netId)
             {
-                if (identity.clientAuthorityOwner != conn)
+                if (identity.connectionToClient != conn)
                 {
-                    Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
+                    Debug.LogWarning("Command for object of someone else's connection [netId=" + msg.netId + "]");
                     return;
                 }
             }
@@ -1171,7 +1161,7 @@ namespace Mirror
 
         /// <summary>
         /// This destroys all the player objects associated with a NetworkConnections on a server.
-        /// <para>This is used when a client disconnects, to remove the players for that client. This also destroys non-player objects that have client authority set for this connection.</para>
+        /// <para>This is used when a client disconnects, to remove the players for that client.</para>
         /// </summary>
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
@@ -1180,19 +1170,6 @@ namespace Mirror
             {
                 DestroyObject(conn.identity, true);
                 conn.identity = null;
-            }
-        }
-
-        /// <summary>
-        /// Spawn the given game object on all clients which are ready.
-        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
-        /// </summary>
-        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        public static void Spawn(GameObject obj)
-        {
-            if (VerifyCanSpawn(obj))
-            {
-                SpawnObject(obj);
             }
         }
 
@@ -1223,82 +1200,20 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
+        /// Spawn the given game object on all clients which are ready.
+        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="player">The player object to set Client Authority to.</param>
-        /// <returns></returns>
-        public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
+        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
+        public static void Spawn(GameObject obj)
         {
-            NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            if (VerifyCanSpawn(obj))
             {
-                Debug.LogError("SpawnWithClientAuthority player object has no NetworkIdentity");
-                return false;
+                SpawnObject(obj);
             }
-
-            if (identity.connectionToClient == null)
-            {
-                Debug.LogError("SpawnWithClientAuthority player object is not a player.");
-                return false;
-            }
-
-            return SpawnWithClientAuthority(obj, identity.connectionToClient);
         }
 
         /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
-        /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection conn)
-        {
-            if (!conn.isReady)
-            {
-                Debug.LogError("SpawnWithClientAuthority NetworkConnection is not ready!");
-                return false;
-            }
-
-            Spawn(obj);
-
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null || !identity.isServer)
-            {
-                // spawning the object failed.
-                return false;
-            }
-
-            return identity.AssignClientAuthority(conn);
-        }
-
-        /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
-        /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
-        {
-            Spawn(obj, assetId);
-
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null || !identity.isServer)
-            {
-                // spawning the object failed.
-                return false;
-            }
-
-            return identity.AssignClientAuthority(conn);
-        }
-
-        /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
+        /// This spawns an object like NetworkServer.Spawn().
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
@@ -1318,8 +1233,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.netId);
             NetworkIdentity.spawned.Remove(identity.netId);
-
-            identity.clientAuthorityOwner?.RemoveOwnedObject(identity);
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage
             {

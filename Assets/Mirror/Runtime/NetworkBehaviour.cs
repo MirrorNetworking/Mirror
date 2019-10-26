@@ -37,11 +37,6 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
 
         /// <summary>
-        /// This value is set on the NetworkIdentity and is accessible here for convenient access for scripts.
-        /// </summary>
-        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-
-        /// <summary>
         /// Returns true if this object is active on an active server.
         /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
         /// </summary>
@@ -67,12 +62,6 @@ namespace Mirror
         /// True if this object exists on a client that is not also acting as a server
         /// </summary>
         public bool isClientOnly => isClient && !isServer;
-
-        /// <summary>
-        /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>The <see cref="localPlayerAuthority">localPlayerAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server / host. For objects with <see cref="localPlayerAuthority">localPlayerAuthority</see> set, authority is held by the client of that player.</para>
-        /// </summary>
-        public bool hasAuthority => netIdentity.hasAuthority;
 
         /// <summary>
         /// The unique network Id of this object.
@@ -195,10 +184,10 @@ namespace Mirror
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
             }
-            // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(isLocalPlayer || hasAuthority))
+            // local players can always send commands.
+            if (!isLocalPlayer)
             {
-                Debug.LogWarning("Trying to send command for object without authority.");
+                Debug.LogWarning("Trying to send command for non local player object.");
                 return;
             }
 
@@ -782,19 +771,6 @@ namespace Mirror
         /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
         /// </summary>
         public virtual void OnStartLocalPlayer() {}
-
-        /// <summary>
-        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
-        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
-        /// </summary>
-        public virtual void OnStartAuthority() {}
-
-        /// <summary>
-        /// This is invoked on behaviours when authority is removed.
-        /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
-        /// </summary>
-        public virtual void OnStopAuthority() {}
 
         /// <summary>
         /// Callback used by the visibility system to (re)construct the set of observers that can see this object.

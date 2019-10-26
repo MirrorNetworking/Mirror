@@ -426,24 +426,6 @@ namespace Mirror
         }
     }
 
-    public struct ClientAuthorityMessage : IMessageBase
-    {
-        public uint netId;
-        public bool authority;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            authority = reader.ReadBoolean();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(authority);
-        }
-    }
-
     public struct UpdateVarsMessage : IMessageBase
     {
         public uint netId;
