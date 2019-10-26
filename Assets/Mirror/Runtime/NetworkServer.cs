@@ -23,12 +23,12 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public static NetworkConnection localConnection { get; private set; }
+        public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
-        public static Dictionary<int, NetworkConnection> connections = new Dictionary<int, NetworkConnection>();
+        public static Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>
         /// <para>Dictionary of the message handlers registered with the server.</para>
@@ -148,7 +148,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Network connection to add.</param>
         /// <returns>True if added.</returns>
-        public static bool AddConnection(NetworkConnection conn)
+        public static bool AddConnection(NetworkConnectionToClient conn)
         {
             if (!connections.ContainsKey(conn.connectionId))
             {
@@ -247,7 +247,7 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
                 NetworkDiagnostics.OnSend(msg, Channels.DefaultReliable, segment.Count, identity.observers.Count);
 
                 // recycle writer and return
@@ -270,7 +270,7 @@ namespace Mirror
 
             // send to all
             bool result = true;
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
+            foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
             {
                 result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
             }
@@ -302,7 +302,7 @@ namespace Mirror
             //    avoid allocations, allow for multicast, etc.
             connectionIdsCache.Clear();
             bool result = true;
-            foreach (KeyValuePair<int, NetworkConnection> kvp in connections)
+            foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
             {
                 // use local connection directly because it doesn't send via transport
                 if (kvp.Value is ULocalConnectionToClient)
@@ -314,7 +314,7 @@ namespace Mirror
 
             // send to all internet connections at once
             if (connectionIdsCache.Count > 0)
-                result &= NetworkConnection.Send(connectionIdsCache, segment);
+                result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
             NetworkDiagnostics.OnSend(msg, channelId, segment.Count, connections.Count);
 
             // recycle writer and return
@@ -396,7 +396,7 @@ namespace Mirror
 
                 // send to all internet connections at once
                 if (connectionIdsCache.Count > 0)
-                    result &= NetworkConnection.Send(connectionIdsCache, segment);
+                    result &= NetworkConnectionToClient.Send(connectionIdsCache, segment);
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
 
                 // recycle writer and return
@@ -499,11 +499,8 @@ namespace Mirror
             //  Transport can't do that)
             if (connections.Count < maxConnections)
             {
-                // get ip address from connection
-                string address = Transport.activeTransport.ServerGetClientAddress(connectionId);
-
                 // add connection
-                NetworkConnection conn = new NetworkConnection(address, connectionId);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
@@ -514,7 +511,7 @@ namespace Mirror
             }
         }
 
-        static void OnConnected(NetworkConnection conn)
+        static void OnConnected(NetworkConnectionToClient conn)
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn);
 
@@ -527,7 +524,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server disconnect client:" + connectionId);
 
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
@@ -545,7 +542,7 @@ namespace Mirror
 
         static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.TransportReceive(data, channelId);
             }
@@ -642,7 +639,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead.")]
         public static void SendToClient(int connectionId, int msgType, MessageBase msg)
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.Send(msgType, msg);
                 return;
@@ -660,7 +657,7 @@ namespace Mirror
         [Obsolete("Use connection.Send(msg) instead")]
         public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnection conn))
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.Send(msg);
                 return;
