@@ -91,7 +91,7 @@ namespace Mirror
             Transport.activeTransport.ClientConnect(address);
 
             // setup all the handlers
-            connection = new NetworkConnection(address, 0);
+            connection = new NetworkConnectionToServer();
             connection.SetHandlers(handlers);
         }
 

@@ -16,7 +16,7 @@ namespace Mirror
     /// <para>NetworkConnection objects can "own" networked game objects. Owned objects will be destroyed on the server by default when the connection is destroyed. A connection owns the player objects created by its client, and other objects with client-authority assigned to the corresponding client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
     /// </remarks>
-    public class NetworkConnection : IDisposable
+    public abstract class NetworkConnection : IDisposable
     {
         public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
@@ -54,7 +54,7 @@ namespace Mirror
         /// The IP address / URL / FQDN associated with the connection.
         /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public string address;
+        public abstract string address { get; }
 
         /// <summary>
         /// The last time that a message was received on this connection.
@@ -114,9 +114,8 @@ namespace Mirror
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
         /// <param name="networkAddress"></param>
-        internal NetworkConnection(string networkAddress)
+        internal NetworkConnection()
         {
-            address = networkAddress;
         }
 
         /// <summary>
@@ -124,9 +123,8 @@ namespace Mirror
         /// </summary>
         /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
-        internal NetworkConnection(string networkAddress, int networkConnectionId)
+        internal NetworkConnection(int networkConnectionId)
         {
-            address = networkAddress;
             connectionId = networkConnectionId;
 #pragma warning disable 618
             isConnected = true;
@@ -166,30 +164,7 @@ namespace Mirror
         /// <summary>
         /// Disconnects this connection.
         /// </summary>
-        public void Disconnect()
-        {
-            // don't clear address so we can still access it in NetworkManager.OnServerDisconnect
-            // => it's reset in Initialize anyway and there is no address empty check anywhere either
-            //address = "";
-
-            // set not ready and handle clientscene disconnect in any case
-            // (might be client or host mode here)
-            isReady = false;
-            ClientScene.HandleClientDisconnect(this);
-
-            // server? then disconnect that client (not for host local player though)
-            if (Transport.activeTransport.ServerActive() && connectionId != 0)
-            {
-                Transport.activeTransport.ServerDisconnect(connectionId);
-            }
-            // not server and not host mode? then disconnect client
-            else
-            {
-                Transport.activeTransport.ClientDisconnect();
-            }
-
-            RemoveObservers();
-        }
+        public abstract void Disconnect();
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
@@ -255,7 +230,7 @@ namespace Mirror
         //    would check max size and show errors internally. best to do it
         //    in one place in hlapi.
         // => it's important to log errors, so the user knows what went wrong.
-        static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
+        protected internal static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
@@ -277,42 +252,7 @@ namespace Mirror
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         List<int> singleConnectionId = new List<int>{-1};
-        internal virtual bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
-        {
-            if (logNetworkMessages) Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-
-            // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
-            {
-                // send to client or server
-                if (Transport.activeTransport.ClientConnected())
-                {
-                    return Transport.activeTransport.ClientSend(channelId, segment);
-                }
-                else if (Transport.activeTransport.ServerActive())
-                {
-                    singleConnectionId[0] = connectionId;
-                    return Transport.activeTransport.ServerSend(singleConnectionId, channelId, segment);
-                }
-            }
-            return false;
-        }
-
-        // Send to many. basically Transport.Send(connections) + checks.
-        internal static bool Send(List<int> connectionIds, ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
-        {
-            // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
-            {
-                // only the server sends to many, we don't have that function on
-                // a client.
-                if (Transport.activeTransport.ServerActive())
-                {
-                    return Transport.activeTransport.ServerSend(connectionIds, channelId, segment);
-                }
-            }
-            return false;
-        }
+        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
         public override string ToString()
         {
