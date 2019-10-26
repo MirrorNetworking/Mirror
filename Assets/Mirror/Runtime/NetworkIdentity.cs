@@ -119,7 +119,7 @@ namespace Mirror
         /// The client that has authority for this object. This will be null if no client has authority.
         /// <para>This is set for player objects with localPlayerAuthority, and for objects set with AssignClientAuthority, and spawned with SpawnWithClientAuthority.</para>
         /// </summary>
-        public NetworkConnection clientAuthorityOwner { get; internal set; }
+        public NetworkConnectionToClient clientAuthorityOwner { get; internal set; }
 
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
@@ -197,7 +197,7 @@ namespace Mirror
             {
                 Debug.LogError("SetClientOwner m_ClientAuthorityOwner already set!");
             }
-            clientAuthorityOwner = conn;
+            clientAuthorityOwner = (NetworkConnectionToClient)conn;
             clientAuthorityOwner.AddOwnedObject(this);
         }
 
@@ -1153,7 +1153,7 @@ namespace Mirror
                 return false;
             }
 
-            clientAuthorityOwner = conn;
+            clientAuthorityOwner = (NetworkConnectionToClient)conn;
             clientAuthorityOwner.AddOwnedObject(this);
 
             // server no longer has authority (this is called on server). Note that local client could re-acquire authority below
