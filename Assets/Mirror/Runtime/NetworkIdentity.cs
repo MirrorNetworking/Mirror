@@ -281,7 +281,10 @@ namespace Mirror
             {
                 if (sceneIds.TryGetValue(sceneId, out NetworkIdentity existing) && existing != this)
                 {
-                    Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+                    // Suppress the error for DDOL objects
+                    if (existing.gameObject.scene.name != "DontDestroyOnLoad")
+                        Debug.LogError(name + "'s sceneId: " + sceneId.ToString("X") + " is already taken by: " + existing.name + ". Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects). Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+
                     Destroy(gameObject);
                 }
                 else
