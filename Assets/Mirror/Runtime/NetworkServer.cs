@@ -850,9 +850,6 @@ namespace Mirror
                 NetworkClient.AddLocalPlayer(identity);
                 identity.SetClientOwner(conn);
 
-                // Trigger OnAuthority
-                identity.ForceAuthority(true);
-
                 // Trigger OnStartLocalPlayer
                 identity.SetLocalPlayer();
                 return true;
