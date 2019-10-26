@@ -113,7 +113,6 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
-        /// <param name="networkAddress"></param>
         internal NetworkConnection()
         {
         }
@@ -121,7 +120,6 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection with the specified address and connectionId
         /// </summary>
-        /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
         internal NetworkConnection(int networkConnectionId)
         {
