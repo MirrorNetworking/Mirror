@@ -1452,6 +1452,9 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                 {
                     Spawn(identity.gameObject);
+
+                    // these objects are server authority - even if "localPlayerAuthority" is set on them
+                    identity.ForceAuthority(false);
                 }
             }
             return true;
