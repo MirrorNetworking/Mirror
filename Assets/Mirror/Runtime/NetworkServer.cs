@@ -190,7 +190,6 @@ namespace Mirror
             if (localConnection != null)
             {
                 localConnection.Disconnect();
-                localConnection.Dispose();
                 localConnection = null;
             }
             localClientActive = false;
@@ -445,7 +444,6 @@ namespace Mirror
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
                     OnDisconnected(conn);
-                conn.Dispose();
             }
             connections.Clear();
         }
@@ -1178,16 +1176,6 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // => destroy what we can destroy.
-            HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
-            foreach (uint netId in tmp)
-            {
-                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-                {
-                    Destroy(identity.gameObject);
-                }
-            }
-
             if (conn.identity != null)
             {
                 DestroyObject(conn.identity, true);
