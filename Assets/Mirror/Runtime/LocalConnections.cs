@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -7,6 +8,8 @@ namespace Mirror
     // sending messages on this connection causes the client's handler function to be invoked directly
     class ULocalConnectionToClient : NetworkConnectionToClient
     {
+        internal ULocalConnectionToServer connectionToServer;
+
         public ULocalConnectionToClient() : base (0)
         {
         }
@@ -19,7 +22,7 @@ namespace Mirror
             // previously we allocated in Mirror. now we do it here.
             byte[] data = new byte[segment.Count];
             Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
-            NetworkClient.localClientPacketQueue.Enqueue(data);
+            connectionToServer.packetQueue.Enqueue(data);
             return true;
         }
     }
@@ -28,6 +31,13 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
+        internal ULocalConnectionToClient connectionToClient;
+
+        // local client in host mode might call Cmds/Rpcs during Update, but we
+        // want to apply them in LateUpdate like all other Transport messages
+        // to avoid race conditions. keep packets in Queue until LateUpdate.
+        internal Queue<byte[]> packetQueue = new Queue<byte[]>();
+
         public override string address => "localhost";
 
         internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
@@ -39,9 +49,20 @@ namespace Mirror
             }
 
             // handle the server's message directly
-            // TODO any way to do this without NetworkServer.localConnection?
-            NetworkServer.localConnection.TransportReceive(segment, channelId);
+            connectionToClient.TransportReceive(segment, channelId);
             return true;
+        }
+
+        internal void Update()
+        {
+            // process internal messages so they are applied at the correct time
+            while (packetQueue.Count > 0)
+            {
+                byte[] packet = packetQueue.Dequeue();
+                // Treat host player messages exactly like connected client
+                // to avoid deceptive / misleading behavior differences
+                TransportReceive(new ArraySegment<byte>(packet), Channels.DefaultReliable);
+            }
         }
     }
 }
