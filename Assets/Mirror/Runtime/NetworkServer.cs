@@ -1009,20 +1009,14 @@ namespace Mirror
                 return;
             }
 
-            // Commands can be for player objects
-            // -> so if this connection's controller has a different netId then
-            //    only allow the command if same connection
-            if (conn.identity != null && conn.identity.netId != identity.netId)
+            // Commands are only allowed for the connection's player or any of
+            // the owned objects. (e.g. pet)
+            if (identity.connectionToClient == conn || identity.connectionToOwner == conn)
             {
-                if (identity.connectionToClient != conn)
-                {
-                    Debug.LogWarning("Command for object of someone else's connection [netId=" + msg.netId + "]");
-                    return;
-                }
+                if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
+                identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
             }
-
-            if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
-            identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
+            else Debug.LogWarning("Command for object of someone else's connection [netId=" + msg.netId + "]");
         }
 
         internal static void SpawnObject(GameObject obj)
@@ -1226,6 +1220,21 @@ namespace Mirror
                     identity.assetId = assetId;
                 }
                 SpawnObject(obj);
+            }
+        }
+
+        /// <summary>
+        /// Spawn the given game object on all clients which are ready and set owner connection so that [Command]s can be called from that connection on that object too.
+        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
+        /// </summary>
+        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
+        /// <param name="ownerConnection">NetworkConnection of the owner.</param>
+        public static void SpawnWithOwner(GameObject obj, NetworkConnection ownerConnection)
+        {
+            if (VerifyCanSpawn(obj))
+            {
+                SpawnObject(obj);
+                obj.GetComponent<NetworkIdentity>().connectionToOwner = ownerConnection;
             }
         }
 

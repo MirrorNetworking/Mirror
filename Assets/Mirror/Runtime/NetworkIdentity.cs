@@ -112,6 +112,17 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToClient { get; internal set; }
 
+        // IMPORTANT: we use a separate .connectionToOwner for owned objects,
+        //            because setting .connectionToClient would cause updates to
+        //            be sent to the owner connection twice (once for player,
+        //            once for pet etc.).
+        //
+        /// <summary>
+        /// The NetworkConnection associated with the owner of this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player owned objects on the server (e.g. pets).
+        /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
+        /// </summary>
+        public NetworkConnection connectionToOwner { get; internal set; }
+
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
         /// </summary>
