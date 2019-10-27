@@ -315,7 +315,7 @@ namespace Mirror
     public struct SpawnPrefabMessage : IMessageBase
     {
         public uint netId;
-        public bool owner;
+        public bool isLocalPlayer;
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
@@ -327,7 +327,7 @@ namespace Mirror
         public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            owner = reader.ReadBoolean();
+            isLocalPlayer = reader.ReadBoolean();
             assetId = reader.ReadGuid();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -338,7 +338,7 @@ namespace Mirror
         public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(owner);
+            writer.WriteBoolean(isLocalPlayer);
             writer.WriteGuid(assetId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
@@ -350,7 +350,7 @@ namespace Mirror
     public struct SpawnSceneObjectMessage : IMessageBase
     {
         public uint netId;
-        public bool owner;
+        public bool isLocalPlayer;
         public ulong sceneId;
         public Vector3 position;
         public Quaternion rotation;
@@ -362,7 +362,7 @@ namespace Mirror
         public void Deserialize(NetworkReader reader)
         {
             netId = reader.ReadPackedUInt32();
-            owner = reader.ReadBoolean();
+            isLocalPlayer = reader.ReadBoolean();
             sceneId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -373,7 +373,7 @@ namespace Mirror
         public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(owner);
+            writer.WriteBoolean(isLocalPlayer);
             writer.WriteUInt64(sceneId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
