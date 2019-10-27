@@ -11,7 +11,7 @@ namespace Mirror
     {
         public delegate void SyncSetChanged(Operation op, T item);
 
-        readonly ISet<T> objects;
+        protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -319,10 +319,16 @@ namespace Mirror
     public abstract class SyncHashSet<T> : SyncSet<T>
     {
         protected SyncHashSet(IEqualityComparer<T> comparer = null) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) { }
+
+        // allocation free enumerator
+        public new HashSet<T>.Enumerator GetEnumerator() => ((HashSet<T>)objects).GetEnumerator();
     }
 
     public abstract class SyncSortedSet<T> : SyncSet<T>
     {
         protected SyncSortedSet(IComparer<T> comparer = null) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) { }
+
+        // allocation free enumerator
+        public new SortedSet<T>.Enumerator GetEnumerator() => ((SortedSet<T>)objects).GetEnumerator();
     }
 }

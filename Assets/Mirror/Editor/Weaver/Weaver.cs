@@ -76,7 +76,6 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
-        public static MethodReference getBehaviourIsServer;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -288,7 +287,6 @@ namespace Mirror.Weaver
             ClientSceneType = NetAssembly.MainModule.GetType("Mirror.ClientScene");
             ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, CurrentAssembly, "get_readyConnection");
 
-            getBehaviourIsServer = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_isServer");
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarEqual");
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarNetworkIdentityEqual");
             syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarGameObjectEqual");
