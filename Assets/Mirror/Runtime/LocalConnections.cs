@@ -49,7 +49,6 @@ namespace Mirror
             }
 
             // handle the server's message directly
-            // TODO any way to do this without NetworkServer.localConnection?
             connectionToClient.TransportReceive(segment, channelId);
             return true;
         }
