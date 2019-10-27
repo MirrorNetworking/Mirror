@@ -75,7 +75,7 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer { get; private set; }
 
-        internal bool pendingOwner { get; set; }
+        internal bool pendingLocalPlayer { get; set; }
 
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.

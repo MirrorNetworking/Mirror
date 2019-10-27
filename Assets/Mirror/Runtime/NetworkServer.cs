@@ -1086,7 +1086,7 @@ namespace Mirror
                 SpawnPrefabMessage msg = new SpawnPrefabMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.identity == identity,
+                    isLocalPlayer = conn?.identity == identity,
                     assetId = identity.assetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1128,7 +1128,7 @@ namespace Mirror
                 SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
                 {
                     netId = identity.netId,
-                    owner = conn?.identity == identity,
+                    isLocalPlayer = conn?.identity == identity,
                     sceneId = identity.sceneId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
