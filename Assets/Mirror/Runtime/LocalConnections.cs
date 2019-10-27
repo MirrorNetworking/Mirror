@@ -55,7 +55,8 @@ namespace Mirror
         }
 
         internal void Update()
-        {                // process internal messages so they are applied at the correct time
+        {
+            // process internal messages so they are applied at the correct time
             while (packetQueue.Count > 0)
             {
                 byte[] packet = packetQueue.Dequeue();
