@@ -165,10 +165,10 @@ namespace Mirror
                     }
                 }
 
-                if (identity.authorityOwner != null)
+                if (identity.owner != null)
                 {
                     Rect ownerRect = new Rect(initialX, lastY + 10, 400, 20);
-                    GUI.Label(ownerRect, new GUIContent("Authority owner: " + identity.authorityOwner), styles.labelStyle);
+                    GUI.Label(ownerRect, new GUIContent("Owner: " + identity.owner.name), styles.labelStyle);
                 }
             }
         }
@@ -231,7 +231,7 @@ namespace Mirror
                 info.Add(GetBoolean("Is Client", identity.isClient));
                 info.Add(GetBoolean("Is Server", identity.isServer));
                 info.Add(GetBoolean("Is Local Player", identity.isLocalPlayer));
-                info.Add(GetBoolean("Has Authority", identity.hasAuthority));
+                info.Add(GetBoolean("Is Local Player Owned", identity.isLocalPlayerOwned));
 
                 NetworkBehaviour[] behaviours = gameObject.GetComponents<NetworkBehaviour>();
                 if (behaviours.Length > 0)

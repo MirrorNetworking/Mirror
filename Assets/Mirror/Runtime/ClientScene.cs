@@ -438,7 +438,7 @@ namespace Mirror
             return null;
         }
 
-        static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, ArraySegment<byte> payload, uint netId)
+        static void ApplySpawnPayload(NetworkIdentity identity, Vector3 position, Quaternion rotation, Vector3 scale, ArraySegment<byte> payload, uint netId, uint ownerNetId)
         {
             if (!identity.gameObject.activeSelf)
             {
@@ -460,6 +460,8 @@ namespace Mirror
 
             identity.netId = netId;
             NetworkIdentity.spawned[netId] = identity;
+
+            identity.ownerNetId = ownerNetId;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
@@ -488,7 +490,7 @@ namespace Mirror
             {
                 // this object already exists (was in the scene), just apply the update to existing object
                 localObject.Reset();
-                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
+                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId, msg.ownerNetId);
                 return;
             }
 
@@ -508,7 +510,7 @@ namespace Mirror
                 }
                 localObject.Reset();
                 localObject.pendingLocalPlayer = msg.isLocalPlayer;
-                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
+                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId, msg.ownerNetId);
             }
             // lookup registered factory for type:
             else if (spawnHandlers.TryGetValue(msg.assetId, out SpawnDelegate handler))
@@ -528,7 +530,7 @@ namespace Mirror
                 localObject.Reset();
                 localObject.pendingLocalPlayer = msg.isLocalPlayer;
                 localObject.assetId = msg.assetId;
-                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
+                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId, msg.ownerNetId);
             }
             else
             {
@@ -550,7 +552,7 @@ namespace Mirror
             {
                 // this object already exists (was in the scene)
                 localObject.Reset();
-                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
+                ApplySpawnPayload(localObject, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId, msg.ownerNetId);
                 return;
             }
 
@@ -572,7 +574,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name);
             spawnedId.Reset();
             spawnedId.pendingLocalPlayer = msg.isLocalPlayer;
-            ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId);
+            ApplySpawnPayload(spawnedId, msg.position, msg.rotation, msg.scale, msg.payload, msg.netId, msg.ownerNetId);
         }
 
         internal static void OnObjectSpawnStarted(NetworkConnection _, ObjectSpawnStartedMessage msg)

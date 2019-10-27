@@ -1009,9 +1009,10 @@ namespace Mirror
                 return;
             }
 
-            // Commands are only allowed for the connection's player or any of
-            // the owned objects. (e.g. pet)
-            if (identity.connectionToClient == conn || identity.connectionToOwner == conn)
+            // check if the NetworkIdentity truly belongs to this connection
+            // (or if its owner does, so that we can call [Commands] on pets too)
+            if (identity.connectionToClient == conn ||
+                (identity.owner != null && identity.owner.connectionToClient == conn))
             {
                 if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
                 identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
@@ -1071,6 +1072,7 @@ namespace Mirror
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
+                    ownerNetId = identity.ownerNetId,
                     assetId = identity.assetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1113,6 +1115,7 @@ namespace Mirror
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
+                    ownerNetId = identity.ownerNetId,
                     sceneId = identity.sceneId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1224,17 +1227,17 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Spawn the given game object on all clients which are ready and set owner connection so that [Command]s can be called from that connection on that object too.
+        /// Spawn the given game object on all clients which are ready and set owner so that [Command]s can be called from the owner connection on that object too.
         /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        /// <param name="ownerConnection">NetworkConnection of the owner.</param>
-        public static void SpawnWithOwner(GameObject obj, NetworkConnection ownerConnection)
+        /// <param name="owner">The owner NetworkIdentity. This is the player when spawning a player's pet.</param>
+        public static void SpawnWithOwner(GameObject obj, NetworkIdentity owner)
         {
             if (VerifyCanSpawn(obj))
             {
                 SpawnObject(obj);
-                obj.GetComponent<NetworkIdentity>().connectionToOwner = ownerConnection;
+                obj.GetComponent<NetworkIdentity>().ownerNetId = owner.netId;
             }
         }
 

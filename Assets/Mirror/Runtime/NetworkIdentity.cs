@@ -112,16 +112,26 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToClient { get; internal set; }
 
-        // IMPORTANT: we use a separate .connectionToOwner for owned objects,
-        //            because setting .connectionToClient would cause updates to
-        //            be sent to the owner connection twice (once for player,
-        //            once for pet etc.).
-        //
+        // owner netId
+        // => better than saving a NetworkConnection which would only be
+        //    be available on the server
+        // => better than saving a NetworkIdentity which would be null on the
+        //    client if the owner walks out of proximity once
+        // => netId never changes, and lookup is != null whenever owner is
+        //    around!
+        // => can be used by game scripts to identity Pet.owner easily!
+        internal uint ownerNetId = 0;
+
         /// <summary>
-        /// The NetworkConnection associated with the owner of this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player owned objects on the server (e.g. pets).
-        /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
+        /// The owner of this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player owned objects (e.g. pets) on the server and on the client.
         /// </summary>
-        public NetworkConnection connectionToOwner { get; internal set; }
+        public NetworkIdentity owner =>
+            spawned.TryGetValue(ownerNetId, out NetworkIdentity result) ? result : null;
+
+        /// <summary>
+        /// This returns true if this object is owned by the player on the local machine.
+        /// </summary>
+        public bool isLocalPlayerOwned => owner != null && owner.isLocalPlayer;
 
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.

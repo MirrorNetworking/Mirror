@@ -316,6 +316,7 @@ namespace Mirror
     {
         public uint netId;
         public bool isLocalPlayer;
+        public uint ownerNetId;
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
@@ -328,6 +329,7 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             isLocalPlayer = reader.ReadBoolean();
+            ownerNetId = reader.ReadPackedUInt32();
             assetId = reader.ReadGuid();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -339,6 +341,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
+            writer.WritePackedUInt32(ownerNetId);
             writer.WriteGuid(assetId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
@@ -351,6 +354,7 @@ namespace Mirror
     {
         public uint netId;
         public bool isLocalPlayer;
+        public uint ownerNetId;
         public ulong sceneId;
         public Vector3 position;
         public Quaternion rotation;
@@ -363,6 +367,7 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             isLocalPlayer = reader.ReadBoolean();
+            ownerNetId = reader.ReadPackedUInt32();
             sceneId = reader.ReadUInt64();
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
@@ -374,6 +379,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
+            writer.WritePackedUInt32(ownerNetId);
             writer.WriteUInt64(sceneId);
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
