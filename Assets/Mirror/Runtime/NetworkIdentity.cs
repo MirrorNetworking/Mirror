@@ -248,12 +248,6 @@ namespace Mirror
         internal void SetNotLocalPlayer()
         {
             isLocalPlayer = false;
-
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
             hasAuthority = false;
         }
 
