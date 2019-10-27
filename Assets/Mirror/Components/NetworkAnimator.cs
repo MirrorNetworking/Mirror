@@ -34,6 +34,7 @@ namespace Mirror
         int[] transitionHash;
         float sendTimer;
 
+        [Tooltip("Set to true if animations come from owner client,  set to false if animations always come from server")]
         public bool clientAuthority;
 
         bool sendMessagesAllowed
