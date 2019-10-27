@@ -26,18 +26,21 @@ namespace Mirror
             return true;
         }
 
-        public override void Disconnect()
+        internal void DisconnectInternal()
         {
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            ClientScene.HandleClientDisconnect(this);
-
-            // send the disconnect message to the local connection
-            NetworkClient.connectState = ConnectState.Disconnected;
-            InvokeHandler(new DisconnectMessage(), -1);
-
             RemoveObservers();
+        }
+
+        /// <summary>
+        /// Disconnects this connection.
+        /// </summary>
+        public override void Disconnect()
+        {
+            DisconnectInternal();
+            connectionToServer.DisconnectInternal();
         }
     }
 
@@ -77,6 +80,26 @@ namespace Mirror
                 // to avoid deceptive / misleading behavior differences
                 TransportReceive(new ArraySegment<byte>(packet), Channels.DefaultReliable);
             }
+        }
+
+        /// <summary>
+        /// Disconnects this connection.
+        /// </summary>
+        internal void DisconnectInternal()
+        {
+            // set not ready and handle clientscene disconnect in any case
+            // (might be client or host mode here)
+            isReady = false;
+            ClientScene.HandleClientDisconnect(this);
+        }
+
+        /// <summary>
+        /// Disconnects this connection.
+        /// </summary>
+        public override void Disconnect()
+        {
+            connectionToClient.DisconnectInternal();
+            DisconnectInternal();
         }
     }
 }
