@@ -34,17 +34,18 @@ namespace Mirror
         int[] transitionHash;
         float sendTimer;
 
+        public bool clientAuthority;
+
         bool sendMessagesAllowed
         {
             get
             {
                 if (isServer)
                 {
-                    if (!localPlayerAuthority)
+                    if (!clientAuthority)
                         return true;
 
-                    // This is a special case where we have localPlayerAuthority set
-                    // on a NetworkIdentity but we have not assigned the client who has
+                    // This is a special case where we have client authority but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
                     //
                     // So we check here for a clientAuthorityOwner and if it is null we will
@@ -360,7 +361,7 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
-            if (hasAuthority && localPlayerAuthority)
+            if (hasAuthority && clientAuthority)
             {
                 if (ClientScene.readyConnection != null)
                 {
@@ -369,7 +370,7 @@ namespace Mirror
                 return;
             }
 
-            if (isServer && !localPlayerAuthority)
+            if (isServer && !clientAuthority)
             {
                 RpcOnAnimationTriggerClientMessage(hash);
             }

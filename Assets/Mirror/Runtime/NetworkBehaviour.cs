@@ -37,11 +37,6 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
 
         /// <summary>
-        /// This value is set on the NetworkIdentity and is accessible here for convenient access for scripts.
-        /// </summary>
-        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
-
-        /// <summary>
         /// Returns true if this object is active on an active server.
         /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
         /// </summary>
