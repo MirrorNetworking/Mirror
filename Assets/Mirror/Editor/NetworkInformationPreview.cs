@@ -165,10 +165,10 @@ namespace Mirror
                     }
                 }
 
-                if (identity.clientAuthorityOwner != null)
+                if (identity.connectionToClient != null)
                 {
                     Rect ownerRect = new Rect(initialX, lastY + 10, 400, 20);
-                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.clientAuthorityOwner), styles.labelStyle);
+                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
                 }
             }
         }
