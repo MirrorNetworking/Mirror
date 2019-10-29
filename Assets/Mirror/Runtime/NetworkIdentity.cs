@@ -80,7 +80,7 @@ namespace Mirror
         /// <para>This value is determined at runtime, as opposed to localPlayerAuthority which is set on the prefab. For most objects, authority is held by the server / host. For objects with localPlayerAuthority set, authority is held by the client of that player.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        public bool hasAuthority { get; private set; }
+        public bool hasAuthority { get; internal set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
@@ -219,25 +219,6 @@ namespace Mirror
         /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
         public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
-
-        /// <summary>
-        /// Obsolete: Host Migration was removed
-        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
-        /// <para>This callback is used by the NetworkMigrationManager to distribute client authority state to peers for host migration. If the NetworkMigrationManager is not being used, this callback does not need to be populated.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
-        public static ClientAuthorityCallback clientAuthorityCallback;
-
-        // used when the player object for a connection changes
-        internal void SetNotLocalPlayer()
-        {
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
-            hasAuthority = false;
-        }
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -1071,9 +1052,6 @@ namespace Mirror
             };
 
             connectionToClient.Send(msg);
-#pragma warning disable CS0618 // Type or member is obsolete
-            clientAuthorityCallback?.Invoke(connectionToClient, this, false);
-#pragma warning restore CS0618 // Type or member is obsolete
             connectionToClient = null;
 
             OnStopAuthority();
@@ -1116,9 +1094,6 @@ namespace Mirror
             };
             conn.Send(msg);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            clientAuthorityCallback?.Invoke(conn, this, true);
-#pragma warning restore CS0618 // Type or member is obsolete
             return true;
         }
 

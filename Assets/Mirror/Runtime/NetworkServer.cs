@@ -876,12 +876,6 @@ namespace Mirror
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
-            // is there already an owner that is a different object??
-            if (conn.identity != null)
-            {
-                conn.identity.SetNotLocalPlayer();
-            }
-
             conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
@@ -1077,6 +1071,7 @@ namespace Mirror
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
+                    hasAuthority = conn == identity.connectionToClient,
                     assetId = identity.assetId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1119,6 +1114,7 @@ namespace Mirror
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
+                    hasAuthority = conn == identity.connectionToClient,
                     sceneId = identity.sceneId,
                     // use local values for VR support
                     position = identity.transform.localPosition,
@@ -1252,16 +1248,18 @@ namespace Mirror
                 return false;
             }
 
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            identity.connectionToClient = conn;
+
             Spawn(obj);
 
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
             if (identity == null || !identity.isServer)
             {
                 // spawning the object failed.
                 return false;
             }
 
-            return identity.AssignClientAuthority(conn);
+            return true;
         }
 
         /// <summary>
@@ -1274,16 +1272,18 @@ namespace Mirror
         /// <returns></returns>
         public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
         {
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+
+            identity.connectionToClient = conn;
             Spawn(obj, assetId);
 
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
             if (identity == null || !identity.isServer)
             {
                 // spawning the object failed.
                 return false;
             }
 
-            return identity.AssignClientAuthority(conn);
+            return true;
         }
 
         /// <summary>
