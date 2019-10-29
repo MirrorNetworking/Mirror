@@ -840,6 +840,8 @@ namespace Mirror
             OnDeserializeAllSafely(reader, initialState);
         }
 
+        // Set this object as the local player and call the hooks
+        // note this is client side only.
         internal void SetLocalPlayer()
         {
             // There is an ordering issue here that originAuthority solves:
