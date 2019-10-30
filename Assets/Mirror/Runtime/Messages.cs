@@ -345,7 +345,7 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
             writer.WritePackedUInt64(sceneId);
-            if (sceneId > 0)
+            if (sceneId != 0)
             {
                 writer.WriteGuid(assetId);
             }
