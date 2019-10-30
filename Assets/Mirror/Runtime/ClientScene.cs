@@ -719,7 +719,7 @@ namespace Mirror
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                identity.HandleClientAuthority(msg.authority);
+                identity.ForceAuthority(msg.authority);
             }
         }
 

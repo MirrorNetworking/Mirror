@@ -9,10 +9,8 @@ namespace Mirror
     public class NetworkIdentityEditor : Editor
     {
         SerializedProperty serverOnlyProperty;
-        SerializedProperty localPlayerAuthorityProperty;
 
         readonly GUIContent serverOnlyLabel = new GUIContent("Server Only", "True if the object should only exist on the server.");
-        readonly GUIContent localPlayerAuthorityLabel = new GUIContent("Local Player Authority", "True if this object will be controlled by a player on a client.");
         readonly GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
 
         NetworkIdentity networkIdentity;
@@ -25,7 +23,6 @@ namespace Mirror
                 networkIdentity = target as NetworkIdentity;
 
                 serverOnlyProperty = serializedObject.FindProperty("serverOnly");
-                localPlayerAuthorityProperty = serializedObject.FindProperty("localPlayerAuthority");
             }
         }
 
@@ -35,21 +32,7 @@ namespace Mirror
 
             serializedObject.Update();
 
-            if (serverOnlyProperty.boolValue)
-            {
-                EditorGUILayout.PropertyField(serverOnlyProperty, serverOnlyLabel);
-                EditorGUILayout.LabelField("Local Player Authority cannot be set for server-only objects");
-            }
-            else if (localPlayerAuthorityProperty.boolValue)
-            {
-                EditorGUILayout.LabelField("Server Only cannot be set for Local Player Authority objects");
-                EditorGUILayout.PropertyField(localPlayerAuthorityProperty, localPlayerAuthorityLabel);
-            }
-            else
-            {
-                EditorGUILayout.PropertyField(serverOnlyProperty, serverOnlyLabel);
-                EditorGUILayout.PropertyField(localPlayerAuthorityProperty, localPlayerAuthorityLabel);
-            }
+            EditorGUILayout.PropertyField(serverOnlyProperty, serverOnlyLabel);
 
             serializedObject.ApplyModifiedProperties();
 

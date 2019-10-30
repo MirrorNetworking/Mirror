@@ -821,10 +821,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
             FinishPlayerForConnection(identity, player);
-            if (identity.localPlayerAuthority)
-            {
-                identity.SetClientOwner(conn);
-            }
+            identity.SetClientOwner(conn);
             return true;
         }
 
@@ -910,10 +907,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
             FinishPlayerForConnection(identity, player);
-            if (identity.localPlayerAuthority)
-            {
-                identity.SetClientOwner(conn);
-            }
+            identity.SetClientOwner(conn);
             return true;
         }
 
