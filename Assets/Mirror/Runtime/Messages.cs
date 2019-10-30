@@ -330,7 +330,7 @@ namespace Mirror
             netId = reader.ReadPackedUInt32();
             isLocalPlayer = reader.ReadBoolean();
             sceneId = reader.ReadPackedUInt64();
-            if (sceneId != 0)
+            if (sceneId == 0)
             {
                 assetId = reader.ReadGuid();
             }
@@ -345,7 +345,7 @@ namespace Mirror
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
             writer.WritePackedUInt64(sceneId);
-            if (sceneId != 0)
+            if (sceneId == 0)
             {
                 writer.WriteGuid(assetId);
             }
