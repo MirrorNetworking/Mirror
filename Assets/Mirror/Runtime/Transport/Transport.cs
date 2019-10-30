@@ -26,12 +26,10 @@ namespace Mirror
         /// Is this transport available in the current platform?
         /// <para>Some transports might only be available in mobile</para>
         /// <para>Many will not work in webgl</para>
+        /// <para>Example usage: return Application.platform == RuntimePlatform.WebGLPlayer</para>
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
-        public virtual bool Available()
-        {
-            return Application.platform != RuntimePlatform.WebGLPlayer;
-        }
+        public abstract bool Available();
 
         #region Client
         /// <summary>

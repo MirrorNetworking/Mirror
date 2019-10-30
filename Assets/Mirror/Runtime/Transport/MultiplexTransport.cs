@@ -24,6 +24,19 @@ namespace Mirror
             InitServer();
         }
 
+        public override bool Available()
+        {
+            // available if any of the transports is available
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         #region Client
         // clients always pick the first transport
         void InitClient()
