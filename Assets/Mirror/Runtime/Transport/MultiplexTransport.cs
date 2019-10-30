@@ -26,8 +26,15 @@ namespace Mirror
 
         public override bool Available()
         {
-            // the whole point of Multiplexing is to be available everywhere
-            return true;
+            // available if any of the transports is available
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #region Client
