@@ -505,15 +505,14 @@ namespace Mirror
             ApplySpawnPayload(identity, msg);
         }
 
-        private static NetworkIdentity GetExistingObject(uint netid)
+        static NetworkIdentity GetExistingObject(uint netid)
         {
             NetworkIdentity.spawned.TryGetValue(netid, out NetworkIdentity localObject);
             return localObject;
         }
 
-        private static NetworkIdentity SpawnPrefab(SpawnMessage msg)
+        static NetworkIdentity SpawnPrefab(SpawnMessage msg)
         {
-
             if (GetPrefab(msg.assetId, out GameObject prefab))
             {
                 GameObject obj = Object.Instantiate(prefab, msg.position, msg.rotation);
@@ -542,7 +541,7 @@ namespace Mirror
             }
         }
 
-        internal static NetworkIdentity SpawnSceneObject(SpawnMessage msg)
+        static NetworkIdentity SpawnSceneObject(SpawnMessage msg)
         {
             NetworkIdentity spawnedId = SpawnSceneObject(msg.sceneId);
             if (spawnedId == null)
