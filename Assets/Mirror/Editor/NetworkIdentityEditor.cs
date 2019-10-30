@@ -14,28 +14,20 @@ namespace Mirror
         readonly GUIContent spawnLabel = new GUIContent("Spawn Object", "This causes an unspawned server object to be spawned on clients");
 
         NetworkIdentity networkIdentity;
-        bool initialized;
         bool showObservers;
 
         void Init()
         {
-            if (initialized)
+            if (serverOnlyProperty == null)
             {
-                return;
-            }
-            initialized = true;
-            networkIdentity = target as NetworkIdentity;
+                networkIdentity = target as NetworkIdentity;
 
-            serverOnlyProperty = serializedObject.FindProperty("serverOnly");
+                serverOnlyProperty = serializedObject.FindProperty("serverOnly");
+            }
         }
 
         public override void OnInspectorGUI()
         {
-            if (serverOnlyProperty == null)
-            {
-                initialized = false;
-            }
-
             Init();
 
             serializedObject.Update();
