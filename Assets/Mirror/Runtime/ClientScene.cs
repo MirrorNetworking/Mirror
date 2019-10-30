@@ -523,8 +523,7 @@ namespace Mirror
 
                 return obj.GetComponent<NetworkIdentity>();
             }
-            // lookup registered factory for type:
-            else if (spawnHandlers.TryGetValue(msg.assetId, out SpawnDelegate handler))
+            if (spawnHandlers.TryGetValue(msg.assetId, out SpawnDelegate handler))
             {
                 GameObject obj = handler(msg.position, msg.assetId);
                 if (obj == null)
@@ -534,11 +533,8 @@ namespace Mirror
                 }
                 return obj.GetComponent<NetworkIdentity>();
             }
-            else
-            {
-                Debug.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId);
-                return null;
-            }
+            Debug.LogError("Failed to spawn server object, did you forget to add it to the NetworkManager? assetId=" + msg.assetId + " netId=" + msg.netId);
+            return null;
         }
 
         static NetworkIdentity SpawnSceneObject(SpawnMessage msg)
