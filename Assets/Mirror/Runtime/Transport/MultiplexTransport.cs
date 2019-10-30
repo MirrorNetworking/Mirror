@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -138,7 +137,15 @@ namespace Mirror
 
         public override bool ServerActive()
         {
-            return transports.All(t => t.ServerActive());
+            // avoid Linq.All allocations
+            foreach (Transport transport in transports)
+            {
+                if (!transport.ServerActive())
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override string ServerGetClientAddress(int connectionId)
