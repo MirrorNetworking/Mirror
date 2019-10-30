@@ -24,6 +24,12 @@ namespace Mirror
             InitServer();
         }
 
+        public override bool Available()
+        {
+            // the whole point of Multiplexing is to be available everywhere
+            return true;
+        }
+
         #region Client
         // clients always pick the first transport
         void InitClient()
