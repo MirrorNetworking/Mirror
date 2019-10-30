@@ -72,6 +72,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.LogWarning("ClientScene.InternalAddPlayer");
 
+            localPlayer = identity;
             // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
             // But, the player structures are not cleaned up, we'll just replace the old player
             if (readyConnection != null)
