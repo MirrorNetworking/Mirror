@@ -507,11 +507,8 @@ namespace Mirror
 
         private static NetworkIdentity GetExistingObject(uint netid)
         {
-            if (NetworkIdentity.spawned.TryGetValue(netid, out NetworkIdentity localObject))
-            {
-                return localObject;
-            }
-            return null;
+            NetworkIdentity.spawned.TryGetValue(netid, out NetworkIdentity localObject);
+            return localObject;
         }
 
         private static NetworkIdentity SpawnPrefab(SpawnMessage msg)
