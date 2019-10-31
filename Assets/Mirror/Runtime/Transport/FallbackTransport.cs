@@ -19,7 +19,7 @@ namespace Mirror
         {
             if (transports == null || transports.Length == 0)
             {
-                Debug.LogError("FallbackTransport requires at least 1 underlying transport");
+                throw new Exception("FallbackTransport requires at least 1 underlying transport");
             }
             InitClient();
             InitServer();
