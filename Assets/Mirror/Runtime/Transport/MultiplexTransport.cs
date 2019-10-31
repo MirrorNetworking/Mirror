@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -23,6 +22,19 @@ namespace Mirror
             }
             InitClient();
             InitServer();
+        }
+
+        public override bool Available()
+        {
+            // available if any of the transports is available
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #region Client
@@ -138,7 +150,15 @@ namespace Mirror
 
         public override bool ServerActive()
         {
-            return transports.All(t => t.ServerActive());
+            // avoid Linq.All allocations
+            foreach (Transport transport in transports)
+            {
+                if (!transport.ServerActive())
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override string ServerGetClientAddress(int connectionId)
