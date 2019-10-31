@@ -1096,6 +1096,8 @@ namespace Mirror
             };
             conn.Send(msg);
 
+            OnStartAuthority();
+
             return true;
         }
 
