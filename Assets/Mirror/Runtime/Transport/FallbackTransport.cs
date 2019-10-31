@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [HelpURL("https://mirror-networking.com/docs/Transports/Multiplexer.html")]
     public class FallbackTransport : Transport
     {
         public Transport[] transports;
