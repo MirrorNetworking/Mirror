@@ -1077,7 +1077,7 @@ namespace Mirror
             // 'identity' is a prefab that should be spawned
             if (identity.sceneId == 0)
             {
-                SpawnPrefabMessage msg = new SpawnPrefabMessage
+                SpawnMessage msg = new SpawnMessage
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,
@@ -1119,7 +1119,7 @@ namespace Mirror
             // 'identity' is a scene object that should be spawned again
             else
             {
-                SpawnSceneObjectMessage msg = new SpawnSceneObjectMessage
+                SpawnMessage msg = new SpawnMessage
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn?.identity == identity,

@@ -312,10 +312,11 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    public struct SpawnPrefabMessage : IMessageBase
+    public struct SpawnMessage : IMessageBase
     {
         public uint netId;
         public bool isLocalPlayer;
+        public ulong sceneId;
         public Guid assetId;
         public Vector3 position;
         public Quaternion rotation;
@@ -328,7 +329,11 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             isLocalPlayer = reader.ReadBoolean();
-            assetId = reader.ReadGuid();
+            sceneId = reader.ReadPackedUInt64();
+            if (sceneId == 0)
+            {
+                assetId = reader.ReadGuid();
+            }
             position = reader.ReadVector3();
             rotation = reader.ReadQuaternion();
             scale = reader.ReadVector3();
@@ -339,42 +344,11 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
-            writer.WriteGuid(assetId);
-            writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
-            writer.WriteVector3(scale);
-            writer.WriteBytesAndSizeSegment(payload);
-        }
-    }
-
-    public struct SpawnSceneObjectMessage : IMessageBase
-    {
-        public uint netId;
-        public bool isLocalPlayer;
-        public ulong sceneId;
-        public Vector3 position;
-        public Quaternion rotation;
-        public Vector3 scale;
-        // the serialized component data
-        // -> ArraySegment to avoid unnecessary allocations
-        public ArraySegment<byte> payload;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            isLocalPlayer = reader.ReadBoolean();
-            sceneId = reader.ReadUInt64();
-            position = reader.ReadVector3();
-            rotation = reader.ReadQuaternion();
-            scale = reader.ReadVector3();
-            payload = reader.ReadBytesAndSizeSegment();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(isLocalPlayer);
-            writer.WriteUInt64(sceneId);
+            writer.WritePackedUInt64(sceneId);
+            if (sceneId == 0)
+            {
+                writer.WriteGuid(assetId);
+            }
             writer.WriteVector3(position);
             writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);
