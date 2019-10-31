@@ -1019,7 +1019,7 @@ namespace Mirror
             identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
-        internal static void SpawnObject(GameObject obj)
+        internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection = null)
         {
             if (!active)
             {
@@ -1034,13 +1034,12 @@ namespace Mirror
                 return;
             }
             identity.Reset();
-
+            identity.connectionToClient = ownerConnection;
             identity.OnStartServer(false);
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
             identity.RebuildObservers(true);
-            //SendSpawnMessage(objNetworkIdentity, null);
         }
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
@@ -1272,18 +1271,16 @@ namespace Mirror
         /// <returns></returns>
         public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
         {
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
 
-            identity.connectionToClient = conn;
-            Spawn(obj, assetId);
-
-            if (identity == null || !identity.isServer)
+            if (VerifyCanSpawn(obj))
             {
-                // spawning the object failed.
-                return false;
+                NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+                identity.connectionToClient = conn;
+                identity.assetId = assetId;
+                SpawnObject(obj, conn);
+                return true;
             }
-
-            return true;
+            return false;
         }
 
         /// <summary>
