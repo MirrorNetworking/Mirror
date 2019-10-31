@@ -441,7 +441,6 @@ namespace Mirror
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             identity.Reset();
-            identity.pendingLocalPlayer = msg.isLocalPlayer;
             identity.assetId = msg.assetId;
 
             if (msg.isLocalPlayer)
