@@ -25,16 +25,16 @@ using UnityEngine;
 using System.Collections;
 using Mirror;
 
+public enum EquippedItem : byte
+{
+    nothing,
+    ball,
+    box,
+    cylinder
+}
+
 public class PlayerEquip : NetworkBehaviour
 {
-    public enum EquippedItem : byte
-    {
-        nothing,
-        ball,
-        box,
-        cylinder
-    }
-
     public GameObject sceneObjectPrefab;
 
     public GameObject rightHand;
