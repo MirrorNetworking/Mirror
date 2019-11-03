@@ -467,7 +467,11 @@ namespace Mirror
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             identity.Reset();
-            identity.pendingLocalPlayer = msg.isLocalPlayer;
+
+            if (msg.isLocalPlayer)
+                localPlayer = identity;
+
+
             identity.assetId = msg.assetId;
 
             if (!identity.gameObject.activeSelf)
@@ -494,6 +498,12 @@ namespace Mirror
             }
 
             NetworkIdentity.spawned[msg.netId] = identity;
+
+            // is this supposed to be the local player?
+            if (msg.isLocalPlayer)
+            {
+                OnSpawnMessageForLocalPlayer(identity);
+            }
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
@@ -602,6 +612,7 @@ namespace Mirror
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
             }
+            CheckForLocalPlayer();
             isSpawnFinished = true;
         }
 
@@ -716,7 +727,7 @@ namespace Mirror
 
         static void CheckForLocalPlayer(NetworkIdentity identity)
         {
-            if (identity.pendingLocalPlayer)
+            if (identity != null)
             {
                 if (readyConnection.identity != null && readyConnection.identity != identity)
                 {
@@ -729,8 +740,7 @@ namespace Mirror
                 identity.SetLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-
-                identity.pendingLocalPlayer = false;
+                InternalAddPlayer(identity);
             }
         }
     }
