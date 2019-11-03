@@ -1,5 +1,21 @@
 # Change Log
 
+## Version 5.0.2 - 2019-Nov-03
+- Added: SyncList and SyncSet custom Equality Comparer support
+- Added: Custom serializers may be implemented for any type in Cmd's and Rpc's
+- Added: Fallback Transport...docs coming soon
+- Fixed: SyncVar hooks are no longer called in Host if no change
+- Fixed: NetworkIdentity no longer throws a null reference exception in RemoveClientAuthority
+- Fixed: Server transport now suspended during scene change to prevent erroneous messages
+- Fixed: SyncList, SyncDictionary and SyncSet now use a custom IEnumerator to avoid memory allocation
+- Fixed: sceneID is no longer reset in certain cases when editing a prefab
+- Changed: PreprocessorDefine code moved to CompilerSymbols folder to avoid paradox of missing symbols preventing the symbols being added to the project.
+- Changed: Host player no longer gets authority assigned to all objects by default
+- Changed: Commands no longer bypass serialization for Host player, making debugging easier
+- Changed: Local connections now maintain their own message queue
+- Changed: Transport.Available is now abstract
+- Removed: Network Identity: Local Player Authority has been removed as no longer necessary
+
 ## Version 4.0.7 - 2019-Oct-03
 - Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information
