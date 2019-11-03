@@ -456,13 +456,31 @@ namespace Mirror
                 m_SceneId = 0; // force 0 for prefabs
                 AssignAssetID(gameObject);
             }
-            // check prefabstage BEFORE SceneObjectWithPrefabParent
-            // (fixes https://github.com/vis2k/Mirror/issues/976)
+            // are we currently in prefab editing mode? aka prefab stage
+            // => check prefabstage BEFORE SceneObjectWithPrefabParent
+            //    (fixes https://github.com/vis2k/Mirror/issues/976)
+            // => if we don't check GetCurrentPrefabStage and only check
+            //    GetPrefabStage(gameObject), then the 'else' case where we
+            //    assign a sceneId and clear the assetId would still be
+            //    triggered for prefabs. in other words: if we are in prefab
+            //    stage, do not bother with anything else ever!
             else if (PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
-                m_SceneId = 0; // force 0 for prefabs
-                string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
-                AssignAssetID(path);
+                // when modifying a prefab in prefab stage, Unity calls
+                // OnValidate for that prefab and for all scene objects based on
+                // that prefab.
+                //
+                // is this GameObject the prefab that we modify, and not just a
+                // scene object based on the prefab?
+                //   * GetCurrentPrefabStage = 'are we editing ANY prefab?'
+                //   * GetPrefabStage(go) = 'are we editing THIS prefab?'
+                if (PrefabStageUtility.GetPrefabStage(gameObject) != null)
+                {
+                    m_SceneId = 0; // force 0 for prefabs
+                    //Debug.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
+                    string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
+                    AssignAssetID(path);
+                }
             }
             else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
             {
