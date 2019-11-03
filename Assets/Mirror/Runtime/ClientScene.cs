@@ -441,7 +441,10 @@ namespace Mirror
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             identity.Reset();
-            identity.pendingLocalPlayer = msg.isLocalPlayer;
+
+            if (msg.isLocalPlayer)
+                localPlayer = identity;
+
             identity.assetId = msg.assetId;
 
             if (!identity.gameObject.activeSelf)
@@ -469,7 +472,8 @@ namespace Mirror
             if (isSpawnFinished)
             {
                 identity.OnStartClient();
-                CheckForLocalPlayer(identity);
+                if (msg.isLocalPlayer)
+                    CheckForLocalPlayer();
             }
         }
 
@@ -576,9 +580,9 @@ namespace Mirror
                 if (!identity.isClient)
                 {
                     identity.OnStartClient();
-                    CheckForLocalPlayer(identity);
                 }
             }
+            CheckForLocalPlayer();
             isSpawnFinished = true;
         }
 
@@ -701,12 +705,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnSpawnMessageForLocalPlayer - " + readyConnection + " netId: " + netId);
 
-            // is there already an owner that is a different object??
-            if (readyConnection.identity != null)
-            {
-                readyConnection.identity.SetNotLocalPlayer();
-            }
-
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
                 // this object already exists
@@ -716,20 +714,16 @@ namespace Mirror
             }
         }
 
-        static void CheckForLocalPlayer(NetworkIdentity identity)
+        static void CheckForLocalPlayer()
         {
-            if (identity.pendingLocalPlayer)
+            if (localPlayer != null)
             {
-                // supposed to be local player, so make it the local player!
-
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                identity.connectionToServer = readyConnection;
-                identity.SetLocalPlayer();
+                localPlayer.connectionToServer = readyConnection;
+                localPlayer.SetLocalPlayer();
 
-                if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-                InternalAddPlayer(identity);
-
-                identity.pendingLocalPlayer = false;
+                if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + localPlayer.name);
+                InternalAddPlayer(localPlayer);
             }
         }
     }
