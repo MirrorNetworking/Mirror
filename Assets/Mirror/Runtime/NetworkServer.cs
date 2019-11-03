@@ -895,7 +895,7 @@ namespace Mirror
             if (conn.identity != null)
             {
                 conn.identity.SetNotLocalPlayer();
-                conn.identity.clientAuthorityOwner = null;
+                conn.identity.connectionToClient = null;
             }
 
             conn.identity = identity;
@@ -1031,13 +1031,10 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            if (conn.identity != null && conn.identity.netId != identity.netId)
+            if (identity.connectionToClient != conn)
             {
-                if (identity.clientAuthorityOwner != conn)
-                {
-                    Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
-                    return;
-                }
+                Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
+                return;
             }
 
             if (LogFilter.Debug) Debug.Log("OnCommandMessage for netId=" + msg.netId + " conn=" + conn);
@@ -1310,7 +1307,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.netId);
             NetworkIdentity.spawned.Remove(identity.netId);
 
-            identity.clientAuthorityOwner?.RemoveOwnedObject(identity);
+            identity.connectionToClient?.RemoveOwnedObject(identity);
 
             ObjectDestroyMessage msg = new ObjectDestroyMessage
             {

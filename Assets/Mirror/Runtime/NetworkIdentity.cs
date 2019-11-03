@@ -109,10 +109,10 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
-        /// The client that has authority for this object. This will be null if no client has authority.
-        /// <para>This is set for player objects with localPlayerAuthority, and for objects set with AssignClientAuthority, and spawned with SpawnWithClientAuthority.</para>
+        /// Obsolete: Use connectionToClient instead
         /// </summary>
-        public NetworkConnectionToClient clientAuthorityOwner { get; internal set; }
+        [Obsolete("Use connectionToClient instead")]
+        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
 
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
@@ -120,7 +120,7 @@ namespace Mirror
         public NetworkConnection connectionToServer { get; internal set; }
 
         /// <summary>
-        /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
+        /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
         public NetworkConnectionToClient connectionToClient { get; internal set; }
@@ -186,12 +186,12 @@ namespace Mirror
         // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
-            if (clientAuthorityOwner != null)
+            if (connectionToClient != null && conn != connectionToClient)
             {
-                Debug.LogError("SetClientOwner m_ClientAuthorityOwner already set!");
+                Debug.LogError($"Object {this} netId={netId} already has an owner", this);
             }
-            clientAuthorityOwner = (NetworkConnectionToClient)conn;
-            clientAuthorityOwner.AddOwnedObject(this);
+            connectionToClient = (NetworkConnectionToClient)conn;
+            connectionToClient.AddOwnedObject(this);
         }
 
         internal void ForceAuthority(bool authority)
@@ -1088,13 +1088,13 @@ namespace Mirror
                 return;
             }
 
-            if (connectionToClient != null)
+            if (connectionToClient?.identity == this)
             {
                 Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
                 return;
             }
 
-            if (clientAuthorityOwner != null)
+            if (connectionToClient != null)
             {
                 // send msg to that client
                 ClientAuthorityMessage msg = new ClientAuthorityMessage
@@ -1103,13 +1103,13 @@ namespace Mirror
                     authority = false
                 };
 
-                clientAuthorityOwner.Send(msg);
+                connectionToClient.Send(msg);
 #pragma warning disable CS0618 // Type or member is obsolete
-                clientAuthorityCallback?.Invoke(clientAuthorityOwner, this, false);
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
 #pragma warning restore CS0618 // Type or member is obsolete
 
-                clientAuthorityOwner.RemoveOwnedObject(this);
-                clientAuthorityOwner = null;
+                connectionToClient.RemoveOwnedObject(this);
+                connectionToClient = null;
             }
 
             // server now has authority (this is only called on server)
@@ -1131,7 +1131,7 @@ namespace Mirror
                 return false;
             }
 
-            if (clientAuthorityOwner != null && conn != clientAuthorityOwner)
+            if (connectionToClient != null && conn != connectionToClient)
             {
                 Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
                 return false;
@@ -1143,11 +1143,7 @@ namespace Mirror
                 return false;
             }
 
-            clientAuthorityOwner = (NetworkConnectionToClient)conn;
-            clientAuthorityOwner.AddOwnedObject(this);
-
-            // server no longer has authority (this is called on server). Note that local client could re-acquire authority below
-            ForceAuthority(false);
+            SetClientOwner(conn);
 
             // send msg to that client
             ClientAuthorityMessage msg = new ClientAuthorityMessage
@@ -1186,7 +1182,6 @@ namespace Mirror
             networkBehavioursCache = null;
 
             ClearObservers();
-            clientAuthorityOwner = null;
         }
 
         // MirrorUpdate is a hot path. Caching the vars msg is really worth it to
