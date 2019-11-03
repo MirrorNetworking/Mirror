@@ -404,6 +404,18 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Register a handler for a particular message type.
+        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
+        /// </summary>
+        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <param name="handler"></param>
+        /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
+        public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        {
+            RegisterHandler( (NetworkConnection _, T value) => { handler(value); }, requireAuthentication) ;
+        }
+
+        /// <summary>
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
