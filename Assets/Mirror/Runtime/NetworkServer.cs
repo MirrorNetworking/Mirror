@@ -592,7 +592,7 @@ namespace Mirror
             {
                 if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
             }
-            handlers[msgType] = MessagePacker.MessageHandler<T>(handler, requireAuthentication);
+            handlers[msgType] = MessagePacker.MessageHandler(handler, requireAuthentication);
         }
 
         /// <summary>
