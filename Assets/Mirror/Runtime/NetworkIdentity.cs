@@ -106,6 +106,9 @@ namespace Mirror
         [FormerlySerializedAs("m_ServerOnly")]
         public bool serverOnly;
 
+        /// <summary>
+        /// Obsolete: Use connectionToClient instead
+        /// </summary>
         [Obsolete("Use connectionToClient instead")]
         public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
 
