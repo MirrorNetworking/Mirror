@@ -106,6 +106,9 @@ namespace Mirror
         [FormerlySerializedAs("m_ServerOnly")]
         public bool serverOnly;
 
+        [Obsolete("Use connectionToClient instead")]
+        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
+
         /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
@@ -116,9 +119,6 @@ namespace Mirror
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
         public NetworkConnectionToClient connectionToClient { get; internal set; }
-
-        [Obsolete("Use connectionToClient instead")]
-        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
 
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
