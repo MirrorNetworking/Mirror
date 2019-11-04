@@ -316,6 +316,7 @@ namespace Mirror
     {
         public uint netId;
         public bool isLocalPlayer;
+        public bool isOwner;
         public ulong sceneId;
         public Guid assetId;
         public Vector3 position;
@@ -329,6 +330,7 @@ namespace Mirror
         {
             netId = reader.ReadPackedUInt32();
             isLocalPlayer = reader.ReadBoolean();
+            isOwner = reader.ReadBoolean();
             sceneId = reader.ReadPackedUInt64();
             if (sceneId == 0)
             {
@@ -344,6 +346,7 @@ namespace Mirror
         {
             writer.WritePackedUInt32(netId);
             writer.WriteBoolean(isLocalPlayer);
+            writer.WriteBoolean(isOwner);
             writer.WritePackedUInt64(sceneId);
             if (sceneId == 0)
             {
@@ -397,24 +400,6 @@ namespace Mirror
         public void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-        }
-    }
-
-    public struct ClientAuthorityMessage : IMessageBase
-    {
-        public uint netId;
-        public bool authority;
-
-        public void Deserialize(NetworkReader reader)
-        {
-            netId = reader.ReadPackedUInt32();
-            authority = reader.ReadBoolean();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedUInt32(netId);
-            writer.WriteBoolean(authority);
         }
     }
 
