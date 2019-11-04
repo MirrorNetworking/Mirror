@@ -1091,9 +1091,6 @@ namespace Mirror
                 connectionToClient.RemoveOwnedObject(this);
                 connectionToClient = null;
             }
-
-            // server now has authority (this is only called on server)
-            ForceAuthority(false);
         }
 
         /// <summary>
