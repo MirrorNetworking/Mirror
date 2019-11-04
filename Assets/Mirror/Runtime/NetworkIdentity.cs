@@ -101,7 +101,7 @@ namespace Mirror
             }
         }
 
-        // wether this object has been spawned with authority
+        // whether this object has been spawned with authority
         // we need hasAuthority and pendingOwner because
         // we need to wait until all of them spawn before updating hasAuthority
         internal bool pendingOwner { get; set; }
