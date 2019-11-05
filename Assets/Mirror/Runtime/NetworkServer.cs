@@ -825,45 +825,11 @@ namespace Mirror
             // set ready if not set yet
             SetClientReady(conn);
 
-            if (SetupLocalPlayerForConnection(conn, identity))
-            {
-                return true;
-            }
-
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
             FinishPlayerForConnection(identity, player);
             identity.SetClientOwner(conn);
             return true;
-        }
-
-        static bool SetupLocalPlayerForConnection(NetworkConnection conn, NetworkIdentity identity)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkServer SetupLocalPlayerForConnection netID:" + identity.netId);
-
-            if (conn is ULocalConnectionToClient)
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkServer AddPlayer handling ULocalConnectionToClient");
-
-                // Spawn this player for other players, instead of SpawnObject:
-                if (identity.netId == 0)
-                {
-                    // it is allowed to provide an already spawned object as the new player object.
-                    // so dont spawn it again.
-                    identity.OnStartServer(true);
-                }
-                identity.RebuildObservers(true);
-                SendSpawnMessage(identity, null);
-
-                // Set up local player instance on the client instance and update local object map
-                NetworkClient.AddLocalPlayer(identity);
-                identity.SetClientOwner(conn);
-
-                // Trigger OnStartLocalPlayer
-                identity.SetLocalPlayer();
-                return true;
-            }
-            return false;
         }
 
         static void FinishPlayerForConnection(NetworkIdentity identity, GameObject playerGameObject)
@@ -903,11 +869,6 @@ namespace Mirror
             SpawnObserversForConnection(conn);
 
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer setup local");
-
-            if (SetupLocalPlayerForConnection(conn, identity))
-            {
-                return true;
-            }
 
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
