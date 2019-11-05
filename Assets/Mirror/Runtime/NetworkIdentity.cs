@@ -90,7 +90,7 @@ namespace Mirror
                 bool previous = isOwner;
                 isOwner = value;
 
-                if (prev && !isOwner)
+                if (previous && !isOwner)
                 {
                     OnStopAuthority();
                 }
