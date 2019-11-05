@@ -87,7 +87,7 @@ namespace Mirror
             get => isOwner;
             set
             {
-                bool prev = isOwner;
+                bool previous = isOwner;
                 isOwner = value;
 
                 if (prev && !isOwner)
