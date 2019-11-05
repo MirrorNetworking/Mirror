@@ -1141,11 +1141,12 @@ namespace Mirror
         /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        public static void Spawn(GameObject obj, NetworkConnection conn = null)
+        /// <param name="connection">The connection that has authority over the object</param>
+        public static void Spawn(GameObject obj, NetworkConnection connection = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj, conn);
+                SpawnObject(obj, connection);
             }
         }
 
@@ -1197,16 +1198,13 @@ namespace Mirror
                 return false;
             }
 
-            return SpawnWithClientAuthority(obj, identity.connectionToClient);
+            Spawn(obj, identity.connectionToClient);
+            return true;
         }
 
         /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
+        /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
         /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
         [Obsolete("Use Spawn(obj,connection) instead")]
         public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection connection)
         {
@@ -1215,14 +1213,9 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
+        /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
         /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
-       [Obsolete("Use Spawn(obj,assetId, connection) instead")]
+        [Obsolete("Use Spawn(obj,assetId, connection) instead")]
         public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection connection)
         {
             Spawn(obj, assetId, connection);
@@ -1235,6 +1228,7 @@ namespace Mirror
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
+        /// <param name="connection">The connection that has authority over the object</param>
         public static void Spawn(GameObject obj, Guid assetId, NetworkConnection connection = null)
         {
             if (VerifyCanSpawn(obj))
