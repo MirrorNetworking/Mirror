@@ -467,7 +467,7 @@ namespace Mirror
 
             identity.netId = msg.netId;
             NetworkIdentity.spawned[msg.netId] = identity;
-            identity.pendingOwner = msg.isOwner;
+            identity.pendingAuthority = msg.isOwner;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
@@ -475,7 +475,7 @@ namespace Mirror
                 identity.OnStartClient();
                 if (msg.isLocalPlayer)
                     CheckForLocalPlayer();
-                identity.hasAuthority = identity.pendingOwner;
+                identity.hasAuthority = identity.pendingAuthority;
             }
         }
 
@@ -579,7 +579,7 @@ namespace Mirror
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
-                identity.hasAuthority = identity.pendingOwner;
+                identity.hasAuthority = identity.pendingAuthority;
                 if (!identity.isClient)
                 {
                     identity.OnStartClient();
@@ -652,7 +652,6 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
-                localObject.hasAuthority = msg.isOwner;
             }
         }
 

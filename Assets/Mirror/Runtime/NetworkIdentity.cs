@@ -104,7 +104,7 @@ namespace Mirror
         // whether this object has been spawned with authority
         // we need hasAuthority and pendingOwner because
         // we need to wait until all of them spawn before updating hasAuthority
-        internal bool pendingOwner { get; set; }
+        internal bool pendingAuthority { get; set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
