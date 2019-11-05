@@ -1050,34 +1050,10 @@ namespace Mirror
                 scale = identity.transform.localScale
             };
 
-            // conn is != null when spawning it for a client
-            if (conn != null)
-            {
-                // use owner segment if 'conn' owns this identity, otherwise
-                // use observers segment
-                msg.payload = msg.isOwner ? ownerSegment : observersSegment;
-
-                conn.Send(msg);
-            }
-            // conn is == null when spawning it for the local player
-            else
-            {
-                // send ownerWriter to owner
-                // (spawn no matter what, even if no components were
-                //  serialized because the spawn message contains more data.
-                //  components might still be updated later on.)
-                msg.payload = ownerSegment;
-                msg.isOwner = true;
-                SendToClientOfPlayer(identity, msg);
-
-                // send observersWriter to everyone but owner
-                // (spawn no matter what, even if no components were
-                //  serialized because the spawn message contains more data.
-                //  components might still be updated later on.)
-                msg.payload = observersSegment;
-                msg.isOwner = false;
-                SendToReady(identity, msg, false);
-            }
+            // use owner segment if 'conn' owns this identity, otherwise
+            // use observers segment
+            msg.payload = msg.isOwner ? ownerSegment : observersSegment;
+            conn.Send(msg);
 
             NetworkWriterPool.Recycle(ownerWriter);
             NetworkWriterPool.Recycle(observersWriter);
