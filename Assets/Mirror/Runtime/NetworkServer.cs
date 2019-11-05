@@ -1031,7 +1031,7 @@ namespace Mirror
             identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
-        internal static void SpawnObject(GameObject obj, NetworkConnection connection)
+        internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             if (!active)
             {
@@ -1046,7 +1046,7 @@ namespace Mirror
                 return;
             }
             identity.Reset();
-            identity.connectionToClient = (NetworkConnectionToClient)connection;
+            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             identity.OnStartServer(false);
 
@@ -1141,12 +1141,12 @@ namespace Mirror
         /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        /// <param name="connection">The connection that has authority over the object</param>
-        public static void Spawn(GameObject obj, NetworkConnection connection = null)
+        /// <param name="ownerConnection">The connection that has authority over the object</param>
+        public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj, connection);
+                SpawnObject(obj, ownerConnection);
             }
         }
 
@@ -1206,9 +1206,9 @@ namespace Mirror
         /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
         /// </summary>
         [Obsolete("Use Spawn(obj,connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection connection)
+        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)
         {
-            Spawn(obj, connection);
+            Spawn(obj, ownerConnection);
             return true;
         }
 
@@ -1216,9 +1216,9 @@ namespace Mirror
         /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
         /// </summary>
         [Obsolete("Use Spawn(obj,assetId, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection connection)
+        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)
         {
-            Spawn(obj, assetId, connection);
+            Spawn(obj, assetId, ownerConnection);
             return true;
         }
 
@@ -1228,8 +1228,8 @@ namespace Mirror
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        /// <param name="connection">The connection that has authority over the object</param>
-        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection connection = null)
+        /// <param name="ownerConnection">The connection that has authority over the object</param>
+        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1237,7 +1237,7 @@ namespace Mirror
                 {
                     identity.assetId = assetId;
                 }
-                SpawnObject(obj, connection);
+                SpawnObject(obj, ownerConnection);
             }
         }
 
