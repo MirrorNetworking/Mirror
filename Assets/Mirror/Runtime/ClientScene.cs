@@ -652,6 +652,7 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnSetLocalVisibility(true);
+                localObject.hasAuthority = msg.isOwner;
             }
         }
 
