@@ -1031,7 +1031,7 @@ namespace Mirror
             identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
-        internal static void SpawnObject(GameObject obj)
+        internal static void SpawnObject(GameObject obj, NetworkConnection connection)
         {
             if (!active)
             {
@@ -1046,13 +1046,13 @@ namespace Mirror
                 return;
             }
             identity.Reset();
+            identity.connectionToClient = (NetworkConnectionToClient)connection;
 
             identity.OnStartServer(false);
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
             identity.RebuildObservers(true);
-            //SendSpawnMessage(objNetworkIdentity, null);
         }
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
@@ -1141,11 +1141,11 @@ namespace Mirror
         /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        public static void Spawn(GameObject obj)
+        public static void Spawn(GameObject obj, NetworkConnection conn = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj);
+                SpawnObject(obj, conn);
             }
         }
 
@@ -1207,24 +1207,11 @@ namespace Mirror
         /// <param name="obj">The object to spawn.</param>
         /// <param name="conn">The connection to set Client Authority to.</param>
         /// <returns></returns>
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection conn)
+        [Obsolete("Use Spawn(obj,connection) instead")]
+        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection connection)
         {
-            if (!conn.isReady)
-            {
-                Debug.LogError("SpawnWithClientAuthority NetworkConnection is not ready!");
-                return false;
-            }
-
-            Spawn(obj);
-
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null || !identity.isServer)
-            {
-                // spawning the object failed.
-                return false;
-            }
-
-            return identity.AssignClientAuthority(conn);
+            Spawn(obj, connection);
+            return true;
         }
 
         /// <summary>
@@ -1235,18 +1222,11 @@ namespace Mirror
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
         /// <param name="conn">The connection to set Client Authority to.</param>
         /// <returns></returns>
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection conn)
+       [Obsolete("Use Spawn(obj,assetId, connection) instead")]
+        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection connection)
         {
-            Spawn(obj, assetId);
-
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null || !identity.isServer)
-            {
-                // spawning the object failed.
-                return false;
-            }
-
-            return identity.AssignClientAuthority(conn);
+            Spawn(obj, assetId, connection);
+            return true;
         }
 
         /// <summary>
@@ -1255,7 +1235,7 @@ namespace Mirror
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        public static void Spawn(GameObject obj, Guid assetId)
+        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection connection = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1263,7 +1243,7 @@ namespace Mirror
                 {
                     identity.assetId = assetId;
                 }
-                SpawnObject(obj);
+                SpawnObject(obj, connection);
             }
         }
 
