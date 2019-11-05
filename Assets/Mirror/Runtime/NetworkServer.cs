@@ -1090,6 +1090,7 @@ namespace Mirror
             {
                 netId = identity.netId,
                 isLocalPlayer = conn?.identity == identity,
+                isOwner = identity.connectionToClient == conn && conn != null,
                 sceneId = identity.sceneId,
                 assetId = identity.assetId,
                 // use local values for VR support
@@ -1103,8 +1104,7 @@ namespace Mirror
             {
                 // use owner segment if 'conn' owns this identity, otherwise
                 // use observers segment
-                bool isOwner = identity.connectionToClient == conn;
-                msg.payload = isOwner ? ownerSegment : observersSegment;
+                msg.payload = msg.isOwner ? ownerSegment : observersSegment;
 
                 conn.Send(msg);
             }
@@ -1116,6 +1116,7 @@ namespace Mirror
                 //  serialized because the spawn message contains more data.
                 //  components might still be updated later on.)
                 msg.payload = ownerSegment;
+                msg.isOwner = true;
                 SendToClientOfPlayer(identity, msg);
 
                 // send observersWriter to everyone but owner
@@ -1123,6 +1124,7 @@ namespace Mirror
                 //  serialized because the spawn message contains more data.
                 //  components might still be updated later on.)
                 msg.payload = observersSegment;
+                msg.isOwner = false;
                 SendToReady(identity, msg, false);
             }
 

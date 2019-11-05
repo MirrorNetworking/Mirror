@@ -490,12 +490,14 @@ namespace Mirror
 
             identity.netId = msg.netId;
             NetworkIdentity.spawned[msg.netId] = identity;
+            identity.pendingAuthority = msg.isOwner;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
             {
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
+                identity.hasAuthority = identity.pendingAuthority;
             }
         }
 
@@ -599,6 +601,7 @@ namespace Mirror
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
+                identity.hasAuthority = identity.pendingAuthority;
                 if (!identity.isClient)
                 {
                     identity.OnStartClient();
@@ -709,16 +712,6 @@ namespace Mirror
             else
             {
                 Debug.LogWarning("Did not find target for SyncEvent message for " + msg.netId);
-            }
-        }
-
-        internal static void OnClientAuthority(ClientAuthorityMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnClientAuthority for netId: " + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
-                identity.ForceAuthority(msg.authority);
             }
         }
 
