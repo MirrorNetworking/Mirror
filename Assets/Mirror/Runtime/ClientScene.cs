@@ -499,12 +499,6 @@ namespace Mirror
 
             NetworkIdentity.spawned[msg.netId] = identity;
 
-            // is this supposed to be the local player?
-            if (msg.isLocalPlayer)
-            {
-                OnSpawnMessageForLocalPlayer(identity);
-            }
-
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
             {

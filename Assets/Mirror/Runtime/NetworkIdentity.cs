@@ -197,34 +197,6 @@ namespace Mirror
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
-        // used when the player object for a connection changes
-        internal void SetNotLocalPlayer()
-        {
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
-            hasAuthority = false;
-            NotifyAuthority();
-        }
-        /// <summary>
-        /// Obsolete: Host Migration was removed
-        /// </summary>
-        /// <param name="conn">The network connection that is gaining or losing authority.</param>
-        /// <param name="identity">The object whose client authority status is being changed.</param>
-        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
-
-        /// <summary>
-        /// Obsolete: Host Migration was removed
-        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
-        /// <para>This callback is used by the NetworkMigrationManager to distribute client authority state to peers for host migration. If the NetworkMigrationManager is not being used, this callback does not need to be populated.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
-        public static ClientAuthorityCallback clientAuthorityCallback;
-
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
@@ -858,6 +830,10 @@ namespace Mirror
 
         internal void SetLocalPlayer()
         {
+            // There is an ordering issue here that originAuthority solves:
+            // OnStartAuthority should only be called if hasAuthority was false when this function began,
+            // or it will be called twice for this object, but that state is lost by the time OnStartAuthority
+            // is called below, so the original value is cached here to be checked below.
             hasAuthority = true;
             NotifyAuthority();
 
@@ -1109,7 +1085,7 @@ namespace Mirror
 
             SetClientOwner(conn);
 
-            // The client will match to the existing object
+            // The client will match to the existing object 
             // update all variables and assign authority
             NetworkServer.SendSpawnMessage(this, conn);
             return true;
