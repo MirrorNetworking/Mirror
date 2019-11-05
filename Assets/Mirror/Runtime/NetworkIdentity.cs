@@ -80,7 +80,31 @@ namespace Mirror
         /// <para>This value is determined at runtime, as opposed to localPlayerAuthority which is set on the prefab. For most objects, authority is held by the server / host. For objects with localPlayerAuthority set, authority is held by the client of that player.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        public bool hasAuthority { get; private set; }
+        bool isOwner;
+
+        public bool hasAuthority
+        {
+            get => isOwner;
+            set
+            {
+                bool previous = isOwner;
+                isOwner = value;
+
+                if (previous && !isOwner)
+                {
+                    OnStopAuthority();
+                }
+                if (!previous && isOwner)
+                {
+                    OnStartAuthority();
+                }
+            }
+        }
+
+        // whether this object has been spawned with authority
+        // we need hasAuthority and pendingOwner because
+        // we need to wait until all of them spawn before updating hasAuthority
+        internal bool pendingAuthority { get; set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
@@ -192,24 +216,6 @@ namespace Mirror
             connectionToClient.AddOwnedObject(this);
         }
 
-        internal void ForceAuthority(bool authority)
-        {
-            if (hasAuthority == authority)
-            {
-                return;
-            }
-
-            hasAuthority = authority;
-            if (authority)
-            {
-                OnStartAuthority();
-            }
-            else
-            {
-                OnStopAuthority();
-            }
-        }
-
         static uint nextNetworkId = 1;
         internal static uint GetNextNetworkId() => nextNetworkId++;
 
@@ -217,23 +223,6 @@ namespace Mirror
         /// Resets nextNetworkId = 1
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
-
-        /// <summary>
-        /// Obsolete: Host Migration was removed
-        /// </summary>
-        /// <param name="conn">The network connection that is gaining or losing authority.</param>
-        /// <param name="identity">The object whose client authority status is being changed.</param>
-        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
-
-        /// <summary>
-        /// Obsolete: Host Migration was removed
-        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
-        /// <para>This callback is used by the NetworkMigrationManager to distribute client authority state to peers for host migration. If the NetworkMigrationManager is not being used, this callback does not need to be populated.</para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Host Migration was removed")]
-        public static ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -881,17 +870,11 @@ namespace Mirror
             // OnStartAuthority should only be called if hasAuthority was false when this function began,
             // or it will be called twice for this object, but that state is lost by the time OnStartAuthority
             // is called below, so the original value is cached here to be checked below.
-            bool originAuthority = hasAuthority;
             hasAuthority = true;
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
             {
                 comp.OnStartLocalPlayer();
-
-                if (!originAuthority)
-                {
-                    comp.OnStartAuthority();
-                }
             }
         }
 
@@ -1076,24 +1059,19 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
-                // send msg to that client
-                ClientAuthorityMessage msg = new ClientAuthorityMessage
-                {
-                    netId = netId,
-                    authority = false
-                };
-
-                connectionToClient.Send(msg);
-#pragma warning disable CS0618 // Type or member is obsolete
-                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
-#pragma warning restore CS0618 // Type or member is obsolete
+                NetworkConnectionToClient previousOwner = connectionToClient;
 
                 connectionToClient.RemoveOwnedObject(this);
                 connectionToClient = null;
-            }
 
-            // server now has authority (this is only called on server)
-            ForceAuthority(false);
+                // we need to resynchronize the entire object
+                // so just spawn it again,
+                // the client will not create a new instance,  it will simply
+                // reset all variables and remove authority
+                NetworkServer.SendSpawnMessage(this, previousOwner);
+
+                connectionToClient = null;
+            }
         }
 
         /// <summary>
@@ -1125,17 +1103,9 @@ namespace Mirror
 
             SetClientOwner(conn);
 
-            // send msg to that client
-            ClientAuthorityMessage msg = new ClientAuthorityMessage
-            {
-                netId = netId,
-                authority = true
-            };
-            conn.Send(msg);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            clientAuthorityCallback?.Invoke(conn, this, true);
-#pragma warning restore CS0618 // Type or member is obsolete
+            // The client will match to the existing object 
+            // update all variables and assign authority
+            NetworkServer.SendSpawnMessage(this, conn);
             return true;
         }
 
@@ -1153,7 +1123,6 @@ namespace Mirror
             m_Reset = false;
             m_IsServer = false;
             isClient = false;
-            hasAuthority = false;
 
             netId = 0;
             connectionToServer = null;
