@@ -1059,7 +1059,7 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
-                var previousOwner = connectionToClient;
+                NetworkConnectionToClient previousOwner = connectionToClient;
 
                 connectionToClient.RemoveOwnedObject(this);
                 connectionToClient = null;
