@@ -657,7 +657,7 @@ namespace Mirror
                 {
                     OnSpawnMessageForLocalPlayer(identity.netId);
                 }
-                identity.hasAuthority = identity.pendingAuthority;
+                identity.hasAuthority = msg.isOwner;
             }
         }
 
