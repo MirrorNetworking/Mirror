@@ -94,7 +94,7 @@ namespace Mirror
                 {
                     OnStopAuthority();
                 }
-                if (!prev && isOwner)
+                if (!previous && isOwner)
                 {
                     OnStartAuthority();
                 }
