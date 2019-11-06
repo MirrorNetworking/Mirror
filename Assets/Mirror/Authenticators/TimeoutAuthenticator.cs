@@ -11,8 +11,9 @@ namespace Mirror.Authenticators
     public class TimeoutAuthenticator : NetworkAuthenticator
     {
         public NetworkAuthenticator authenticator;
-        
-        public int timeout = 60;
+
+        [Range(0, short.MaxValue), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]
+        public short timeout = 60;
 
         public void Awake()
         {
@@ -22,13 +23,14 @@ namespace Mirror.Authenticators
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
-            StartCoroutine(BeginClientAuthentication(conn));
+            authenticator.OnClientAuthenticate(conn);
+
+            if (timeout > 0)
+                StartCoroutine(BeginClientAuthentication(conn));
         }
 
         private IEnumerator BeginClientAuthentication(NetworkConnection conn)
         {
-            authenticator.OnClientAuthenticate(conn);
-
             yield return new WaitForSecondsRealtime(timeout);
 
             if (!conn.isAuthenticated)
@@ -37,13 +39,13 @@ namespace Mirror.Authenticators
 
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
-            StartCoroutine(BeginServerAuthentication(conn));
+            authenticator.OnServerAuthenticate(conn);
+            if (timeout > 0)
+                StartCoroutine(BeginServerAuthentication(conn));
         }
 
         private IEnumerator BeginServerAuthentication(NetworkConnection conn)
         {
-            authenticator.OnServerAuthenticate(conn);
-
             yield return new WaitForSecondsRealtime(timeout);
 
             if (!conn.isAuthenticated)
