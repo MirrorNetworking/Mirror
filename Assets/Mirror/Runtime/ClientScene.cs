@@ -67,24 +67,6 @@ namespace Mirror
             DestroyAllClientObjects();
         }
 
-        // this is called from message handler for Owner message
-        internal static void InternalAddPlayer(NetworkIdentity identity)
-        {
-            if (LogFilter.Debug) Debug.LogWarning("ClientScene.InternalAddPlayer");
-
-            // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
-            // But, the player structures are not cleaned up, we'll just replace the old player
-            localPlayer = identity;
-            if (readyConnection != null)
-            {
-                readyConnection.identity = identity;
-            }
-            else
-            {
-                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
-            }
-        }
-
         /// <summary>
         /// This adds a player GameObject for this client.
         /// <para>This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.</para>
@@ -474,7 +456,7 @@ namespace Mirror
             {
                 identity.OnStartClient();
                 if (msg.isLocalPlayer)
-                    CheckForLocalPlayer();
+                    OnSpawnMessageForLocalPlayer(identity);
                 identity.hasAuthority = identity.pendingAuthority;
             }
         }
@@ -487,12 +469,6 @@ namespace Mirror
                 return;
             }
             if (LogFilter.Debug) Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId} pos={msg.position}");
-
-            // is this supposed to be the local player?
-            if (msg.isLocalPlayer)
-            {
-                OnSpawnMessageForLocalPlayer(msg.netId);
-            }
 
             // was the object already spawned?
             NetworkIdentity identity = GetExistingObject(msg.netId);
@@ -585,7 +561,8 @@ namespace Mirror
                     identity.OnStartClient();
                 }
             }
-            CheckForLocalPlayer();
+            if (localPlayer != null)
+                OnSpawnMessageForLocalPlayer(localPlayer);
             isSpawnFinished = true;
         }
 
@@ -655,7 +632,7 @@ namespace Mirror
                 identity.OnStartClient();
                 if (msg.isLocalPlayer)
                 {
-                    OnSpawnMessageForLocalPlayer(identity.netId);
+                    OnSpawnMessageForLocalPlayer(identity);
                 }
                 identity.hasAuthority = msg.isOwner;
             }
@@ -700,29 +677,22 @@ namespace Mirror
         }
 
         // called for the one object in the spawn message which is the local player!
-        internal static void OnSpawnMessageForLocalPlayer(uint netId)
+        static void OnSpawnMessageForLocalPlayer(NetworkIdentity identity)
         {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnSpawnMessageForLocalPlayer - " + readyConnection + " netId: " + netId);
+            if (LogFilter.Debug) Debug.Log("ClientScene.OnSpawnMessageForLocalPlayer - " + readyConnection + " netId: " + identity.netId);
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
+            localPlayer = identity;
+
+            // this object already exists
+            identity.connectionToServer = readyConnection;
+            identity.SetLocalPlayer();
+            if (readyConnection != null)
             {
-                // this object already exists
-                localObject.connectionToServer = readyConnection;
-                localObject.SetLocalPlayer();
-                InternalAddPlayer(localObject);
+                readyConnection.identity = identity;
             }
-        }
-
-        static void CheckForLocalPlayer()
-        {
-            if (localPlayer != null)
+            else
             {
-                // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
-                localPlayer.connectionToServer = readyConnection;
-                localPlayer.SetLocalPlayer();
-
-                if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + localPlayer.name);
-                InternalAddPlayer(localPlayer);
+                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
             }
         }
     }
