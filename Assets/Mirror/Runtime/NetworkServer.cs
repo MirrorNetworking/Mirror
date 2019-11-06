@@ -1130,23 +1130,20 @@ namespace Mirror
         /// <param name="obj">The object to spawn.</param>
         /// <param name="player">The player object to set Client Authority to.</param>
         /// <returns></returns>
-        public static bool Spawn(GameObject obj, GameObject player)
+        public static void Spawn(GameObject obj, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
                 Debug.LogError("Spawn player object has no NetworkIdentity");
-                return false;
             }
 
             if (identity.connectionToClient == null)
             {
                 Debug.LogError("Spawn player object is not a player.");
-                return false;
             }
 
             Spawn(obj, identity.connectionToClient);
-            return true;
         }
 
         /// <summary>
