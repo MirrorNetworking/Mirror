@@ -872,7 +872,7 @@ namespace Mirror
             {
                 // it is allowed to provide an already spawned object as the new player object.
                 // so dont spawn it again.
-                Spawn(playerGameObject);
+                Spawn(playerGameObject, identity.connectionToClient);
             }
         }
 
