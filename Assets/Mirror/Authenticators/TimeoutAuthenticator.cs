@@ -24,7 +24,6 @@ namespace Mirror.Authenticators
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
             authenticator.OnClientAuthenticate(conn);
-
             if (timeout > 0)
                 StartCoroutine(BeginClientAuthentication(conn));
         }
