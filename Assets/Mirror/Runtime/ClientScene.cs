@@ -649,10 +649,15 @@ namespace Mirror
 
         internal static void OnLocalClientSpawn(SpawnMessage msg)
         {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
-                localObject.OnSetLocalVisibility(true);
-                localObject.hasAuthority = msg.isOwner;
+                identity.OnSetLocalVisibility(true);
+                identity.OnStartClient();
+                if (msg.isLocalPlayer)
+                {
+                    OnSpawnMessageForLocalPlayer(identity.netId);
+                }
+                identity.hasAuthority = msg.isOwner;
             }
         }
 

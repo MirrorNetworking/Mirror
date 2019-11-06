@@ -526,17 +526,6 @@ namespace Mirror
                     Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
                 }
             }
-
-            if (NetworkClient.active && NetworkServer.localClientActive)
-            {
-                // there will be no spawn message, so start the client here too
-                OnStartClient();
-            }
-
-            if (hasAuthority)
-            {
-                OnStartAuthority();
-            }
         }
 
         internal void OnStartClient()

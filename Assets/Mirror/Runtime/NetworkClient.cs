@@ -115,25 +115,6 @@ namespace Mirror
             connectionToClient.Send(new ConnectMessage());
         }
 
-        /// <summary>
-        /// Called by the server to set the LocalClient's LocalPlayer object during NetworkServer.AddPlayer()
-        /// </summary>
-        /// <param name="localPlayer"></param>
-        internal static void AddLocalPlayer(NetworkIdentity localPlayer)
-        {
-            if (LogFilter.Debug) Debug.Log("Local client AddLocalPlayer " + localPlayer.gameObject.name + " " + connection);
-            connection.isReady = true;
-            connection.identity = localPlayer;
-            if (localPlayer != null)
-            {
-                localPlayer.isClient = true;
-                NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
-                localPlayer.connectionToServer = connection;
-            }
-            // there is no SystemOwnerMessage for local client. add to ClientScene here instead
-            ClientScene.InternalAddPlayer(localPlayer);
-        }
-
         static void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
