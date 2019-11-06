@@ -29,7 +29,7 @@ namespace Mirror.Authenticators
                 StartCoroutine(BeginClientAuthentication(conn));
         }
 
-        private IEnumerator BeginClientAuthentication(NetworkConnection conn)
+        IEnumerator BeginClientAuthentication(NetworkConnection conn)
         {
             yield return new WaitForSecondsRealtime(timeout);
 
