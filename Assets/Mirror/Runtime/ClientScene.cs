@@ -682,8 +682,6 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ClientScene.OnSpawnMessageForLocalPlayer - " + readyConnection + " netId: " + identity.netId);
 
             localPlayer = identity;
-
-            // this object already exists
             identity.connectionToServer = readyConnection;
             identity.SetLocalPlayer();
             if (readyConnection != null)
