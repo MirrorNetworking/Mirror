@@ -78,8 +78,8 @@ namespace Mirror
         internal bool pendingLocalPlayer { get; set; }
 
         /// <summary>
-        /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>This value is determined at runtime, as opposed to localPlayerAuthority which is set on the prefab. For most objects, authority is held by the server / host. For objects with localPlayerAuthority set, authority is held by the client of that player.</para>
+        /// This returns true if this object is the authoritative player object on the client.
+        /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
         public bool hasAuthority { get; private set; }
@@ -1074,7 +1074,7 @@ namespace Mirror
 
         /// <summary>
         /// Removes ownership for an object.
-        /// <para>This applies to objects that had authority set by AssignClientAuthority, or NetworkServer.SpawnWithClientAuthority.</para>
+        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
         /// <para>Authority cannot be removed for player objects.</para>
         /// </summary>
         public void RemoveClientAuthority()
@@ -1116,7 +1116,7 @@ namespace Mirror
         /// <summary>
         /// Assign control of an object to a client via the client's <see cref="NetworkConnection">NetworkConnection.</see>
         /// <para>This causes hasAuthority to be set on the client that owns the object, and NetworkBehaviour.OnStartAuthority will be called on that client. This object then will be in the NetworkConnection.clientOwnedObjects list for the connection.</para>
-        /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. Only NetworkIdentities with localPlayerAuthority set can have client authority assigned. This does not need to be called for player objects, as their authority is setup automatically.</para>
+        /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. This does not need to be called for player objects, as their authority is setup automatically.</para>
         /// </summary>
         /// <param name="conn">	The connection of the client to assign authority to.</param>
         /// <returns>True if authority was assigned.</returns>

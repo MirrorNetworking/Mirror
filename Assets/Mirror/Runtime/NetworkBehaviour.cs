@@ -65,7 +65,7 @@ namespace Mirror
 
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>The <see cref="localPlayerAuthority">localPlayerAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server / host. For objects with <see cref="localPlayerAuthority">localPlayerAuthority</see> set, authority is held by the client of that player.</para>
+        /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
         /// </summary>
         public bool hasAuthority => netIdentity.hasAuthority;
 
@@ -779,9 +779,9 @@ namespace Mirror
         public virtual void OnStartLocalPlayer() {}
 
         /// <summary>
-        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
+        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
+        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() {}
 
