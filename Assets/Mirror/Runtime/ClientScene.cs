@@ -692,7 +692,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
+                Debug.LogWarning("No ready connection found for spawning player controller");
             }
         }
     }
