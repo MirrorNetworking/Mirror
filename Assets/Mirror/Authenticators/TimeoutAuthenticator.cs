@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Mirror.Authenticators
 {
-
     /// <summary>
     /// An authenticator that disconnects connections if they don't
     /// authenticate within a specified time limit.
@@ -11,7 +10,6 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/TimeoutAuthenticator")]
     public class TimeoutAuthenticator : NetworkAuthenticator
     {
-
         public NetworkAuthenticator authenticator;
         
         public int timeout = 60;
@@ -21,7 +19,6 @@ namespace Mirror.Authenticators
             authenticator.OnClientAuthenticated.AddListener(connection => OnClientAuthenticated.Invoke(connection));
             authenticator.OnServerAuthenticated.AddListener(connection => OnServerAuthenticated.Invoke(connection));
         }
-
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
@@ -37,7 +34,6 @@ namespace Mirror.Authenticators
             if (!conn.isAuthenticated)
                 conn.Disconnect();
         }
-
 
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
