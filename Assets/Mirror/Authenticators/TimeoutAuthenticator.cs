@@ -54,7 +54,11 @@ namespace Mirror.Authenticators
             yield return new WaitForSecondsRealtime(timeout);
 
             if (!conn.isAuthenticated)
+        {
+                if (LogFilter.Debug) Debug.LogFormat("Authentication Timeout {0}", conn.connectionId);
+                
                 conn.Disconnect();
+        }
         }
     }
 }
