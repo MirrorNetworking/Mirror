@@ -1119,7 +1119,8 @@ namespace Mirror
         [Obsolete("Use Spawn(obj, player) instead")]
         public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
         {
-            return Spawn(obj, player);
+            Spawn(obj, player);
+            return true;
         }
 
         /// <summary>
