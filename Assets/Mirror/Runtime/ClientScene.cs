@@ -670,13 +670,14 @@ namespace Mirror
 
         internal static void OnHostClientSpawn(SpawnMessage msg)
         {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
-                localObject.pendingLocalPlayer = msg.isLocalPlayer;
-                localObject.OnStartClient();
+                if (msg.isLocalPlayer)
+                    localPlayer = identity;
                 localObject.hasAuthority = msg.isOwner;
-                localObject.OnSetHostVisibility(true);
                 localObject.NotifyAuthority();
+                localObject.OnStartClient();
+                localObject.OnSetHostVisibility(true);
                 CheckForLocalPlayer(localObject);
             }
         }
