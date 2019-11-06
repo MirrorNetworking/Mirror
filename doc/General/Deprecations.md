@@ -18,6 +18,10 @@ Network Manager's `networkPort` property was removed now that all transports are
 
 This was renamed to `identity` since that's what it is: the `NetworkIdentity` for the connection. If you need to convert a project after this change, Visual Studio / VS Code can help...read more [here](PlayerControllerToIdentity.md).
 
+## Local Player Authority in NetworkIdentity
+
+This has been phased out through overhauling, and simplifying how [Authority](../Guides/Authority.md) works in Mirror.
+
 ## Network Server Simple
 
 This was too complex and impractical to maintain for what little it did, and was removed. There are much easier ways to make a basic listen server, with or without one of our transports.

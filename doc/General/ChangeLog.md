@@ -1,5 +1,10 @@
 # Change Log
 
+## Version 5.x.x - In progress
+- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
+- Changed: connectionToClient is now used to assign client authority
+- Changed: In many respects, the Host player acts a lot more like a client and will reveal bugs better.
+
 ## Version 5.0.2 - 2019-Nov-03
 - Added: SyncList and SyncSet custom Equality Comparer support
 - Added: Custom serializers may be implemented for any type in Cmd's and Rpc's
