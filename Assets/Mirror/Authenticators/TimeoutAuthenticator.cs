@@ -58,7 +58,7 @@ namespace Mirror.Authenticators
                 if (LogFilter.Debug) Debug.LogFormat("Authentication Timeout {0}", conn.connectionId);
                 
                 conn.Disconnect();
-        }
+            }
         }
     }
 }
