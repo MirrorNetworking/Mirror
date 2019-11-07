@@ -12,8 +12,8 @@ namespace Mirror.Authenticators
     {
         public NetworkAuthenticator authenticator;
 
-        [Range(ushort.MinValue, ushort.MaxValue), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]
-        public ushort timeout = 60;
+        [Range(0, 600), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]
+        public float timeout = 60;
 
         public void Awake()
         {
