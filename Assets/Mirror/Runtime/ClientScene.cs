@@ -67,24 +67,6 @@ namespace Mirror
             DestroyAllClientObjects();
         }
 
-        // this is called from message handler for Owner message
-        internal static void InternalAddPlayer(NetworkIdentity identity)
-        {
-            if (LogFilter.Debug) Debug.LogWarning("ClientScene.InternalAddPlayer");
-
-            // NOTE: It can be "normal" when changing scenes for the player to be destroyed and recreated.
-            // But, the player structures are not cleaned up, we'll just replace the old player
-            localPlayer = identity;
-            if (readyConnection != null)
-            {
-                readyConnection.identity = identity;
-            }
-            else
-            {
-                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
-            }
-        }
-
         /// <summary>
         /// This adds a player GameObject for this client.
         /// <para>This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.</para>
@@ -606,7 +588,8 @@ namespace Mirror
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
             }
-            CheckForLocalPlayer();
+            if (localPlayer != null)
+                OnSpawnMessageForLocalPlayer(localPlayer);
             isSpawnFinished = true;
         }
 
