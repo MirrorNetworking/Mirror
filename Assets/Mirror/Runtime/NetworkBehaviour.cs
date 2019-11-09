@@ -64,8 +64,9 @@ namespace Mirror
         public bool isClientOnly => isClient && !isServer;
 
         /// <summary>
-        /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
+        /// This returns true if this object is the authoritative player object on the client.
+        /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
+        /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
         public bool hasAuthority => netIdentity.hasAuthority;
 
