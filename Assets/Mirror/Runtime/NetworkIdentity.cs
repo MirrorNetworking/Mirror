@@ -70,6 +70,8 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer => ClientScene.localPlayer == this;
 
+        bool isOwner;
+
         /// <summary>
         /// This returns true if this object is the authoritative player object on the client.
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
