@@ -10,13 +10,13 @@ With the server-authoritative system of Mirror, the server must use the `Network
 
 ## Properties
 -   **isLocalPlayer**  
-    Returns true if this game object is the one that represents the player on the local client.
+    Returns true if this game object represents the player created for this client.
 -   **isServer**  
     Returns true if this game object is running on the server, and has been spawned.
 -   **isClient**  
     Returns true if this game object is on the client and has been spawned by the server.
 -   **hasAuthority**  
-    Returns true if this game object is the authoritative version of the game object, meaning it is the source for changes to be synchronized. For most game objects, this returns true on the server. However, if the localPlayerAuthority value on the NetworkIdentity is true, the authority rests with that player’s client, and this value is true on that client instead of on the server.
+    Returns true if this client has [ownership](Authority.md) over this game object.  It is normally false in the server,  except if the server is also a client (host mode).
 -   **netId**  
     The unique network ID of this game object. The server assigns this at run time. It is unique for all game objects in that network session.
 -   **playerControllerId**  
@@ -25,8 +25,6 @@ With the server-authoritative system of Mirror, the server must use the `Network
     The NetworkConnection associated with the Network Identity component attached to this game object. This is only valid for **player objects** on the client.
 -   **connectionToClient**  
     The NetworkConnection associated with the Network Identity component attached to this game object. This is only valid for player game objects on the server.
--   **localPlayerAuthority**  
-    This value is set on the Network Identity component and is accessible from the NetworkBehaviour script for convenient access in scripts.
 
 NetworkBehaviour scripts have the following features:
 -   Synchronized variables
