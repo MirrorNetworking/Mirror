@@ -51,7 +51,7 @@ namespace Mirror.Authenticators
 
         IEnumerator BeginServerAuthentication(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.LogFormat("Authentication countdown started {0} {1}", conn.connectionId, timeout);
+            if (LogFilter.Debug) Debug.Log($"Authentication countdown started {conn.connectionId} {timeout}");
 
             yield return new WaitForSecondsRealtime(timeout);
 
