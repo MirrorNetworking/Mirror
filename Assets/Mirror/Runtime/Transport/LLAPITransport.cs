@@ -18,6 +18,7 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never), Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
+        private const string Scheme = "llapi";
         public ushort port = 7777;
 
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
@@ -100,7 +101,7 @@ namespace Mirror
 
         public override bool Available(Uri uri)
         {
-            return uri.Scheme == "llapi";
+            return uri.Scheme == Scheme;
         }
 
         #region client
