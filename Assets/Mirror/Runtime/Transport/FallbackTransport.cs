@@ -23,26 +23,25 @@ namespace Mirror
             }
             InitClient();
             InitServer();
-            available = GetAvailableTransport();
             Debug.Log("FallbackTransport available: " + available.GetType());
         }
 
         // The client just uses the first transport available
-        Transport GetAvailableTransport()
+        Transport GetAvailableTransport(Uri uri)
         {
             foreach (Transport transport in transports)
             {
-                if (transport.Available())
+                if (transport.Available(uri))
                 {
                     return transport;
                 }
             }
-            throw new PlatformNotSupportedException("No transport suitable for this platform");
+            return null;
         }
 
-        public override bool Available()
+        public override bool Available(Uri uri)
         {
-            return available.Available();
+            return GetAvailableTransport(uri) != null;
         }
 
         // clients always pick the first transport
@@ -60,25 +59,11 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            foreach (Transport transport in transports)
-            {
-                try
-                {
-                    if (transport.Available())
-                    {
-                        transport.ClientConnect(uri);
-                        available = transport;
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (LogFilter.Debug)
-                        Debug.Log(ex.ToString(), this);
-                }
-            }
+            available = GetAvailableTransport(uri);
+            if (available == null)
+                throw new PlatformNotSupportedException($"No transport found for {uri}");
 
-            throw new PlatformNotSupportedException($"No transport found for {uri}");
+            available.ClientConnect(uri);            
         }
 
         public override bool ClientConnected()

@@ -40,7 +40,7 @@ namespace Mirror.Websocket
             Debug.Log("Websocket transport initialized!");
         }
 
-        public override bool Available() => true;
+        public override bool Available(Uri uri) => uri.Scheme == "ws" || uri.Scheme == "wss";
 
         // client
         public override bool ClientConnected() => client.IsConnected;

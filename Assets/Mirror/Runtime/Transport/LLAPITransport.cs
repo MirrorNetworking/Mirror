@@ -98,10 +98,9 @@ namespace Mirror
             serverSendBuffer = new byte[globalConfig.MaxPacketSize];
         }
 
-        public override bool Available()
+        public override bool Available(Uri uri)
         {
-            // LLAPI runs on all platforms, including webgl
-            return true;
+            return uri.Scheme == "llapi";
         }
 
         #region client

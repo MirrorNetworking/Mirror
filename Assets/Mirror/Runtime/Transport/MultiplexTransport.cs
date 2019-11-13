@@ -26,17 +26,22 @@ namespace Mirror
             InitServer();
         }
 
-        public override bool Available()
+        Transport GetAvailableTransport(Uri uri)
         {
             // available if any of the transports is available
             foreach (Transport transport in transports)
             {
-                if (transport.Available())
+                if (transport.Available(uri))
                 {
-                    return true;
+                    return transport;
                 }
             }
-            return false;
+            return null;
+        }
+
+        public override bool Available(Uri uri)
+        {
+            return GetAvailableTransport(uri) != null;
         }
 
         #region Client
@@ -55,26 +60,11 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            foreach (Transport transport in transports)
-            {
-                try
-                {
-                    if (transport.Available())
-                    {
-                        transport.ClientConnect(uri);
-                        available = transport;
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // just try the next transport
-                    if (LogFilter.Debug)
-                        Debug.Log(ex.ToString(), this);
-                }
-            }
+            available = GetAvailableTransport(uri);
+            if (available == null)
+                throw new PlatformNotSupportedException($"No transport found for {uri}");
 
-            throw new PlatformNotSupportedException($"No transport found for {uri}");
+            available.ClientConnect(uri);
         }
 
         public override bool ClientConnected()

@@ -29,7 +29,7 @@ namespace Mirror
         /// <para>Example usage: return Application.platform == RuntimePlatform.WebGLPlayer</para>
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
-        public abstract bool Available();
+        public abstract bool Available(Uri uri);
 
         #region Client
         /// <summary>

@@ -48,9 +48,9 @@ namespace Mirror
             Debug.Log("TelepathyTransport initialized!");
         }
 
-        public override bool Available()
+        public override bool Available(Uri uri)
         {
-            return Application.platform != RuntimePlatform.WebGLPlayer;
+            return Application.platform != RuntimePlatform.WebGLPlayer && uri.Scheme == "tcp";
         }
 
         // client
@@ -58,11 +58,8 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            if (uri.Scheme != "tcp")
+            if (!Available(uri))
                 throw new Exception("Cannot connect to {uri}, it must be of the form tcp://host:port ");
-
-            if (Application.platform == RuntimePlatform.WebGLPlayer)
-                throw new PlatformNotSupportedException("Telepathy is not supported on webGL builds");
 
             string address = uri.Host;
             int port = uri.IsDefaultPort ? this.port : uri.Port;
