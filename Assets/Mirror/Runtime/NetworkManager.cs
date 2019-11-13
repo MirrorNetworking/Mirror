@@ -78,13 +78,6 @@ namespace Mirror
         protected Transport transport;
 
         /// <summary>
-        /// The network address currently in use.
-        /// <para>For clients, this is the address of the server that is connected to. For servers, this is the local address.</para>
-        /// </summary>
-        [FormerlySerializedAs("m_NetworkAddress")]
-        public string networkAddress = "localhost";
-
-        /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
         /// </summary>
@@ -321,10 +314,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
+        /// This starts a network client
         /// </summary>
-        public void StartClient()
+        /// <param name="uri">Address of the server to connect to</param>
+        public void StartClient(Uri uri)
         {
             InitializeSingleton();
 
@@ -341,14 +334,7 @@ namespace Mirror
 
             RegisterClientMessages();
 
-            if (string.IsNullOrEmpty(networkAddress))
-            {
-                Debug.LogError("Must set the Network Address field in the manager");
-                return;
-            }
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
-
-            NetworkClient.Connect(networkAddress);
+            NetworkClient.Connect(uri);
 
             OnStartClient();
         }
@@ -528,7 +514,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
             NetworkClient.ConnectLocalServer();
             RegisterClientMessages();

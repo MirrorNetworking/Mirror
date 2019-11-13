@@ -40,25 +40,14 @@ namespace Mirror.Websocket
             Debug.Log("Websocket transport initialized!");
         }
 
-        public override bool Available()
-        {
-            // WebSockets should be available on all platforms, including WebGL (automatically) using our included JSLIB code
-            return true;
-        }
+        public override bool Available() => true;
 
         // client
         public override bool ClientConnected() => client.IsConnected;
 
-        public override void ClientConnect(string host)
+        public override void ClientConnect(Uri uri)
         {
-            if (Secure)
-            {
-                client.Connect(new Uri($"wss://{host}:{port}"));
-            }
-            else
-            {
-                client.Connect(new Uri($"ws://{host}:{port}"));
-            }
+            client.Connect(uri);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
@@ -135,5 +124,6 @@ namespace Mirror.Websocket
             }
             return "";
         }
+
     }
 }

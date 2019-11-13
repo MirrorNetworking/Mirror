@@ -62,7 +62,7 @@ namespace Mirror
         /// Establish a connecion to a server
         /// </summary>
         /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
-        public abstract void ClientConnect(string address);
+        public abstract void ClientConnect(Uri uri);
 
         /// <summary>
         /// Send data to the server

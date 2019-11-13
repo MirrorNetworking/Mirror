@@ -1,5 +1,6 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
+using System;
 using System.ComponentModel;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ namespace Mirror
         /// The vertical offset in pixels to draw the HUD runtime GUI at.
         /// </summary>
         public int offsetY;
+        private string networkAddress = "localhost";
 
         void Awake()
         {
@@ -60,9 +62,9 @@ namespace Mirror
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("LAN Client"))
                     {
-                        manager.StartClient();
+                        manager.StartClient(GetUri());
                     }
-                    manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                    networkAddress = GUILayout.TextField(networkAddress);
                     GUILayout.EndHorizontal();
 
                     // LAN Server Only
@@ -79,7 +81,7 @@ namespace Mirror
                 else
                 {
                     // Connecting
-                    GUILayout.Label("Connecting to " + manager.networkAddress + "..");
+                    GUILayout.Label("Connecting to " + GetUri() + "..");
                     if (GUILayout.Button("Cancel Connection Attempt"))
                     {
                         manager.StopClient();
@@ -95,7 +97,7 @@ namespace Mirror
                 }
                 if (NetworkClient.isConnected)
                 {
-                    GUILayout.Label("Client: address=" + manager.networkAddress);
+                    GUILayout.Label("Client: address=" + GetUri());
                 }
             }
 
@@ -123,6 +125,24 @@ namespace Mirror
             }
 
             GUILayout.EndArea();
+        }
+
+        private Uri GetUri()
+        {
+            UriBuilder uriBuilder = new UriBuilder();
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                uriBuilder.Scheme = "ws";
+            }
+            else
+            {
+                uriBuilder.Scheme = "tcp";
+            }
+
+            uriBuilder.Host = networkAddress;
+
+            return uriBuilder.Uri;
         }
     }
 }

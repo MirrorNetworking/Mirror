@@ -37,7 +37,7 @@ namespace Mirror
                     return transport;
                 }
             }
-            throw new Exception("No transport suitable for this platform");
+            throw new PlatformNotSupportedException("No transport suitable for this platform");
         }
 
         public override bool Available()
@@ -58,9 +58,27 @@ namespace Mirror
             }
         }
 
-        public override void ClientConnect(string address)
+        public override void ClientConnect(Uri uri)
         {
-            available.ClientConnect(address);
+            foreach (Transport transport in transports)
+            {
+                try
+                {
+                    if (transport.Available())
+                    {
+                        transport.ClientConnect(uri);
+                        available = transport;
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (LogFilter.Debug)
+                        Debug.Log(ex.ToString(), this);
+                }
+            }
+
+            throw new PlatformNotSupportedException($"No transport found for {uri}");
         }
 
         public override bool ClientConnected()

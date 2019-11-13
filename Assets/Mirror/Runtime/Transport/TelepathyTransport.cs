@@ -50,13 +50,27 @@ namespace Mirror
 
         public override bool Available()
         {
-            // C#'s built in TCP sockets run everywhere except on WebGL
             return Application.platform != RuntimePlatform.WebGLPlayer;
         }
 
         // client
         public override bool ClientConnected() => client.Connected;
-        public override void ClientConnect(string address) => client.Connect(address, port);
+
+        public override void ClientConnect(Uri uri)
+        {
+            if (uri.Scheme != "tcp")
+                throw new Exception("Cannot connect to {uri}, it must be of the form tcp://host:port ");
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+                throw new PlatformNotSupportedException("Telepathy is not supported on webGL builds");
+
+            string address = uri.Host;
+            int port = uri.IsDefaultPort ? this.port : uri.Port;
+
+            client.Connect(address, port);
+        }
+
+
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.

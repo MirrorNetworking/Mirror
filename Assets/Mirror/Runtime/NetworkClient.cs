@@ -74,16 +74,16 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public static void Connect(string address)
+        public static void Connect(Uri uri)
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
+            if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
             RegisterSystemHandlers(false);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(address);
+            Transport.activeTransport.ClientConnect(uri);
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();

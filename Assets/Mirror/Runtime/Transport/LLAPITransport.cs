@@ -110,8 +110,14 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        public override void ClientConnect(string address)
+        public override void ClientConnect(Uri uri)
         {
+            if (uri.Scheme != "llapi")
+                throw new Exception("Cannot connect to {uri}, it must be of the form llapi://host:port ");
+
+            string address = uri.Host;
+            int port = uri.IsDefaultPort ? this.port : uri.Port;
+
             // LLAPI can't handle 'localhost'
             if (address.ToLower() == "localhost") address = "127.0.0.1";
 
@@ -126,8 +132,7 @@ namespace Mirror
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
-                Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
-                clientConnectionId = -1;
+                throw new Exception($"{networkError}: Failed to connect to {uri}");
             }
         }
 

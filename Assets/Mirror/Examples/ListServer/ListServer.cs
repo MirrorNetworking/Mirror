@@ -1,4 +1,5 @@
 // add this component to the NetworkManager
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -290,8 +291,11 @@ namespace Mirror.Examples.ListServer
                     slot.joinButton.gameObject.SetActive(server.players < server.capacity);
                     slot.joinButton.onClick.RemoveAllListeners();
                     slot.joinButton.onClick.AddListener(() => {
-                        NetworkManager.singleton.networkAddress = server.ip;
-                        NetworkManager.singleton.StartClient();
+                        // TODO:  You can improve your list server
+                        // by registering uri instead of hostname
+                        // then each server can decide their port and their prefered transport
+                        Uri uri = new Uri($"tcp://{server.ip}");
+                        NetworkManager.singleton.StartClient(uri);
                     });
                 }
 
