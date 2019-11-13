@@ -1,5 +1,4 @@
 // add this component to the NetworkManager
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Net;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using Uri = System.Uri;
 
 namespace Mirror.Examples.ListServer
 {
