@@ -10,7 +10,7 @@ namespace Mirror
     {
         public Transport[] transports;
 
-        Transport available;
+        private Transport available;
 
         // used to partition recipients for each one of the base transports
         // without allocating a new list every time
@@ -26,7 +26,7 @@ namespace Mirror
             InitServer();
         }
 
-        Transport GetAvailableTransport(Uri uri)
+        Transport GetSuitableTransport(Uri uri)
         {
             // available if any of the transports is available
             foreach (Transport transport in transports)
@@ -41,7 +41,7 @@ namespace Mirror
 
         public override bool Available(Uri uri)
         {
-            return GetAvailableTransport(uri) != null;
+            return GetSuitableTransport(uri) != null;
         }
 
         #region Client
@@ -60,7 +60,7 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            available = GetAvailableTransport(uri);
+            available = GetSuitableTransport(uri);
             if (available == null)
                 throw new PlatformNotSupportedException($"No transport found for {uri}");
 

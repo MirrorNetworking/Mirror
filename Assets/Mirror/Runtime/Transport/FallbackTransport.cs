@@ -27,7 +27,7 @@ namespace Mirror
         }
 
         // The client just uses the first transport available
-        Transport GetAvailableTransport(Uri uri)
+        Transport GetSuitableTransport(Uri uri)
         {
             foreach (Transport transport in transports)
             {
@@ -41,7 +41,7 @@ namespace Mirror
 
         public override bool Available(Uri uri)
         {
-            return GetAvailableTransport(uri) != null;
+            return GetSuitableTransport(uri) != null;
         }
 
         // clients always pick the first transport
@@ -59,7 +59,7 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            available = GetAvailableTransport(uri);
+            available = GetSuitableTransport(uri);
             if (available == null)
                 throw new PlatformNotSupportedException($"No transport found for {uri}");
 
