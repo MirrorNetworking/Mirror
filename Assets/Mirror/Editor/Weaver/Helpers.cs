@@ -48,24 +48,5 @@ namespace Mirror.Weaver
 
             return Path.Combine(outputDir, fileName);
         }
-
-        public static string PrettyPrintType(TypeReference type)
-        {
-            // generic instances, such as List<Int32>
-            if (type.IsGenericInstance)
-            {
-                GenericInstanceType giType = (GenericInstanceType)type;
-                return giType.Name.Substring(0, giType.Name.Length - 2) + "<" + string.Join(", ", giType.GenericArguments.Select(PrettyPrintType).ToArray()) + ">";
-            }
-
-            // generic types, such as List<T>
-            if (type.HasGenericParameters)
-            {
-                return type.Name.Substring(0, type.Name.Length - 2) + "<" + string.Join(", ", type.GenericParameters.Select(x => x.Name).ToArray()) + ">";
-            }
-
-            // non-generic type such as Int
-            return type.Name;
-        }
     }
 }
