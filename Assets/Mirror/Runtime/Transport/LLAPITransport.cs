@@ -111,7 +111,7 @@ namespace Mirror
 
         public override void ClientConnect(Uri uri)
         {
-            if (uri.Scheme != "llapi")
+            if (!Available(uri))
                 throw new Exception("Cannot connect to {uri}, it must be of the form llapi://host:port ");
 
             string address = uri.Host;
