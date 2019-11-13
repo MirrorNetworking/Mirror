@@ -6,7 +6,8 @@ namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
-
+        private const string Scheme = "ws";
+        private const string SecureScheme = "wss";
         protected Client client = new Client();
         protected Server server = new Server();
 
@@ -40,7 +41,7 @@ namespace Mirror.Websocket
             Debug.Log("Websocket transport initialized!");
         }
 
-        public override bool Available(Uri uri) => uri.Scheme == "ws" || uri.Scheme == "wss";
+        public override bool Available(Uri uri) => uri.Scheme == Scheme || uri.Scheme == SecureScheme;
 
         // client
         public override bool ClientConnected() => client.IsConnected;
