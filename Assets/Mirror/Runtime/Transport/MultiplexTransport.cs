@@ -10,7 +10,7 @@ namespace Mirror
     {
         public Transport[] transports;
 
-        private Transport available;
+        Transport available;
 
         // used to partition recipients for each one of the base transports
         // without allocating a new list every time
