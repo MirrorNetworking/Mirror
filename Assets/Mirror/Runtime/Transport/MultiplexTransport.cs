@@ -10,6 +10,8 @@ namespace Mirror
     {
         public Transport[] transports;
 
+        Transport available;
+
         // used to partition recipients for each one of the base transports
         // without allocating a new list every time
         List<int>[] recipientsCache;
@@ -51,42 +53,39 @@ namespace Mirror
             }
         }
 
-        // The client just uses the first transport available
-        Transport GetAvailableTransport()
+        public override void ClientConnect(string address)
         {
             foreach (Transport transport in transports)
             {
                 if (transport.Available())
                 {
-                    return transport;
+                    available = transport;
+                    transport.ClientConnect(address);
+
                 }
             }
             throw new Exception("No transport suitable for this platform");
         }
 
-        public override void ClientConnect(string address)
-        {
-            GetAvailableTransport().ClientConnect(address);
-        }
-
         public override bool ClientConnected()
         {
-            return GetAvailableTransport().ClientConnected();
+            return available != null && available.ClientConnected();
         }
 
         public override void ClientDisconnect()
         {
-            GetAvailableTransport().ClientDisconnect();
+            if (available != null)
+                available.ClientDisconnect();
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            return GetAvailableTransport().ClientSend(channelId, segment);
+            return available.ClientSend(channelId, segment);
         }
 
         public override int GetMaxPacketSize(int channelId = 0)
         {
-            return GetAvailableTransport().GetMaxPacketSize(channelId);
+            return available.GetMaxPacketSize(channelId);
         }
 
         #endregion
