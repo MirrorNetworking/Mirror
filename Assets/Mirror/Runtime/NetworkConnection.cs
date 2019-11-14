@@ -212,7 +212,6 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        List<int> singleConnectionId = new List<int>{-1};
         internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
         public override string ToString()
