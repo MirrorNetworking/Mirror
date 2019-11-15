@@ -78,6 +78,13 @@ namespace Mirror
         protected Transport transport;
 
         /// <summary>
+        /// Obsolete, <see cref="StartClient(Uri)"/> instead
+        /// </summary>
+        [FormerlySerializedAs("m_NetworkAddress")]
+        [Obsolete("Use StartClient(Uri) instead")]
+        public string networkAddress = "localhost";
+
+        /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
         /// </summary>
@@ -311,6 +318,15 @@ namespace Mirror
                 NetworkServer.SpawnObjects();
             }
             return true;
+        }
+
+        /// <summary>
+        /// Obsolete, use <see cref="StartClient(Uri)"/> instead
+        /// </summary>
+        [Obsolete("Use StartClient(Uri) instead")]
+        public void StartClient()
+        {
+            StartClient(new Uri($"tcp://{networkAddress}"));
         }
 
         /// <summary>
