@@ -49,7 +49,7 @@ namespace Mirror
                     // This is a special case where we have client authority but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
                     //
-                    // So we check here for a clientAuthorityOwner and if it is null we will
+                    // So we check here for a connectionToClient and if it is null we will
                     // let the server send animation data until we receive an owner.
                     if (netIdentity != null && netIdentity.clientAuthorityOwner == null)
                         return true;
