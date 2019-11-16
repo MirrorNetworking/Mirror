@@ -735,7 +735,7 @@ namespace Mirror
 
         /// <summary>
         /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
-        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
+        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player for this connection, this will fail.</para>
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
@@ -788,7 +788,7 @@ namespace Mirror
 
         /// <summary>
         /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
-        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
+        /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player for this connection, this will fail.</para>
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
@@ -810,8 +810,8 @@ namespace Mirror
                 return false;
             }
 
-            // make sure we have a controller before we call SetClientReady
-            // because the observers will be rebuilt only if we have a controller
+            // make sure we have an identity before we call SetClientReady
+            // because the observers will be rebuilt only if we have an identity
             conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
@@ -863,10 +863,8 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            // add connection to observers AFTER the playerController was set.
-            // by definition, there is nothing to observe if there is no player
-            // controller.
-            //
+            // Add connection to observers AFTER the identity is set.
+            // By definition, there is nothing to observe if there is no identity.
             // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
             SpawnObserversForConnection(conn);
 
@@ -979,9 +977,8 @@ namespace Mirror
                 return;
             }
 
-            // Commands can be for player objects, OR other objects with client-authority
-            // -> so if this connection's controller has a different netId then
-            //    only allow the command if clientAuthorityOwner
+            // Commands can be for player objects, OR other objects with client authority, so if this
+            // connection's identity has a different netId then only allow the command if connectionToClient matches.
             if (identity.connectionToClient != conn)
             {
                 Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
