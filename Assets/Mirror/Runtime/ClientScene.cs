@@ -105,7 +105,7 @@ namespace Mirror
 
             if (readyConnection.identity != null)
             {
-                Debug.LogError("ClientScene.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
+                Debug.LogError("ClientScene.AddPlayer: an identity was already added. Did you call AddPlayer twice?");
                 return false;
             }
 

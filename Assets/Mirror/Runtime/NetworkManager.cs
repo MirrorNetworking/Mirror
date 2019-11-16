@@ -1066,7 +1066,7 @@ namespace Mirror
         /// <para>The default implementation of this function destroys the corresponding player object.</para>
         /// </summary>
         /// <param name="conn">The connection to remove the player from.</param>
-        /// <param name="player">The player controller to remove.</param>
+        /// <param name="player">The player identity to remove.</param>
         public virtual void OnServerRemovePlayer(NetworkConnection conn, NetworkIdentity player)
         {
             if (player.gameObject != null)
