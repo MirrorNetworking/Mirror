@@ -29,6 +29,7 @@ namespace Mirror
         /// <para>Example usage: return Application.platform == RuntimePlatform.WebGLPlayer</para>
         /// </summary>
         /// <returns>True if this transport works in the current platform</returns>
+        /// <param name="uri">The complete URI of the server we are trying to connect to</param>
         public abstract bool Available(Uri uri);
 
         #region Client
@@ -61,7 +62,7 @@ namespace Mirror
         /// <summary>
         /// Establish a connecion to a server
         /// </summary>
-        /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
+        /// <param name="uri">The complete URI of the server we are trying to connect to</param>
         public abstract void ClientConnect(Uri uri);
 
         /// <summary>

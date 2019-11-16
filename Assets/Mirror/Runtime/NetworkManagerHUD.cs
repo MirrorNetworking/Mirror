@@ -33,7 +33,7 @@ namespace Mirror
         /// The vertical offset in pixels to draw the HUD runtime GUI at.
         /// </summary>
         public int offsetY;
-        private string networkAddress = "localhost";
+        string networkAddress = "localhost";
 
         void Awake()
         {
@@ -128,7 +128,7 @@ namespace Mirror
             GUILayout.EndArea();
         }
 
-        private Uri GetUri()
+        Uri GetUri()
         {
             UriBuilder uriBuilder = new UriBuilder();
 

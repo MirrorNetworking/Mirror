@@ -6,8 +6,8 @@ namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
-        private const string Scheme = "ws";
-        private const string SecureScheme = "wss";
+        const string Scheme = "ws";
+        const string SecureScheme = "wss";
         protected Client client = new Client();
         protected Server server = new Server();
 

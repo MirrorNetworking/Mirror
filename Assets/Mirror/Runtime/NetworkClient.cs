@@ -73,7 +73,7 @@ namespace Mirror
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
-        /// <param name="address"></param>
+        /// <param name="uri">The complete URI of the server we are trying to connect to</param>
         public static void Connect(Uri uri)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);

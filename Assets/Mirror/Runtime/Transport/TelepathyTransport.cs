@@ -11,7 +11,7 @@ namespace Mirror
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     public class TelepathyTransport : Transport
     {
-        private const string Scheme = "tcp";
+        const string Scheme = "tcp";
         public ushort port = 7777;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
