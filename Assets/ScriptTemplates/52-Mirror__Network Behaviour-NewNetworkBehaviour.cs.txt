@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class #SCRIPTNAME# : NetworkBehaviour
 {
-    #region Start & Stop callbacks
+    #region Start & Stop Callbacks
 
     /// <summary>
     /// This is invoked for NetworkBehaviour objects when they become active on the server.

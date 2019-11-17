@@ -3,7 +3,7 @@ using Mirror;
 
 public class #SCRIPTNAME# : NetworkRoomPlayer
 {
-    #region Room Client Virtuals
+    #region Room Client Callbacks
 
     /// <summary>
     /// This is a hook that is invoked on all player objects when entering the room.

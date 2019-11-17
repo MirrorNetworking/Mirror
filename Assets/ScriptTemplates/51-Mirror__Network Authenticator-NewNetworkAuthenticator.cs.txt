@@ -12,7 +12,7 @@ public class #SCRIPTNAME# : NetworkAuthenticator
 
     #endregion
 
-    #region server
+    #region Server
 
     /// <summary>
     /// Called on server from StartServer to initialize the Authenticator
@@ -42,7 +42,7 @@ public class #SCRIPTNAME# : NetworkAuthenticator
 
     #endregion
 
-    #region client
+    #region Client
 
     /// <summary>
     /// Called on client from StartClient to initialize the Authenticator

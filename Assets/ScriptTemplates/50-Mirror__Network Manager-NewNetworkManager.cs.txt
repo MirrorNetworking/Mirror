@@ -226,7 +226,7 @@ public class #SCRIPTNAME# : NetworkManager
 
     #endregion
 
-    #region Start & Stop callbacks
+    #region Start & Stop Callbacks
 
     // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
     // their functionality, users would need override all the versions. Instead these callbacks are invoked
