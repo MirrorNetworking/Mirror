@@ -11,11 +11,19 @@ public class #SCRIPTNAME# : NetworkManager
         base.OnValidate();
     }
 
+    /// <summary>
+    /// Runs on both Server and Client
+    /// Networking is NOT initialized when this fires
+    /// </summary>
     public override void Awake()
     {
         base.Awake();
     }
 
+    /// <summary>
+    /// Runs on both Server and Client
+    /// Networking is NOT initialized when this fires
+    /// </summary>
     public override void Start()
     {
         base.Start();
