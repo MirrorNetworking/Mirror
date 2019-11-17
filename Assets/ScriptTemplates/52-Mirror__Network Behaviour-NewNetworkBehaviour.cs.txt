@@ -4,36 +4,6 @@ using System.Collections.Generic;
 
 public class #SCRIPTNAME# : NetworkBehaviour
 {
-    #region Serialization
-
-    /// <summary>
-    /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
-    /// </summary>
-    /// <remarks>
-    /// <para>The initialState flag is useful to differentiate between the first time an object is serialized and when incremental updates can be sent. The first time an object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when initialState is true, only for incremental updates.</para>
-    /// <para>If a class has SyncVars, then an implementation of this function and OnDeserialize() are added automatically to the class. So a class that has SyncVars cannot also have custom serialization functions.</para>
-    /// <para>The OnSerialize function should return true to indicate that an update should be sent. If it returns true, then the dirty bits for that script are set to zero, if it returns false then the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.</para>
-    /// </remarks>
-    /// <param name="writer">Writer to use to write to the stream.</param>
-    /// <param name="initialState">If this is being called to send initial state.</param>
-    /// <returns>True if data was written.</returns>
-    public override bool OnSerialize(NetworkWriter writer, bool initialState)
-    {
-        return base.OnSerialize(writer, initialState);
-    }
-
-    /// <summary>
-    /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
-    /// </summary>
-    /// <param name="reader">Reader to read from the stream.</param>
-    /// <param name="initialState">True if being sent initial state.</param>
-    public override void OnDeserialize(NetworkReader reader, bool initialState)
-    {
-        base.OnDeserialize(reader, initialState);
-    }
-
-    #endregion
-
     #region Start & Stop callbacks
 
     /// <summary>
@@ -102,5 +72,35 @@ public class #SCRIPTNAME# : NetworkBehaviour
         return base.OnCheckObserver(conn);
     }
     
+    #endregion
+
+    #region Serialization
+
+    /// <summary>
+    /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
+    /// </summary>
+    /// <remarks>
+    /// <para>The initialState flag is useful to differentiate between the first time an object is serialized and when incremental updates can be sent. The first time an object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when initialState is true, only for incremental updates.</para>
+    /// <para>If a class has SyncVars, then an implementation of this function and OnDeserialize() are added automatically to the class. So a class that has SyncVars cannot also have custom serialization functions.</para>
+    /// <para>The OnSerialize function should return true to indicate that an update should be sent. If it returns true, then the dirty bits for that script are set to zero, if it returns false then the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.</para>
+    /// </remarks>
+    /// <param name="writer">Writer to use to write to the stream.</param>
+    /// <param name="initialState">If this is being called to send initial state.</param>
+    /// <returns>True if data was written.</returns>
+    public override bool OnSerialize(NetworkWriter writer, bool initialState)
+    {
+        return base.OnSerialize(writer, initialState);
+    }
+
+    /// <summary>
+    /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
+    /// </summary>
+    /// <param name="reader">Reader to read from the stream.</param>
+    /// <param name="initialState">True if being sent initial state.</param>
+    public override void OnDeserialize(NetworkReader reader, bool initialState)
+    {
+        base.OnDeserialize(reader, initialState);
+    }
+
     #endregion
 }
