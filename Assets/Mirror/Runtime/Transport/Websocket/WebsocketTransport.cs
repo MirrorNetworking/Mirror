@@ -11,6 +11,7 @@ namespace Mirror.Websocket
         protected Client client = new Client();
         protected Server server = new Server();
 
+        public string networkAddress = "localhost";
         public int port = 7778;
 
         public bool Secure;
@@ -46,9 +47,18 @@ namespace Mirror.Websocket
         // client
         public override bool ClientConnected() => client.IsConnected;
 
-        public override void ClientConnect(Uri uri)
+        public override void ClientConnect(Uri uri = null)
         {
-            client.Connect(uri);
+            if (uri != null)
+                client.Connect(uri);
+            else
+            {
+                UriBuilder uriBuilder = new UriBuilder();
+                uriBuilder.Host = networkAddress;
+                uriBuilder.Scheme = this.Secure ? SecureScheme : Scheme;
+                uriBuilder.Port = this.port;
+                client.Connect(uriBuilder.Uri);
+            }
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)

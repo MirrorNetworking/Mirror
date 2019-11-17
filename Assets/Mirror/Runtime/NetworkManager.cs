@@ -78,13 +78,6 @@ namespace Mirror
         protected Transport transport;
 
         /// <summary>
-        /// Obsolete, <see cref="StartClient(Uri)"/> instead
-        /// </summary>
-        [FormerlySerializedAs("m_NetworkAddress")]
-        [Obsolete("Use StartClient(Uri) instead")]
-        public string networkAddress = "localhost";
-
-        /// <summary>
         /// The maximum number of concurrent network connections to support.
         /// <para>This effects the memory usage of the network layer.</para>
         /// </summary>
@@ -321,19 +314,10 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete, use <see cref="StartClient(Uri)"/> instead
-        /// </summary>
-        [Obsolete("Use StartClient(Uri) instead")]
-        public void StartClient()
-        {
-            StartClient(new Uri($"tcp://{networkAddress}"));
-        }
-
-        /// <summary>
         /// This starts a network client
         /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
-        public void StartClient(Uri uri)
+        public void StartClient(Uri uri = null)
         {
             InitializeSingleton();
 

@@ -19,6 +19,7 @@ namespace Mirror
     public class LLAPITransport : Transport
     {
         const string Scheme = "llapi";
+        public string networkAddress = "localhost";
         public ushort port = 7777;
 
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
@@ -110,13 +111,13 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        public override void ClientConnect(Uri uri)
+        public override void ClientConnect(Uri uri = null)
         {
-            if (!Available(uri))
+            if (uri != null && !Available(uri))
                 throw new Exception("Cannot connect to {uri}, it must be of the form llapi://host:port ");
 
-            string address = uri.Host;
-            int port = uri.IsDefaultPort ? this.port : uri.Port;
+            string address = uri?.Host ?? networkAddress;
+            int port = uri == null || uri.IsDefaultPort ? this.port : uri.Port;
 
             // LLAPI can't handle 'localhost'
             if (address.ToLower() == "localhost") address = "127.0.0.1";

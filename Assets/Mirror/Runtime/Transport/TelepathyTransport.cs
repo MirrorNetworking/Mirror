@@ -12,6 +12,7 @@ namespace Mirror
     public class TelepathyTransport : Transport
     {
         const string Scheme = "tcp";
+        public string networkAddress = "localhost";
         public ushort port = 7777;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
@@ -57,13 +58,13 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
 
-        public override void ClientConnect(Uri uri)
+        public override void ClientConnect(Uri uri = null)
         {
-            if (!Available(uri))
+            if (uri != null && !Available(uri))
                 throw new Exception("Cannot connect to {uri}, it must be of the form tcp://host:port ");
 
-            string address = uri.Host;
-            int port = uri.IsDefaultPort ? this.port : uri.Port;
+            string address = uri?.Host ?? networkAddress;
+            int port = uri == null || uri.IsDefaultPort ? this.port : uri.Port;
 
             client.Connect(address, port);
         }

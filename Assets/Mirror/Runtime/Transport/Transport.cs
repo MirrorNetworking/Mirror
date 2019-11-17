@@ -63,7 +63,7 @@ namespace Mirror
         /// Establish a connecion to a server
         /// </summary>
         /// <param name="uri">The complete URI of the server we are trying to connect to</param>
-        public abstract void ClientConnect(Uri uri);
+        public abstract void ClientConnect(Uri uri = null);
 
         /// <summary>
         /// Send data to the server
