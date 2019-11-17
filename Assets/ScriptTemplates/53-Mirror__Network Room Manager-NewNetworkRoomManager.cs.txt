@@ -1,6 +1,21 @@
 using UnityEngine;
 using Mirror;
 
+/*
+	Documentation: https://mirror-networking.com/docs/Components/NetworkRoomManager.html
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkRoomManager.html
+
+	See Also: NetworkManager
+	Documentation: https://mirror-networking.com/docs/Components/NetworkManager.html
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
+*/
+
+/// <summary>
+/// This is a specialized NetworkManager that includes a networked room.
+/// The room has slots that track the joined players, and a maximum player count that is enforced.
+/// It requires that the NetworkRoomPlayer component be on the room player objects.
+/// NetworkRoomManager is derived from NetworkManager, and so it implements many of the virtual functions provided by the NetworkManager class.
+/// </summary>
 public class #SCRIPTNAME# : NetworkRoomManager
 {
     #region Server Callbacks

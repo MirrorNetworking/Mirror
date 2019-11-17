@@ -2,6 +2,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Mirror;
 
+/*
+	Authenticators: https://mirror-networking.com/docs/Components/Authenticators/
+	Documentation: https://mirror-networking.com/docs/Guides/Authentication.html
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkAuthenticator.html
+*/
+
 public class #SCRIPTNAME# : NetworkAuthenticator
 {
     #region Messages
