@@ -46,9 +46,9 @@ namespace Mirror
 		static UdpClient m_serverUdpCl = null;
 		static UdpClient m_clientUdpCl = null;
 
-		public bool simulateResponding = false;
-
 		static string m_signature = null;
+
+		static bool m_wasServerActiveLastTime = false;
 
 		public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
@@ -78,54 +78,11 @@ namespace Mirror
 
 			StartCoroutine (ServerCoroutine ());
 
-			StartCoroutine (SimulateRespondingCoroutine ());
-
 		}
 
 		void OnDisable ()
 		{
 			ShutdownUdpClients ();
-		}
-
-
-		/// <summary>
-		/// Simulates responses from server.
-		/// </summary>
-		static System.Collections.IEnumerator SimulateRespondingCoroutine()
-		{
-
-			yield return new WaitForSecondsRealtime (4f);
-
-			// generate some random IPs
-			string[] ips = new string[15];
-			for (int i = 0; i < ips.Length; i++) {
-				string ip = Random.Range( 1, 255 ) + "." + Random.Range( 1, 255 ) + "." + Random.Range( 1, 255 ) + "." + Random.Range( 1, 255 ) ;
-				ips [i] = ip;
-			}
-
-			while (true) {
-
-				yield return null;
-
-				float pauseTime = Random.Range (0.1f, 0.7f);
-				yield return new WaitForSecondsRealtime (pauseTime);
-
-				if (!singleton.simulateResponding)
-					continue;
-
-				string ip = ips [Random.Range (0, ips.Length - 1)];
-
-				var dict = new Dictionary<string, string> () {
-					{ kSignatureKey, GetSignature() },
-					{ kPortKey, Random.Range (1, 65535).ToString () },
-					{ kNumPlayersKey, Random.Range (0, 20).ToString () },
-					{ kMaxNumPlayersKey, Random.Range (30, 100).ToString () },
-					{ kMapNameKey, "arena" }
-				};
-
-				OnReceivedServerResponse( new DiscoveryInfo( new IPEndPoint(IPAddress.Parse(ip), Random.Range (1, 65535)), dict ) );
-			}
-
 		}
 
 
@@ -139,15 +96,20 @@ namespace Mirror
 				UpdateResponseData ();
 			}
 
-			if(IsServerActive)
+			bool isServerActiveNow = IsServerActive;
+
+			if (isServerActiveNow != m_wasServerActiveLastTime)
 			{
-				// make sure server's UDP client is created
-				EnsureServerIsInitialized();
-			}
-			else
-			{
-				// we should close server's UDP client
-				CloseServerUdpClient();
+				// server status changed
+				// start/stop server's udp client
+
+				m_wasServerActiveLastTime = isServerActiveNow;
+
+				if (isServerActiveNow)
+					EnsureServerIsInitialized();
+				else
+					CloseServerUdpClient();
+				
 			}
 
 		}
@@ -234,7 +196,7 @@ namespace Mirror
 			while (true)
 			{
 
-				yield return new WaitForSecondsRealtime (0.3f);
+				yield return null;
 
 				if (null == m_serverUdpCl)
 					continue;
@@ -279,7 +241,7 @@ namespace Mirror
 
 			while (true)
 			{
-				yield return new WaitForSecondsRealtime (0.3f);
+				yield return null;
 
 				if (null == m_clientUdpCl)
 					continue;
@@ -534,7 +496,7 @@ namespace Mirror
 			if (m_signature != null)
 				return m_signature;
 			
-			string[] strings = new string[]{ Application.companyName, Application.productName, Application.version, 
+			string[] strings = new string[]{ Application.companyName, Application.productName, 
 				Application.unityVersion };
 
 			m_signature = "";
@@ -580,12 +542,26 @@ namespace Mirror
 
 		public static byte[] ConvertStringToPacketData(string str)
 		{
-			return System.Text.Encoding.UTF8.GetBytes(str);
+			byte[] data = new byte[str.Length * 2];
+			for (int i = 0; i < str.Length; i++)
+			{
+				ushort c = str[i];
+				data[i * 2] = (byte) ((c & 0xff00) >> 8);
+				data[i * 2 + 1] = (byte) (c & 0x00ff);
+			}
+			return data;
 		}
 
 		public static string ConvertPacketDataToString(byte[] data)
 		{
-			return System.Text.Encoding.UTF8.GetString(data);
+			char[] arr = new char[data.Length / 2];
+			for (int i = 0; i < arr.Length; i++)
+			{
+				ushort b1 = data[i * 2];
+				ushort b2 = data[i * 2 + 1];
+				arr[i] = (char)((b1 << 8) | b2);
+			}
+			return new string(arr);
 		}
 
 

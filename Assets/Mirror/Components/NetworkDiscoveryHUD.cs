@@ -13,7 +13,7 @@ namespace Mirror
         string[] m_headerNames = new string[]{"IP", NetworkDiscovery.kMapNameKey, NetworkDiscovery.kNumPlayersKey, 
             NetworkDiscovery.kMaxNumPlayersKey};
         Vector2 m_scrollViewPos = Vector2.zero;
-        bool IsRefreshing { get { return Time.realtimeSinceStartup - m_timeWhenRefreshed < this.refreshInterval; } }
+        public bool IsRefreshing { get { return Time.realtimeSinceStartup - m_timeWhenRefreshed < this.refreshInterval; } }
         float m_timeWhenRefreshed = 0f;
         bool m_displayBroadcastAddresses = false;
 
@@ -26,12 +26,20 @@ namespace Mirror
 
         GUIStyle m_centeredLabelStyle;
 
+        public bool drawGUI = true;
         public int offsetX = 5;
         public int offsetY = 150;
         public int width = 500, height = 400;
         [Range(1, 5)] public float refreshInterval = 3f;
 
+        public System.Action<NetworkDiscovery.DiscoveryInfo> connectAction;
 
+
+
+        NetworkDiscoveryHUD()
+        {
+            this.connectAction = this.Connect;
+        }
 
         void OnEnable()
         {
@@ -50,6 +58,20 @@ namespace Mirror
 
         void OnGUI()
         {
+            
+            if (null == m_centeredLabelStyle)
+            {
+                m_centeredLabelStyle = new GUIStyle(GUI.skin.label);
+                m_centeredLabelStyle.alignment = TextAnchor.MiddleCenter;
+            }
+
+            if (this.drawGUI)
+                this.Display(new Rect(offsetX, offsetY, width, height));
+            
+        }
+
+        public void Display(Rect displayRect)
+        {
             if (null == NetworkManager.singleton)
                 return;
             if (NetworkServer.active || NetworkClient.active)
@@ -57,27 +79,9 @@ namespace Mirror
             if (!NetworkDiscovery.SupportedOnThisPlatform)
                 return;
 
-            if (null == m_centeredLabelStyle)
-            {
-                m_centeredLabelStyle = new GUIStyle(GUI.skin.label);
-                m_centeredLabelStyle.alignment = TextAnchor.MiddleCenter;
-            }
+            GUILayout.BeginArea(displayRect);
 
-            int elemWidth = width / m_headerNames.Length - 5;
-
-            GUILayout.BeginArea(new Rect(offsetX, offsetY, width, height));
-
-            if(IsRefreshing)
-            {
-                GUILayout.Button("Refreshing...", GUILayout.Height(25), GUILayout.ExpandWidth(false));
-            }
-            else
-            {
-                if (GUILayout.Button("Refresh LAN", GUILayout.Height(25), GUILayout.ExpandWidth(false)))
-                {
-                    Refresh();
-                }
-            }
+            this.DisplayRefreshButton();
 
             // lookup a server
 
@@ -112,6 +116,32 @@ namespace Mirror
 
             GUILayout.Label(string.Format("Servers [{0}]:", m_discoveredServers.Count));
 
+            this.DisplayServers();
+
+            GUILayout.EndArea();
+
+        }
+
+        public void DisplayRefreshButton()
+        {
+            if(IsRefreshing)
+            {
+                GUILayout.Button("Refreshing...", GUILayout.Height(25), GUILayout.ExpandWidth(false));
+            }
+            else
+            {
+                if (GUILayout.Button("Refresh LAN", GUILayout.Height(25), GUILayout.ExpandWidth(false)))
+                {
+                    Refresh();
+                }
+            }
+        }
+
+        public void DisplayServers()
+        {
+
+            int elemWidth = this.width / m_headerNames.Length - 5;
+
             // header
             GUILayout.BeginHorizontal();
             foreach(string str in m_headerNames)
@@ -127,7 +157,7 @@ namespace Mirror
                 GUILayout.BeginHorizontal();
 
                 if( GUILayout.Button(info.EndPoint.Address.ToString(), GUILayout.Width(elemWidth)) )
-                    Connect(info);
+                    this.connectAction(info);
 
                 for( int i = 1; i < m_headerNames.Length; i++ )
                 {
@@ -142,12 +172,9 @@ namespace Mirror
 
             GUILayout.EndScrollView();
 
-
-            GUILayout.EndArea();
-
         }
 
-        void Refresh()
+        public void Refresh()
         {
             m_discoveredServers.Clear();
 
@@ -157,7 +184,7 @@ namespace Mirror
             
         }
 
-        void LookupServer()
+        public void LookupServer()
         {
             // parse IP and port
 
