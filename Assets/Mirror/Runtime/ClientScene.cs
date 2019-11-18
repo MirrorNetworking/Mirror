@@ -654,6 +654,9 @@ namespace Mirror
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity) && identity != null)
             {
+                if (msg.isLocalPlayer)
+                    localPlayer = identity;
+
                 identity.OnSetLocalVisibility(true);
                 identity.OnStartClient();
                 if (msg.isLocalPlayer)
