@@ -68,6 +68,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -107,8 +108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverOnly: 0
-  localPlayerAuthority: 0
-  m_AssetId: e1971f4a8c7661546bc509b44bd91b80
+  m_AssetId: 
   m_SceneId: 0
 --- !u!114 &5697694911122891659
 MonoBehaviour:
@@ -130,4 +130,4 @@ MonoBehaviour:
   forceHidden: 0
   castLayers:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 256
