@@ -123,6 +123,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverOnly: 0
-  localPlayerAuthority: 0
-  m_AssetId: 52f1c9ea06cfd154cb68ff9d1b66fc13
-  m_SceneId: 0
+  m_AssetId: 
+  m_SceneId: 3180781472
