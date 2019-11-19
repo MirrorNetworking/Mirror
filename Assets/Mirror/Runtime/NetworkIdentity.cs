@@ -494,7 +494,7 @@ namespace Mirror
             }
         }
 
-        private bool clientStarted ;
+        bool clientStarted;
 
         internal void OnStartClient()
         {
@@ -1093,7 +1093,7 @@ namespace Mirror
 
             SetClientOwner(conn);
 
-            // The client will match to the existing object 
+            // The client will match to the existing object
             // update all variables and assign authority
             NetworkServer.SendSpawnMessage(this, conn);
             return true;
