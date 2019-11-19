@@ -70,36 +70,12 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer => ClientScene.localPlayer == this;
 
-        bool isOwner;
-
         /// <summary>
         /// This returns true if this object is the authoritative player object on the client.
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        public bool hasAuthority
-        {
-            get => isOwner;
-            set
-            {
-                bool previous = isOwner;
-                isOwner = value;
-
-                if (previous && !isOwner)
-                {
-                    OnStopAuthority();
-                }
-                if (!previous && isOwner)
-                {
-                    OnStartAuthority();
-                }
-            }
-        }
-
-        // whether this object has been spawned with authority
-        // we need hasAuthority and pendingOwner because
-        // we need to wait until all of them spawn before updating hasAuthority
-        internal bool pendingAuthority { get; set; }
+        public bool hasAuthority { get; internal set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
@@ -542,6 +518,16 @@ namespace Mirror
             clientStarted = true;
         }
 
+        bool hadAuthority;
+        internal void NotifyAuthority()
+        {
+            if (!hadAuthority && hasAuthority)
+                OnStartAuthority();
+            if (hadAuthority && !hasAuthority)
+                OnStopAuthority();
+            hadAuthority = hasAuthority;
+        }
+
         void OnStartAuthority()
         {
             if (networkBehavioursCache == null)
@@ -856,6 +842,7 @@ namespace Mirror
             // or it will be called twice for this object, but that state is lost by the time OnStartAuthority
             // is called below, so the original value is cached here to be checked below.
             hasAuthority = true;
+            NotifyAuthority();
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
             {
