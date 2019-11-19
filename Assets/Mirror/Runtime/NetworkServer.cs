@@ -819,6 +819,10 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = (NetworkConnectionToClient)conn;
 
+            // special case to ensure that isLocalPlayer is true before calling OnStartServer
+            if (NetworkClient.active)
+                ClientScene.localPlayer = identity;
+
             // set ready if not set yet
             SetClientReady(conn);
 
@@ -855,6 +859,10 @@ namespace Mirror
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = (Mirror.NetworkConnectionToClient)conn;
+
+            // special case to ensure that isLocalPlayer is true before calling OnStartServer
+            if (NetworkClient.active)
+                ClientScene.localPlayer = identity;
 
             //NOTE: DONT set connection ready.
 
