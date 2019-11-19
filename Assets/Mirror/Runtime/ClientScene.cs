@@ -582,10 +582,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
                 identity.hasAuthority = identity.pendingAuthority;
-                if (!identity.isClient)
-                {
-                    identity.OnStartClient();
-                }
+                identity.OnStartClient();
             }
             if (localPlayer != null)
                 OnSpawnMessageForLocalPlayer(localPlayer);

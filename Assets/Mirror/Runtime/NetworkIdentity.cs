@@ -57,7 +57,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient { get; internal set; }
+        public bool isClient => NetworkClient.active && netId != 0;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -523,9 +523,12 @@ namespace Mirror
             }
         }
 
+        private bool clientStarted ;
+
         internal void OnStartClient()
         {
-            isClient = true;
+            if (clientStarted)
+                return;
 
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -539,6 +542,7 @@ namespace Mirror
                     Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
                 }
             }
+            clientStarted = true;
         }
 
         void OnStartAuthority()
@@ -1105,7 +1109,7 @@ namespace Mirror
 
             m_Reset = false;
             serverStarted = false;
-            isClient = false;
+            clientStarted = false;
 
             netId = 0;
             connectionToServer = null;
