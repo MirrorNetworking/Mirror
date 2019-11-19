@@ -980,15 +980,6 @@ namespace Mirror
                 }
             }
 
-            // special case for host mode client.
-            if (initialize)
-            {
-                if (!newObservers.Contains(NetworkServer.localConnection))
-                {
-                    OnSetHostVisibility(false);
-                }
-            }
-
             if (changed)
             {
                 observers.Clear();
