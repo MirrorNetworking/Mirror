@@ -460,8 +460,14 @@ namespace Mirror
             }
         }
 
+        bool serverStarted;
+
         internal void OnStartServer()
         {
+            if (serverStarted)
+                return;
+            serverStarted = true;
+
             observers = new Dictionary<int, NetworkConnection>();
 
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
@@ -1111,6 +1117,7 @@ namespace Mirror
                 return;
 
             m_Reset = false;
+            serverStarted = false;
             clientStarted = false;
 
             netId = 0;
