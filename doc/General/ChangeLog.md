@@ -4,7 +4,7 @@
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
 - Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
 - Fixed: isClient and isServer are now true for networked objects in Start and OnStartClient / OnStartServer, respectively
-- Fixed: hasAuthority is now set before OnStartClient is invoked
+- Fixed: hasAuthority is now set before OnStartClient and OnStartLocalPlayer are invoked
 - Changed: connectionToClient is now used to assign client authority
 - Changed: In many respects, the Host player acts a lot more like a client and will reveal bugs better.
 - Removed: NetworkServer.SpawnWithClientAuthority is deprecated in favor of overloads of NetworkServer.Spawn
