@@ -479,6 +479,7 @@ namespace Mirror
             identity.transform.localPosition = msg.position;
             identity.transform.localRotation = msg.rotation;
             identity.transform.localScale = msg.scale;
+            identity.hasAuthority = msg.isOwner;
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
@@ -490,14 +491,13 @@ namespace Mirror
 
             identity.netId = msg.netId;
             NetworkIdentity.spawned[msg.netId] = identity;
-            identity.pendingAuthority = msg.isOwner;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
             {
+                identity.NotifyAuthority();
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
-                identity.hasAuthority = identity.pendingAuthority;
             }
         }
 
@@ -595,9 +595,9 @@ namespace Mirror
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
-                identity.hasAuthority = identity.pendingAuthority;
                 if (!identity.isClient)
                 {
+                    identity.NotifyAuthority();
                     identity.OnStartClient();
                     CheckForLocalPlayer(identity);
                 }
@@ -669,6 +669,7 @@ namespace Mirror
             {
                 localObject.hasAuthority = msg.isOwner;
                 localObject.OnSetHostVisibility(true);
+                localObject.NotifyAuthority();
             }
         }
 
