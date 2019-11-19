@@ -52,9 +52,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverOnly: 0
-  localPlayerAuthority: 1
-  m_AssetId: 6f43bf5488a7443d19ab2a83c6b91f35
-  m_SceneId: 0
+  m_AssetId: 
+  m_SceneId: 4003200786
 --- !u!95 &2240606817507776182
 Animator:
   serializedVersion: 3
