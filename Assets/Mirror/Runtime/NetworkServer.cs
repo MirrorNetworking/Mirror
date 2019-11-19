@@ -1003,6 +1003,11 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
+            // special case to make sure hasAuthority is set
+            // on start server in host mode
+            if (ownerConnection is ULocalConnectionToClient)
+                identity.hasAuthority = true;
+            
             identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
