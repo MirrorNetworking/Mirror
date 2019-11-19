@@ -23,7 +23,7 @@ namespace Mirror
         /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public static NetworkIdentity localPlayer { get; private set; }
+        public static NetworkIdentity localPlayer { get; internal set; }
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
