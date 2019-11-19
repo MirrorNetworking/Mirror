@@ -494,8 +494,13 @@ namespace Mirror
             }
         }
 
+        private bool clientStarted ;
+
         internal void OnStartClient()
         {
+            if (clientStarted)
+                return;
+
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -508,6 +513,7 @@ namespace Mirror
                     Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
                 }
             }
+            clientStarted = true;
         }
 
         bool hadAuthority;
@@ -1105,6 +1111,7 @@ namespace Mirror
                 return;
 
             m_Reset = false;
+            clientStarted = false;
 
             netId = 0;
             connectionToServer = null;

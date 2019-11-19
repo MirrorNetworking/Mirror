@@ -201,12 +201,9 @@ namespace Mirror
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                if (!identity.isClient)
-                {
-                    if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
+                if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
 
-                    identity.OnStartClient();
-                }
+                identity.OnStartClient();
             }
         }
 

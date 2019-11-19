@@ -588,8 +588,6 @@ namespace Mirror
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
             }
-            if (localPlayer != null)
-                OnSpawnMessageForLocalPlayer(localPlayer);
             isSpawnFinished = true;
         }
 
