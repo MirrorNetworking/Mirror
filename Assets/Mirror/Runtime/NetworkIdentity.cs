@@ -482,7 +482,7 @@ namespace Mirror
 
         bool serverStarted;
 
-        internal void OnStartServer(bool allowNonZeroNetId)
+        internal void OnStartServer()
         {
             if (serverStarted)
                 return;
@@ -497,11 +497,8 @@ namespace Mirror
             }
             else
             {
-                if (!allowNonZeroNetId)
-                {
-                    Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
-                    return;
-                }
+                Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
+                return;
             }
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);

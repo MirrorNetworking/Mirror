@@ -1003,7 +1003,7 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
-            identity.OnStartServer(false);
+            identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
