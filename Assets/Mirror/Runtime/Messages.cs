@@ -198,7 +198,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Create your own message instead. See <a href="../Guides/Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
+        /// Obsolete: Create your own message instead. See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a>
         /// </summary>
         [Obsolete("Create your own message instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html")]
         public void Serialize(NetworkWriter writer)
