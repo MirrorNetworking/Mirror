@@ -12,7 +12,7 @@
 ## Version 5.0.2 - 2019-Nov-03
 - Added: SyncList and SyncSet custom Equality Comparer support
 - Added: Custom serializers may be implemented for any type in Cmd's and Rpc's
-- Added: [Fallback Transport](../Transports)
+- Added: [Fallback Transport](../Transports/Fallback.md)
 - Fixed: SyncVar hooks are no longer called in Host if no change
 - Fixed: NetworkIdentity no longer throws a null reference exception in RemoveClientAuthority
 - Fixed: Server transport now suspended during scene change to prevent erroneous messages
