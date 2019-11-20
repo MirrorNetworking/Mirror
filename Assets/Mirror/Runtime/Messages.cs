@@ -21,6 +21,7 @@ namespace Mirror
     }
 
     #region General Typed Messages
+    [Obsolete("Create your own message class instead")]
     public class StringMessage : MessageBase
     {
         public string value;
@@ -43,6 +44,7 @@ namespace Mirror
         }
     }
 
+    [Obsolete("Create your own message class instead")]
     public class ByteMessage : MessageBase
     {
         public byte value;
@@ -65,6 +67,7 @@ namespace Mirror
         }
     }
 
+    [Obsolete("Create your own message class instead")]
     public class BytesMessage : MessageBase
     {
         public byte[] value;
@@ -87,6 +90,7 @@ namespace Mirror
         }
     }
 
+    [Obsolete("Create your own message class instead")]
     public class IntegerMessage : MessageBase
     {
         public int value;
@@ -109,6 +113,7 @@ namespace Mirror
         }
     }
 
+    [Obsolete("Create your own message class instead")]
     public class DoubleMessage : MessageBase
     {
         public double value;
@@ -131,6 +136,7 @@ namespace Mirror
         }
     }
 
+    [Obsolete("Create your own message class instead")]
     public class EmptyMessage : MessageBase
     {
         public override void Deserialize(NetworkReader reader) { }
