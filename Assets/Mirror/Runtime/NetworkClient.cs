@@ -334,17 +334,17 @@ namespace Mirror
             return (float)NetworkTime.rtt;
         }
 
-        internal static void RegisterSystemHandlers(bool localClient)
+        internal static void RegisterSystemHandlers(bool hostMode)
         {
-            // local client / regular client react to some messages differently.
+            // host mode client / regular client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
             // 'message id not found' errors.
-            if (localClient)
+            if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnLocalClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(ClientScene.OnLocalClientObjectHide);
+                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnHostClientObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>((conn, msg) => { }, false);
-                RegisterHandler<SpawnMessage>(ClientScene.OnLocalClientSpawn);
+                RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { }); // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { }); // host mode doesn't need spawning
                 RegisterHandler<UpdateVarsMessage>((conn, msg) => { });

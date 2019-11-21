@@ -649,28 +649,28 @@ namespace Mirror
             }
         }
 
-        internal static void OnLocalClientObjectDestroy(ObjectDestroyMessage msg)
+        internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
 
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
-        internal static void OnLocalClientObjectHide(ObjectHideMessage msg)
+        internal static void OnHostClientObjectHide(ObjectHideMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
 
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                localObject.OnSetLocalVisibility(false);
+                localObject.OnSetHostVisibility(false);
             }
         }
 
-        internal static void OnLocalClientSpawn(SpawnMessage msg)
+        internal static void OnHostClientSpawn(SpawnMessage msg)
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                localObject.OnSetLocalVisibility(true);
+                localObject.OnSetHostVisibility(true);
             }
         }
 
