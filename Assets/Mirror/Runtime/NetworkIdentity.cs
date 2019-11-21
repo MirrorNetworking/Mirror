@@ -564,16 +564,16 @@ namespace Mirror
             }
         }
 
-        internal void OnSetHostVisibility(bool vis)
+        internal void OnSetHostVisibility(bool visible)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
                 {
 #pragma warning disable 618
-                    comp.OnSetLocalVisibility(vis); // remove later!
+                    comp.OnSetLocalVisibility(visible); // remove later!
 #pragma warning restore 618
-                    comp.OnSetHostVisibility(vis);
+                    comp.OnSetHostVisibility(visible);
                 }
                 catch (Exception e)
                 {
