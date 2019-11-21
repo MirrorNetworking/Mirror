@@ -570,6 +570,9 @@ namespace Mirror
             {
                 try
                 {
+#pragma warning disable 618
+                    comp.OnSetLocalVisibility(vis); // remove later!
+#pragma warning restore 618
                     comp.OnSetHostVisibility(vis);
                 }
                 catch (Exception e)

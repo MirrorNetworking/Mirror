@@ -806,6 +806,9 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Rename to OnSetHostVisibility instead.")]
+        public virtual void OnSetLocalVisibility(bool visible) {}
+
         /// <summary>
         /// Callback used by the visibility system for objects on a host.
         /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
