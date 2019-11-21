@@ -564,13 +564,13 @@ namespace Mirror
             }
         }
 
-        internal void OnSetLocalVisibility(bool vis)
+        internal void OnSetHostVisibility(bool vis)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
                 {
-                    comp.OnSetLocalVisibility(vis);
+                    comp.OnSetHostVisibility(vis);
                 }
                 catch (Exception e)
                 {
@@ -977,12 +977,12 @@ namespace Mirror
                 }
             }
 
-            // special case for local client.
+            // special case for host mode client.
             if (initialize)
             {
                 if (!newObservers.Contains(NetworkServer.localConnection))
                 {
-                    OnSetLocalVisibility(false);
+                    OnSetHostVisibility(false);
                 }
             }
 

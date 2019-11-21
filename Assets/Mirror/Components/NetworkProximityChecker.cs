@@ -157,10 +157,13 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called when hiding and showing objects on the host
+        /// Called when hiding and showing objects on the host.
+        /// On regular clients, objects simply spawn/despawn.
+        /// On host, objects need to remain in scene because the host is also the server.
+        ///    In that case, we simply hide/show meshes for the host player.
         /// </summary>
         /// <param name="visible"></param>
-        public override void OnSetLocalVisibility(bool visible)
+        public override void OnSetHostVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
             {
