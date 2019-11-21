@@ -980,6 +980,32 @@ namespace Mirror
                 }
             }
 
+            // special case for host mode client: if host is no observer anymore
+            // then hide meshes, so that the host player doesn't see everyone
+            // on the server. this is what games like Counter-Strike and Dota
+            // do as well. Even though host is server, he doesn't see everyone
+            // to make fair play possible.
+            //
+            // => not necessary for regular clients because objects spawn/
+            //    despawn there
+            // => not necessary for server-only because:
+            //    * most servers run in headless mode and don't render anything
+            //    * we would call GetComponentsInChildren<Renderer>() each time,
+            //      which is very costly
+            //    * hiding all NetworkIdentities in server-only mode makes
+            //      editor debugging harder because players are always invisible
+            //      (that was the case since UNET release)
+            if (initialize)
+            {
+                // check if not server-only (!= null)
+                // check if host is not in observers anymore
+                if (NetworkServer.localConnection != null &&
+                    !newObservers.Contains(NetworkServer.localConnection))
+                {
+                    OnSetHostVisibility(false);
+                }
+            }
+
             if (changed)
             {
                 observers.Clear();
