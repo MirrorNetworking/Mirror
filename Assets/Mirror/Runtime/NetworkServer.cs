@@ -20,6 +20,9 @@ namespace Mirror
         static bool initialized;
         static int maxConnections;
 
+        /// <summary>
+        /// The connection to the host mode client (if any).
+        /// </summary>
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
