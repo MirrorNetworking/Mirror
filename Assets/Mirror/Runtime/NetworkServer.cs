@@ -1247,19 +1247,18 @@ namespace Mirror
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="player">The player object to set Client Authority to.</param>
-        /// <returns></returns>
         public static void Spawn(GameObject obj, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("SpawnWithClientAuthority player object has no NetworkIdentity");
+                Debug.LogError("Player object has no NetworkIdentity");
                 return;
             }
 
             if (identity.connectionToClient == null)
             {
-                Debug.LogError("SpawnWithClientAuthority player object is not a player.");
+                Debug.LogError("Player object is not a player.");
                 return;
             }
 
@@ -1282,12 +1281,11 @@ namespace Mirror
         /// </summary>
         /// <param name="obj">The object to spawn.</param>
         /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
         public static void Spawn(GameObject obj, NetworkConnection conn)
         {
             if (!conn.isReady)
             {
-                Debug.LogError("SpawnWithClientAuthority NetworkConnection is not ready!");
+                Debug.LogError("NetworkConnection is not ready!");
                 return;
             }
 
@@ -1320,7 +1318,6 @@ namespace Mirror
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
         /// <param name="conn">The connection to set Client Authority to.</param>
-        /// <returns></returns>
         public static void Spawn(GameObject obj, Guid assetId, NetworkConnection conn)
         {
             Spawn(obj, assetId);
