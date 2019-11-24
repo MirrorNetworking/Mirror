@@ -885,11 +885,6 @@ namespace Mirror
         internal void SetLocalPlayer()
         {
             isLocalPlayer = true;
-
-            // There is an ordering issue here that originAuthority solves:
-            // OnStartAuthority should only be called if hasAuthority was false when this function began,
-            // or it will be called twice for this object, but that state is lost by the time OnStartAuthority
-            // is called below, so the original value is cached here to be checked below.
             hasAuthority = true;
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
