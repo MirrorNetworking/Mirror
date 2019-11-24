@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.Additive
 {
+    [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
     {
         [Scene]
