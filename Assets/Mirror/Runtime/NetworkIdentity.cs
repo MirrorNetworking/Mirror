@@ -133,7 +133,7 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
-        /// Obsolete: Use connectionToClient instead
+        /// Obsolete: Use <see cref="connectionToClient" /> instead
         /// </summary>
         [Obsolete("Use connectionToClient instead")]
         public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
