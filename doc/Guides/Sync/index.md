@@ -31,7 +31,7 @@ public virtual bool OnSerialize(NetworkWriter writer, bool initialState);
 ```
 
 ```cs
-public virtual void OnDeSerialize(NetworkReader reader, bool initialState);
+public virtual void OnDeserialize(NetworkReader reader, bool initialState);
 ```
 
 Use the `initialState` flag to differentiate between the first time a game object is serialized and when incremental updates can be sent. The first time a game object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when `initialState` is true; they are only called for incremental updates.
