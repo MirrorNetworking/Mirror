@@ -1032,6 +1032,11 @@ namespace Mirror
             //   => that part was the intended behaviour
             // * it hides ALL NetworkIdentities in host mode when the host
             //   connects but hasn't selected a character yet
+            //   => this only works because we have no .localConnection != null
+            //      check. at this stage, localConnection is null because
+            //      StartHost starts the server first, then calls this code,
+            //      then starts the client and sets .localConnection. so we can
+            //      NOT add a null check without breaking host visibility here.
             // * it hides ALL NetworkIdentities in server-only mode because
             //   observers never contain the 'null' .localConnection
             //   => that was not intended, but let's keep it as it is so we
