@@ -510,12 +510,6 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId} pos={msg.position}");
 
-            // is this supposed to be the local player?
-            if (msg.isLocalPlayer)
-            {
-                OnSpawnMessageForLocalPlayer(msg.netId);
-            }
-
             // was the object already spawned?
             NetworkIdentity identity = GetExistingObject(msg.netId);
 
@@ -716,30 +710,14 @@ namespace Mirror
             }
         }
 
-        // called for the one object in the spawn message which is the local player!
-        internal static void OnSpawnMessageForLocalPlayer(uint netId)
-        {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnSpawnMessageForLocalPlayer - " + readyConnection + " netId: " + netId);
-
-            // is there already an owner that is a different object??
-            if (readyConnection.identity != null)
-            {
-                readyConnection.identity.SetNotLocalPlayer();
-            }
-
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                // this object already exists
-                localObject.connectionToServer = readyConnection;
-                localObject.SetLocalPlayer();
-                InternalAddPlayer(localObject);
-            }
-        }
-
         static void CheckForLocalPlayer(NetworkIdentity identity)
         {
             if (identity.pendingLocalPlayer)
             {
+                if (readyConnection.identity != null && readyConnection.identity != identity)
+                {
+                    readyConnection.identity.SetNotLocalPlayer();
+                }
                 // supposed to be local player, so make it the local player!
 
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
