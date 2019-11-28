@@ -6,12 +6,6 @@ namespace Mirror.Examples.NetworkRoom
     {
         public NetworkIdentity prizePrefab;
 
-        float x;
-        float z;
-
-        GameObject newPrize;
-        Reward reward;
-
         public override void OnStartServer()
         {
             for (int i = 0; i < 10; i++)
@@ -20,12 +14,11 @@ namespace Mirror.Examples.NetworkRoom
 
         public void SpawnPrize()
         {
-            x = Random.Range(-19, 20);
-            z = Random.Range(-19, 20);
+            Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
 
-            newPrize = Instantiate(prizePrefab.gameObject, new Vector3(x, 1, z), Quaternion.identity);
+            GameObject newPrize = Instantiate(prizePrefab.gameObject, spawnPosition, Quaternion.identity);
             newPrize.name = prizePrefab.name;
-            reward = newPrize.gameObject.GetComponent<Reward>();
+            Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
 
             NetworkServer.Spawn(newPrize);
