@@ -2,7 +2,7 @@
 
 The client and server can pass data to each other via [Remote methods](Communications/RemoteActions.md), [State Synchronization](Sync/index.md) or via [Network Messages](Communications/NetworkMessages.md)
 
-Mirror supports a number of data types you can use with these,  including:
+Mirror supports a number of data types you can use with these, including:
 - Basic c# types (byte, int, char, uint, float, string, UInt64, etc)
 - Built-in Unity math type (Vector3, Quaternion, Rect, Plane, Vector3Int, etc)
 - NetworkIdentity
@@ -13,11 +13,11 @@ Mirror supports a number of data types you can use with these,  including:
 
 ## Custom Data Types
 
-Sometimes you don't want mirror to generate serialization for your own types.  For example,  instead of serializing quest data,  you may want to serialize just the quest id,  and the receiver can look up the quest by id in a predefined list.
+Sometimes you don't want mirror to generate serialization for your own types. For example, instead of serializing quest data, you may want to serialize just the quest id, and the receiver can look up the quest by id in a predefined list.
 
 Sometimes you may want to serialize data which uses a different type not supported by Mirror, such as DateTime or System.Uri
 
-You can add support for any type by adding extension methods to `NetworkWriter` and `NetworkReader`.  For example,  to add support for `DateTime`, add this somewhere in your project:
+You can add support for any type by adding extension methods to `NetworkWriter` and `NetworkReader`. For example, to add support for `DateTime`, add this somewhere in your project:
 
 ```cs
 public static class DateTimeReaderWriter
@@ -34,16 +34,14 @@ public static class DateTimeReaderWriter
 }
 ```
 
-Then you can use `DateTime` in your `[Command]` or `SyncList`
+...then you can use `DateTime` in your `[Command]` or `SyncList`
 
 ## Polymorphism
 
-Sometimes you might want to send a polymorphic data type to your commands. 
- Mirror does not serialize the type name 
-to keep messages small and for security reasons.  Thus Mirror cannot figure out the type
-of object it received by looking at the message.
+Sometimes you might want to send a polymorphic data type to your commands. Mirror does not serialize the type name to keep messages small and for security reasons, therefore Mirror cannot figure out the type of object it received by looking at the message.
 
-** This code does not work out of the box **. 
+>   **This code does not work out of the box.**
+
 ```cs
 class Item 
 {
@@ -104,7 +102,7 @@ class Player : NetworkBehaviour
 }
 ```
 
-The above code works if you provide a custom serializer for the `Item` type.  For example:
+The above code works if you provide a custom serializer for the `Item` type. For example:
 
 ```cs
 
@@ -156,9 +154,9 @@ public static class ItemSerializer
 
 ## Inheritance
 
-Data types do not support inheritance yet
+Data types do not support inheritance yet:
 
-** this does not work out of the box **
+>   **This does not work out of the box.**
 
 ```cs
 class Player : NetworkBehaviour
@@ -172,4 +170,4 @@ class Player : NetworkBehaviour
 }
 ```
 
-However you can get it to work if you provide a custom serializer for Armor
+However, you can get it to work if you provide a custom serializer for Armor.

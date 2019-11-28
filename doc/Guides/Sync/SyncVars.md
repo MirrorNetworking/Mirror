@@ -54,11 +54,12 @@ public class PlayerController : NetworkBehaviour
 }
 ```
 
-In this example, when a Player clicks on an Enemy, the networked enemy game object is assigned to `PlayerController.currentTarget`.  When the player presses X, with a correct target selected, that target is passed through a Command, which runs on the server, to decrement the `health` SyncVar.  All clients will be updated with that new value.  You can then have a UI on the enemy to show the current value.
+In this example, when a Player clicks on an Enemy, the networked enemy game object is assigned to `PlayerController.currentTarget`. When the player presses X, with a correct target selected, that target is passed through a Command, which runs on the server, to decrement the `health` SyncVar. All clients will be updated with that new value. You can then have a UI on the enemy to show the current value.
 
 ## Class inheritance
 
-SyncVar work with class inheritance.  Consider this example:
+SyncVars work with class inheritance. Consider this example:
+
 ```cs
 class Pet : NetworkBehaviour
 {
@@ -75,4 +76,4 @@ class Cat : Pet
 
 You can attach the Cat component to your cat prefab, and it will synchronize both it's `name` and `color`.
 
-> **Warning** Both `Cat` and `Pet` should be in the same assembly. If they are in separate assemblies,  make sure not to change `name` from inside `Cat` directly,  add a method to `Pet` instead. 
+>   **Warning** Both `Cat` and `Pet` should be in the same assembly. If they are in separate assemblies, make sure not to change `name` from inside `Cat` directly, add a method to `Pet` instead. 
