@@ -11,18 +11,14 @@ namespace Mirror.Examples.NetworkRoom
         [SyncVar]
         public uint score;
 
-        public CharacterController characterController;
-
-        void OnValidate()
-        {
-            if (characterController == null)
-                characterController = GetComponent<CharacterController>();
-        }
+        CharacterController characterController;
 
         public override void OnStartLocalPlayer()
         {
             base.OnStartLocalPlayer();
 
+            characterController = GetComponent<CharacterController>();
+            
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
             Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
