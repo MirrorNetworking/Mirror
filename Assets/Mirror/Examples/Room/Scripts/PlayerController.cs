@@ -12,16 +12,21 @@ namespace Mirror.Examples.NetworkRoom
         public uint score;
 
         [SyncVar(hook = nameof(SetColor))]
-        public Color playerColor = Color.black;
+        public Color32 playerColor = Color.black;
 
         // Unity clones the material when GetComponent<Renderer>().material is called
         // Cache it here and destroy it in OnDestroy to prevent a memory leak
         Material cachedMaterial;
 
-        void SetColor(Color color)
+        void SetColor(Color32 color)
         {
             if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
             cachedMaterial.color = color;
+        }
+
+        void OnDestroy()
+        {
+            Destroy(cachedMaterial);
         }
 
         void OnDisable()
@@ -32,11 +37,6 @@ namespace Mirror.Examples.NetworkRoom
                 Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
                 Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
-        }
-
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
         }
 
         CharacterController characterController;
