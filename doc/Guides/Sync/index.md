@@ -40,6 +40,8 @@ If a class has SyncVars, then implementations of these functions are added autom
 
 The `OnSerialize` function should return true to indicate that an update should be sent. If it returns true, the dirty bits for that script are set to zero. If it returns false, the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.
 
+Although this works,  it is usually better to let Mirror generate these methods and provide [custom serializers](../DataTypes.md) for your specific field.
+
 ## Serialization Flow
 
 Game objects with the Network Identity component attached can have multiple scripts derived from `NetworkBehaviour`. The flow for serializing these game objects is:
