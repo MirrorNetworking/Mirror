@@ -2,6 +2,10 @@
 
 This document describes steps to converting a single player game to a multiplayer game, using the new Unity Multiplayer networking system. The process described here is a simplified, higher level version of the actual process for a real game; it doesn’t always work exactly like this, but it provides a basic recipe for the process.
 
+## Video tutorials
+
+Check out these [awesome videos](https://www.youtube.com/playlist?list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP) showing you how to get started with mirror. Courtesy of [First Gear Games](https://www.youtube.com/channel/UCGIF1XekJqHYIafvE7l0c2A) also known as Punfish in discord.
+
 ## NetworkManager set-up
 -   Add a new game object to the Scene and rename it “NetworkManager”.
 -   Add the NetworkManager component to the “NetworkManager” game object.
