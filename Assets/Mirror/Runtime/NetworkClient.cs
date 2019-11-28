@@ -90,10 +90,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        /// <summary>
-        /// connect host mode
-        /// </summary>
-        internal static void ConnectLocalServer()
+        internal static void SetupLocalConnection()
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
 
@@ -112,7 +109,15 @@ namespace Mirror
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
-            connectionToClient.Send(new ConnectMessage());
+
+        }
+        /// <summary>
+        /// connect host mode
+        /// </summary>
+        internal static void ConnectLocalServer()
+        {
+            NetworkServer.OnConnected(NetworkServer.localConnection);
+            NetworkServer.localConnection.Send(new ConnectMessage());
         }
 
         /// <summary>
