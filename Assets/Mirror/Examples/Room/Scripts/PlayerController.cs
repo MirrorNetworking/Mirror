@@ -16,12 +16,7 @@ namespace Mirror.Examples.NetworkRoom
         void OnValidate()
         {
             if (characterController == null)
-            {
-                // Auto-assign CharacterController.
                 characterController = GetComponent<CharacterController>();
-                if (characterController == null)
-                    characterController = gameObject.AddComponent<CharacterController>();
-            }
         }
 
         public override void OnStartLocalPlayer()

@@ -14,12 +14,7 @@ namespace Mirror.Examples.NetworkRoom
         void OnValidate()
         {
             if (randomColor == null)
-            {
-                // Auto-assign RandomColor.
                 randomColor = GetComponent<RandomColor>();
-                if (randomColor == null)
-                    randomColor = gameObject.AddComponent<RandomColor>();
-            }
         }
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
