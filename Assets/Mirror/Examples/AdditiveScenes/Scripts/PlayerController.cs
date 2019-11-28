@@ -5,28 +5,17 @@ namespace Mirror.Examples.Additive
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
     {
-        public override void OnStartServer()
+        CharacterController characterController;
+
+        public override void OnStartLocalPlayer()
         {
-            base.OnStartServer();
-            playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-        }
+            base.OnStartLocalPlayer();
 
-        [SyncVar(hook = nameof(SetColor))]
-        public Color32 playerColor = Color.black;
-
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
-        void SetColor(Color32 color)
-        {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
-            cachedMaterial.color = color;
-        }
-
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
+            characterController = GetComponent<CharacterController>();
+            
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         void OnDisable()
@@ -37,19 +26,6 @@ namespace Mirror.Examples.Additive
                 Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
                 Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
-        }
-
-        CharacterController characterController;
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-
-            characterController = GetComponent<CharacterController>();
-
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         [Header("Movement Settings")]

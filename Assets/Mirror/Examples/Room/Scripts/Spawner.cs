@@ -27,9 +27,6 @@ namespace Mirror.Examples.NetworkRoom
             newPrize.name = prizePrefab.name;
             reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
-            reward.prizeColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-
-            if (LogFilter.Debug) Debug.LogFormat("Spawning Prize R:{0} G:{1} B:{2}", reward.prizeColor.r, reward.prizeColor.g, reward.prizeColor.b);
 
             NetworkServer.Spawn(newPrize);
         }

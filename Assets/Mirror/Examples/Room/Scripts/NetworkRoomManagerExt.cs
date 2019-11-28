@@ -18,7 +18,6 @@ namespace Mirror.Examples.NetworkRoom
         {
             PlayerController player = gamePlayer.GetComponent<PlayerController>();
             player.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
-            player.playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
             return true;
         }
 

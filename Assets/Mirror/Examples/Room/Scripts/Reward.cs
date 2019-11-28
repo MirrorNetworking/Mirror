@@ -2,29 +2,20 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
+    [RequireComponent(typeof(RandomColor))]
     public class Reward : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(SetColor))]
-        public Color prizeColor = Color.black;
-
-		// Unity makes a clone of the material when GetComponent<Renderer>().material is used
-		// Cache it here and Destroy it in OnDestroy to prevent a memory leak
-		Material materialClone;
-
-		void SetColor(Color color)
-		{
-			if (materialClone == null) materialClone = GetComponent<Renderer>().material;
-			materialClone.color = color;
-		}
-
-		void OnDestroy()
-		{
-			Destroy(materialClone);
-		}
-
 		public bool available = true;
         public Spawner spawner;
         uint points;
+
+        public RandomColor randomColor;
+
+        void OnValidate()
+        {
+            if (randomColor == null)
+                randomColor = GetComponent<RandomColor>();
+        }
 
         // This is called from PlayerController.CmdClaimPrize which is invoked by PlayerController.OnControllerColliderHit
         // This only runs on the server
@@ -35,6 +26,8 @@ namespace Mirror.Examples.NetworkRoom
                 // This is a fast switch to prevent two players claiming the prize in a bang-bang close contest for it.
                 // First hit turns it off, pending the object being destroyed a few frames later.
                 available = false;
+
+                Color prizeColor = randomColor.color;
 
                 // calculate the points from the color ... lighter scores higher as the average approaches 255
                 // UnityEngine.Color RGB values are float fractions of 255

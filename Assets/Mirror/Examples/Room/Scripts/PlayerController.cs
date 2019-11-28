@@ -11,22 +11,17 @@ namespace Mirror.Examples.NetworkRoom
         [SyncVar]
         public uint score;
 
-        [SyncVar(hook = nameof(SetColor))]
-        public Color32 playerColor = Color.black;
+        CharacterController characterController;
 
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
-        void SetColor(Color32 color)
+        public override void OnStartLocalPlayer()
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
-            cachedMaterial.color = color;
-        }
+            base.OnStartLocalPlayer();
 
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
+            characterController = GetComponent<CharacterController>();
+            
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         void OnDisable()
@@ -37,19 +32,6 @@ namespace Mirror.Examples.NetworkRoom
                 Camera.main.transform.localPosition = new Vector3(0f, 50f, 0f);
                 Camera.main.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
-        }
-
-        CharacterController characterController;
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-
-            characterController = GetComponent<CharacterController>();
-
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         [Header("Movement Settings")]

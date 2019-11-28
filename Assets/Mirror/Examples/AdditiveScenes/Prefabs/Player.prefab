@@ -65,7 +65,6 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -90,8 +89,9 @@ GameObject:
   - component: {fileID: 7482234573209362796}
   - component: {fileID: 8972496075962964235}
   - component: {fileID: 8993127209816276930}
-  - component: {fileID: 8537344390966522168}
   - component: {fileID: 8704659178864205755}
+  - component: {fileID: 3086414693581178039}
+  - component: {fileID: 8537344390966522168}
   - component: {fileID: 887491563423388292}
   m_Layer: 8
   m_Name: Player
@@ -148,7 +148,6 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -179,6 +178,49 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8704659178864205755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872462076811691049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f68561248aaca4fb96847ce24742ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0
+  characterController: {fileID: 8993127209816276930}
+  moveSpeed: 8
+  turnSpeedAccel: 5
+  turnSpeedDecel: 5
+  maxTurnSpeed: 150
+  jumpSpeed: 0
+  jumpFactor: 0.025
+  horizontal: 0
+  vertical: 0
+  turn: 0
+  isGrounded: 1
+  isFalling: 0
+--- !u!114 &3086414693581178039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872462076811691049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42d1f80407105ee4f960f0b51e89452d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  color:
+    serializedVersion: 2
+    rgba: 4278190080
 --- !u!114 &8537344390966522168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,31 +236,6 @@ MonoBehaviour:
   serverOnly: 0
   m_AssetId: 
   m_SceneId: 0
---- !u!114 &8704659178864205755
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8872462076811691049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8f68561248aaca4fb96847ce24742ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0
-  moveSpeed: 8
-  turnSpeedAccel: 5
-  turnSpeedDecel: 5
-  maxTurnSpeed: 150
-  jumpSpeed: 0
-  jumpFactor: 0.025
-  horizontal: 0
-  vertical: 0
-  turn: 0
-  isGrounded: 1
-  isFalling: 0
 --- !u!114 &887491563423388292
 MonoBehaviour:
   m_ObjectHideFlags: 0
