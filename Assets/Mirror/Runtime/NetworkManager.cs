@@ -360,6 +360,7 @@ namespace Mirror
         public virtual void StartHost()
         {
             OnStartHost();
+            NetworkClient.SetupLocalConnection();
             if (StartServer())
             {
                 ConnectLocalClient();
@@ -530,8 +531,8 @@ namespace Mirror
 
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
-            NetworkClient.ConnectLocalServer();
             RegisterClientMessages();
+            NetworkClient.ConnectLocalServer();
         }
 
         void RegisterClientMessages()
