@@ -670,9 +670,12 @@ namespace Mirror
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
+                localObject.pendingLocalPlayer = msg.isLocalPlayer;
+                localObject.OnStartClient();
                 localObject.hasAuthority = msg.isOwner;
                 localObject.OnSetHostVisibility(true);
                 localObject.NotifyAuthority();
+                CheckForLocalPlayer(localObject);
             }
         }
 

@@ -477,7 +477,7 @@ namespace Mirror
             }
         }
 
-        internal void OnStartServer(bool allowNonZeroNetId)
+        internal void OnStartServer()
         {
             if (m_IsServer)
             {
@@ -494,11 +494,8 @@ namespace Mirror
             }
             else
             {
-                if (!allowNonZeroNetId)
-                {
-                    Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
-                    return;
-                }
+                Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
+                return;
             }
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
@@ -517,17 +514,6 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
                 }
-            }
-
-            if (NetworkClient.active && NetworkServer.localClientActive)
-            {
-                // there will be no spawn message, so start the client here too
-                OnStartClient();
-            }
-
-            if (hasAuthority)
-            {
-                OnStartAuthority();
             }
         }
 
