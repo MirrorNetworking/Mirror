@@ -1014,7 +1014,7 @@ namespace Mirror
             if (ownerConnection is ULocalConnectionToClient)
                 identity.hasAuthority = true;
                 
-            identity.OnStartServer(false);
+            identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
