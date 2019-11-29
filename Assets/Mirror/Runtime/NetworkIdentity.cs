@@ -58,7 +58,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient { get; internal set; }
+        public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -73,7 +73,7 @@ namespace Mirror
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>This is set when the server has spawned an object for this particular client.</para>
         /// </summary>
-        public bool isLocalPlayer { get; private set; }
+        public bool isLocalPlayer => ClientScene.localPlayer == this;
 
         internal bool pendingLocalPlayer { get; set; }
 
@@ -203,20 +203,6 @@ namespace Mirror
         /// Resets nextNetworkId = 1
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
-
-        // used when the player object for a connection changes
-        internal void SetNotLocalPlayer()
-        {
-            isLocalPlayer = false;
-
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
-            hasAuthority = false;
-            NotifyAuthority();
-        }
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -535,8 +521,6 @@ namespace Mirror
 
         internal void OnStartClient()
         {
-            isClient = true;
-
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -873,7 +857,6 @@ namespace Mirror
 
         internal void SetLocalPlayer()
         {
-            isLocalPlayer = true;
             hasAuthority = true;
             NotifyAuthority();
 
@@ -1147,10 +1130,8 @@ namespace Mirror
 
             m_Reset = false;
             m_IsServer = false;
-            isClient = false;
 
             netId = 0;
-            isLocalPlayer = false;
             connectionToServer = null;
             connectionToClient = null;
             networkBehavioursCache = null;

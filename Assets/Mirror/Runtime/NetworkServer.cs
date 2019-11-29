@@ -819,7 +819,10 @@ namespace Mirror
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
+            {
                 identity.hasAuthority = true;
+                ClientScene.InternalAddPlayer(identity);
+            }
 
             // set ready if not set yet
             SetClientReady(conn);
@@ -852,13 +855,6 @@ namespace Mirror
 
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
-
-            // is there already an owner that is a different object??
-            if (conn.identity != null)
-            {
-                conn.identity.SetNotLocalPlayer();
-                conn.identity.connectionToClient = null;
-            }
 
             conn.identity = identity;
 
