@@ -480,6 +480,10 @@ namespace Mirror
             identity.transform.localRotation = msg.rotation;
             identity.transform.localScale = msg.scale;
             identity.hasAuthority = msg.isOwner;
+            identity.netId = msg.netId;
+
+            if (msg.isLocalPlayer)
+                InternalAddPlayer(identity);
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
@@ -489,7 +493,6 @@ namespace Mirror
                 identity.OnUpdateVars(payloadReader, true);
             }
 
-            identity.netId = msg.netId;
             NetworkIdentity.spawned[msg.netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
@@ -719,8 +722,6 @@ namespace Mirror
 
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = readyConnection;
-                InternalAddPlayer(identity);
-
                 identity.SetLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
