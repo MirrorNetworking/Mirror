@@ -723,10 +723,11 @@ namespace Mirror
 
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = readyConnection;
+                InternalAddPlayer(identity);
+
                 identity.SetLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-                InternalAddPlayer(identity);
 
                 identity.pendingLocalPlayer = false;
             }

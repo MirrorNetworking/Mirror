@@ -73,7 +73,7 @@ namespace Mirror
         /// This returns true if this object is the one that represents the player on the local machine.
         /// <para>This is set when the server has spawned an object for this particular client.</para>
         /// </summary>
-        public bool isLocalPlayer { get; private set; }
+        public bool isLocalPlayer => ClientScene.localPlayer == this;
 
         internal bool pendingLocalPlayer { get; set; }
 
@@ -207,8 +207,6 @@ namespace Mirror
         // used when the player object for a connection changes
         internal void SetNotLocalPlayer()
         {
-            isLocalPlayer = false;
-
             if (NetworkServer.active && NetworkServer.localClientActive)
             {
                 // dont change authority for objects on the host
@@ -871,7 +869,6 @@ namespace Mirror
 
         internal void SetLocalPlayer()
         {
-            isLocalPlayer = true;
             hasAuthority = true;
             NotifyAuthority();
 
@@ -1147,7 +1144,6 @@ namespace Mirror
             m_IsServer = false;
 
             netId = 0;
-            isLocalPlayer = false;
             connectionToServer = null;
             connectionToClient = null;
             networkBehavioursCache = null;
