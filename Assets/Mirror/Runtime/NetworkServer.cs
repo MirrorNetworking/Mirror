@@ -817,6 +817,10 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.connectionToClient = (NetworkConnectionToClient)conn;
 
+            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
+            if (conn is ULocalConnectionToClient)
+                identity.hasAuthority = true;
+
             // set ready if not set yet
             SetClientReady(conn);
 
@@ -1050,6 +1054,11 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
+            // special case to make sure hasAuthority is set
+            // on start server in host mode
+            if (ownerConnection is ULocalConnectionToClient)
+                identity.hasAuthority = true;
+                
             identity.OnStartServer(false);
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);

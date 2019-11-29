@@ -84,29 +84,7 @@ namespace Mirror
         /// </summary>
         bool isOwner;
 
-        public bool hasAuthority
-        {
-            get => isOwner;
-            set
-            {
-                bool previous = isOwner;
-                isOwner = value;
-
-                if (previous && !isOwner)
-                {
-                    OnStopAuthority();
-                }
-                if (!previous && isOwner)
-                {
-                    OnStartAuthority();
-                }
-            }
-        }
-
-        // whether this object has been spawned with authority
-        // we need hasAuthority and pendingOwner because
-        // we need to wait until all of them spawn before updating hasAuthority
-        internal bool pendingAuthority { get; set; }
+        public bool hasAuthority { get; internal set; }
 
         /// <summary>
         /// The set of network connections (players) that can see this object.
@@ -237,6 +215,7 @@ namespace Mirror
                 return;
             }
             hasAuthority = false;
+            NotifyAuthority();
         }
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
@@ -572,6 +551,16 @@ namespace Mirror
             }
         }
 
+        bool hadAuthority;
+        internal void NotifyAuthority()
+        {
+            if (!hadAuthority && hasAuthority)
+                OnStartAuthority();
+            if (hadAuthority && !hasAuthority)
+                OnStopAuthority();
+            hadAuthority = hasAuthority;
+        }
+
         void OnStartAuthority()
         {
             if (networkBehavioursCache == null)
@@ -886,6 +875,7 @@ namespace Mirror
         {
             isLocalPlayer = true;
             hasAuthority = true;
+            NotifyAuthority();
 
             foreach (NetworkBehaviour comp in networkBehavioursCache)
             {
