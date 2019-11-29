@@ -131,7 +131,6 @@ namespace Mirror
             connection.identity = localPlayer;
             if (localPlayer != null)
             {
-                localPlayer.isClient = true;
                 NetworkIdentity.spawned[localPlayer.netId] = localPlayer;
                 localPlayer.connectionToServer = connection;
             }
