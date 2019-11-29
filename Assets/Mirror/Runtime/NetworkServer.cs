@@ -890,6 +890,13 @@ namespace Mirror
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
+            // is there already an owner that is a different object??
+            if (conn.identity != null)
+            {
+                conn.identity.SetNotLocalPlayer();
+                conn.identity.connectionToClient = null;
+            }
+
             conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)

@@ -718,6 +718,10 @@ namespace Mirror
         {
             if (identity.pendingLocalPlayer)
             {
+                if (readyConnection.identity != null && readyConnection.identity != identity)
+                {
+                    readyConnection.identity.SetNotLocalPlayer();
+                }
                 // supposed to be local player, so make it the local player!
 
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
