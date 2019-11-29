@@ -55,7 +55,7 @@ namespace Mirror
         /// <para>True is a local client is currently active on the server.</para>
         /// <para>This will be true for "Hosts" on hosted server games.</para>
         /// </summary>
-        public static bool localClientActive { get; private set; }
+        public static bool localClientActive => localConnection != null;
 
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
@@ -185,7 +185,6 @@ namespace Mirror
             }
 
             localConnection = conn;
-            OnConnected(localConnection);
         }
 
         internal static void RemoveLocalConnection()
@@ -195,17 +194,11 @@ namespace Mirror
                 localConnection.Disconnect();
                 localConnection = null;
             }
-            localClientActive = false;
             RemoveConnection(0);
         }
 
         internal static void ActivateLocalClientScene()
         {
-            if (localClientActive)
-                return;
-
-            // ClientScene for a local connection is becoming active. any spawned objects need to be started as client objects
-            localClientActive = true;
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
                 if (!identity.isClient)
@@ -432,7 +425,6 @@ namespace Mirror
             localConnection = null;
 
             active = false;
-            localClientActive = false;
         }
 
         /// <summary>
@@ -512,7 +504,7 @@ namespace Mirror
             }
         }
 
-        static void OnConnected(NetworkConnectionToClient conn)
+        internal static void OnConnected(NetworkConnectionToClient conn)
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + conn);
 
