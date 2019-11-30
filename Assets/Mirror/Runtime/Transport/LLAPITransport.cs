@@ -7,6 +7,7 @@
 #if !(UNITY_WSA || UNITY_WSA_10_0 || UNITY_WINRT || UNITY_WINRT_10_0 || NETFX_CORE)
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -69,9 +70,11 @@ namespace Mirror
         int clientId = -1;
         int clientConnectionId = -1;
         readonly byte[] clientReceiveBuffer = new byte[4096];
+        byte[] clientSendBuffer;
 
         int serverHostId = -1;
         readonly byte[] serverReceiveBuffer = new byte[4096];
+        byte[] serverSendBuffer;
 
         void OnValidate()
         {
@@ -89,6 +92,16 @@ namespace Mirror
         {
             NetworkTransport.Init(globalConfig);
             Debug.Log("LLAPITransport initialized!");
+
+            // initialize send buffers
+            clientSendBuffer = new byte[globalConfig.MaxPacketSize];
+            serverSendBuffer = new byte[globalConfig.MaxPacketSize];
+        }
+
+        public override bool Available()
+        {
+            // LLAPI runs on all platforms, including webgl
+            return true;
         }
 
         #region client
@@ -118,9 +131,19 @@ namespace Mirror
             }
         }
 
-        public override bool ClientSend(int channelId, byte[] data)
+        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            return NetworkTransport.Send(clientId, clientConnectionId, channelId, data, data.Length, out error);
+            // Send buffer is copied internally, so we can get rid of segment
+            // immediately after returning and it still works.
+            // -> BUT segment has an offset, Send doesn't. we need to manually
+            //    copy it into a 0-offset array
+            if (segment.Count <= clientSendBuffer.Length)
+            {
+                Array.Copy(segment.Array, segment.Offset, clientSendBuffer, 0, segment.Count);
+                return NetworkTransport.Send(clientId, clientConnectionId, channelId, clientSendBuffer, segment.Count, out error);
+            }
+            Debug.LogError("LLAPI.ClientSend: buffer( " + clientSendBuffer.Length + ") too small for: " + segment.Count);
+            return false;
         }
 
         public bool ProcessClientMessage()
@@ -150,7 +173,7 @@ namespace Mirror
                     break;
                 case NetworkEventType.DataEvent:
                     ArraySegment<byte> data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
-                    OnClientDataReceived.Invoke(data);
+                    OnClientDataReceived.Invoke(data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     OnClientDisconnected.Invoke();
@@ -200,9 +223,27 @@ namespace Mirror
             }
         }
 
-        public override bool ServerSend(int connectionId, int channelId, byte[] data)
+        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
         {
-            return NetworkTransport.Send(serverHostId, connectionId, channelId, data, data.Length, out error);
+            // Send buffer is copied internally, so we can get rid of segment
+            // immediately after returning and it still works.
+            // -> BUT segment has an offset, Send doesn't. we need to manually
+            //    copy it into a 0-offset array
+            if (segment.Count <= serverSendBuffer.Length)
+            {
+                // copy to 0-offset
+                Array.Copy(segment.Array, segment.Offset, serverSendBuffer, 0, segment.Count);
+
+                // send to all
+                bool result = true;
+                foreach (int connectionId in connectionIds)
+                {
+                    result &= NetworkTransport.Send(serverHostId, connectionId, channelId, serverSendBuffer, segment.Count, out error);
+                }
+                return result;
+            }
+            Debug.LogError("LLAPI.ServerSend: buffer( " + serverSendBuffer.Length + ") too small for: " + segment.Count);
+            return false;
         }
 
         public bool ProcessServerMessage()
@@ -240,7 +281,7 @@ namespace Mirror
                     break;
                 case NetworkEventType.DataEvent:
                     ArraySegment<byte> data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
-                    OnServerDataReceived.Invoke(connectionId, data);
+                    OnServerDataReceived.Invoke(connectionId, data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:
                     OnServerDisconnected.Invoke(connectionId);
@@ -283,12 +324,6 @@ namespace Mirror
             // process all messages
             while (ProcessClientMessage()) {}
             while (ProcessServerMessage()) {}
-        }
-
-        public override bool Available()
-        {
-            // websocket is available in all platforms (including webgl)
-            return useWebsockets || base.Available();
         }
 
         public override void Shutdown()

@@ -42,7 +42,7 @@ namespace Telepathy
         {
             lock(queue)
             {
-                result = default;
+                result = default(T);
                 if (queue.Count > 0)
                 {
                     result = queue.Dequeue();

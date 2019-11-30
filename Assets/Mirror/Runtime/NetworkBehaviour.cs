@@ -18,8 +18,9 @@ namespace Mirror
     /// <para>The NetworkBehaviour component requires a NetworkIdentity on the game object. There can be multiple NetworkBehaviours on a single game object. For an object with sub-components in a hierarchy, the NetworkIdentity must be on the root object, and NetworkBehaviour scripts must also be on the root object.</para>
     /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
     /// </remarks>
-    [RequireComponent(typeof(NetworkIdentity))]
     [AddComponentMenu("")]
+    [RequireComponent(typeof(NetworkIdentity))]
+    [HelpURL("https://mirror-networking.com/docs/Guides/NetworkBehaviour.html")]
     public class NetworkBehaviour : MonoBehaviour
     {
         internal float lastSyncTime;
@@ -35,11 +36,6 @@ namespace Mirror
         /// sync interval for OnSerialize (in seconds)
         /// </summary>
         [HideInInspector] public float syncInterval = 0.1f;
-
-        /// <summary>
-        /// This value is set on the NetworkIdentity and is accessible here for convenient access for scripts.
-        /// </summary>
-        public bool localPlayerAuthority => netIdentity.localPlayerAuthority;
 
         /// <summary>
         /// Returns true if this object is active on an active server.
@@ -70,7 +66,7 @@ namespace Mirror
 
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>The <see cref="localPlayerAuthority">localPlayerAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server / host. For objects with <see cref="localPlayerAuthority">localPlayerAuthority</see> set, authority is held by the client of that player.</para>
+        /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
         /// </summary>
         public bool hasAuthority => netIdentity.hasAuthority;
 
@@ -97,6 +93,7 @@ namespace Mirror
         {
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }
+
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
         {
             if (value)
@@ -197,7 +194,7 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning("Trying to send command for object without authority.");
+                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
                 return;
             }
 
@@ -445,7 +442,7 @@ namespace Mirror
         /// </summary>
         /// <param name="cmdHash">rpc function hash</param>
         /// <returns>The function delegate that will handle the command</returns>
-        public CmdDelegate GetRpcHandler(int cmdHash)
+        public static CmdDelegate GetRpcHandler(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {
@@ -457,6 +454,29 @@ namespace Mirror
         #endregion
 
         #region Helpers
+
+        // helper function for [SyncVar] GameObjects.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        {
+            uint newNetId = 0;
+            if (newGameObject != null)
+            {
+                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
+                if (identity != null)
+                {
+                    newNetId = identity.netId;
+                    if (newNetId == 0)
+                    {
+                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                    }
+                }
+            }
+
+            return newNetId == netIdField;
+        }
+
+
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -478,14 +498,10 @@ namespace Mirror
                 }
             }
 
-            // netId changed?
-            if (newNetId != netIdField)
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
-                SetDirtyBit(dirtyBit);
-                gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
-                netIdField = newNetId;
-            }
+            if (LogFilter.Debug) Debug.Log("SetSyncVar GameObject " + GetType().Name + " bit [" + dirtyBit + "] netfieldId:" + netIdField + "->" + newNetId);
+            SetDirtyBit(dirtyBit);
+            gameObjectField = newGameObject; // assign new one on the server, and in case we ever need it on client too
+            netIdField = newNetId;
         }
 
         // helper function for [SyncVar] GameObjects.
@@ -502,8 +518,27 @@ namespace Mirror
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
-                return identity.gameObject;
+                return gameObjectField = identity.gameObject;
             return null;
+        }
+
+
+        // helper function for [SyncVar] NetworkIdentities.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        {
+            uint newNetId = 0;
+            if (newIdentity != null)
+            {
+                newNetId = newIdentity.netId;
+                if (newNetId == 0)
+                {
+                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                }
+            }
+
+            // netId changed?
+            return newNetId == netIdField;
         }
 
         // helper function for [SyncVar] NetworkIdentities.
@@ -523,14 +558,10 @@ namespace Mirror
                 }
             }
 
-            // netId changed?
-            if (newNetId != netIdField)
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
-                SetDirtyBit(dirtyBit);
-                netIdField = newNetId;
-                identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
-            }
+            if (LogFilter.Debug) Debug.Log("SetSyncVarNetworkIdentity NetworkIdentity " + GetType().Name + " bit [" + dirtyBit + "] netIdField:" + netIdField + "->" + newNetId);
+            SetDirtyBit(dirtyBit);
+            netIdField = newNetId;
+            identityField = newIdentity; // assign new one on the server, and in case we ever need it on client too
         }
 
         // helper function for [SyncVar] NetworkIdentities.
@@ -546,20 +577,23 @@ namespace Mirror
 
             // client always looks up based on netId because objects might get in and out of range
             // over and over again, which shouldn't null them forever
-            NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity);
-            return identity;
+            NetworkIdentity.spawned.TryGetValue(netId, out identityField);
+            return identityField;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool SyncVarEqual<T>(T value, ref T fieldValue)
+        {
+            // newly initialized or changed value?
+            return EqualityComparer<T>.Default.Equals(value, fieldValue);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
-            // newly initialized or changed value?
-            if (!EqualityComparer<T>.Default.Equals(value, fieldValue))
-            {
-                if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
-                SetDirtyBit(dirtyBit);
-                fieldValue = value;
-            }
+            if (LogFilter.Debug) Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
+            SetDirtyBit(dirtyBit);
+            fieldValue = value;
         }
         #endregion
 
@@ -746,9 +780,9 @@ namespace Mirror
         public virtual void OnStartLocalPlayer() {}
 
         /// <summary>
-        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.localPlayerAuthority">'NetworkIdentity.localPlayerAuthority.'</see>
+        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
         /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with NetworkServer.SpawnWithClientAuthority, this will be called on the client that owns the object.</para>
+        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() {}
 
@@ -770,12 +804,15 @@ namespace Mirror
             return false;
         }
 
+        [Obsolete("Rename to OnSetHostVisibility instead.")]
+        public virtual void OnSetLocalVisibility(bool visible) {}
+
         /// <summary>
         /// Callback used by the visibility system for objects on a host.
         /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
         /// </summary>
-        /// <param name="vis">New visibility state.</param>
-        public virtual void OnSetLocalVisibility(bool vis) {}
+        /// <param name="visible">New visibility state.</param>
+        public virtual void OnSetHostVisibility(bool visible) {}
 
         /// <summary>
         /// Callback used by the visibility system to determine if an observer (player) can see this object.

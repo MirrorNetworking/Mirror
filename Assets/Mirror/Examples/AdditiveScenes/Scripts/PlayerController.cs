@@ -5,23 +5,21 @@ namespace Mirror.Examples.Additive
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkBehaviour
     {
-        public override void OnStartServer()
+        public CharacterController characterController;
+
+        void OnValidate()
         {
-            base.OnStartServer();
-            playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+            if (characterController == null)
+                characterController = GetComponent<CharacterController>();
         }
 
-        [SyncVar(hook = nameof(SetColor))]
-        Color playerColor = Color.black;
-
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
-        void SetColor(Color color)
+        public override void OnStartLocalPlayer()
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
-            cachedMaterial.color = color;
+            base.OnStartLocalPlayer();
+
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         void OnDisable()
@@ -34,24 +32,6 @@ namespace Mirror.Examples.Additive
             }
         }
 
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
-        }
-
-        CharacterController characterController;
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-
-            characterController = GetComponent<CharacterController>();
-
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
-        }
-
         [Header("Movement Settings")]
         public float moveSpeed = 8f;
         public float turnSpeedAccel = 5f;
@@ -60,8 +40,7 @@ namespace Mirror.Examples.Additive
 
         [Header("Jump Settings")]
         public float jumpSpeed = 0f;
-        public float maxJumpSpeed = 5F;
-        public float jumpFactor = .05F;
+        public float jumpFactor = .025F;
 
         [Header("Diagnostics")]
         public float horizontal = 0f;
@@ -88,8 +67,8 @@ namespace Mirror.Examples.Additive
             else
                 turn = 0f;
 
-            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < maxJumpSpeed))
-                jumpSpeed += maxJumpSpeed * jumpFactor;
+            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < 1))
+                jumpSpeed += jumpFactor;
             else if (isGrounded)
                 isFalling = false;
             else

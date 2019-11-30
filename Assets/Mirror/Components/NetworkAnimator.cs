@@ -15,7 +15,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Components/NetworkAnimator.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkAnimator.html")]
     public class NetworkAnimator : NetworkBehaviour
     {
         /// <summary>
@@ -34,22 +34,24 @@ namespace Mirror
         int[] transitionHash;
         float sendTimer;
 
+        [Tooltip("Set to true if animations come from owner client,  set to false if animations always come from server")]
+        public bool clientAuthority;
+
         bool sendMessagesAllowed
         {
             get
             {
                 if (isServer)
                 {
-                    if (!localPlayerAuthority)
+                    if (!clientAuthority)
                         return true;
 
-                    // This is a special case where we have localPlayerAuthority set
-                    // on a NetworkIdentity but we have not assigned the client who has
+                    // This is a special case where we have client authority but we have not assigned the client who has
                     // authority over it, no animator data will be sent over the network by the server.
                     //
-                    // So we check here for a clientAuthorityOwner and if it is null we will
+                    // So we check here for a connectionToClient and if it is null we will
                     // let the server send animation data until we receive an owner.
-                    if (netIdentity != null && netIdentity.clientAuthorityOwner == null)
+                    if (netIdentity != null && netIdentity.connectionToClient == null)
                         return true;
                 }
 
@@ -65,7 +67,7 @@ namespace Mirror
             lastIntParameters = new int[parameters.Length];
             lastFloatParameters = new float[parameters.Length];
             lastBoolParameters = new bool[parameters.Length];
-            
+
             animationHash = new int[animator.layerCount];
             transitionHash = new int[animator.layerCount];
         }
@@ -76,8 +78,8 @@ namespace Mirror
                 return;
 
             CheckSendRate();
-            
-            for(int i = 0; i < animator.layerCount; i++)
+
+            for (int i = 0; i < animator.layerCount; i++)
             {
                 int stateHash;
                 float normalizedTime;
@@ -92,7 +94,7 @@ namespace Mirror
                 SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
             }
         }
-        
+
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime, int layerId)
         {
             stateHash = 0;
@@ -237,9 +239,9 @@ namespace Mirror
             return dirtyBits;
         }
 
-        bool WriteParameters(NetworkWriter writer)
+        bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
-            ulong dirtyBits = NextDirtyBits();
+            ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
             writer.WritePackedUInt64(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
@@ -303,7 +305,7 @@ namespace Mirror
         {
             if (forceAll)
             {
-                for(int i = 0; i < animator.layerCount; i++)
+                for (int i = 0; i < animator.layerCount; i++)
                 {
                     if (animator.IsInTransition(i))
                     {
@@ -318,7 +320,7 @@ namespace Mirror
                         writer.WriteSingle(st.normalizedTime);
                     }
                 }
-                WriteParameters(writer);
+                WriteParameters(writer, forceAll);
                 return true;
             }
             return false;
@@ -333,7 +335,7 @@ namespace Mirror
         {
             if (initialState)
             {
-                for(int i = 0; i < animator.layerCount; i++)
+                for (int i = 0; i < animator.layerCount; i++)
                 {
                     int stateHash = reader.ReadInt32();
                     float normalizedTime = reader.ReadSingle();
@@ -360,7 +362,7 @@ namespace Mirror
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
-            if (hasAuthority && localPlayerAuthority)
+            if (hasAuthority && clientAuthority)
             {
                 if (ClientScene.readyConnection != null)
                 {
@@ -369,7 +371,7 @@ namespace Mirror
                 return;
             }
 
-            if (isServer && !localPlayerAuthority)
+            if (isServer && !clientAuthority)
             {
                 RpcOnAnimationTriggerClientMessage(hash);
             }

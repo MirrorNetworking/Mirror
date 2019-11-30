@@ -11,17 +11,21 @@ namespace Mirror.Examples.NetworkRoom
         [SyncVar]
         public uint score;
 
-        [SyncVar(hook = nameof(SetColor))]
-        public Color playerColor = Color.black;
+        public CharacterController characterController;
 
-        // Unity clones the material when GetComponent<Renderer>().material is called
-        // Cache it here and destroy it in OnDestroy to prevent a memory leak
-        Material cachedMaterial;
-
-        void SetColor(Color color)
+        void OnValidate()
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
-            cachedMaterial.color = color;
+            if (characterController == null)
+                characterController = GetComponent<CharacterController>();
+        }
+
+        public override void OnStartLocalPlayer()
+        {
+            base.OnStartLocalPlayer();
+
+            Camera.main.transform.SetParent(transform);
+            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
+            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
         }
 
         void OnDisable()
@@ -34,24 +38,6 @@ namespace Mirror.Examples.NetworkRoom
             }
         }
 
-        void OnDestroy()
-        {
-            Destroy(cachedMaterial);
-        }
-
-        CharacterController characterController;
-
-        public override void OnStartLocalPlayer()
-        {
-            base.OnStartLocalPlayer();
-
-            characterController = GetComponent<CharacterController>();
-
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
-        }
-
         [Header("Movement Settings")]
         public float moveSpeed = 8f;
         public float turnSpeedAccel = 5f;
@@ -60,8 +46,7 @@ namespace Mirror.Examples.NetworkRoom
 
         [Header("Jump Settings")]
         public float jumpSpeed = 0f;
-        public float maxJumpSpeed = 5F;
-        public float jumpFactor = .05F;
+        public float jumpFactor = .025F;
 
         [Header("Diagnostics")]
         public float horizontal = 0f;
@@ -88,8 +73,8 @@ namespace Mirror.Examples.NetworkRoom
             else
                 turn = 0f;
 
-            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < maxJumpSpeed))
-                jumpSpeed += maxJumpSpeed * jumpFactor;
+            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < 1))
+                jumpSpeed += jumpFactor;
             else if (isGrounded)
                 isFalling = false;
             else

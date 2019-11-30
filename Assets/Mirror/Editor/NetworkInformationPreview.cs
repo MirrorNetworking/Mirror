@@ -91,6 +91,9 @@ namespace Mirror
             if (Event.current.type != EventType.Repaint)
                 return;
 
+            // refresh the data
+            GetNetworkInformation(target as GameObject);
+
             if (info == null || info.Count == 0)
                 return;
 
@@ -156,16 +159,16 @@ namespace Mirror
 
                     foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                     {
-                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value.connectionId, styles.componentName);
+                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
                         observerRect.y += observerRect.height;
                         lastY = observerRect.y;
                     }
                 }
 
-                if (identity.clientAuthorityOwner != null)
+                if (identity.connectionToClient != null)
                 {
                     Rect ownerRect = new Rect(initialX, lastY + 10, 400, 20);
-                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.clientAuthorityOwner), styles.labelStyle);
+                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
                 }
             }
         }

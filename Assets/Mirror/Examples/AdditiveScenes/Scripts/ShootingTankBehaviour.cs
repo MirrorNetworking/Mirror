@@ -38,7 +38,7 @@ namespace Mirror.Examples.Additive
 
             foreach (NetworkConnection networkConnection in netIdentity.observers.Values)
             {
-                GameObject tempTarget = networkConnection.playerController.gameObject;
+                GameObject tempTarget = networkConnection.identity.gameObject;
                 float tempDistance = Vector3.Distance(tempTarget.transform.position, transform.position);
 
                 if (target == null || distance > tempDistance)

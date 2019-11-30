@@ -13,10 +13,9 @@ namespace Mirror
     /// <para>A NetworkClient has one NetworkConnection. A NetworkServerSimple manages multiple NetworkConnections. The NetworkServer has multiple "remote" connections and a "local" connection for the local client.</para>
     /// <para>The NetworkConnection class provides message sending and handling facilities. For sending data over a network, there are methods to send message objects, byte arrays, and NetworkWriter objects. To handle data arriving from the network, handler functions can be registered for message Ids, byte arrays can be processed by HandleBytes(), and NetworkReader object can be processed by HandleReader().</para>
     /// <para>NetworkConnection objects also act as observers for networked objects. When a connection is an observer of a networked object with a NetworkIdentity, then the object will be visible to corresponding client for the connection, and incremental state changes will be sent to the client.</para>
-    /// <para>NetworkConnection objects can "own" networked game objects. Owned objects will be destroyed on the server by default when the connection is destroyed. A connection owns the player objects created by its client, and other objects with client-authority assigned to the corresponding client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
     /// </remarks>
-    public class NetworkConnection : IDisposable
+    public abstract class NetworkConnection
     {
         public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
@@ -30,7 +29,7 @@ namespace Mirror
         /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
         /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
         /// </remarks>
-        public int connectionId = -1;
+        public readonly int connectionId;
 
         /// <summary>
         /// Flag that indicates the client has been authenticated.
@@ -52,8 +51,9 @@ namespace Mirror
 
         /// <summary>
         /// The IP address / URL / FQDN associated with the connection.
+        /// Can be useful for a game master to do IP Bans etc.
         /// </summary>
-        public string address;
+        public abstract string address { get; }
 
         /// <summary>
         /// The last time that a message was received on this connection.
@@ -62,16 +62,25 @@ namespace Mirror
         public float lastMessageTime;
 
         /// <summary>
-        /// The NetworkIdentity for this connection.
+        /// Obsolete: use <see cref="identity"/> instead
         /// </summary>
-        public NetworkIdentity playerController { get; internal set; }
+        [Obsolete("Use NetworkConnection.identity instead")]
+        public NetworkIdentity playerController
+        {
+            get
+            {
+                return identity;
+            }
+            internal set
+            {
+                identity = value;
+            }
+        }
 
         /// <summary>
-        /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
-        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
-        /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
+        /// The NetworkIdentity for this connection.
         /// </summary>
-        public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
+        public NetworkIdentity identity { get; internal set; }
 
         /// <summary>
         /// Setting this to true will log the contents of network message to the console.
@@ -96,20 +105,16 @@ namespace Mirror
         /// <summary>
         /// Creates a new NetworkConnection with the specified address
         /// </summary>
-        /// <param name="networkAddress"></param>
-        public NetworkConnection(string networkAddress)
+        internal NetworkConnection()
         {
-            address = networkAddress;
         }
 
         /// <summary>
         /// Creates a new NetworkConnection with the specified address and connectionId
         /// </summary>
-        /// <param name="networkAddress"></param>
         /// <param name="networkConnectionId"></param>
-        public NetworkConnection(string networkAddress, int networkConnectionId)
+        internal NetworkConnection(int networkConnectionId)
         {
-            address = networkAddress;
             connectionId = networkConnectionId;
 #pragma warning disable 618
             isConnected = true;
@@ -117,62 +122,10 @@ namespace Mirror
 #pragma warning restore 618
         }
 
-        ~NetworkConnection()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Disposes of this connection, releasing channel buffers that it holds.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            // Take yourself off the Finalization queue
-            // to prevent finalization code for this object
-            // from executing a second time.
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            foreach (uint netId in clientOwnedObjects)
-            {
-                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-                {
-                    identity.clientAuthorityOwner = null;
-                }
-            }
-            clientOwnedObjects.Clear();
-        }
-
         /// <summary>
         /// Disconnects this connection.
         /// </summary>
-        public void Disconnect()
-        {
-            // don't clear address so we can still access it in NetworkManager.OnServerDisconnect
-            // => it's reset in Initialize anyway and there is no address empty check anywhere either
-            //address = "";
-
-            // set not ready and handle clientscene disconnect in any case
-            // (might be client or host mode here)
-            isReady = false;
-            ClientScene.HandleClientDisconnect(this);
-
-            // server? then disconnect that client (not for host local player though)
-            if (Transport.activeTransport.ServerActive() && connectionId != 0)
-            {
-                Transport.activeTransport.ServerDisconnect(connectionId);
-            }
-            // not server and not host mode? then disconnect client
-            else
-            {
-                Transport.activeTransport.ClientDisconnect();
-            }
-
-            RemoveObservers();
-        }
+        public abstract void Disconnect();
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
         {
@@ -205,12 +158,13 @@ namespace Mirror
         /// Obsolete: use <see cref="Send{T}(T, int)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("use Send<T> instead")]
-        public virtual bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
+        public bool Send(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
         {
             // pack message and send
             byte[] message = MessagePacker.PackMessage(msgType, msg);
-            return SendBytes(message, channelId);
+            return Send(new ArraySegment<byte>(message), channelId);
         }
+
 
         /// <summary>
         /// This sends a network message with a message ID on the connection. This message is sent on channel zero, which by default is the reliable channel.
@@ -219,39 +173,50 @@ namespace Mirror
         /// <param name="msg">The message to send.</param>
         /// <param name="channelId">The transport layer channel to send on.</param>
         /// <returns></returns>
-        public virtual bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T: IMessageBase
+        public bool Send<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
-            // pack message and send
-            byte[] message = MessagePacker.Pack(msg);
-            NetworkDiagnostics.OnSend(msg, channelId, message.Length, 1);
-            return SendBytes(message, channelId);
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // pack message and send allocation free
+            MessagePacker.Pack(msg, writer);
+            NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+            bool result = Send(writer.ToArraySegment(), channelId);
+
+            NetworkWriterPool.Recycle(writer);
+            return result;
+        }
+
+        // validate packet size before sending. show errors if too big/small.
+        // => it's best to check this here, we can't assume that all transports
+        //    would check max size and show errors internally. best to do it
+        //    in one place in hlapi.
+        // => it's important to log errors, so the user knows what went wrong.
+        protected internal static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
+        {
+            if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
+            {
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                return false;
+            }
+
+            if (segment.Count == 0)
+            {
+                // zero length packets getting into the packet queues are bad.
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
+                return false;
+            }
+
+            // good size
+            return true;
         }
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal virtual bool SendBytes(byte[] bytes, int channelId = Channels.DefaultReliable)
-        {
-            if (logNetworkMessages) Debug.Log("ConnectionSend con:" + connectionId + " bytes:" + BitConverter.ToString(bytes));
-
-            if (bytes.Length > Transport.activeTransport.GetMaxPacketSize(channelId))
-            {
-                Debug.LogError("NetworkConnection.SendBytes cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
-                return false;
-            }
-
-            if (bytes.Length == 0)
-            {
-                // zero length packets getting into the packet queues are bad.
-                Debug.LogError("NetworkConnection.SendBytes cannot send zero bytes");
-                return false;
-            }
-
-            return TransportSend(channelId, bytes);
-        }
+        internal abstract bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
         public override string ToString()
         {
-            return $"connectionId: {connectionId} isReady: {isReady}";
+            return $"connection({connectionId})";
         }
 
         internal void AddToVisList(NetworkIdentity identity)
@@ -283,15 +248,15 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="InvokeHandler{T}(T)"/> instead
+        /// Obsolete: Use <see cref="InvokeHandler(int, NetworkReader, int)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use InvokeHandler<T> instead")]
         public bool InvokeHandlerNoData(int msgType)
         {
-            return InvokeHandler(msgType, null);
+            return InvokeHandler(msgType, null, -1);
         }
 
-        internal bool InvokeHandler(int msgType, NetworkReader reader)
+        internal bool InvokeHandler(int msgType, NetworkReader reader, int channelId)
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
@@ -299,13 +264,14 @@ namespace Mirror
                 {
                     msgType = msgType,
                     reader = reader,
-                    conn = this
+                    conn = this,
+                    channelId = channelId
                 };
 
                 msgDelegate(message);
                 return true;
             }
-            Debug.LogError("Unknown message ID " + msgType + " connId:" + connectionId);
+            Debug.LogError("Unknown message ID " + msgType + " " + this);
             return false;
         }
 
@@ -316,11 +282,24 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="msg">The message object to process.</param>
         /// <returns></returns>
-        public bool InvokeHandler<T>(T msg) where T : IMessageBase
+        public bool InvokeHandler<T>(T msg, int channelId) where T : IMessageBase
         {
-            int msgType = MessagePacker.GetId<T>();
-            byte[] data = MessagePacker.Pack(msg);
-            return InvokeHandler(msgType, new NetworkReader(data));
+            // get writer from pool
+            NetworkWriter writer = NetworkWriterPool.GetWriter();
+
+            // if it is a value type,  just use typeof(T) to avoid boxing
+            // this works because value types cannot be derived
+            // if it is a reference type (for example IMessageBase),
+            // ask the message for the real type
+            int msgType = MessagePacker.GetId(typeof(T).IsValueType ? typeof(T) : msg.GetType());
+
+            MessagePacker.Pack(msg, writer);
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            bool result = InvokeHandler(msgType, new NetworkReader(segment), channelId);
+
+            // recycle writer and return
+            NetworkWriterPool.Recycle(writer);
+            return result;
         }
 
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
@@ -330,58 +309,29 @@ namespace Mirror
         //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
         //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// <summary>
-        /// This virtual function allows custom network connection classes to process data from the network before it is passed to the application.
+        /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
-        /// <param name="buffer">The data recieved.</param>
-        public virtual void TransportReceive(ArraySegment<byte> buffer)
+        /// <param name="buffer">The data received.</param>
+        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
             NetworkReader reader = new NetworkReader(buffer);
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv con:" + connectionId + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
-                if (InvokeHandler(msgType, reader))
+                if (InvokeHandler(msgType, reader, channelId))
                 {
                     lastMessageTime = Time.time;
                 }
             }
             else
             {
-                Debug.LogError("Closed connection: " + connectionId + ". Invalid message header.");
+                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
             }
-        }
-
-        /// <summary>
-        /// This virtual function allows custom network connection classes to process data send by the application before it goes to the network transport layer.
-        /// </summary>
-        /// <param name="channelId">Channel to send data on.</param>
-        /// <param name="bytes">Data to send.</param>
-        /// <returns></returns>
-        public virtual bool TransportSend(int channelId, byte[] bytes)
-        {
-            if (Transport.activeTransport.ClientConnected())
-            {
-                return Transport.activeTransport.ClientSend(channelId, bytes);
-            }
-            else if (Transport.activeTransport.ServerActive())
-            {
-                return Transport.activeTransport.ServerSend(connectionId, channelId, bytes);
-            }
-            return false;
-        }
-
-        internal void AddOwnedObject(NetworkIdentity obj)
-        {
-            clientOwnedObjects.Add(obj.netId);
-        }
-
-        internal void RemoveOwnedObject(NetworkIdentity obj)
-        {
-            clientOwnedObjects.Remove(obj.netId);
         }
     }
 }

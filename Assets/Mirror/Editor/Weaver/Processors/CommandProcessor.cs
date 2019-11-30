@@ -10,20 +10,26 @@ namespace Mirror.Weaver
 
         /*
             // generates code like:
-            public void CallCmdThrust(float thrusting, int spin)
+            public void CmdThrust(float thrusting, int spin)
             {
-                if (isServer)
-                {
-                    // we are ON the server, invoke directly
-                    CmdThrust(thrusting, spin);
-                    return;
-                }
-
                 NetworkWriter networkWriter = new NetworkWriter();
                 networkWriter.Write(thrusting);
                 networkWriter.WritePackedUInt32((uint)spin);
                 base.SendCommandInternal(cmdName, networkWriter, cmdName);
             }
+
+            public void CallCmdThrust(float thrusting, int spin)
+            {
+                // whatever the user was doing before
+            }
+
+            Originally HLAPI put the send message code inside the Call function
+            and then proceeded to replace every call to CmdTrust with CallCmdTrust
+
+            This method moves all the user's code into the "Call" method
+            and replaces the body of the original method with the send message code.
+            This way we do not need to modify the code anywhere else,  and this works
+            correctly in dependent assemblies
         */
         public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
@@ -37,7 +43,12 @@ namespace Mirror.Weaver
                 cmd.Parameters.Add(new ParameterDefinition(pd.Name, ParameterAttributes.None, pd.ParameterType));
             }
 
-            ILProcessor cmdWorker = cmd.Body.GetILProcessor();
+            // move the old body to the new function
+            MethodBody newBody = cmd.Body;
+            cmd.Body = md.Body;
+            md.Body = newBody;
+
+            ILProcessor cmdWorker = md.Body.GetILProcessor();
 
             NetworkBehaviourProcessor.WriteSetupLocals(cmdWorker);
 
@@ -46,22 +57,6 @@ namespace Mirror.Weaver
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Ldstr, "Call Command function " + md.Name));
                 cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.logErrorReference));
             }
-
-            // local client check
-            Instruction localClientLabel = cmdWorker.Create(OpCodes.Nop);
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, Weaver.getBehaviourIsServer));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Brfalse, localClientLabel));
-
-            // call the cmd function directly.
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg_0));
-            for (int i = 0; i < md.Parameters.Count; i++)
-            {
-                cmdWorker.Append(cmdWorker.Create(OpCodes.Ldarg, i + 1));
-            }
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Call, md));
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
-            cmdWorker.Append(localClientLabel);
 
             // NetworkWriter writer = new NetworkWriter();
             NetworkBehaviourProcessor.WriteCreateWriter(cmdWorker);
@@ -104,7 +99,7 @@ namespace Mirror.Weaver
                 ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
             }
         */
-        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md)
+        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition cmdCallFunc)
         {
             MethodDefinition cmd = new MethodDefinition(CmdPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
@@ -123,7 +118,7 @@ namespace Mirror.Weaver
                 return null;
 
             // invoke actual command function
-            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, md));
+            cmdWorker.Append(cmdWorker.Create(OpCodes.Callvirt, cmdCallFunc));
             cmdWorker.Append(cmdWorker.Create(OpCodes.Ret));
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);

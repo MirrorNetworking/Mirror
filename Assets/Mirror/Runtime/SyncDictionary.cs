@@ -5,11 +5,11 @@ using System.ComponentModel;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject
+    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
-        readonly IDictionary<TKey, TValue> objects;
+        protected readonly IDictionary<TKey, TValue> objects;
 
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
@@ -53,17 +53,7 @@ namespace Mirror
         // this should be called after a successfull sync
         public void Flush() => changes.Clear();
 
-        protected SyncDictionary()
-        {
-            objects = new Dictionary<TKey, TValue>();
-        }
-
-        protected SyncDictionary(IEqualityComparer<TKey> eq)
-        {
-            objects = new Dictionary<TKey, TValue>(eq);
-        }
-
-        protected SyncDictionary(IDictionary<TKey, TValue> objects)
+        protected SyncIDictionary(IDictionary<TKey, TValue> objects)
         {
             this.objects = objects;
         }
@@ -272,11 +262,11 @@ namespace Mirror
         {
             if (array == null)
             {
-                throw new System.ArgumentNullException("Array Is Null");
+                throw new System.ArgumentNullException(nameof(array), "Array Is Null");
             }
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new System.ArgumentOutOfRangeException("Array Index Out of Range");
+                throw new System.ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
             }
             if (array.Length - arrayIndex < Count)
             {
@@ -301,8 +291,26 @@ namespace Mirror
             return result;
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IDictionary<TKey, TValue>)objects).GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => objects.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IDictionary<TKey, TValue>)objects).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
+    }
+
+    public abstract class  SyncDictionary<TKey, TValue>: SyncIDictionary<TKey, TValue>
+    {
+        protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
+        {
+        }
+
+        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey,TValue>(eq))
+        {
+        }
+
+        public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey,TValue>)objects).Values;
+
+        public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey,TValue>)objects).Keys;
+
+        public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
+
     }
 }
