@@ -598,12 +598,9 @@ namespace Mirror
             // use data from scene objects
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.OrderBy(uv => uv.netId))
             {
-                if (!identity.isClient)
-                {
-                    identity.NotifyAuthority();
-                    identity.OnStartClient();
-                    CheckForLocalPlayer(identity);
-                }
+                identity.NotifyAuthority();
+                identity.OnStartClient();
+                CheckForLocalPlayer(identity);
             }
             isSpawnFinished = true;
         }
