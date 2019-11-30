@@ -870,6 +870,13 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
+            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
+            if (conn is ULocalConnectionToClient)
+            {
+                identity.hasAuthority = true;
+                ClientScene.InternalAddPlayer(identity);
+            }
+
             // add connection to observers AFTER the playerController was set.
             // by definition, there is nothing to observe if there is no player
             // controller.
