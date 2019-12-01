@@ -610,7 +610,7 @@ namespace Mirror
 
             if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
             {
-                GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 50f));
+                GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
                     SceneManager.LoadScene(RoomScene);
                 GUILayout.EndArea();
