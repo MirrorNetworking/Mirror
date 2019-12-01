@@ -506,8 +506,13 @@ namespace Mirror
             }
         }
 
+        bool clientStarted;
         internal void OnStartClient()
         {
+            if (clientStarted)
+                return;
+            clientStarted = true;
+
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -1114,6 +1119,7 @@ namespace Mirror
             if (!m_Reset)
                 return;
 
+            clientStarted = false;
             m_Reset = false;
 
             netId = 0;
