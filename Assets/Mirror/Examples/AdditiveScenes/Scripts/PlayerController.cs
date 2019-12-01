@@ -3,6 +3,7 @@ using UnityEngine;
 namespace Mirror.Examples.Additive
 {
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(NetworkTransform))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
