@@ -467,7 +467,6 @@ namespace Mirror
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             identity.Reset();
-            identity.pendingLocalPlayer = msg.isLocalPlayer;
             identity.assetId = msg.assetId;
 
             if (!identity.gameObject.activeSelf)
@@ -667,11 +666,13 @@ namespace Mirror
         {
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                localObject.pendingLocalPlayer = msg.isLocalPlayer;
-                localObject.OnStartClient();
+                if (msg.isLocalPlayer)
+                    InternalAddPlayer(localObject);
+
                 localObject.hasAuthority = msg.isOwner;
-                localObject.OnSetHostVisibility(true);
                 localObject.NotifyAuthority();
+                localObject.OnStartClient();
+                localObject.OnSetHostVisibility(true);
                 CheckForLocalPlayer(localObject);
             }
         }
@@ -716,7 +717,7 @@ namespace Mirror
 
         static void CheckForLocalPlayer(NetworkIdentity identity)
         {
-            if (identity.pendingLocalPlayer)
+            if (identity == localPlayer)
             {
                 if (readyConnection.identity != null && readyConnection.identity != identity)
                 {
@@ -726,11 +727,9 @@ namespace Mirror
 
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = readyConnection;
-                identity.SetLocalPlayer();
+                identity.OnStartLocalPlayer();
 
                 if (LogFilter.Debug) Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
-
-                identity.pendingLocalPlayer = false;
             }
         }
     }
