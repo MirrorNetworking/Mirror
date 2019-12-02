@@ -330,11 +330,6 @@ namespace Mirror
             AddOperation(Operation.OP_REMOVEAT, index);
         }
 
-        public void Dirty(int index)
-        {
-            AddOperation(Operation.OP_DIRTY, index, objects[index]);
-        }
-
         public T this[int i]
         {
             get => objects[i];
