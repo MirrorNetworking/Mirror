@@ -161,6 +161,7 @@ namespace Mirror
 
             // replace room player with game player
             NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
+            roomPlayer.GetComponent<NetworkIdentity>().AssignClientAuthority(conn);
         }
 
         /// <summary>
