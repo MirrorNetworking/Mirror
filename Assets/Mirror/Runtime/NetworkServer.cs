@@ -705,34 +705,84 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This replaces the player object for a connection with a different player object. The old player object is not destroyed.
-        /// <para>If a connection already has a player object, this can be used to replace that object with a different player object. This does NOT change the ready state of the connection, so it can safely be used while changing scenes.</para>
+        /// Obsolete,  use <see cref="ReplacePlayer(NetworkConnection, GameObject, Guid)"/> instead
         /// </summary>
-        /// <param name="conn">Connection which is adding the player.</param>
-        /// <param name="player">Player object spawned for the player.</param>
-        /// <param name="assetId"></param>
-        /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
-        /// <returns></returns>
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
+        [Obsolete("use ReplacePlayer instead")]
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.assetId = assetId;
-            }
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+            return ReplacePlayer(conn, player, assetId);
         }
 
         /// <summary>
         /// This replaces the player object for a connection with a different player object. The old player object is not destroyed.
         /// <para>If a connection already has a player object, this can be used to replace that object with a different player object. This does NOT change the ready state of the connection, so it can safely be used while changing scenes.</para>
         /// </summary>
+        /// <param name="conn">Client's connection whose player needs to be replaced</param>
+        /// <param name="player">New player object of the connection</param>
+        /// <param name="assetId">Asset id the client will use to spawn the player</param>
+        /// <returns></returns>
+        public static bool ReplacePlayer(NetworkConnection conn, GameObject player, Guid assetId)
+        {
+            NetworkIdentity previousPlayer = conn.identity;
+            bool result = ReplacePlayerKeepAuthority(conn, player, guid);
+            previousPlayer.RemoveClientAuthority();
+            return result;
+        }
+
+        /// <summary>
+        /// This replaces the player object for a connection with a different player object. The old player object is not destroyed.
+        /// The old player remains attached to the connection
+        /// <para>If a connection already has a player object, this can be used to replace that object with a different player object. This does NOT change the ready state of the connection, so it can safely be used while changing scenes.</para>
+        /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
-        /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
         /// <returns></returns>
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
+        public static bool ReplacePlayerKeepAuthority(NetworkConnection conn, GameObject player, Guid assetId)
         {
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
+            {
+                identity.assetId = assetId;
+            }
+            return InternalReplacePlayer(conn, player);
+        }
+
+
+        /// <summary>
+        /// Obsolete,  use <see cref="ReplacePlayer(NetworkConnection, GameObject)"/> instead
+        /// </summary>
+        [Obsolete("use ReplacePlayer instead")]
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player)
+        {
+            return InternalReplacePlayer(conn, player);
+        }
+
+        /// <summary>
+        /// This replaces the player object for a connection with a different player object. The old player object is not destroyed.
+        /// The old player will no longer remain attached to the connection
+        /// <para>If a connection already has a player object, this can be used to replace that object with a different player object. This does NOT change the ready state of the connection, so it can safely be used while changing scenes.</para>
+        /// </summary>
+        /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="player">Player object spawned for the player.</param>
+        /// <returns></returns>
+        public static bool ReplacePlayer(NetworkConnection conn, GameObject player)
+        {
+            NetworkIdentity previousPlayer = conn.identity;
+            bool result = ReplacePlayerKeepAuthority(conn, player);
+            previousPlayer.RemoveClientAuthority();
+            return result;
+        }
+
+        /// <summary>
+        /// This replaces the player object for a connection with a different player object. The old player object is not destroyed.
+        /// The old player remains attached to the connection
+        /// <para>If a connection already has a player object, this can be used to replace that object with a different player object. This does NOT change the ready state of the connection, so it can safely be used while changing scenes.</para>
+        /// </summary>
+        /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="player">Player object spawned for the player.</param>
+        /// <returns></returns>
+        public static bool ReplacePlayerKeepAuthority(NetworkConnection conn, GameObject player)
+        {
+            return InternalReplacePlayer(conn, player);
         }
 
         /// <summary>
@@ -846,7 +896,7 @@ namespace Mirror
             }
         }
 
-        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority)
+        internal static bool InternalReplacePlayer(NetworkConnection conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -857,8 +907,6 @@ namespace Mirror
 
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
-
-            var previousPlayer = conn.identity;
 
             conn.identity = identity;
 
@@ -885,10 +933,6 @@ namespace Mirror
 
             FinishPlayerForConnection(identity, player);
             identity.SetClientOwner(conn);
-
-            if (!keepAuthority)
-                previousPlayer.RemoveClientAuthority();
-
             return true;
         }
 
