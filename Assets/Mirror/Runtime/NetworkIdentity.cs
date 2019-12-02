@@ -472,18 +472,17 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            observers = new Dictionary<int, NetworkConnection>();
-
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            if (netId == 0)
+            if (netId != 0)
             {
-                netId = GetNextNetworkId();
-            }
-            else
-            {
-                Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
+                // This object has already been spawned, this method might be called again
+                // if we try to respawn all objects.  This can happen when we add a scene
+                // in that case there is nothing else to do.
                 return;
             }
+
+            netId = GetNextNetworkId();
+            observers = new Dictionary<int, NetworkConnection>();
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
