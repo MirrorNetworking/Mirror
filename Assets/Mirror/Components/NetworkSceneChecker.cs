@@ -31,6 +31,20 @@ namespace Mirror
 
         Scene currentScene;
 
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            Debug.LogError($"OnStartClient A:{gameObject.name} B:{isLocalPlayer} C:{currentScene.name} D:{NetworkClient.connection.identity.gameObject.scene.name}");
+
+            if (isLocalPlayer) return;
+
+            if (currentScene == null) return;
+
+            if (currentScene == NetworkClient.connection.identity.gameObject.scene) return;
+
+            SceneManager.MoveGameObjectToScene(gameObject, NetworkClient.connection.identity.gameObject.scene);
+        }
+
         void Update()
         {
             if (!NetworkServer.active || updateInterval == 0)
