@@ -608,10 +608,16 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (SceneManager.GetActiveScene().name != RoomScene)
-                return;
+            if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
+            {
+                GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
+                if (GUILayout.Button("Return to Room"))
+                    SceneManager.LoadScene(RoomScene);
+                GUILayout.EndArea();
+            }
 
-            GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
+            if (SceneManager.GetActiveScene().name == RoomScene)
+                GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
         #endregion
