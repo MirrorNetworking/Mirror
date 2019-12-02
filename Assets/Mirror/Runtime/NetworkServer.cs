@@ -724,7 +724,7 @@ namespace Mirror
         public static bool ReplacePlayer(NetworkConnection conn, GameObject player, Guid assetId)
         {
             NetworkIdentity previousPlayer = conn.identity;
-            bool result = ReplacePlayerKeepAuthority(conn, player, guid);
+            bool result = ReplacePlayerKeepAuthority(conn, player, assetId);
             previousPlayer.RemoveClientAuthority();
             return result;
         }
