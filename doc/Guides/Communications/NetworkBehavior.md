@@ -1,19 +1,21 @@
 # NetworkBehaviour Callbacks
 
-Like the Network Manager callbacks, there are a number of events relating to network behaviours that can occur over the course of a normal multiplayer game. These include events such as the host starting up, a player joining, or a player leaving. Each of these possible events has an associated **callback** that you can implement in your own code to take action when the event occurs.
+**See also <xref:Mirror.NetworkBehaviour> in the API Reference.**
 
-When you create a script which **inherits** from NetworkBehaviour, you can write your own implementation of what should happen when these events occur. To do this, you override the virtual methods on the `NetworkBehaviour` class with your own implementation of what should happen when the given event occurs.
+Like the Network Manager callbacks, there are a number of events relating to network behaviours that can occur over the course of a normal multiplayer game. These include events such as the host starting up, a player joining, or a player leaving. Each of these possible events has an associated callback that you can implement in your own code to take action when the event occurs.
 
-This page lists all the virtual methods (the callbacks) that you can implement on Network Behaviour, and when they occur. A game can run in one of three modes, **host**, **client**, or **server-only**. The callbacks for each mode are listed below:
+When you create a script which inherits from `NetworkBehaviour`, you can write your own implementation of what should happen when these events occur. To do this, you override the virtual methods on the `NetworkBehaviour` class with your own implementation of what should happen when the given event occurs.
 
-## Callbacks in server mode
+This page lists all the virtual methods (callbacks) that you can implement on `NetworkBehaviour`, and when they occur.
+
+## Server mode
 
 **When a client connects:**
 -   `OnStartServer`
 -   `OnRebuildObservers`
 -   `Start()` function is called
 
-## Callbacks in client mode
+## Client mode
 
 **When a client connects:**
 -   `OnStartClient`
@@ -21,7 +23,7 @@ This page lists all the virtual methods (the callbacks) that you can implement o
 -   `OnStartAuthority`
 -   `Start()` function is called
 
-## Callbacks in host mode
+## Host mode
 
 These are only called on the **Player Game Objects** when a client connects:
 -   `OnStartServer`
