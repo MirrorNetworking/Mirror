@@ -221,11 +221,6 @@ namespace Mirror
             return false;
         }
 
-        public void Dirty(TKey index)
-        {
-            AddOperation(Operation.OP_DIRTY, index, objects[index]);
-        }
-
         public TValue this[TKey i]
         {
             get => objects[i];
