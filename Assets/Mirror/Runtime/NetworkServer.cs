@@ -858,7 +858,7 @@ namespace Mirror
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
-            var previousPlayer = conn.identity;
+            NetworkIdentity previousPlayer = conn.identity;
 
             conn.identity = identity;
 
