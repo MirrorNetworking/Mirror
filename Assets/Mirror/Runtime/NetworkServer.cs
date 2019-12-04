@@ -858,6 +858,12 @@ namespace Mirror
                 return false;
             }
 
+            if (identity.connectionToClient != null && identity.connectionToClient != conn)
+            {
+                Debug.LogError("Cannot replace player for connection. New player is already owned by a different connection" + player);
+                return false;
+            }
+
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
