@@ -98,6 +98,12 @@ namespace Mirror
             serverSendBuffer = new byte[globalConfig.MaxPacketSize];
         }
 
+        public override bool Available()
+        {
+            // LLAPI runs on all platforms, including webgl
+            return true;
+        }
+
         #region client
         public override bool ClientConnected()
         {
@@ -318,12 +324,6 @@ namespace Mirror
             // process all messages
             while (ProcessClientMessage()) {}
             while (ProcessServerMessage()) {}
-        }
-
-        public override bool Available()
-        {
-            // websocket is available in all platforms (including webgl)
-            return useWebsockets || base.Available();
         }
 
         public override void Shutdown()

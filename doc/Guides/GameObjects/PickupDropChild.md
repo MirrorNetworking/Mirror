@@ -25,16 +25,16 @@ using UnityEngine;
 using System.Collections;
 using Mirror;
 
+public enum EquippedItem : byte
+{
+    nothing,
+    ball,
+    box,
+    cylinder
+}
+
 public class PlayerEquip : NetworkBehaviour
 {
-    public enum EquippedItem : byte
-    {
-        nothing,
-        ball,
-        box,
-        cylinder
-    }
-
     public GameObject sceneObjectPrefab;
 
     public GameObject rightHand;
@@ -126,8 +126,12 @@ First, let's add one more Input to the Update method above, and a `CmdDropItem` 
     [Command]
     void CmdDropItem()
     {
-        // Instantiate the scene object on the server and set the RigidBody as non-kinematic
-        GameObject newSceneObject = Instantiate(sceneObjectPrefab, rightHand.transform.position, rightHand.transform.rotation);
+        // Instantiate the scene object on the server
+        Vector3 pos = rightHand.transform.position;
+        Quaternion rot = rightHand.transform.rotation;
+        GameObject newSceneObject = Instantiate(sceneObjectPrefab, pos, rot);
+
+        // set the RigidBody as non-kinematic on the server only (isKinematic = true in prefab)
         newSceneObject.GetComponent<Rigidbody>().isKinematic = false;
 
         SceneObject sceneObject = newSceneObject.GetComponent<SceneObject>();

@@ -47,7 +47,7 @@ public class Player : NetworkBehaviour
 
 At this point, you might get some compilation errors. Don't panic, these are easy to fix. Keep going...
 
-### 4. Remove NetworkSettings
+### 4. Replace playerController with identity
 
 Replace references to 'NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
 

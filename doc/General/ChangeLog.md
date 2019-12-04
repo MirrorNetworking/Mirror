@@ -1,5 +1,30 @@
 # Change Log
 
+## Version 5.x.x - In progress
+- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
+- Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+- Fixed: isClient and isServer are now true for networked objects in Start and OnStartClient / OnStartServer, respectively
+- Fixed: hasAuthority is now set before OnStartClient and OnStartLocalPlayer are invoked
+- Changed: connectionToClient is now used to assign client authority
+- Changed: In many respects, the Host player acts a lot more like a client and will reveal bugs better.
+- Removed: NetworkServer.SpawnWithClientAuthority is deprecated in favor of overloads of NetworkServer.Spawn
+
+## Version 5.0.2 - 2019-Nov-03
+- Added: SyncList and SyncSet custom Equality Comparer support
+- Added: Custom serializers may be implemented for any type in Cmd's and Rpc's
+- Added: [Fallback Transport](../Transports/Fallback.md)
+- Fixed: SyncVar hooks are no longer called in Host if no change
+- Fixed: NetworkIdentity no longer throws a null reference exception in RemoveClientAuthority
+- Fixed: Server transport now suspended during scene change to prevent erroneous messages
+- Fixed: SyncList, SyncDictionary and SyncSet now use a custom IEnumerator to avoid memory allocation
+- Fixed: sceneID is no longer reset in certain cases when editing a prefab
+- Changed: PreprocessorDefine code moved to CompilerSymbols folder to avoid paradox of missing symbols preventing the symbols being added to the project.
+- Changed: Host player no longer gets authority assigned to all objects by default
+- Changed: Commands no longer bypass serialization for Host player, making debugging easier
+- Changed: Local connections now maintain their own message queue
+- Changed: Transport.Available is now abstract
+- Removed: Network Identity: Local Player Authority has been removed as no longer necessary
+
 ## Version 4.0.7 - 2019-Oct-03
 - Added: [Authentication](../Guides/Authentication.md) support to authenticate clients in the Connect phase
 - Added: Profiler events. These events can be subscribed to by the [Network Profiler](../Guides/Profiler.md) to provide visual information

@@ -77,9 +77,9 @@ class Player : NetworkBehaviour {
         inventory.Callback += OnInventoryUpdated;
     }
 
-    void OnInventoryUpdated(SyncListItem.Operation op, int index, Item item)
+    void OnInventoryUpdated(SyncListItem.Operation op, int index, Item oldItem, Item newItem)
     {
-        switch (op) 
+        switch (op)
         {
             case SyncListItem.Operation.OP_ADD:
                 // index is where it got added in the list
@@ -116,7 +116,7 @@ class Player : NetworkBehaviour {
 By default, SyncList uses a List to store it's data. If you want to use a different list implementation, add a constructor and pass the list implementation to the parent constructor. For example:
 
 ```cs
-class SyncListItem : SyncList<Item> 
+class SyncListItem : SyncList<Item>
 {
     public SyncListItem() : base(new MyIList<Item>()) {}
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -10,6 +9,8 @@ namespace Mirror
     public class MultiplexTransport : Transport
     {
         public Transport[] transports;
+
+        Transport available;
 
         // used to partition recipients for each one of the base transports
         // without allocating a new list every time
@@ -23,6 +24,19 @@ namespace Mirror
             }
             InitClient();
             InitServer();
+        }
+
+        public override bool Available()
+        {
+            // available if any of the transports is available
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #region Client
@@ -39,42 +53,39 @@ namespace Mirror
             }
         }
 
-        // The client just uses the first transport available
-        Transport GetAvailableTransport()
+        public override void ClientConnect(string address)
         {
             foreach (Transport transport in transports)
             {
                 if (transport.Available())
                 {
-                    return transport;
+                    available = transport;
+                    transport.ClientConnect(address);
+
                 }
             }
             throw new Exception("No transport suitable for this platform");
         }
 
-        public override void ClientConnect(string address)
-        {
-            GetAvailableTransport().ClientConnect(address);
-        }
-
         public override bool ClientConnected()
         {
-            return GetAvailableTransport().ClientConnected();
+            return available != null && available.ClientConnected();
         }
 
         public override void ClientDisconnect()
         {
-            GetAvailableTransport().ClientDisconnect();
+            if (available != null)
+                available.ClientDisconnect();
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            return GetAvailableTransport().ClientSend(channelId, segment);
+            return available.ClientSend(channelId, segment);
         }
 
         public override int GetMaxPacketSize(int channelId = 0)
         {
-            return GetAvailableTransport().GetMaxPacketSize(channelId);
+            return available.GetMaxPacketSize(channelId);
         }
 
         #endregion
@@ -138,7 +149,15 @@ namespace Mirror
 
         public override bool ServerActive()
         {
-            return transports.All(t => t.ServerActive());
+            // avoid Linq.All allocations
+            foreach (Transport transport in transports)
+            {
+                if (!transport.ServerActive())
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override string ServerGetClientAddress(int connectionId)

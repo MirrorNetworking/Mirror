@@ -2,8 +2,8 @@
 
 The hook attribute can be used to specify a function to be called when the SyncVar changes value on the client.  This ensures that all clients receive the proper variables from other clients.
 -   The Hook method must have a single parameter of the same type as the SyncVar property.  This parameter should have a unique name, e.g. newValue.
--   Do not try to set the property value from inside the hook.  The property value will be updated after the hook completes.
 -   Reference the hook parameter inside the hook to use the new value.  Referencing the property value will be the old value, in case you need to compare.
+-   The property will be updated after the hook completes. You may update the property yourself inside the hook.
 
 Below is a simple example of assigning a random color to each player when they're spawned on the server.  All clients will see all players in the correct colors, even if they join later.
 
