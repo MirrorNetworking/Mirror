@@ -817,7 +817,7 @@ namespace Mirror
             conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            identity.connectionToClient = (NetworkConnectionToClient)conn;
+            identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
             if (conn is ULocalConnectionToClient)
@@ -831,18 +831,21 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Adding new playerGameObject object netId: " + identity.netId + " asset ID " + identity.assetId);
 
-            FinishPlayerForConnection(identity, player);
-            identity.SetClientOwner(conn);
+            Respawn(identity);
             return true;
         }
 
-        static void FinishPlayerForConnection(NetworkIdentity identity, GameObject playerGameObject)
+        static void Respawn(NetworkIdentity identity)
         {
             if (identity.netId == 0)
             {
-                // it is allowed to provide an already spawned object as the new player object.
-                // so dont spawn it again.
-                Spawn(playerGameObject, identity.connectionToClient);
+                // If the object has not been spawned, then do a full spawn and update observers
+                Spawn(identity.gameObject, identity.connectionToClient);
+            }
+            else
+            {
+                // otherwise just replace his data
+                SendSpawnMessage(identity, identity.connectionToClient);
             }
         }
 
@@ -855,6 +858,12 @@ namespace Mirror
                 return false;
             }
 
+            if (identity.connectionToClient != null && identity.connectionToClient != conn)
+            {
+                Debug.LogError("Cannot replace player for connection. New player is already owned by a different connection" + player);
+                return false;
+            }
+
             //NOTE: there can be an existing player
             if (LogFilter.Debug) Debug.Log("NetworkServer ReplacePlayer");
 
@@ -863,7 +872,7 @@ namespace Mirror
             conn.identity = identity;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
-            identity.connectionToClient = (NetworkConnectionToClient)conn;
+            identity.SetClientOwner(conn);
 
             //NOTE: DONT set connection ready.
 
@@ -883,8 +892,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
-            FinishPlayerForConnection(identity, player);
-            identity.SetClientOwner(conn);
+            Respawn(identity);
 
             if (!keepAuthority)
                 previousPlayer.RemoveClientAuthority();
