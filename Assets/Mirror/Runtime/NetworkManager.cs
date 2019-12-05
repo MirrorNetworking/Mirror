@@ -354,6 +354,37 @@ namespace Mirror
         }
 
         /// <summary>
+        /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
+        /// <para>This makes the newly created client connect to the server immediately.</para>
+        /// </summary>
+        /// <param name="uri">location of the server to connect to</param>
+        public void StartClient(Uri uri)
+        {
+            InitializeSingleton();
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+
+            if (runInBackground)
+                Application.runInBackground = true;
+
+            isNetworkActive = true;
+
+            RegisterClientMessages();
+
+            if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
+            this.networkAddress = uri.Host;
+
+            NetworkClient.Connect(uri);
+
+            OnStartClient();
+        }
+
+
+        /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
         /// </summary>
