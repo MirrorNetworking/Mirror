@@ -61,6 +61,13 @@ namespace Mirror.Websocket
             }
         }
 
+        public override void ClientConnect(Uri uri)
+        {
+            if (!uri.IsDefaultPort)
+                this.port = uri.Port;
+            client.Connect(uri);
+        }
+
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             client.Send(segment);
