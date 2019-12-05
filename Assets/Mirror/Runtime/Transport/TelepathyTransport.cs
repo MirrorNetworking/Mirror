@@ -57,6 +57,22 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
+
+        /// <summary>
+        /// Establish a connecion to a server
+        /// </summary>
+        /// <param name="uri">The address of the server we are trying to connect to</param>
+        public override void ClientConnect(Uri uri)
+        {
+            if (uri.Scheme != "tcp")
+                throw new ArgumentException($"Invalid url {uri}, use tcp://host:port instead", nameof(uri));
+
+            if (!uri.IsDefaultPort)
+                port = (ushort)uri.Port;
+
+            client.Connect(uri.Host, port);
+        }
+
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.
