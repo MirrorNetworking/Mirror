@@ -51,6 +51,15 @@ namespace Mirror.Weaver
             serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
 
+            // call base
+            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Serialize");
+            if (baseSerialize != null)
+            {
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
+            }
+
             foreach (FieldDefinition field in td.Fields)
             {
                 if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
@@ -95,6 +104,15 @@ namespace Mirror.Weaver
 
             serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+
+            // call base
+            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Deserialize");
+            if (baseDeserialize != null)
+            {
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+            }
 
             foreach (FieldDefinition field in td.Fields)
             {
