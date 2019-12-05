@@ -68,9 +68,9 @@ namespace Mirror
                 throw new ArgumentException($"Invalid url {uri}, use tcp://host:port instead", nameof(uri));
 
             if (!uri.IsDefaultPort)
-                this.port = (ushort)uri.Port;
+                port = (ushort)uri.Port;
 
-            client.Connect(uri.Host, uri.Port);
+            client.Connect(uri.Host, port);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
