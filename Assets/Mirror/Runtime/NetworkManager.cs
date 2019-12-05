@@ -376,6 +376,7 @@ namespace Mirror
             RegisterClientMessages();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
+            this.networkAddress = uri.Host;
 
             NetworkClient.Connect(uri);
 
