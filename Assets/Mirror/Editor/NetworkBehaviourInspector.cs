@@ -17,7 +17,7 @@ namespace Mirror
         bool syncsAnything;
         bool[] showSyncLists;
 
-        readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
+        static readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
         internal virtual bool HideScriptField => false;
 
