@@ -789,12 +789,12 @@ namespace Mirror
 
         #region Start Positions
 
-        public static int startPositionIndex;
+        public int startPositionIndex;
 
         /// <summary>
         /// List of transforms populted by NetworkStartPosition components found in the scene.
         /// </summary>
-        public static List<Transform> startPositions = new List<Transform>();
+        public List<Transform> startPositions = new List<Transform>();
 
         /// <summary>
         /// Registers the transform of a game object as a player spawn location.
