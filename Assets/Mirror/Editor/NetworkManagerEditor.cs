@@ -6,7 +6,11 @@ namespace Mirror
 {
     [CustomEditor(typeof(NetworkManager), true)]
     [CanEditMultipleObjects]
+#if ODIN_INSPECTOR
+    public class NetworkManagerEditor : Sirenix.OdinInspector.Editor.OdinEditor
+#else
     public class NetworkManagerEditor : Editor
+#endif
     {
         SerializedProperty spawnListProperty;
 
