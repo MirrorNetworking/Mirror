@@ -25,8 +25,6 @@ namespace Mirror
         [DrawerPriority(DrawerPriorityLevel.WrapperPriority)]
         private class SyncVarDrawer<T> : OdinAttributeDrawer<SyncVarAttribute, T>
         {
-            private static readonly bool IsUnityObject = typeof(UnityEngine.Object).IsAssignableFrom(typeof(T));
-
             protected override bool CanDrawAttributeValueProperty(InspectorProperty property)
             {
                 // Only draw for direct roots of the inspected object
@@ -35,20 +33,12 @@ namespace Mirror
 
             protected override void DrawPropertyLayout(GUIContent label)
             {
-                if (IsUnityObject)
-                {
-                    CallNextDrawer(label);
-                    GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
-                }
-                else
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.BeginVertical();
-                    CallNextDrawer(label);
-                    EditorGUILayout.EndVertical();
-                    GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
-                    EditorGUILayout.EndHorizontal();
-                }
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginVertical();
+                CallNextDrawer(label);
+                EditorGUILayout.EndVertical();
+                GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
+                EditorGUILayout.EndHorizontal();
             }
         }
 #endif
