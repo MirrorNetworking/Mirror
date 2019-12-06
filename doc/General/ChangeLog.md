@@ -1,6 +1,6 @@
 # Change Log
 
-## Version 5.x.x - In progress
+## Version 6.x.x - In progress
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
 - Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
 - Added: MessageBase now fully supports inheritance
