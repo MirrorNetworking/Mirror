@@ -53,6 +53,11 @@ namespace Mirror
             return false;
         }
 
+        void OnEnable()
+        {
+            initialized = false;
+        }
+
         void Init(MonoScript script)
         {
             initialized = true;
