@@ -26,7 +26,7 @@ Unity LLAPI was also closed source, meaning the Mirror developers could not take
 - if you're making a Minecraft-like game and need to keep everyone in sync
 
 ## I want to know more about reliable UDP...
-A little explaination is required. UDP is best described as a "shattershot" data transmission protocol, which means you just spray and pray that packets at a destination and hope for the best. The remote destination may or may not receive those packets, nor are they going to be in order. For example, if you have a packet stream that is:
+A little explanation is required. UDP is best described as a "shattershot" data transmission protocol, which means you just spray and pray that packets at a destination and hope for the best. The remote destination may or may not receive those packets, nor are they going to be in order. For example, if you have a packet stream that is:
 ```
 1 2 3 4 5 6 7
 ```
@@ -59,4 +59,4 @@ No, it does not. Mirror comes with built-in websockets support.
 You can get support by opening a issue ticket on the [Ignorance repository issue tracker](https://github.com/SoftwareGuy/Ignorance/issues) or the #ignorance channel in the Mirror Discord server.
 
 ## I still don't understand what this transport is, my head is spinning, help!
-Come by the Discord and we'll do our best to explain it in plain english.
+Come by the Discord and we'll do our best to explain it in plain English.

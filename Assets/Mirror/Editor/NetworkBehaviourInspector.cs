@@ -17,7 +17,7 @@ namespace Mirror
         bool syncsAnything;
         bool[] showSyncLists;
 
-        readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
+        static readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable has been marked with the [SyncVar] attribute.");
 
         internal virtual bool HideScriptField => false;
 
@@ -51,6 +51,11 @@ namespace Mirror
             }
 
             return false;
+        }
+
+        void OnEnable()
+        {
+            initialized = false;
         }
 
         void Init(MonoScript script)
@@ -101,43 +106,37 @@ namespace Mirror
             while (property.NextVisible(expanded))
             {
                 bool isSyncVar = syncVarNames.Contains(property.name);
-                if (property.propertyType == SerializedPropertyType.ObjectReference)
+
+                if (property.name == "m_Script")
                 {
-                    if (property.name == "m_Script")
+                    if (HideScriptField)
                     {
-                        if (HideScriptField)
-                        {
-                            continue;
-                        }
-
-                        EditorGUI.BeginDisabledGroup(true);
+                        continue;
                     }
 
-                    EditorGUILayout.PropertyField(property, true);
-
-                    if (isSyncVar)
-                    {
-                        GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
-                    }
-
-                    if (property.name == "m_Script")
-                    {
-                        EditorGUI.EndDisabledGroup();
-                    }
+                    EditorGUI.BeginDisabledGroup(true);
                 }
-                else
+
+                if (isSyncVar)
                 {
                     EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.BeginVertical();
+                }
 
-                    EditorGUILayout.PropertyField(property, true);
+                EditorGUILayout.PropertyField(property, true);
 
-                    if (isSyncVar)
-                    {
-                        GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
-                    }
-
+                if (isSyncVar)
+                {
+                    EditorGUILayout.EndVertical();
+                    GUILayout.Label(syncVarIndicatorContent, EditorStyles.miniLabel, GUILayout.Width(EditorStyles.miniLabel.CalcSize(syncVarIndicatorContent).x));
                     EditorGUILayout.EndHorizontal();
                 }
+
+                if (property.name == "m_Script")
+                {
+                    EditorGUI.EndDisabledGroup();
+                }
+                
                 expanded = false;
             }
             serializedObject.ApplyModifiedProperties();

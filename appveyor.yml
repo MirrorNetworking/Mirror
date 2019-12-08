@@ -26,12 +26,14 @@ build_script:
 after_build:
   - RMDIR /Q /S Assets\Mirror\Tests
   - del /F /Q Assets\Mirror\Tests.meta
-  - UnityPackager pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE
+  - UnityPackager pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
 
 artifacts:
   - path: Mirror.unitypackage
   - path: Assets
     name: Mirror
+  - path: Assets
+    name: ScriptTemplates
 
 image: Visual Studio 2017
 

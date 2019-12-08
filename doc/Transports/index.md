@@ -13,6 +13,6 @@ To use a transport, simply add it as component to the NetworkManager and drag it
 -   [Steam - Fizzy](Fizzy.md)
     A complete rebuild utilising Async (Previously SteamNetNetworkTransport) of a Steam P2P network transport layer.
 -   [Multiplexer - Multiplexer](Multiplexer.md)
-    Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrnently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
+    Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
 -   [Fallback](Fallback.md)
     Fallback is a compatibility transport for transports that don't run on all platforms and need fallback options to cover all other platforms.
