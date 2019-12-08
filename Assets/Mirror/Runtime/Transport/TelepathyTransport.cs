@@ -60,18 +60,12 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
-
-        /// <summary>
-        /// Establish a connecion to a server
-        /// </summary>
-        /// <param name="uri">The address of the server we are trying to connect to</param>
         public override void ClientConnect(Uri uri)
         {
             if (uri.Scheme != Scheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
-
             client.Connect(uri.Host, serverPort);
         }
 
