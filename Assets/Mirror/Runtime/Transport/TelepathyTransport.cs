@@ -70,10 +70,9 @@ namespace Mirror
             if (uri.Scheme != Scheme)
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
-            if (!uri.IsDefaultPort)
-                port = (ushort)uri.Port;
+            int serverPort = uri.IsDefaultPort ? port : uri.Port;
 
-            client.Connect(uri.Host, port);
+            client.Connect(uri.Host, serverPort);
         }
 
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
