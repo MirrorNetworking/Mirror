@@ -11,6 +11,9 @@ namespace Mirror
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     public class TelepathyTransport : Transport
     {
+        // scheme used by this transport
+        public const string Scheme = "tcp4";
+
         public ushort port = 7777;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
@@ -64,8 +67,8 @@ namespace Mirror
         /// <param name="uri">The address of the server we are trying to connect to</param>
         public override void ClientConnect(Uri uri)
         {
-            if (uri.Scheme != "tcp")
-                throw new ArgumentException($"Invalid url {uri}, use tcp://host:port instead", nameof(uri));
+            if (uri.Scheme != Scheme)
+                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             if (!uri.IsDefaultPort)
                 port = (ushort)uri.Port;
