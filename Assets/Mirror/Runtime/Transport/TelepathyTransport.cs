@@ -68,7 +68,6 @@ namespace Mirror
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
             client.Connect(uri.Host, serverPort);
         }
-
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.
