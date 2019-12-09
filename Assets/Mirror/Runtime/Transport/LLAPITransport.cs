@@ -18,6 +18,8 @@ namespace Mirror
     [EditorBrowsable(EditorBrowsableState.Never), Obsolete("LLAPI is obsolete and will be removed from future versions of Unity")]
     public class LLAPITransport : Transport
     {
+        public const string Scheme = "unet";
+
         public ushort port = 7777;
 
         [Tooltip("Enable for WebGL games. Can only do either WebSockets or regular Sockets, not both (yet).")]
@@ -123,6 +125,33 @@ namespace Mirror
             clientId = NetworkTransport.AddHost(hostTopology, 0);
 
             clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
+            NetworkError networkError = (NetworkError)error;
+            if (networkError != NetworkError.Ok)
+            {
+                Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);
+                clientConnectionId = -1;
+            }
+        }
+
+        public override void ClientConnect(Uri uri)
+        {
+            if (uri.Scheme != Scheme)
+                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
+
+            int serverPort = uri.IsDefaultPort ? port : uri.Port;
+
+            string address = uri.Host;
+            if (address.ToLower() == "localhost") address = "127.0.0.1";
+
+            // TODO:  Is there some configuration we would like to pass via uri parameters?
+            HostTopology hostTopology = new HostTopology(connectionConfig, 1);
+
+            // important:
+            //   AddHost(topology) doesn't work in WebGL.
+            //   AddHost(topology, port) works in standalone and webgl if port=0
+            clientId = NetworkTransport.AddHost(hostTopology, 0);
+
+            clientConnectionId = NetworkTransport.Connect(clientId, address, serverPort, 0, out error);
             NetworkError networkError = (NetworkError)error;
             if (networkError != NetworkError.Ok)
             {
