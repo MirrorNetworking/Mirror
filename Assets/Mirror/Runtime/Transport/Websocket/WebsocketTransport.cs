@@ -6,6 +6,9 @@ namespace Mirror.Websocket
 {
     public class WebsocketTransport : Transport
     {
+        public const string Scheme = "ws";
+        public const string SecureScheme = "wss";
+
 
         protected Client client = new Client();
         protected Server server = new Server();
@@ -63,8 +66,16 @@ namespace Mirror.Websocket
 
         public override void ClientConnect(Uri uri)
         {
-            if (!uri.IsDefaultPort)
-                this.port = uri.Port;
+            if (uri.Scheme != Scheme && uri.Scheme != SecureScheme)
+                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port or {SecureScheme}://host:port instead", nameof(uri));
+
+            if (uri.IsDefaultPort)
+            {
+                UriBuilder uriBuilder = new UriBuilder(uri);
+                uriBuilder.Port = port;
+                uri = uriBuilder.Uri;
+            }
+
             client.Connect(uri);
         }
 
