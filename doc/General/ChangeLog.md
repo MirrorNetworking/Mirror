@@ -1,8 +1,12 @@
 # Change Log
 
-## Version 6.x.x - In progress
-- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
+## Version 7.x.x - In progress
 - Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+- Transports can now take a URI for connection including port
+- Changed: NetworkManager startPositionIndex is now public
+
+## Version 6.3.0 - In progress
+- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
 - Added: MessageBase now fully supports inheritance
 - Added: Room example now has UI button for host to return all clients to the Room scene and other improvements
 - Fixed: ReplacePlayerForConnection now works for existing scene objects as long as another player doesn't own the targetted object
