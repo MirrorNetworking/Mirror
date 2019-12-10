@@ -5,7 +5,7 @@
 - Transports can now take a URI for connection including port
 - Changed: NetworkManager startPositionIndex is now public
 
-## Version 6.3.0 - In progress
+## Version 6.3.0 - 2019-Dec-09
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
 - Added: MessageBase now fully supports inheritance
 - Added: Room example now has UI button for host to return all clients to the Room scene and other improvements
