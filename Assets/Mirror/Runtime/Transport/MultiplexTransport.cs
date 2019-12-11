@@ -67,6 +67,26 @@ namespace Mirror
             throw new Exception("No transport suitable for this platform");
         }
 
+        public override void ClientConnect(Uri uri)
+        {
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    try
+                    {
+                        transport.ClientConnect(uri);
+                        available = transport;
+                    }
+                    catch (ArgumentException)
+                    {
+                        // transport does not support the schema, just move on to the next one
+                    }
+                }
+            }
+            throw new Exception("No transport suitable for this platform");
+        }
+
         public override bool ClientConnected()
         {
             return available != null && available.ClientConnected();

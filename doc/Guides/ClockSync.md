@@ -33,7 +33,7 @@ double time_standard_deviation = NetworkTime.timeSd;
 for example, if this returns 0.2, it means the time measurements swing up and
 down roughly 0.2 s
 
-Network hickups are compensated against by smoothing out the values using EMA.  
+Network hiccups are compensated against by smoothing out the values using EMA.  
 You can configure how often you want the the ping to be sent:
 
 ```cs

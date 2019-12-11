@@ -442,7 +442,9 @@ namespace Mirror
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
         {
             identity.Reset();
-            identity.assetId = msg.assetId;
+
+            if (msg.assetId != Guid.Empty)
+                identity.assetId = msg.assetId;
 
             if (!identity.gameObject.activeSelf)
             {

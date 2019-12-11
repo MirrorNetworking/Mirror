@@ -1,12 +1,20 @@
 # Change Log
 
-## Version 5.x.x - In progress
-- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
+## Version 7.x.x - In progress
 - Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+- Transports can now take a URI for connection including port
+- Changed: NetworkManager startPositionIndex is now public
+
+## Version 6.3.0 - 2019-Dec-09
+- Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets
+- Added: MessageBase now fully supports inheritance
+- Added: Room example now has UI button for host to return all clients to the Room scene and other improvements
+- Fixed: ReplacePlayerForConnection now works for existing scene objects as long as another player doesn't own the targetted object
 - Fixed: isClient and isServer are now true for networked objects in Start and OnStartClient / OnStartServer, respectively
 - Fixed: hasAuthority is now set before OnStartClient and OnStartLocalPlayer are invoked
 - Changed: connectionToClient is now used to assign client authority
 - Changed: In many respects, the Host player acts a lot more like a client and will reveal bugs better.
+- Changed: ReplacePlayerForConnection now has an optional bool to retain authority of the previous object (default = false)
 - Removed: NetworkServer.SpawnWithClientAuthority is deprecated in favor of overloads of NetworkServer.Spawn
 
 ## Version 5.0.2 - 2019-Nov-03

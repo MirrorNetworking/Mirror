@@ -16,7 +16,7 @@ Data is not synchronized in the opposite direction - from remote clients to the 
 -   [SyncHashSet](SyncHashSet.md)  
     An unordered set of values that do not repeat.
 -   [SyncSortedSet](SyncSortedSet.md)  
-    A sorted set of values tha do not repeat.
+    A sorted set of values that do not repeat.
 
 ## Sync To Owner
 
