@@ -88,8 +88,14 @@ namespace Mirror.Authenticators
                 conn.isAuthenticated = false;
 
                 // disconnect the client after 1 second so that response message gets delivered
-                Invoke(nameof(conn.Disconnect), 1);
+                StartCoroutine(DelayedDisconnect(conn, 1));
             }
+        }
+
+        public IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
+        {
+            yield return new WaitForSeconds(waitTime);
+            conn.Disconnect();
         }
 
         public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
