@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.Chat
 {
 
     public class ChatWindow : MonoBehaviour
@@ -13,6 +13,7 @@ namespace Mirror.Examples.Additive
 
         public Text chatHistory;
 
+        // Start is called before the first frame update
         public void OnSend()
         {
             // get our player
