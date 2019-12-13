@@ -537,12 +537,6 @@ namespace Mirror
 
         void OnStartAuthority()
         {
-            if (networkBehavioursCache == null)
-            {
-                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
-                return;
-            }
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -808,9 +802,9 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < networkBehavioursCache.Length)
+            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
-                NetworkBehaviour invokeComponent = networkBehavioursCache[componentIndex];
+                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
                     Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
@@ -852,7 +846,7 @@ namespace Mirror
                 return;
             previousLocalPlayer = this;
 
-            foreach (NetworkBehaviour comp in networkBehavioursCache)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.OnStartLocalPlayer();
             }
@@ -860,9 +854,8 @@ namespace Mirror
 
         internal void OnNetworkDestroy()
         {
-            for (int i = 0; networkBehavioursCache != null && i < networkBehavioursCache.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = networkBehavioursCache[i];
                 comp.OnNetworkDestroy();
             }
         }
