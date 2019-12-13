@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,7 @@ namespace Mirror
             OP_CLEAR,
             OP_REMOVE,
             OP_SET,
+            [Obsolete("SyncDictionaries now use OP_SET instead of OP_DIRTY")]
             OP_DIRTY
         }
 
@@ -110,7 +112,6 @@ namespace Mirror
                     case Operation.OP_ADD:
                     case Operation.OP_REMOVE:
                     case Operation.OP_SET:
-                    case Operation.OP_DIRTY:
                         SerializeKey(writer, change.key);
                         SerializeItem(writer, change.item);
                         break;
@@ -165,7 +166,6 @@ namespace Mirror
                 {
                     case Operation.OP_ADD:
                     case Operation.OP_SET:
-                    case Operation.OP_DIRTY:
                         key = DeserializeKey(reader);
                         item = DeserializeItem(reader);
                         if (apply)
@@ -219,11 +219,6 @@ namespace Mirror
                 return true;
             }
             return false;
-        }
-
-        public void Dirty(TKey index)
-        {
-            AddOperation(Operation.OP_DIRTY, index, objects[index]);
         }
 
         public TValue this[TKey i]

@@ -90,6 +90,26 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
+        /// <summary>
+        /// Connect client to a NetworkServer instance.
+        /// </summary>
+        /// <param name="uri">Address of the server to connect to</param>
+        public static void Connect(Uri uri)
+        {
+            if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
+
+            RegisterSystemHandlers(false);
+            Transport.activeTransport.enabled = true;
+            InitializeTransportHandlers();
+
+            connectState = ConnectState.Connecting;
+            Transport.activeTransport.ClientConnect(uri);
+
+            // setup all the handlers
+            connection = new NetworkConnectionToServer();
+            connection.SetHandlers(handlers);
+        }
+
         internal static void SetupLocalConnection()
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Local Server");

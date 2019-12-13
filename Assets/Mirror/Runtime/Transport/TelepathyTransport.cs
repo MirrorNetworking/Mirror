@@ -11,6 +11,9 @@ namespace Mirror
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
     public class TelepathyTransport : Transport
     {
+        // scheme used by this transport
+        public const string Scheme = "tcp4";
+
         public ushort port = 7777;
 
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
@@ -57,6 +60,14 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
+        public override void ClientConnect(Uri uri)
+        {
+            if (uri.Scheme != Scheme)
+                throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
+
+            int serverPort = uri.IsDefaultPort ? port : uri.Port;
+            client.Connect(uri.Host, serverPort);
+        }
         public override bool ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // telepathy doesn't support allocation-free sends yet.

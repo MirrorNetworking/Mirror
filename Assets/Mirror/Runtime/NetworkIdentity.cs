@@ -70,15 +70,11 @@ namespace Mirror
         /// </summary>
         public bool isLocalPlayer => ClientScene.localPlayer == this;
 
-        internal bool pendingLocalPlayer { get; set; }
-
         /// <summary>
         /// This returns true if this object is the authoritative player object on the client.
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        bool isOwner;
-
         public bool hasAuthority { get; internal set; }
 
         /// <summary>
@@ -163,7 +159,7 @@ namespace Mirror
                 {
                     m_AssetId = newAssetIdString;
                 }
-                else Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                else Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -199,17 +195,20 @@ namespace Mirror
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
-        // used when the player object for a connection changes
-        internal void SetNotLocalPlayer()
-        {
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
-            hasAuthority = false;
-            NotifyAuthority();
-        }
+        /// <summary>
+        /// The delegate type for the clientAuthorityCallback.
+        /// </summary>
+        /// <param name="conn">The network connection that is gaining or losing authority.</param>
+        /// <param name="identity">The object whose client authority status is being changed.</param>
+        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
+        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+
+        /// <summary>
+        /// A callback that can be populated to be notified when the client-authority state of objects changes.
+        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
+        /// <para>This callback is only invoked on the server.</para>
+        /// </summary>
+        public static ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -474,18 +473,17 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            observers = new Dictionary<int, NetworkConnection>();
-
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            if (netId == 0)
+            if (netId != 0)
             {
-                netId = GetNextNetworkId();
-            }
-            else
-            {
-                Debug.LogError("Object has non-zero netId " + netId + " for " + gameObject);
+                // This object has already been spawned, this method might be called again
+                // if we try to respawn all objects.  This can happen when we add a scene
+                // in that case there is nothing else to do.
                 return;
             }
+
+            netId = GetNextNetworkId();
+            observers = new Dictionary<int, NetworkConnection>();
 
             if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
@@ -506,8 +504,13 @@ namespace Mirror
             }
         }
 
+        bool clientStarted;
         internal void OnStartClient()
         {
+            if (clientStarted)
+                return;
+            clientStarted = true;
+
             if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -534,12 +537,6 @@ namespace Mirror
 
         void OnStartAuthority()
         {
-            if (networkBehavioursCache == null)
-            {
-                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
-                return;
-            }
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -805,9 +802,9 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < networkBehavioursCache.Length)
+            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
-                NetworkBehaviour invokeComponent = networkBehavioursCache[componentIndex];
+                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
                     Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
@@ -842,12 +839,14 @@ namespace Mirror
             OnDeserializeAllSafely(reader, initialState);
         }
 
-        internal void SetLocalPlayer()
+        private static NetworkIdentity previousLocalPlayer = null;
+        internal void OnStartLocalPlayer()
         {
-            hasAuthority = true;
-            NotifyAuthority();
+            if (previousLocalPlayer == this)
+                return;
+            previousLocalPlayer = this;
 
-            foreach (NetworkBehaviour comp in networkBehavioursCache)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.OnStartLocalPlayer();
             }
@@ -855,9 +854,8 @@ namespace Mirror
 
         internal void OnNetworkDestroy()
         {
-            for (int i = 0; networkBehavioursCache != null && i < networkBehavioursCache.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = networkBehavioursCache[i];
                 comp.OnNetworkDestroy();
             }
         }
@@ -1053,6 +1051,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
                 connectionToClient.RemoveOwnedObject(this);
@@ -1100,6 +1100,9 @@ namespace Mirror
             // The client will match to the existing object
             // update all variables and assign authority
             NetworkServer.SendSpawnMessage(this, conn);
+
+            clientAuthorityCallback?.Invoke(conn, this, true);
+
             return true;
         }
 
@@ -1114,6 +1117,7 @@ namespace Mirror
             if (!m_Reset)
                 return;
 
+            clientStarted = false;
             m_Reset = false;
 
             netId = 0;

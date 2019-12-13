@@ -3,14 +3,9 @@ using UnityEngine;
 namespace Mirror.Examples.NetworkRoom
 {
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(NetworkTransform))]
     public class PlayerController : NetworkBehaviour
     {
-        [SyncVar]
-        public int index;
-
-        [SyncVar]
-        public uint score;
-
         public CharacterController characterController;
 
         void OnValidate()
@@ -40,20 +35,17 @@ namespace Mirror.Examples.NetworkRoom
 
         [Header("Movement Settings")]
         public float moveSpeed = 8f;
-        public float turnSpeedAccel = 5f;
-        public float turnSpeedDecel = 5f;
+        public float turnSensitivity = 5f;
         public float maxTurnSpeed = 150f;
-
-        [Header("Jump Settings")]
-        public float jumpSpeed = 0f;
-        public float jumpFactor = .025F;
 
         [Header("Diagnostics")]
         public float horizontal = 0f;
         public float vertical = 0f;
         public float turn = 0f;
+        public float jumpSpeed = 0f;
         public bool isGrounded = true;
         public bool isFalling = false;
+        public Vector3 velocity;
 
         void Update()
         {
@@ -62,22 +54,22 @@ namespace Mirror.Examples.NetworkRoom
             horizontal = Input.GetAxis("Horizontal");
             vertical = Input.GetAxis("Vertical");
 
-            if (Input.GetKey(KeyCode.Q) && (turn > -maxTurnSpeed))
-                turn -= turnSpeedAccel;
-            else if (Input.GetKey(KeyCode.E) && (turn < maxTurnSpeed))
-                turn += turnSpeedAccel;
-            else if (turn > turnSpeedDecel)
-                turn -= turnSpeedDecel;
-            else if (turn < -turnSpeedDecel)
-                turn += turnSpeedDecel;
-            else
-                turn = 0f;
+            // Q and E cancel each other out, reducing the turn to zero
+            if (Input.GetKey(KeyCode.Q))
+                turn = Mathf.MoveTowards(turn, -maxTurnSpeed, turnSensitivity);
+            if (Input.GetKey(KeyCode.E))
+                turn = Mathf.MoveTowards(turn, maxTurnSpeed, turnSensitivity);
+            if (Input.GetKey(KeyCode.Q) && Input.GetKey(KeyCode.E))
+                turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
+            if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
+                turn = Mathf.MoveTowards(turn, 0, turnSensitivity);
 
-            if (!isFalling && Input.GetKey(KeyCode.Space) && (isGrounded || jumpSpeed < 1))
-                jumpSpeed += jumpFactor;
-            else if (isGrounded)
+            if (isGrounded)
                 isFalling = false;
-            else
+
+            if ((isGrounded || !isFalling) && jumpSpeed < 1f && Input.GetKey(KeyCode.Space))
+                jumpSpeed = Mathf.Lerp(jumpSpeed, 1f, 0.5f);
+            else if (!isGrounded)
             {
                 isFalling = true;
                 jumpSpeed = 0;
@@ -101,44 +93,7 @@ namespace Mirror.Examples.NetworkRoom
                 characterController.SimpleMove(direction);
 
             isGrounded = characterController.isGrounded;
-        }
-
-        GameObject controllerColliderHitObject;
-
-        void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-            // If player and prize objects are on their own layer(s) with correct
-            // collision matrix, we wouldn't have to validate the hit.gameobject.
-            // Since this is just an example, project settings aren't included so we check the name.
-
-            controllerColliderHitObject = hit.gameObject;
-
-            if (isLocalPlayer && controllerColliderHitObject.name.StartsWith("Prize"))
-            {
-                if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
-
-                // Disable the prize gameobject so it doesn't impede player movement
-                // It's going to be destroyed in a few frames and we don't want to spam CmdClaimPrize.
-                // OnControllerColliderHit will fire many times as the player slides against the object.
-                controllerColliderHitObject.SetActive(false);
-
-                CmdClaimPrize(controllerColliderHitObject);
-            }
-        }
-
-        [Command]
-        void CmdClaimPrize(GameObject hitObject)
-        {
-            // Null check is required, otherwise close timing of multiple claims could throw a null ref.
-            if (hitObject != null)
-            {
-                hitObject.GetComponent<Reward>().ClaimPrize(gameObject);
-            }
-        }
-
-        void OnGUI()
-        {
-            GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), score.ToString().PadLeft(10));
+            velocity = characterController.velocity;
         }
     }
 }

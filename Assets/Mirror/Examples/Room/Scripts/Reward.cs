@@ -35,7 +35,7 @@ namespace Mirror.Examples.NetworkRoom
                 if (LogFilter.Debug) Debug.LogFormat("Scored {0} points R:{1} G:{2} B:{3}", points, prizeColor.r, prizeColor.g, prizeColor.b);
 
                 // award the points via SyncVar on the PlayerController
-                player.GetComponent<PlayerController>().score += points;
+                player.GetComponent<PlayerScore>().score += points;
 
                 // spawn a replacement
                 spawner.SpawnPrize();
