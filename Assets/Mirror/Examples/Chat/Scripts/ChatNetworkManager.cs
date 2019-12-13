@@ -18,7 +18,6 @@ namespace Mirror.Examples.Chat
 
         public string PlayerName { get; set; }
 
-        // Start is called before the first frame update
         public void SetHostname(string hostname)
         {
             this.networkAddress = hostname;
