@@ -29,7 +29,7 @@ namespace Mirror.Examples.Chat
         {
             string prettyMessage = isLocalPlayer ?
                 $"<color=red>{Name}: </color> {message}" :
-                $"<color=blue>{Name}: </color> {message}";
+                $"<color=blue>{playerName}: </color> {message}";
             
             chatWindow.AppendMessage(prettyMessage);
 
