@@ -15,7 +15,7 @@ namespace Mirror.Examples.Chat
             public string name;
         }
 
-        public string PlayerName { get; set; }
+        public string playerName { get; set; }
 
         public void SetHostname(string hostname)
         {
