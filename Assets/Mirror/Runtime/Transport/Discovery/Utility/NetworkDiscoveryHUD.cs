@@ -8,6 +8,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscoveryHUD")]
     [HelpURL("https://mirror-networking.com/xmldocs/articles/Transports/NetworkDiscovery.html")]
+    [RequireComponent(typeof(NetworkDiscovery))]
     public class NetworkDiscoveryHUD : MonoBehaviour
     {
         Dictionary<string, DiscoveryInfo> discoveredServers = new Dictionary<string, DiscoveryInfo>();
