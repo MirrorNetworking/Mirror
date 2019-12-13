@@ -86,7 +86,7 @@ namespace Mirror
             GUILayout.BeginHorizontal();
 
             foreach (string str in headerNames)
-                GUILayout.Button(str, GUILayout.Width(elemWidth));
+                GUILayout.Label(str, GUILayout.Width(elemWidth));
 
             GUILayout.EndHorizontal();
 
