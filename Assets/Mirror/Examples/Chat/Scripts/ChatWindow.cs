@@ -1,0 +1,31 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Mirror.Examples.Additive
+{
+
+    public class ChatWindow : MonoBehaviour
+    {
+        public string message { get; set; }
+
+        public Text chatHistory;
+
+        // Start is called before the first frame update
+        public void OnSend()
+        {
+            // get our player
+            Player player = NetworkClient.connection.identity.GetComponent<Player>();
+
+            // send a message
+            player.CmdSend(message);
+        }
+
+        internal void AppendMessage(string message)
+        {
+            chatHistory.text += message + "\n";
+        }
+    }
+}
