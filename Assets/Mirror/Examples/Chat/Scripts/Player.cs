@@ -9,7 +9,7 @@ namespace Mirror.Examples.Chat
     {
 
         [SyncVar]
-        public string Name;
+        public string playerName;
 
         public ChatWindow chatWindow => ((ChatNetworkManager)NetworkManager.singleton).chatWindow;
 
