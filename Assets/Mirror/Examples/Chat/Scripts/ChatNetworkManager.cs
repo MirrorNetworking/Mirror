@@ -10,7 +10,6 @@ namespace Mirror.Examples.Chat
     {
         public ChatWindow chatWindow;
 
-
         public class CreatePlayerMessage: MessageBase
         {
             public string name;
