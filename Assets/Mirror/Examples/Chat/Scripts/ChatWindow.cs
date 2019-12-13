@@ -13,7 +13,6 @@ namespace Mirror.Examples.Additive
 
         public Text chatHistory;
 
-        // Start is called before the first frame update
         public void OnSend()
         {
             // get our player
