@@ -195,6 +195,21 @@ namespace Mirror
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
+        /// <summary>
+        /// The delegate type for the clientAuthorityCallback.
+        /// </summary>
+        /// <param name="conn">The network connection that is gaining or losing authority.</param>
+        /// <param name="identity">The object whose client authority status is being changed.</param>
+        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
+        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+
+        /// <summary>
+        /// A callback that can be populated to be notified when the client-authority state of objects changes.
+        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
+        /// <para>This callback is only invoked on the server.</para>
+        /// </summary>
+        public static ClientAuthorityCallback clientAuthorityCallback;
+
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
         {
@@ -1043,6 +1058,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
                 connectionToClient.RemoveOwnedObject(this);
@@ -1090,6 +1107,9 @@ namespace Mirror
             // The client will match to the existing object
             // update all variables and assign authority
             NetworkServer.SendSpawnMessage(this, conn);
+
+            clientAuthorityCallback?.Invoke(conn, this, true);
+
             return true;
         }
 
