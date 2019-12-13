@@ -75,8 +75,6 @@ namespace Mirror
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        bool isOwner;
-
         public bool hasAuthority { get; internal set; }
 
         /// <summary>
