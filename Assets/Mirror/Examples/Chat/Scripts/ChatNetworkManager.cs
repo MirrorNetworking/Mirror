@@ -4,7 +4,7 @@ using UnityEngine;
 using Mirror;
 using System;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.Chat
 {
     public class ChatNetworkManager : NetworkManager
     {
