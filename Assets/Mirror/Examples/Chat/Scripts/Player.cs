@@ -28,7 +28,7 @@ namespace Mirror.Examples.Chat
         public void RpcReceive(string message)
         {
             string prettyMessage = isLocalPlayer ?
-                $"<color=red>{Name}: </color> {message}" :
+                $"<color=red>{playerName}: </color> {message}" :
                 $"<color=blue>{playerName}: </color> {message}";
             
             chatWindow.AppendMessage(prettyMessage);
