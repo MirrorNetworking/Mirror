@@ -29,7 +29,7 @@ namespace Mirror.Examples.Chat
             // tell the server to create a player with this name
             conn.Send(new CreatePlayerMessage
             {
-                name = PlayerName
+                name = playerName
             });
         }
 
