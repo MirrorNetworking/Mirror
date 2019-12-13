@@ -2,7 +2,10 @@
 
 ## Version 7.x.x - In progress
 - Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
-- Transports can now take a URI for connection including port
+- Added: Full Text Search added to docs
+- Added: Transports can now support using a URI for connection including port
+- Fixed: Components now appear in docs under API Reference
+- Fixed: Delayed disconnect in Basic Authenticator
 - Changed: NetworkManager startPositionIndex is now public
 
 ## Version 6.3.0 - 2019-Dec-09
