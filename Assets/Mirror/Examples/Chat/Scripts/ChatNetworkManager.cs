@@ -8,6 +8,13 @@ namespace Mirror.Examples.Chat
 {
     public class ChatNetworkManager : NetworkManager
     {
+        public string playerName { get; set; }
+
+        public void SetHostname(string hostname)
+        {
+            this.networkAddress = hostname;
+        }
+
         public ChatWindow chatWindow;
 
         public class CreatePlayerMessage: MessageBase
@@ -15,11 +22,10 @@ namespace Mirror.Examples.Chat
             public string name;
         }
 
-        public string playerName { get; set; }
-
-        public void SetHostname(string hostname)
+        public override void OnStartServer()
         {
-            this.networkAddress = hostname;
+            base.OnStartServer();
+            NetworkServer.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
         public override void OnClientConnect(NetworkConnection conn)
@@ -31,12 +37,6 @@ namespace Mirror.Examples.Chat
             {
                 name = playerName
             });
-        }
-
-        public override void OnStartServer()
-        {
-            base.OnStartServer();
-            NetworkServer.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
         private void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)
