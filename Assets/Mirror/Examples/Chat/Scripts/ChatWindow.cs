@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.Chat
 {
-
     public class ChatWindow : MonoBehaviour
     {
         public string message { get; set; }

@@ -4,10 +4,8 @@ using UnityEngine;
 
 namespace Mirror.Examples.Chat
 {
-
     public class Player : NetworkBehaviour
     {
-
         [SyncVar]
         public string playerName;
 
