@@ -9,7 +9,6 @@ namespace Mirror.Examples.Chat
 
     public class ChatWindow : MonoBehaviour
     {
-        //public string message { get; set; }
         public InputField chatMessage;
         public Text chatHistory;
         public Scrollbar scrollbar;
