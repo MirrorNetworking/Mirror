@@ -14,12 +14,17 @@ namespace Mirror.Examples.Chat
 
         public void OnSend()
         {
+            // Restrict to ASCII printable characters by stripping anything outside the range from space through tilde
+            string cleanMessage = System.Text.RegularExpressions.Regex.Replace(chatMessage.text.Trim(), @"![ -~]", "");
+            chatMessage.text = "";
+
+            if (cleanMessage == "") return;
+
             // get our player
             Player player = NetworkClient.connection.identity.GetComponent<Player>();
 
             // send a message
-            player.CmdSend(chatMessage.text);
-            chatMessage.text = "";
+            player.CmdSend(cleanMessage);
         }
 
         internal void AppendMessage(string message)
