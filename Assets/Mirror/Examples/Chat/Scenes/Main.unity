@@ -1511,8 +1511,8 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: SetHostname
+      - m_Target: {fileID: 1783103025}
+        m_MethodName: set_playerName
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

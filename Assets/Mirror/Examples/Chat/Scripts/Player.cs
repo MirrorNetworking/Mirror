@@ -14,12 +14,8 @@ namespace Mirror.Examples.Chat
         [Command]
         public void CmdSend(string message)
         {
-            // Restrict to ASCII printable characters by stripping anything outside the range from space through tilde
-            string cleanMessage = System.Text.RegularExpressions.Regex.Replace(message.Trim(), @"![ -~]", "");
-
-            if (cleanMessage == "") return;
-
-            RpcReceive(cleanMessage);
+            if (message.Trim() != "")
+                RpcReceive(message.Trim());
         }
 
         public override void OnStartLocalPlayer()
