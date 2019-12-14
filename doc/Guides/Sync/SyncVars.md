@@ -12,6 +12,10 @@ The server automatically sends SyncVar updates when the value of a SyncVar chang
 
 ## SyncVar Example
 
+### Video Tutorial
+https://www.youtube.com/watch?v=T7AoozedYfI&t=2s
+
+### Text Tutorial
 Let's say we have a networked object with a script called Enemy:
 
 ``` cs
