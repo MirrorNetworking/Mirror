@@ -10,7 +10,7 @@ namespace Mirror.Examples.Chat
     public class ChatWindow : MonoBehaviour
     {
         //public string message { get; set; }
-        public InputField inputField;
+        public InputField chatMessage;
         public Text chatHistory;
         public Scrollbar scrollbar;
 
@@ -20,8 +20,8 @@ namespace Mirror.Examples.Chat
             Player player = NetworkClient.connection.identity.GetComponent<Player>();
 
             // send a message
-            player.CmdSend(inputField.text);
-            inputField.text = "";
+            player.CmdSend(chatMessage.text);
+            chatMessage.text = "";
         }
 
         internal void AppendMessage(string message)

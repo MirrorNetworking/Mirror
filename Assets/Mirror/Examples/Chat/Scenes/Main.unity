@@ -295,7 +295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c102f62d739545269250f48327d4429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputField: {fileID: 1231350851}
+  chatMessage: {fileID: 1231350851}
   chatHistory: {fileID: 827598817}
   scrollbar: {fileID: 423302021}
 --- !u!114 &75861001
@@ -1287,7 +1287,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1783103025}
-        m_MethodName: set_PlayerName
+        m_MethodName: set_playerName
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
