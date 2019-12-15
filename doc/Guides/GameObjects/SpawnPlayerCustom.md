@@ -81,7 +81,7 @@ public class MMONetworkManager : NetworkManager
         player.race = message.race;
 
         // call this to use this gameobject as the primary controller
-        NetworkServer.AddPlayerForConnection(conn, player);
+        NetworkServer.AddPlayerForConnection(conn, gameobject);
     }
 }
 ```
