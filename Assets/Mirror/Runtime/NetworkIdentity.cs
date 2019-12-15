@@ -125,7 +125,7 @@ namespace Mirror
 
         public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
 
-        [SerializeField] string m_AssetId;
+        [SerializeField, HideInInspector] string m_AssetId;
 
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
@@ -168,7 +168,7 @@ namespace Mirror
         //  suppress "Field 'NetworkIdentity.m_SceneId' is never assigned to, and will always have its default value 0"
         // when building standalone
 #pragma warning disable CS0649
-        [SerializeField] ulong m_SceneId;
+        [SerializeField, HideInInspector] ulong m_SceneId;
 #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
