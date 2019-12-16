@@ -1,5 +1,7 @@
 # NetworkTransform
 
+[![Network transform video tutorial](../images/video_tutorial.png)](https://www.youtube.com/watch?v=5EgN8IqFfUI&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=2)
+
 The Network Transform component synchronizes the movement and rotation of game objects across the network. Note that the network Transform component only synchronizes networked game objects.
 
 A game object with a Network Transform component must also have a Network Identity component. When you create a Network Transform component on a game object, Mirror also creates a Network Identity component on that game object if it does not already have one.
