@@ -93,6 +93,7 @@ namespace Mirror
         /// A unique identifier for NetworkIdentity objects within a scene.
         /// <para>This is used for spawning scene objects on clients.</para>
         /// </summary>
+        // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
         public ulong sceneId
         {
             get;
