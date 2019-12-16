@@ -94,16 +94,12 @@ namespace Mirror
         /// <para>This is used for spawning scene objects on clients.</para>
         /// </summary>
         // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
-        public ulong sceneId
-        {
-            get;
-            private set;
-        }
+        public ulong sceneId;
 
-        /// <summary>
-        /// Flag to make this object only exist when the game is running as a server (or host).
-        /// </summary>
-        [FormerlySerializedAs("m_ServerOnly")]
+    /// <summary>
+    /// Flag to make this object only exist when the game is running as a server (or host).
+    /// </summary>
+    [FormerlySerializedAs("m_ServerOnly")]
         public bool serverOnly;
 
         /// <summary>
