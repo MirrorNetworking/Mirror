@@ -15,11 +15,6 @@ using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour
 {
-    public override void OnStartServer()
-    {
-        base.OnStartServer();
-        playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-    }
 
     [SyncVar(hook = nameof(SetColor))]
     Color playerColor = Color.black;
@@ -27,6 +22,12 @@ public class PlayerController : NetworkBehaviour
     // Unity makes a clone of the Material every time GetComponent<Renderer>().material is used.
     // Cache it here and Destroy it in OnDestroy to prevent a memory leak.
     Material cachedMaterial;
+    
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        playerColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+    }
 
     void SetColor(Color color)
     {
