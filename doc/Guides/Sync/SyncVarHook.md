@@ -35,6 +35,10 @@ public class PlayerController : NetworkBehaviour
             cachedMaterial = GetComponent<Renderer>().material;
 
         cachedMaterial.color = color;
+        
+        //If above line does not work, try this for the new (Universel) Render Pipeline
+        //cachedMaterial.SetColor("_BaseColor", color);
+        
     }
 
     void OnDestroy()
