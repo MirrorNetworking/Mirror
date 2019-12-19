@@ -8,7 +8,7 @@ Game objects that are created dynamically at runtime use the multiplayer Spawnin
 
 However, networked game objects that you save as part of a Scene (and therefore already exist in the Scene when it is loaded) are handled differently. These game objects are loaded as part of the Scene on both the client and server, and exist at runtime before any spawn messages are sent by the multiplayer system.
 
-When the Scene is loaded, all networked game objects in the Scene are disabled on both the client and the server. Then, when the Scene is fully loaded, the Network Manager automatically processes the Scene’s networked game objects, registering them all (and therefore causing them to be synchronized across clients), and enabling them, as if they were spawned at runtime.
+When the Scene is loaded, all networked game objects in the Scene are disabled on both the client and the server. Then, when the Scene is fully loaded, the Network Manager automatically processes the Scene’s networked game objects, registering them all (and therefore causing them to be synchronized across clients), and enabling them, as if they were spawned at runtime. Networked game objects will not be enabled until a client has requested a Player object.
 
 Saving networked game objects in your Scene (rather than dynamically spawning them after the scene has loaded) has some benefits:
 -   They are loaded with the level, so there will be no pause at runtime.
