@@ -84,8 +84,14 @@ namespace Mirror
             return false;
         }
 
+#if ODIN_INSPECTOR
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+#else
         void OnEnable()
         {
+#endif
             initialized = false;
         }
 
