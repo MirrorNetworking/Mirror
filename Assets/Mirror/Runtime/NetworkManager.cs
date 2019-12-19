@@ -218,7 +218,12 @@ namespace Mirror
         /// </summary>
         public virtual void Awake()
         {
+			// Coburn: We shouldn't blurt out the Mirror thank you if we're running in a standalone build
+			// or a server (headless) build. While it's nice to advertise the library, I don't think having
+			// it pop its head up outside of the Editor is a good idea.
+#if !UNITY_SERVER || !UNITY_STANDALONE
             Debug.Log("Thank you for using Mirror! https://mirror-networking.com");
+#endif
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
