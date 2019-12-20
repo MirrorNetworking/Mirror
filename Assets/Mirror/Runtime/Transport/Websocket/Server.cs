@@ -189,7 +189,6 @@ namespace Mirror.Websocket
                 // someone connected,  raise event
                 Connected?.Invoke(connectionId);
 
-
                 while (true)
                 {
                     WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);

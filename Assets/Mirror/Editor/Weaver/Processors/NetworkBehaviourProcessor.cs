@@ -571,7 +571,6 @@ namespace Mirror.Weaver
             // Generates: end if (initialState);
             serWorker.Append(initialStateLabel);
 
-
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
             serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint64Type)));

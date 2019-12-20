@@ -1,6 +1,7 @@
-//using System;
-//using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests
 {

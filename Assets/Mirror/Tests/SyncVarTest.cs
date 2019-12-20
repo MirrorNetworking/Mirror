@@ -16,7 +16,6 @@ namespace Mirror.Tests
 
     }
 
-
     public class SyncVarTest
     {
 

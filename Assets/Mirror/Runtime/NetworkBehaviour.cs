@@ -476,7 +476,6 @@ namespace Mirror
             return newNetId == netIdField;
         }
 
-
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -521,7 +520,6 @@ namespace Mirror
                 return gameObjectField = identity.gameObject;
             return null;
         }
-
 
         // helper function for [SyncVar] NetworkIdentities.
         [EditorBrowsable(EditorBrowsableState.Never)]
