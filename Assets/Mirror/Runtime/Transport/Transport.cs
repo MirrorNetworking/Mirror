@@ -64,7 +64,6 @@ namespace Mirror
         /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
         public abstract void ClientConnect(string address);
 
-
         /// <summary>
         /// Establish a connecion to a server
         /// </summary>
@@ -168,7 +167,6 @@ namespace Mirror
         /// Stop listening for clients and disconnect all existing clients
         /// </summary>
         public abstract void ServerStop();
-
 
         #endregion
 

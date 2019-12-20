@@ -110,7 +110,6 @@ namespace Mirror.Weaver
 
             ILProcessor setWorker = set.Body.GetILProcessor();
 
-
             // if (!SyncVarEqual(value, ref playerData))
             Instruction endOfMethod = setWorker.Create(OpCodes.Nop);
 
@@ -193,7 +192,6 @@ namespace Mirror.Weaver
 
             // dirty bit
             setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit)); // 8 byte integer aka long
-
 
             if (fd.FieldType.FullName == Weaver.gameObjectType.FullName)
             {

@@ -285,7 +285,6 @@ namespace Mirror.Weaver
             }
         }
 
-
         // this is required to early-out from a function with "ref" or "out" parameters
         static void InjectGuardParameters(MethodDefinition md, ILProcessor worker, Instruction top)
         {

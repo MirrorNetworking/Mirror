@@ -165,7 +165,6 @@ namespace Mirror
             return Send(new ArraySegment<byte>(message), channelId);
         }
 
-
         /// <summary>
         /// This sends a network message with a message ID on the connection. This message is sent on channel zero, which by default is the reliable channel.
         /// </summary>

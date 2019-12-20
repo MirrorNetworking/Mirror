@@ -110,7 +110,6 @@ namespace Mirror
 
         #endregion
 
-
         #region Server
         // connection ids get mapped to base transports
         // if we have 3 transports,  then

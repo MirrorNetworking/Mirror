@@ -284,7 +284,6 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
 
-
             // get writer from pool
             NetworkWriter writer = NetworkWriterPool.GetWriter();
 
@@ -1055,7 +1054,6 @@ namespace Mirror
             NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
             NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
 
-
             // serialize all components with initialState = true
             // (can be null if has none)
             identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
@@ -1174,7 +1172,6 @@ namespace Mirror
 
             Spawn(obj, identity.connectionToClient);
         }
-
 
         /// <summary>
         /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
