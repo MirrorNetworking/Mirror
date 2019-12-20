@@ -61,7 +61,7 @@ namespace Mirror
                 {
                     available = transport;
                     transport.ClientConnect(address);
-
+                    return;
                 }
             }
             throw new Exception("No transport suitable for this platform");
