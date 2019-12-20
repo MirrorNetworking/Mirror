@@ -86,7 +86,6 @@ namespace Mirror
         protected virtual void SerializeItem(NetworkWriter writer, T item) { }
         protected virtual T DeserializeItem(NetworkReader reader) => default;
 
-
         protected SyncList(IEqualityComparer<T> comparer = null)
         {
             this.comparer = comparer ?? EqualityComparer<T>.Default;

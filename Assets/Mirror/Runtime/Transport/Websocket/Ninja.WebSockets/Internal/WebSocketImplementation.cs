@@ -67,7 +67,6 @@ namespace Ninja.WebSockets.Internal
         SemaphoreSlim _sendSemaphore = new SemaphoreSlim(1, 1);
         public WebSocketHttpContext Context { get; set; }
 
-
         internal WebSocketImplementation(Guid guid, Func<MemoryStream> recycledStreamFactory, Stream stream, TimeSpan keepAliveInterval, string secWebSocketExtensions, bool includeExceptionInCloseResponse, bool isClient, string subProtocol)
         {
             _guid = guid;

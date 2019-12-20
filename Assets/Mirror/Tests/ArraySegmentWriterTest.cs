@@ -32,7 +32,6 @@ namespace Mirror.Tests
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }
 
-
         public static ArraySegment<int> SampleReader(NetworkReader reader )
         {
             int length = reader.ReadPackedInt32();
