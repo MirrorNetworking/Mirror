@@ -1,5 +1,4 @@
 using UnityEngine;
-using Mirror;
 
 namespace Mirror.Examples.Pong
 {

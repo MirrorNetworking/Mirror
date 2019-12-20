@@ -1,8 +1,5 @@
-using System;
 using Mono.CecilX;
 using UnityEditor.Compilation;
-using System.Linq;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Mirror.Weaver
