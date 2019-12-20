@@ -12,7 +12,6 @@ See Using the NetworkManager.
 ## Player Prefab Setup
 -   Find the Prefab for the player game object in the game, or create a Prefab from the player game object
 -   Add the NetworkIdentity component to the player Prefab
--   Check the LocalPlayerAuthority box on the NetworkIdentity
 -   Set the `playerPrefab` in the NetworkManager’s Spawn Info section to the player Prefab
 -   Remove the player game object instance from the Scene if it exists in the Scene
 

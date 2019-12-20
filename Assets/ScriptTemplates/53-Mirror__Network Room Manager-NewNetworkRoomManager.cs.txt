@@ -69,10 +69,11 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
     /// </summary>
     /// <param name="conn">The connection the player object is for.</param>
+    /// <param name="roomPlayer">The room player object for this connection.</param>
     /// <returns>A new GamePlayer object.</returns>
-    public override GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
+    public override GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
     {
-        return base.OnRoomServerCreateGamePlayer(conn);
+        return base.OnRoomServerCreateGamePlayer(conn, roomPlayer);
     }
 
     /// <summary>
