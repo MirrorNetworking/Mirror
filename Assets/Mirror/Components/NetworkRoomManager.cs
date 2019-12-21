@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -145,7 +147,7 @@ namespace Mirror
                 return;
             }
 
-            GameObject gamePlayer = OnRoomServerCreateGamePlayer(conn);
+            GameObject gamePlayer = OnRoomServerCreateGamePlayer(conn, roomPlayer);
             if (gamePlayer == null)
             {
                 // get start position from base class
@@ -160,8 +162,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer);
-            roomPlayer.GetComponent<NetworkIdentity>().AssignClientAuthority(conn);
+            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
         }
 
         /// <summary>
@@ -519,7 +520,19 @@ namespace Mirror
         /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
+        /// <param name="roomPlayer">The room player object for this connection.</param>
         /// <returns>A new GamePlayer object.</returns>
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer{NetworkConnection conn, GameObject roomPlayer}"/> instead.
+        /// </summary>
+        /// <param name="conn">The connection the player object is for.</param>
+        /// <returns>A new GamePlayer object.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer<NetworkConnection, GameObject> instead")]
         public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
         {
             return null;
@@ -613,7 +626,7 @@ namespace Mirror
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
-                    SceneManager.LoadScene(RoomScene);
+                    ServerChangeScene(RoomScene);
                 GUILayout.EndArea();
             }
 

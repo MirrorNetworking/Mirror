@@ -476,7 +476,6 @@ namespace Mirror
             return newNetId == netIdField;
         }
 
-
         // helper function for [SyncVar] GameObjects.
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
@@ -521,7 +520,6 @@ namespace Mirror
                 return gameObjectField = identity.gameObject;
             return null;
         }
-
 
         // helper function for [SyncVar] NetworkIdentities.
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -781,7 +779,7 @@ namespace Mirror
 
         /// <summary>
         /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
-        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and <see cref="OnStartClient">OnStartClient.</see></para>
+        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
         /// <para>When <see cref="NetworkIdentity.AssignClientAuthority"/> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
         /// </summary>
         public virtual void OnStartAuthority() {}

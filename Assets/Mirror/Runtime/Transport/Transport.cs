@@ -65,6 +65,17 @@ namespace Mirror
         public abstract void ClientConnect(string address);
 
         /// <summary>
+        /// Establish a connecion to a server
+        /// </summary>
+        /// <param name="uri">The address of the server we are trying to connect to</param>
+        public virtual void ClientConnect(Uri uri)
+        {
+            // By default, to keep backwards compatibility, just connect to the host
+            // in the uri
+            ClientConnect(uri.Host);
+        }
+
+        /// <summary>
         /// Send data to the server
         /// </summary>
         /// <param name="channelId">The channel to use.  0 is the default channel,
@@ -156,7 +167,6 @@ namespace Mirror
         /// Stop listening for clients and disconnect all existing clients
         /// </summary>
         public abstract void ServerStop();
-
 
         #endregion
 

@@ -20,7 +20,7 @@ Servers open a TCP port and wait for connections.  Clients send an initial messa
 
 These are great features that make it very easy for programmers to work with TCP, but they come at a cost:  Latency.  
 
-Suppose an object is moving from point a to b to c.  The server sends 3 messages: move to a, b, c. Suppose b gets lost (wifi drops a lot of packets for example) and c arrives fine. We could skip b and move towards c instead,  but we can't because the operating system won't give us c until b is retransmited.
+Suppose an object is moving from point a to b to c.  The server sends 3 messages: move to a, b, c. Suppose b gets lost (wifi drops a lot of packets for example) and c arrives fine. We could skip b and move towards c instead,  but we can't because the operating system won't give us c until b is retransmitted.
 
 For this reason, AAA studios consistently prefer UDP for fast paced action games.
 
@@ -32,7 +32,7 @@ A server opens a port and waits for messages. Clients send messages to the port,
 
 There is no concept of connection, so there is no built in way to determine if a client disconnects. Messages are delivered as soon as possible,  there is no guarantee that the order will be preserved or that they will be delivered at all.  Messages must be small,  typically 1.5Kb or less.  
 
-Mirror does need reliability, fragmentation, sequenced, connections for many things,  so we would not use raw UDP.  We would use a library that implements those features on top of UDP such as [ENet](http://enet.bespin.org/), [LiteNetLib](https://github.com/RevenantX/LiteNetLib) or LLAPI,  typically refered to as RUDP (Reliable UDP)
+Mirror does need reliability, fragmentation, sequenced, connections for many things,  so we would not use raw UDP.  We would use a library that implements those features on top of UDP such as [ENet](http://enet.bespin.org/), [LiteNetLib](https://github.com/RevenantX/LiteNetLib) or LLAPI,  typically referred to as RUDP (Reliable UDP)
 
 The obvious question is:  do RUDP libraries just reinventing TCP?  yes, to some degree they do. But the point is that those features are optional and we can send messages without the extra features for low latency data such as movement or voice. 
 

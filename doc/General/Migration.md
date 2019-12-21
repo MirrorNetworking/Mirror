@@ -49,7 +49,7 @@ At this point, you might get some compilation errors. Don't panic, these are eas
 
 ### 4. Replace playerController with identity
 
-Replace references to 'NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
+Replace references to `NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
 
 ### 5. Remove NetworkSettings
 
@@ -175,7 +175,7 @@ Notice the callback will also work in the server in Mirror.
 
 ### 9. Replace Components
 
-Every networked prefab and scene object needs to be adjusted. They will be using `NetworkIdentity` from Unet, and you need to replace that componenent with `NetworkIdentity` from Mirror. You may be using other network components, such as `NetworkAnimator` or `NetworkTransform`. All components from Unet should be replaced with their corresponding component from Mirror.
+Every networked prefab and scene object needs to be adjusted. They will be using `NetworkIdentity` from Unet, and you need to replace that component with `NetworkIdentity` from Mirror. You may be using other network components, such as `NetworkAnimator` or `NetworkTransform`. All components from Unet should be replaced with their corresponding component from Mirror.
 
 Note that if you remove and add a NetworkIdentity, you will need to reassign it in any component that was referencing it.
 
@@ -205,7 +205,7 @@ Note that in UNet the parameter "extraMessageReader" is optional, but in Mirror 
 
 ### 11. Pick your transport
 
-You can choose one of several transports in Mirror.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTranport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
+You can choose one of several transports in Mirror.  Open your NetworkManager gameobject,   in the inspector you will see a `TelepathyTransport` component by default.  Drag in one of the available transports and remove `TelepathyTransport` if you wish to use a UDP based transport instead.
 
 ### 12. Configure address and port
 

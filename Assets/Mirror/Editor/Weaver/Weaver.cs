@@ -247,7 +247,6 @@ namespace Mirror.Weaver
             ArraySegmentOffsetReference = Resolvers.ResolveProperty(ArraySegmentType, CurrentAssembly, "Offset");
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, CurrentAssembly, ".ctor");
 
-
             NetworkReaderType = NetAssembly.MainModule.GetType("Mirror.NetworkReader");
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
 

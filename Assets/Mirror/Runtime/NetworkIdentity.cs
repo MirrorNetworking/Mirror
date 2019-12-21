@@ -75,8 +75,6 @@ namespace Mirror
         /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
         /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
         /// </summary>
-        bool isOwner;
-
         public bool hasAuthority { get; internal set; }
 
         /// <summary>
@@ -127,7 +125,7 @@ namespace Mirror
 
         public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
 
-        [SerializeField] string m_AssetId;
+        [SerializeField, HideInInspector] string m_AssetId;
 
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
@@ -161,7 +159,7 @@ namespace Mirror
                 {
                     m_AssetId = newAssetIdString;
                 }
-                else Debug.LogWarning("SetDynamicAssetId object already has an assetId <" + m_AssetId + ">");
+                else Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -170,7 +168,7 @@ namespace Mirror
         //  suppress "Field 'NetworkIdentity.m_SceneId' is never assigned to, and will always have its default value 0"
         // when building standalone
 #pragma warning disable CS0649
-        [SerializeField] ulong m_SceneId;
+        [SerializeField, HideInInspector] ulong m_SceneId;
 #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
@@ -197,17 +195,20 @@ namespace Mirror
         /// </summary>
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
-        // used when the player object for a connection changes
-        internal void SetNotLocalPlayer()
-        {
-            if (NetworkServer.active && NetworkServer.localClientActive)
-            {
-                // dont change authority for objects on the host
-                return;
-            }
-            hasAuthority = false;
-            NotifyAuthority();
-        }
+        /// <summary>
+        /// The delegate type for the clientAuthorityCallback.
+        /// </summary>
+        /// <param name="conn">The network connection that is gaining or losing authority.</param>
+        /// <param name="identity">The object whose client authority status is being changed.</param>
+        /// <param name="authorityState">The new state of client authority of the object for the connection.</param>
+        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+
+        /// <summary>
+        /// A callback that can be populated to be notified when the client-authority state of objects changes.
+        /// <para>Whenever an object is spawned using SpawnWithClientAuthority, or the client authority status of an object is changed with AssignClientAuthority or RemoveClientAuthority, then this callback will be invoked.</para>
+        /// <para>This callback is only invoked on the server.</para>
+        /// </summary>
+        public static ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserverInternal(NetworkConnection conn)
@@ -536,12 +537,6 @@ namespace Mirror
 
         void OnStartAuthority()
         {
-            if (networkBehavioursCache == null)
-            {
-                Debug.LogError("Network object " + name + " not initialized properly. Do you have more than one NetworkIdentity in the same object? Did you forget to spawn this object with NetworkServer?", this);
-                return;
-            }
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -807,9 +802,9 @@ namespace Mirror
             }
 
             // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < networkBehavioursCache.Length)
+            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
-                NetworkBehaviour invokeComponent = networkBehavioursCache[componentIndex];
+                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
                 if (!invokeComponent.InvokeHandlerDelegate(functionHash, invokeType, reader))
                 {
                     Debug.LogError("Found no receiver for incoming " + invokeType + " [" + functionHash + "] on " + gameObject + ",  the server and client should have the same NetworkBehaviour instances [netId=" + netId + "].");
@@ -851,7 +846,7 @@ namespace Mirror
                 return;
             previousLocalPlayer = this;
 
-            foreach (NetworkBehaviour comp in networkBehavioursCache)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.OnStartLocalPlayer();
             }
@@ -859,9 +854,8 @@ namespace Mirror
 
         internal void OnNetworkDestroy()
         {
-            for (int i = 0; networkBehavioursCache != null && i < networkBehavioursCache.Length; i++)
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
-                NetworkBehaviour comp = networkBehavioursCache[i];
                 comp.OnNetworkDestroy();
             }
         }
@@ -1057,6 +1051,8 @@ namespace Mirror
 
             if (connectionToClient != null)
             {
+                clientAuthorityCallback?.Invoke(connectionToClient, this, false);
+
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
                 connectionToClient.RemoveOwnedObject(this);
@@ -1104,6 +1100,9 @@ namespace Mirror
             // The client will match to the existing object
             // update all variables and assign authority
             NetworkServer.SendSpawnMessage(this, conn);
+
+            clientAuthorityCallback?.Invoke(conn, this, true);
+
             return true;
         }
 

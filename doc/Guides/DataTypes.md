@@ -45,7 +45,7 @@ Sometimes you might want to send a polymorphic data type to your commands. Mirro
 ```cs
 class Item 
 {
-    public String name;
+    public string name;
 }
 
 class Weapon : Item
@@ -62,7 +62,7 @@ class Armor : Item
 class Player : NetworkBehaviour
 {
     [Command]
-    public void CmdEquip(Item item)
+    void CmdEquip(Item item)
     {
         if (item is Weapon weapon)
         {
@@ -75,7 +75,7 @@ class Player : NetworkBehaviour
         }
     }
 
-    public OnGUI()
+    void OnGUI()
     {
         if (isLocalPlayer)
         {
@@ -94,7 +94,7 @@ class Player : NetworkBehaviour
                 {
                     name = "Gold Armor",
                     hitPoints= 100,
-                    Level = 3
+                    level = 3
                 });
             }
         }
@@ -143,7 +143,8 @@ public static class ItemSerializer
                 return new Armor
                 {
                     name = reader.ReadString(),
-                    hitPoints = reader.ReadPackedInt32()
+                    hitPoints = reader.ReadPackedInt32(),
+                    level = reader.ReadPackedInt32()
                 };
             default:
                 throw new Exception($"Invalid weapon type {type}");

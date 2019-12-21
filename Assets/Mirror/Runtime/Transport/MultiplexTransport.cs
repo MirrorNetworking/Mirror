@@ -61,7 +61,28 @@ namespace Mirror
                 {
                     available = transport;
                     transport.ClientConnect(address);
+                    return;
+                }
+            }
+            throw new Exception("No transport suitable for this platform");
+        }
 
+        public override void ClientConnect(Uri uri)
+        {
+            foreach (Transport transport in transports)
+            {
+                if (transport.Available())
+                {
+                    try
+                    {
+                        transport.ClientConnect(uri);
+                        available = transport;
+                        return;
+                    }
+                    catch (ArgumentException)
+                    {
+                        // transport does not support the schema, just move on to the next one
+                    }
                 }
             }
             throw new Exception("No transport suitable for this platform");
@@ -89,7 +110,6 @@ namespace Mirror
         }
 
         #endregion
-
 
         #region Server
         // connection ids get mapped to base transports

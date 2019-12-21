@@ -3,7 +3,6 @@ using Mono.CecilX;
 using Mono.CecilX.Cil;
 using Mono.CecilX.Rocks;
 
-
 namespace Mirror.Weaver
 {
     public static class Readers
@@ -156,12 +155,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
             worker.Append(labelEmptyArray);
 
-
             // T value = new T[length];
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Newarr, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // for (int i=0; i< length ; i++) {
             worker.Append(worker.Create(OpCodes.Ldc_I4_0));
@@ -179,7 +176,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, elementReadFunc));
             worker.Append(worker.Create(OpCodes.Stobj, variable.GetElementType()));
-
 
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -247,7 +243,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Newarr, elementType));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // loop through array and deserialize each element
             // generates code like this
