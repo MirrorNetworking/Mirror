@@ -1,5 +1,6 @@
 {
     "verifyConditions": ["@semantic-release/github"],
+    "publish": ["@semantic-release/github"],
     "prepare": [
     {
       "path": "@semantic-release/exec",
