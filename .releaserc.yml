@@ -1,7 +1,7 @@
 {
     "verifyConditions": ["@semantic-release/github"],
     "publish": ["@semantic-release/github"],
-    "prepare": ["@semantic-release/exec"]
+    "prepare": ["@semantic-release/exec"],
     "plugins": [
         ["@semantic-release/commit-analyzer", {
             "preset": "angular",
