@@ -2,9 +2,6 @@
 
 using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
-using UnityEditor.Compilation;
-
 using Mirror.Weaver;
 
 namespace Mirror.Tests

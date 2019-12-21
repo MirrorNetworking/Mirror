@@ -1,14 +1,11 @@
 #if !UNITY_WEBGL || UNITY_EDITOR
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
