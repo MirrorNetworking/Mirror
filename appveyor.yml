@@ -19,8 +19,8 @@ install:
 # Do not build on tags (GitHub only)
 skip_tags: true
 before_build:
-    semantic-release --prepare
-    
+    semantic-release --dry-run
+
 build_script:
   - docfx metadata doc\docfx.json
   - docfx build doc\docfx.json
