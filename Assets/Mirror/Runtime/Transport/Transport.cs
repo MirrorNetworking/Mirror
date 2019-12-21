@@ -177,8 +177,13 @@ namespace Mirror
 
         /// <summary>
         /// The maximum packet size for a given channel.  Unreliable transports
-        /// usually can only deliver small packets.  Reliable fragmented channels
+        /// usually can only deliver small packets. Reliable fragmented channels
         /// can usually deliver large ones.
+        ///
+        /// GetMaxPacketSize needs to return a value at all times. Even if the
+        /// Transport isn't running, or isn't Available(). This is because
+        /// Fallback and Multiplex transports need to find the smallest possible
+        /// packet size at runtime.
         /// </summary>
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>

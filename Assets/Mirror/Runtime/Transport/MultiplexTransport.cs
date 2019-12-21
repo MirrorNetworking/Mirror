@@ -104,11 +104,6 @@ namespace Mirror
             return available.ClientSend(channelId, segment);
         }
 
-        public override int GetMaxPacketSize(int channelId = 0)
-        {
-            return available.GetMaxPacketSize(channelId);
-        }
-
         #endregion
 
         #region Server
@@ -238,6 +233,28 @@ namespace Mirror
             }
         }
         #endregion
+
+        public override int GetMaxPacketSize(int channelId = 0)
+        {
+            // finding the max packet size in a multiplex environment has to be
+            // done very carefully:
+            // * servers run multiple transports at the same time
+            // * different clients run different transports
+            // * there should only ever be ONE true max packet size for everyone,
+            //   otherwise a spawn message might be sent to all tcp sockets, but
+            //   be too big for some udp sockets. that would be a debugging
+            //   nightmare and allow for possible exploits and players on
+            //   different platforms seeing a different game state.
+            // => the safest solution is to use the smallest max size for all
+            //    transports. that will never fail.
+            int mininumAllowedSize = int.MaxValue;
+            foreach (Transport transport in transports)
+            {
+                int size = transport.GetMaxPacketSize(channelId);
+                mininumAllowedSize = Mathf.Min(size, mininumAllowedSize);
+            }
+            return mininumAllowedSize;
+        }
 
         public override void Shutdown()
         {
