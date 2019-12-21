@@ -94,7 +94,7 @@ namespace Mirror
         /// <para>This is used for spawning scene objects on clients.</para>
         /// </summary>
         // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
-        [FormerlySerializedAs("m_SceneId")]
+        [FormerlySerializedAs("m_SceneId"), HideInInspector]
         public ulong sceneId;
 
         /// <summary>
