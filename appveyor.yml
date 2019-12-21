@@ -19,16 +19,7 @@ install:
 # Do not build on tags (GitHub only)
 skip_tags: true
 before_build:
-    - ps: |
-        semantic-release --dry-run 2>&1 |  %{ 
-            echo $_
-            $fields = -split $_;
-            if ($fields[0] -eq "#" -or $fields[0] -eq "##") {
-                echo "Mirror version " $fields[1]
-                echo $fields[1] > Assets/Mirror/version.txt
-            }
-        }
-
+    - cmd: powershell .\setversion.ps1
 
 build_script:
   - docfx metadata doc\docfx.json
