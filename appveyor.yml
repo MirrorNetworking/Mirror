@@ -19,8 +19,17 @@ install:
 # Do not build on tags (GitHub only)
 skip_tags: true
 before_build:
-    semantic-release --prepare
-    
+    - ps: |
+        semantic-release --dry-run |  %{ 
+            echo $_
+            $fields = -split $_;
+            if ($fields[0] -eq "#" -or $fields[0] -eq "##") {
+                echo "Mirror version " $fields[1]
+                echo $fields[1] > Assets/Mirror/version.txt
+            }
+        }
+
+
 build_script:
   - docfx metadata doc\docfx.json
   - docfx build doc\docfx.json
