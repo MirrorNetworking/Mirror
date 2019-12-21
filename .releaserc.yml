@@ -2,10 +2,10 @@
     "verifyConditions": ["@semantic-release/github"],
     "publish": ["@semantic-release/github"],
     "prepare": [
-    {
-      "path": "@semantic-release/exec",
-      "cmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
-    }
+        {
+        "path": "@semantic-release/exec",
+        "cmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
+        }
     ],
     "plugins": [
       ["@semantic-release/commit-analyzer", {
