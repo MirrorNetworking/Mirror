@@ -198,7 +198,6 @@ namespace Mirror.Tests
             serverSyncList.Add("yay");
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
-
             Assert.That(called, Is.True);
         }
 

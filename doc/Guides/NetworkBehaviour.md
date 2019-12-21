@@ -104,7 +104,7 @@ Client RPC calls are not restricted to player game objects, and may be called on
 
 To define a Client RPC call in your code, you must write a function which:
 -   Has a name that begins with `Rpc`
--   Has the `ClientRPC` attribute
+-   Has the `ClientRpc` attribute
 
 See [Communications](Communications/index.md) and related sections for more information.
 

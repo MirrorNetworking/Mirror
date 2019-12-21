@@ -65,7 +65,6 @@ namespace Mirror.Websocket
             SocketSend(m_NativeRef, segment.Array, segment.Count);
         }
 
-
         #region Javascript native functions
         [DllImport("__Internal")]
         static extern int SocketCreate(

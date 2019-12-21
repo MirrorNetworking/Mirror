@@ -90,7 +90,6 @@ namespace Mirror.Websocket
             {
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 
-
                 if (result == null)
                     break;
                 if (result.MessageType == WebSocketMessageType.Close)
@@ -170,7 +169,6 @@ namespace Mirror.Websocket
                 ReceivedError?.Invoke(ex);
             }
         }
-
 
         public override string ToString()
         {

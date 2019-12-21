@@ -61,7 +61,6 @@ namespace Mirror.Weaver
                 return null;
             }
 
-
             MethodDefinition newWriterFunc;
 
             if (variable.IsArray)
@@ -246,12 +245,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldobj, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
 
-
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // end for loop
             worker.Append(labelHead);
@@ -348,7 +345,6 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // end for loop
             worker.Append(labelHead);

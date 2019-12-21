@@ -61,7 +61,7 @@ namespace Mirror
                 {
                     available = transport;
                     transport.ClientConnect(address);
-
+                    return;
                 }
             }
             throw new Exception("No transport suitable for this platform");
@@ -77,6 +77,7 @@ namespace Mirror
                     {
                         transport.ClientConnect(uri);
                         available = transport;
+                        return;
                     }
                     catch (ArgumentException)
                     {
@@ -109,7 +110,6 @@ namespace Mirror
         }
 
         #endregion
-
 
         #region Server
         // connection ids get mapped to base transports
