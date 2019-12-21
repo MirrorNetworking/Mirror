@@ -19,13 +19,14 @@ install:
 # Do not build on tags (GitHub only)
 skip_tags: true
 before_build:
-    semantic-release --dry-run |  %{ 
-        echo $_
-        $fields = -split $_;
-        if ($fields[0] -eq "#" -or $fields[0] -eq "##") {
-            echo $app_version > Assets/Mirror/version.txt
+    - ps: |
+        semantic-release --dry-run |  %{ 
+            echo $_
+            $fields = -split $_;
+            if ($fields[0] -eq "#" -or $fields[0] -eq "##") {
+                echo $fields[1] > Assets/Mirror/version.txt
+            }
         }
-      }
 
 
 build_script:
