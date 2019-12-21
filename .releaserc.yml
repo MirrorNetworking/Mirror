@@ -1,25 +1,23 @@
 {
     "verifyConditions": ["@semantic-release/github"],
     "publish": ["@semantic-release/github"],
-    "prepare": [
-        {
-        "path": "@semantic-release/exec",
-        "cmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
-        }
-    ],
+    "prepare": ["@semantic-release/exec"],
     "plugins": [
-      ["@semantic-release/commit-analyzer", {
-        "preset": "angular",
-        "releaseRules": [
-          {"type": "breaking", "release": "major"},
-          {"type": "feature", "release": "minor"},
-        ]
-      }],
-      '@semantic-release/release-notes-generator', 
-      ["@semantic-release/github", {
-      "assets": [
-        {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
-      ]
-    }],
+        ["@semantic-release/commit-analyzer", {
+            "preset": "angular",
+            "releaseRules": [
+                {"type": "breaking", "release": "major"},
+                {"type": "feature", "release": "minor"},
+            ]
+        }],
+        '@semantic-release/release-notes-generator', 
+        ["@semantic-release/github", {
+            "assets": [
+                {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
+            ]
+        }],
+        ["@semantic-release/exec", {
+            "prepareCmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt",
+        }],
     ]
 }
