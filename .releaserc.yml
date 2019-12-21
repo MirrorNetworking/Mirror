@@ -4,7 +4,7 @@
     "prepare": [
     {
       "path": "@semantic-release/exec",
-      "cmd": "set-version ${nextRelease.version}"
+      "cmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
     }
     ],
     "plugins": [
