@@ -1,4 +1,11 @@
 {
+    "verifyConditions": ["@semantic-release/github"],
+    "prepare": [
+    {
+      "path": "@semantic-release/exec",
+      "cmd": "set-version ${nextRelease.version}"
+    }
+    ],
     "plugins": [
       ["@semantic-release/commit-analyzer", {
         "preset": "angular",
