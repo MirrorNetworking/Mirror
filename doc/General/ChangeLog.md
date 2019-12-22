@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version 7.x.x - In progress
-- Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+- Added: [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: Full Text Search added to docs
 - Added: Basic Chat example
 - Added: Some youtube videos have been created and linked from various doc pages where appropriate
