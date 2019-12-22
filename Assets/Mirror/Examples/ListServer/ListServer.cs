@@ -78,8 +78,8 @@ namespace Mirror.Examples.ListServer
             InvokeRepeating(nameof(Tick), 0, 1);
         }
 
-        bool IsConnecting() => NetworkClient.active && !ClientScene.ready;
-        bool FullyConnected() => NetworkClient.active && ClientScene.ready;
+        bool IsConnecting() => NetworkClient.singleton.active && !ClientScene.ready;
+        bool FullyConnected() => NetworkClient.singleton.active && ClientScene.ready;
 
         // should we use the client to listen connection?
         bool UseClientToListen()

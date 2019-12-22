@@ -20,6 +20,7 @@ namespace Mirror
 
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
+    [RequireComponent(typeof(NetworkClient))]
     public class NetworkManager : MonoBehaviour
     {
         /// <summary>
@@ -156,7 +157,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient.isConnected instead")]
         public bool IsClientConnected()
         {
-            return NetworkClient.isConnected;
+            return NetworkClient.singleton.isConnected;
         }
 
         /// <summary>
@@ -201,6 +202,16 @@ namespace Mirror
                 }
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
+#endif
+            }
+
+            // add NetworkClient if there is none yet. makes upgrading easier.
+            if (GetComponent<NetworkClient>() == null)
+            {
+                gameObject.AddComponent<NetworkClient>();
+                Debug.Log("NetworkManager: added NetworkClient because there was none yet.");
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added NetworkClient");
 #endif
             }
 
@@ -257,7 +268,6 @@ namespace Mirror
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
-            NetworkClient.Update();
             UpdateScene();
         }
 
@@ -348,7 +358,7 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            NetworkClient.Connect(networkAddress);
+            NetworkClient.singleton.Connect(networkAddress);
 
             OnStartClient();
         }
@@ -378,7 +388,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
             this.networkAddress = uri.Host;
 
-            NetworkClient.Connect(uri);
+            NetworkClient.singleton.Connect(uri);
 
             OnStartClient();
         }
@@ -390,7 +400,7 @@ namespace Mirror
         public virtual void StartHost()
         {
             OnStartHost();
-            NetworkClient.SetupLocalConnection();
+            NetworkClient.singleton.SetupLocalConnection();
             if (StartServer())
             {
                 ConnectLocalClient();
@@ -448,8 +458,8 @@ namespace Mirror
             isNetworkActive = false;
 
             // shutdown client
-            NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
+            NetworkClient.singleton.Disconnect();
+            NetworkClient.singleton.Shutdown();
 
             if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
             {
@@ -468,7 +478,7 @@ namespace Mirror
             // stop client first
             // (we want to send the quit packet to the server instead of waiting
             //  for a timeout)
-            if (NetworkClient.isConnected)
+            if (NetworkClient.singleton.isConnected)
             {
                 StopClient();
                 print("OnApplicationQuit: stopped client");
@@ -562,16 +572,16 @@ namespace Mirror
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
             RegisterClientMessages();
-            NetworkClient.ConnectLocalServer();
+            NetworkClient.singleton.ConnectLocalServer();
         }
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
-            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
+            NetworkClient.singleton.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
+            NetworkClient.singleton.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            NetworkClient.singleton.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            NetworkClient.singleton.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
+            NetworkClient.singleton.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {
@@ -737,7 +747,7 @@ namespace Mirror
                     NetworkServer.SpawnObjects();
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
-                if (NetworkClient.active)
+                if (NetworkClient.singleton.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
                     Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
@@ -776,10 +786,10 @@ namespace Mirror
                 OnServerSceneChanged(networkSceneName);
             }
 
-            if (NetworkClient.isConnected)
+            if (NetworkClient.singleton.isConnected)
             {
                 RegisterClientMessages();
-                OnClientSceneChanged(NetworkClient.connection);
+                OnClientSceneChanged(NetworkClient.singleton.connection);
             }
         }
 
@@ -984,7 +994,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            if (NetworkClient.isConnected && !NetworkServer.active)
+            if (NetworkClient.singleton.isConnected && !NetworkServer.active)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation);
             }

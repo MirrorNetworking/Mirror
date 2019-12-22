@@ -17,7 +17,7 @@ namespace Mirror.Examples.Chat
             if (chatMessage.text.Trim() == "") return;
 
             // get our player
-            Player player = NetworkClient.connection.identity.GetComponent<Player>();
+            Player player = NetworkClient.singleton.connection.identity.GetComponent<Player>();
 
             // send a message
             player.CmdSend(chatMessage.text.Trim());
@@ -33,7 +33,7 @@ namespace Mirror.Examples.Chat
         IEnumerator AppendAndScroll(string message)
         {
             chatHistory.text += message + "\n";
-            
+
             // it takes 2 frames for the UI to update ?!?!
             yield return null;
             yield return null;

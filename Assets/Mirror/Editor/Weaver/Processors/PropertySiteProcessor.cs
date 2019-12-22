@@ -122,7 +122,8 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.NetworkClientGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Ldsfld, Weaver.NetworkClientSingleton));
+            worker.InsertBefore(top, worker.Create(OpCodes.Callvirt, Weaver.NetworkClientGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {

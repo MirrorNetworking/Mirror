@@ -75,6 +75,8 @@ namespace Mirror.Weaver
 
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
+
+        public static FieldReference NetworkClientSingleton;
         public static MethodReference NetworkClientGetActive;
 
         // custom attribute types
@@ -252,6 +254,8 @@ namespace Mirror.Weaver
 
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
+
+            NetworkClientSingleton = Resolvers.ResolveField(NetworkClientType, CurrentAssembly, "singleton");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");

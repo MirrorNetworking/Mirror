@@ -41,7 +41,7 @@ namespace Mirror
             if (NetworkManager.singleton is NetworkRoomManager room)
             {
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
-                // in server and all clients, otherwise it will be respawned in the game scene which would 
+                // in server and all clients, otherwise it will be respawned in the game scene which would
                 // have undesireable effects.
                 if (room.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
@@ -138,7 +138,7 @@ namespace Mirror
 
                 GUILayout.EndArea();
 
-                if (NetworkClient.active && isLocalPlayer)
+                if (NetworkClient.singleton.active && isLocalPlayer)
                 {
                     GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 

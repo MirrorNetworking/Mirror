@@ -56,7 +56,7 @@ namespace Mirror
             if (Time.time - lastPingTime >= PingFrequency)
             {
                 NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
-                NetworkClient.Send(pingMessage);
+                NetworkClient.singleton.Send(pingMessage);
                 lastPingTime = Time.time;
             }
         }

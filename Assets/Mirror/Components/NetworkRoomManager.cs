@@ -457,7 +457,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name == RoomScene)
             {
-                if (NetworkClient.isConnected)
+                if (NetworkClient.singleton.isConnected)
                     CallOnClientEnterRoom();
             }
             else

@@ -13,21 +13,19 @@ namespace Mirror
         Disconnected
     }
 
-    // TODO make fully static after removing obsoleted singleton!
     /// <summary>
     /// This is a network client class used by the networking system. It contains a NetworkConnection that is used to connect to a network server.
     /// <para>The <see cref="NetworkClient">NetworkClient</see> handle connection state, messages handlers, and connection configuration. There can be many <see cref="NetworkClient">NetworkClient</see> instances in a process at a time, but only one that is connected to a game server (<see cref="NetworkServer">NetworkServer</see>) that uses spawned objects.</para>
     /// <para><see cref="NetworkClient">NetworkClient</see> has an internal update function where it handles events from the transport layer. This includes asynchronous connect events, disconnect events and incoming data from a server.</para>
     /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
     /// </summary>
-    public class NetworkClient
+    [DisallowMultipleComponent]
+    public class NetworkClient : MonoBehaviour
     {
         /// <summary>
-        /// Obsolete: Use <see cref="NetworkClient"/> directly.
-        /// <para>Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).</para>
+        /// Singleton access for ease of use. Only works when using exactly one NetworkClient.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly. Singleton isn't needed anymore, all functions are static now. For example: NetworkClient.Send(message) instead of NetworkClient.singleton.Send(message).")]
-        public static NetworkClient singleton = new NetworkClient();
+        public static NetworkClient singleton;
 
         /// <summary>
         /// A list of all the active network clients in the current process.
@@ -39,42 +37,59 @@ namespace Mirror
         /// <summary>
         /// The registered network message handlers.
         /// </summary>
-        public static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
+        public readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public static NetworkConnection connection { get; internal set; }
+        public NetworkConnection connection { get; internal set; }
 
-        internal static ConnectState connectState = ConnectState.None;
+        internal ConnectState connectState = ConnectState.None;
 
         /// <summary>
         /// The IP address of the server that this client is connected to.
         /// <para>This will be empty if the client has not connected yet.</para>
         /// </summary>
-        public static string serverIp => connection.address;
+        public string serverIp => connection.address;
 
         /// <summary>
         /// active is true while a client is connecting/connected
         /// (= while the network is active)
         /// </summary>
-        public static bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
+        public bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
 
         /// <summary>
         /// This gives the current connection status of the client.
         /// </summary>
-        public static bool isConnected => connectState == ConnectState.Connected;
+        public bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
-        public static bool isLocalClient => connection is ULocalConnectionToServer;
+        public bool isLocalClient => connection is ULocalConnectionToServer;
+
+        void Awake()
+        {
+            // make sure that there is only ever one NetworkClient (for now).
+            // a couple of things don't allow multiple NetworkClients yet:
+            // * Shutdown calls ClientScene.Shutdown
+            // * Transport events call NetworkClient. what if we have multiple?
+            if (singleton != null)
+            {
+                throw new Exception("Multiple NetworkClients detected. There can only be one (for now).");
+            }
+            // set singleton
+            else
+            {
+                singleton = this;
+            }
+        }
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public static void Connect(string address)
+        public void Connect(string address)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
@@ -94,7 +109,7 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
-        public static void Connect(Uri uri)
+        public void Connect(Uri uri)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
@@ -110,7 +125,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal static void SetupLocalConnection()
+        internal void SetupLocalConnection()
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
 
@@ -134,13 +149,13 @@ namespace Mirror
         /// <summary>
         /// connect host mode
         /// </summary>
-        internal static void ConnectLocalServer()
+        internal void ConnectLocalServer()
         {
             NetworkServer.OnConnected(NetworkServer.localConnection);
             NetworkServer.localConnection.Send(new ConnectMessage());
         }
 
-        static void InitializeTransportHandlers()
+        void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
@@ -148,12 +163,12 @@ namespace Mirror
             Transport.activeTransport.OnClientError.AddListener(OnError);
         }
 
-        static void OnError(Exception exception)
+        void OnError(Exception exception)
         {
             Debug.LogException(exception);
         }
 
-        static void OnDisconnected()
+        void OnDisconnected()
         {
             connectState = ConnectState.Disconnected;
 
@@ -162,7 +177,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage(), -1);
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
+        internal void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
@@ -171,7 +186,7 @@ namespace Mirror
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
-        static void OnConnected()
+        void OnConnected()
         {
             if (connection != null)
             {
@@ -191,7 +206,7 @@ namespace Mirror
         /// Disconnect from server.
         /// <para>The disconnect message will be invoked.</para>
         /// </summary>
-        public static void Disconnect()
+        public void Disconnect()
         {
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
@@ -216,7 +231,7 @@ namespace Mirror
             }
         }
 
-        static void RemoveTransportHandlers()
+        void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
             Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
@@ -229,7 +244,7 @@ namespace Mirror
         /// Obsolete: Use <see cref="Send{T}(T, int)"/> instead with no message id instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendMessage<T> instead with no message id instead")]
-        public static bool Send(short msgType, MessageBase msg)
+        public bool Send(short msgType, MessageBase msg)
         {
             if (connection != null)
             {
@@ -253,7 +268,7 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (connection != null)
             {
@@ -268,7 +283,13 @@ namespace Mirror
             return false;
         }
 
-        internal static void Update()
+        // NetworkManager uses LateUpdate, so use LateUpdate here too.
+        // Make sure to keep update order: NetworkManager->NetworkServer->NetworkClient
+        // by sorting the components this way.
+        /// <summary>
+        /// virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
+        /// </summary>
+        public virtual void LateUpdate()
         {
             // local or remote connection?
             if (connection is ULocalConnectionToServer localConnection)
@@ -335,12 +356,12 @@ namespace Mirror
         /// Obsolete: Use <see cref="NetworkTime.rtt"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkTime.rtt instead")]
-        public static float GetRTT()
+        public float GetRTT()
         {
             return (float)NetworkTime.rtt;
         }
 
-        internal static void RegisterSystemHandlers(bool hostMode)
+        internal void RegisterSystemHandlers(bool hostMode)
         {
             // host mode client / regular client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
@@ -373,7 +394,7 @@ namespace Mirror
         /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
+        public void RegisterHandler(int msgType, NetworkMessageDelegate handler)
         {
             if (handlers.ContainsKey(msgType))
             {
@@ -386,7 +407,7 @@ namespace Mirror
         /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
+        public void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
         {
             RegisterHandler((int)msgType, handler);
         }
@@ -398,7 +419,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
@@ -415,7 +436,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             RegisterHandler( (NetworkConnection _, T value) => { handler(value); }, requireAuthentication) ;
         }
@@ -424,7 +445,7 @@ namespace Mirror
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(int msgType)
+        public void UnregisterHandler(int msgType)
         {
             handlers.Remove(msgType);
         }
@@ -433,7 +454,7 @@ namespace Mirror
         /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead")]
-        public static void UnregisterHandler(MsgType msgType)
+        public void UnregisterHandler(MsgType msgType)
         {
             UnregisterHandler((int)msgType);
         }
@@ -442,7 +463,7 @@ namespace Mirror
         /// Unregisters a network message handler.
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
-        public static void UnregisterHandler<T>() where T : IMessageBase
+        public void UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
             int msgType = MessagePacker.GetId<T>();
@@ -453,7 +474,7 @@ namespace Mirror
         /// Shut down a client.
         /// <para>This should be done when a client is no longer going to be used.</para>
         /// </summary>
-        public static void Shutdown()
+        public void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             ClientScene.Shutdown();
@@ -467,7 +488,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Call NetworkClient.Shutdown() instead. There is only one client.")]
         public static void ShutdownAll()
         {
-            Shutdown();
+            singleton.Shutdown();
         }
     }
 }
