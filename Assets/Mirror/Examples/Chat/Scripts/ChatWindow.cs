@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +33,7 @@ namespace Mirror.Examples.Chat
         IEnumerator AppendAndScroll(string message)
         {
             chatHistory.text += message + "\n";
-            
+
             // it takes 2 frames for the UI to update ?!?!
             yield return null;
             yield return null;

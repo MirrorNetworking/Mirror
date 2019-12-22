@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,7 +29,7 @@ namespace Mirror.Examples.Chat
             string prettyMessage = isLocalPlayer ?
                 $"<color=red>{playerName}: </color> {message}" :
                 $"<color=blue>{playerName}: </color> {message}";
-            
+
             chatWindow.AppendMessage(prettyMessage);
 
             Debug.Log(message);
