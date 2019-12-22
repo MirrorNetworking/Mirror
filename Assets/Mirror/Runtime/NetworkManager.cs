@@ -672,7 +672,7 @@ namespace Mirror
             startPositions.Clear();
         }
 
-        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal)
+        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal, bool customHandling = false)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -689,7 +689,14 @@ namespace Mirror
             Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
-            OnClientChangeScene(newSceneName, sceneOperation);
+            OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+
+            // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
+            if (customHandling)
+            {
+                FinishLoadScene();
+                return;
+            }
 
             switch (sceneOperation)
             {
@@ -986,7 +993,7 @@ namespace Mirror
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(msg.sceneName, msg.sceneOperation);
+                ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
         }
 
@@ -1160,13 +1167,21 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation)"/> instead.).
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
         /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) instead")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
         public virtual void OnClientChangeScene(string newSceneName)
         {
-            OnClientChangeScene(newSceneName, SceneOperation.Normal);
+            OnClientChangeScene(newSceneName, SceneOperation.Normal, false);
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
+        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)
+        {
+            OnClientChangeScene(newSceneName, sceneOperation, false);
         }
 
         /// <summary>
@@ -1175,7 +1190,8 @@ namespace Mirror
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) { }
+        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) { }
 
         /// <summary>
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
