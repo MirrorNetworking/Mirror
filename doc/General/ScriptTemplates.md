@@ -7,7 +7,7 @@ We've added Script Templates to make it easier to create derived class scripts t
 -   Base method calls are all in place where needed so you can see what they already do.
 -   Each has links at the top to their doc page(s)
 
-**Download the zip file [here](ScriptTemplates.zip)**
+**Download the zip file [here](https://github.com/vis2k/Mirror/blob/master/doc/General/ScriptTemplates.zip)**
 
 >   **NOTE**: You must restart Unity after importing this package!
 
