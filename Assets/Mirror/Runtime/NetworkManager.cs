@@ -96,7 +96,7 @@ namespace Mirror
         /// Number of active player objects across all connections on the server.
         /// <para>This is only valid on the host / server.</para>
         /// </summary>
-        public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
+        public int numPlayers => NetworkServer.singleton.connections.Count(kv => kv.Value.identity != null);
 
         [Header("Authentication")]
 
@@ -215,6 +215,16 @@ namespace Mirror
 #endif
             }
 
+            // add NetworkServer if there is none yet. makes upgrading easier.
+            if (GetComponent<NetworkServer>() == null)
+            {
+                gameObject.AddComponent<NetworkServer>();
+                Debug.Log("NetworkManager: added NetworkServer because there was none yet.");
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added NetworkServer");
+#endif
+            }
+
             maxConnections = Mathf.Max(maxConnections, 0); // always >= 0
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
@@ -264,10 +274,6 @@ namespace Mirror
         /// </summary>
         public virtual void LateUpdate()
         {
-            // call it while the NetworkManager exists.
-            // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
-            //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
-            NetworkServer.Update();
             UpdateScene();
         }
 
@@ -295,7 +301,7 @@ namespace Mirror
 
             ConfigureServerFrameRate();
 
-            if (!NetworkServer.Listen(maxConnections))
+            if (!NetworkServer.singleton.Listen(maxConnections))
             {
                 Debug.LogError("StartServer listen failed.");
                 return false;
@@ -325,7 +331,7 @@ namespace Mirror
             }
             else
             {
-                NetworkServer.SpawnObjects();
+                NetworkServer.singleton.SpawnObjects();
             }
             return true;
         }
@@ -424,7 +430,7 @@ namespace Mirror
         /// </summary>
         public void StopServer()
         {
-            if (!NetworkServer.active)
+            if (!NetworkServer.singleton.active)
                 return;
 
             if (authenticator != null)
@@ -434,7 +440,7 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
             isNetworkActive = false;
-            NetworkServer.Shutdown();
+            NetworkServer.singleton.Shutdown();
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 ServerChangeScene(offlineScene);
@@ -485,7 +491,7 @@ namespace Mirror
             }
 
             // stop server after stopping client (for proper host mode stopping)
-            if (NetworkServer.active)
+            if (NetworkServer.singleton.active)
             {
                 StopServer();
                 print("OnApplicationQuit: stopped server");
@@ -551,12 +557,12 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
-            NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
-            NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
-            NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
+            NetworkServer.singleton.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
+            NetworkServer.singleton.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
+            NetworkServer.singleton.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
+            NetworkServer.singleton.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
+            NetworkServer.singleton.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
+            NetworkServer.singleton.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
         }
 
         void ConnectLocalClient()
@@ -570,7 +576,7 @@ namespace Mirror
             }
 
             networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
+            NetworkServer.singleton.ActivateLocalClientScene();
             RegisterClientMessages();
             NetworkClient.singleton.ConnectLocalServer();
         }
@@ -659,7 +665,7 @@ namespace Mirror
             }
 
             if (LogFilter.Debug) Debug.Log("ServerChangeScene " + newSceneName);
-            NetworkServer.SetAllClientsNotReady();
+            NetworkServer.singleton.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
             // Let server prepare for scene change
@@ -672,7 +678,7 @@ namespace Mirror
                 sceneName = newSceneName,
             };
 
-            NetworkServer.SendToAll(msg);
+            NetworkServer.singleton.SendToAll(msg);
 
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
@@ -741,10 +747,10 @@ namespace Mirror
         {
             if (mode == LoadSceneMode.Additive)
             {
-                if (NetworkServer.active)
+                if (NetworkServer.singleton.active)
                 {
                     // TODO only respawn the server objects from that scene later!
-                    NetworkServer.SpawnObjects();
+                    NetworkServer.singleton.SpawnObjects();
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
                 if (NetworkClient.singleton.active)
@@ -780,9 +786,9 @@ namespace Mirror
                 clientReadyConnection = null;
             }
 
-            if (NetworkServer.active)
+            if (NetworkServer.singleton.active)
             {
-                NetworkServer.SpawnObjects();
+                NetworkServer.singleton.SpawnObjects();
                 OnServerSceneChanged(networkSceneName);
             }
 
@@ -994,7 +1000,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            if (NetworkClient.singleton.isConnected && !NetworkServer.active)
+            if (NetworkClient.singleton.isConnected && !NetworkServer.singleton.active)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation);
             }
@@ -1018,7 +1024,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
-            NetworkServer.DestroyPlayerForConnection(conn);
+            NetworkServer.singleton.DestroyPlayerForConnection(conn);
             if (LogFilter.Debug) Debug.Log("OnServerDisconnect: Client disconnected.");
         }
 
@@ -1034,7 +1040,7 @@ namespace Mirror
                 // this is now allowed (was not for a while)
                 if (LogFilter.Debug) Debug.Log("Ready with no player object");
             }
-            NetworkServer.SetClientReady(conn);
+            NetworkServer.singleton.SetClientReady(conn);
         }
 
         /// <summary>
@@ -1061,7 +1067,7 @@ namespace Mirror
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
+            NetworkServer.singleton.AddPlayerForConnection(conn, player);
         }
 
         /// <summary>
@@ -1099,7 +1105,7 @@ namespace Mirror
         {
             if (player.gameObject != null)
             {
-                NetworkServer.Destroy(player.gameObject);
+                NetworkServer.singleton.Destroy(player.gameObject);
             }
         }
 

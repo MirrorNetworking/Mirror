@@ -43,7 +43,7 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
-            if (!NetworkClient.singleton.isConnected && !NetworkServer.active)
+            if (!NetworkClient.singleton.isConnected && !NetworkServer.singleton.active)
             {
                 if (!NetworkClient.singleton.active)
                 {
@@ -89,7 +89,7 @@ namespace Mirror
             else
             {
                 // server / client status message
-                if (NetworkServer.active)
+                if (NetworkServer.singleton.active)
                 {
                     GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
                 }
@@ -114,7 +114,7 @@ namespace Mirror
             }
 
             // stop
-            if (NetworkServer.active || NetworkClient.singleton.isConnected)
+            if (NetworkServer.singleton.active || NetworkClient.singleton.isConnected)
             {
                 if (GUILayout.Button("Stop"))
                 {

@@ -29,7 +29,7 @@ namespace Mirror.Authenticators
         public override void OnStartServer()
         {
             // register a handler for the authentication request we expect from client
-            NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
+            NetworkServer.singleton.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
         }
 
         public override void OnStartClient()

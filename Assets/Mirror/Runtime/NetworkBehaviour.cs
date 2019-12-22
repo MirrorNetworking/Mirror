@@ -234,7 +234,7 @@ namespace Mirror
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!NetworkServer.active)
+            if (!NetworkServer.singleton.active)
             {
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
@@ -255,14 +255,14 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, channelId);
+            NetworkServer.singleton.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!NetworkServer.active)
+            if (!NetworkServer.singleton.active)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
@@ -314,7 +314,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
-            if (!NetworkServer.active)
+            if (!NetworkServer.singleton.active)
             {
                 Debug.LogWarning("SendEvent no server?");
                 return;
@@ -329,7 +329,7 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, channelId);
+            NetworkServer.singleton.SendToReady(netIdentity, message, channelId);
         }
 
         /// <summary>

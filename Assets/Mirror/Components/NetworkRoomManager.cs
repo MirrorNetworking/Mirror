@@ -162,7 +162,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
+            NetworkServer.singleton.ReplacePlayerForConnection(conn, gamePlayer, true);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name != RoomScene) return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
+            if (minPlayers > 0 && NetworkServer.singleton.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -283,7 +283,7 @@ namespace Mirror
 
             RecalculateRoomPlayerIndices();
 
-            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+            NetworkServer.singleton.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
         void RecalculateRoomPlayerIndices()
@@ -313,13 +313,13 @@ namespace Mirror
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
                     NetworkIdentity playerController = identity.connectionToClient.identity;
-                    NetworkServer.Destroy(playerController.gameObject);
+                    NetworkServer.singleton.Destroy(playerController.gameObject);
 
-                    if (NetworkServer.active)
+                    if (NetworkServer.singleton.active)
                     {
                         // re-add the room object
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
+                        NetworkServer.singleton.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
                 }
             }
@@ -622,7 +622,7 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
+            if (NetworkServer.singleton.active && SceneManager.GetActiveScene().name == GameplayScene)
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))

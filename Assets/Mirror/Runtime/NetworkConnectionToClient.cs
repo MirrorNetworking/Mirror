@@ -83,7 +83,7 @@ namespace Mirror
             {
                 if (netId != null)
                 {
-                    NetworkServer.Destroy(netId.gameObject);
+                    NetworkServer.singleton.Destroy(netId.gameObject);
                 }
             }
             clientOwnedObjects.Clear();

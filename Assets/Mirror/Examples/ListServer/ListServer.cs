@@ -84,13 +84,13 @@ namespace Mirror.Examples.ListServer
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.isHeadless && !NetworkServer.active && !FullyConnected();
+            return !NetworkManager.isHeadless && !NetworkServer.singleton.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
         bool UseGameServerToListen()
         {
-            return NetworkServer.active;
+            return NetworkServer.singleton.active;
         }
 
         void Tick()
@@ -105,7 +105,7 @@ namespace Mirror.Examples.ListServer
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
             // create message
-            writer.Write((ushort)NetworkServer.connections.Count);
+            writer.Write((ushort)NetworkServer.singleton.connections.Count);
             writer.Write((ushort)NetworkManager.singleton.maxConnections);
             byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
             writer.Write((ushort)titleBytes.Length);

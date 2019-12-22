@@ -143,7 +143,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
 
             // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
+            NetworkServer.singleton.SetLocalConnection(connectionToClient);
 
         }
         /// <summary>
@@ -151,8 +151,8 @@ namespace Mirror
         /// </summary>
         internal void ConnectLocalServer()
         {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
+            NetworkServer.singleton.OnConnected(NetworkServer.singleton.localConnection);
+            NetworkServer.singleton.localConnection.Send(new ConnectMessage());
         }
 
         void InitializeTransportHandlers()
@@ -216,9 +216,9 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    NetworkServer.singleton.localConnection.Send(new DisconnectMessage());
                 }
-                NetworkServer.RemoveLocalConnection();
+                NetworkServer.singleton.RemoveLocalConnection();
             }
             else
             {

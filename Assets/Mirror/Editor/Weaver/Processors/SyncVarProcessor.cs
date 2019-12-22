@@ -151,9 +151,10 @@ namespace Mirror.Weaver
 
             if (hookFunctionMethod != null)
             {
-                //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
+                //if (NetworkServer.singleton.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = setWorker.Create(OpCodes.Nop);
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
+                setWorker.Append(setWorker.Create(OpCodes.Ldsfld, Weaver.NetworkServerSingleton));
+                setWorker.Append(setWorker.Create(OpCodes.Callvirt, Weaver.NetworkServerGetLocalClientActive));
                 setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
