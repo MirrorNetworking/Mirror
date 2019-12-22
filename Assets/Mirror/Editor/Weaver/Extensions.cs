@@ -114,7 +114,7 @@ namespace Mirror.Weaver
         }
 
 
-        // Given a method of a generic class such as ArraySegment<T>.get_Count,   
+        // Given a method of a generic class such as ArraySegment<T>.get_Count,
         // and a generic instance such as ArraySegment<int>
         // Creates a reference to the specialized method  ArraySegment<int>.get_Count;
         // Note that calling ArraySegment<T>.get_Count directly gives an invalid IL error
