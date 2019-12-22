@@ -115,7 +115,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerReady(NetworkConnection conn)
@@ -207,7 +207,7 @@ namespace Mirror
         #region server handlers
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerConnect(NetworkConnection conn)
@@ -230,7 +230,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerDisconnect(NetworkConnection conn)
@@ -259,7 +259,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         /// <param name="extraMessage"></param>
@@ -298,7 +298,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sceneName"></param>
         public override void ServerChangeScene(string sceneName)
@@ -328,7 +328,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sceneName"></param>
         public override void OnServerSceneChanged(string sceneName)
@@ -346,7 +346,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartServer()
         {
@@ -366,7 +366,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartHost()
         {
@@ -374,7 +374,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopServer()
         {
@@ -383,7 +383,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopHost()
         {
@@ -395,7 +395,7 @@ namespace Mirror
         #region client handlers
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartClient()
         {
@@ -413,7 +413,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientConnect(NetworkConnection conn)
@@ -424,7 +424,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientDisconnect(NetworkConnection conn)
@@ -434,7 +434,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopClient()
         {
@@ -450,7 +450,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
