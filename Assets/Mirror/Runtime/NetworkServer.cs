@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// The NetworkServer uses a NetworkServerSimple for basic network functionality and adds more game-like functionality.
+    /// The NetworkServer.
     /// </summary>
     /// <remarks>
     /// <para>NetworkServer handles remote connections from remote clients via a NetworkServerSimple instance, and also has a local connection for a local client.</para>
@@ -1035,7 +1035,7 @@ namespace Mirror
             // on start server in host mode
             if (ownerConnection is ULocalConnectionToClient)
                 identity.hasAuthority = true;
-                
+
             identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
