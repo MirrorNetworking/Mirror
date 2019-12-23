@@ -225,6 +225,21 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestRemovePair()
+        {
+            KeyValuePair<int, string> data = new KeyValuePair<int, string>(0, "Hello");
+
+            serverSyncDictionary.Remove(data);
+
+            Assert.That(serverSyncDictionary, Is.EquivalentTo(new KeyValuePair<int, string>[]
+            {
+                new KeyValuePair<int, string>(1, "World"),
+                new KeyValuePair<int, string>(2, "!"),
+
+            }));
+        }
+
+        [Test]
         public void ReadOnlyTest()
         {
             Assert.That(serverSyncDictionary.IsReadOnly, Is.False);
