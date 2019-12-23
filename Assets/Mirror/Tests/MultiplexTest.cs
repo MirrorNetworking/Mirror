@@ -103,5 +103,16 @@ namespace Mirror.Tests
 
             Assert.That(transport.ClientConnected());
         }
+
+        [Test]
+        public void TestDisconnect()
+        {
+            transport1.Available().Returns(true);
+            transport.ClientConnect("some.server.com");
+
+            transport.ClientDisconnect();
+
+            transport1.Received().ClientDisconnect();
+        }
     }
 }

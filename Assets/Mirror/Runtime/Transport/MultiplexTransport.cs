@@ -95,7 +95,7 @@ namespace Mirror
 
         public override void ClientDisconnect()
         {
-            if (available != null)
+            if ((object)available != null)
                 available.ClientDisconnect();
         }
 
