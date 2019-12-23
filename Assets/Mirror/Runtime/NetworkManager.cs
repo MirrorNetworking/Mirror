@@ -633,7 +633,7 @@ namespace Mirror
         /// </remarks>
         public static string networkSceneName = "";
 
-        static UnityEngine.AsyncOperation loadingSceneAsync;
+        public static UnityEngine.AsyncOperation loadingSceneAsync;
 
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
