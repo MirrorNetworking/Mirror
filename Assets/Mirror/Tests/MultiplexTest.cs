@@ -93,5 +93,15 @@ namespace Mirror.Tests
             transport2.Received().ClientConnect(uri);
         }
 
+        [Test]
+        public void TestConnected()
+        {
+            transport1.Available().Returns(true);
+            transport.ClientConnect("some.server.com");
+
+            transport1.ClientConnected().Returns(true);
+
+            Assert.That(transport.ClientConnected());
+        }
     }
 }
