@@ -46,7 +46,16 @@ namespace Mirror.Tests
             Assert.That(transport.Available(), Is.False);
         }
 
+        // A Test behaves as an ordinary method
+        [Test]
+        public void TestConnect()
+        {
+            transport1.Available().Returns(false);
+            transport2.Available().Returns(true);
+            transport.ClientConnect("some.server.com");
 
-
+            transport1.DidNotReceive().ClientConnect(Arg.Any<string>());
+            transport2.Received().ClientConnect("some.server.com");
+        }
     }
 }
