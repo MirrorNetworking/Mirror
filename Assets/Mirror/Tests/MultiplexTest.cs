@@ -24,6 +24,8 @@ namespace Mirror.Tests
 
             transport = gameObject.AddComponent<MultiplexTransport>();
             transport.transports = new []{ transport1, transport2 };
+
+            transport.Awake();
         }
 
         // A Test behaves as an ordinary method
@@ -43,6 +45,8 @@ namespace Mirror.Tests
             transport2.Available().Returns(false);
             Assert.That(transport.Available(), Is.False);
         }
+
+
 
     }
 }
