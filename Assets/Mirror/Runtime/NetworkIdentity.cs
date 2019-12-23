@@ -128,7 +128,8 @@ namespace Mirror
                     _connectionToClient.RemoveOwnedObject(this);
 
                 _connectionToClient = value;
-                _connectionToClient.AddOwnedObject(this);
+                if (_connectionToClient != null)
+                    _connectionToClient.AddOwnedObject(this);
             }
         }
 
