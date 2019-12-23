@@ -114,5 +114,20 @@ namespace Mirror.Tests
 
             transport1.Received().ClientDisconnect();
         }
+
+        [Test]
+        public void TestClientSend()
+        {
+            transport1.Available().Returns(true);
+            transport.ClientConnect("some.server.com");
+
+            byte[] data = { 1, 2, 3 };
+            ArraySegment<byte> segment = new ArraySegment<byte>(data);
+
+            transport.ClientSend(3, segment);
+
+            transport1.Received().ClientSend(3, segment);
+        }
+
     }
 }
