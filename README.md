@@ -49,7 +49,7 @@ Mirror supports many different low level networking transports:
 * https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
 ## Donations & Priority Support
-Please support [Mirror on Patreon](https://www.patreon.com/MirrorNetworking). Priority support included!
+Please support [Mirror on GitHub](https://github.com/sponsors/vis2k). Priority support included!
 
 ## Benchmarks
 * Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
