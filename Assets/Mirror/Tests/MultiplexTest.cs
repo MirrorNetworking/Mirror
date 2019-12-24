@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
@@ -127,6 +128,24 @@ namespace Mirror.Tests
             transport.ClientSend(3, segment);
 
             transport1.Received().ClientSend(3, segment);
+        }
+
+        [Test]
+        public void TestClient1Connected()
+        {
+            UnityAction callback = Substitute.For<UnityAction>();
+            transport.OnClientConnected.AddListener(callback);
+            transport1.OnClientConnected.Invoke();
+            callback.Received().Invoke();
+        }
+
+        [Test]
+        public void TestClient2Connected()
+        {
+            UnityAction callback = Substitute.For<UnityAction>();
+            transport.OnClientConnected.AddListener(callback);
+            transport2.OnClientConnected.Invoke();
+            callback.Received().Invoke();
         }
 
     }
