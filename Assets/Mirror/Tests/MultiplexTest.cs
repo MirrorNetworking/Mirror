@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace Mirror.Tests
             transport.Awake();
         }
 
+        #region Client tests
         // A Test behaves as an ordinary method
         [Test]
         public void TestAvailable()
@@ -147,6 +149,39 @@ namespace Mirror.Tests
             transport2.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
+
+        #endregion
+
+        #region Server tests
+
+        [Test]
+        public void TestServerConnected()
+        {
+            byte[] data = { 1, 2, 3 };
+            ArraySegment<byte> segment = new ArraySegment<byte>(data);
+
+
+            // on connect, send a message back
+            void SendMessage(int connectionId)
+            {
+                List<int> connectionIds = new List<int>(new[] { connectionId });
+                transport.ServerSend(connectionIds, 5, segment);
+            }
+
+            transport.OnServerConnected.AddListener(SendMessage);
+
+            transport1.OnServerConnected.Invoke(1);
+
+            List<int> expectedIds = new List<int>(new[] { 1 });
+
+            transport1.Received().ServerSend(
+                Arg.Is<List<int>>(x => x.SequenceEqual(expectedIds)),
+                5,
+                segment);
+        }
+
+
+        #endregion
 
     }
 }
