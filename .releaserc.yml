@@ -1,6 +1,11 @@
 {
-    verifyConditions: ["@semantic-release/github"]
-    prepare: ["@semantic-release/exec"],
+    verifyConditions: ["@semantic-release/github"],
+    prepare: [
+        {
+            "path": "@semantic-release/exec"
+            "prepareCmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
+        }
+    ],
     publish: [        
         {
             "path": "@semantic-release/github",
@@ -8,8 +13,7 @@
                 {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
             ]
         }
-    ]
-
+    ],
     "plugins": [
         ["@semantic-release/commit-analyzer", {
             "preset": "angular",
@@ -19,8 +23,5 @@
             ]
         }],
         '@semantic-release/release-notes-generator', 
-        ["@semantic-release/exec", {
-            "prepareCmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt",
-        }],
     ]
 }
