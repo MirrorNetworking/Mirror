@@ -2,7 +2,7 @@
     verifyConditions: ["@semantic-release/github"],
     prepare: [
         {
-            "path": "@semantic-release/exec"
+            "path": "@semantic-release/exec",
             "prepareCmd": "echo ${nextRelease.version} > Assets/Mirror/version.txt"
         }
     ],
