@@ -1,6 +1,5 @@
 {
     "verifyConditions": ["@semantic-release/github"],
-    "publish": ["@semantic-release/github"],
     "prepare": ["@semantic-release/exec"],
     "plugins": [
         ["@semantic-release/commit-analyzer", {
