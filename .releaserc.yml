@@ -10,7 +10,7 @@
         {
             "path": "@semantic-release/github",
             "assets": [
-                {"path": "Mirror.unitypackage", "label": "Mirror.unitypackage"}
+                {"path": "Mirror.unitypackage", "label": "Mirror Unity Package", "name": "Mirror-${nextRelease.version}.unitypackage"}
             ]
         }
     ],
