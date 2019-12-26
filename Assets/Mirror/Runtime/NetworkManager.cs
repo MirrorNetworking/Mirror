@@ -773,6 +773,7 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
+                OnClientConnect(clientReadyConnection);
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
