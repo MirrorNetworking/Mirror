@@ -1,4 +1,6 @@
 // this class generates OnSerialize/OnDeserialize when inheriting from MessageBase
+
+using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
@@ -7,7 +9,7 @@ namespace Mirror.Weaver
     static class MessageClassProcessor
     {
 
-        static OpCode[] emptyBodyTemplate = { OpCodes.Nop, OpCodes.Ret };
+        static readonly OpCode[] emptyBodyTemplate = { OpCodes.Nop, OpCodes.Ret };
 
         static bool IsEmptyDefault(this MethodBody body)
         {
@@ -36,18 +38,10 @@ namespace Mirror.Weaver
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            MethodDefinition existingInterfaceMethod = null;
-            foreach (MethodDefinition m in td.Methods)
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Serialize");
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
-                if (m.Name == "Serialize")
-                {
-                    if (m.Body.IsEmptyDefault()) //in case of struct(IMessageBase)
-                    {
-                        existingInterfaceMethod = m;
-                        break;
-                    }
-                    return;
-                }
+                return;
             }
 
             if (td.Fields.Count == 0)
@@ -65,16 +59,16 @@ namespace Mirror.Weaver
                 }
             }
 
-            MethodDefinition serializeFunc = existingInterfaceMethod??new MethodDefinition("Serialize",
+            MethodDefinition serializeFunc = existingMethod??new MethodDefinition("Serialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            if (existingInterfaceMethod == null) //only add to new method
+            if (existingMethod == null) //only add to new method
             {
                 serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
             }
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
-            if (existingInterfaceMethod != null)
+            if (existingMethod != null)
             {
                 serWorker.Body.Instructions.Clear(); //remove default nop&ret from existing empty interface method
             }
@@ -112,7 +106,7 @@ namespace Mirror.Weaver
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            if (existingInterfaceMethod == null) //only add if not just replaced body
+            if (existingMethod == null) //only add if not just replaced body
             {
                 td.Methods.Add(serializeFunc);
             }
@@ -121,19 +115,10 @@ namespace Mirror.Weaver
         static void GenerateDeSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            MethodDefinition existingInterfaceMethod = null;
-
-            foreach (MethodDefinition m in td.Methods)
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Deserialize");
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
-                if (m.Name == "Deserialize")
-                {
-                    if (m.Body.IsEmptyDefault())//in case of struct(IMessageBase)
-                    {
-                        existingInterfaceMethod = m;
-                        break;
-                    }
-                    return;
-                }
+                return;
             }
 
             if (td.Fields.Count == 0)
@@ -141,16 +126,16 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serializeFunc = existingInterfaceMethod??new MethodDefinition("Deserialize",
+            MethodDefinition serializeFunc = existingMethod??new MethodDefinition("Deserialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            if (existingInterfaceMethod == null) //only add to new method
+            if (existingMethod == null) //only add to new method
             {
                 serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
             }
             ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
-            if (existingInterfaceMethod != null)
+            if (existingMethod != null)
             {
                 serWorker.Body.Instructions.Clear(); //remove default nop&ret from existing empty interface method
             }
@@ -188,7 +173,7 @@ namespace Mirror.Weaver
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            if (existingInterfaceMethod == null) //only add if not just replaced body
+            if (existingMethod == null) //only add if not just replaced body
             {
                 td.Methods.Add(serializeFunc);
             }

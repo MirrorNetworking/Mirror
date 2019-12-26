@@ -392,30 +392,6 @@ namespace Mirror.Weaver
                 MessageClassProcessor.Process(td);
                 didWork = true;
             }
-            else
-            {
-                // are ANY parent classes MessageBase
-                TypeReference parent = td.BaseType;
-                while (parent != null)
-                {
-                    if (parent.FullName == MessageBaseType.FullName)
-                    {
-                        MessageClassProcessor.Process(td);
-                        didWork = true;
-                        break;
-                    }
-                    try
-                    {
-                        parent = parent.Resolve().BaseType;
-                    }
-                    catch (AssemblyResolutionException)
-                    {
-                        // this can happen for plugins.
-                        //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                        break;
-                    }
-                }
-            }
 
             // check for embedded types
             foreach (TypeDefinition embedded in td.NestedTypes)
