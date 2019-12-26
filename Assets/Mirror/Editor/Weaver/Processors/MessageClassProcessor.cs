@@ -7,7 +7,7 @@ namespace Mirror.Weaver
     static class MessageClassProcessor
     {
 
-        static OpCode[] emptyBodyTemplate = { OpCodes.Nop, OpCodes.Ret };
+        static readonly OpCode[] emptyBodyTemplate = { OpCodes.Nop, OpCodes.Ret };
 
         static bool IsEmptyDefault(this MethodBody body)
         {
