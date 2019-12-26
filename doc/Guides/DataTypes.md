@@ -143,7 +143,8 @@ public static class ItemSerializer
                 return new Armor
                 {
                     name = reader.ReadString(),
-                    hitPoints = reader.ReadPackedInt32()
+                    hitPoints = reader.ReadPackedInt32(),
+                    level = reader.ReadPackedInt32()
                 };
             default:
                 throw new Exception($"Invalid weapon type {type}");

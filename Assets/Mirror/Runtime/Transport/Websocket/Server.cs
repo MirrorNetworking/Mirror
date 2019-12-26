@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -189,7 +188,6 @@ namespace Mirror.Websocket
             {
                 // someone connected,  raise event
                 Connected?.Invoke(connectionId);
-
 
                 while (true)
                 {

@@ -1,14 +1,11 @@
 #if !UNITY_WEBGL || UNITY_EDITOR
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
@@ -90,7 +87,6 @@ namespace Mirror.Websocket
             {
                 WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), token);
 
-
                 if (result == null)
                     break;
                 if (result.MessageType == WebSocketMessageType.Close)
@@ -170,7 +166,6 @@ namespace Mirror.Websocket
                 ReceivedError?.Invoke(ex);
             }
         }
-
 
         public override string ToString()
         {

@@ -355,7 +355,6 @@ namespace Mirror
             OnStartClient();
         }
 
-
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
@@ -606,7 +605,7 @@ namespace Mirror
         /// </remarks>
         public static string networkSceneName = "";
 
-        static UnityEngine.AsyncOperation loadingSceneAsync;
+        public static UnityEngine.AsyncOperation loadingSceneAsync;
 
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
@@ -645,7 +644,7 @@ namespace Mirror
             startPositions.Clear();
         }
 
-        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal)
+        internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal, bool customHandling = false)
         {
             if (string.IsNullOrEmpty(newSceneName))
             {
@@ -662,7 +661,14 @@ namespace Mirror
             Transport.activeTransport.enabled = false;
 
             // Let client prepare for scene change
-            OnClientChangeScene(newSceneName, sceneOperation);
+            OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+
+            // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
+            if (customHandling)
+            {
+                FinishLoadScene();
+                return;
+            }
 
             switch (sceneOperation)
             {
@@ -739,8 +745,8 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                clientLoadedScene = true;
                 OnClientConnect(clientReadyConnection);
+                clientLoadedScene = true;
                 clientReadyConnection = null;
             }
 
@@ -960,7 +966,7 @@ namespace Mirror
 
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
-                ClientChangeScene(msg.sceneName, msg.sceneOperation);
+                ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
         }
 
@@ -1139,7 +1145,8 @@ namespace Mirror
         /// </summary>
         /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation) { }
+        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) { }
 
         /// <summary>
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.

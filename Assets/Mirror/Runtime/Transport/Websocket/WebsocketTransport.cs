@@ -9,7 +9,6 @@ namespace Mirror.Websocket
         public const string Scheme = "ws";
         public const string SecureScheme = "wss";
 
-
         protected Client client = new Client();
         protected Server server = new Server();
 

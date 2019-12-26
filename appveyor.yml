@@ -10,7 +10,7 @@ install:
   - choco install unitypackager
   - choco install docfx
   - choco install lftp
-  - npm install -g semantic-release@15 
+  - npm install -g semantic-release@15 @semantic-release/exec
 
 #build:
 #  project: Mirror/Networking.sln
@@ -18,6 +18,8 @@ install:
   
 # Do not build on tags (GitHub only)
 skip_tags: true
+before_build:
+    - cmd: powershell .\setversion.ps1
 
 build_script:
   - docfx metadata doc\docfx.json

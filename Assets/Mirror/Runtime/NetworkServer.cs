@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// The NetworkServer uses a NetworkServerSimple for basic network functionality and adds more game-like functionality.
+    /// The NetworkServer.
     /// </summary>
     /// <remarks>
     /// <para>NetworkServer handles remote connections from remote clients via a NetworkServerSimple instance, and also has a local connection for a local client.</para>
@@ -193,6 +193,7 @@ namespace Mirror
             if (localConnection != null)
             {
                 localConnection.Disconnect();
+                localConnection.Dispose();
                 localConnection = null;
             }
             RemoveConnection(0);
@@ -264,7 +265,6 @@ namespace Mirror
         public static bool SendToAll<T>(T msg, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + typeof(T));
-
 
             // get writer from pool
             NetworkWriter writer = NetworkWriterPool.GetWriter();
@@ -393,6 +393,7 @@ namespace Mirror
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
                     OnDisconnected(conn);
+                conn.Dispose();
             }
             connections.Clear();
         }
@@ -902,7 +903,7 @@ namespace Mirror
             // on start server in host mode
             if (ownerConnection is ULocalConnectionToClient)
                 identity.hasAuthority = true;
-                
+
             identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
@@ -920,7 +921,6 @@ namespace Mirror
             // one writer for owner, one for observers
             NetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
             NetworkWriter observersWriter = NetworkWriterPool.GetWriter();
-
 
             // serialize all components with initialState = true
             // (can be null if has none)
@@ -960,6 +960,16 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
+            // => destroy what we can destroy.
+            HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
+            foreach (uint netId in tmp)
+            {
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                {
+                    Destroy(identity.gameObject);
+                }
+            }
+
             if (conn.identity != null)
             {
                 DestroyObject(conn.identity, true);
@@ -1040,7 +1050,6 @@ namespace Mirror
 
             Spawn(obj, identity.connectionToClient);
         }
-
 
         /// <summary>
         /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead

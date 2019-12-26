@@ -60,7 +60,7 @@ namespace Mirror.Tests
         {
             serverSyncDictionary.Add(4, "yay");
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(clientSyncDictionary.ContainsKey(4), Is.EqualTo(true));
+            Assert.That(clientSyncDictionary.ContainsKey(4));
             Assert.That(clientSyncDictionary[4], Is.EqualTo("yay"));
         }
 
@@ -122,7 +122,7 @@ namespace Mirror.Tests
         {
             serverSyncDictionary.Remove(1);
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(clientSyncDictionary.ContainsKey(1), Is.False);
+            Assert.That(!clientSyncDictionary.ContainsKey(1));
         }
 
         [Test]
@@ -184,6 +184,59 @@ namespace Mirror.Tests
         public void CountTest()
         {
             Assert.That(serverSyncDictionary.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void CopyToTest()
+        {
+            KeyValuePair<int, string> [] data = new KeyValuePair<int, string>[3];
+
+            clientSyncDictionary.CopyTo(data, 0);
+
+            Assert.That(data, Is.EquivalentTo(new KeyValuePair<int,string>[]
+            {
+                new KeyValuePair<int, string>(0, "Hello"),
+                new KeyValuePair<int, string>(1, "World"),
+                new KeyValuePair<int, string>(2, "!"),
+
+            }));
+        }
+
+        [Test]
+        public void CopyToOutOfRangeTest()
+        {
+            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
+
+            Assert.Throws(typeof(ArgumentOutOfRangeException), delegate
+            {
+                clientSyncDictionary.CopyTo(data, -1);
+            });
+        }
+
+        [Test]
+        public void CopyToOutOfBoundsTest()
+        {
+            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
+
+            Assert.Throws(typeof(ArgumentException), delegate
+            {
+                clientSyncDictionary.CopyTo(data, 2);
+            });
+        }
+
+        [Test]
+        public void TestRemovePair()
+        {
+            KeyValuePair<int, string> data = new KeyValuePair<int, string>(0, "Hello");
+
+            serverSyncDictionary.Remove(data);
+
+            Assert.That(serverSyncDictionary, Is.EquivalentTo(new KeyValuePair<int, string>[]
+            {
+                new KeyValuePair<int, string>(1, "World"),
+                new KeyValuePair<int, string>(2, "!"),
+
+            }));
         }
 
         [Test]

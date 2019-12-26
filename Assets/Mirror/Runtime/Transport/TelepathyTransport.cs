@@ -12,6 +12,7 @@ namespace Mirror
     public class TelepathyTransport : Transport
     {
         // scheme used by this transport
+        // "tcp4" means tcp with 4 bytes header, network byte order
         public const string Scheme = "tcp4";
 
         public ushort port = 7777;

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -113,7 +115,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerReady(NetworkConnection conn)
@@ -145,7 +147,7 @@ namespace Mirror
                 return;
             }
 
-            GameObject gamePlayer = OnRoomServerCreateGamePlayer(conn);
+            GameObject gamePlayer = OnRoomServerCreateGamePlayer(conn, roomPlayer);
             if (gamePlayer == null)
             {
                 // get start position from base class
@@ -205,7 +207,7 @@ namespace Mirror
         #region server handlers
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerConnect(NetworkConnection conn)
@@ -228,7 +230,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnServerDisconnect(NetworkConnection conn)
@@ -257,7 +259,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         /// <param name="extraMessage"></param>
@@ -296,7 +298,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sceneName"></param>
         public override void ServerChangeScene(string sceneName)
@@ -326,7 +328,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sceneName"></param>
         public override void OnServerSceneChanged(string sceneName)
@@ -344,7 +346,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartServer()
         {
@@ -364,7 +366,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartHost()
         {
@@ -372,7 +374,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopServer()
         {
@@ -381,7 +383,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopHost()
         {
@@ -393,7 +395,7 @@ namespace Mirror
         #region client handlers
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStartClient()
         {
@@ -411,7 +413,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientConnect(NetworkConnection conn)
@@ -422,7 +424,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientDisconnect(NetworkConnection conn)
@@ -432,7 +434,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public override void OnStopClient()
         {
@@ -448,7 +450,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="conn">Connection of the client</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
@@ -518,7 +520,19 @@ namespace Mirror
         /// <para>By default the gamePlayerPrefab is used to create the game-player, but this function allows that behaviour to be customized. The object returned from the function will be used to replace the room-player on the connection.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
+        /// <param name="roomPlayer">The room player object for this connection.</param>
         /// <returns>A new GamePlayer object.</returns>
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer{NetworkConnection conn, GameObject roomPlayer}"/> instead.
+        /// </summary>
+        /// <param name="conn">The connection the player object is for.</param>
+        /// <returns>A new GamePlayer object.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer<NetworkConnection, GameObject> instead")]
         public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
         {
             return null;

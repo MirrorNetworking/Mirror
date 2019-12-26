@@ -49,7 +49,7 @@ At this point, you might get some compilation errors. Don't panic, these are eas
 
 ### 4. Replace playerController with identity
 
-Replace references to 'NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
+Replace references to `NetworkConnection.playerController` with `NetworkConnection.identity`. Click [here](PlayerControllerToIdentity.md) for guidance.
 
 ### 5. Remove NetworkSettings
 

@@ -24,7 +24,7 @@ namespace Mirror.Weaver
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
         {
             if (writeFuncs.TryGetValue(variable.FullName, out MethodReference foundFunc))
-            {               
+            {
                 return foundFunc;
             }
 
@@ -60,7 +60,6 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for interface {variable}. Use a concrete type or provide a custom writer");
                 return null;
             }
-
 
             MethodDefinition newWriterFunc;
 
@@ -246,12 +245,10 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldobj, variable.GetElementType()));
             worker.Append(worker.Create(OpCodes.Call, elementWriteFunc));
 
-
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldc_I4_1));
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Stloc_1));
-
 
             // end for loop
             worker.Append(labelHead);
@@ -310,7 +307,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Call, countref));
             worker.Append(worker.Create(OpCodes.Stloc_0));
 
-            
+
             // writer.WritePackedInt32(length);
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
@@ -318,7 +315,7 @@ namespace Mirror.Weaver
 
             // Loop through the ArraySegment<T> and call the writer for each element.
             // generates this:
-            // for (int i=0; i< length; i++) 
+            // for (int i=0; i< length; i++)
             // {
             //    writer.Write(value.Array[i + value.Offset]);
             // }
@@ -349,13 +346,12 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Add));
             worker.Append(worker.Create(OpCodes.Stloc_1));
 
-
             // end for loop
             worker.Append(labelHead);
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
-            
+
             // return
             worker.Append(worker.Create(OpCodes.Ret));
             return writerFunc;

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -212,17 +211,20 @@ namespace Mirror
     {
         public string sceneName;
         public SceneOperation sceneOperation; // Normal = 0, LoadAdditive = 1, UnloadAdditive = 2
+        public bool customHandling;
 
         public void Deserialize(NetworkReader reader)
         {
             sceneName = reader.ReadString();
             sceneOperation = (SceneOperation)reader.ReadByte();
+            customHandling = reader.ReadBoolean();
         }
 
         public void Serialize(NetworkWriter writer)
         {
             writer.WriteString(sceneName);
             writer.WriteByte((byte)sceneOperation);
+            writer.WriteBoolean(customHandling);
         }
     }
 
