@@ -87,6 +87,8 @@ namespace Mirror.Weaver
         public static TypeReference SyncObjectType;
         public static MethodReference InitSyncObjectReference;
 
+        public static TypeReference WeaverExcludeType;
+
         // array segment
         public static TypeReference ArraySegmentType;
         public static MethodReference ArraySegmentConstructorReference;
@@ -203,6 +205,8 @@ namespace Mirror.Weaver
             TargetRpcType = NetAssembly.MainModule.GetType("Mirror.TargetRpcAttribute");
             SyncEventType = NetAssembly.MainModule.GetType("Mirror.SyncEventAttribute");
             SyncObjectType = NetAssembly.MainModule.GetType("Mirror.SyncObject");
+
+            WeaverExcludeType = NetAssembly.MainModule.GetType("Mirror.WeaverExcludeAttribute");
         }
 
         static void SetupCorLib()

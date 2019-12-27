@@ -14,6 +14,11 @@ namespace Mirror.Weaver
             return body.Instructions.All(instruction => instruction.OpCode == OpCodes.Nop || instruction.OpCode == OpCodes.Ret);
         }
 
+        static bool HasExcludeAttribute(this FieldDefinition fieldDefinition)
+        {
+            return fieldDefinition.CustomAttributes.Any(attribute => attribute.AttributeType.FullName == Weaver.WeaverExcludeType.FullName);
+        }
+
         public static void Process(TypeDefinition td)
         {
             Weaver.DLog(td, "MessageClassProcessor Start");
@@ -80,7 +85,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition field in td.Fields)
             {
-                if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
+                if (field.IsStatic || field.IsPrivate || field.IsSpecialName || field.HasExcludeAttribute())
                     continue;
 
                 MethodReference writeFunc = Writers.GetWriteFunc(field.FieldType);
@@ -147,7 +152,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition field in td.Fields)
             {
-                if (field.IsStatic || field.IsPrivate || field.IsSpecialName)
+                if (field.IsStatic || field.IsPrivate || field.IsSpecialName || field.HasExcludeAttribute())
                     continue;
 
                 MethodReference readerFunc = Readers.GetReadFunc(field.FieldType);
