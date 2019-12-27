@@ -52,7 +52,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            MethodDefinition serializeFunc = existingMethod??new MethodDefinition("Serialize",
+            MethodDefinition serializeFunc = existingMethod ?? new MethodDefinition("Serialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
