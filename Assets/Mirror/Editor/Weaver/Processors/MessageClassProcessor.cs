@@ -9,16 +9,9 @@ namespace Mirror.Weaver
     static class MessageClassProcessor
     {
 
-        static readonly OpCode[] emptyBodyTemplate = { OpCodes.Nop, OpCodes.Ret };
-
         static bool IsEmptyDefault(this MethodBody body)
         {
-            if (body.Instructions.Count != emptyBodyTemplate.Length) return false;
-            for (int i = 0; i < emptyBodyTemplate.Length; i++)
-            {
-                if (body.Instructions[i].OpCode != emptyBodyTemplate[i]) return false;
-            }
-            return true;
+            return body.Instructions.All(instruction => instruction.OpCode == OpCodes.Nop || instruction.OpCode == OpCodes.Ret);
         }
 
         public static void Process(TypeDefinition td)
