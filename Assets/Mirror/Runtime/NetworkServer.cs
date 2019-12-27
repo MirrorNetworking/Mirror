@@ -231,14 +231,14 @@ namespace Mirror
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnection conn in identity.observers)
                 {
                     // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
+                    if (conn is ULocalConnectionToClient)
+                        result &= conn.Send(segment);
                     // gather all internet connections
                     else
-                        connectionIdsCache.Add(kvp.Key);
+                        connectionIdsCache.Add(conn.connectionId);
                 }
 
                 // send to all internet connections at once
@@ -332,11 +332,11 @@ namespace Mirror
 
                 // send to all ready observers
                 bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnection conn in identity.observers)
                 {
-                    if (kvp.Value.isReady)
+                    if (conn.isReady)
                     {
-                        result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
+                        result &= conn.Send(new ArraySegment<byte>(bytes), channelId);
                     }
                 }
                 return result;
@@ -373,19 +373,19 @@ namespace Mirror
                 connectionIdsCache.Clear();
                 bool result = true;
                 int count = 0;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (NetworkConnection conn in identity.observers)
                 {
-                    bool isOwner = kvp.Value == identity.connectionToClient;
-                    if ((!isOwner || includeOwner) && kvp.Value.isReady)
+                    bool isOwner = conn == identity.connectionToClient;
+                    if ((!isOwner || includeOwner) && conn.isReady)
                     {
                         count++;
 
                         // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
+                        if (conn is ULocalConnectionToClient)
+                            result &= conn.Send(segment);
                         // gather all internet connections
                         else
-                            connectionIdsCache.Add(kvp.Key);
+                            connectionIdsCache.Add(conn.connectionId);
                     }
                 }
 
