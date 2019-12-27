@@ -90,4 +90,10 @@ namespace Mirror
     /// Converts a string property into a Scene property in the inspector
     /// </summary>
     public class SceneAttribute : PropertyAttribute { }
+
+    /// <summary>
+    /// Marks fields of I/MessageBase targets for exclusion by automatic De/Serialize() weaver generation, effectively excluding the linked field from network transmission
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class WeaverExcludeAttribute : Attribute {}
 }
