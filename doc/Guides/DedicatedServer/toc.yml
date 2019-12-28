@@ -1,4 +1,4 @@
 - name: Overview
   href: index.md
 - name: AWS
-  href: AWS.md
+  href: AWS/index.md
