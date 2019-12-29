@@ -2,12 +2,16 @@
 
 During this guide we will set up a dedicated server and place the server build of our project on the dedicated server.
 
-**IMPORTANT: Service providers are NOT free. Take note that Mirror is not affiliated and can not be held responsible for any charges or
+**IMPORTANT: Before we begin, there are some potential problems you may face, as no server is truly 'free':**
+
+**1. Service providers are NOT free.**
+**2. Most of the time you can start with free trials for a limited time, after x amount of time or x amount of used resources the trial will end and you might incur payment.**
+**3. Always read the providers free trial limitations.**
+**4. Some providers require a payment method for using a Windows instance, however as long as you do not go over the limitations the provider should not bill you.**
+
+**Take note that Mirror is not affiliated and can not be held responsible for any charges or
 fees associated with service providers like [AWS](https://aws.amazon.com/), [Microsoft Azure](https://azure.microsoft.com/en-us/free/), 
-[Google Compute Engine](https://cloud.google.com/compute/) and others...
-Most of the time you can start with free trials for a limited time, after x amount of time or x amount of used resources the trial will end and you might incur payment.
-Always read the providers free trial limitations.
-Some providers require a creditcard for using a windows instance, as long as you do not go over the limitations the provider should not bill you.**
+[Google Compute Engine](https://cloud.google.com/compute/) and others...**
 
 During your development with Mirror you will need to test your project as a client and as a server.
 There are a few possible ways to test your project:
