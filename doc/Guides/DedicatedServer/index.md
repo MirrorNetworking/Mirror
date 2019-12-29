@@ -5,8 +5,11 @@ During this guide we will set up a dedicated server and place the server build o
 **IMPORTANT: Before we begin, there are some potential problems you may face, as no server is truly 'free':**
 
 **1. Service providers are NOT free.**
+
 **2. Most of the time you can start with free trials for a limited time, after x amount of time or x amount of used resources the trial will end and you might incur payment.**
+
 **3. Always read the providers free trial limitations.**
+
 **4. Some providers require a payment method for using a Windows instance, however as long as you do not go over the limitations the provider should not bill you.**
 
 **Take note that Mirror is not affiliated and can not be held responsible for any charges or
