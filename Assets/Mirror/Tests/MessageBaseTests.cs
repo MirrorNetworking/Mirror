@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -31,16 +32,13 @@ namespace Mirror.Tests
     }
 
 
-    struct WovenTestMessageWithExclusion: IMessageBase
+    class WovenTestMessageWithExclusion: MessageBase
     {
         [WeaverExclude]
         public int IntValue;
-        [WeaverExclude]
+        [NonSerialized]
         public string StringValue;
         public double DoubleValue;
-
-        public void Deserialize(NetworkReader reader) {}
-        public void Serialize(NetworkWriter writer) {}
     }
 
     [TestFixture]

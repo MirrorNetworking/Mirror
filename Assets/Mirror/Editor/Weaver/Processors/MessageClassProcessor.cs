@@ -11,7 +11,8 @@ namespace Mirror.Weaver
 
         static bool HasExcludeAttribute(this FieldDefinition fieldDefinition)
         {
-            return fieldDefinition.CustomAttributes.Any(attribute => attribute.AttributeType.FullName == Weaver.WeaverExcludeType.FullName);
+            return fieldDefinition.CustomAttributes.Any(attribute => attribute.AttributeType.FullName == Weaver.WeaverExcludeType.FullName)
+                || (fieldDefinition.Attributes & FieldAttributes.NotSerialized) != 0;
         }
 
         public static void Process(TypeDefinition td)

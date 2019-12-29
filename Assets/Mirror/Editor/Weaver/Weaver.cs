@@ -220,7 +220,8 @@ namespace Mirror.Weaver
 
         static TypeReference ImportCorLibType(string fullName)
         {
-            TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.First(t => t.FullName == fullName).Resolve();
+            //ExportedTypes has 0 items
+            TypeDefinition type = CorLibModule.GetType(fullName) ?? CorLibModule.ExportedTypes.FirstOrDefault(t => t.FullName == fullName)?.Resolve() ?? CorLibModule.Types.FirstOrDefault(t => t.FullName == fullName)?.Resolve();
             if (type != null)
             {
                 return CurrentAssembly.MainModule.ImportReference(type);
