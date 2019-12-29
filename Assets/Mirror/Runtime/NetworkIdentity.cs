@@ -57,7 +57,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
+        public bool isClient => client.active && netId != 0 && !serverOnly;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -111,6 +111,11 @@ namespace Mirror
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
+
+        /// <summary>
+        /// The NetworkClient associated with this NetworkIdentity.
+        /// </summary>
+        public NetworkClient client => NetworkManager.singleton.client;
 
 
         private NetworkConnectionToClient _connectionToClient;

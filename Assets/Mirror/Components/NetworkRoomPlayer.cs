@@ -138,7 +138,7 @@ namespace Mirror
 
                 GUILayout.EndArea();
 
-                if (NetworkClient.active && isLocalPlayer)
+                if (netIdentity.client.active && isLocalPlayer)
                 {
                     GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 

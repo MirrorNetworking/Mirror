@@ -17,7 +17,7 @@ namespace Mirror.Examples.Chat
             if (chatMessage.text.Trim() == "") return;
 
             // get our player
-            Player player = NetworkClient.connection.identity.GetComponent<Player>();
+            Player player = NetworkManager.singleton.client.connection.identity.GetComponent<Player>();
 
             // send a message
             player.CmdSend(chatMessage.text.Trim());

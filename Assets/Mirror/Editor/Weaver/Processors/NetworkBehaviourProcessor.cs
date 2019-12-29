@@ -64,7 +64,7 @@ namespace Mirror.Weaver
 
         /*
         generates code like:
-            if (!NetworkClient.active)
+            if (!obj.netIdentity.client.active)
               Debug.LogError((object) "Command function CmdRespawn called on server.");
 
             which is used in InvokeCmd, InvokeRpc, etc.
@@ -72,6 +72,9 @@ namespace Mirror.Weaver
         public static void WriteClientActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // client active check
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkBehaviourGetIdentity));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkIdentityGetClient));
             worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkClientGetActive));
             worker.Append(worker.Create(OpCodes.Brtrue, label));
 

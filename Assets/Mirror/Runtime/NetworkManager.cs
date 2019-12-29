@@ -22,6 +22,7 @@ namespace Mirror
 
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
+    [RequireComponent(typeof(NetworkClient))]
     public class NetworkManager : MonoBehaviour
     {
         /// <summary>
@@ -72,6 +73,8 @@ namespace Mirror
         [Scene]
         [FormerlySerializedAs("m_OnlineScene")]
         public string onlineScene = "";
+
+        public NetworkClient client;
 
         [Header("Network Info")]
 
@@ -157,7 +160,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient.isConnected instead")]
         public bool IsClientConnected()
         {
-            return NetworkClient.isConnected;
+            return client.isConnected;
         }
 
         /// <summary>
@@ -176,20 +179,13 @@ namespace Mirror
         /// </summary>
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
-        // helper enum to know if we started the networkmanager as server/client/host.
-        // -> this is necessary because when StartHost changes server scene to
-        //    online scene, FinishLoadScene is called and the host client isn't
-        //    connected yet (no need to connect it before server was fully set up).
-        //    in other words, we need this to know which mode we are running in
-        //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkClient"/> directly
-        /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
-        public NetworkClient client => NetworkClient.singleton;
+        //    during FinishLoadScene.
+        //    in other words, we need this to know which mode we are running in
+        //    connected yet (no need to connect it before server was fully set up).
+        //    online scene, FinishLoadScene is called and the host client isn't
+        // -> this is necessary because when StartHost changes server scene to
+        // helper enum to know if we started the networkmanager as server/client/host.
 
         #region Unity Callbacks
 
@@ -210,6 +206,16 @@ namespace Mirror
                 }
 #if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
+#endif
+            }
+
+            // add NetworkClient if there is none yet. makes upgrading easier.
+            if (GetComponent<NetworkClient>() == null)
+            {
+                client = gameObject.AddComponent<NetworkClient>();
+                Debug.Log("NetworkManager: added NetworkClient because there was none yet.");
+#if UNITY_EDITOR
+                UnityEditor.Undo.RecordObject(gameObject, "Added NetworkClient");
 #endif
             }
 
@@ -266,7 +272,7 @@ namespace Mirror
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
             NetworkServer.Update();
-            NetworkClient.Update();
+            client.Update();
             UpdateScene();
         }
 
@@ -387,7 +393,7 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            NetworkClient.Connect(networkAddress);
+            client.Connect(networkAddress);
 
             OnStartClient();
         }
@@ -419,7 +425,7 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
             this.networkAddress = uri.Host;
 
-            NetworkClient.Connect(uri);
+            client.Connect(uri);
 
             OnStartClient();
         }
@@ -440,7 +446,7 @@ namespace Mirror
 
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
+            client.ConnectLocalServer();
 
             OnStartClient();
         }
@@ -606,8 +612,8 @@ namespace Mirror
             isNetworkActive = false;
 
             // shutdown client
-            NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
+            client.Disconnect();
+            client.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
             // doesn't think we need initialize anything.
@@ -630,7 +636,7 @@ namespace Mirror
             // stop client first
             // (we want to send the quit packet to the server instead of waiting
             //  for a timeout)
-            if (NetworkClient.isConnected)
+            if (client.isConnected)
             {
                 StopClient();
                 print("OnApplicationQuit: stopped client");
@@ -654,7 +660,7 @@ namespace Mirror
             // * if not in Editor (it doesn't work in the Editor)
             // * if not in Host mode
 #if !UNITY_EDITOR
-            if (!NetworkClient.active && isHeadless)
+            if (!client.active && isHeadless)
             {
                 Application.targetFrameRate = serverTickRate;
                 Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
@@ -707,11 +713,11 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
-            NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
-            NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
-            NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
+            client.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
+            client.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            client.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
+            client.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
+            client.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
             {
@@ -880,7 +886,7 @@ namespace Mirror
                     NetworkServer.SpawnObjects();
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
-                if (NetworkClient.active)
+                if (client.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
                     Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
@@ -1000,10 +1006,10 @@ namespace Mirror
                 clientReadyConnection = null;
             }
 
-            if (NetworkClient.isConnected)
+            if (client.isConnected)
             {
                 RegisterClientMessages();
-                OnClientSceneChanged(NetworkClient.connection);
+                OnClientSceneChanged(client.connection);
             }
         }
 
@@ -1221,7 +1227,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientSceneInternal");
 
-            if (NetworkClient.isConnected && !NetworkServer.active)
+            if (client.isConnected && !NetworkServer.active)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
@@ -1476,9 +1482,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnStartClient()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            OnStartClient(NetworkClient.singleton);
-#pragma warning restore CS0618 // Type or member is obsolete
+            OnStartClient(client);
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ namespace Mirror.Authenticators
         public override void OnStartClient()
         {
             // register a handler for the authentication response we expect from server
-            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
+            NetworkManager.singleton.client.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
         }
 
         public override void OnServerAuthenticate(NetworkConnection conn)
@@ -51,7 +51,7 @@ namespace Mirror.Authenticators
                 authPassword = password
             };
 
-            NetworkClient.Send(authRequestMessage);
+            NetworkManager.singleton.client.Send(authRequestMessage);
         }
 
         public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
