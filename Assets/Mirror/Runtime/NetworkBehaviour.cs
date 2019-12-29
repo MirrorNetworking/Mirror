@@ -273,7 +273,7 @@ namespace Mirror
                 conn = connectionToClient;
             }
             // this was in Weaver before
-            if (conn is ULocalConnectionToServer)
+            if (conn is NetworkConnectionToServer)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on connection to server");
                 return;
