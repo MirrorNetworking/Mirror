@@ -16,6 +16,8 @@ During this guide we will set up a dedicated server and place the server build o
 fees associated with service providers like [AWS](https://aws.amazon.com/), [Microsoft Azure](https://azure.microsoft.com/en-us/free/), 
 [Google Compute Engine](https://cloud.google.com/compute/) and others...**
 
+## Introduction
+
 During your development with Mirror you will need to test your project as a client and as a server.
 There are a few possible ways to test your project:
 
