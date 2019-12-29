@@ -39,35 +39,35 @@ There are 7 steps to creating your AWS Instance:
 6. Configure Security Group
 7. Review
 
-* **Choose an Amazon Machine Image**
+* **Step 1: Choose an Amazon Machine Image**
 
 Scroll down until you see the Microsoft Windows Server 2019 Base (take the newest one if this is outdated).
 Make sure that the option you select has the "Free Tier Eligible" under the icon and click on "Select".
 ![Amazon Machine Image: Microsoft Server 2019](Microsoft%20Server%202019.PNG)
 
-* **Choose Instance Type**
+* **Step 2: Choose Instance Type**
 
 Make sure you choose the instance type with the "free tier eligible", at the time of writing this is the t2.micro instance.
 Click on **"Next: Configure Instance Details"**. Do **NOT** click on Review and Launch.
 
 ![Choose Instance Type](Step%202.png)
 
-* **Configure Instance**
+* **Step 3: Configure Instance**
 
 Nothing has to be changed at this step. Keep it default. Click on **"Next: Add Storage**.
 
-* **Add Storage**
+* **Step 4: Add Storage**
 
 Nothing has to be changed. Keep it default. The 30GB is more than you need but there will be an error if you choose a lower amount.
 Keep in mind that you can always click "Previous" if you need to return, you do not need to repeat the entire process if you make a mistake (unless you click Launch at the end).
 
 Click on **"Next: Add Tags** to continue.
 
-* **Add Tags**
+* **Step 5: Add Tags**
 
 Nothing has to be changed. Keep it default. Click on **"Next: Configure Security Groups"**
 
-* **Configure Security Groups**
+* **Step 6: Configure Security Groups**
 
 **!!IMPORTANT STEP!! This makes it possible to connect to your instance from outside for:**
 
@@ -93,7 +93,7 @@ In the future you might wish to restrict this but you will almost never know the
 
 Click on **Next: Review and Launch"**
 
-* **Review**
+* **Step 7: Review**
 
 Almost there! Make sure everything is correct and you are using the free tier, then click on **"Launch"**.
 
