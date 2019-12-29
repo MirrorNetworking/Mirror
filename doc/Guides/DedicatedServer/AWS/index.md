@@ -1,18 +1,18 @@
 # Amazon Web Services (AWS)
 
-During this section we will focus on using a windows instance and connecting from a windows computer.
+During this section we will focus on using a Windows instance and connecting from a windows computer.
 
 **Please note: AWS requires a creditcard added before being able to use a windows server.**
 
 Don't forget to read up on the free tier limitations [HERE](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-free-tier.html).
-During this example we will be using the free tier of the EC2 option, which gives us the possibility to use a windows instance (if added a payment method).
+During this example we will be using the free tier of the EC2 option, which gives us the possibility to use a Windows instance (if you have already added a payment method).
 For more information about which services offer a Free Tier, see [AWS Free Tier](https://aws.amazon.com/free/?all-free-tier.sort-by=item.additionalFields.SortRank&all-free-tier.sort-order=asc&awsf.Free%20Tier%20Types=tier%2312monthsfree&awsf.Free%20Tier%20Categories=categories%23compute).
 
 These are the steps we will go through from start to finish.
 
 1. Account creation
 2. Setting up an instance with the EC2 Management Console
-3. Configuring the RDP(Remote Desktop Program)
+3. Configuring the server via RDP (Remote Desktop)
 4. Setting up the firewall to allow connections through
 5. Testing the connection
 
@@ -94,8 +94,7 @@ Almost there! Make sure everything is correct and you are using the free tier, t
 
 ![Review Of The Instance](Review.png)
 
-1 more thing! A window will pop up, asking for your key pair. Just create a new one by selecting the dropdown: **"Create a new key pair"** and
-give it a name, click on **"Download Key Pair"**.
+One more thing. A window will pop up, asking for your key pair. Just create a new one by selecting the dropdown: **"Create a new key pair"** and give it a name, click on **"Download Key Pair"**.
 Keep the key file (.PEM File) somewhere secure (To be 100% certain, back it up somewhere). **YOU CAN NOT ACCESS THE CREATED INSTANCE WITHOUT THIS KEY**
 
 ![Key Pair](KeyPair.PNG)
@@ -155,7 +154,7 @@ Once done you will be able to copy the password.
 
 ![Retrieve Your Default Windows Administrator Password 2](Retrieve%20Default%20Windows%20Administrator%20Password%202.PNG)
 
-There you have it! Now you 100% have your password and you should be logging into your dedicated server!
+There you have it! Now you have your password and Remote Desktop should show you logging into your dedicated server!
 
 * 4. Setting up the firewall to allow connections through
 
