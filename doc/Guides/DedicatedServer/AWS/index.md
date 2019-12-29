@@ -184,7 +184,7 @@ Place your (zipped) server build at the root of your added drive (C: or another)
 Go to **"My Computer"** and because of our previous changes to the RDP we should now see your local drive under "Devices and Drives".
 Double click it and because you placed your zipped server build on that drive, you should see it immediatly when it's done loading.
 
-![Your Drive on the dedicated host](Your%20Drive%20on%20the%20dedicated host.PNG)
+![Your Drive on the dedicated host](Your%20Drive%20on%20the%20dedicated%20host.PNG)
 
 Now **unzip** the project in a new folder on the dedicated server's desktop and you can now **run it!**
 
