@@ -2,7 +2,7 @@
 
 During this section we will focus on using a Windows instance and connecting from a windows computer.
 
-**Please note: AWS requires a creditcard added before being able to use a windows server.**
+**Please note: AWS requires a payment method/creditcard added before being able to use a Windows server.**
 
 Don't forget to read up on the free tier limitations [HERE](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-free-tier.html).
 During this example we will be using the free tier of the EC2 option, which gives us the possibility to use a Windows instance (if you have already added a payment method).
@@ -16,12 +16,12 @@ These are the steps we will go through from start to finish.
 4. Setting up the firewall to allow connections through
 5. Testing the connection
 
-**1. Account Creation**
+## 1. Account Creation
 
 Go to the [Account creation page](https://portal.aws.amazon.com/billing/signup?nc2=h_ct&src=default&redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation#/start) and
 sign up with your details and payment method (creditcard for example). Adding the payment method is necessary to run a windows instance on AWS.
 
-**2. Setting up an instance with the EC2 Management Console**
+## 2. Setting up an instance with the EC2 Management Console
 After setting up your account you should be logged in.
 Always make sure you're in your correct region so it's a good habit to check in the top right corner. Change it to the closest location to you now.
 After this click on Services in the top left corner and click on EC2. This will bring you to the EC2 instance dashboard and ready to Launch your instance!
@@ -39,44 +39,49 @@ There are 7 steps to creating your AWS Instance:
 6. Configure Security Group
 7. Review
 
-* Choose an Amazon Machine Image
+* **Choose an Amazon Machine Image**
 
 Scroll down until you see the Microsoft Windows Server 2019 Base (take the newest one if this is outdated).
 Make sure that the option you select has the "Free Tier Eligible" under the icon and click on "Select".
 ![Amazon Machine Image: Microsoft Server 2019](Microsoft%20Server%202019.PNG)
 
-* Choose Instance Type
+* **Choose Instance Type**
 
 Make sure you choose the instance type with the "free tier eligible", at the time of writing this is the t2.micro instance.
 Click on **"Next: Configure Instance Details"**. Do **NOT** click on Review and Launch.
 
 ![Choose Instance Type](Step%202.png)
 
-* Configure Instance
+* **Configure Instance**
 
 Nothing has to be changed at this step. Keep it default. Click on **"Next: Add Storage**.
 
-* Add Storage
+* **Add Storage**
 
 Nothing has to be changed. Keep it default. The 30GB is more than you need but there will be an error if you choose a lower amount.
 Keep in mind that you can always click "Previous" if you need to return, you do not need to repeat the entire process if you make a mistake (unless you click Launch at the end).
 
 Click on **"Next: Add Tags** to continue.
 
-* Add Tags
+* **Add Tags**
 
 Nothing has to be changed. Keep it default. Click on **"Next: Configure Security Groups"**
 
-* Configure Security Groups
+* **Configure Security Groups**
 
-**!!IMPORTANT STEP!! This makes it possible to connect to your instance from outside for SSH(if needed), 
-RDP(NEEDED DURING THIS EXAMPLE) and later for clients connecting through port 7777 for your Mirror Project.**
+**!!IMPORTANT STEP!! This makes it possible to connect to your instance from outside for:**
+
+* **RDP(NEEDED DURING THIS EXAMPLE)** 
+* **For clients connecting through port 7777 for your Mirror Project.**
+* **SSH(if needed)**
 
 Create a new security group and you can give it your own name and description.
 Add the following rules:
 
 RDP with source "Anywhere", Description can be whatever but put it as Remote Desktop Program.
+
 Custom TCP Rule with port 7777 and source "Anywhere", Description can be whatever but put it as Mirror.
+
 SSH with source "Anywhere", Description can be whatever but put it as SSH.
 
 Note: SSH is not strictly necessary but can be used to remote connect to it through other means than the RDP.
@@ -88,14 +93,17 @@ In the future you might wish to restrict this but you will almost never know the
 
 Click on **Next: Review and Launch"**
 
-* Review
+* **Review**
 
 Almost there! Make sure everything is correct and you are using the free tier, then click on **"Launch"**.
 
 ![Review Of The Instance](Review.png)
 
 One more thing. A window will pop up, asking for your key pair. Just create a new one by selecting the dropdown: **"Create a new key pair"** and give it a name, click on **"Download Key Pair"**.
-Keep the key file (.PEM File) somewhere secure (To be 100% certain, back it up somewhere). **YOU CAN NOT ACCESS THE CREATED INSTANCE WITHOUT THIS KEY**
+
+Keep the key file (.PEM File) somewhere secure (To be 100% certain, back it up somewhere). 
+
+**YOU CAN NOT ACCESS THE CREATED INSTANCE WITHOUT THIS KEY**
 
 ![Key Pair](KeyPair.PNG)
 
@@ -111,7 +119,7 @@ Refresh the page after 10 minutes if nothing changes.
 
 Now you did all this but you want to get ON the dedicated server right? Perfect! The next step will get you up and running!
 
-**3. Configuring the RDP(Remote Desktop Program)**
+## 3. Configuring the server via RDP (Remote Desktop)
 
 Time to get the RDP file so you can start connecting!
 There are a few things we'll need!
@@ -122,7 +130,8 @@ There are a few things we'll need!
 
 Once you've done this, you should be able to continue using the same RDP file.
 
-*1. RDP file with the key pair added to it
+* **1. RDP file with the key pair added to it**
+
 ![Connect To Your Instance 1](Connect%20to%20your%20instance%201.png)
 
 **BEFORE CLICKING DOWNLOAD GET THE PASSWORD**
@@ -137,7 +146,7 @@ The RDP file will be downloaded.
 
 ![Connect To Your Instance 3](Connect%20to%20your%20instance%203.png)
 
-* 2. Configure RDP file for easy file access
+* **2. Configure RDP file for easy file access**
 
 Go to your freshly downloaded RDP file and rightclick it and then click "Edit".
 
@@ -156,7 +165,7 @@ Once done you will be able to copy the password.
 
 There you have it! Now you have your password and Remote Desktop should show you logging into your dedicated server!
 
-* 4. Setting up the firewall to allow connections through
+* **3. Setting up the firewall to allow connections through**
 
 Go to the windows firewall settings, go to the advanced firewall settings and go to inbound rules. **Add a new rule** and choose the port type.
 Select TCP and enter the 7777 port (or any other if you use another port in Mirror). Continue clicking next and keep things default.
@@ -166,7 +175,7 @@ Close all the windows when done.
 
 AWESOME! You now have everything set up to accept incoming requests on **port 7777**.
 
-* 5. Testing the connection
+## 5. Testing the connection
 
 Before you can (finally) test out your server build of your project you need to get it on the dedicated server!
 
