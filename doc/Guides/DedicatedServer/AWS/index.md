@@ -1,6 +1,6 @@
 # Amazon Web Services (AWS)
 
-During this section we will focus on using a Windows instance and connecting from a windows computer.
+During this section we will focus on using a Windows instance and connecting from a Windows computer.
 
 **Please note: AWS requires a payment method/creditcard added before being able to use a Windows server.**
 
