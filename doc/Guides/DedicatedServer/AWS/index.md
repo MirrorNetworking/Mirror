@@ -27,7 +27,7 @@ Always make sure you're in your correct region so it's a good habit to check in 
 After this click on Services in the top left corner and click on EC2. This will bring you to the EC2 instance dashboard and ready to Launch your instance!
 
 Click on **"Launch Instance"**.
-![alt text](https://i.imgur.com/UlKW8qW.png)
+![EC2-Management-Dashboard](AWS%20Setup.png)
 
 There are 7 steps to creating your AWS Instance:
 
@@ -43,14 +43,14 @@ There are 7 steps to creating your AWS Instance:
 
 Scroll down until you see the Microsoft Windows Server 2019 Base (take the newest one if this is outdated).
 Make sure that the option you select has the "Free Tier Eligible" under the icon and click on "Select".
-![alt text](https://i.imgur.com/v0Y3cmG.png)
+![Amazon Machine Image: Microsoft Server 2019](Microsoft%20Server%202019.PNG)
 
 * Choose Instance Type
 
 Make sure you choose the instance type with the "free tier eligible", at the time of writing this is the t2.micro instance.
 Click on **"Next: Configure Instance Details"**. Do **NOT** click on Review and Launch.
 
-![alt text](https://i.imgur.com/uCdu34j.png)
+![Choose Instance Type](Step%202.png)
 
 * Configure Instance
 
@@ -84,27 +84,28 @@ Note: SSH is not strictly necessary but can be used to remote connect to it thro
 You can ignore the warning about the source as this is just a testing environment. 
 In the future you might wish to restrict this but you will almost never know the clients connection IP beforehand.
 
-![alt text](https://i.imgur.com/4xJQt5L.png)
+![Configuring Security Groups](Step%206.png)
 
 Click on **Next: Review and Launch"**
 
 * Review
 
 Almost there! Make sure everything is correct and you are using the free tier, then click on **"Launch"**.
-![alt text](https://i.imgur.com/jcwooNO.png)
+
+![Review Of The Instance](Review.png)
 
 1 more thing! A window will pop up, asking for your key pair. Just create a new one by selecting the dropdown: **"Create a new key pair"** and
 give it a name, click on **"Download Key Pair"**.
 Keep the key file (.PEM File) somewhere secure (To be 100% certain, back it up somewhere). **YOU CAN NOT ACCESS THE CREATED INSTANCE WITHOUT THIS KEY**
 
-![alt text](https://i.imgur.com/ZP6eJq5.png)
+![Key Pair](KeyPair.PNG)
 
 Now you can (finally) click on **Launch Instances**!
 
 Go back to your EC2 dashboard by clicking on "Services" at the top left and clicking on EC2.
 Now you see you have "Running Instances: 1". **Click on "Running Instances" to continue**.
 
-![alt text](https://i.imgur.com/qz4YwgB.png)
+![Your Running Instances](Running%20instances.png)
 
 You now see your instance running! If it's still initializing, give it a few minutes! A new instance might take around 5-10min to set up.
 Refresh the page after 10 minutes if nothing changes.
@@ -120,14 +121,14 @@ There are a few things we'll need!
 2. Configure RDP file once downloaded to allow getting files from our C: drive or other drives (so you can easily get your zip project.
 3. Enter the windows Admin password once you start the RDP file
 
-Once you've doen this, you should be able to continue using the same RDP file.
+Once you've done this, you should be able to continue using the same RDP file.
 
-* 1. RDP file with the key pair added to it
-![alt text](https://i.imgur.com/b7YGhX4.png)
+*1. RDP file with the key pair added to it
+![Connect To Your Instance 1](Connect%20to%20your%20instance%201.png)
 
 **BEFORE CLICKING DOWNLOAD GET THE PASSWORD**
 
-![alt text](https://i.imgur.com/yTqKryT.png)
+![Connect To Your Instance 2](Connect%20to%20your%20instance%202.png)
 
 **COPY THE PASSWORD FOR LATER**
 
@@ -135,7 +136,7 @@ Now click on **"Download Remote Desktop File"**
 
 The RDP file will be downloaded.
 
-![alt text](https://i.imgur.com/SJ0ER7y.png)
+![Connect To Your Instance 3](Connect%20to%20your%20instance%203.png)
 
 * 2. Configure RDP file for easy file access
 
@@ -144,15 +145,15 @@ Go to your freshly downloaded RDP file and rightclick it and then click "Edit".
 Go to the third tab "Local sources", at the bottom click "more" under local devices and sources. 
 On the new window select your C: drive or any other drive. This is your own computer your connecting from. For easy file exchange.
 
-![alt text](https://i.imgur.com/2U4MLkS.png)
+![Configuring the RDP file](Configure%20RDP%20for%20Data.PNG)
 
 Perfect! Now you can run the RDP file! The RDP file will ask a password. If you forgot your password you can get it back by rightclicking 
 the instance and clicking on "Get Windows Password". You will be asked to re-enter your key pair (.PEM) file and decrypt the message.
 Once done you will be able to copy the password.
 
-![alt text](https://i.imgur.com/evD4c6s.png)
+![Retrieve Your Default Windows Administrator Password](Retrieve%20Default%20Windows%20Administrator%20Password.PNG)
 
-![alt text](https://i.imgur.com/cYjS94u.png)
+![Retrieve Your Default Windows Administrator Password 2](Retrieve%20Default%20Windows%20Administrator%20Password%202.PNG)
 
 There you have it! Now you 100% have your password and you should be logging into your dedicated server!
 
@@ -162,7 +163,7 @@ Go to the windows firewall settings, go to the advanced firewall settings and go
 Select TCP and enter the 7777 port (or any other if you use another port in Mirror). Continue clicking next and keep things default.
 Close all the windows when done.
 
-![alt text](https://i.imgur.com/SkckL5e.png)
+![Windows Firewall Exception](Windows%20Firewall%20Exception.PNG)
 
 AWESOME! You now have everything set up to accept incoming requests on **port 7777**.
 
@@ -175,7 +176,7 @@ Place your (zipped) server build at the root of your added drive (C: or another)
 Go to **"My Computer"** and because of our previous changes to the RDP we should now see your local drive under "Devices and Drives".
 Double click it and because you placed your zipped server build on that drive, you should see it immediatly when it's done loading.
 
-![alt text](https://i.imgur.com/4kdgfMx.png)
+![Your Drive on the dedicated host](Your%20Drive%20on%20the%20dedicated host.PNG)
 
 Now **unzip** the project in a new folder on the dedicated server's desktop and you can now **run it!**
 
