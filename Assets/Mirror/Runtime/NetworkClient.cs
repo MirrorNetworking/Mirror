@@ -129,7 +129,6 @@ namespace Mirror
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
-
         }
         /// <summary>
         /// connect host mode
