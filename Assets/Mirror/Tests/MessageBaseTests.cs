@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -31,14 +30,14 @@ namespace Mirror.Tests
         }
     }
 
-
-    class WovenTestMessageWithExclusion: MessageBase
+    struct WovenTestMessage: IMessageBase
     {
-        [WeaverExclude]
         public int IntValue;
-        [NonSerialized]
         public string StringValue;
         public double DoubleValue;
+
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 
     [TestFixture]
@@ -60,27 +59,20 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void WeaverExcludeOnFieldTest()
+        public void WovenSerializationBodyRoundtrip()
         {
             NetworkWriter w = new NetworkWriter();
-            WovenTestMessageWithExclusion msg = new WovenTestMessageWithExclusion {IntValue = 123, StringValue = "456", DoubleValue = 3.3};
-            w.Write(msg);
+            w.Write(new WovenTestMessage{IntValue = 1, StringValue = "2", DoubleValue = 3.3});
 
             byte[] arr = w.ToArray();
 
             NetworkReader r = new NetworkReader(arr);
-            WovenTestMessageWithExclusion t = new WovenTestMessageWithExclusion();
+            WovenTestMessage t = new WovenTestMessage();
             t.Deserialize(r);
 
-            Assert.AreEqual(123, msg.IntValue);
-            Assert.AreNotEqual(123, t.IntValue);
-            Assert.AreEqual(default(int), t.IntValue);
-
-            Assert.AreEqual("456", msg.StringValue);
-            Assert.AreNotEqual("456", t.StringValue);
-            Assert.AreEqual(default(string), t.StringValue);
-
-            Assert.AreEqual(msg.DoubleValue, t.DoubleValue);
+            Assert.AreEqual(1, t.IntValue);
+            Assert.AreEqual("2", t.StringValue);
+            Assert.AreEqual(3.3, t.DoubleValue);
         }
     }
 }

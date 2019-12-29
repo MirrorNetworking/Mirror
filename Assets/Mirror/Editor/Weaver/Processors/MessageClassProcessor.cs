@@ -9,10 +9,16 @@ namespace Mirror.Weaver
     static class MessageClassProcessor
     {
 
+
         static bool HasExcludeAttribute(this FieldDefinition fieldDefinition)
         {
             return fieldDefinition.CustomAttributes.Any(attribute => attribute.AttributeType.FullName == Weaver.WeaverExcludeType.FullName)
                 || (fieldDefinition.Attributes & FieldAttributes.NotSerialized) != 0;
+		}
+		
+        static bool IsEmptyDefault(this MethodBody body)
+        {
+            return body.Instructions.All(instruction => instruction.OpCode == OpCodes.Nop || instruction.OpCode == OpCodes.Ret);
         }
 
         public static void Process(TypeDefinition td)
@@ -32,10 +38,10 @@ namespace Mirror.Weaver
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            foreach (MethodDefinition m in td.Methods)
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Serialize");
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
-                if (m.Name == "Serialize")
-                    return;
+                return;
             }
 
             if (td.Fields.Count == 0)
@@ -53,20 +59,30 @@ namespace Mirror.Weaver
                 }
             }
 
-            MethodDefinition serializeFunc = new MethodDefinition("Serialize",
+            MethodDefinition serializeFunc = existingMethod ?? new MethodDefinition("Serialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
-            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
-
-            // call base
-            MethodReference baseSerialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Serialize");
-            if (baseSerialize != null)
+            if (existingMethod == null) //only add to new method
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
+                serializeFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkWriterType)));
+            }
+            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+            if (existingMethod != null)
+            {
+                serWorker.Body.Instructions.Clear(); //remove default nop&ret from existing empty interface method
+            }
+
+            if (!td.IsValueType) //if not struct(IMessageBase), likely same as using else {} here in all cases
+            {
+                // call base
+                MethodReference baseSerialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Serialize");
+                if (baseSerialize != null)
+                {
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Call, baseSerialize));
+                }
             }
 
             foreach (FieldDefinition field in td.Fields)
@@ -90,16 +106,19 @@ namespace Mirror.Weaver
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            td.Methods.Add(serializeFunc);
+            if (existingMethod == null) //only add if not just replaced body
+            {
+                td.Methods.Add(serializeFunc);
+            }
         }
 
         static void GenerateDeSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            foreach (MethodDefinition m in td.Methods)
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Deserialize");
+            if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
-                if (m.Name == "Deserialize")
-                    return;
+                return;
             }
 
             if (td.Fields.Count == 0)
@@ -107,20 +126,30 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serializeFunc = new MethodDefinition("Deserialize",
+            MethodDefinition serializeFunc = existingMethod??new MethodDefinition("Deserialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 
-            serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
-            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
-
-            // call base
-            MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Deserialize");
-            if (baseDeserialize != null)
+            if (existingMethod == null) //only add to new method
             {
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
-                serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+                serializeFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(Weaver.NetworkReaderType)));
+            }
+            ILProcessor serWorker = serializeFunc.Body.GetILProcessor();
+            if (existingMethod != null)
+            {
+                serWorker.Body.Instructions.Clear(); //remove default nop&ret from existing empty interface method
+            }
+
+            if (!td.IsValueType) //if not struct(IMessageBase), likely same as using else {} here in all cases
+            {
+                // call base
+                MethodReference baseDeserialize = Resolvers.ResolveMethodInParents(td.BaseType, Weaver.CurrentAssembly, "Deserialize");
+                if (baseDeserialize != null)
+                {
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // base
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // writer
+                    serWorker.Append(serWorker.Create(OpCodes.Call, baseDeserialize));
+                }
             }
 
             foreach (FieldDefinition field in td.Fields)
@@ -144,7 +173,10 @@ namespace Mirror.Weaver
             }
             serWorker.Append(serWorker.Create(OpCodes.Ret));
 
-            td.Methods.Add(serializeFunc);
+            if (existingMethod == null) //only add if not just replaced body
+            {
+                td.Methods.Add(serializeFunc);
+            }
         }
     }
 }

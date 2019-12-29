@@ -15,7 +15,7 @@ namespace Mirror
     /// <para>NetworkConnection objects also act as observers for networked objects. When a connection is an observer of a networked object with a NetworkIdentity, then the object will be visible to corresponding client for the connection, and incremental state changes will be sent to the client.</para>
     /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
     /// </remarks>
-    public abstract class NetworkConnection
+    public abstract class NetworkConnection : IDisposable
     {
         public readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
@@ -83,6 +83,13 @@ namespace Mirror
         public NetworkIdentity identity { get; internal set; }
 
         /// <summary>
+        /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
+        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
+        /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
+        /// </summary>
+        public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
+
+        /// <summary>
         /// Setting this to true will log the contents of network message to the console.
         /// </summary>
         /// <remarks>
@@ -120,6 +127,28 @@ namespace Mirror
             isConnected = true;
             hostId = 0;
 #pragma warning restore 618
+        }
+
+        ~NetworkConnection()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Disposes of this connection, releasing channel buffers that it holds.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            // Take yourself off the Finalization queue
+            // to prevent finalization code for this object
+            // from executing a second time.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            clientOwnedObjects.Clear();
         }
 
         /// <summary>
@@ -331,6 +360,16 @@ namespace Mirror
                 Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
             }
+        }
+
+        internal void AddOwnedObject(NetworkIdentity obj)
+        {
+            clientOwnedObjects.Add(obj.netId);
+        }
+
+        internal void RemoveOwnedObject(NetworkIdentity obj)
+        {
+            clientOwnedObjects.Remove(obj.netId);
         }
     }
 }

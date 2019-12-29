@@ -1,3 +1,0 @@
-The Mirror DLLs in the Plugins folder are MIT licensed:
-
-https://github.com/vis2k/Mirror
