@@ -33,7 +33,7 @@ namespace Mirror
         public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        public bool clientAuthority;
+        public bool clientAuthority = true;
 
         // is this a local player with authority over his own transform?
         bool isLocalPlayerWithAuthority => isLocalPlayer && clientAuthority;
