@@ -79,12 +79,6 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get; private set; }
 
         /// <summary>
-        /// Obsolete: Use <see cref="syncObjects"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use syncObjects instead.")]
-        protected List<SyncObject> m_SyncObjects => syncObjects;
-
-        /// <summary>
         /// objects that can synchronize themselves, such as synclists
         /// </summary>
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();

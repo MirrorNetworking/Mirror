@@ -102,12 +102,6 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
-        /// Obsolete: Use <see cref="connectionToClient" /> instead
-        /// </summary>
-        [Obsolete("Use connectionToClient instead")]
-        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
-
-        /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
@@ -977,18 +971,6 @@ namespace Mirror
                         observers.Add(conn.connectionId, conn);
                 }
             }
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="RemoveClientAuthority()"/> instead
-        /// </summary>
-        /// <param name="conn">The connection of the client to remove authority for.</param>
-        /// <returns>True if authority is removed.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("NetworkConnection parameter is no longer needed and nothing is returned")]
-        public bool RemoveClientAuthority(NetworkConnection conn)
-        {
-            RemoveClientAuthority();
-            return true;
         }
 
         /// <summary>

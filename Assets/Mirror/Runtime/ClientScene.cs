@@ -129,13 +129,6 @@ namespace Mirror
 
             if (LogFilter.Debug) Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]");
 
-            AddPlayerMessage message = new AddPlayerMessage
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                value = extraData
-#pragma warning restore CS0618 // Type or member is obsolete
-            };
-            readyConnection.Send(message);
             return true;
         }
 
@@ -449,19 +442,6 @@ namespace Mirror
                 }
             }
             NetworkIdentity.spawned.Clear();
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
         }
 
         static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)

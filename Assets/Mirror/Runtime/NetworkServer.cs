@@ -199,26 +199,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="SendToAll{T}(T, int)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToAll<T> instead.")]
-        public static bool SendToAll(int msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) Debug.Log("Server.SendToAll id:" + msgType);
-
-            // pack message into byte[] once
-            byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-            // send to all
-            bool result = true;
-            foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
-            {
-                result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// Send a message structure with the given type number to all connected clients.
         /// <para>This applies to clients that are ready and not-ready.</para>
         /// </summary>
@@ -255,33 +235,6 @@ namespace Mirror
             // recycle writer and return
             NetworkWriterPool.Recycle(writer);
             return result;
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToReady{T}(NetworkIdentity, T, int)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToReady<T> instead.")]
-        public static bool SendToReady(NetworkIdentity identity, short msgType, MessageBase msg, int channelId = Channels.DefaultReliable)
-        {
-            if (LogFilter.Debug) Debug.Log("Server.SendToReady msgType:" + msgType);
-
-            if (identity != null && identity.observers != null)
-            {
-                // pack message into byte[] once
-                byte[] bytes = MessagePacker.PackMessage((ushort)msgType, msg);
-
-                // send to all ready observers
-                bool result = true;
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
-                {
-                    if (kvp.Value.isReady)
-                    {
-                        result &= kvp.Value.Send(new ArraySegment<byte>(bytes), channelId);
-                    }
-                }
-                return result;
-            }
-            return false;
         }
 
         /// <summary>
@@ -485,28 +438,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
-        public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
-        {
-            if (handlers.ContainsKey(msgType))
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkServer.RegisterHandler replacing " + msgType);
-            }
-            handlers[msgType] = handler;
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T>(Action<NetworkConnection, T>, bool) instead.")]
-        public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
-        {
-            RegisterHandler((int)msgType, handler);
-        }
-
-        /// <summary>
         /// Register a handler for a particular message type.
         /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
         /// </summary>
@@ -536,24 +467,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
-        public static void UnregisterHandler(int msgType)
-        {
-            handlers.Remove(msgType);
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="UnregisterHandler{T}"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use UnregisterHandler<T> instead.")]
-        public static void UnregisterHandler(MsgType msgType)
-        {
-            UnregisterHandler((int)msgType);
-        }
-
-        /// <summary>
         /// Unregisters a handler for a particular message type.
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
@@ -569,54 +482,6 @@ namespace Mirror
         public static void ClearHandlers()
         {
             handlers.Clear();
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToClient{T}(int, T)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use connection.Send(msg) instead.")]
-        public static void SendToClient(int connectionId, int msgType, MessageBase msg)
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-            {
-                conn.Send(msgType, msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
-        /// <summary>
-        /// Send a message to the client which owns the given connection ID.
-        /// <para>It accepts the connection ID as a parameter as well as a message and MsgType. Remember to set the client up for receiving the messages by using NetworkClient.RegisterHandler. Also, for user messages you must use a MsgType with a higher ID number than MsgType.Highest.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="connectionId">Client connection ID.</param>
-        /// <param name="msg">Message struct to send</param>
-        [Obsolete("Use connection.Send(msg) instead")]
-        public static void SendToClient<T>(int connectionId, T msg) where T : IMessageBase
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-            {
-                conn.Send(msg);
-                return;
-            }
-            Debug.LogError("Failed to send message to connection ID '" + connectionId + ", not found in connection list");
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="SendToClientOfPlayer{T}(NetworkIdentity, T)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use SendToClientOfPlayer<T> instead.")]
-        public static void SendToClientOfPlayer(NetworkIdentity identity, int msgType, MessageBase msg)
-        {
-            if (identity != null)
-            {
-                identity.connectionToClient.Send(msgType, msg);
-            }
-            else
-            {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
-            }
         }
 
         /// <summary>
@@ -1065,16 +930,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="Spawn(GameObject, GameObject)"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use Spawn(GameObject, GameObject) instead.")]
-        public static bool SpawnWithClientAuthority(GameObject obj, GameObject player)
-        {
-            Spawn(obj, player);
-            return true;
-        }
-
-        /// <summary>
         /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
         /// </summary>
@@ -1096,26 +951,6 @@ namespace Mirror
             }
 
             Spawn(obj, identity.connectionToClient);
-        }
-
-        /// <summary>
-        /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
-        /// </summary>
-        [Obsolete("Use Spawn(obj, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, ownerConnection);
-            return true;
-        }
-
-        /// <summary>
-        /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
-        /// </summary>
-        [Obsolete("Use Spawn(obj, assetId, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, assetId, ownerConnection);
-            return true;
         }
 
         /// <summary>
@@ -1197,19 +1032,6 @@ namespace Mirror
             {
                 DestroyObject(identity, false);
             }
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkIdentity.spawned"/> instead.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkIdentity.spawned[netId] instead.")]
-        public static GameObject FindLocalObject(uint netId)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.gameObject;
-            }
-            return null;
         }
 
         static bool ValidateSceneObject(NetworkIdentity identity)

@@ -150,37 +150,9 @@ namespace Mirror
         public bool clientLoadedScene;
 
         /// <summary>
-        /// Obsolete: Use <see cref="NetworkClient.isConnected"/> instead
-        /// </summary>
-        /// <returns>Returns True if NetworkClient.isConnected</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient.isConnected instead")]
-        public bool IsClientConnected()
-        {
-            return NetworkClient.isConnected;
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="isHeadless"/> instead.
-        /// <para>This is a static property now. This method will be removed by summer 2019.</para>
-        /// </summary>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use isHeadless instead of IsHeadless()")]
-        public static bool IsHeadless()
-        {
-            return isHeadless;
-        }
-
-        /// <summary>
         /// headless mode detection
         /// </summary>
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
-
-        /// <summary>
-        /// Obsolete: Use <see cref="NetworkClient"/> directly
-        /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly, it will be made static soon. For example, use NetworkClient.Send(message) instead of NetworkManager.client.Send(message)")]
-        public NetworkClient client => NetworkClient.singleton;
 
         #region Unity Callbacks
 
@@ -518,7 +490,6 @@ namespace Mirror
             NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
             NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
             NetworkServer.RegisterHandler<ReadyMessage>(OnServerReadyMessageInternal);
-            NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
         }
@@ -837,33 +808,6 @@ namespace Mirror
             OnServerReady(conn);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAddPlayer");
-
-            if (autoCreatePlayer && playerPrefab == null)
-            {
-                Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
-                return;
-            }
-
-            if (autoCreatePlayer && playerPrefab.GetComponent<NetworkIdentity>() == null)
-            {
-                Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
-                return;
-            }
-
-            if (conn.identity != null)
-            {
-                Debug.LogError("There is already a player for this connection.");
-                return;
-            }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            OnServerAddPlayer(conn, extraMessage);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
-
         void OnServerRemovePlayerMessageInternal(NetworkConnection conn, RemovePlayerMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerRemovePlayerMessageInternal");
@@ -993,18 +937,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Override <see cref="OnServerAddPlayer(NetworkConnection)"/> instead.
-        /// <para>See <a href="../Guides/GameObjects/SpawnPlayerCustom.md">Custom Players</a> for details.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        /// <param name="extraMessage">An extra message object passed for the new player.</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnServerAddPlayer(NetworkConnection conn) instead. See https://mirror-networking.com/docs/Guides/GameObjects/SpawnPlayerCustom.html for details.")]
-        public virtual void OnServerAddPlayer(NetworkConnection conn, AddPlayerMessage extraMessage)
-        {
-            OnServerAddPlayer(conn);
-        }
-
-        /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
@@ -1125,24 +1057,6 @@ namespace Mirror
         public virtual void OnClientNotReady(NetworkConnection conn) { }
 
         /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
-        public virtual void OnClientChangeScene(string newSceneName)
-        {
-            OnClientChangeScene(newSceneName, SceneOperation.Normal, false);
-        }
-
-        /// <summary>
-        /// Obsolete: Use <see cref="OnClientChangeScene(string, SceneOperation, bool)"/> instead.).
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Override OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) instead")]
-        public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation)
-        {
-            OnClientChangeScene(newSceneName, sceneOperation, false);
-        }
-
-        /// <summary>
         /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
         /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
         /// </summary>
@@ -1183,22 +1097,9 @@ namespace Mirror
         public virtual void OnStartServer() { }
 
         /// <summary>
-        /// Obsolete: Use <see cref="OnStartClient()"/> instead of OnStartClient(NetworkClient client).
-        /// <para>All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.</para>
-        /// </summary>
-        /// <param name="client">The NetworkClient object that was started.</param>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnStartClient() instead of OnStartClient(NetworkClient client). All NetworkClient functions are static now, so you can use NetworkClient.Send(message) instead of client.Send(message) directly now.")]
-        public virtual void OnStartClient(NetworkClient client) { }
-
-        /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public virtual void OnStartClient()
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            OnStartClient(NetworkClient.singleton);
-#pragma warning restore CS0618 // Type or member is obsolete
-        }
+        public virtual void OnStartClient() { }
 
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.
