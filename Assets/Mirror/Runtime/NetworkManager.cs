@@ -390,6 +390,9 @@ namespace Mirror
         public virtual void StartHost()
         {
             OnStartHost();
+
+            // SetupLocalConnection needs to be called BEFORE StartServer
+            // (https://github.com/vis2k/Mirror/pull/1249/)
             NetworkClient.SetupLocalConnection();
             if (StartServer())
             {
@@ -562,6 +565,9 @@ namespace Mirror
             networkAddress = "localhost";
             NetworkServer.ActivateLocalClientScene();
             RegisterClientMessages();
+
+            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
+            // (https://github.com/vis2k/Mirror/pull/1249/)
             NetworkClient.ConnectLocalServer();
         }
 
