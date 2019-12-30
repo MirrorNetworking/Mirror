@@ -2,6 +2,8 @@
   href: index.md
 - name: Getting Started
   href: Start.md
+- name: Script Templates
+  href: ScriptTemplates.md
 - name: Migration Guide
   href: Migration.md
 - name: Deprecations

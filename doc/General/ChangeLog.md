@@ -1,12 +1,18 @@
 # Change Log
 
 ## Version 7.x.x - In progress
-- Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+- Added: [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: Full Text Search added to docs
+- Added: Basic Chat example
+- Added: Some youtube videos have been created and linked from various doc pages where appropriate
 - Added: Transports can now support using a URI for connection including port
+- Added: version.txt file is now included with the release version in it.
 - Fixed: Components now appear in docs under API Reference
 - Fixed: Delayed disconnect in Basic Authenticator
+- Fixed: Multiplexer now handles OnClientConnect and GetMaxMessageSize correctly
+- Fixed: NetworkRoomManager OnRoomServerCreateGamePlayer now includes the Room Player Object as parameter
 - Changed: NetworkManager startPositionIndex is now public
+- Changed: SceneMessage now has an optional customHandling flag so devs can handle their own custom scene loading, e.g. using Addressables.
 
 ## Version 6.3.0 - 2019-Dec-09
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets

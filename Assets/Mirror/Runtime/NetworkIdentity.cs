@@ -114,11 +114,25 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
 
+
+        private NetworkConnectionToClient _connectionToClient;
         /// <summary>
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
-        public NetworkConnectionToClient connectionToClient { get; internal set; }
+        public NetworkConnectionToClient connectionToClient
+        {
+            get => _connectionToClient;
+
+            internal set
+            {
+                if (_connectionToClient != null)
+                    _connectionToClient.RemoveOwnedObject(this);
+
+                _connectionToClient = value;
+                _connectionToClient?.AddOwnedObject(this);
+            }
+        }
 
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
@@ -178,7 +192,6 @@ namespace Mirror
                 Debug.LogError($"Object {this} netId={netId} already has an owner", this);
             }
             connectionToClient = (NetworkConnectionToClient)conn;
-            connectionToClient.AddOwnedObject(this);
         }
 
         static uint nextNetworkId = 1;
@@ -1049,7 +1062,6 @@ namespace Mirror
 
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
-                connectionToClient.RemoveOwnedObject(this);
                 connectionToClient = null;
 
                 // we need to resynchronize the entire object

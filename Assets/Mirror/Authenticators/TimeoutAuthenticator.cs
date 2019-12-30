@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror.Authenticators
@@ -37,7 +37,7 @@ namespace Mirror.Authenticators
             if (!conn.isAuthenticated)
             {
                 if (LogFilter.Debug) Debug.Log($"Authentication Timeout {conn}");
-                
+
                 conn.Disconnect();
             }
         }
@@ -58,7 +58,7 @@ namespace Mirror.Authenticators
             if (!conn.isAuthenticated)
             {
                 if (LogFilter.Debug) Debug.Log($"Authentication Timeout {conn}");
-                
+
                 conn.Disconnect();
             }
         }

@@ -48,6 +48,7 @@ namespace Mirror.Weaver
         public static TypeReference NetworkConnectionType;
 
         public static TypeReference MessageBaseType;
+        public static TypeReference IMessageBaseType;
         public static TypeReference SyncListType;
         public static TypeReference SyncSetType;
         public static TypeReference SyncDictionaryType;
@@ -273,6 +274,7 @@ namespace Mirror.Weaver
             NetworkConnectionType = CurrentAssembly.MainModule.ImportReference(NetworkConnectionType);
 
             MessageBaseType = NetAssembly.MainModule.GetType("Mirror.MessageBase");
+            IMessageBaseType = NetAssembly.MainModule.GetType("Mirror.IMessageBase");
             SyncListType = NetAssembly.MainModule.GetType("Mirror.SyncList`1");
             SyncSetType = NetAssembly.MainModule.GetType("Mirror.SyncSet`1");
             SyncDictionaryType = NetAssembly.MainModule.GetType("Mirror.SyncDictionary`2");
@@ -385,26 +387,10 @@ namespace Mirror.Weaver
 
             bool didWork = false;
 
-            // are ANY parent classes MessageBase
-            TypeReference parent = td.BaseType;
-            while (parent != null)
+            if (td.ImplementsInterface(IMessageBaseType))
             {
-                if (parent.FullName == MessageBaseType.FullName)
-                {
-                    MessageClassProcessor.Process(td);
-                    didWork = true;
-                    break;
-                }
-                try
-                {
-                    parent = parent.Resolve().BaseType;
-                }
-                catch (AssemblyResolutionException)
-                {
-                    // this can happen for plugins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
-                    break;
-                }
+                MessageClassProcessor.Process(td);
+                didWork = true;
             }
 
             // check for embedded types

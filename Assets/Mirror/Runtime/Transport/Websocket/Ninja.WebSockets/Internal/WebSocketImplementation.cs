@@ -43,7 +43,7 @@ namespace Ninja.WebSockets.Internal
     /// <summary>
     /// Main implementation of the WebSocket abstract class
     /// </summary>
-    internal class WebSocketImplementation : WebSocket
+    public class WebSocketImplementation : WebSocket
     {
         readonly Guid _guid;
         readonly Func<MemoryStream> _recycledStreamFactory;

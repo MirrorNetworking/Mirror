@@ -233,12 +233,12 @@ namespace Mirror.Weaver
             readerFunc.Body.InitLocals = true;
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
-            
+
             // int length = reader.ReadPackedInt32();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, GetReadFunc(Weaver.int32Type)));
             worker.Append(worker.Create(OpCodes.Stloc_0));
-            
+
             // T[] array = new int[length]
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Newarr, elementType));
@@ -246,7 +246,7 @@ namespace Mirror.Weaver
 
             // loop through array and deserialize each element
             // generates code like this
-            // for (int i=0; i< length ; i++) 
+            // for (int i=0; i< length ; i++)
             // {
             //     value[i] = reader.ReadXXX();
             // }
@@ -278,7 +278,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldloc_2));
             worker.Append(worker.Create(OpCodes.Ldloc_0));
             worker.Append(worker.Create(OpCodes.Blt, labelBody));
-            
+
             // return new ArraySegment<T>(array);
             worker.Append(worker.Create(OpCodes.Ldloc_1));
             worker.Append(worker.Create(OpCodes.Newobj, Weaver.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance)));

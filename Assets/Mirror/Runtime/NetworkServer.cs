@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// The NetworkServer uses a NetworkServerSimple for basic network functionality and adds more game-like functionality.
+    /// The NetworkServer.
     /// </summary>
     /// <remarks>
     /// <para>NetworkServer handles remote connections from remote clients via a NetworkServerSimple instance, and also has a local connection for a local client.</para>
@@ -27,6 +27,12 @@ namespace Mirror
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
         public static NetworkConnectionToClient localConnection { get; private set; }
+
+        /// <summary>
+        /// <para>True is a local client is currently active on the server.</para>
+        /// <para>This will be true for "Hosts" on hosted server games.</para>
+        /// </summary>
+        public static bool localClientActive => localConnection != null;
 
         /// <summary>
         /// A list of local connections on the server.
@@ -50,12 +56,6 @@ namespace Mirror
         /// <para>This will be true after NetworkServer.Listen() has been called.</para>
         /// </summary>
         public static bool active { get; private set; }
-
-        /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
-        public static bool localClientActive => localConnection != null;
 
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
@@ -192,6 +192,7 @@ namespace Mirror
             if (localConnection != null)
             {
                 localConnection.Disconnect();
+                localConnection.Dispose();
                 localConnection = null;
             }
             RemoveConnection(0);
@@ -438,6 +439,7 @@ namespace Mirror
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != 0)
                     OnDisconnected(conn);
+                conn.Dispose();
             }
             connections.Clear();
         }
@@ -1035,7 +1037,7 @@ namespace Mirror
             // on start server in host mode
             if (ownerConnection is ULocalConnectionToClient)
                 identity.hasAuthority = true;
-                
+
             identity.OnStartServer();
 
             if (LogFilter.Debug) Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
@@ -1092,6 +1094,16 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
+            // => destroy what we can destroy.
+            HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
+            foreach (uint netId in tmp)
+            {
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                {
+                    Destroy(identity.gameObject);
+                }
+            }
+
             if (conn.identity != null)
             {
                 DestroyObject(conn.identity, true);

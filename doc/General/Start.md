@@ -6,6 +6,11 @@ This document describes steps to converting a single player game to a multiplaye
 
 Check out these [awesome videos](https://www.youtube.com/playlist?list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP) showing you how to get started with mirror. Courtesy of [First Gear Games](https://www.youtube.com/channel/UCGIF1XekJqHYIafvE7l0c2A) also known as Punfish in discord.
 
+## Script Templates
+-   Create new Network Behaviours and other common scripts faster
+
+See [Script Templates](ScriptTemplates.md).
+
 ## NetworkManager set-up
 -   Add a new game object to the Scene and rename it “NetworkManager”.
 -   Add the NetworkManager component to the “NetworkManager” game object.
