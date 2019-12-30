@@ -59,13 +59,13 @@ namespace Mirror
         public abstract bool ClientConnected();
 
         /// <summary>
-        /// Establish a connecion to a server
+        /// Establish a connection to a server
         /// </summary>
         /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
         public abstract void ClientConnect(string address);
 
         /// <summary>
-        /// Establish a connecion to a server
+        /// Establish a connection to a server
         /// </summary>
         /// <param name="uri">The address of the server we are trying to connect to</param>
         public virtual void ClientConnect(Uri uri)
