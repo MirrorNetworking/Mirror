@@ -114,7 +114,6 @@ namespace Mirror
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
-
         }
         /// <summary>
         /// connect host mode
@@ -237,11 +236,12 @@ namespace Mirror
 
         internal static void Update()
         {
-            // local or remote connection?
+            // local connection?
             if (connection is ULocalConnectionToServer localConnection)
             {
                 localConnection.Update();
             }
+            // remote connection?
             else
             {
                 // only update things while connected

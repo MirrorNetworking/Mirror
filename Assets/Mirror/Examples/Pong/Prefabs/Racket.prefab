@@ -177,3 +177,4 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   compressRotation: 1
+  clientAuthority: 1
