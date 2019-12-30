@@ -29,6 +29,12 @@ namespace Mirror
         public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>
+        /// <para>True is a local client is currently active on the server.</para>
+        /// <para>This will be true for "Hosts" on hosted server games.</para>
+        /// </summary>
+        public static bool localClientActive => localConnection != null;
+
+        /// <summary>
         /// A list of local connections on the server.
         /// </summary>
         public static Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
@@ -50,12 +56,6 @@ namespace Mirror
         /// <para>This will be true after NetworkServer.Listen() has been called.</para>
         /// </summary>
         public static bool active { get; private set; }
-
-        /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
-        public static bool localClientActive => localConnection != null;
 
         // cache the Send(connectionIds) list to avoid allocating each time
         static readonly List<int> connectionIdsCache = new List<int>();
