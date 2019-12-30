@@ -647,38 +647,6 @@ namespace Mirror
             }
         }
 
-        internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
-
-            NetworkIdentity.spawned.Remove(msg.netId);
-        }
-
-        internal static void OnHostClientObjectHide(ObjectHideMessage msg)
-        {
-            if (LogFilter.Debug) Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                localObject.OnSetHostVisibility(false);
-            }
-        }
-
-        internal static void OnHostClientSpawn(SpawnMessage msg)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                if (msg.isLocalPlayer)
-                    InternalAddPlayer(localObject);
-
-                localObject.hasAuthority = msg.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
-                CheckForLocalPlayer(localObject);
-            }
-        }
-
         internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
         {
             if (LogFilter.Debug) Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);

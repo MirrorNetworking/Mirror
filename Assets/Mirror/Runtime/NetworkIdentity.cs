@@ -96,7 +96,7 @@ namespace Mirror
         public ulong sceneId => m_SceneId;
 
         /// <summary>
-        /// Flag to make this object only exist when the game is running as a server (or host).
+        /// Flag to make this object only exist when the game is running as a server.
         /// </summary>
         [FormerlySerializedAs("m_ServerOnly")]
         public bool serverOnly;
@@ -578,24 +578,6 @@ namespace Mirror
             }
         }
 
-        internal void OnSetHostVisibility(bool visible)
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                try
-                {
-#pragma warning disable 618
-                    comp.OnSetLocalVisibility(visible); // remove later!
-#pragma warning restore 618
-                    comp.OnSetHostVisibility(visible);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnSetLocalVisibility:" + e.Message + " " + e.StackTrace);
-                }
-            }
-        }
-
         internal bool OnCheckObserver(NetworkConnection conn)
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -948,11 +930,6 @@ namespace Mirror
                         if (conn.isReady)
                             AddObserver(conn);
                     }
-
-                    if (NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
-                    {
-                        AddObserver(NetworkServer.localConnection);
-                    }
                 }
                 return;
             }
@@ -988,35 +965,6 @@ namespace Mirror
                     conn.RemoveFromVisList(this, false);
                     if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
-                }
-            }
-
-            // special case for host mode: we use SetHostVisibility to hide
-            // NetworkIdentities that aren't in observer range from host.
-            // this is what games like Dota/Counter-Strike do too, where a host
-            // does NOT see all players by default. they are in memory, but
-            // hidden to the host player.
-            //
-            // this code is from UNET, it's a bit strange but it works:
-            // * it hides newly connected identities in host mode
-            //   => that part was the intended behaviour
-            // * it hides ALL NetworkIdentities in host mode when the host
-            //   connects but hasn't selected a character yet
-            //   => this only works because we have no .localConnection != null
-            //      check. at this stage, localConnection is null because
-            //      StartHost starts the server first, then calls this code,
-            //      then starts the client and sets .localConnection. so we can
-            //      NOT add a null check without breaking host visibility here.
-            // * it hides ALL NetworkIdentities in server-only mode because
-            //   observers never contain the 'null' .localConnection
-            //   => that was not intended, but let's keep it as it is so we
-            //      don't break anything in host mode. it's way easier than
-            //      iterating all identities in a special function in StartHost.
-            if (initialize)
-            {
-                if (!newObservers.Contains(NetworkServer.localConnection))
-                {
-                    OnSetHostVisibility(false);
                 }
             }
 

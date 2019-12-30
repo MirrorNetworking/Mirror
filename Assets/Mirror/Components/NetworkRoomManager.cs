@@ -368,26 +368,10 @@ namespace Mirror
         /// <summary>
         ///
         /// </summary>
-        public override void OnStartHost()
-        {
-            OnRoomStartHost();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
         public override void OnStopServer()
         {
             roomSlots.Clear();
             base.OnStopServer();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        public override void OnStopHost()
-        {
-            OnRoomStopHost();
         }
 
         #endregion
@@ -470,16 +454,6 @@ namespace Mirror
         #endregion
 
         #region room server virtuals
-
-        /// <summary>
-        /// This is called on the host when a host is started.
-        /// </summary>
-        public virtual void OnRoomStartHost() { }
-
-        /// <summary>
-        /// This is called on the host when the host is stopped.
-        /// </summary>
-        public virtual void OnRoomStopHost() { }
 
         /// <summary>
         /// This is called on the server when the server is started - including when a host is started.

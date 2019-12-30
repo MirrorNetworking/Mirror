@@ -75,7 +75,6 @@ namespace Mirror.Weaver
         public static MethodReference CmdDelegateConstructor;
 
         public static MethodReference NetworkServerGetActive;
-        public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
 
         // custom attribute types
@@ -112,8 +111,6 @@ namespace Mirror.Weaver
         public static MethodReference syncVarNetworkIdentityEqualReference;
         public static MethodReference syncVarGameObjectEqualReference;
         public static MethodReference setSyncVarReference;
-        public static MethodReference setSyncVarHookGuard;
-        public static MethodReference getSyncVarHookGuard;
         public static MethodReference setSyncVarGameObjectReference;
         public static MethodReference getSyncVarGameObjectReference;
         public static MethodReference setSyncVarNetworkIdentityReference;
@@ -252,7 +249,6 @@ namespace Mirror.Weaver
             NetworkWriterType = NetAssembly.MainModule.GetType("Mirror.NetworkWriter");
 
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_active");
-            NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, CurrentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, CurrentAssembly, "get_active");
 
             CmdDelegateReference = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour/CmdDelegate");
@@ -292,8 +288,6 @@ namespace Mirror.Weaver
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarNetworkIdentityEqual");
             syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SyncVarGameObjectEqual");
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVar");
-            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "setSyncVarHookGuard");
-            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "getSyncVarHookGuard");
 
             setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "SetSyncVarGameObject");
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "GetSyncVarGameObject");

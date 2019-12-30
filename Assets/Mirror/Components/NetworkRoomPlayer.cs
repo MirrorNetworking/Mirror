@@ -128,7 +128,7 @@ namespace Mirror
                 else
                     GUILayout.Label("Not Ready");
 
-                if (((isServer && index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
+                if (((isServer && index > 0)) && GUILayout.Button("REMOVE"))
                 {
                     // This button only shows on the Host for all players other than the Host
                     // Host and Players can't remove themselves (stop the client instead)

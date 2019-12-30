@@ -47,15 +47,6 @@ namespace Mirror
             {
                 if (!NetworkClient.active)
                 {
-                    // LAN Host
-                    if (Application.platform != RuntimePlatform.WebGLPlayer)
-                    {
-                        if (GUILayout.Button("LAN Host"))
-                        {
-                            manager.StartHost();
-                        }
-                    }
-
                     // LAN Client + IP
                     GUILayout.BeginHorizontal();
                     if (GUILayout.Button("LAN Client"))
@@ -110,15 +101,6 @@ namespace Mirror
                     {
                         ClientScene.AddPlayer();
                     }
-                }
-            }
-
-            // stop
-            if (NetworkServer.active || NetworkClient.isConnected)
-            {
-                if (GUILayout.Button("Stop"))
-                {
-                    manager.StopHost();
                 }
             }
 

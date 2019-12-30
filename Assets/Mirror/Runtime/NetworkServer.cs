@@ -21,20 +21,6 @@ namespace Mirror
         static int maxConnections;
 
         /// <summary>
-        /// The connection to the host mode client (if any).
-        /// </summary>
-        // original HLAPI has .localConnections list with only m_LocalConnection in it
-        // (for backwards compatibility because they removed the real localConnections list a while ago)
-        // => removed it for easier code. use .localConnection now!
-        public static NetworkConnectionToClient localConnection { get; private set; }
-
-        /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
-        public static bool localClientActive => localConnection != null;
-
-        /// <summary>
         /// A list of local connections on the server.
         /// </summary>
         public static Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
@@ -175,42 +161,6 @@ namespace Mirror
             return connections.Remove(connectionId);
         }
 
-        // called by LocalClient to add itself. dont call directly.
-        internal static void SetLocalConnection(ULocalConnectionToClient conn)
-        {
-            if (localConnection != null)
-            {
-                Debug.LogError("Local Connection already exists");
-                return;
-            }
-
-            localConnection = conn;
-        }
-
-        internal static void RemoveLocalConnection()
-        {
-            if (localConnection != null)
-            {
-                localConnection.Disconnect();
-                localConnection.Dispose();
-                localConnection = null;
-            }
-            RemoveConnection(0);
-        }
-
-        internal static void ActivateLocalClientScene()
-        {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                if (!identity.isClient)
-                {
-                    if (LogFilter.Debug) Debug.Log("ActivateClientScene " + identity.netId + " " + identity);
-
-                    identity.OnStartClient();
-                }
-            }
-        }
-
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
@@ -233,12 +183,7 @@ namespace Mirror
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
+                    connectionIdsCache.Add(kvp.Key);
                 }
 
                 // send to all internet connections at once
@@ -299,12 +244,7 @@ namespace Mirror
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
             {
-                // use local connection directly because it doesn't send via transport
-                if (kvp.Value is ULocalConnectionToClient)
-                    result &= localConnection.Send(segment);
-                // gather all internet connections
-                else
-                    connectionIdsCache.Add(kvp.Key);
+                connectionIdsCache.Add(kvp.Key);
             }
 
             // send to all internet connections at once
@@ -379,13 +319,7 @@ namespace Mirror
                     if ((!isOwner || includeOwner) && kvp.Value.isReady)
                     {
                         count++;
-
-                        // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(kvp.Key);
+                        connectionIdsCache.Add(kvp.Key);
                     }
                 }
 
@@ -422,8 +356,6 @@ namespace Mirror
         public static void DisconnectAll()
         {
             DisconnectAllConnections();
-            localConnection = null;
-
             active = false;
         }
 
@@ -820,13 +752,6 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
-            {
-                identity.hasAuthority = true;
-                ClientScene.InternalAddPlayer(identity);
-            }
-
             // set ready if not set yet
             SetClientReady(conn);
 
@@ -876,13 +801,6 @@ namespace Mirror
             identity.SetClientOwner(conn);
 
             //NOTE: DONT set connection ready.
-
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
-            {
-                identity.hasAuthority = true;
-                ClientScene.InternalAddPlayer(identity);
-            }
 
             // add connection to observers AFTER the playerController was set.
             // by definition, there is nothing to observe if there is no player
@@ -1032,11 +950,6 @@ namespace Mirror
             }
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
-
-            // special case to make sure hasAuthority is set
-            // on start server in host mode
-            if (ownerConnection is ULocalConnectionToClient)
-                identity.hasAuthority = true;
 
             identity.OnStartServer();
 
@@ -1238,10 +1151,6 @@ namespace Mirror
             SendToObservers(identity, msg);
 
             identity.ClearObservers();
-            if (NetworkClient.active && localClientActive)
-            {
-                identity.OnNetworkDestroy();
-            }
 
             // when unspawning, dont destroy the server's object
             if (destroyServerObject)

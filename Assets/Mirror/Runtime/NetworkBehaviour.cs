@@ -55,16 +55,6 @@ namespace Mirror
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
         /// <summary>
-        /// True if this object only exists on the server
-        /// </summary>
-        public bool isServerOnly => isServer && !isClient;
-
-        /// <summary>
-        /// True if this object exists on a client that is not also acting as a server
-        /// </summary>
-        public bool isClientOnly => isClient && !isServer;
-
-        /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
         /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
         /// </summary>
@@ -87,20 +77,6 @@ namespace Mirror
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
-        ulong syncVarHookGuard;
-
-        protected bool getSyncVarHookGuard(ulong dirtyBit)
-        {
-            return (syncVarHookGuard & dirtyBit) != 0UL;
-        }
-
-        protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
-        {
-            if (value)
-                syncVarHookGuard |= dirtyBit;
-            else
-                syncVarHookGuard &= ~dirtyBit;
-        }
 
         /// <summary>
         /// Obsolete: Use <see cref="syncObjects"/> instead.
@@ -480,9 +456,6 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
-            if (getSyncVarHookGuard(dirtyBit))
-                return;
-
             uint newNetId = 0;
             if (newGameObject != null)
             {
@@ -543,9 +516,6 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
-            if (getSyncVarHookGuard(dirtyBit))
-                return;
-
             uint newNetId = 0;
             if (newIdentity != null)
             {
@@ -761,7 +731,7 @@ namespace Mirror
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
         /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
-        /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
+        /// <para>This will be called on a server.</para>
         /// </summary>
         public virtual void OnStartServer() {}
 
@@ -801,16 +771,6 @@ namespace Mirror
         {
             return false;
         }
-
-        [Obsolete("Rename to OnSetHostVisibility instead.")]
-        public virtual void OnSetLocalVisibility(bool visible) {}
-
-        /// <summary>
-        /// Callback used by the visibility system for objects on a host.
-        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visibile to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
-        /// </summary>
-        /// <param name="visible">New visibility state.</param>
-        public virtual void OnSetHostVisibility(bool visible) {}
 
         /// <summary>
         /// Callback used by the visibility system to determine if an observer (player) can see this object.

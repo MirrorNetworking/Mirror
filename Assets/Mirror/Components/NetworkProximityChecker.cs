@@ -155,20 +155,5 @@ namespace Mirror
             // Mirror knows not to use the built in rebuild method.
             return true;
         }
-
-        /// <summary>
-        /// Called when hiding and showing objects on the host.
-        /// On regular clients, objects simply spawn/despawn.
-        /// On host, objects need to remain in scene because the host is also the server.
-        ///    In that case, we simply hide/show meshes for the host player.
-        /// </summary>
-        /// <param name="visible"></param>
-        public override void OnSetHostVisibility(bool visible)
-        {
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-            {
-                rend.enabled = visible;
-            }
-        }
     }
 }

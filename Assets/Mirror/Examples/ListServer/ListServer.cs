@@ -51,7 +51,6 @@ namespace Mirror.Examples.ListServer
         public Transform content;
         public Text statusText;
         public UIServerStatusSlot slotPrefab;
-        public Button serverAndPlayButton;
         public Button serverOnlyButton;
         public GameObject connectingPanel;
         public Text connectingText;
@@ -295,13 +294,7 @@ namespace Mirror.Examples.ListServer
                     });
                 }
 
-                // server buttons
-                serverAndPlayButton.interactable = !IsConnecting();
-                serverAndPlayButton.onClick.RemoveAllListeners();
-                serverAndPlayButton.onClick.AddListener(() => {
-                    NetworkManager.singleton.StartHost();
-                });
-
+                // server button
                 serverOnlyButton.interactable = !IsConnecting();
                 serverOnlyButton.onClick.RemoveAllListeners();
                 serverOnlyButton.onClick.AddListener(() => {
