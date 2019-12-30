@@ -371,7 +371,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(int msgType, NetworkMessageDelegate handler)
@@ -384,7 +384,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="RegisterHandler{T}"/> instead
+        /// Obsolete: Use <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)"/> instead
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use RegisterHandler<T> instead")]
         public static void RegisterHandler(MsgType msgType, NetworkMessageDelegate handler)
