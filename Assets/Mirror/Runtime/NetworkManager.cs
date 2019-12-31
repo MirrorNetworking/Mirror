@@ -237,13 +237,18 @@ namespace Mirror
 
         #region Start & Stop
 
-        /// <summary>
-        /// This starts a new server.
-        /// <para>This uses the networkPort property as the listen port.</para>
-        /// </summary>
-        /// <returns></returns>
-        public bool StartServer()
+        // keep the online scene change check in a separate function
+        bool IsServerOnlineSceneChangeNeeded()
         {
+            // Only change scene if the requested online scene is not blank, and is not already loaded
+            string loadedSceneName = SceneManager.GetActiveScene().name;
+            return !string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene;
+        }
+
+        // full server setup code, without spawning objects yet
+        void SetupServer()
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
             InitializeSingleton();
 
             if (runInBackground)
@@ -257,11 +262,8 @@ namespace Mirror
 
             ConfigureServerFrameRate();
 
-            if (!NetworkServer.Listen(maxConnections))
-            {
-                Debug.LogError("StartServer listen failed.");
-                return false;
-            }
+            // start listening to network connections
+            NetworkServer.Listen(maxConnections);
 
             // call OnStartServer AFTER Listen, so that NetworkServer.active is
             // true and we can call NetworkServer.Spawn in OnStartServer
@@ -276,20 +278,28 @@ namespace Mirror
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
 
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
             isNetworkActive = true;
+        }
 
-            // Only change scene if the requested online scene is not blank, and is not already loaded
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (!string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene)
+        /// <summary>
+        /// This starts a new server.
+        /// <para>This uses the networkPort property as the listen port.</para>
+        /// </summary>
+        /// <returns></returns>
+        public void StartServer()
+        {
+            SetupServer();
+
+            // scene change needed? then change scene and spawn afterwards.
+            if (IsServerOnlineSceneChangeNeeded())
             {
                 ServerChangeScene(onlineScene);
             }
+            // otherwise spawn directly
             else
             {
                 NetworkServer.SpawnObjects();
             }
-            return true;
         }
 
         /// <summary>
@@ -355,19 +365,46 @@ namespace Mirror
             OnStartClient();
         }
 
+        void StartHostClient()
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+
+            networkAddress = "localhost";
+            NetworkServer.ActivateLocalClientScene();
+            RegisterClientMessages();
+
+            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
+            // (https://github.com/vis2k/Mirror/pull/1249/)
+            NetworkClient.ConnectLocalServer();
+
+            OnStartClient();
+        }
+
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
         /// </summary>
         public virtual void StartHost()
         {
+            // setup server first
+            SetupServer();
+
+            // call OnStartHost AFTER SetupServer. this way we can use
+            // NetworkServer.Spawn etc. in there too. just like OnStartServer
+            // is called after the server is actually properly started.
             OnStartHost();
 
-            // SetupLocalConnection needs to be called BEFORE StartServer:
+            // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
-            // -> localConnection needs to be set before StartServer because:
-            //    -> StartServer calls OnStartServer
+            // -> localConnection needs to be set before SpawnObjects because:
+            //    -> SpawnObjects calls OnStartServer in all NetworkBehaviours
             //       -> OnStartServer might spawn an object and set [SyncVar(hook="OnColorChanged")] object.color = green;
             //          -> this calls SyncVar.set (generated by Weaver), which has
             //             a custom case for host mode (because host mode doesn't
@@ -387,12 +424,22 @@ namespace Mirror
             //
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
-            NetworkClient.SetupLocalConnection();
-            if (StartServer())
+            NetworkClient.ConnectHost();
+
+            // scene change needed? then change scene and spawn afterwards.
+            if (IsServerOnlineSceneChangeNeeded())
             {
-                ConnectLocalClient();
-                OnStartClient();
+                ServerChangeScene(onlineScene);
             }
+            // otherwise spawn directly
+            else
+            {
+                NetworkServer.SpawnObjects();
+            }
+
+            // connect client and call OnStartClient AFTER any possible server
+            // scene changes.
+            StartHostClient();
         }
 
         /// <summary>
@@ -544,25 +591,6 @@ namespace Mirror
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
-        }
-
-        void ConnectLocalClient()
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
-            RegisterClientMessages();
-
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
-            // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
         }
 
         void RegisterClientMessages()

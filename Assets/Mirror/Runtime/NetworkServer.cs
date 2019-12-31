@@ -129,7 +129,7 @@ namespace Mirror
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
         /// <returns></returns>
-        public static bool Listen(int maxConns)
+        public static void Listen(int maxConns)
         {
             Initialize();
             maxConnections = maxConns;
@@ -143,7 +143,6 @@ namespace Mirror
 
             active = true;
             RegisterMessageHandlers();
-            return true;
         }
 
         /// <summary>
