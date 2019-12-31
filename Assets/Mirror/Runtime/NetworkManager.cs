@@ -280,6 +280,8 @@ namespace Mirror
         /// <returns></returns>
         public void StartServer()
         {
+            if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
+
             InitializeSingleton();
 
             if (runInBackground)
@@ -309,7 +311,6 @@ namespace Mirror
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
 
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
             isNetworkActive = true;
 
             // scene change needed? then change scene and spawn afterwards.
