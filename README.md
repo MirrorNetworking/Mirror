@@ -44,6 +44,7 @@ Mirror supports many different low level networking transports:
 * (built in) https://github.com/vis2k/Telepathy (Telepathy)
 * (built in) Unity's LLAPI
 * (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
+* https://mirror-networking.com/apathy/ (Apathy)
 * https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
 * https://github.com/SoftwareGuy/Ignorance/ (ENet)
 * https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
