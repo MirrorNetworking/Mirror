@@ -16,20 +16,20 @@ namespace Mirror
         /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
         /// </summary>
-        public bool showRoomGUI = true;
+        public bool ShowRoomGUI = true;
 
         /// <summary>
         /// This is a flag that control whether this player is ready for the game to begin.
         /// <para>When all players are ready to begin, the game will start. This should not be set directly, the SendReadyToBeginMessage function should be called on the client to set it on the server.</para>
         /// </summary>
         [SyncVar(hook = nameof(ReadyStateChanged))]
-        public bool readyToBegin;
+        public bool ReadyToBegin;
 
         /// <summary>
         /// Current index of the player, e.g. Player1, Player2, etc.
         /// </summary>
         [SyncVar]
-        public int index;
+        public int Index;
 
         #region Unity Callbacks
 
@@ -59,8 +59,8 @@ namespace Mirror
         [Command]
         public void CmdChangeReadyState(bool readyState)
         {
-            readyToBegin = readyState;
-            NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
+            ReadyToBegin = readyState;
+            var room = NetworkManager.singleton as NetworkRoomManager;
             if (room != null)
             {
                 room.ReadyStatusChanged();
@@ -107,10 +107,10 @@ namespace Mirror
         /// </summary>
         public virtual void OnGUI()
         {
-            if (!showRoomGUI)
+            if (!ShowRoomGUI)
                 return;
 
-            NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
+            var room = NetworkManager.singleton as NetworkRoomManager;
             if (room)
             {
                 if (!room.showRoomGUI)
@@ -119,16 +119,16 @@ namespace Mirror
                 if (SceneManager.GetActiveScene().name != room.RoomScene)
                     return;
 
-                GUILayout.BeginArea(new Rect(20f + (index * 100), 200f, 90f, 130f));
+                GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
 
-                GUILayout.Label($"Player [{index + 1}]");
+                GUILayout.Label($"Player [{Index + 1}]");
 
-                if (readyToBegin)
+                if (ReadyToBegin)
                     GUILayout.Label("Ready");
                 else
                     GUILayout.Label("Not Ready");
 
-                if (((isServer && index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
+                if (((isServer && Index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
                 {
                     // This button only shows on the Host for all players other than the Host
                     // Host and Players can't remove themselves (stop the client instead)
@@ -142,7 +142,7 @@ namespace Mirror
                 {
                     GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 
-                    if (readyToBegin)
+                    if (ReadyToBegin)
                     {
                         if (GUILayout.Button("Cancel"))
                             CmdChangeReadyState(false);

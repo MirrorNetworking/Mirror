@@ -9,21 +9,21 @@ namespace Mirror.Authenticators
         [Header("Custom Properties")]
 
         // set these in the inspector
-        public string username;
-        public string password;
+        public string Username;
+        public string Password;
 
         public class AuthRequestMessage : MessageBase
         {
             // use whatever credentials make sense for your game
             // for example, you might want to pass the accessToken if using oauth
-            public string authUsername;
-            public string authPassword;
+            public string AuthUsername;
+            public string AuthPassword;
         }
 
         public class AuthResponseMessage : MessageBase
         {
-            public byte code;
-            public string message;
+            public byte Code;
+            public string Message;
         }
 
         public override void OnStartServer()
@@ -45,10 +45,10 @@ namespace Mirror.Authenticators
 
         public override void OnClientAuthenticate(NetworkConnection conn)
         {
-            AuthRequestMessage authRequestMessage = new AuthRequestMessage
+            var authRequestMessage = new AuthRequestMessage
             {
-                authUsername = username,
-                authPassword = password
+                AuthUsername = Username,
+                AuthPassword = Password
             };
 
             NetworkClient.Send(authRequestMessage);
@@ -56,16 +56,16 @@ namespace Mirror.Authenticators
 
         public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
         {
-            Debug.LogFormat("Authentication Request: {0} {1}", msg.authUsername, msg.authPassword);
+            Debug.LogFormat("Authentication Request: {0} {1}", msg.AuthUsername, msg.AuthPassword);
 
             // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-            if (msg.authUsername == username && msg.authPassword == password)
+            if (msg.AuthUsername == Username && msg.AuthPassword == Password)
             {
                 // create and send msg to client so it knows to proceed
-                AuthResponseMessage authResponseMessage = new AuthResponseMessage
+                var authResponseMessage = new AuthResponseMessage
                 {
-                    code = 100,
-                    message = "Success"
+                    Code = 100,
+                    Message = "Success"
                 };
 
                 conn.Send(authResponseMessage);
@@ -76,10 +76,10 @@ namespace Mirror.Authenticators
             else
             {
                 // create and send msg to client so it knows to disconnect
-                AuthResponseMessage authResponseMessage = new AuthResponseMessage
+                var authResponseMessage = new AuthResponseMessage
                 {
-                    code = 200,
-                    message = "Invalid Credentials"
+                    Code = 200,
+                    Message = "Invalid Credentials"
                 };
 
                 conn.Send(authResponseMessage);
@@ -100,16 +100,16 @@ namespace Mirror.Authenticators
 
         public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
         {
-            if (msg.code == 100)
+            if (msg.Code == 100)
             {
-                Debug.LogFormat("Authentication Response: {0}", msg.message);
+                Debug.LogFormat("Authentication Response: {0}", msg.Message);
 
                 // Invoke the event to complete a successful authentication
                 base.OnClientAuthenticated.Invoke(conn);
             }
             else
             {
-                Debug.LogErrorFormat("Authentication Response: {0}", msg.message);
+                Debug.LogErrorFormat("Authentication Response: {0}", msg.Message);
 
                 // Set this on the client for local reference
                 conn.isAuthenticated = false;

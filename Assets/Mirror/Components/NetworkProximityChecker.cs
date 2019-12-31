@@ -25,13 +25,13 @@ namespace Mirror
         /// The maximim range that objects will be visible at.
         /// </summary>
         [Tooltip("The maximum range that objects will be visible at.")]
-        public int visRange = 10;
+        public int VisibilityRange = 10;
 
         /// <summary>
         /// How often (in seconds) that this object should update the list of observers that can see it.
         /// </summary>
         [Tooltip("How often (in seconds) that this object should update the list of observers that can see it.")]
-        public float visUpdateInterval = 1;
+        public float VisibilityUpdateInterval = 1;
 
         /// <summary>
         /// Which method to use for checking proximity of players.
@@ -39,14 +39,14 @@ namespace Mirror
         /// <para>Physics2D uses 2D physics to determine proximity.</para>
         /// </summary>
         [Tooltip("Which method to use for checking proximity of players.\n\nPhysics3D uses 3D physics to determine proximity.\nPhysics2D uses 2D physics to determine proximity.")]
-        public CheckMethod checkMethod = CheckMethod.Physics3D;
+        public CheckMethod ActualCheckMethod = CheckMethod.Physics3D;
 
         /// <summary>
         /// Flag to force this object to be hidden for players.
         /// <para>If this object is a player object, it will not be hidden for that player.</para>
         /// </summary>
         [Tooltip("Enable to force this object to be hidden from players.")]
-        public bool forceHidden;
+        public bool ForceHidden;
 
         // Layers are used anyway, might as well expose them to the user.
         /// <summary>
@@ -54,7 +54,7 @@ namespace Mirror
         /// <para>~0 means 'Everything'.</para>
         /// </summary>
         [Tooltip("Select only the Player's layer to avoid unnecessary SphereCasts against the Terrain, etc.")]
-        public LayerMask castLayers = ~0;
+        public LayerMask CastLayers = ~0;
 
         float lastUpdateTime;
 
@@ -63,15 +63,15 @@ namespace Mirror
         // -> this is worth it because proximity checking happens for just about
         //    every entity on the server!
         // -> should be big enough to work in just about all cases
-        static Collider[] hitsBuffer3D = new Collider[10000];
-        static Collider2D[] hitsBuffer2D = new Collider2D[10000];
+        static readonly Collider[] hitsBuffer3D = new Collider[10000];
+        static readonly Collider2D[] hitsBuffer2D = new Collider2D[10000];
 
         void Update()
         {
             if (!NetworkServer.active)
                 return;
 
-            if (Time.time - lastUpdateTime > visUpdateInterval)
+            if (Time.time - lastUpdateTime > VisibilityUpdateInterval)
             {
                 netIdentity.RebuildObservers(false);
                 lastUpdateTime = Time.time;
@@ -85,10 +85,10 @@ namespace Mirror
         /// <returns></returns>
         public override bool OnCheckObserver(NetworkConnection newObserver)
         {
-            if (forceHidden)
+            if (ForceHidden)
                 return false;
 
-            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < visRange;
+            return Vector3.Distance(newObserver.identity.transform.position, transform.position) < VisibilityRange;
         }
 
         /// <summary>
@@ -100,18 +100,18 @@ namespace Mirror
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initial)
         {
             // if force hidden then return without adding any observers.
-            if (forceHidden)
+            if (ForceHidden)
                 // always return true when overwriting OnRebuildObservers so that
                 // Mirror knows not to use the built in rebuild method.
                 return true;
 
             // find players within range
-            switch (checkMethod)
+            switch (ActualCheckMethod)
             {
                 case CheckMethod.Physics3D:
                     {
                         // cast without allocating GC for maximum performance
-                        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, visRange, hitsBuffer3D, castLayers);
+                        int hitCount = Physics.OverlapSphereNonAlloc(transform.position, VisibilityRange, hitsBuffer3D, CastLayers);
                         if (hitCount == hitsBuffer3D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapSphere test for " + name + " has filled the whole buffer(" + hitsBuffer3D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
                         for (int i = 0; i < hitCount; i++)
@@ -132,7 +132,7 @@ namespace Mirror
                 case CheckMethod.Physics2D:
                     {
                         // cast without allocating GC for maximum performance
-                        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, visRange, hitsBuffer2D, castLayers);
+                        int hitCount = Physics2D.OverlapCircleNonAlloc(transform.position, VisibilityRange, hitsBuffer2D, CastLayers);
                         if (hitCount == hitsBuffer2D.Length) Debug.LogWarning("NetworkProximityChecker's OverlapCircle test for " + name + " has filled the whole buffer(" + hitsBuffer2D.Length + "). Some results might have been omitted. Consider increasing buffer size.");
 
                         for (int i = 0; i < hitCount; i++)

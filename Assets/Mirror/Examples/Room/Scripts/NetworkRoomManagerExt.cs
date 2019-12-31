@@ -16,7 +16,7 @@ namespace Mirror.Examples.NetworkRoom
         public override bool OnRoomServerSceneLoadedForPlayer(GameObject roomPlayer, GameObject gamePlayer)
         {
             PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
-            playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
+            playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().Index;
             return true;
         }
 
@@ -44,7 +44,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             base.OnGUI();
 
-            if (allPlayersReady && showStartButton && GUI.Button(new Rect(150, 300, 120, 20), "START GAME"))
+            if (AllPlayersReady && showStartButton && GUI.Button(new Rect(150, 300, 120, 20), "START GAME"))
             {
                 // set to false to hide it in the game scene
                 showStartButton = false;
