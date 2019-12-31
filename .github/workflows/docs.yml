@@ -1,4 +1,4 @@
-name: CI
+name: Docs
 
 on: [push]
 
@@ -9,7 +9,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - uses: nikeee/docfx-action@master
-      name: Build Documentation
+    - name: Generate API
+      uses: nikeee/docfx-action@master
       with:
-        args: doc/docfx.json
+        args: metadata doc/docfx.json
+    - name: Compile Docs
+      uses: nikeee/docfx-action@master
+      with:
+        args: build doc/docfx.json
+    - name: GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v1.2.5
+      if: github.ref == 'refs/heads/master'
+      with:
+        # Create incremental commit instead of doing push force
+        keep_history: true
+        # Allow an empty commit to be created
+        allow_empty_commit: False
+        # Build directory to deploy
+        build_dir: doc/_site
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
