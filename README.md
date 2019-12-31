@@ -48,7 +48,7 @@ The preferred installation method is Unity Package manager.
 2) Click on Windows -> Package Manager
 3) Click on the plus sign on the left and click on "Add package from git URL..."
 4) enter https://github.com/MirrorNG/MirrorNG.git#upm
-5) Unity will download and install mirror for you
+5) Unity will download and install MirrorNG
 
 Alternatively you can it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
 
