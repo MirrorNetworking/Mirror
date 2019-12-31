@@ -98,7 +98,6 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         [Header("Authentication")]
-
         public NetworkAuthenticator authenticator;
 
         /// <summary>
