@@ -1,0 +1,15 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: nikeee/docfx-action@master
+      name: Build Documentation
+      with:
+        args: doc/docfx.json
