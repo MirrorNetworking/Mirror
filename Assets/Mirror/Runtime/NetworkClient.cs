@@ -110,9 +110,9 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal static void SetupLocalConnection()
+        internal static void ConnectHost()
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect Local Server");
+            if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
 

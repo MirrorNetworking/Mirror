@@ -407,7 +407,7 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost();
 
-            // SetupLocalConnection needs to be called BEFORE SpawnObjects:
+            // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
             // -> localConnection needs to be set before SpawnObjects because:
@@ -431,7 +431,7 @@ namespace Mirror
             //
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
-            NetworkClient.SetupLocalConnection();
+            NetworkClient.ConnectHost();
 
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
