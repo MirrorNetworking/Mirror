@@ -56,7 +56,7 @@ namespace Mirror
         internal void DrawChild(Rect r, int index, bool isActive, bool isFocused)
         {
             SerializedProperty prefab = spawnListProperty.GetArrayElementAtIndex(index);
-            GameObject go = (GameObject)prefab.objectReferenceValue;
+            var go = (GameObject)prefab.objectReferenceValue;
 
             GUIContent label;
             if (go == null)
@@ -69,7 +69,7 @@ namespace Mirror
                 label = new GUIContent(go.name, identity != null ? "AssetId: [" + identity.assetId + "]" : "No Network Identity");
             }
 
-            GameObject newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
+            var newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
 
             if (newGameObject != go)
             {

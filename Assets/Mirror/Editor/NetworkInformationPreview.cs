@@ -10,53 +10,53 @@ namespace Mirror
     {
         class NetworkIdentityInfo
         {
-            public GUIContent name;
-            public GUIContent value;
+            public GUIContent Name;
+            public GUIContent Value;
         }
 
         class NetworkBehaviourInfo
         {
             // This is here just so we can check if it's enabled/disabled
-            public NetworkBehaviour behaviour;
-            public GUIContent name;
+            public NetworkBehaviour Behaviour;
+            public GUIContent Name;
         }
 
         class Styles
         {
-            public GUIStyle labelStyle = new GUIStyle(EditorStyles.label);
-            public GUIStyle componentName = new GUIStyle(EditorStyles.boldLabel);
-            public GUIStyle disabledName = new GUIStyle(EditorStyles.miniLabel);
+            public GUIStyle LabelStyle = new GUIStyle(EditorStyles.label);
+            public GUIStyle ComponentName = new GUIStyle(EditorStyles.boldLabel);
+            public GUIStyle DisabledName = new GUIStyle(EditorStyles.miniLabel);
 
             public Styles()
             {
                 Color fontColor = new Color(0.7f, 0.7f, 0.7f);
-                labelStyle.padding.right += 20;
-                labelStyle.normal.textColor    = fontColor;
-                labelStyle.active.textColor    = fontColor;
-                labelStyle.focused.textColor   = fontColor;
-                labelStyle.hover.textColor     = fontColor;
-                labelStyle.onNormal.textColor  = fontColor;
-                labelStyle.onActive.textColor  = fontColor;
-                labelStyle.onFocused.textColor = fontColor;
-                labelStyle.onHover.textColor   = fontColor;
+                LabelStyle.padding.right += 20;
+                LabelStyle.normal.textColor    = fontColor;
+                LabelStyle.active.textColor    = fontColor;
+                LabelStyle.focused.textColor   = fontColor;
+                LabelStyle.hover.textColor     = fontColor;
+                LabelStyle.onNormal.textColor  = fontColor;
+                LabelStyle.onActive.textColor  = fontColor;
+                LabelStyle.onFocused.textColor = fontColor;
+                LabelStyle.onHover.textColor   = fontColor;
 
-                componentName.normal.textColor = fontColor;
-                componentName.active.textColor = fontColor;
-                componentName.focused.textColor = fontColor;
-                componentName.hover.textColor = fontColor;
-                componentName.onNormal.textColor = fontColor;
-                componentName.onActive.textColor = fontColor;
-                componentName.onFocused.textColor = fontColor;
-                componentName.onHover.textColor = fontColor;
+                ComponentName.normal.textColor = fontColor;
+                ComponentName.active.textColor = fontColor;
+                ComponentName.focused.textColor = fontColor;
+                ComponentName.hover.textColor = fontColor;
+                ComponentName.onNormal.textColor = fontColor;
+                ComponentName.onActive.textColor = fontColor;
+                ComponentName.onFocused.textColor = fontColor;
+                ComponentName.onHover.textColor = fontColor;
 
-                disabledName.normal.textColor = fontColor;
-                disabledName.active.textColor = fontColor;
-                disabledName.focused.textColor = fontColor;
-                disabledName.hover.textColor = fontColor;
-                disabledName.onNormal.textColor = fontColor;
-                disabledName.onActive.textColor = fontColor;
-                disabledName.onFocused.textColor = fontColor;
-                disabledName.onHover.textColor = fontColor;
+                DisabledName.normal.textColor = fontColor;
+                DisabledName.active.textColor = fontColor;
+                DisabledName.focused.textColor = fontColor;
+                DisabledName.hover.textColor = fontColor;
+                DisabledName.onNormal.textColor = fontColor;
+                DisabledName.onActive.textColor = fontColor;
+                DisabledName.onFocused.textColor = fontColor;
+                DisabledName.onHover.textColor = fontColor;
             }
         }
 
@@ -102,24 +102,24 @@ namespace Mirror
 
             // Get required label size for the names of the information values we're going to show
             // There are two columns, one with label for the name of the info and the next for the value
-            Vector2 maxNameLabelSize = new Vector2(140, 16);
+            var maxNameLabelSize = new Vector2(140, 16);
             Vector2 maxValueLabelSize = GetMaxNameLabelSize();
 
             //Apply padding
-            RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
+            var previewPadding = new RectOffset(-5, -5, -5, -5);
             Rect paddedr = previewPadding.Add(r);
 
             //Centering
             float initialX = paddedr.x + 10;
             float initialY = paddedr.y + 10;
 
-            Rect labelRect = new Rect(initialX, initialY, maxNameLabelSize.x, maxNameLabelSize.y);
-            Rect idLabelRect = new Rect(maxNameLabelSize.x, initialY, maxValueLabelSize.x, maxValueLabelSize.y);
+            var labelRect = new Rect(initialX, initialY, maxNameLabelSize.x, maxNameLabelSize.y);
+            var idLabelRect = new Rect(maxNameLabelSize.x, initialY, maxValueLabelSize.x, maxValueLabelSize.y);
 
             foreach (NetworkIdentityInfo info in info)
             {
-                GUI.Label(labelRect, info.name, styles.labelStyle);
-                GUI.Label(idLabelRect, info.value, styles.componentName);
+                GUI.Label(labelRect, info.Name, styles.LabelStyle);
+                GUI.Label(idLabelRect, info.Value, styles.ComponentName);
                 labelRect.y += labelRect.height;
                 labelRect.x = initialX;
                 idLabelRect.y += idLabelRect.height;
@@ -130,36 +130,36 @@ namespace Mirror
             if (behavioursInfo != null && behavioursInfo.Count > 0)
             {
                 Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize();
-                Rect behaviourRect = new Rect(initialX, labelRect.y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
+                var behaviourRect = new Rect(initialX, labelRect.y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
 
-                GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
+                GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.LabelStyle);
                 behaviourRect.x += 20; // indent names
                 behaviourRect.y += behaviourRect.height;
 
                 foreach (NetworkBehaviourInfo info in behavioursInfo)
                 {
-                    if (info.behaviour == null)
+                    if (info.Behaviour == null)
                     {
                         // could be the case in the editor after existing play mode.
                         continue;
                     }
 
-                    GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
+                    GUI.Label(behaviourRect, info.Name, info.Behaviour.enabled ? styles.ComponentName : styles.DisabledName);
                     behaviourRect.y += behaviourRect.height;
                     lastY = behaviourRect.y;
                 }
 
                 if (identity.observers != null && identity.observers.Count > 0)
                 {
-                    Rect observerRect = new Rect(initialX, lastY + 10, 200, 20);
+                    var observerRect = new Rect(initialX, lastY + 10, 200, 20);
 
-                    GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
+                    GUI.Label(observerRect, new GUIContent("Network observers"), styles.LabelStyle);
                     observerRect.x += 20; // indent names
                     observerRect.y += observerRect.height;
 
                     foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                     {
-                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.componentName);
+                        GUI.Label(observerRect, kvp.Value.address + ":" + kvp.Value, styles.ComponentName);
                         observerRect.y += observerRect.height;
                         lastY = observerRect.y;
                     }
@@ -167,8 +167,8 @@ namespace Mirror
 
                 if (identity.connectionToClient != null)
                 {
-                    Rect ownerRect = new Rect(initialX, lastY + 10, 400, 20);
-                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.labelStyle);
+                    var ownerRect = new Rect(initialX, lastY + 10, 400, 20);
+                    GUI.Label(ownerRect, new GUIContent("Client Authority: " + identity.connectionToClient), styles.LabelStyle);
                 }
             }
         }
@@ -176,10 +176,10 @@ namespace Mirror
         // Get the maximum size used by the value of information items
         Vector2 GetMaxNameLabelSize()
         {
-            Vector2 maxLabelSize = Vector2.zero;
+            var maxLabelSize = Vector2.zero;
             foreach (NetworkIdentityInfo info in info)
             {
-                Vector2 labelSize = styles.labelStyle.CalcSize(info.value);
+                Vector2 labelSize = styles.LabelStyle.CalcSize(info.Value);
                 if (maxLabelSize.x < labelSize.x)
                 {
                     maxLabelSize.x = labelSize.x;
@@ -194,10 +194,10 @@ namespace Mirror
 
         Vector2 GetMaxBehaviourLabelSize()
         {
-            Vector2 maxLabelSize = Vector2.zero;
+            var maxLabelSize = Vector2.zero;
             foreach (NetworkBehaviourInfo behaviour in behavioursInfo)
             {
-                Vector2 labelSize = styles.labelStyle.CalcSize(behaviour.name);
+                Vector2 labelSize = styles.LabelStyle.CalcSize(behaviour.Name);
                 if (maxLabelSize.x < labelSize.x)
                 {
                     maxLabelSize.x = labelSize.x;
@@ -239,10 +239,10 @@ namespace Mirror
                     behavioursInfo = new List<NetworkBehaviourInfo>();
                     foreach (NetworkBehaviour behaviour in behaviours)
                     {
-                        NetworkBehaviourInfo info = new NetworkBehaviourInfo
+                        var info = new NetworkBehaviourInfo
                         {
-                            name = new GUIContent(behaviour.GetType().FullName),
-                            behaviour = behaviour
+                            Name = new GUIContent(behaviour.GetType().FullName),
+                            Behaviour = behaviour
                         };
                         behavioursInfo.Add(info);
                     }
@@ -262,20 +262,20 @@ namespace Mirror
 
         static NetworkIdentityInfo GetString(string name, string value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo
+            var info = new NetworkIdentityInfo
             {
-                name = new GUIContent(name),
-                value = new GUIContent(value)
+                Name = new GUIContent(name),
+                Value = new GUIContent(value)
             };
             return info;
         }
 
         static NetworkIdentityInfo GetBoolean(string name, bool value)
         {
-            NetworkIdentityInfo info = new NetworkIdentityInfo
+            var info = new NetworkIdentityInfo
             {
-                name = new GUIContent(name),
-                value = new GUIContent((value ? "Yes" : "No"))
+                Name = new GUIContent(name),
+                Value = new GUIContent((value ? "Yes" : "No"))
             };
             return info;
         }
