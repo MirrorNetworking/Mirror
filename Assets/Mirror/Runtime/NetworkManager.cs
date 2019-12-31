@@ -399,6 +399,7 @@ namespace Mirror
         /// </summary>
         public virtual void StartHost()
         {
+            // setup server first
             OnStartHost();
             SetupServer();
 
@@ -439,6 +440,8 @@ namespace Mirror
                 NetworkServer.SpawnObjects();
             }
 
+            // connect client and call OnStartClient AFTER any possible server
+            // scene changes.
             ConnectLocalClient();
             OnStartClient();
         }
