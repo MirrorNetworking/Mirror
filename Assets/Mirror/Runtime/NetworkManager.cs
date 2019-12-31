@@ -393,6 +393,25 @@ namespace Mirror
             OnStartClient();
         }
 
+        void ConnectLocalClient()
+        {
+            if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+
+            networkAddress = "localhost";
+            NetworkServer.ActivateLocalClientScene();
+            RegisterClientMessages();
+
+            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
+            // (https://github.com/vis2k/Mirror/pull/1249/)
+            NetworkClient.ConnectLocalServer();
+        }
+
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
@@ -599,25 +618,6 @@ namespace Mirror
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<RemovePlayerMessage>(OnServerRemovePlayerMessageInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
-        }
-
-        void ConnectLocalClient()
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
-            RegisterClientMessages();
-
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
-            // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
         }
 
         void RegisterClientMessages()
