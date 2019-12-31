@@ -23,14 +23,18 @@ What previously required **10.000** lines of code, now takes **1.000** lines of 
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
-## Changelog
-This is a work in progress branch.  The differences with mirror branch are:
+## Why fork Mirror?
+I have worked on Mirror for over a year, I am the one that came up with the name and the second contributor. It has served me well and there are some really smart people working on it.
 
- * It is no longer built as dlls,  you import the source directly in your unity project
- * The TCP transport uses asynchronous instead of threads.  From our testing,  this scales a lot better.
- * It only works in Unity 2018.2 and later,  support for 2017.4 has been dropped
- * Only TCP transport is provided as of this writing,  LLAPI and websockets are WIP
- * Proper error handling.  Just override OnClientError and OnServerError in your network manager
+However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
+
+In addition, Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the date I should be able to reduce the amount of defects significantly.
+
+Mirror employes some anti-patterns that I am not happy with. I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Mirror employs singletons heavily because they are easy,  but they are plain evil. They are much more evil in light of the upcoming Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
+
+Mirror has it's own code conventions based on one person's preference.  I prefer following official C# code conventions.  Anybody that speaks C# should feel right at home with this code.
+
+Code review takes too long in Mirror.  I think code reviews are top priority.
 
 ## Documentation
 Check out our [Documentation](https://mirror-networking.com/docs/).
@@ -38,42 +42,41 @@ Check out our [Documentation](https://mirror-networking.com/docs/).
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
-We **recommend** to download the most **stable Mirror version** from the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321)!
+Installation will happen via Unity package manager, To be set up.  
 
-For the latest improvements, [Download Mirror](https://github.com/vis2k/Mirror/releases) directly from this repository and extract it in your Assets folder.
+Alternatively you can it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
 
 ## Examples
-We included several smaller example projects in Mirror.
-
-For a fully polished, complete project example, consider [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-51212) or [uSurvival](https://assetstore.unity.com/packages/templates/systems/usurvival-95015).
+We included several smaller example projects.
 
 ## Transports
-Mirror supports many different low level networking transports:
+MirrorNG supports many different low level networking transports:
 
 * (built in) https://github.com/vis2k/Telepathy (Telepathy)
 * (built in) Unity's LLAPI
 * (built in) https://github.com/ninjasource/Ninja.WebSockets (Websockets)
-* https://github.com/Raystorms/FizzySteamyMirror/ (SteamNetwork)
-* https://github.com/SoftwareGuy/Ignorance/ (ENet)
-* https://github.com/MichalPetryka/LiteNetLib4Mirror (LiteNetLib)
 
-## Donations & Priority Support
-Please support [Mirror on GitHub](https://github.com/sponsors/vis2k). Priority support included!
+## The MirrorNG Mantra
+So many quotes to chose from.  This one in particular really encapsulates why this exists:
 
-## Benchmarks
-* Telepathy [1000 connections](https://github.com/vis2k/Telepathy) test
-* [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
-* [uSurvival 122 CCU worst case test](https://docs.google.com/document/d/e/2PACX-1vT28FcGXYlbG8gwi8DhD914n7K-wCAE8qhfetPkSli96ikc1Td3zJO1IiwVhfPVtKUHF0l3N7ZkM5GU/pub#h.pwbvffnwcewe)
+> _“All code is guilty, until proven innocent.” – Anonymous
 
-## The Mirror Mantra
-> _“Would you tell me, please, which way I ought to go from here?”_<br/>
-> _“That depends a good deal on where you want to get to,"_ said the Cat.<br/>
-> _"I don’t much care where—“_ said Alice.<br/>
-> _“Then it doesn’t matter which way you go,”_ said the Cat.<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Alice in Wonderland _(Lewis Carroll)_
+I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. 
 
-As Indie Developers, **our #1 goal** for Mirror is **Ease of Use**.
+## Contributing to MirrorNG
 
-If you want to contribute, always follow the [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. As result, the code will be stable, easy to understand, easy to modify and easy to maintain 5 years from now when our games are still running.
+There are several ways to contribute to this project:
+
+* Pull requests for bug fixes and features are always appreciated.
+* Pull requests to improve the documentation is also welcome
+* Make tutorials on how to use this
+* Test it and open issues
+* Review existing pull requests
+
+When contributing code, please keep these things in mind:
+
+* [KISS](https://en.wikipedia.org/wiki/KISS_principle) principle. Everything needs to be **as simple as possible**. 
+* An API is like a joke,  if you have to explain it is not a good one.  Do not require people to read the documentation if you can avoid it.
+* Follow [C# code conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions).
 
 Pull Requests for bug fixes are always highly appreciated. New features will be considered very carefully and will only be merged if they are the most simple solution to the given problem.
