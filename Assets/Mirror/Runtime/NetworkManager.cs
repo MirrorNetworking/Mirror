@@ -707,6 +707,7 @@ namespace Mirror
             yield return null;
             yield return null;
 
+            // extra check, just to be sure
             if (SceneManager.GetActiveScene().name != sceneName)
                 Debug.LogError("LoadSceneBlockingCoroutine failed. Maybe wait longer?");
         }
