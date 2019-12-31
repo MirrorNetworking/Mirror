@@ -757,6 +757,7 @@ namespace Mirror
             // always need to respawn server objects after changing scene.
             // previously this was done in OnSceneLoaded.
             NetworkServer.SpawnObjects();
+            OnServerSceneChanged(networkSceneName);
         }
 
         internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal, bool customHandling = false)
@@ -825,6 +826,12 @@ namespace Mirror
         {
             if (mode == LoadSceneMode.Additive)
             {
+                if (NetworkServer.active)
+                {
+                    // TODO only respawn the server objects from that scene later!
+                    NetworkServer.SpawnObjects();
+                    Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
+                }
                 if (NetworkClient.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
@@ -857,12 +864,6 @@ namespace Mirror
                 OnClientConnect(clientReadyConnection);
                 clientLoadedScene = true;
                 clientReadyConnection = null;
-            }
-
-            if (NetworkServer.active)
-            {
-                NetworkServer.SpawnObjects();
-                OnServerSceneChanged(networkSceneName);
             }
 
             if (NetworkClient.isConnected)
