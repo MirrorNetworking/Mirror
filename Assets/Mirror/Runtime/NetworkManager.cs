@@ -278,7 +278,7 @@ namespace Mirror
         /// <para>This uses the networkPort property as the listen port.</para>
         /// </summary>
         /// <returns></returns>
-        public bool StartServer()
+        public void StartServer()
         {
             InitializeSingleton();
 
@@ -322,7 +322,6 @@ namespace Mirror
             {
                 NetworkServer.SpawnObjects();
             }
-            return true;
         }
 
         /// <summary>
@@ -421,11 +420,9 @@ namespace Mirror
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
             NetworkClient.SetupLocalConnection();
-            if (StartServer())
-            {
-                ConnectLocalClient();
-                OnStartClient();
-            }
+            StartServer();
+            ConnectLocalClient();
+            OnStartClient();
         }
 
         /// <summary>
