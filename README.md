@@ -63,7 +63,7 @@ So many quotes to chose from.  This one in particular really encapsulates why th
 
 I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. 
 
-## Contributing to MirrorNG
+## Contributing
 
 There are several ways to contribute to this project:
 
