@@ -753,6 +753,10 @@ namespace Mirror
 
             startPositionIndex = 0;
             startPositions.Clear();
+
+            // always need to respawn server objects after changing scene.
+            // previously this was done in OnSceneLoaded.
+            NetworkServer.SpawnObjects();
         }
 
         internal void ClientChangeScene(string newSceneName, SceneOperation sceneOperation = SceneOperation.Normal, bool customHandling = false)
