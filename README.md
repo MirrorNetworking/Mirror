@@ -42,7 +42,13 @@ Check out our [Documentation](https://mirror-networking.com/docs/).
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.com/docs/General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
 ## Installation
-Installation will happen via Unity package manager, To be set up.  
+The preferred installation method is Unity Package manager.
+
+1) Open your project in unity 2019.1 or later
+2) Click on Windows -> Package Manager
+3) Click on the plus sign on the left and click on "Add package from git URL..."
+4) enter https://github.com/MirrorNG/MirrorNG.git#upm
+5) Unity will download and install mirror for you
 
 Alternatively you can it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
 
