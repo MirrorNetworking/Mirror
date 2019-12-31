@@ -710,13 +710,13 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-
-            NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
-
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
             Transport.activeTransport.enabled = false;
+
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+
+            NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
 
             startPositionIndex = 0;
             startPositions.Clear();
