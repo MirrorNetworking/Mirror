@@ -1,6 +1,8 @@
 name: UPM
 
-on: [push]
+on:
+  push:
+    branches: master
 
 jobs:
   build:
@@ -11,4 +13,4 @@ jobs:
     - uses: actions/checkout@v1
     - name: Push UPM package
       run: |
-        git subtree push --prefix=Assets/Mirror upm
+        git subtree push --prefix=Assets/Mirror origin upm
