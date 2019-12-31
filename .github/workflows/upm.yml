@@ -1,0 +1,14 @@
+name: UPM
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Push UPM package
+      run: |
+        git subtree push --prefix=Assets/Mirror upm
