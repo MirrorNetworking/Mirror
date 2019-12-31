@@ -393,7 +393,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        void ConnectLocalClient()
+        void StartHostClient()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
 
@@ -467,7 +467,7 @@ namespace Mirror
 
             // connect client and call OnStartClient AFTER any possible server
             // scene changes.
-            ConnectLocalClient();
+            StartHostClient();
         }
 
         /// <summary>
