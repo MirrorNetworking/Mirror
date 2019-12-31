@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -690,6 +691,34 @@ namespace Mirror
 
         public static UnityEngine.AsyncOperation loadingSceneAsync;
 
+        // load a scene and don't return until it's fully loaded
+        IEnumerator LoadSceneBlockingCoroutine(string sceneName)
+        {
+            // load the scene directly.
+            // it won't be loaded until the end of next frame though.
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+
+            // wait until the end of the next frame
+            // note: we don't wait until GetActiveScene==sceneName, because
+            //       someone might want to just reload the active scene.
+
+            Debug.LogWarning("1SCENE NAME: " + SceneManager.GetActiveScene().name);
+            yield return null;
+            Debug.LogWarning("2SCENE NAME: " + SceneManager.GetActiveScene().name);
+            yield return null;
+            Debug.LogWarning("3SCENE NAME: " + SceneManager.GetActiveScene().name);
+            yield return null;
+
+            if (SceneManager.GetActiveScene().name != sceneName)
+                Debug.LogError("LoadSceneBlockingCoroutine failed. Maybe wait longer?");
+        }
+
+        // helper function so we don't have to worry about coroutines.
+        void LoadSceneBlocking(string sceneName)
+        {
+            StartCoroutine(LoadSceneBlockingCoroutine(sceneName));
+        }
+
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
         /// <para>Clients that connect to this server will automatically switch to this scene. This is called autmatically if onlineScene or offlineScene are set, but it can be called from user code to switch scenes again while the game is in progress. This automatically sets clients to be not-ready. The clients must call NetworkClient.Ready() again to participate in the new scene.</para>
@@ -714,7 +743,11 @@ namespace Mirror
             // It will be re-enabled in FinishScene.
             Transport.activeTransport.enabled = false;
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+            // load scene and don't return until it's fully loaded
+            // -> loading it in a blocking way makes starting the server
+            //    significantly easier. there is no more delayed code that needs
+            //    to be called when starting a server.
+            LoadSceneBlocking(newSceneName);
 
             // notify all clients about the new scene
             NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
@@ -789,12 +822,6 @@ namespace Mirror
         {
             if (mode == LoadSceneMode.Additive)
             {
-                if (NetworkServer.active)
-                {
-                    // TODO only respawn the server objects from that scene later!
-                    NetworkServer.SpawnObjects();
-                    Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
-                }
                 if (NetworkClient.active)
                 {
                     ClientScene.PrepareToSpawnSceneObjects();
