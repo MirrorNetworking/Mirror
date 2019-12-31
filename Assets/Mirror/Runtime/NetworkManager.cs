@@ -273,15 +273,10 @@ namespace Mirror
             return !string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene;
         }
 
-        /// <summary>
-        /// This starts a new server.
-        /// <para>This uses the networkPort property as the listen port.</para>
-        /// </summary>
-        /// <returns></returns>
-        public void StartServer()
+        // full server setup code, without spawning objects yet
+        void SetupServer()
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
-
+            if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
             InitializeSingleton();
 
             if (runInBackground)
@@ -312,6 +307,16 @@ namespace Mirror
             RegisterServerMessages();
 
             isNetworkActive = true;
+        }
+
+        /// <summary>
+        /// This starts a new server.
+        /// <para>This uses the networkPort property as the listen port.</para>
+        /// </summary>
+        /// <returns></returns>
+        public void StartServer()
+        {
+            SetupServer();
 
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
