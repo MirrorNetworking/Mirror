@@ -400,8 +400,12 @@ namespace Mirror
         public virtual void StartHost()
         {
             // setup server first
-            OnStartHost();
             SetupServer();
+
+            // call OnStartHost AFTER SetupServer. this way we can use
+            // NetworkServer.Spawn etc. in there too. just like OnStartServer
+            // is called after the server is actually properly started.
+            OnStartHost();
 
             // SetupLocalConnection needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
