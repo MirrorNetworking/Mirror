@@ -699,14 +699,12 @@ namespace Mirror
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 
             // wait until the end of the next frame
+            // -> yield once and come back at start of next frame
+            // -> yield again and come at start of second next frame, which is
+            //    the frame after 'end of next frame' when the scene is loaded
             // note: we don't wait until GetActiveScene==sceneName, because
             //       someone might want to just reload the active scene.
-
-            Debug.LogWarning("1SCENE NAME: " + SceneManager.GetActiveScene().name);
             yield return null;
-            Debug.LogWarning("2SCENE NAME: " + SceneManager.GetActiveScene().name);
-            yield return null;
-            Debug.LogWarning("3SCENE NAME: " + SceneManager.GetActiveScene().name);
             yield return null;
 
             if (SceneManager.GetActiveScene().name != sceneName)
