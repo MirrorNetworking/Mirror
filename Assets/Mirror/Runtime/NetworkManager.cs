@@ -315,11 +315,12 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
             isNetworkActive = true;
 
-            // scene change needed?
+            // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
             {
                 ServerChangeScene(onlineScene);
             }
+            // otherwise spawn directly
             else
             {
                 NetworkServer.SpawnObjects();
