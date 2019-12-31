@@ -410,6 +410,8 @@ namespace Mirror
             // ConnectLocalServer needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
             NetworkClient.ConnectLocalServer();
+
+            OnStartClient();
         }
 
         /// <summary>
@@ -466,7 +468,6 @@ namespace Mirror
             // connect client and call OnStartClient AFTER any possible server
             // scene changes.
             ConnectLocalClient();
-            OnStartClient();
         }
 
         /// <summary>
