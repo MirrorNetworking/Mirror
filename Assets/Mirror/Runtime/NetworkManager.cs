@@ -265,6 +265,14 @@ namespace Mirror
 
         #region Start & Stop
 
+        // keep the online scene change check in a separate function
+        bool IsServerOnlineSceneChangeNeeded()
+        {
+            // Only change scene if the requested online scene is not blank, and is not already loaded
+            string loadedSceneName = SceneManager.GetActiveScene().name;
+            return !string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene;
+        }
+
         /// <summary>
         /// This starts a new server.
         /// <para>This uses the networkPort property as the listen port.</para>
@@ -307,9 +315,8 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StartServer");
             isNetworkActive = true;
 
-            // Only change scene if the requested online scene is not blank, and is not already loaded
-            string loadedSceneName = SceneManager.GetActiveScene().name;
-            if (!string.IsNullOrEmpty(onlineScene) && onlineScene != loadedSceneName && onlineScene != offlineScene)
+            // scene change needed?
+            if (IsServerOnlineSceneChangeNeeded())
             {
                 ServerChangeScene(onlineScene);
             }
