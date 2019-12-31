@@ -716,6 +716,7 @@ namespace Mirror
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
+            // notify all clients about the new scene
             NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
 
             startPositionIndex = 0;
