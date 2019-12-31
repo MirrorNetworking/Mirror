@@ -395,7 +395,7 @@ namespace Mirror
 
         void ConnectLocalClient()
         {
-            if (LogFilter.Debug) Debug.Log("NetworkManager StartHost");
+            if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
 
             if (authenticator != null)
             {
