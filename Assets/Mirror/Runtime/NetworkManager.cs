@@ -125,7 +125,7 @@ namespace Mirror
         /// List of prefabs that will be registered with the spawning system.
         /// <para>For each of these prefabs, ClientManager.RegisterPrefab() will be automatically invoke.</para>
         /// </summary>
-        [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
+        [FormerlySerializedAs("m_SpawnPrefabs")]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         /// <summary>
