@@ -1,6 +1,6 @@
 {
-   "name":"com.vis2k.mirror",
-   "displayName":"Mirror",
+   "name":"com.mirrorng.mirrorng",
+   "displayName":"MirrorNG",
    "version":"4.0.0",
    "unity":"2019.1",
    "description":"MirrorNG is a high level Networking API for Unity, supporting different low level Transports.",
