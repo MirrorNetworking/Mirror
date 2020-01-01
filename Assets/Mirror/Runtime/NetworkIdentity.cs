@@ -744,7 +744,7 @@ namespace Mirror
 
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
-        
+
             // call OnDeserialize with a temporary reader, so that the
             // original one can't be messed with. we also wrap it in a
             // try-catch block so there's no way to mess up another
@@ -756,7 +756,7 @@ namespace Mirror
                 byte barrierData = reader.ReadByte();
                 if (barrierData != Barrier)
                 {
-                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId  + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" );
+                    Debug.LogError("OnDeserialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + m_SceneId + ". Possible Reasons:\n  * Do " + comp.GetType() + "'s OnSerialize and OnDeserialize calls write the same amount of data? \n  * Was there an exception in " + comp.GetType() + "'s OnSerialize/OnDeserialize code?\n  * Are the server and client the exact same project?\n  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n");
                 }
             }
             catch (Exception e)

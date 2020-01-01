@@ -127,7 +127,7 @@ namespace Mirror
             clientId = NetworkTransport.AddHost(hostTopology, 0);
 
             clientConnectionId = NetworkTransport.Connect(clientId, address, port, 0, out error);
-            var networkError = (UnityEngine.Networking.NetworkError) error;
+            var networkError = (UnityEngine.Networking.NetworkError)error;
             if (networkError != UnityEngine.Networking.NetworkError.Ok)
             {
                 Debug.LogWarning("NetworkTransport.Connect failed: clientId=" + clientId + " address= " + address + " port=" + port + " error=" + error);

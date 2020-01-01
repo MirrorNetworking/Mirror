@@ -17,7 +17,7 @@ namespace Mirror.Tcp
         public TcpClient client;
 
         public bool NoDelay = true;
-               
+
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
@@ -132,7 +132,7 @@ namespace Mirror.Tcp
 
         public override string ToString()
         {
-            if (IsConnected )
+            if (IsConnected)
             {
                 return $"TCP connected to {client.Client.RemoteEndPoint}";
             }
@@ -143,5 +143,5 @@ namespace Mirror.Tcp
             return "";
         }
     }
-    
+
 }

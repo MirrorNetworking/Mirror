@@ -754,7 +754,7 @@ namespace Mirror
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         ///<summary>Called on clients when the server destroys the GameObject.</summary>
-        public virtual void OnNetworkDestroy() {}
+        public virtual void OnNetworkDestroy() { }
 
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.

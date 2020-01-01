@@ -31,14 +31,14 @@ namespace Mirror
             {
                 Color fontColor = new Color(0.7f, 0.7f, 0.7f);
                 LabelStyle.padding.right += 20;
-                LabelStyle.normal.textColor    = fontColor;
-                LabelStyle.active.textColor    = fontColor;
-                LabelStyle.focused.textColor   = fontColor;
-                LabelStyle.hover.textColor     = fontColor;
-                LabelStyle.onNormal.textColor  = fontColor;
-                LabelStyle.onActive.textColor  = fontColor;
+                LabelStyle.normal.textColor = fontColor;
+                LabelStyle.active.textColor = fontColor;
+                LabelStyle.focused.textColor = fontColor;
+                LabelStyle.hover.textColor = fontColor;
+                LabelStyle.onNormal.textColor = fontColor;
+                LabelStyle.onActive.textColor = fontColor;
                 LabelStyle.onFocused.textColor = fontColor;
-                LabelStyle.onHover.textColor   = fontColor;
+                LabelStyle.onHover.textColor = fontColor;
 
                 ComponentName.normal.textColor = fontColor;
                 ComponentName.active.textColor = fontColor;

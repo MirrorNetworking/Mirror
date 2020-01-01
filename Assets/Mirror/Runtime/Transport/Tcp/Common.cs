@@ -8,7 +8,7 @@ namespace Mirror.Tcp
 {
     public abstract class Common
     {
-    
+
         // static helper functions /////////////////////////////////////////////
         // fast int to byte[] conversion and vice versa
         // -> test with 100k conversions:
@@ -19,7 +19,7 @@ namespace Mirror.Tcp
         // -> 4 bytes because some people may want to send messages larger than
         //    64K bytes
 
-        protected static int BytesToInt(byte[] bytes )
+        protected static int BytesToInt(byte[] bytes)
         {
             return
                 bytes[0] |
@@ -43,7 +43,7 @@ namespace Mirror.Tcp
         {
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
-           
+
             // construct header (size)
 
             // TODO:  we can do this without allocation

@@ -101,7 +101,7 @@ namespace Mirror.Tcp
                     Task receive = ReceiveLoop(tcpClient);
                 }
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 Debug.Log("Server dispossed");
             }
@@ -121,7 +121,7 @@ namespace Mirror.Tcp
             clients.Add(connectionId, tcpClient);
 
             try
-            { 
+            {
                 // someone connected,  raise event
                 Connected?.Invoke(connectionId);
 
@@ -173,7 +173,7 @@ namespace Mirror.Tcp
             {
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
-                try { kvp.Value.Close(); } catch {}
+                try { kvp.Value.Close(); } catch { }
             }
 
             // clear clients list
