@@ -41,7 +41,7 @@ namespace Mirror.Weaver
                                     return false;
                                 }
                             }
-                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}" );
+                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
                             return false;
                         }
                     }
@@ -253,7 +253,8 @@ namespace Mirror.Weaver
             //create the property
             PropertyDefinition propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
             {
-                GetMethod = get, SetMethod = set
+                GetMethod = get,
+                SetMethod = set
             };
 
             //add the methods and property to the type.

@@ -132,7 +132,7 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = Writers.GetWriteFunc(pd.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Error($"{md} has invalid parameter {pd}" );
+                    Weaver.Error($"{md} has invalid parameter {pd}");
                     return false;
                 }
                 // use built-in writer func on writer object

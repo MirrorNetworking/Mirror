@@ -59,18 +59,18 @@ namespace Mirror
                         identity.gameObject.SetActive(false);
 
                         // safety check for prefabs with more than one NetworkIdentity
-        #if UNITY_2018_2_OR_NEWER
+#if UNITY_2018_2_OR_NEWER
                         GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject) as GameObject;
-        #else
+#else
                         GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject) as GameObject;
-        #endif
+#endif
                         if (prefabGO)
                         {
-        #if UNITY_2018_3_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
                             GameObject prefabRootGO = prefabGO.transform.root.gameObject;
-        #else
+#else
                             GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-        #endif
+#endif
                             if (prefabRootGO)
                             {
                                 if (prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)

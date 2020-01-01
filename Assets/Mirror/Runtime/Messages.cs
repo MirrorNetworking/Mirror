@@ -145,7 +145,7 @@ namespace Mirror
     #endregion
 
     #region Public System Messages
-    public struct ErrorMessage :  IMessageBase
+    public struct ErrorMessage : IMessageBase
     {
         public byte value;
 

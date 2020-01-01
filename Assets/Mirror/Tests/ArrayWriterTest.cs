@@ -83,14 +83,14 @@ namespace Mirror.Tests
         {
             ArrayIntMessage intMessage = new ArrayIntMessage
             {
-                array = new int [] { }
+                array = new int[] { }
             };
 
             byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
 
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] {}));
+            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { }));
         }
 
         [Test]
@@ -98,14 +98,14 @@ namespace Mirror.Tests
         {
             ArrayIntMessage intMessage = new ArrayIntMessage
             {
-                array = new[] { 3, 4, 5}
+                array = new[] { 3, 4, 5 }
             };
 
             byte[] data = MessagePacker.Pack(intMessage);
 
             ArrayIntMessage unpacked = MessagePacker.Unpack<ArrayIntMessage>(data);
 
-            Assert.That(unpacked.array, Is.EquivalentTo(new int[] {3, 4, 5 }));
+            Assert.That(unpacked.array, Is.EquivalentTo(new int[] { 3, 4, 5 }));
         }
     }
 }

@@ -528,7 +528,7 @@ namespace Ninja.WebSockets.Internal
         async Task WriteStreamToNetwork(MemoryStream stream, CancellationToken cancellationToken)
         {
             ArraySegment<byte> buffer = GetBuffer(stream);
-            if(_stream is SslStream)
+            if (_stream is SslStream)
             {
                 _messageQueue.Enqueue(buffer);
                 await _sendSemaphore.WaitAsync();

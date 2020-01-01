@@ -43,7 +43,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingBytesSegment()
         {
-            byte[] data = {1, 2, 3};
+            byte[] data = { 1, 2, 3 };
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytes(data, 0, data.Length);
 
@@ -58,7 +58,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingBytesAndReadingSegment()
         {
-            byte[] data = {1, 2, 3};
+            byte[] data = { 1, 2, 3 };
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSize(data);
 
@@ -73,7 +73,7 @@ namespace Mirror.Tests
         [Test]
         public void TestWritingSegmentAndReadingSegment()
         {
-            byte[] data = {1, 2, 3, 4};
+            byte[] data = { 1, 2, 3, 4 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 1); // [2, 3]
             NetworkWriter writer = new NetworkWriter();
             writer.WriteBytesAndSizeSegment(segment);
@@ -169,7 +169,7 @@ namespace Mirror.Tests
         public void TestReading0LengthBytesAndSize()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteBytesAndSize(new byte[]{});
+            writer.WriteBytesAndSize(new byte[] { });
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadBytesAndSize().Length, Is.EqualTo(0));
         }
@@ -178,7 +178,7 @@ namespace Mirror.Tests
         public void TestReading0LengthBytes()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteBytes(new byte[]{}, 0, 0);
+            writer.WriteBytes(new byte[] { }, 0, 0);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadBytes(0).Length, Is.EqualTo(0));
         }
@@ -196,7 +196,7 @@ namespace Mirror.Tests
         {
             void EnsureThrows(Action<NetworkReader> read, byte[] data = null)
             {
-                Assert.Throws<System.IO.EndOfStreamException>(() => read(new NetworkReader(data ?? new byte[]{})));
+                Assert.Throws<System.IO.EndOfStreamException>(() => read(new NetworkReader(data ?? new byte[] { })));
             }
             // Try reading more than there is data to be read from
             // This should throw EndOfStreamException always
@@ -655,19 +655,22 @@ namespace Mirror.Tests
         [Test]
         public void TestPackedUInt32Failure()
         {
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedUInt64(1099511627775);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedUInt32();
             });
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedUInt64(281474976710655);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedUInt32();
             });
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedUInt64(72057594037927935);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
@@ -714,19 +717,22 @@ namespace Mirror.Tests
         [Test]
         public void TestPackedInt32Failure()
         {
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedInt64(1099511627775);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
             });
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedInt64(281474976710655);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
             });
-            Assert.Throws<System.OverflowException>(() => {
+            Assert.Throws<System.OverflowException>(() =>
+            {
                 NetworkWriter writer = new NetworkWriter();
                 writer.WritePackedInt64(72057594037927935);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
@@ -974,8 +980,8 @@ namespace Mirror.Tests
         [Test]
         public void TestByteEndianness()
         {
-            byte[] values = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
-            byte[] expected = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] values = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
+            byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
             {
@@ -987,8 +993,8 @@ namespace Mirror.Tests
         [Test]
         public void TestUShortEndianness()
         {
-            ushort[] values = {0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
-            byte[] expected = {0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
+            byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
             {
@@ -1000,8 +1006,8 @@ namespace Mirror.Tests
         [Test]
         public void TestUIntEndianness()
         {
-            uint[] values = {0x12345678,0xabcdef09,0xdeadbeef};
-            byte[] expected = {0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
+            byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
             {
@@ -1013,8 +1019,8 @@ namespace Mirror.Tests
         [Test]
         public void TestULongEndianness()
         {
-            ulong[] values = {0x0123456789abcdef,0xdeaded_beef_c0ffee};
-            byte[] expected = {0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
+            byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {
@@ -1026,12 +1032,12 @@ namespace Mirror.Tests
         [Test]
         public void TestSbyteEndianness()
         {
-            byte[] values = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
-            byte[] expected = {0x12,0x43,0x00,0xff,0xab,0x02,0x20};
+            byte[] values = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
+            byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             NetworkWriter writer = new NetworkWriter();
             foreach (byte value in values)
             {
-                writer.WriteSByte((sbyte) value);
+                writer.WriteSByte((sbyte)value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1039,12 +1045,12 @@ namespace Mirror.Tests
         [Test]
         public void TestShortEndianness()
         {
-            ushort[] values = {0x0000,0x1234,0xabcd,0xF00F,0x0FF0,0xbeef};
-            byte[] expected = {0x00,0x00,0x34,0x12,0xcd,0xab,0x0F,0xF0,0xF0,0x0F,0xef,0xbe};
+            ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
+            byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             NetworkWriter writer = new NetworkWriter();
             foreach (ushort value in values)
             {
-                writer.WriteInt16((short) value);
+                writer.WriteInt16((short)value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1052,12 +1058,12 @@ namespace Mirror.Tests
         [Test]
         public void TestIntEndianness()
         {
-            uint[] values = {0x12345678,0xabcdef09,0xdeadbeef};
-            byte[] expected = {0x78,0x56,0x34,0x12,0x09,0xef,0xcd,0xab,0xef,0xbe,0xad,0xde};
+            uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
+            byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (uint value in values)
             {
-                writer.WriteInt32((int) value);
+                writer.WriteInt32((int)value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
@@ -1065,12 +1071,12 @@ namespace Mirror.Tests
         [Test]
         public void TestLongEndianness()
         {
-            ulong[] values = {0x0123456789abcdef,0xdeaded_beef_c0ffee};
-            byte[] expected = {0xef,0xcd,0xab,0x89,0x67,0x45,0x23,0x01,0xee,0xff,0xc0,0xef,0xbe,0xed,0xad,0xde};
+            ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
+            byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             NetworkWriter writer = new NetworkWriter();
             foreach (ulong value in values)
             {
-                writer.WriteInt64((long) value);
+                writer.WriteInt64((long)value);
             }
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }

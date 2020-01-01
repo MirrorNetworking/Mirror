@@ -288,19 +288,19 @@ namespace Mirror
         IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
     }
 
-    public abstract class  SyncDictionary<TKey, TValue>: SyncIDictionary<TKey, TValue>
+    public abstract class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
         protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
         {
         }
 
-        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey,TValue>(eq))
+        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
         {
         }
 
-        public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey,TValue>)objects).Values;
+        public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
 
-        public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey,TValue>)objects).Keys;
+        public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
 
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
 

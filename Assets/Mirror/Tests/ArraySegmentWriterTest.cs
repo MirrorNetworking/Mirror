@@ -32,12 +32,12 @@ namespace Mirror.Tests
             Assert.That(unpacked.array.Count, Is.EqualTo(0));
         }
 
-        public static ArraySegment<int> SampleReader(NetworkReader reader )
+        public static ArraySegment<int> SampleReader(NetworkReader reader)
         {
             int length = reader.ReadPackedInt32();
             int[] array = new int[length];
 
-            for (int i=0; i< length; i++)
+            for (int i = 0; i < length; i++)
             {
                 array[i] = reader.ReadPackedInt32();
             }
