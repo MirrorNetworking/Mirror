@@ -435,6 +435,24 @@ namespace Mirror
         /// </summary>
         public virtual void StartHost()
         {
+            // StartHost is inherently ASYNCHRONOUS (=doesn't finish immediately)
+            //
+            // Here is what it does:
+            //   Listen
+            //   ConnectHost         <= this should ideally happen after finishing scene load
+            //   if onlineScene:
+            //       LoadSceneAsync
+            //       ...
+            //       FinishLoadScene
+            //           SpawnObjects
+            //   else:
+            //       SpawnObjects
+            //   StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
+            //
+            // there is NO WAY to make it synchronous because both LoadSceneAsync
+            // and LoadScene do not finish loading immediately. as long as we
+            // have the onlineScene feature, it will be asynchronous!
+
             // setup server first
             SetupServer();
 
