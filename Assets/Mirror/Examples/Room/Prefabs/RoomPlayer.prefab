@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serverOnly: 0
   m_AssetId: 
-  m_SceneId: 1375022854
+  m_SceneId: 0
 --- !u!114 &114033720796874720
 MonoBehaviour:
   m_ObjectHideFlags: 0
