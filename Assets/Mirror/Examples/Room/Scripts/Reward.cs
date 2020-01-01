@@ -5,7 +5,7 @@ namespace Mirror.Examples.NetworkRoom
     [RequireComponent(typeof(RandomColor))]
     public class Reward : NetworkBehaviour
     {
-		public bool available = true;
+        public bool available = true;
         public Spawner spawner;
         uint points;
 

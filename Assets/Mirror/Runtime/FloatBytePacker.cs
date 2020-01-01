@@ -14,7 +14,7 @@ namespace Mirror
             int targetRange = maxTarget - minTarget; // max byte - min byte only fits into something bigger
             float valueRange = maxValue - minValue;
             float valueRelative = value - minValue;
-            return (byte)(minTarget + (byte)(valueRelative/valueRange * targetRange));
+            return (byte)(minTarget + (byte)(valueRelative / valueRange * targetRange));
         }
 
         // ScaleByteToFloat(  0, byte.MinValue, byte.MaxValue, -1, 1) => -1

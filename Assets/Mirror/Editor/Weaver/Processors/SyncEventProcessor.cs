@@ -66,7 +66,7 @@ namespace Mirror.Weaver
         public static MethodDefinition ProcessEventCall(TypeDefinition td, EventDefinition ed, CustomAttribute ca)
         {
             MethodReference invoke = Resolvers.ResolveMethod(ed.EventType, Weaver.CurrentAssembly, "Invoke");
-            MethodDefinition evt = new MethodDefinition("Call" +  ed.Name, MethodAttributes.Public |
+            MethodDefinition evt = new MethodDefinition("Call" + ed.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
             // add paramters

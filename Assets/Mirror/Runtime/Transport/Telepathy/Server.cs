@@ -224,7 +224,7 @@ namespace Telepathy
                 TcpClient client = kvp.Value.client;
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
-                try { client.GetStream().Close(); } catch {}
+                try { client.GetStream().Close(); } catch { }
                 client.Close();
             }
 

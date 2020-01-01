@@ -287,6 +287,22 @@ namespace Mirror
         /// <returns></returns>
         public void StartServer()
         {
+            // StartServer is inherently ASYNCHRONOUS (=doesn't finish immediately)
+            //
+            // Here is what it does:
+            //   Listen
+            //   if onlineScene:
+            //       LoadSceneAsync
+            //       ...
+            //       FinishLoadSceneServerOnly
+            //           SpawnObjects
+            //   else:
+            //       SpawnObjects
+            //
+            // there is NO WAY to make it synchronous because both LoadSceneAsync
+            // and LoadScene do not finish loading immediately. as long as we
+            // have the onlineScene feature, it will be asynchronous!
+
             SetupServer();
 
             // scene change needed? then change scene and spawn afterwards.
@@ -391,6 +407,24 @@ namespace Mirror
         /// </summary>
         public virtual void StartHost()
         {
+            // StartHost is inherently ASYNCHRONOUS (=doesn't finish immediately)
+            //
+            // Here is what it does:
+            //   Listen
+            //   ConnectHost
+            //   if onlineScene:
+            //       LoadSceneAsync
+            //       ...
+            //       FinishLoadSceneHost
+            //           SpawnObjects
+            //   else:
+            //       SpawnObjects
+            //   StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
+            //
+            // there is NO WAY to make it synchronous because both LoadSceneAsync
+            // and LoadScene do not finish loading immediately. as long as we
+            // have the onlineScene feature, it will be asynchronous!
+
             // setup server first
             SetupServer();
 
@@ -689,7 +723,7 @@ namespace Mirror
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
             // notify all clients about the new scene
-            NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
+            NetworkServer.SendToAll(new SceneMessage { sceneName = newSceneName });
 
             startPositionIndex = 0;
             startPositions.Clear();
@@ -794,6 +828,34 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("FinishLoadScene: resuming handlers after scene was loading.");
             Transport.activeTransport.enabled = true;
 
+            // host mode?
+            if (NetworkClient.active && NetworkServer.active)
+            {
+                FinishLoadSceneHost();
+            }
+            // server-only mode?
+            else if (NetworkServer.active)
+            {
+                FinishLoadSceneServerOnly();
+            }
+            // client-only mode?
+            else if (NetworkClient.active)
+            {
+                FinishLoadSceneClientOnly();
+            }
+            // otherwise we called it after stopping when loading offline scene.
+            // do nothing then.
+        }
+
+        // finish load scene part for host mode. makes code easier and is
+        // necessary for FinishStartHost later.
+        // (the 3 things have to happen in that exact order)
+        void FinishLoadSceneHost()
+        {
+            // debug message is very important. if we ever break anything then
+            // it's very obvious to notice.
+            Debug.Log("Finished loading scene in host mode.");
+
             if (clientReadyConnection != null)
             {
                 OnClientConnect(clientReadyConnection);
@@ -801,10 +863,29 @@ namespace Mirror
                 clientReadyConnection = null;
             }
 
-            if (NetworkServer.active)
+            NetworkServer.SpawnObjects();
+            OnServerSceneChanged(networkSceneName);
+
+            if (NetworkClient.isConnected)
             {
-                NetworkServer.SpawnObjects();
-                OnServerSceneChanged(networkSceneName);
+                RegisterClientMessages();
+                OnClientSceneChanged(NetworkClient.connection);
+            }
+        }
+
+        // finish load scene part for client-only. makes code easier and is
+        // necessary for FinishStartClient later.
+        void FinishLoadSceneClientOnly()
+        {
+            // debug message is very important. if we ever break anything then
+            // it's very obvious to notice.
+            Debug.Log("Finished loading scene in client-only mode.");
+
+            if (clientReadyConnection != null)
+            {
+                OnClientConnect(clientReadyConnection);
+                clientLoadedScene = true;
+                clientReadyConnection = null;
             }
 
             if (NetworkClient.isConnected)
@@ -812,6 +893,18 @@ namespace Mirror
                 RegisterClientMessages();
                 OnClientSceneChanged(NetworkClient.connection);
             }
+        }
+
+        // finish load scene part for server-only. . makes code easier and is
+        // necessary for FinishStartServer later.
+        void FinishLoadSceneServerOnly()
+        {
+            // debug message is very important. if we ever break anything then
+            // it's very obvious to notice.
+            Debug.Log("Finished loading scene in server-only mode.");
+
+            NetworkServer.SpawnObjects();
+            OnServerSceneChanged(networkSceneName);
         }
 
         #endregion

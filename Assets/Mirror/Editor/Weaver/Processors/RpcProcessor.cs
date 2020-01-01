@@ -59,7 +59,7 @@ namespace Mirror.Weaver
         */
         public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
+            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 

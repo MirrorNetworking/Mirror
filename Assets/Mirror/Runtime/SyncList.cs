@@ -375,7 +375,7 @@ namespace Mirror
 
             public void Reset() => index = -1;
             object IEnumerator.Current => Current;
-            public void Dispose() {}
+            public void Dispose() { }
         }
     }
 }
