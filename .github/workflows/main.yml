@@ -1,0 +1,48 @@
+name: CI
+#on:
+#  pull_request: {}
+#  push: { branches: [master] }
+
+on: [push]
+
+jobs:
+
+  testRunnerInAllModes:
+    name: Unity test ✨
+    runs-on: ubuntu-latest
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
+    steps:
+      # Checkout repository (required to test local actions)
+      - name: Checkout repository
+        uses: actions/checkout@v1
+
+      - name: Unity - Activate
+        uses: webbertakken/unity-activate@v1
+        
+      # Configure test runner
+      - name: Run tests
+        id: testRunner
+        uses: webbertakken/unity-test-runner@v1
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_PROJECT_PATH: .
+          TEST_MODE: all
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        
+      # Upload artifacts
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Test results (all modes)
+          path: ${{ steps.testRunner.outputs.artifactsPath }}
+
+      # Return License
+      - name: Return license
+        uses: webbertakken/unity-return-license@v0.1
