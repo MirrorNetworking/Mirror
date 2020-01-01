@@ -1106,6 +1106,7 @@ namespace Mirror
             else
             {
                 // will wait for scene id to come from the server.
+                clientLoadedScene = true;
                 clientReadyConnection = conn;
             }
         }
