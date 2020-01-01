@@ -98,7 +98,6 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         [Header("Authentication")]
-
         public NetworkAuthenticator authenticator;
 
         /// <summary>
@@ -683,18 +682,14 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
-
-            SceneMessage msg = new SceneMessage()
-            {
-                sceneName = newSceneName,
-            };
-
-            NetworkServer.SendToAll(msg);
-
             // Suspend the server's transport while changing scenes
             // It will be re-enabled in FinishScene.
             Transport.activeTransport.enabled = false;
+
+            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+
+            // notify all clients about the new scene
+            NetworkServer.SendToAll(new SceneMessage{sceneName=newSceneName});
 
             startPositionIndex = 0;
             startPositions.Clear();
