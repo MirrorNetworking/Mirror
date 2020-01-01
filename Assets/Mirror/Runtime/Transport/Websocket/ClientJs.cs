@@ -33,11 +33,11 @@ namespace Mirror.Websocket
         {
             get
             {
-                return SocketState(m_NativeRef) != 0;
+                return SocketState(nativeRef) != 0;
             }
         }
 
-        int m_NativeRef = 0;
+        int nativeRef = 0;
         readonly int id;
 
         public Client()
@@ -51,18 +51,18 @@ namespace Mirror.Websocket
 
             Connecting = true;
 
-            m_NativeRef = SocketCreate(uri.ToString(), id, OnOpen, OnData, OnClose);
+            nativeRef = SocketCreate(uri.ToString(), id, OnOpen, OnData, OnClose);
         }
 
         public void Disconnect()
         {
-            SocketClose(m_NativeRef);
+            SocketClose(nativeRef);
         }
 
         // send the data or throw exception
         public void Send(ArraySegment<byte> segment)
         {
-            SocketSend(m_NativeRef, segment.Array, segment.Count);
+            SocketSend(nativeRef, segment.Array, segment.Count);
         }
 
         #region Javascript native functions
