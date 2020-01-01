@@ -315,6 +315,22 @@ namespace Mirror
         /// <returns></returns>
         public void StartServer()
         {
+            // StartServer is inherently ASYNCHRONOUS (=doesn't finish immediately)
+            //
+            // Here is what it does:
+            //   Listen
+            //   if onlineScene:
+            //       LoadSceneAsync
+            //       ...
+            //       FinishLoadScene
+            //           SpawnObjects
+            //   else:
+            //       SpawnObjects
+            //
+            // there is NO WAY to make it synchronous because both LoadSceneAsync
+            // and LoadScene do not finish loading immediately. as long as we
+            // have the onlineScene feature, it will be asynchronous!
+
             SetupServer();
 
             // scene change needed? then change scene and spawn afterwards.
