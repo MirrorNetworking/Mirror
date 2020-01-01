@@ -439,7 +439,7 @@ namespace Mirror
             //
             // Here is what it does:
             //   Listen
-            //   ConnectHost         <= this should ideally happen after finishing scene load
+            //   ConnectHost
             //   if onlineScene:
             //       LoadSceneAsync
             //       ...
