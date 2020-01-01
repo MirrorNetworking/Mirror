@@ -12,11 +12,11 @@ jobs:
     - name: Generate API
       uses: nikeee/docfx-action@master
       with:
-        args: metadata doc/docfx.json
+        args: metadata true --logLevel Warning --warningsAsErrors doc/docfx.json
     - name: Compile Docs
       uses: nikeee/docfx-action@master
       with:
-        args: build doc/docfx.json
+        args: build --logLevel Warning --warningsAsErrors doc/docfx.json
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v1.2.5
       if: github.ref == 'refs/heads/master'
