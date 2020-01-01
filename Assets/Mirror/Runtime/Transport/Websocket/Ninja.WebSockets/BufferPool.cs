@@ -181,7 +181,8 @@ namespace Ninja.WebSockets
                 return _ms.ReadByte();
             }
 
-            public override int ReadTimeout {
+            public override int ReadTimeout
+            {
                 get { return _ms.ReadTimeout; }
                 set { _ms.ReadTimeout = value; }
             }

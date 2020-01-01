@@ -7,7 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncDictionaryTest
     {
-        public class SyncDictionaryIntString : SyncDictionary<int, string> {}
+        public class SyncDictionaryIntString : SyncDictionary<int, string> { }
 
         SyncDictionaryIntString serverSyncDictionary;
         SyncDictionaryIntString clientSyncDictionary;
@@ -189,11 +189,11 @@ namespace Mirror.Tests
         [Test]
         public void CopyToTest()
         {
-            KeyValuePair<int, string> [] data = new KeyValuePair<int, string>[3];
+            KeyValuePair<int, string>[] data = new KeyValuePair<int, string>[3];
 
             clientSyncDictionary.CopyTo(data, 0);
 
-            Assert.That(data, Is.EquivalentTo(new KeyValuePair<int,string>[]
+            Assert.That(data, Is.EquivalentTo(new KeyValuePair<int, string>[]
             {
                 new KeyValuePair<int, string>(0, "Hello"),
                 new KeyValuePair<int, string>(1, "World"),

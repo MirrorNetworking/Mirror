@@ -30,14 +30,14 @@ namespace Mirror.Tests
         }
     }
 
-    struct WovenTestMessage: IMessageBase
+    struct WovenTestMessage : IMessageBase
     {
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
 
-        public void Deserialize(NetworkReader reader) {}
-        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) { }
+        public void Serialize(NetworkWriter writer) { }
     }
 
     [TestFixture]
@@ -62,7 +62,7 @@ namespace Mirror.Tests
         public void WovenSerializationBodyRoundtrip()
         {
             NetworkWriter w = new NetworkWriter();
-            w.Write(new WovenTestMessage{IntValue = 1, StringValue = "2", DoubleValue = 3.3});
+            w.Write(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
 
             byte[] arr = w.ToArray();
 

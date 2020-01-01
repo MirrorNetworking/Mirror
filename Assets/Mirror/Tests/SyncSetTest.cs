@@ -7,7 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncSetTest
     {
-        public class SyncSetString : SyncHashSet<string> {}
+        public class SyncSetString : SyncHashSet<string> { }
 
         SyncSetString serverSyncSet;
         SyncSetString clientSyncSet;
@@ -45,8 +45,8 @@ namespace Mirror.Tests
         [Test]
         public void TestInit()
         {
-            Assert.That(serverSyncSet, Is.EquivalentTo(new[] {"Hello", "World", "!"}));
-            Assert.That(clientSyncSet, Is.EquivalentTo(new[] {"Hello", "World", "!"}));
+            Assert.That(serverSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Mirror.Tests
             serverSyncSet.Clear();
             Assert.That(serverSyncSet.IsDirty, Is.True);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] {}));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
             Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
@@ -87,7 +87,7 @@ namespace Mirror.Tests
             // add some delta and see if it applies
             serverSyncSet.Add("2");
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!", "1","2" }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!", "1", "2" }));
         }
 
         [Test]
@@ -164,7 +164,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.ExceptWith(new[] { "World", "Hello" });
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new[] {  "!" }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "!" }));
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.ExceptWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new String [] {}));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] { }));
         }
 
         [Test]
@@ -206,7 +206,7 @@ namespace Mirror.Tests
         [Test]
         public void TestIsNotProperSubsetOf()
         {
-            Assert.That(clientSyncSet.IsProperSubsetOf(new[] { "World", "!", "pepe"}), Is.False);
+            Assert.That(clientSyncSet.IsProperSubsetOf(new[] { "World", "!", "pepe" }), Is.False);
         }
 
         [Test]
@@ -230,13 +230,13 @@ namespace Mirror.Tests
         [Test]
         public void TestOverlaps()
         {
-            Assert.That(clientSyncSet.Overlaps(new[] { "World", "my", "baby"}));
+            Assert.That(clientSyncSet.Overlaps(new[] { "World", "my", "baby" }));
         }
 
         [Test]
         public void TestSetEquals()
         {
-            Assert.That(clientSyncSet.SetEquals(new[] { "World","Hello", "!" }));
+            Assert.That(clientSyncSet.SetEquals(new[] { "World", "Hello", "!" }));
         }
 
         [Test]

@@ -160,7 +160,7 @@ namespace Mirror.Tests
             Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Boolean) should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
         }
 
-       [Test]
+        [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
@@ -242,7 +242,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SyncListByteValid() {
+        public void SyncListByteValid()
+        {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
             Assert.That(weaverErrors, Is.Empty);
         }

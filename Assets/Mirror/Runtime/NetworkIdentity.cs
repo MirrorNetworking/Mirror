@@ -62,7 +62,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
-        public bool isServer =>  NetworkServer.active && netId != 0;
+        public bool isServer => NetworkServer.active && netId != 0;
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.

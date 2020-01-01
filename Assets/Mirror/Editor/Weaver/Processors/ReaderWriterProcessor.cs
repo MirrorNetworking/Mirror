@@ -24,7 +24,7 @@ namespace Mirror.Weaver
                             ProcessAssemblyClasses(CurrentAssembly, assembly);
                         }
                     }
-                    catch(FileNotFoundException)
+                    catch (FileNotFoundException)
                     {
                         // During first import,  this gets called before some assemblies
                         // are built,  just skip them

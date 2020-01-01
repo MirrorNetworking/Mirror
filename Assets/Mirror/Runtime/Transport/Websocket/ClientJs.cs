@@ -65,7 +65,7 @@ namespace Mirror.Websocket
             SocketSend(nativeRef, segment.Array, segment.Count);
         }
 
-        #region Javascript native functions
+#region Javascript native functions
         [DllImport("__Internal")]
         static extern int SocketCreate(
             string url,
@@ -83,9 +83,9 @@ namespace Mirror.Websocket
         [DllImport("__Internal")]
         static extern void SocketClose(int socketInstance);
 
-        #endregion
+#endregion
 
-        #region Javascript callbacks
+#region Javascript callbacks
 
         [MonoPInvokeCallback(typeof(Action))]
         public static void OnOpen(int id)
@@ -110,7 +110,7 @@ namespace Mirror.Websocket
 
             clients[id].ReceivedData(new ArraySegment<byte>(data));
         }
-        #endregion
+#endregion
     }
 }
 

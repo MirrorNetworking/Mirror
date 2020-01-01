@@ -26,7 +26,7 @@ namespace Mirror.Tests
             GameObject gameObject = new GameObject();
 
             transport = gameObject.AddComponent<MultiplexTransport>();
-            transport.transports = new []{ transport1, transport2 };
+            transport.transports = new[] { transport1, transport2 };
 
             transport.Awake();
         }

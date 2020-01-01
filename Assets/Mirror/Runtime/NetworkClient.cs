@@ -418,7 +418,7 @@ namespace Mirror
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
-            RegisterHandler( (NetworkConnection _, T value) => { handler(value); }, requireAuthentication) ;
+            RegisterHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
         }
 
         /// <summary>

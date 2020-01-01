@@ -140,7 +140,7 @@ namespace Mirror.Websocket
             if (webSocket != null)
             {
                 // close client
-                webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,"", CancellationToken.None);
+                webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
                 webSocket = null;
                 Connecting = false;
                 IsConnected = false;
@@ -169,7 +169,7 @@ namespace Mirror.Websocket
 
         public override string ToString()
         {
-            if (IsConnected )
+            if (IsConnected)
             {
                 return $"Websocket connected to {uri}";
             }

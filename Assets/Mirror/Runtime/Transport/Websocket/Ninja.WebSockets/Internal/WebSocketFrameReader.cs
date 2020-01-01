@@ -55,7 +55,7 @@ namespace Ninja.WebSockets.Internal
             byte finBitFlag = 0x80;
             byte opCodeFlag = 0x0F;
             bool isFinBitSet = (byte1 & finBitFlag) == finBitFlag;
-            WebSocketOpCode opCode = (WebSocketOpCode) (byte1 & opCodeFlag);
+            WebSocketOpCode opCode = (WebSocketOpCode)(byte1 & opCodeFlag);
 
             // read and process second byte
             byte maskFlag = 0x80;
@@ -143,7 +143,7 @@ namespace Ninja.WebSockets.Internal
         static async Task<uint> ReadLength(byte byte2, ArraySegment<byte> smallBuffer, Stream fromStream, CancellationToken cancellationToken)
         {
             byte payloadLenFlag = 0x7F;
-            uint len = (uint) (byte2 & payloadLenFlag);
+            uint len = (uint)(byte2 & payloadLenFlag);
 
             // read a short length or a long length depending on the value of len
             if (len == 126)
@@ -152,7 +152,7 @@ namespace Ninja.WebSockets.Internal
             }
             else if (len == 127)
             {
-                len = (uint) await BinaryReaderWriter.ReadULongExactly(fromStream, false, smallBuffer, cancellationToken);
+                len = (uint)await BinaryReaderWriter.ReadULongExactly(fromStream, false, smallBuffer, cancellationToken);
                 const uint maxLen = 2147483648; // 2GB - not part of the spec but just a precaution. Send large volumes of data in smaller frames.
 
                 // protect ourselves against bad data
