@@ -169,7 +169,8 @@ namespace Mirror
         {
             if (messageHandlers.ContainsKey(msgType))
             {
-                if (LogFilter.Debug) Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
+                if (LogFilter.Debug)
+                    Debug.Log("NetworkConnection.RegisterHandler replacing " + msgType);
             }
             messageHandlers[msgType] = handler;
         }
@@ -347,7 +348,8 @@ namespace Mirror
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
-                if (logNetworkMessages) Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
+                if (logNetworkMessages)
+                    Debug.Log("ConnectionRecv " + this + " msgType:" + msgType + " content:" + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
 
                 // try to invoke the handler for that message
                 if (InvokeHandler(msgType, reader, channelId))

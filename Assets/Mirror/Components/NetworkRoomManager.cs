@@ -121,7 +121,8 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnection conn)
         {
-            if (LogFilter.Debug) Debug.Log("NetworkRoomManager OnServerReady");
+            if (LogFilter.Debug)
+                Debug.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
             if (conn != null && conn.identity != null)
@@ -136,7 +137,8 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
         {
-            if (LogFilter.Debug) Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
+            if (LogFilter.Debug)
+                Debug.LogFormat("NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().name, conn);
 
             if (SceneManager.GetActiveScene().name == RoomScene)
             {
@@ -172,7 +174,8 @@ namespace Mirror
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (SceneManager.GetActiveScene().name != RoomScene) return;
+            if (SceneManager.GetActiveScene().name != RoomScene)
+                return;
 
             if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
@@ -268,13 +271,16 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            if (SceneManager.GetActiveScene().name != RoomScene) return;
+            if (SceneManager.GetActiveScene().name != RoomScene)
+                return;
 
-            if (roomSlots.Count == maxConnections) return;
+            if (roomSlots.Count == maxConnections)
+                return;
 
             allPlayersReady = false;
 
-            if (LogFilter.Debug) Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
+            if (LogFilter.Debug)
+                Debug.LogFormat("NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
 
             GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
             if (newRoomGameObject == null)
@@ -311,7 +317,8 @@ namespace Mirror
             {
                 foreach (NetworkRoomPlayer roomPlayer in roomSlots)
                 {
-                    if (roomPlayer == null) continue;
+                    if (roomPlayer == null)
+                        continue;
 
                     // find the game-player object for this connection, and destroy it
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();

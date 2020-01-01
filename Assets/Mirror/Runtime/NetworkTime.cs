@@ -66,7 +66,8 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage msg)
         {
-            if (LogFilter.Debug) Debug.Log("OnPingServerMessage  conn=" + conn);
+            if (LogFilter.Debug)
+                Debug.Log("OnPingServerMessage  conn=" + conn);
 
             NetworkPongMessage pongMsg = new NetworkPongMessage
             {

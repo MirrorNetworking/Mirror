@@ -443,11 +443,14 @@ namespace Mirror
         void OnDrawGizmos()
         {
             // draw start and goal points
-            if (start != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal != null) DrawDataPointGizmo(goal, Color.white);
+            if (start != null)
+                DrawDataPointGizmo(start, Color.gray);
+            if (goal != null)
+                DrawDataPointGizmo(goal, Color.white);
 
             // draw line between them
-            if (start != null && goal != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            if (start != null && goal != null)
+                DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
     }
 }

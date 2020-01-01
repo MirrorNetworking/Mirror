@@ -20,7 +20,8 @@ namespace Mirror.Examples.Additive
 
         void SetColor(Color32 newColor)
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
+            if (cachedMaterial == null)
+                cachedMaterial = GetComponent<Renderer>().material;
             cachedMaterial.color = newColor;
         }
 

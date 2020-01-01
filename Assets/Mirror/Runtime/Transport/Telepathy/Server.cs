@@ -180,7 +180,8 @@ namespace Telepathy
         public bool Start(int port)
         {
             // not if already started
-            if (Active) return false;
+            if (Active)
+                return false;
 
             // clear old messages in queue, just to be sure that the caller
             // doesn't receive data from last time and gets out of sync.
@@ -202,7 +203,8 @@ namespace Telepathy
         public void Stop()
         {
             // only if started
-            if (!Active) return;
+            if (!Active)
+                return;
 
             Logger.Log("Server: stopping...");
 
@@ -224,7 +226,9 @@ namespace Telepathy
                 TcpClient client = kvp.Value.client;
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
-                try { client.GetStream().Close(); } catch { }
+                try
+                { client.GetStream().Close(); }
+                catch { }
                 client.Close();
             }
 

@@ -73,7 +73,8 @@ namespace Mirror
                     }
                     else
                     {
-                        if (GUILayout.Button("LAN Server Only")) manager.StartServer();
+                        if (GUILayout.Button("LAN Server Only"))
+                            manager.StartServer();
                     }
                 }
                 else

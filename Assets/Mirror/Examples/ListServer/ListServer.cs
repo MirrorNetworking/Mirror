@@ -118,7 +118,8 @@ namespace Mirror.Examples.ListServer
                 // send it
                 gameServerToListenConnection.Send(((MemoryStream)writer.BaseStream).ToArray());
             }
-            else Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
+            else
+                Debug.LogError("[List Server] List Server will reject messages longer than 128 bytes. Please use a shorter title.");
         }
 
         void TickGameServer()
@@ -311,7 +312,8 @@ namespace Mirror.Examples.ListServer
                     NetworkManager.singleton.StartServer();
                 });
             }
-            else mainPanel.SetActive(false);
+            else
+                mainPanel.SetActive(false);
 
             // show connecting panel while connecting
             if (IsConnecting())
@@ -326,7 +328,8 @@ namespace Mirror.Examples.ListServer
                 connectingCancelButton.onClick.RemoveAllListeners();
                 connectingCancelButton.onClick.AddListener(NetworkManager.singleton.StopClient);
             }
-            else connectingPanel.SetActive(false);
+            else
+                connectingPanel.SetActive(false);
         }
 
         // disconnect everything when pressing Stop in the Editor

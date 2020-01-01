@@ -25,22 +25,28 @@ namespace Mirror.Weaver
         // debug message handler that also calls OnMessageMethod delegate
         static void HandleMessage(string msg)
         {
-            if (UnityLogEnabled) Debug.Log(msg);
-            if (OnWeaverMessage != null) OnWeaverMessage.Invoke(msg);
+            if (UnityLogEnabled)
+                Debug.Log(msg);
+            if (OnWeaverMessage != null)
+                OnWeaverMessage.Invoke(msg);
         }
 
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
-            if (UnityLogEnabled) Debug.LogWarning(msg);
-            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
+            if (UnityLogEnabled)
+                Debug.LogWarning(msg);
+            if (OnWeaverWarning != null)
+                OnWeaverWarning.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
-            if (UnityLogEnabled) Debug.LogError(msg);
-            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
+            if (UnityLogEnabled)
+                Debug.LogError(msg);
+            if (OnWeaverError != null)
+                OnWeaverError.Invoke(msg);
         }
 
         [InitializeOnLoadMethod]
@@ -142,7 +148,8 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
             foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
-                if (unityAsm.outputPath != assemblyPath) continue;
+                if (unityAsm.outputPath != assemblyPath)
+                    continue;
 
                 foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
                 {
@@ -159,7 +166,8 @@ namespace Mirror.Weaver
             else
             {
                 WeaveFailed = true;
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                if (UnityLogEnabled)
+                    Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
     }

@@ -341,14 +341,16 @@ namespace Mirror
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
             uint netId = reader.ReadPackedUInt32();
-            if (netId == 0) return null;
+            if (netId == 0)
+                return null;
 
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
                 return identity;
             }
 
-            if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
+            if (LogFilter.Debug)
+                Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
     }

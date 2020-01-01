@@ -22,7 +22,8 @@ namespace Mirror.Examples.NetworkRoom
 
             if (isLocalPlayer && controllerColliderHitObject.name.StartsWith("Prize"))
             {
-                if (LogFilter.Debug) Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
+                if (LogFilter.Debug)
+                    Debug.LogFormat("OnControllerColliderHit {0}[{1}] with {2}[{3}]", name, netId, controllerColliderHitObject.name, controllerColliderHitObject.GetComponent<NetworkIdentity>().netId);
 
                 // Disable the prize gameobject so it doesn't impede player movement
                 // It's going to be destroyed in a few frames and we don't want to spam CmdClaimPrize.

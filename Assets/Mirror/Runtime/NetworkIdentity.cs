@@ -173,7 +173,8 @@ namespace Mirror
                 {
                     m_AssetId = newAssetIdString;
                 }
-                else Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
+                else
+                    Debug.LogWarning($"SetDynamicAssetId object {this.name} already has an assetId {m_AssetId}, new asset id {newAssetIdString}");
             }
         }
 
@@ -419,7 +420,8 @@ namespace Mirror
             m_SceneId = (m_SceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            if (LogFilter.Debug) Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
+            if (LogFilter.Debug)
+                Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + m_SceneId.ToString("X"));
         }
 
         void SetupIDs()
@@ -498,7 +500,8 @@ namespace Mirror
             netId = GetNextNetworkId();
             observers = new Dictionary<int, NetworkConnection>();
 
-            if (LogFilter.Debug) Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
+            if (LogFilter.Debug)
+                Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId);
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
@@ -524,7 +527,8 @@ namespace Mirror
                 return;
             clientStarted = true;
 
-            if (LogFilter.Debug) Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
+            if (LogFilter.Debug)
+                Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 try
@@ -645,7 +649,8 @@ namespace Mirror
             writer.WriteInt32(endPosition - contentPosition);
             writer.Position = endPosition;
 
-            if (LogFilter.Debug) Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
+            if (LogFilter.Debug)
+                Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
 
             return result;
         }
@@ -691,7 +696,8 @@ namespace Mirror
                 // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 if (initialState || comp.IsDirty())
                 {
-                    if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
+                    if (LogFilter.Debug)
+                        Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
@@ -765,7 +771,8 @@ namespace Mirror
             // way to mess up another component's deserialization
             try
             {
-                if (LogFilter.Debug) Debug.Log("OnDeserializeSafely: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize);
+                if (LogFilter.Debug)
+                    Debug.Log("OnDeserializeSafely: " + comp.name + " component=" + comp.GetType() + " sceneId=" + m_SceneId.ToString("X") + " length=" + contentSize);
                 comp.OnDeserialize(reader, initialState);
             }
             catch (Exception e)
@@ -900,7 +907,8 @@ namespace Mirror
                 return;
             }
 
-            if (LogFilter.Debug) Debug.Log("Added observer " + conn.address + " added for " + gameObject);
+            if (LogFilter.Debug)
+                Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -967,7 +975,8 @@ namespace Mirror
 
                 if (!conn.isReady)
                 {
-                    if (LogFilter.Debug) Debug.Log("Observer is not ready for " + gameObject + " " + conn);
+                    if (LogFilter.Debug)
+                        Debug.Log("Observer is not ready for " + gameObject + " " + conn);
                     continue;
                 }
 
@@ -975,7 +984,8 @@ namespace Mirror
                 {
                     // new observer
                     conn.AddToVisList(this);
-                    if (LogFilter.Debug) Debug.Log("New Observer for " + gameObject + " " + conn);
+                    if (LogFilter.Debug)
+                        Debug.Log("New Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
@@ -986,7 +996,8 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
-                    if (LogFilter.Debug) Debug.Log("Removed Observer for " + gameObject + " " + conn);
+                    if (LogFilter.Debug)
+                        Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
