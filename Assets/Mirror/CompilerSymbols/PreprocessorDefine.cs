@@ -11,7 +11,7 @@ namespace Mirror
         [InitializeOnLoadMethod]
         public static void AddDefineSymbols()
         {
-            HashSet<string> defines = new HashSet<string>(PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup).Split(';'))
+            var defines = new HashSet<string>(PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup).Split(';'))
             {
                 "MIRROR",
                 "MIRROR_1726_OR_NEWER",
