@@ -7,7 +7,7 @@ namespace Mirror
 {
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncSet<T> : ISet<T>, SyncObject
+    public abstract class SyncSet<T> : ISet<T>, ISyncObject
     {
         public delegate void SyncSetChanged(Operation op, T item);
 

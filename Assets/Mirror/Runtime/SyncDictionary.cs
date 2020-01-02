@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace Mirror
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject
+    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISyncObject
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 

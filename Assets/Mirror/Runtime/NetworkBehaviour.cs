@@ -105,7 +105,7 @@ namespace Mirror
         /// <summary>
         /// objects that can synchronize themselves, such as synclists
         /// </summary>
-        protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
+        protected readonly List<ISyncObject> syncObjects = new List<ISyncObject>();
 
         /// <summary>
         /// NetworkIdentity component caching for easier access
@@ -159,7 +159,7 @@ namespace Mirror
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
         // We collect all of them and we synchronize them with OnSerialize/OnDeserialize
-        protected void InitSyncObject(SyncObject syncObject)
+        protected void InitSyncObject(ISyncObject syncObject)
         {
             syncObjects.Add(syncObject);
         }
@@ -687,7 +687,7 @@ namespace Mirror
             ulong dirtyObjects = 0;
             for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = syncObjects[i];
+                ISyncObject syncObject = syncObjects[i];
                 if (syncObject.IsDirty)
                 {
                     dirtyObjects |= 1UL << i;
@@ -701,7 +701,7 @@ namespace Mirror
             bool dirty = false;
             for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = syncObjects[i];
+                ISyncObject syncObject = syncObjects[i];
                 syncObject.OnSerializeAll(writer);
                 dirty = true;
             }
@@ -716,7 +716,7 @@ namespace Mirror
             // serializable objects, such as synclists
             for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = syncObjects[i];
+                ISyncObject syncObject = syncObjects[i];
                 if (syncObject.IsDirty)
                 {
                     syncObject.OnSerializeDelta(writer);
@@ -730,7 +730,7 @@ namespace Mirror
         {
             for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = syncObjects[i];
+                ISyncObject syncObject = syncObjects[i];
                 syncObject.OnDeserializeAll(reader);
             }
         }
@@ -740,7 +740,7 @@ namespace Mirror
             ulong dirty = reader.ReadPackedUInt64();
             for (int i = 0; i < syncObjects.Count; i++)
             {
-                SyncObject syncObject = syncObjects[i];
+                ISyncObject syncObject = syncObjects[i];
                 if ((dirty & (1UL << i)) != 0)
                 {
                     syncObject.OnDeserializeDelta(reader);

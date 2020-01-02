@@ -3,7 +3,7 @@ using Mirror;
 
 namespace MirrorTest
 {
-    public class SyncObjImplementer : SyncObject
+    public class SyncObjImplementer : ISyncObject
     {
         public bool IsDirty { get; }
         public void Flush() {}

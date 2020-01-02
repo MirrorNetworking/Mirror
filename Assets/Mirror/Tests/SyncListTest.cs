@@ -11,7 +11,7 @@ namespace Mirror.Tests
         SyncListString serverSyncList;
         SyncListString clientSyncList;
 
-        void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
+        void SerializeAllTo<T>(T fromList, T toList) where T : ISyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeAll(writer);
@@ -19,7 +19,7 @@ namespace Mirror.Tests
             toList.OnDeserializeAll(reader);
         }
 
-        void SerializeDeltaTo<T>(T fromList, T toList) where T : SyncObject
+        void SerializeDeltaTo<T>(T fromList, T toList) where T : ISyncObject
         {
             NetworkWriter writer = new NetworkWriter();
             fromList.OnSerializeDelta(writer);
