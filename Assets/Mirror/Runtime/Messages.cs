@@ -13,136 +13,11 @@ namespace Mirror
     public abstract class MessageBase : IMessageBase
     {
         // De-serialize the contents of the reader into this message
-        public virtual void Deserialize(NetworkReader reader) { }
+        public virtual void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
         // Serialize the contents of this message into the writer
-        public virtual void Serialize(NetworkWriter writer) { }
+        public virtual void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
-
-    #region General Typed Messages
-    [Obsolete("Create your own message class instead")]
-    public class StringMessage : MessageBase
-    {
-        public string value;
-
-        public StringMessage() { }
-
-        public StringMessage(string v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadString();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteString(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class ByteMessage : MessageBase
-    {
-        public byte value;
-
-        public ByteMessage() { }
-
-        public ByteMessage(byte v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadByte();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteByte(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class BytesMessage : MessageBase
-    {
-        public byte[] value;
-
-        public BytesMessage() { }
-
-        public BytesMessage(byte[] v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadBytesAndSize();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteBytesAndSize(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class IntegerMessage : MessageBase
-    {
-        public int value;
-
-        public IntegerMessage() { }
-
-        public IntegerMessage(int v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadPackedInt32();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WritePackedInt32(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class DoubleMessage : MessageBase
-    {
-        public double value;
-
-        public DoubleMessage() { }
-
-        public DoubleMessage(double v)
-        {
-            value = v;
-        }
-
-        public override void Deserialize(NetworkReader reader)
-        {
-            value = reader.ReadDouble();
-        }
-
-        public override void Serialize(NetworkWriter writer)
-        {
-            writer.WriteDouble(value);
-        }
-    }
-
-    [Obsolete("Create your own message class instead")]
-    public class EmptyMessage : MessageBase
-    {
-        public override void Deserialize(NetworkReader reader) { }
-
-        public override void Serialize(NetworkWriter writer) { }
-    }
-    #endregion
 
     #region Public System Messages
     public struct ErrorMessage : IMessageBase
@@ -167,44 +42,44 @@ namespace Mirror
 
     public struct ReadyMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct NotReadyMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct AddPlayerMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct RemovePlayerMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct DisconnectMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct ConnectMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct SceneMessage : IMessageBase
@@ -367,16 +242,16 @@ namespace Mirror
 
     public struct ObjectSpawnStartedMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct ObjectSpawnFinishedMessage : IMessageBase
     {
-        public void Deserialize(NetworkReader reader) { }
+        public void Deserialize(NetworkReader reader) { /* nothing to serialize */ }
 
-        public void Serialize(NetworkWriter writer) { }
+        public void Serialize(NetworkWriter writer) { /* nothing to serialize */ }
     }
 
     public struct ObjectDestroyMessage : IMessageBase
