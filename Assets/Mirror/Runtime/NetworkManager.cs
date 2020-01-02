@@ -359,7 +359,7 @@ namespace Mirror
             // otherwise spawn directly
             else
             {
-                NetworkServer.SpawnObjects();
+                NetworkServer.SpawnObjects(client);
             }
         }
 
@@ -883,7 +883,7 @@ namespace Mirror
                 if (NetworkServer.active)
                 {
                     // TODO only respawn the server objects from that scene later!
-                    NetworkServer.SpawnObjects();
+                    NetworkServer.SpawnObjects(client);
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
                 if (client.active)
@@ -1021,7 +1021,7 @@ namespace Mirror
             // it's very obvious to notice.
             Debug.Log("Finished loading scene in server-only mode.");
 
-            NetworkServer.SpawnObjects();
+            NetworkServer.SpawnObjects(client);
             OnServerSceneChanged(networkSceneName);
         }
 
@@ -1294,7 +1294,7 @@ namespace Mirror
                 ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
                 : Instantiate(playerPrefab);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
+            NetworkServer.AddPlayerForConnection(conn, client, player);
         }
 
         /// <summary>

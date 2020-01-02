@@ -115,8 +115,7 @@ namespace Mirror
         /// <summary>
         /// The NetworkClient associated with this NetworkIdentity.
         /// </summary>
-        public NetworkClient client => NetworkManager.singleton.client;
-
+        public NetworkClient client { get; internal set; }
 
         private NetworkConnectionToClient _connectionToClient;
         /// <summary>
@@ -1138,6 +1137,7 @@ namespace Mirror
             reset = false;
 
             netId = 0;
+            client = null;
             connectionToServer = null;
             connectionToClient = null;
             networkBehavioursCache = null;

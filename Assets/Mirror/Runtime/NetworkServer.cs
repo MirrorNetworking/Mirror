@@ -713,13 +713,13 @@ namespace Mirror
         /// <param name="assetId"></param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
         /// <returns></returns>
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.assetId = assetId;
             }
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+            return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
 
         /// <summary>
@@ -730,9 +730,9 @@ namespace Mirror
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="keepAuthority">Does the previous player remain attached to this connection?</param>
         /// <returns></returns>
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority = false)
         {
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+            return InternalReplacePlayerForConnection(conn, client, player, keepAuthority);
         }
 
         /// <summary>
@@ -740,16 +740,17 @@ namespace Mirror
         /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
         /// </summary>
         /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="client">Client associated to the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <param name="assetId"></param>
         /// <returns></returns>
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool AddPlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, Guid assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.assetId = assetId;
             }
-            return AddPlayerForConnection(conn, player);
+            return AddPlayerForConnection(conn, client, player);
         }
 
         static void SpawnObserversForConnection(NetworkConnection conn)
@@ -792,10 +793,10 @@ namespace Mirror
         /// <para>When an AddPlayer message handler has received a request from a player, the server calls this to associate the player object with the connection.</para>
         /// <para>When a player is added for a connection, the client for that connection is made ready automatically. The player object is automatically spawned, so you do not need to call NetworkServer.Spawn for that object. This function is used for "adding" a player, not for "replacing" the player on a connection. If there is already a player on this playerControllerId for this connection, this will fail.</para>
         /// </summary>
-        /// <param name="conn">Connection which is adding the player.</param>
+        /// <param name="client">Client associated to the player.</param>
         /// <param name="player">Player object spawned for the player.</param>
         /// <returns></returns>
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
+        public static bool AddPlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -815,6 +816,9 @@ namespace Mirror
             // make sure we have a controller before we call SetClientReady
             // because the observers will be rebuilt only if we have a controller
             conn.identity = identity;
+
+            // set client to the NetworkIdentity
+            identity.client = client;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
@@ -840,7 +844,7 @@ namespace Mirror
             if (identity.netId == 0)
             {
                 // If the object has not been spawned, then do a full spawn and update observers
-                Spawn(identity.gameObject, identity.connectionToClient);
+                Spawn(identity.gameObject, identity.client, identity.connectionToClient);
             }
             else
             {
@@ -849,7 +853,7 @@ namespace Mirror
             }
         }
 
-        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority)
+        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, NetworkClient client, GameObject player, bool keepAuthority)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -870,6 +874,7 @@ namespace Mirror
             NetworkIdentity previousPlayer = conn.identity;
 
             conn.identity = identity;
+            identity.client = client;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
@@ -1015,7 +1020,7 @@ namespace Mirror
             identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
-        internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
+        internal static void SpawnObject(GameObject obj, NetworkClient client, NetworkConnection ownerConnection)
         {
             if (!active)
             {
@@ -1031,6 +1036,7 @@ namespace Mirror
             }
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
+            identity.client = client;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
@@ -1108,12 +1114,13 @@ namespace Mirror
         /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
         /// </summary>
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
+        /// <param name="client">Client associated to the object.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
+        public static void Spawn(GameObject obj, NetworkClient client, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj, ownerConnection);
+                SpawnObject(obj, client, ownerConnection);
             }
         }
 
@@ -1174,16 +1181,16 @@ namespace Mirror
                 return;
             }
 
-            Spawn(obj, identity.connectionToClient);
+            Spawn(obj, identity.client, identity.connectionToClient);
         }
 
         /// <summary>
         /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
         /// </summary>
         [Obsolete("Use Spawn(obj, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, NetworkConnection ownerConnection)
+        public static bool SpawnWithClientAuthority(GameObject obj, NetworkClient client, NetworkConnection ownerConnection)
         {
-            Spawn(obj, ownerConnection);
+            Spawn(obj, client, ownerConnection);
             return true;
         }
 
@@ -1191,9 +1198,9 @@ namespace Mirror
         /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
         /// </summary>
         [Obsolete("Use Spawn(obj, assetId, connection) instead")]
-        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkConnection ownerConnection)
+        public static bool SpawnWithClientAuthority(GameObject obj, Guid assetId, NetworkClient client, NetworkConnection ownerConnection)
         {
-            Spawn(obj, assetId, ownerConnection);
+            Spawn(obj, assetId, client, ownerConnection);
             return true;
         }
 
@@ -1204,7 +1211,7 @@ namespace Mirror
         /// <param name="obj">The object to spawn.</param>
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
+        public static void Spawn(GameObject obj, Guid assetId, NetworkClient client, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1212,7 +1219,7 @@ namespace Mirror
                 {
                     identity.assetId = assetId;
                 }
-                SpawnObject(obj, ownerConnection);
+                SpawnObject(obj, client, ownerConnection);
             }
         }
 
@@ -1314,7 +1321,7 @@ namespace Mirror
         /// <para>NetworkIdentity objects in a scene are disabled by default. Calling SpawnObjects() causes these scene objects to be enabled and spawned. It is like calling NetworkServer.Spawn() for each of them.</para>
         /// </summary>
         /// <returns>Success if objects where spawned.</returns>
-        public static bool SpawnObjects()
+        public static bool SpawnObjects(NetworkClient client)
         {
             if (!active)
                 return true;
@@ -1333,7 +1340,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
-                    Spawn(identity.gameObject);
+                    Spawn(identity.gameObject, client);
             }
             return true;
         }

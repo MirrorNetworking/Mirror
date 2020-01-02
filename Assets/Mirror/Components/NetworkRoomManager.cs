@@ -163,7 +163,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
+            NetworkServer.ReplacePlayerForConnection(conn, client, gamePlayer, true);
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace Mirror
 
             RecalculateRoomPlayerIndices();
 
-            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+            NetworkServer.AddPlayerForConnection(conn, client, newRoomGameObject);
         }
 
         void RecalculateRoomPlayerIndices()
@@ -323,7 +323,7 @@ namespace Mirror
                     {
                         // re-add the room object
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
+                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, client, roomPlayer.gameObject);
                     }
                 }
             }
