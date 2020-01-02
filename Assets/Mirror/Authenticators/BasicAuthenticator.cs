@@ -71,7 +71,7 @@ namespace Mirror.Authenticators
                 conn.Send(authResponseMessage);
 
                 // Invoke the event to complete a successful authentication
-                base.OnServerAuthenticated.Invoke(conn);
+                OnServerAuthenticated.Invoke(conn);
             }
             else
             {
@@ -105,7 +105,7 @@ namespace Mirror.Authenticators
                 Debug.LogFormat("Authentication Response: {0}", msg.message);
 
                 // Invoke the event to complete a successful authentication
-                base.OnClientAuthenticated.Invoke(conn);
+                OnClientAuthenticated.Invoke(conn);
             }
             else
             {
