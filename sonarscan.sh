@@ -20,7 +20,7 @@
     -testResults Tests/Results.xml \
     -debugCodeOptimization \
     -enableCodeCoverage \
-    -coverageOptions assemblyFilters:-Mirror.Examples,-Ninja.WebSockets
+    -coverageOptions assemblyFilters:-Mirror.Examples,-Ninja.WebSockets \
     -coverageResultsPath Tests
 
 /Applications/Unity/Hub/Editor/2019.3.0f3/Unity.app/Contents/MacOS/Unity \
