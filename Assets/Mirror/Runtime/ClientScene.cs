@@ -39,6 +39,8 @@ namespace Mirror
         /// </summary>
         public static NetworkConnection readyConnection { get; private set; }
 
+        public static NetworkClient client { get; internal set; }
+
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
         /// <para>The key to the dictionary is the prefab asset Id.</para>
@@ -482,6 +484,7 @@ namespace Mirror
             identity.transform.localScale = msg.scale;
             identity.hasAuthority = msg.isOwner;
             identity.netId = msg.netId;
+            identity.client = client;
 
             if (msg.isLocalPlayer)
                 InternalAddPlayer(identity);
