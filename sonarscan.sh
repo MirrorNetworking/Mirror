@@ -11,8 +11,30 @@
 
 # first generate the solution
 
-/Applications/Unity/Hub/Editor/2019.2.12f1/Unity.app/Contents/MacOS/Unity -batchmode -logfile /dev/stdout -quit -customBuildName buildName -projectPath . -buildTarget StandaloneWindows64 -customBuildTarget StandaloneWindows64 -customBuildPath ./build/StandaloneWindows64 -executeMethod UnityEditor.SyncVS.SyncSolution
+/Applications/Unity/Hub/Editor/2019.3.0f3/Unity.app/Contents/MacOS/Unity \
+    -batchmode \
+    -logfile /dev/stdout \
+    -projectPath . \
+    -runTests \
+    -testPlatform editmode \
+    -testResults Tests/Results.xml \
+    -debugCodeOptimization \
+    -enableCodeCoverage \
+    -coverageOptions assemblyFilters:-Mirror.Examples,-Ninja.WebSockets
+    -coverageResultsPath Tests
 
-dotnet-sonarscanner begin /k:MirrorNG_MirrorNG /o:mirrorng
+/Applications/Unity/Hub/Editor/2019.3.0f3/Unity.app/Contents/MacOS/Unity \
+    -batchmode \
+    -logfile /dev/stdout \
+    -quit \
+    -customBuildName buildName \
+    -projectPath . \
+    -buildTarget StandaloneWindows64 \
+    -customBuildTarget StandaloneWindows64 \
+    -customBuildPath ./build/StandaloneWindows64 \
+    -executeMethod UnityEditor.SyncVS.SyncSolution
+
+
+dotnet-sonarscanner begin /k:MirrorNG_MirrorNG /o:mirrorng /d:sonar.cs.nunit.reportsPaths=Tests/Results.xml /d:sonar.cs.opencover.reportsPaths=Tests/Mirror2-opencov/EditMode/TestCoverageResults_0000.xml
 msbuild Mirror2.sln
 dotnet-sonarscanner end
