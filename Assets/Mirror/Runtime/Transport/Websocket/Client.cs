@@ -9,7 +9,6 @@ using Ninja.WebSockets;
 
 namespace Mirror.Websocket
 {
-
     public class Client
     {
         public event Action Connected;
@@ -28,7 +27,7 @@ namespace Mirror.Websocket
 
         Uri uri;
 
-        public async void Connect(Uri uri)
+        public async Task Connect(Uri uri)
         {
             // not if already started
             if (webSocket != null)
@@ -148,7 +147,7 @@ namespace Mirror.Websocket
         }
 
         // send the data or throw exception
-        public async void Send(ArraySegment<byte> segment)
+        public async Task Send(ArraySegment<byte> segment)
         {
             if (webSocket == null)
             {

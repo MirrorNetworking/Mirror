@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,7 +21,7 @@ namespace Mirror.Tcp
         public bool Connecting { get; set; }
         public bool IsConnected { get; set; }
 
-        public async void Connect(string host, int port)
+        public async Task Connect(string host, int port)
         {
             // not if already started
             if (client != null)
@@ -33,8 +33,6 @@ namespace Mirror.Tcp
 
             // We are connecting from now until Connect succeeds or fails
             Connecting = true;
-
-
 
             try
             {
