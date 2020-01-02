@@ -297,11 +297,11 @@ namespace Mirror
         /// Custom Serialization
         /// </summary>
         /// <param name="writer"></param>
-        /// <param name="forceAll"></param>
+        /// <param name="initialState"></param>
         /// <returns></returns>
-        public override bool OnSerialize(NetworkWriter writer, bool forceAll)
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            if (forceAll)
+            if (initialState)
             {
                 for (int i = 0; i < Animator.layerCount; i++)
                 {
@@ -318,7 +318,7 @@ namespace Mirror
                         writer.WriteSingle(st.normalizedTime);
                     }
                 }
-                WriteParameters(writer, forceAll);
+                WriteParameters(writer, initialState);
                 return true;
             }
             return false;
