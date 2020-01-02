@@ -60,3 +60,8 @@ docs/.sass-cache
 ehthumbs.db
 Thumbs.db
 /VisRepo.txt
+
+.sonarqube
+CodeCoverage
+ProjectSettings
+Tests
