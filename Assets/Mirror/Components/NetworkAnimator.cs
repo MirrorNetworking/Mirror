@@ -132,7 +132,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            if (sendMessagesAllowed && syncInterval != 0 && sendTimer < Time.time)
+            if (sendMessagesAllowed && syncInterval > 0 && sendTimer < Time.time)
             {
                 sendTimer = Time.time + syncInterval;
 
