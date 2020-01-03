@@ -429,6 +429,20 @@ namespace Mirror
             OnStartClient();
         }
 
+        // FinishStartHost is guaranteed to be called after all the
+        // asynchronous StartHost magic is finished (= scene loading), or
+        // immediately if there was no asynchronous magic.
+        //
+        // note: we don't really need FinishStartClient/FinishStartServer. the
+        //       host version is enough.
+        bool finishStartHostPending;
+        void FinishStartHost()
+        {
+            // connect client and call OnStartClient AFTER any possible server
+            // scene changes.
+            StartHostClient();
+        }
+
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
@@ -444,10 +458,11 @@ namespace Mirror
             //       LoadSceneAsync
             //       ...
             //       FinishLoadSceneHost
+            //           FinishStartHost
             //           SpawnObjects
             //   else:
+            //       FinishStartHost
             //       SpawnObjects
-            //   StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
             //
             // there is NO WAY to make it synchronous because both LoadSceneAsync
             // and LoadScene do not finish loading immediately. as long as we
@@ -490,17 +505,23 @@ namespace Mirror
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
             {
+                // call FinishStartHost after changing scene.
+                finishStartHostPending = true;
                 ServerChangeScene(onlineScene);
             }
             // otherwise spawn directly
             else
             {
+                // call FinishStartHost BEFORE spawning objects. client needs
+                // to be connected first, see the long ConnectHost comment above.
+                FinishStartHost();
+
+                // DO NOT move SpawnObjects into FinishStartHost. we need to do
+                // this in every case after loading a scene in host mode,
+                // because we might do that at runtime too, not just in
+                // StartHost.
                 NetworkServer.SpawnObjects();
             }
-
-            // connect client and call OnStartClient AFTER any possible server
-            // scene changes.
-            StartHostClient();
         }
 
         /// <summary>
@@ -889,6 +910,15 @@ namespace Mirror
                 OnClientConnect(clientReadyConnection);
                 clientLoadedScene = true;
                 clientReadyConnection = null;
+            }
+
+            // do we need to finish a StartHost() call?
+            // call FinishStartHost BEFORE spawning objects. client needs
+            // to be connected first, see the long ConnectHost comment above.
+            if (finishStartHostPending)
+            {
+                finishStartHostPending = false;
+                FinishStartHost();
             }
 
             NetworkServer.SpawnObjects();
