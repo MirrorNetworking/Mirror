@@ -200,7 +200,7 @@ namespace Mirror.Examples.ListServer
                         else if (message.eventType == Telepathy.EventType.Data)
                             ParseMessage(message.data);
                         // disconnected?
-                        else if (message.eventType == Telepathy.EventType.Connected)
+                        else if (message.eventType == Telepathy.EventType.Disconnected)
                             Debug.Log("[List Server] Client disconnected.");
                     }
 
