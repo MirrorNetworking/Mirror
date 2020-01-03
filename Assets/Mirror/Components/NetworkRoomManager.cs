@@ -536,17 +536,6 @@ namespace Mirror
             return null;
         }
 
-        /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer{NetworkConnection conn, GameObject roomPlayer}"/> instead.
-        /// </summary>
-        /// <param name="conn">The connection the player object is for.</param>
-        /// <returns>A new GamePlayer object.</returns>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use OnRoomServerCreateGamePlayer<NetworkConnection, GameObject> instead")]
-        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn)
-        {
-            return null;
-        }
-
         // for users to apply settings from their room player object to their in-game player object
         /// <summary>
         /// This is called on the server when it is told that a client has finished switching from the room scene to a game player scene.
