@@ -459,6 +459,9 @@ namespace Mirror
             //       ...
             //       FinishLoadSceneHost
             //           FinishStartHost
+            //               StartHostClient
+            //                   ClientAuth
+            //                       success: server sends changescene msg to client
             //           SpawnObjects
             //   else:
             //       FinishStartHost
