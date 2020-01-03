@@ -82,12 +82,15 @@ namespace Mirror.Weaver
         }
         /*
         generates code like:
-            if (!NetworkServer.active)
+            if (!obj.netIdentity.server.active)
               Debug.LogError((object) "Command CmdMsgWhisper called on client.");
         */
         public static void WriteServerActiveCheck(ILProcessor worker, string mdName, Instruction label, string errString)
         {
             // server active check
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkBehaviourGetIdentity));
+            worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkIdentityGetServer));
             worker.Append(worker.Create(OpCodes.Call, Weaver.NetworkServerGetActive));
             worker.Append(worker.Create(OpCodes.Brtrue, label));
 

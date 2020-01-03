@@ -43,7 +43,7 @@ namespace Mirror
                 return;
 
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
-            if (!NetworkClient.isConnected && !NetworkServer.active)
+            if (!NetworkClient.isConnected && !manager.server.active)
             {
                 if (!NetworkClient.active)
                 {
@@ -89,7 +89,7 @@ namespace Mirror
             else
             {
                 // server / client status message
-                if (NetworkServer.active)
+                if (manager.server.active)
                 {
                     GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
                 }
@@ -114,7 +114,7 @@ namespace Mirror
             }
 
             // stop
-            if (NetworkServer.active || NetworkClient.isConnected)
+            if (manager.server.active || NetworkClient.isConnected)
             {
                 if (GUILayout.Button("Stop"))
                 {
