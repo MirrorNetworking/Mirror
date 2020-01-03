@@ -41,7 +41,7 @@ namespace Mirror.Examples.NetworkRoom
                 spawner.SpawnPrize();
 
                 // destroy this one
-                NetworkServer.Destroy(gameObject);
+                server.Destroy(gameObject);
             }
         }
     }

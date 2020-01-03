@@ -62,7 +62,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
-        public bool isServer => NetworkServer.active && netId != 0;
+        public bool isServer => server.active && netId != 0;
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
@@ -108,10 +108,14 @@ namespace Mirror
         public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
 
         /// <summary>
+        /// The NetworkServer associated with this NetworkIdentity.
+        /// </summary>
+        public NetworkServer server { get; internal set; }
+
+        /// <summary>
         /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
-
 
         private NetworkConnectionToClient _connectionToClient;
         /// <summary>
@@ -480,7 +484,7 @@ namespace Mirror
 
             if (isServer)
             {
-                NetworkServer.Destroy(gameObject);
+                server.Destroy(gameObject);
             }
         }
 
@@ -943,15 +947,15 @@ namespace Mirror
             {
                 if (initialize)
                 {
-                    foreach (NetworkConnection conn in NetworkServer.connections.Values)
+                    foreach (NetworkConnection conn in server.connections.Values)
                     {
                         if (conn.isReady)
                             AddObserver(conn);
                     }
 
-                    if (NetworkServer.localConnection != null && NetworkServer.localConnection.isReady)
+                    if (server.localConnection != null && server.localConnection.isReady)
                     {
-                        AddObserver(NetworkServer.localConnection);
+                        AddObserver(server.localConnection);
                     }
                 }
                 return;
@@ -1014,7 +1018,7 @@ namespace Mirror
             //      iterating all identities in a special function in StartHost.
             if (initialize)
             {
-                if (!newObservers.Contains(NetworkServer.localConnection))
+                if (!newObservers.Contains(server.localConnection))
                 {
                     OnSetHostVisibility(false);
                 }
@@ -1074,7 +1078,7 @@ namespace Mirror
                 // so just spawn it again,
                 // the client will not create a new instance,  it will simply
                 // reset all variables and remove authority
-                NetworkServer.SendSpawnMessage(this, previousOwner);
+                server.SendSpawnMessage(this, previousOwner);
 
                 connectionToClient = null;
             }
@@ -1111,7 +1115,7 @@ namespace Mirror
 
             // The client will match to the existing object
             // update all variables and assign authority
-            NetworkServer.SendSpawnMessage(this, conn);
+            server.SendSpawnMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
@@ -1133,6 +1137,7 @@ namespace Mirror
             reset = false;
 
             netId = 0;
+            server = null;
             connectionToServer = null;
             connectionToClient = null;
             networkBehavioursCache = null;
@@ -1169,7 +1174,7 @@ namespace Mirror
                     {
                         varsMessage.payload = ownerWriter.ToArraySegment();
                         if (connectionToClient != null && connectionToClient.isReady)
-                            NetworkServer.SendToClientOfPlayer(this, varsMessage);
+                            server.SendToClientOfPlayer(this, varsMessage);
                     }
 
                     // send observersWriter to everyone but owner
@@ -1177,7 +1182,7 @@ namespace Mirror
                     if (observersWritten > 0)
                     {
                         varsMessage.payload = observersWriter.ToArraySegment();
-                        NetworkServer.SendToReady(this, varsMessage, false);
+                        server.SendToReady(this, varsMessage, false);
                     }
 
                     // clear dirty bits only for the components that we serialized

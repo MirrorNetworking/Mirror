@@ -163,7 +163,7 @@ namespace Mirror
                 return;
 
             // replace room player with game player
-            NetworkServer.ReplacePlayerForConnection(conn, gamePlayer, true);
+            server.ReplacePlayerForConnection(conn, gamePlayer, true);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Mirror
         {
             if (SceneManager.GetActiveScene().name != RoomScene) return;
 
-            if (minPlayers > 0 && NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
+            if (minPlayers > 0 && server.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin) < minPlayers)
             {
                 allPlayersReady = false;
                 return;
@@ -286,7 +286,7 @@ namespace Mirror
 
             RecalculateRoomPlayerIndices();
 
-            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+            server.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
         void RecalculateRoomPlayerIndices()
@@ -317,13 +317,13 @@ namespace Mirror
                     NetworkIdentity identity = roomPlayer.GetComponent<NetworkIdentity>();
 
                     NetworkIdentity playerController = identity.connectionToClient.identity;
-                    NetworkServer.Destroy(playerController.gameObject);
+                    server.Destroy(playerController.gameObject);
 
-                    if (NetworkServer.active)
+                    if (server.active)
                     {
                         // re-add the room object
                         roomPlayer.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
-                        NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
+                        server.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
                 }
             }
@@ -624,7 +624,7 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (NetworkServer.active && SceneManager.GetActiveScene().name == GameplayScene)
+            if (server.active && SceneManager.GetActiveScene().name == GameplayScene)
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
