@@ -67,3 +67,11 @@ jobs:
     #     with:
     #       # Arguments to pass to unity
     #       args: -returnlicense -quit
+
+      - name: Release UPM package
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          git subtree push --prefix=Assets/Mirror "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" upm
+
