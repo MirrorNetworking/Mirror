@@ -28,8 +28,6 @@ jobs:
         with:
           entrypoint: /activate.sh
       
-      - run: ls -l
-
       - name: Generate Solution
         uses: MirrorNG/unity-runner@master
         with:
