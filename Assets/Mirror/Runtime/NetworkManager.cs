@@ -506,6 +506,9 @@ namespace Mirror
             NetworkClient.ConnectHost();
 
             // scene change needed? then change scene and spawn afterwards.
+            // => BEFORE host client connects. if client auth succeeds then the
+            //    server tells it to load 'onlineScene'. we can't do that if
+            //    server is still in 'offlineScene'. so load on server first.
             if (IsServerOnlineSceneChangeNeeded())
             {
                 // call FinishStartHost after changing scene.
