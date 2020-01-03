@@ -12,7 +12,7 @@ jobs:
     - name: Generate API
       uses: nikeee/docfx-action@master
       with:
-        args: metadata true --logLevel Warning --warningsAsErrors doc/docfx.json
+        args: metadata --logLevel Warning --warningsAsErrors doc/docfx.json
     - name: Compile Docs
       uses: nikeee/docfx-action@master
       with:
