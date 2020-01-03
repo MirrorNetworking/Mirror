@@ -1105,7 +1105,8 @@ namespace Mirror
             }
             else
             {
-                // will wait for scene id to come from the server.
+                // Client must wait for Scene message from the server.
+                // This must be set true because the client will be changing scenes before sending AddPlayer message.
                 clientLoadedScene = true;
                 clientReadyConnection = conn;
             }
