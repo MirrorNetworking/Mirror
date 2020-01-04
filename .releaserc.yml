@@ -10,13 +10,15 @@
                 {"type": "feature", "release": "minor"},
             ]
         }],
-
+        ["@semantic-release/changelog", {
+            "changelogFile": "Assets/Mirror/CHANGELOG.md",
+        }],
         ["@semantic-release/npm", {
             "npmPublish": false,
             "pkgRoot": "Assets/Mirror"
         }],
         ["@semantic-release/git", {
-            "assets": ["Assets/Mirror/package.json"],
+            "assets": ["Assets/Mirror/package.json", "Assets/Mirror/CHANGELOG.md"],
             "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
         }],
         ["@semantic-release/exec", {
