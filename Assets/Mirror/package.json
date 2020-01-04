@@ -13,37 +13,37 @@
       {
          "displayName": "Basic",
          "description": "Basic",
-         "path": "Examples/Basic"
+         "path": "Samples~/Basic"
       },
       {
          "displayName": "Pong",
          "description": "Pong",
-         "path": "Examples/Pong"
+         "path": "Samples~/Pong"
       },
       {
          "displayName": "Tanks",
          "description": "Tanks",
-         "path": "Examples/Tanks"
+         "path": "Samples~/Tanks"
       },
       {
          "displayName": "Lobby",
          "description": "Lobby",
-         "path": "Examples/Lobby"
+         "path": "Samples~/Lobby"
       },
       {
          "displayName": "Chat",
          "description": "Chat",
-         "path": "Examples/Chat"
+         "path": "Samples~/Chat"
       },
       {
          "displayName": "ListServer",
          "description": "ListServer",
-         "path": "Examples/ListServer"
+         "path": "Samples~/ListServer"
       },
       {
          "displayName": "AdditiveScenes",
          "description": "AdditiveScenes",
-         "path": "Examples/AdditiveScenes"
+         "path": "Samples~/AdditiveScenes"
       }
    ]
 }
