@@ -35,7 +35,6 @@ namespace Mirror.Weaver
                 catch (AssemblyResolutionException)
                 {
                     // this can happen for plugins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
             }
@@ -71,7 +70,6 @@ namespace Mirror.Weaver
                 catch (AssemblyResolutionException)
                 {
                     // this can happen for pluins.
-                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
             }

@@ -12,7 +12,6 @@ namespace Mirror.Weaver
     {
         public static MethodReference ResolveMethod(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
-            //Console.WriteLine("ResolveMethod " + t.ToString () + " " + name);
             if (tr == null)
             {
                 Weaver.Error("Type missing for " + name);

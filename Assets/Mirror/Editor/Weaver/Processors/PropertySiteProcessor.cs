@@ -38,7 +38,6 @@ namespace Mirror.Weaver
 
         static void ProcessSiteClass(TypeDefinition td)
         {
-            //Console.WriteLine("    ProcessSiteClass " + td);
             foreach (MethodDefinition md in td.Methods)
             {
                 ProcessSiteMethod(td, md);
