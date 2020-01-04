@@ -52,7 +52,6 @@ namespace Mirror.Weaver
         static void ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
         {
             // process all references to replaced members with properties
-            //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -145,10 +144,8 @@ namespace Mirror.Weaver
             if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
             }
         }
 
@@ -163,10 +160,8 @@ namespace Mirror.Weaver
             if (Weaver.WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
             }
         }
 
@@ -252,7 +247,6 @@ namespace Mirror.Weaver
 
         static void ProcessInstructionMethod(MethodDefinition md, Instruction instr, MethodReference opMethodRef, int iCount)
         {
-            //DLog(td, "ProcessInstructionMethod " + opMethod.Name);
             if (opMethodRef.Name == "Invoke")
             {
                 // Events use an "Invoke" method to call the delegate.
