@@ -49,17 +49,17 @@ jobs:
           name: Test results (editor mode)
           path: Tests/editmode-results.xml
 
-    #   - name: Sonarscanner for dotnet
-    #     uses: Secbyte/dotnet-sonarscanner@v1.2
-    #     with:
-    #       buildCommand: dotnet build MirrorNG
-    #       projectKey: MirrorNG_MirrorNG
-    #       projectName: MirrorNG
-    #       sonarOrganisation: mirrorng
-    #       beginArguments: /d:sonar.verbose="true"
-    #     env:
-    #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sonarscanner for dotnet
+        uses: Secbyte/dotnet-sonarscanner@v1.2
+        with:
+          buildCommand: dotnet build MirrorNG
+          projectKey: MirrorNG_MirrorNG
+          projectName: MirrorNG
+          sonarOrganisation: mirrorng
+          beginArguments: /d:sonar.verbose="true"
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # no need to return license for personal license
     # Return License
@@ -70,8 +70,13 @@ jobs:
     #       # Arguments to pass to unity
     #       args: -returnlicense -quit
 
-      - name: Release UPM package
-        if: github.ref == 'refs/heads/master'
-        run: |
-           git subtree push --prefix=Assets/Mirror origin upm
-
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v2
+        with:
+          extra_plugins: |
+            @semantic-release/exec
+            @semantic-release/changelog@3.0.0
+            @semantic-release/git
+          branch: master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

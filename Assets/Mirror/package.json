@@ -1,49 +1,49 @@
 {
-   "name":"com.mirrorng.mirrorng",
-   "displayName":"MirrorNG",
-   "version":"4.0.0",
-   "unity":"2019.1",
-   "description":"MirrorNG is a high level Networking API for Unity, supporting different low level Transports.",
-   "author":"Paul Pacheco",
-   "repository":{
-      "type":"git",
-      "url":"https://github.com/MirrorNG/MirrorNG.git#upm"
+   "name": "com.mirrorng.mirrorng",
+   "displayName": "MirrorNG",
+   "version": "1.3.0",
+   "unity": "2019.1",
+   "description": "MirrorNG is a high level Networking API for Unity, supporting different low level Transports.",
+   "author": "Paul Pacheco",
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/MirrorNG/MirrorNG.git#upm"
    },
-   "samples":[
+   "samples": [
       {
-         "displayName":"Basic",
-         "description":"Basic",
-         "path":"Examples/Basic"
+         "displayName": "Basic",
+         "description": "Basic",
+         "path": "Examples/Basic"
       },
       {
-         "displayName":"Pong",
-         "description":"Pong",
-         "path":"Examples/Pong"
+         "displayName": "Pong",
+         "description": "Pong",
+         "path": "Examples/Pong"
       },
       {
-         "displayName":"Tanks",
-         "description":"Tanks",
-         "path":"Examples/Tanks"
+         "displayName": "Tanks",
+         "description": "Tanks",
+         "path": "Examples/Tanks"
       },
       {
-         "displayName":"Lobby",
-         "description":"Lobby",
-         "path":"Examples/Lobby"
+         "displayName": "Lobby",
+         "description": "Lobby",
+         "path": "Examples/Lobby"
       },
       {
-         "displayName":"Chat",
-         "description":"Chat",
-         "path":"Examples/Chat"
+         "displayName": "Chat",
+         "description": "Chat",
+         "path": "Examples/Chat"
       },
       {
-         "displayName":"ListServer",
-         "description":"ListServer",
-         "path":"Examples/ListServer"
+         "displayName": "ListServer",
+         "description": "ListServer",
+         "path": "Examples/ListServer"
       },
       {
-         "displayName":"AdditiveScenes",
-         "description":"AdditiveScenes",
-         "path":"Examples/AdditiveScenes"
+         "displayName": "AdditiveScenes",
+         "description": "AdditiveScenes",
+         "path": "Examples/AdditiveScenes"
       }
    ]
 }
