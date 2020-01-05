@@ -21,9 +21,28 @@ namespace Mirror
         static bool isSpawnFinished;
 
         /// <summary>
+        /// Dispatched when the local player changes, providing the new localPlayer.
+        /// </summary>
+        public static event Action<NetworkIdentity> OnLocalPlayerChanged;
+        /// <summary>
+        /// 
+        /// </summary>
+        private static NetworkIdentity localPlayerInternal = null;
+        /// <summary>
         /// NetworkIdentity of the localPlayer
         /// </summary>
-        public static NetworkIdentity localPlayer { get; private set; }
+        public static NetworkIdentity localPlayer
+        {
+            get { return localPlayerInternal; }
+            set
+            {
+                bool changed = (localPlayerInternal != value);
+                localPlayerInternal = value;
+                //If local player changed process event.
+                if (changed)
+                    OnLocalPlayerChanged?.Invoke(localPlayerInternal);
+            }
+        }
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
