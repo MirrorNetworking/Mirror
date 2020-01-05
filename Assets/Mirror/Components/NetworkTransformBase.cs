@@ -36,7 +36,7 @@ namespace Mirror
         public bool clientAuthority;
 
         // is this a local player with authority over his own transform?
-        bool isLocalPlayerWithAuthority => isLocalPlayer && clientAuthority;
+        bool isLocalPlayerWithAuthority => hasAuthority && clientAuthority;
 
         // server
         Vector3 lastPosition;
