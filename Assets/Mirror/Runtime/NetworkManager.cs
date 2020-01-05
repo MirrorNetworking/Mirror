@@ -498,8 +498,10 @@ namespace Mirror
                 NetworkServer.SpawnObjects();
             }
 
-            // connect client and call OnStartClient AFTER any possible server
-            // scene changes.
+            // connect client and call OnStartClient AFTER host server was fully
+            // started (after online scene change and SpawnObjects).
+            // -> do not call this before, we don't want to start the host
+            //    client before the server is fully running.
             StartHostClient();
         }
 
