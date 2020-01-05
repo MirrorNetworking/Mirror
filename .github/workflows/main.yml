@@ -30,19 +30,13 @@ jobs:
         uses: MirrorNG/unity-runner@master
         with:
           entrypoint: /activate.sh
-      
-      - name: Generate Solution
-        uses: MirrorNG/unity-runner@master
-        with:
-          # Arguments to pass to unity
-          args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
-    
+          
       # Configure test runner
       - name: Run editor Tests
         uses: MirrorNG/unity-runner@master
         with:
           args: -runTests -testPlatform editmode -testResults Tests/editmode-results.xml -enableCodeCoverage -coverageResultsPath Tests
-            
+        
       # Upload artifacts
       - name: Publish test results
         uses: actions/upload-artifact@v1
@@ -50,17 +44,24 @@ jobs:
           name: Test results (editor mode)
           path: Tests/editmode-results.xml
 
-#      - name: Sonarscanner for dotnet
-#        uses: Secbyte/dotnet-sonarscanner@v1.2
-#        with:
-#          buildCommand: dotnet build MirrorNG
-#          projectKey: MirrorNG_MirrorNG
-#          projectName: MirrorNG
-#          sonarOrganisation: mirrorng
-#          beginArguments: /d:sonar.verbose="true"
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate Solution
+        uses: MirrorNG/unity-runner@master
+        with:
+          # Arguments to pass to unity
+          args: -buildTarget StandaloneWindows64 -customBuildName MirrorNG -customBuildPath ./build/StandaloneWindows64 -projectPath . -executeMethod  UnityEditor.SyncVS.SyncSolution -quit
+  
+      - name: SonarQube analysis
+        uses: MirrorNG/unity-sonarscanner@master
+        with:
+          buildCommand: /opt/Unity/Editor/Data/NetCore/Sdk-2.2.107/dotnet build workspace.sln
+          projectKey: MirrorNG_MirrorNG
+          projectName: MirrorNG
+          sonarOrganisation: mirrorng
+          beginArguments: /d:sonar.verbose="true" /d:sonar.cs.nunit.reportsPaths=Tests/editmode-results.xml /d:sonar.cs.opencover.reportsPaths=Tests/workspace-opencov/EditMode/TestCoverageResults_0000.xml
+        env:
+          FrameworkPathOverride: /opt/Unity/Editor/Data/MonoBleedingEdge/
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # no need to return license for personal license
     # Return License
