@@ -510,6 +510,9 @@ namespace Mirror
             // started (after online scene change and SpawnObjects).
             // -> do not call this before, we don't want to start the host
             //    client before the server is fully running.
+            // TODO if server uses an online scene then we have a race condition
+            //      where in most cases StartHostClient would be called before
+            //      the scene change was finished. that's not good.
             StartHostClient();
         }
 
