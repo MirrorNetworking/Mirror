@@ -448,6 +448,8 @@ namespace Mirror
             //   else:
             //       SpawnObjects
             //   StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
+            //       ClientAuth
+            //           success: server sends changescene msg to client
             //
             // there is NO WAY to make it synchronous because both LoadSceneAsync
             // and LoadScene do not finish loading immediately. as long as we
