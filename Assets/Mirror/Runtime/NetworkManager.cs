@@ -463,6 +463,9 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost();
 
+            // ConnectHost needs to be called BEFORE server changes scene.
+            // otherwise FinishLoadScene doesn't know that we are in host mode.
+            //
             // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
@@ -490,6 +493,9 @@ namespace Mirror
             NetworkClient.ConnectHost();
 
             // scene change needed? then change scene and spawn afterwards.
+            // => BEFORE host client connects. if client auth succeeds then the
+            //    server tells it to load 'onlineScene'. we can't do that if
+            //    server is still in 'offlineScene'. so load on server first.
             if (IsServerOnlineSceneChangeNeeded())
             {
                 ServerChangeScene(onlineScene);
