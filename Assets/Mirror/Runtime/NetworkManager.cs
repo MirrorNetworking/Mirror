@@ -924,21 +924,40 @@ namespace Mirror
             {
                 finishStartHostPending = false;
                 FinishStartHost();
+
+                // call OnServerSceneChanged
+                OnServerSceneChanged(networkSceneName);
+
+                if (NetworkClient.isConnected)
+                {
+                    RegisterClientMessages();
+
+                    // DO NOT call OnClientSceneChanged here.
+                    // the scene change happened because StartHost loaded the
+                    // server's online scene. it has nothing to do with the client.
+                    // this was not meant as a client scene load, so don't call it.
+                    //
+                    // otherwise AddPlayer would be called twice:
+                    // -> once for client OnConnected
+                    // -> once in OnClientSceneChanged
+                }
             }
-            // otherwise we just changed a scene in host mode. simply spawn
-            // server objects now.
+            // otherwise we just changed a scene in host mode
             else
             {
+                // spawn server objects
                 NetworkServer.SpawnObjects();
-            }
 
-            // call OnServerSceneChanged afterwards in any case
-            OnServerSceneChanged(networkSceneName);
+                // call OnServerSceneChanged
+                OnServerSceneChanged(networkSceneName);
 
-            if (NetworkClient.isConnected)
-            {
-                RegisterClientMessages();
-                OnClientSceneChanged(NetworkClient.connection);
+                if (NetworkClient.isConnected)
+                {
+                    RegisterClientMessages();
+
+                    // let client know that we changed scene
+                    OnClientSceneChanged(NetworkClient.connection);
+                }
             }
         }
 
