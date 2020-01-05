@@ -429,6 +429,26 @@ namespace Mirror
             OnStartClient();
         }
 
+        // FinishStartHost is guaranteed to be called after the host server was
+        // fully started and all the asynchronous StartHost magic is finished
+        // (= scene loading), or immediately if there was no asynchronous magic.
+        //
+        // note: we don't really need FinishStartClient/FinishStartServer. the
+        //       host version is enough.
+        bool finishStartHostPending;
+        void FinishStartHost()
+        {
+            // server scene was loaded. now spawn all the objects
+            NetworkServer.SpawnObjects();
+
+            // connect client and call OnStartClient AFTER server scene was
+            // loaded and all objects were spawned.
+            // DO NOT do this earlier. it would cause race conditions where a
+            // client will do things before the server is even fully started.
+            Debug.LogWarning("StartHostClient called");
+            StartHostClient();
+        }
+
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
@@ -444,12 +464,13 @@ namespace Mirror
             //       LoadSceneAsync
             //       ...
             //       FinishLoadSceneHost
-            //           SpawnObjects
+            //           FinishStartHost
+            //               SpawnObjects
+            //               StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
+            //                   ClientAuth
+            //                       success: server sends changescene msg to client
             //   else:
-            //       SpawnObjects
-            //   StartHostClient      <= not guaranteed to happen after SpawnObjects if onlineScene is set!
-            //       ClientAuth
-            //           success: server sends changescene msg to client
+            //       FinishStartHost
             //
             // there is NO WAY to make it synchronous because both LoadSceneAsync
             // and LoadScene do not finish loading immediately. as long as we
@@ -498,22 +519,15 @@ namespace Mirror
             //    server is still in 'offlineScene'. so load on server first.
             if (IsServerOnlineSceneChangeNeeded())
             {
+                // call FinishStartHost after changing scene.
+                finishStartHostPending = true;
                 ServerChangeScene(onlineScene);
             }
-            // otherwise spawn directly
+            // otherwise call FinishStartHost directly
             else
             {
-                NetworkServer.SpawnObjects();
+                FinishStartHost();
             }
-
-            // connect client and call OnStartClient AFTER host server was fully
-            // started (after online scene change and SpawnObjects).
-            // -> do not call this before, we don't want to start the host
-            //    client before the server is fully running.
-            // TODO if server uses an online scene then we have a race condition
-            //      where in most cases StartHostClient would be called before
-            //      the scene change was finished. that's not good.
-            StartHostClient();
         }
 
         /// <summary>
@@ -904,7 +918,21 @@ namespace Mirror
                 clientReadyConnection = null;
             }
 
-            NetworkServer.SpawnObjects();
+            // do we need to finish a StartHost() call?
+            // then call FinishStartHost and let it take care of spawning etc.
+            if (finishStartHostPending)
+            {
+                finishStartHostPending = false;
+                FinishStartHost();
+            }
+            // otherwise we just changed a scene in host mode. simply spawn
+            // server objects now.
+            else
+            {
+                NetworkServer.SpawnObjects();
+            }
+
+            // call OnServerSceneChanged afterwards in any case
             OnServerSceneChanged(networkSceneName);
 
             if (NetworkClient.isConnected)
