@@ -448,13 +448,6 @@ namespace Mirror
         {
             OnRoomStopClient();
             CallOnClientExitRoom();
-
-            if (!string.IsNullOrEmpty(offlineScene))
-            {
-                // Move the RoomManager from the virtual DontDestroyOnLoad scene to the Game scene.
-                // This let's it be destroyed when client changes to the Offline scene.
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-            }
         }
 
         /// <summary>
