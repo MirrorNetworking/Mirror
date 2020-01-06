@@ -66,19 +66,19 @@ namespace Mirror
         public static bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>
-        /// NetworkClient can connect to local server in host mode too
+        /// NetworkClient can connect to local server in host mode too.
         /// </summary>
-        public static bool isLocalClient => connection is ULocalConnectionToServer;
+        public static bool isLocalClient => connection != null && connection.isLocalConnection;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public static void Connect(string address)
+        public static void Connect(string address, bool hostMode = false)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
-            RegisterSystemHandlers(false);
+            RegisterSystemHandlers(hostMode);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
 
@@ -87,6 +87,7 @@ namespace Mirror
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
+            connection.isLocalConnection = hostMode;
             connection.SetHandlers(handlers);
         }
 
@@ -108,35 +109,6 @@ namespace Mirror
             // setup all the handlers
             connection = new NetworkConnectionToServer();
             connection.SetHandlers(handlers);
-        }
-
-        internal static void ConnectHost()
-        {
-            if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
-
-            RegisterSystemHandlers(true);
-
-            connectState = ConnectState.Connected;
-
-            // create local connection objects and connect them
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
-
-            connection = connectionToServer;
-            connection.SetHandlers(handlers);
-
-            // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
-        }
-        /// <summary>
-        /// connect host mode
-        /// </summary>
-        internal static void ConnectLocalServer()
-        {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
         }
 
         static void InitializeTransportHandlers()
@@ -195,24 +167,19 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
 
-            // local or remote connection?
-            if (isLocalClient)
+            if (connection != null)
             {
-                if (isConnected)
+                // clear server's local connection if we are a local client
+                if (isLocalClient)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    NetworkServer.localConnection = null;
                 }
-                NetworkServer.RemoveLocalConnection();
-            }
-            else
-            {
-                if (connection != null)
-                {
-                    connection.Disconnect();
-                    connection.Dispose();
-                    connection = null;
-                    RemoveTransportHandlers();
-                }
+
+
+                connection.Disconnect();
+                connection.Dispose();
+                connection = null;
+                RemoveTransportHandlers();
             }
         }
 
@@ -270,19 +237,11 @@ namespace Mirror
 
         internal static void Update()
         {
-            // local connection?
-            if (connection is ULocalConnectionToServer localConnection)
+            // only update NetworkTime while connected and while not a host
+            // (in other words, never call UpdateClient on a server!)
+            if (active && connectState == ConnectState.Connected && !NetworkServer.active)
             {
-                localConnection.Update();
-            }
-            // remote connection?
-            else
-            {
-                // only update things while connected
-                if (active && connectState == ConnectState.Connected)
-                {
-                    NetworkTime.UpdateClient();
-                }
+                NetworkTime.UpdateClient();
             }
         }
 

@@ -104,6 +104,11 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("isConnected will be removed because it's pointless. A NetworkConnection is always connected.")]
         public bool isConnected { get; protected set; }
 
+        /// <summary>
+        /// isLocalConnection is true if this is the host player's local connection to his own server.
+        /// </summary>
+        public bool isLocalConnection { get; internal set; }
+
         // this is always 0 for regular connections, -1 for local
         // connections because it's set in the constructor and never reset.
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("hostId will be removed because it's not needed ever since we removed LLAPI as default. It's always 0 for regular connections and -1 for local connections. Use connection.GetType() == typeof(NetworkConnection) to check if it's a regular or local connection.")]

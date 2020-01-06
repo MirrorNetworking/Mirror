@@ -26,13 +26,22 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public static NetworkConnectionToClient localConnection { get; private set; }
+        //
+        // IMPORTANT: localConnection's connectionId depends on transport. it is
+        //            NOT guaranteed to be '0' anymore. if you want to know if a
+        //            connection is the local connection, check .isLocalConnection!
+        public static NetworkConnectionToClient localConnection { get; internal set; }
 
         /// <summary>
         /// <para>True is a local client is currently active on the server.</para>
         /// <para>This will be true for "Hosts" on hosted server games.</para>
         /// </summary>
         public static bool localClientActive => localConnection != null;
+
+        /// <summary>
+        /// Let the server know if the next connection is supposed to be the host's connection.
+        /// </summary>
+        internal static bool pendingLocalConnection;
 
         /// <summary>
         /// A list of local connections on the server.
@@ -174,29 +183,6 @@ namespace Mirror
             return connections.Remove(connectionId);
         }
 
-        // called by LocalClient to add itself. dont call directly.
-        internal static void SetLocalConnection(ULocalConnectionToClient conn)
-        {
-            if (localConnection != null)
-            {
-                Debug.LogError("Local Connection already exists");
-                return;
-            }
-
-            localConnection = conn;
-        }
-
-        internal static void RemoveLocalConnection()
-        {
-            if (localConnection != null)
-            {
-                localConnection.Disconnect();
-                localConnection.Dispose();
-                localConnection = null;
-            }
-            RemoveConnection(0);
-        }
-
         internal static void ActivateLocalClientScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
@@ -225,19 +211,14 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
+                // send to all connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
+                    connectionIdsCache.Add(kvp.Key);
                 }
 
                 // send to all internet connections at once
@@ -291,19 +272,14 @@ namespace Mirror
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
-            // filter and then send to all internet connections at once
+            // send to all connections at once
             // -> makes code more complicated, but is HIGHLY worth it to
             //    avoid allocations, allow for multicast, etc.
             connectionIdsCache.Clear();
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
             {
-                // use local connection directly because it doesn't send via transport
-                if (kvp.Value is ULocalConnectionToClient)
-                    result &= localConnection.Send(segment);
-                // gather all internet connections
-                else
-                    connectionIdsCache.Add(kvp.Key);
+                connectionIdsCache.Add(kvp.Key);
             }
 
             // send to all internet connections at once
@@ -366,7 +342,7 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
+                // filter and then send to all connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
@@ -378,13 +354,7 @@ namespace Mirror
                     if ((!isOwner || includeOwner) && kvp.Value.isReady)
                     {
                         count++;
-
-                        // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(kvp.Key);
+                        connectionIdsCache.Add(kvp.Key);
                     }
                 }
 
@@ -421,8 +391,6 @@ namespace Mirror
         public static void DisconnectAll()
         {
             DisconnectAllConnections();
-            localConnection = null;
-
             active = false;
         }
 
@@ -469,10 +437,11 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + connectionId);
 
-            // connectionId needs to be > 0 because 0 is reserved for local player
-            if (connectionId <= 0)
+            // are we expecting a local connection, but a local connection was
+            // already set? then something is wrong!
+            if (pendingLocalConnection && localConnection != null)
             {
-                Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
+                Debug.LogError("Server.OnConnected: expecting local connection, but a local connection was already set.");
                 Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }
@@ -495,6 +464,23 @@ namespace Mirror
                 // add connection
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
+
+                // was this the connection to the local host?
+                if (pendingLocalConnection)
+                {
+                    // save the connection and set the local flag
+                    conn.isLocalConnection = true;
+                    localConnection = conn;
+                    pendingLocalConnection = false;
+
+                    // in host mode, we spawn objects only after the host client
+                    // was connected.
+                    // otherwise if someone modifies a SyncVar in OnStartServer,
+                    // then the hook would never be called because the host
+                    // isn't connected yet.
+                    Debug.Log("NetworkServer: host client connected. Spawning objects now.");
+                    SpawnObjects();
+                }
             }
             else
             {
@@ -819,8 +805,8 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            // special case, we are in host mode, set hasAuthority to true so that all overrides see it
+            if (conn.isLocalConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -876,8 +862,8 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            // special case, we are in host mode, set hasAuthority to true so that all overrides see it
+            if (conn.isLocalConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -1032,9 +1018,10 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
-            // special case to make sure hasAuthority is set
+            // special case in host mode to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection is ULocalConnectionToClient)
+            // note: ownerConnection is 'null' if spawned without authority
+            if (ownerConnection != null && ownerConnection.isLocalConnection)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();

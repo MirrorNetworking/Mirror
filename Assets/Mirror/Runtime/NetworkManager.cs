@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -361,7 +362,7 @@ namespace Mirror
         /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
-        public void StartClient()
+        public void StartClient(bool hostMode = false)
         {
             mode = NetworkManagerMode.ClientOnly;
 
@@ -387,7 +388,7 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            NetworkClient.Connect(networkAddress);
+            NetworkClient.Connect(networkAddress, hostMode);
 
             OnStartClient();
         }
@@ -424,27 +425,6 @@ namespace Mirror
             OnStartClient();
         }
 
-        void StartHostClient()
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
-            RegisterClientMessages();
-
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
-            // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
-
-            OnStartClient();
-        }
-
         // FinishStartHost is guaranteed to be called after the host server was
         // fully started and all the asynchronous StartHost magic is finished
         // (= scene loading), or immediately if there was no asynchronous magic.
@@ -454,6 +434,17 @@ namespace Mirror
         bool finishStartHostPending;
         void FinishStartHost()
         {
+            // connect the host connection AFTER server changed to online scene.
+            // doing it before would introduce unnecessary complexity/race
+            // conditions.
+            //
+            // IMPORTANT: the host won't be connected until the transport
+            // connected to the server, and the server's OnConnected event was
+            // called.
+            //
+            // TODO SetupLocalConnection is not synchronous. we aren't truly
+            // connected until it all went through transport
+            //
             // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
@@ -480,17 +471,21 @@ namespace Mirror
             //             isn't called in host mode!
             //
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
-            NetworkClient.ConnectHost();
+            networkAddress = "localhost";
+            NetworkServer.pendingLocalConnection = true;
+            StartClient(true);
+            NetworkServer.ActivateLocalClientScene();
 
             // server scene was loaded. now spawn all the objects
-            NetworkServer.SpawnObjects();
+            // TODO spawn objects after host successfully connected. not earlier.
+            //NetworkServer.SpawnObjects();
 
             // connect client and call OnStartClient AFTER server scene was
             // loaded and all objects were spawned.
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
-            Debug.Log("StartHostClient called");
-            StartHostClient();
+            Debug.Log("FinishStartHost called");
+            //StartHostClient();
         }
 
         /// <summary>
