@@ -364,7 +364,13 @@ namespace Mirror
         /// </summary>
         public void StartClient(bool hostMode = false)
         {
-            mode = NetworkManagerMode.ClientOnly;
+            // set mode if starting just the client.
+            // if we start in host mode then StartHost sets mode already. don't
+            // overwrite it.
+            if (!hostMode)
+            {
+                mode = NetworkManagerMode.ClientOnly;
+            }
 
             InitializeSingleton();
 
@@ -474,8 +480,6 @@ namespace Mirror
             networkAddress = "localhost";
             NetworkServer.pendingLocalConnection = true;
             StartClient(true);
-            // StartClient sets mode to ClientOnly. overwrite it.
-            mode = NetworkManagerMode.Host;
             NetworkServer.ActivateLocalClientScene();
 
             // server scene was loaded. now spawn all the objects
