@@ -489,7 +489,7 @@ namespace Mirror
             // loaded and all objects were spawned.
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
-            Debug.LogWarning("StartHostClient called");
+            Debug.Log("StartHostClient called");
             StartHostClient();
         }
 
