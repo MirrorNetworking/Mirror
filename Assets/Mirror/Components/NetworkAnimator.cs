@@ -55,7 +55,7 @@ namespace Mirror
                         return true;
                 }
 
-                return hasAuthority;
+                return (hasAuthority && clientAuthority);
             }
         }
 
