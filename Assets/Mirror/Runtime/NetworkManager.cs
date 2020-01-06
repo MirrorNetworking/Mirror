@@ -18,6 +18,8 @@ namespace Mirror
         RoundRobin
     }
 
+    public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
+
     [AddComponentMenu("Network/NetworkManager")]
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
@@ -174,6 +176,14 @@ namespace Mirror
         /// </summary>
         public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
+        // helper enum to know if we started the networkmanager as server/client/host.
+        // -> this is necessary because when StartHost changes server scene to
+        //    online scene, FinishLoadScene is called and the host client isn't
+        //    connected yet (no need to connect it before server was fully set up).
+        //    in other words, we need this to know which mode we are running in
+        //    during FinishLoadScene.
+        public NetworkManagerMode mode { get; private set; }
+
         /// <summary>
         /// Obsolete: Use <see cref="NetworkClient"/> directly
         /// <para>For example, use <c>NetworkClient.Send(message)</c> instead of <c>NetworkManager.client.Send(message)</c></para>
@@ -315,6 +325,8 @@ namespace Mirror
         /// <returns></returns>
         public void StartServer()
         {
+            mode = NetworkManagerMode.ServerOnly;
+
             // StartServer is inherently ASYNCHRONOUS (=doesn't finish immediately)
             //
             // Here is what it does:
@@ -351,6 +363,8 @@ namespace Mirror
         /// </summary>
         public void StartClient()
         {
+            mode = NetworkManagerMode.ClientOnly;
+
             InitializeSingleton();
 
             if (authenticator != null)
@@ -385,6 +399,8 @@ namespace Mirror
         /// <param name="uri">location of the server to connect to</param>
         public void StartClient(Uri uri)
         {
+            mode = NetworkManagerMode.ClientOnly;
+
             InitializeSingleton();
 
             if (authenticator != null)
@@ -455,6 +471,8 @@ namespace Mirror
         /// </summary>
         public virtual void StartHost()
         {
+            mode = NetworkManagerMode.Host;
+
             // StartHost is inherently ASYNCHRONOUS (=doesn't finish immediately)
             //
             // Here is what it does:
@@ -537,6 +555,10 @@ namespace Mirror
         {
             OnStopHost();
 
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            mode = NetworkManagerMode.Offline;
+
             StopServer();
             StopClient();
         }
@@ -557,6 +579,11 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("NetworkManager StopServer");
             isNetworkActive = false;
             NetworkServer.Shutdown();
+
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            mode = NetworkManagerMode.Offline;
+
             if (!string.IsNullOrEmpty(offlineScene))
             {
                 ServerChangeScene(offlineScene);
@@ -582,6 +609,10 @@ namespace Mirror
             // shutdown client
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
+
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            mode = NetworkManagerMode.Offline;
 
             if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
             {
