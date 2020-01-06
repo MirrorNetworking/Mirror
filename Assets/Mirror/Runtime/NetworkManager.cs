@@ -462,7 +462,10 @@ namespace Mirror
             networkAddress = "localhost";
             NetworkServer.pendingLocalConnection = true;
             StartClient(true);
-            NetworkServer.ActivateLocalClientScene();
+            // NOTE: StartHostClient used to call
+            //       NetworkServer.ActivateLocalClientScene. we do that in
+            //       NetworkServer.OnConnected now instead, so after the host
+            //       connect attempt finished.
         }
 
         /// <summary>

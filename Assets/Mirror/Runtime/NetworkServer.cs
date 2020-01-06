@@ -473,13 +473,11 @@ namespace Mirror
                     localConnection = conn;
                     pendingLocalConnection = false;
 
-                    // in host mode, we spawn objects only after the host client
-                    // was connected.
-                    // otherwise if someone modifies a SyncVar in OnStartServer,
-                    // then the hook would never be called because the host
-                    // isn't connected yet.
-                    Debug.Log("NetworkServer: host client connected. Spawning objects now.");
-                    SpawnObjects();
+                    // activate local client scene.
+                    // this was previously done in StartHostClient. now we do it
+                    // after the host was fully connected, not earlier.
+                    ActivateLocalClientScene();
+                    Debug.Log("NetworkServer: host client connected.");
                 }
             }
             else
