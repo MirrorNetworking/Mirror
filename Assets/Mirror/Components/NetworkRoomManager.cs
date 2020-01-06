@@ -537,7 +537,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer{NetworkConnection conn, GameObject roomPlayer}"/> instead.
+        /// Obsolete: Use <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)"/> instead.
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>A new GamePlayer object.</returns>
