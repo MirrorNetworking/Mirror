@@ -502,8 +502,7 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost();
 
-            // ConnectHost needs to be called BEFORE server changes scene.
-            // otherwise FinishLoadScene doesn't know that we are in host mode.
+            // TODO move this into FinishStartHost! (and test if it still works)
             //
             // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
@@ -915,17 +914,17 @@ namespace Mirror
             Transport.activeTransport.enabled = true;
 
             // host mode?
-            if (NetworkClient.active && NetworkServer.active)
+            if (mode == NetworkManagerMode.Host)
             {
                 FinishLoadSceneHost();
             }
             // server-only mode?
-            else if (NetworkServer.active)
+            else if (mode == NetworkManagerMode.ServerOnly)
             {
                 FinishLoadSceneServerOnly();
             }
             // client-only mode?
-            else if (NetworkClient.active)
+            else if (mode == NetworkManagerMode.ClientOnly)
             {
                 FinishLoadSceneClientOnly();
             }
