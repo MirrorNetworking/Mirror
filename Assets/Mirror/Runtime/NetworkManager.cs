@@ -474,6 +474,8 @@ namespace Mirror
             networkAddress = "localhost";
             NetworkServer.pendingLocalConnection = true;
             StartClient(true);
+            // StartClient sets mode to ClientOnly. overwrite it.
+            mode = NetworkManagerMode.Host;
             NetworkServer.ActivateLocalClientScene();
 
             // server scene was loaded. now spawn all the objects
