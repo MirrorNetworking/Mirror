@@ -35,8 +35,9 @@ namespace Mirror
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
-        // is this a local player with authority over his own transform?
-        bool isLocalPlayerWithAuthority => isLocalPlayer && clientAuthority;
+        // Is this a client with authority over this transform?
+        // This component could be on the player object or any object that has been assigned authority to this client.
+        bool isClientWithAuthority => hasAuthority && clientAuthority;
 
         // server
         Vector3 lastPosition;
@@ -370,7 +371,7 @@ namespace Mirror
             {
                 // send to server if we have local authority (and aren't the server)
                 // -> only if connectionToServer has been initialized yet too
-                if (!isServer && isLocalPlayerWithAuthority)
+                if (!isServer && isClientWithAuthority)
                 {
                     // check only each 'syncInterval'
                     if (Time.time - lastClientSendTime >= syncInterval)
@@ -392,7 +393,7 @@ namespace Mirror
                 // apply interpolation on client for all players
                 // unless this client has authority over the object. could be
                 // himself or another object that he was assigned authority over
-                if (!isLocalPlayerWithAuthority)
+                if (!isClientWithAuthority)
                 {
                     // received one yet? (initialized?)
                     if (goal != null)
