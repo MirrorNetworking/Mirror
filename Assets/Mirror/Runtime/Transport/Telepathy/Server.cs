@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
@@ -145,7 +145,8 @@ namespace Telepathy
                             // otherwise the send thread would only end if it's
                             // actually sending data while the connection is
                             // closed.
-                            sendThread.Interrupt();
+                            // => AbortAndJoin is the safest way and avoids race conditions!
+                            sendThread.AbortAndJoin();
                         }
                         catch (Exception exception)
                         {
@@ -214,8 +215,18 @@ namespace Telepathy
 
             // kill listener thread at all costs. only way to guarantee that
             // .Active is immediately false after Stop.
-            // -> calling .Join would sometimes wait forever
-            listenerThread?.Interrupt();
+            // => AbortAndJoin is the safest way and avoids race conditions!
+            listenerThread?.AbortAndJoin();
+
+            // wait until thread is TRULY finished. this is the only way
+            // to guarantee that everything was properly cleaned up before
+            // returning.
+            // => this means that calling Stop() may sometimes block
+            //    for a while, but there is no other way to guarantee that
+            //    everything is cleaned up properly by the time Stop() returns.
+            //    we have to live with the wait time.
+            listenerThread?.Join();
+
             listenerThread = null;
 
             // close all client connections
@@ -224,7 +235,7 @@ namespace Telepathy
                 TcpClient client = kvp.Value.client;
                 // close the stream if not closed yet. it may have been closed
                 // by a disconnect already, so use try/catch
-                try { client.GetStream().Close(); } catch { }
+                try { client.GetStream().Close(); } catch {}
                 client.Close();
             }
 

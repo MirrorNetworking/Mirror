@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
@@ -77,6 +77,14 @@ namespace Telepathy
                 // knows that the Connect failed. otherwise they will never know
                 receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
             }
+            catch (ThreadInterruptedException)
+            {
+                // expected if Disconnect() aborts it
+            }
+            catch (ThreadAbortException)
+            {
+                // expected if Disconnect() aborts it
+            }
             catch (Exception exception)
             {
                 // something went wrong. probably important.
@@ -89,7 +97,8 @@ namespace Telepathy
             // otherwise the send thread would only end if it's
             // actually sending data while the connection is
             // closed.
-            sendThread?.Interrupt();
+            // => AbortAndJoin is the safest way and avoids race conditions!
+            sendThread?.AbortAndJoin();
 
             // Connect might have failed. thread might have been closed.
             // let's reset connecting state no matter what.
@@ -153,11 +162,11 @@ namespace Telepathy
                 // close client
                 client.Close();
 
-                // wait until thread finished. this is the only way to guarantee
-                // that we can call Connect() again immediately after Disconnect
-                // -> calling .Join would sometimes wait forever, e.g. when
-                //    calling Disconnect while trying to connect to a dead end
-                receiveThread?.Interrupt();
+                // kill the receive thread
+                // => AbortAndJoin is the safest way and avoids race conditions!
+                //    this way we can guarantee that when Disconnect() returns,
+                //    we are 100% ready for the next Connect!
+                receiveThread?.AbortAndJoin();
 
                 // we interrupted the receive Thread, so we can't guarantee that
                 // connecting was reset. let's do it manually.
