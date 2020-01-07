@@ -1,4 +1,4 @@
-// Net 4.X has ConcurrentQueue, but ConcurrentQueue has no TryDequeueAll method,
+﻿// Net 4.X has ConcurrentQueue, but ConcurrentQueue has no TryDequeueAll method,
 // which makes SafeQueue twice as fast for the send thread.
 //
 // uMMORPG 450 CCU
