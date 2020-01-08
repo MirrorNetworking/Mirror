@@ -441,6 +441,12 @@ namespace Mirror.Weaver
             return 0;
         }
 
+        /*
+         Generates code like:
+            int num = reader.ReadPackedInt32();
+            OnSetA(num);
+            Networka = num;
+         */
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
