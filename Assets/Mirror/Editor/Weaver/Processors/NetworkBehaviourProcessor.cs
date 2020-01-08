@@ -449,6 +449,7 @@ namespace Mirror.Weaver
                 return;
             }
 
+            // [SyncVar] GameObject/NetworkIdentity?
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
@@ -487,6 +488,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                 serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
             }
+            // [SyncVar] int/float/struct/etc.?
             else
             {
                 MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
