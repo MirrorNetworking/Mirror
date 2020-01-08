@@ -536,8 +536,7 @@ namespace Mirror.Weaver
 
                     // 'this.' for 'this.SyncVarEqual'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    // 'this.tmpValue'
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                    // 'tmpValue'
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                     // 'ref this.syncVar'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
