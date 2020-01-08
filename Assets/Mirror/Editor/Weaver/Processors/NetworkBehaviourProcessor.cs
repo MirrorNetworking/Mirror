@@ -561,7 +561,6 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                 serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
             }
-
         }
 
         void GenerateDeSerialization()
