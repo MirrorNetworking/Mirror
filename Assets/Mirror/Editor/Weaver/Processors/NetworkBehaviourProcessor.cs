@@ -551,7 +551,7 @@ namespace Mirror.Weaver
                     Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
 
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
-                    serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
+                    serWorker.Append(serWorker.Create(OpCodes.Brtrue, initialStateLabel));
 
                     // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
