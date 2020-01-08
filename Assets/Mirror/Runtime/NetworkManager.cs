@@ -559,7 +559,7 @@ namespace Mirror
             mode = NetworkManagerMode.Offline;
 
             StopServer();
-            StopClient();
+            StopHostClient();
         }
 
         /// <summary>
@@ -590,6 +590,27 @@ namespace Mirror
             CleanupNetworkIdentities();
 
             startPositionIndex = 0;
+        }
+
+        public void StopHostClient()
+        {
+            if (authenticator != null)
+                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+
+            OnStopClient();
+
+            if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
+            isNetworkActive = false;
+
+            // shutdown client
+            NetworkClient.Disconnect();
+            NetworkClient.Shutdown();
+
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            mode = NetworkManagerMode.Offline;
+
+            CleanupNetworkIdentities();
         }
 
         /// <summary>
