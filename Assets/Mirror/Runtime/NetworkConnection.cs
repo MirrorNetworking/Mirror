@@ -87,7 +87,9 @@ namespace Mirror
         /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
         /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
         /// </summary>
-        public readonly HashSet<uint> clientOwnedObjects = new HashSet<uint>();
+        // IMPORTANT: this needs to be <NetworkIdentity>, not <uint netId>. fixes a bug where DestroyOwnedObjects wouldn't find
+        //            the netId anymore: https://github.com/vis2k/Mirror/issues/1380 . Works fine with NetworkIdentity pointers though.
+        public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
 
         /// <summary>
         /// Setting this to true will log the contents of network message to the console.
@@ -364,12 +366,28 @@ namespace Mirror
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
-            clientOwnedObjects.Add(obj.netId);
+            clientOwnedObjects.Add(obj);
         }
 
         internal void RemoveOwnedObject(NetworkIdentity obj)
         {
-            clientOwnedObjects.Remove(obj.netId);
+            clientOwnedObjects.Remove(obj);
+        }
+
+        internal void DestroyOwnedObjects()
+        {
+            // create a copy because the list might be modified when destroying
+            HashSet<NetworkIdentity> tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
+            foreach (NetworkIdentity netIdentity in tmp)
+            {
+                if (netIdentity != null)
+                {
+                    NetworkServer.Destroy(netIdentity.gameObject);
+                }
+            }
+
+            // clear the hashset because we destroyed them all
+            clientOwnedObjects.Clear();
         }
     }
 }

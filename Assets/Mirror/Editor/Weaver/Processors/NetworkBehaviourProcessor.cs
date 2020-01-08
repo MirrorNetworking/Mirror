@@ -449,6 +449,13 @@ namespace Mirror.Weaver
                 return;
             }
 
+            // [SyncVar] GameObject/NetworkIdentity?
+            /*
+             Generates code like:
+                uint num = reader.ReadPackedUInt32();
+                OnSetQ(GetSyncVarGameObject(num, ref q));
+                ___qNetId = num;
+             */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
@@ -487,6 +494,13 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                 serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
             }
+            // [SyncVar] int/float/struct/etc.?
+            /*
+             Generates code like:
+                int num = reader.ReadPackedInt32();
+                OnSetA(num);
+                Networka = num;
+             */
             else
             {
                 MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
