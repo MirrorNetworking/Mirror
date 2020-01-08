@@ -520,6 +520,10 @@ namespace Mirror.Weaver
                 if (foundMethod != null)
                 {
                     // call hook
+                    // but only if SyncVar changed. otherwise a client would
+                    // get hook calls for all initial values, even if they
+                    // didn't change from the default values on the client.
+                    // see also: https://github.com/vis2k/Mirror/issues/1278
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
