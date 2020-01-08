@@ -371,5 +371,18 @@ namespace Mirror
         {
             clientOwnedObjects.Remove(obj.netId);
         }
+
+        internal void DestroyOwnedObjects()
+        {
+            // create a copy because the list might be modified when destroying
+            HashSet<uint> tmp = new HashSet<uint>(clientOwnedObjects);
+            foreach (uint netId in tmp)
+            {
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity netIdentity))
+                {
+                    NetworkServer.Destroy(netIdentity.gameObject);
+                }
+            }
+        }
     }
 }
