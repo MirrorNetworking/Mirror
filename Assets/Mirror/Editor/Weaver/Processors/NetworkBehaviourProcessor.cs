@@ -453,7 +453,10 @@ namespace Mirror.Weaver
             /*
              Generates code like:
                 uint num = reader.ReadPackedUInt32();
-                OnSetQ(GetSyncVarGameObject(num, ref q));
+                if (!SyncVarEqual(num, ref q))
+                {
+                    OnSetQ(GetSyncVarGameObject(num, ref q));
+                }
                 ___qNetId = num;
              */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
@@ -534,7 +537,10 @@ namespace Mirror.Weaver
             /*
              Generates code like:
                 int num = reader.ReadPackedInt32();
-                OnSetA(num);
+                if (!SyncVarEqual(num, ref a))
+                {
+                    OnSetA(num);
+                }
                 Networka = num;
              */
             else
