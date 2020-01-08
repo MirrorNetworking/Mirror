@@ -549,6 +549,10 @@ namespace Mirror.Weaver
 
                     GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
                     syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // new field to set
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar)); // ref syncVar
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                     //serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, initialStateLabel));
