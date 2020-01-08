@@ -592,6 +592,10 @@ namespace Mirror
             startPositionIndex = 0;
         }
 
+        /// <summary>
+        /// Stops the host client without invoking a scene change to the offline scene.
+        /// <para>This is called from StopHost which also calls StopServer where the scene change to the offline scene is already invoked.</para>
+        /// </summary>
         public void StopHostClient()
         {
             if (authenticator != null)
