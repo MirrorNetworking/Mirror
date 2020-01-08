@@ -532,7 +532,7 @@ namespace Mirror.Weaver
                     // see also: https://github.com/vis2k/Mirror/issues/1278
 
                     // Generates: if (!SyncVarEqual);
-                    Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
+                    Instruction syncVarEqualLabel = serWorker.Create(OpCodes.Nop);
 
                     // 'this.' for 'this.SyncVarEqual'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
@@ -546,7 +546,7 @@ namespace Mirror.Weaver
                     GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
                     syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
-                    serWorker.Append(serWorker.Create(OpCodes.Brtrue, initialStateLabel));
+                    serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                     // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
@@ -554,7 +554,7 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
-                    serWorker.Append(initialStateLabel);
+                    serWorker.Append(syncVarEqualLabel);
                 }
                 // set the property
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
