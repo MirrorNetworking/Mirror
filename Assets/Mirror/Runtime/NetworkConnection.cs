@@ -383,6 +383,9 @@ namespace Mirror
                     NetworkServer.Destroy(netIdentity.gameObject);
                 }
             }
+
+            // clear the hashset because we destroyed them all
+            clientOwnedObjects.Clear();
         }
     }
 }
