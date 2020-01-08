@@ -542,15 +542,15 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));*/
 
-                    //GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
-                    //syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
-                    //serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
 
 
                     // Generates: if (!SyncVarEqual);
                     Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
 
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+                    GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                    syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
+                    serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
+                    //serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, initialStateLabel));
 
                     // call the hook
