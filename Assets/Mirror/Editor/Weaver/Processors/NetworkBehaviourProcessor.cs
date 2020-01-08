@@ -478,6 +478,11 @@ namespace Mirror.Weaver
                 {
                     // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
                     // because we send/receive the netID, not the GameObject/NetworkIdentity
+                    // TODO
+                    // but only if SyncVar changed. otherwise a client would
+                    // get hook calls for all initial values, even if they
+                    // didn't change from the default values on the client.
+                    // see also: https://github.com/vis2k/Mirror/issues/1278
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
@@ -520,13 +525,41 @@ namespace Mirror.Weaver
                 if (foundMethod != null)
                 {
                     // call hook
+                    // TODO
                     // but only if SyncVar changed. otherwise a client would
                     // get hook calls for all initial values, even if they
                     // didn't change from the default values on the client.
                     // see also: https://github.com/vis2k/Mirror/issues/1278
+
+                    // if (!SyncVarEqual(value, ref playerData))
+                    //Instruction endOfMethod = serWorker.Create(OpCodes.Nop);
+
+                    // this
+                    /*serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                    // new value to set
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
+                    // reference to field to set
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));*/
+
+                    //GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                    //syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
+                    //serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
+
+
+                    // Generates: if (!SyncVarEqual);
+                    Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
+
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
+                    serWorker.Append(serWorker.Create(OpCodes.Brfalse, initialStateLabel));
+
+                    // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
+
+                    // Generates: end if (!SyncVarEqual);
+                    serWorker.Append(initialStateLabel);
                 }
                 // set the property
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
