@@ -450,6 +450,12 @@ namespace Mirror.Weaver
             }
 
             // [SyncVar] GameObject/NetworkIdentity?
+            /*
+             Generates code like:
+                uint num = reader.ReadPackedUInt32();
+                OnSetQ(GetSyncVarGameObject(num, ref q));
+                ___qNetId = num;
+             */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
             {
