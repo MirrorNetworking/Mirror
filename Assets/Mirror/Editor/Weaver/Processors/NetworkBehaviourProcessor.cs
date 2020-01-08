@@ -526,7 +526,6 @@ namespace Mirror.Weaver
                 if (foundMethod != null)
                 {
                     // call hook
-                    // TODO
                     // but only if SyncVar changed. otherwise a client would
                     // get hook calls for all initial values, even if they
                     // didn't change from the default values on the client.
