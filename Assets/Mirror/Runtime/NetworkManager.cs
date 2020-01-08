@@ -559,7 +559,7 @@ namespace Mirror
             mode = NetworkManagerMode.Offline;
 
             StopServer();
-            StopHostClient();
+            StopClient();
         }
 
         /// <summary>
@@ -593,31 +593,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Stops the host client without invoking a scene change to the offline scene.
-        /// <para>This is called from StopHost which also calls StopServer where the scene change to the offline scene is already invoked.</para>
-        /// </summary>
-        public void StopHostClient()
-        {
-            if (authenticator != null)
-                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
-
-            OnStopClient();
-
-            if (LogFilter.Debug) Debug.Log("NetworkManager StopClient");
-            isNetworkActive = false;
-
-            // shutdown client
-            NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
-
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            mode = NetworkManagerMode.Offline;
-
-            CleanupNetworkIdentities();
-        }
-
-        /// <summary>
         /// Stops the client that the manager is using.
         /// </summary>
         public void StopClient()
@@ -638,7 +613,7 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
-            if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene)
+            if (!string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().name != offlineScene && loadingSceneAsync == null)
             {
                 ClientChangeScene(offlineScene, SceneOperation.Normal);
             }
