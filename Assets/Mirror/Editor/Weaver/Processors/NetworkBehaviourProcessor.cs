@@ -534,8 +534,6 @@ namespace Mirror.Weaver
                     // Generates: if (!SyncVarEqual);
                     Instruction initialStateLabel = serWorker.Create(OpCodes.Nop);
 
-                    GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
-                    syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
                     // 'this.' for 'this.SyncVarEqual'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // 'this.tmpValue'
@@ -545,6 +543,8 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
                     // call the function
+                    GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
+                    syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                     //serWorker.Append(serWorker.Create(OpCodes.Ldarg_2));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, initialStateLabel));
