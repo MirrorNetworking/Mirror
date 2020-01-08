@@ -441,6 +441,7 @@ namespace Mirror.Weaver
             return 0;
         }
 
+
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
             // check for Hook function
