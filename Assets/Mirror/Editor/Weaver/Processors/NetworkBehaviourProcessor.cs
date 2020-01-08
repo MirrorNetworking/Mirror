@@ -489,7 +489,11 @@ namespace Mirror.Weaver
                     //            in this case however, we can just use
                     //            SyncVarEqual with the two uint netIds.
                     //            => this is easier weaver code because we don't
-                    //               have to get
+                    //               have to get the GameObject/NetworkIdentity
+                    //               from the uint netId
+                    //            => this is faster because we void one
+                    //               GetComponent call for GameObjects to get
+                    //               their NetworkIdentity when comparing.
 
                     // Generates: if (!SyncVarEqual);
                     Instruction syncVarEqualLabel = serWorker.Create(OpCodes.Nop);
@@ -498,12 +502,12 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     // 'tmpValue'
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
-                    // 'ref this.syncVar'
+                    // 'ref this.__netId'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, netIdField));
                     // call the function
                     GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.syncVarEqualReference);
-                    syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
+                    syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
                     serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
