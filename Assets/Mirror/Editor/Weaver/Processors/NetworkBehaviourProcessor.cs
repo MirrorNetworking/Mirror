@@ -452,12 +452,13 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject/NetworkIdentity?
             /*
              Generates code like:
-                GameObject oldValue = syncvar.getter; // returns GetSyncVarGameObject(___qNetId)
+                uint oldNetId = ___qNetId;
+                GameObject oldSyncVar = syncvar.getter; // returns GetSyncVarGameObject(___qNetId)
                 uint num = reader.ReadPackedUInt32();
                 ___qNetId = num;
-                if (!SyncVarEqual(num, ref ___goNetId)) TODO compare old value with ref goNetId. we still compare the same.
+                if (!SyncVarEqual(oldNetId, ref ___goNetId))
                 {
-                    OnSetQ(oldValue, syncvar.getter); // getter returns GetSyncVarGameObject(___qNetId)
+                    OnSetQ(oldSyncVar, syncvar.getter); // getter returns GetSyncVarGameObject(___qNetId)
                 }
              */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
@@ -470,13 +471,19 @@ namespace Mirror.Weaver
                 //     move in and out of range repeatedly)
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
 
+                // uint oldNetId = ___qNetId;
+                VariableDefinition oldNetId = new VariableDefinition(Weaver.uint32Type);
+                deserialize.Body.Variables.Add(oldNetId);
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, netIdField));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldNetId));
 
-                // T oldValue = value;
-                VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
-                deserialize.Body.Variables.Add(oldValue);
+                // GameObject/NetworkIdentity oldSyncVar = syncvar.getter;
+                VariableDefinition oldSyncVar = new VariableDefinition(syncVar.FieldType);
+                deserialize.Body.Variables.Add(oldSyncVar);
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldSyncVar));
 
                 // read id and store in a local variable
                 VariableDefinition tmpValue = new VariableDefinition(Weaver.uint32Type);
@@ -523,8 +530,8 @@ namespace Mirror.Weaver
 
                     // 'this.' for 'this.SyncVarEqual'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    // 'tmpValue'
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
+                    // 'oldNetId'
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldNetId));
                     // 'ref this.__netId'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, netIdField));
@@ -536,7 +543,7 @@ namespace Mirror.Weaver
 
                     // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue)); // oldvalue
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldSyncVar)); // oldSyncVar GO/NI
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
                     serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar)); // syncvar.get (finds current GO/NI from netId)
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
