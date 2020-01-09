@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Mirror;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -24,7 +20,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerTest()
         {
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
 
             // lets add a component to check OnStartserver
