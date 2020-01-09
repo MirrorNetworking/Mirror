@@ -68,7 +68,7 @@ namespace Mirror.Tests
         [Test]
         public void ClientToServerTest()
         {
-            var myMessage = new MyMessage()
+            var myMessage = new MyMessage
             {
                 id = 3,
                 name = "hello"
