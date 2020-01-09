@@ -544,6 +544,8 @@ namespace Mirror.Weaver
                 {
                     OnSetA(oldValue, num);
                 }
+
+                TODO try doing this without the 'newValue' variable
              */
             else
             {
