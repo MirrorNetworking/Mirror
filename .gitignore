@@ -64,6 +64,6 @@ Thumbs.db
 .sonarqube
 CodeCoverage
 ProjectSettings
-Tests
+/Tests
 Assets/Mirror/Samples
 Assets/Mirror/Samples.meta
