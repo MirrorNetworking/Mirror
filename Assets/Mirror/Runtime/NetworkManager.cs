@@ -642,12 +642,6 @@ namespace Mirror
                 StopServer();
                 print("OnApplicationQuit: stopped server");
             }
-
-            // stop transport (e.g. to shut down threads)
-            // (when pressing Stop in the Editor, Unity keeps threads alive
-            //  until we press Start again. so if Transports use threads, we
-            //  really want them to end now and not after next start)
-            Transport.activeTransport.Shutdown();
         }
 
         /// <summary>
