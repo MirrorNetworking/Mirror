@@ -537,6 +537,7 @@ namespace Mirror.Weaver
             // [SyncVar] int/float/struct/etc.?
             /*
              Generates code like:
+                int oldValue = num; // for hook
                 int num = reader.ReadPackedInt32();
                 if (!SyncVarEqual(num, ref a))
                 {
@@ -554,6 +555,13 @@ namespace Mirror.Weaver
                 }
                 VariableDefinition tmpValue = new VariableDefinition(syncVar.FieldType);
                 deserialize.Body.Variables.Add(tmpValue);
+
+                // T oldValue = value;
+                VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
+                deserialize.Body.Variables.Add(oldValue);
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
                 // read value and put it in a local variable
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
