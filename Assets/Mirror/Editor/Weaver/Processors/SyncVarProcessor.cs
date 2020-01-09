@@ -174,8 +174,9 @@ namespace Mirror.Weaver
                 setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
 
-                // call hook
+                // call hook (oldValue, newValue)
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldloc, oldValue));
                 setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
                 setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
 
