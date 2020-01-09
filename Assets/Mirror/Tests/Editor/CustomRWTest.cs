@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -44,7 +41,7 @@ namespace Mirror.Tests
         [Test]
         public void TestCustomRW()
         {
-            QuestMessage message = new QuestMessage()
+            var message = new QuestMessage
             {
                 quest = new MockQuest(100)
             };
