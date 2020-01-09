@@ -537,7 +537,7 @@ namespace Mirror.Weaver
             // [SyncVar] int/float/struct/etc.?
             /*
              Generates code like:
-                int oldValue = num; // for hook
+                int oldValue = a; // for hook
                 int num = reader.ReadPackedInt32();
                 if (!SyncVarEqual(num, ref a))
                 {
