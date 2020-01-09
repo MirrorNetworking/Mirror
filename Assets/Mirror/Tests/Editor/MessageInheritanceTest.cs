@@ -18,7 +18,7 @@ namespace Mirror.Tests
         [Test]
         public void Roundtrip()
         {
-            NetworkWriter w = new NetworkWriter();
+            var w = new NetworkWriter();
 
             w.Write(new ChildMessage
             {
@@ -28,8 +28,8 @@ namespace Mirror.Tests
 
             byte[] arr = w.ToArray();
 
-            NetworkReader r = new NetworkReader(arr);
-            ChildMessage received = new ChildMessage();
+            var r = new NetworkReader(arr);
+            var received = new ChildMessage();
             received.Deserialize(r);
 
             Assert.AreEqual(3, received.parentValue);
