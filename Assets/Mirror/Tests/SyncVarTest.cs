@@ -55,6 +55,47 @@ namespace Mirror.Tests
         }
     }
 
+    // https://github.com/vis2k/Mirror/issues/1151
+    // -> gameobjects/networkidentities have different path in Weaver. we need
+    //    to test both!
+    class MockPlayerForIssue1151WithGameObject : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(Hook))]
+        public GameObject go = null;
+
+        public override void OnStartAuthority() {
+            Debug.LogWarning("1 Authority started");
+            CmdSet();
+        }
+
+        [Command]
+        void CmdSet()
+        {
+            Debug.LogWarning("2 CmdSet: " + go);
+            // set go to this. setting it will call the Hook immediately.
+            // -> the hook will call CmdCheck
+            // -> CmdCheck returns
+            // -> Hook() returns
+            // then we are back in CmdSet
+            go = gameObject;
+        }
+
+        void Hook(GameObject oldGo, GameObject newGo)
+        {
+            Debug.LogWarning("3 Hook:" + newGo);
+            CmdCheck(newGo);
+        }
+
+        public GameObject result;
+        [Command]
+        void CmdCheck(GameObject newGo)
+        {
+            // x should be 10, new X should be 10
+            Debug.LogWarning("4 CmdCheck go=" + go + " newGo=" + newGo);
+            this.result = newGo;
+        }
+    }
+
     public class SyncVarTest
     {
 
@@ -197,7 +238,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestHostModeValueIsSetBeforeHook()
+        public void TestHostModeValueIsSetBeforeHookSimpleType()
         {
             // test to prevent issue https://github.com/vis2k/Mirror/issues/1151
 
@@ -205,6 +246,17 @@ namespace Mirror.Tests
             MockPlayerForIssue1151 player = gameObject.AddComponent<MockPlayerForIssue1151>();
             Assert.That(player.x, Is.EqualTo(10));
             Assert.That(player.result, Is.EqualTo(10));
+        }
+
+        [Test]
+        public void TestHostModeValueIsSetBeforeHookGameObjectType()
+        {
+            // test to prevent issue https://github.com/vis2k/Mirror/issues/1151
+
+            GameObject gameObject = new GameObject();
+            MockPlayerForIssue1151WithGameObject player = gameObject.AddComponent<MockPlayerForIssue1151WithGameObject>();
+            Assert.That(player.go, Is.EqualTo(gameObject));
+            Assert.That(player.result, Is.EqualTo(gameObject));
         }
     }
 }
