@@ -478,10 +478,9 @@ namespace Mirror.Weaver
                 //     move in and out of range repeatedly)
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
 
+                // read id and store in a local variable
                 VariableDefinition tmpValue = new VariableDefinition(Weaver.uint32Type);
                 deserialize.Body.Variables.Add(tmpValue);
-
-                // read id and store in a local variable
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint32Type)));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
