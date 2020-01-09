@@ -70,7 +70,7 @@ namespace Mirror
 
         public static T Unpack<T>(ArraySegment<byte> data) where T : IMessageBase, new()
         {
-            NetworkReader reader = new NetworkReader(data);
+            var reader = new NetworkReader(data);
 
             int msgType = GetId<T>();
 
@@ -78,7 +78,7 @@ namespace Mirror
             if (id != msgType)
                 throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-            T message = new T();
+            var message = new T();
             message.Deserialize(reader);
             return message;
         }
