@@ -27,21 +27,22 @@ namespace Mirror.Weaver
                             {
                                 if (m.Name == hookFunctionName)
                                 {
-                                    if (m.Parameters.Count == 1)
+                                    if (m.Parameters.Count == 2)
                                     {
-                                        if (m.Parameters[0].ParameterType != syncVar.FieldType)
+                                        if (m.Parameters[0].ParameterType != syncVar.FieldType ||
+                                            m.Parameters[1].ParameterType != syncVar.FieldType)
                                         {
-                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                             return false;
                                         }
                                         foundMethod = m;
                                         return true;
                                     }
-                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                     return false;
                                 }
                             }
-                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                             return false;
                         }
                     }
