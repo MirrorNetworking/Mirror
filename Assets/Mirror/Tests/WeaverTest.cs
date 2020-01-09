@@ -136,28 +136,28 @@ namespace Mirror.Tests
         public void SyncVarsNoHook()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: No hook implementation found for System.Int32 MirrorTest.MirrorTestPlayer::health. Add this method to your class:\npublic void OnChangeHealth(System.Int32 value) { }"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: No hook implementation found for System.Int32 MirrorTest.MirrorTestPlayer::health. Add this method to your class:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
         }
 
         [Test]
         public void SyncVarsNoHookParams()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth() should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth() should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
         }
 
         [Test]
         public void SyncVarsTooManyHookParams()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Int32,System.Int32) should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Int32,System.Int32,System.Int32) should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
         }
 
         [Test]
         public void SyncVarsWrongHookType()
         {
             Assert.That(CompilationFinishedHook.WeaveFailed, Is.True);
-            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Boolean) should have signature:\npublic void OnChangeHealth(System.Int32 value) { }"));
+            Assert.That(weaverErrors, Contains.Item("Mirror.Weaver error: System.Void MirrorTest.MirrorTestPlayer::OnChangeHealth(System.Boolean,System.Boolean) should have signature:\npublic void OnChangeHealth(System.Int32 oldValue, System.Int32 newValue) { }"));
         }
 
         [Test]
