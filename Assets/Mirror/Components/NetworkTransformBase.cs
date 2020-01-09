@@ -403,6 +403,10 @@ namespace Mirror
                         {
                             // local position/rotation for VR support
                             ApplyPositionRotationScale(goal.localPosition, goal.localRotation, goal.localScale);
+
+                            // reset data points so we don't keep interpolating
+                            start = null;
+                            goal = null;
                         }
                         else
                         {
