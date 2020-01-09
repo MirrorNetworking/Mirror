@@ -452,6 +452,7 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject/NetworkIdentity?
             /*
              Generates code like:
+                TODO old value via netid?
                 uint num = reader.ReadPackedUInt32();
                 if (!SyncVarEqual(num, ref q))
                 {

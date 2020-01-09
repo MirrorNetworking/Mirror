@@ -149,6 +149,7 @@ namespace Mirror.Weaver
             setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
 
             // T oldValue = value;
+            // TODO for GO/NI we need to backup the netId don't we?
             VariableDefinition oldValue = new VariableDefinition(fd.FieldType);
             set.Body.Variables.Add(oldValue);
             setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
