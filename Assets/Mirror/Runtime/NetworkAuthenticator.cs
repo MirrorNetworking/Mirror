@@ -5,29 +5,20 @@ using UnityEngine.Events;
 namespace Mirror
 {
     /// <summary>
-    /// Unity Event for the NetworkConnection
-    /// </summary>
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> { }
-
-    /// <summary>
     /// Base class for implementing component-based authentication during the Connect phase
     /// </summary>
     [HelpURL("https://mirror-networking.com/docs/Guides/Authentication.html")]
     public abstract class NetworkAuthenticator : MonoBehaviour
     {
-        [Header("Event Listeners (optional)")]
-
         /// <summary>
         /// Notify subscribers on the server when a client is authenticated
         /// </summary>
-        [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEventNetworkConnection OnServerAuthenticated = new UnityEventNetworkConnection();
+        public event Action<NetworkConnectionToClient> OnServerAuthenticated;
 
         /// <summary>
         /// Notify subscribers on the client when the client is authenticated
         /// </summary>
-        [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEventNetworkConnection OnClientAuthenticated = new UnityEventNetworkConnection();
+        public event Action<NetworkConnectionToServer> OnClientAuthenticated;
 
         #region server
 
@@ -38,7 +29,7 @@ namespace Mirror
         public virtual void OnStartServer() { }
 
         // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnection conn)
+        internal void OnServerAuthenticateInternal(NetworkConnectionToClient conn)
         {
             OnServerAuthenticate(conn);
         }
@@ -47,7 +38,10 @@ namespace Mirror
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public abstract void OnServerAuthenticate(NetworkConnection conn);
+        public virtual void OnServerAuthenticate(NetworkConnectionToClient conn)
+        {
+            OnServerAuthenticated?.Invoke(conn);
+        }
 
         #endregion
 
@@ -60,7 +54,7 @@ namespace Mirror
         public virtual void OnStartClient() { }
 
         // This will get more code in the near future
-        internal void OnClientAuthenticateInternal(NetworkConnection conn)
+        internal void OnClientAuthenticateInternal(NetworkConnectionToServer conn)
         {
             OnClientAuthenticate(conn);
         }
@@ -69,7 +63,10 @@ namespace Mirror
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection of the client.</param>
-        public abstract void OnClientAuthenticate(NetworkConnection conn);
+        public virtual void OnClientAuthenticate(NetworkConnectionToServer conn)
+        {
+            OnClientAuthenticated?.Invoke(conn);
+        }
 
         #endregion
 

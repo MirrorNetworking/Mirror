@@ -17,18 +17,18 @@ namespace Mirror.Authenticators
 
         public void Awake()
         {
-            Authenticator.OnClientAuthenticated.AddListener(connection => OnClientAuthenticated.Invoke(connection));
-            Authenticator.OnServerAuthenticated.AddListener(connection => OnServerAuthenticated.Invoke(connection));
+            Authenticator.OnClientAuthenticated += base.OnClientAuthenticate;
+            Authenticator.OnServerAuthenticated += base.OnServerAuthenticate;
         }
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate(NetworkConnectionToServer conn)
         {
             Authenticator.OnClientAuthenticate(conn);
             if (Timeout > 0)
                 StartCoroutine(BeginAuthentication(conn));
         }
 
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(NetworkConnectionToClient conn)
         {
             Authenticator.OnServerAuthenticate(conn);
             if (Timeout > 0)

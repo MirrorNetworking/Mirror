@@ -266,7 +266,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartServer();
-                authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
+                authenticator.OnServerAuthenticated += OnServerAuthenticated;
             }
 
             ConfigureServerFrameRate();
@@ -342,7 +342,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+                authenticator.OnClientAuthenticated += OnClientAuthenticated;
             }
 
             if (runInBackground)
@@ -378,7 +378,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+                authenticator.OnClientAuthenticated += OnClientAuthenticated;
             }
 
             if (runInBackground)
@@ -403,7 +403,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+                authenticator.OnClientAuthenticated += OnClientAuthenticated;
             }
 
             networkAddress = "localhost";
@@ -543,7 +543,7 @@ namespace Mirror
                 return;
 
             if (authenticator != null)
-                authenticator.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
+                authenticator.OnServerAuthenticated -= OnServerAuthenticated;
 
             OnStopServer();
 
@@ -570,7 +570,7 @@ namespace Mirror
         public void StopClient()
         {
             if (authenticator != null)
-                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+                authenticator.OnClientAuthenticated -= OnClientAuthenticated;
 
             OnStopClient();
 
@@ -1040,7 +1040,7 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        void OnServerConnectInternal(NetworkConnectionToClient conn, ConnectMessage connectMsg)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerConnectInternal");
 
@@ -1057,7 +1057,7 @@ namespace Mirror
         }
 
         // called after successful authentication
-        void OnServerAuthenticated(NetworkConnection conn)
+        void OnServerAuthenticated(NetworkConnectionToClient conn)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnServerAuthenticated");
 
@@ -1134,7 +1134,7 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
+        void OnClientConnectInternal(NetworkConnectionToServer conn, ConnectMessage message)
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager.OnClientConnectInternal");
 

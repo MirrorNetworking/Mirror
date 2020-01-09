@@ -101,7 +101,10 @@ namespace Mirror
             }
         }
 
-        internal static NetworkMessageDelegate MessageHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthenication) where T : IMessageBase, new() => networkMessage =>
+        internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
+            where T : IMessageBase, new()
+            where C : NetworkConnection
+            => networkMessage =>
         {
             // protect against DOS attacks if attackers try to send invalid
             // data packets to crash the server/client. there are a thousand
@@ -140,7 +143,7 @@ namespace Mirror
                 NetworkDiagnostics.OnReceive(message, networkMessage.channelId, networkMessage.reader.Length);
             }
 
-            handler(networkMessage.conn, message);
+            handler((C)networkMessage.conn, message);
         };
     }
 }

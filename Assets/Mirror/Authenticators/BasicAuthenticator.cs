@@ -38,12 +38,12 @@ namespace Mirror.Authenticators
             NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
         }
 
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(NetworkConnectionToClient conn)
         {
             // do nothing...wait for AuthRequestMessage from client
         }
 
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate(NetworkConnectionToServer conn)
         {
             var authRequestMessage = new AuthRequestMessage
             {
@@ -54,7 +54,7 @@ namespace Mirror.Authenticators
             NetworkClient.Send(authRequestMessage);
         }
 
-        public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
+        public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
             Debug.LogFormat("Authentication Request: {0} {1}", msg.AuthUsername, msg.AuthPassword);
 
@@ -71,7 +71,7 @@ namespace Mirror.Authenticators
                 conn.Send(authResponseMessage);
 
                 // Invoke the event to complete a successful authentication
-                OnServerAuthenticated.Invoke(conn);
+                base.OnServerAuthenticate(conn);
             }
             else
             {
@@ -98,14 +98,14 @@ namespace Mirror.Authenticators
             conn.Disconnect();
         }
 
-        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
+        public void OnAuthResponseMessage(NetworkConnectionToServer conn, AuthResponseMessage msg)
         {
             if (msg.Code == 100)
             {
                 Debug.LogFormat("Authentication Response: {0}", msg.Message);
 
                 // Invoke the event to complete a successful authentication
-                OnClientAuthenticated.Invoke(conn);
+                base.OnClientAuthenticate(conn);
             }
             else
             {
