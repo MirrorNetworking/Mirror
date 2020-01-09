@@ -486,10 +486,10 @@ namespace Mirror
             //             isn't called in host mode!
             //
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
-            NetworkClient.ConnectHost();
+            client.ConnectHost();
 
             // server scene was loaded. now spawn all the objects
-            NetworkServer.SpawnObjects();
+            NetworkServer.SpawnObjects(client);
 
             // connect client and call OnStartClient AFTER server scene was
             // loaded and all objects were spawned.
@@ -958,7 +958,7 @@ namespace Mirror
                 // call OnServerSceneChanged
                 OnServerSceneChanged(networkSceneName);
 
-                if (NetworkClient.isConnected)
+                if (client.isConnected)
                 {
                     RegisterClientMessages();
 
@@ -976,17 +976,17 @@ namespace Mirror
             else
             {
                 // spawn server objects
-                NetworkServer.SpawnObjects();
+                NetworkServer.SpawnObjects(client);
 
                 // call OnServerSceneChanged
                 OnServerSceneChanged(networkSceneName);
 
-                if (NetworkClient.isConnected)
+                if (client.isConnected)
                 {
                     RegisterClientMessages();
 
                     // let client know that we changed scene
-                    OnClientSceneChanged(NetworkClient.connection);
+                    OnClientSceneChanged(client.connection);
                 }
             }
         }
