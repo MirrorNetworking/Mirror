@@ -1,4 +1,4 @@
-// incoming message queue of <connectionId, message>
+﻿// incoming message queue of <connectionId, message>
 // (not a HashSet because one connection can have multiple new messages)
 // -> a struct to minimize GC
 namespace Telepathy

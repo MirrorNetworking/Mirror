@@ -55,7 +55,7 @@ namespace Mirror
                         return true;
                 }
 
-                return hasAuthority;
+                return (hasAuthority && ClientAuthority);
             }
         }
 
@@ -168,7 +168,7 @@ namespace Mirror
 
         void HandleAnimMsg(int stateHash, float normalizedTime, int layerId, NetworkReader reader)
         {
-            if (hasAuthority)
+            if (hasAuthority && ClientAuthority)
                 return;
 
             // usually transitions will be triggered by parameters, if not, play anims directly.
@@ -184,7 +184,7 @@ namespace Mirror
 
         void HandleAnimParamsMsg(NetworkReader reader)
         {
-            if (hasAuthority)
+            if (hasAuthority && ClientAuthority)
                 return;
 
             ReadParameters(reader);
