@@ -459,7 +459,7 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject/NetworkIdentity?
             /*
              Generates code like:
-                GameObject oldValue = syncvar.getter;
+                GameObject oldValue = syncvar.getter; // returns GetSyncVarGameObject(___qNetId)
                 uint num = reader.ReadPackedUInt32();
                 ___qNetId = num;
                 if (!SyncVarEqual(num, ref q))
