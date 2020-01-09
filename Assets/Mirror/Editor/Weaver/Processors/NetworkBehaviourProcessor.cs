@@ -464,7 +464,7 @@ namespace Mirror.Weaver
                 ___qNetId = num;
                 if (!SyncVarEqual(num, ref q))
                 {
-                    OnSetQ(oldValue, GetSyncVarGameObject(num, ref q));
+                    OnSetQ(oldValue, syncvar.getter); // getter returns GetSyncVarGameObject(___qNetId)
                 }
              */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
@@ -535,15 +535,9 @@ namespace Mirror.Weaver
 
                     // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
-                    if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName)
-                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.getSyncVarGameObjectReference));
-                    else if (syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
-                        serWorker.Append(serWorker.Create(OpCodes.Callvirt, Weaver.getSyncVarNetworkIdentityReference));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue)); // oldvalue
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar)); // syncvar.get (finds current GO/NI from netId)
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
