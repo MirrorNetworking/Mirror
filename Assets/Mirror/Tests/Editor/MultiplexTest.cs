@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -23,7 +21,7 @@ namespace Mirror.Tests
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
 
-            GameObject gameObject = new GameObject();
+            var gameObject = new GameObject();
 
             transport = gameObject.AddComponent<MultiplexTransport>();
             transport.transports = new[] { transport1, transport2 };
@@ -66,7 +64,7 @@ namespace Mirror.Tests
         [Test]
         public void TestConnectFirstUri()
         {
-            Uri uri = new Uri("tcp://some.server.com");
+            var uri = new Uri("tcp://some.server.com");
 
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
@@ -81,7 +79,7 @@ namespace Mirror.Tests
         [Test]
         public void TestConnectSecondUri()
         {
-            Uri uri = new Uri("ws://some.server.com");
+            var uri = new Uri("ws://some.server.com");
 
             transport1.Available().Returns(true);
 
@@ -125,7 +123,7 @@ namespace Mirror.Tests
             transport.ClientConnect("some.server.com");
 
             byte[] data = { 1, 2, 3 };
-            ArraySegment<byte> segment = new ArraySegment<byte>(data);
+            var segment = new ArraySegment<byte>(data);
 
             transport.ClientSend(3, segment);
 
@@ -158,13 +156,13 @@ namespace Mirror.Tests
         public void TestServerConnected()
         {
             byte[] data = { 1, 2, 3 };
-            ArraySegment<byte> segment = new ArraySegment<byte>(data);
+            var segment = new ArraySegment<byte>(data);
 
 
             // on connect, send a message back
             void SendMessage(int connectionId)
             {
-                List<int> connectionIds = new List<int>(new[] { connectionId });
+                var connectionIds = new List<int>(new[] { connectionId });
                 transport.ServerSend(connectionIds, 5, segment);
             }
 
@@ -172,7 +170,7 @@ namespace Mirror.Tests
 
             transport1.OnServerConnected.Invoke(1);
 
-            List<int> expectedIds = new List<int>(new[] { 1 });
+            int[] expectedIds = { 1 };
 
             transport1.Received().ServerSend(
                 Arg.Is<List<int>>(x => x.SequenceEqual(expectedIds)),
