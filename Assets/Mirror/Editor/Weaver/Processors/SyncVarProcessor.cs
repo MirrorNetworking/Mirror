@@ -148,6 +148,13 @@ namespace Mirror.Weaver
 
             setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
 
+            // T oldValue = value;
+            VariableDefinition oldValue = new VariableDefinition(fd.FieldType);
+            set.Body.Variables.Add(oldValue);
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            setWorker.Append(setWorker.Create(OpCodes.Ldfld, fd));
+            setWorker.Append(setWorker.Create(OpCodes.Stloc, oldValue));
+
             CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
 
             if (hookFunctionMethod != null)
