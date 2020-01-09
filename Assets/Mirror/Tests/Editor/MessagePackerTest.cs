@@ -7,7 +7,7 @@ namespace Mirror.Tests
         [Test]
         public void TestPacking()
         {
-            SceneMessage message = new SceneMessage()
+            var message = new SceneMessage
             {
                 sceneName = "Hello world",
                 sceneOperation = SceneOperation.LoadAdditive
