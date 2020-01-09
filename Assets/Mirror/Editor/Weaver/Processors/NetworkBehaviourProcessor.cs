@@ -459,14 +459,13 @@ namespace Mirror.Weaver
             // [SyncVar] GameObject/NetworkIdentity?
             /*
              Generates code like:
-                TODO old value via netid?
                 GameObject oldValue = q;
                 uint num = reader.ReadPackedUInt32();
+                ___qNetId = num;
                 if (!SyncVarEqual(num, ref q))
                 {
                     OnSetQ(GetSyncVarGameObject(num, ref q));
                 }
-                ___qNetId = num;
              */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
                 syncVar.FieldType.FullName == Weaver.NetworkIdentityType.FullName)
@@ -484,6 +483,19 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
                 serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint32Type)));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
+
+                // set the netid field BEFORE calling the hook
+                // -> this makes way more sense. by definition, the hook is
+                //    supposed to be called after it was changed. not before.
+                // -> setting it BEFORE calling the hook fixes the following bug:
+                //    https://github.com/vis2k/Mirror/issues/1151 in host mode
+                //    where the value during the Hook call would call Cmds on
+                //    the host server, and they would all happen and compare
+                //    values BEFORE the hook even returned and hence BEFORE the
+                //    actual value was even set.
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
+                serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
 
                 if (foundMethod != null)
                 {
@@ -537,10 +549,6 @@ namespace Mirror.Weaver
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);
                 }
-                // set the netid field
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
-                serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
             }
             // [SyncVar] int/float/struct/etc.?
             /*
