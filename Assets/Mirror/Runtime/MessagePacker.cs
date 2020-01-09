@@ -104,7 +104,7 @@ namespace Mirror
         internal static NetworkMessageDelegate MessageHandler<T, C>(Action<C, T> handler, bool requireAuthenication)
             where T : IMessageBase, new()
             where C : NetworkConnection
-            => networkMessage =>
+            => (conn, reader, channelId) =>
         {
             // protect against DOS attacks if attackers try to send invalid
             // data packets to crash the server/client. there are a thousand
@@ -121,29 +121,30 @@ namespace Mirror
             T message = default;
             try
             {
-                if (requireAuthenication && !networkMessage.conn.isAuthenticated)
+                if (requireAuthenication && !conn.isAuthenticated)
                 {
                     // message requires authentication, but the connection was not authenticated
-                    Debug.LogWarning($"Closing connection: {networkMessage.conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
-                    networkMessage.conn.Disconnect();
+                    Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                    conn.Disconnect();
                     return;
                 }
 
-                message = networkMessage.ReadMessage<T>();
+                message = typeof(T).IsValueType ? default(T) : new T();
+                message.Deserialize(reader);
             }
             catch (Exception exception)
             {
-                Debug.LogError("Closed connection: " + networkMessage.conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
-                networkMessage.conn.Disconnect();
+                Debug.LogError("Closed connection: " + conn + ". This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: " + exception);
+                conn.Disconnect();
                 return;
             }
             finally
             {
                 // TODO: Figure out the correct channel
-                NetworkDiagnostics.OnReceive(message, networkMessage.channelId, networkMessage.reader.Length);
+                NetworkDiagnostics.OnReceive(message, channelId, reader.Length);
             }
 
-            handler((C)networkMessage.conn, message);
+            handler((C)conn, message);
         };
     }
 }

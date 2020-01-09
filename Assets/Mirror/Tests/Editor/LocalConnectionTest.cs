@@ -42,9 +42,10 @@ namespace Mirror.Tests
 
             bool invoked = false;
 
-            void handler(NetworkMessage msg)
+            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
+                var received = new MyMessage();
+                received.Deserialize(reader);
                 Assert.That(received.id, Is.EqualTo(3));
                 Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
@@ -64,7 +65,7 @@ namespace Mirror.Tests
         [Test]
         public void ClientToServerTest()
         {
-            MyMessage myMessage = new MyMessage()
+            var myMessage = new MyMessage()
             {
                 id = 3,
                 name = "hello"
@@ -72,15 +73,16 @@ namespace Mirror.Tests
 
             bool invoked = false;
 
-            void handler(NetworkMessage msg)
+            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
+                var received = new MyMessage();
+                received.Deserialize(reader);
                 Assert.That(received.id, Is.EqualTo(3));
                 Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
+            var handlers = new Dictionary<int, NetworkMessageDelegate>();
             handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
 
             connectionToServer.SetHandlers(handlers);

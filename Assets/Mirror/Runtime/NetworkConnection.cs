@@ -218,15 +218,7 @@ namespace Mirror
         {
             if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
             {
-                NetworkMessage message = new NetworkMessage
-                {
-                    msgType = msgType,
-                    reader = reader,
-                    conn = this,
-                    channelId = channelId
-                };
-
-                msgDelegate(message);
+                msgDelegate(this, reader, channelId);
                 return true;
             }
             Debug.LogError("Unknown message ID " + msgType + " " + this);
