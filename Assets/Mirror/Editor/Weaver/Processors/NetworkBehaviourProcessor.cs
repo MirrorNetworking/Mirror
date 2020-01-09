@@ -539,11 +539,11 @@ namespace Mirror.Weaver
              Generates code like:
                 int oldValue = a; // for hook
                 int num = reader.ReadPackedInt32();
-                if (!SyncVarEqual(num, ref a))
-                {
-                    OnSetA(num);
-                }
                 Networka = num;
+                if (!SyncVarEqual(oldValue, ref a))
+                {
+                    OnSetA(oldValue, num);
+                }
              */
             else
             {
@@ -553,8 +553,6 @@ namespace Mirror.Weaver
                     Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
                     return;
                 }
-                VariableDefinition tmpValue = new VariableDefinition(syncVar.FieldType);
-                deserialize.Body.Variables.Add(tmpValue);
 
                 // T oldValue = value;
                 VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
@@ -564,9 +562,24 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
                 // read value and put it in a local variable
+                VariableDefinition newValue = new VariableDefinition(syncVar.FieldType);
+                deserialize.Body.Variables.Add(newValue);
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
                 serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, newValue));
+
+                // set the property BEFORE calling the hook
+                // -> this makes way more sense. by definition, the hook is
+                //    supposed to be called after it was changed. not before.
+                // -> setting it BEFORE calling the hook fixes the following bug:
+                //    https://github.com/vis2k/Mirror/issues/1151 in host mode
+                //    where the value during the Hook call would call Cmds on
+                //    the host server, and they would all happen and compare
+                //    values BEFORE the hook even returned and hence BEFORE the
+                //    actual value was even set.
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldloc, newValue));
+                serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
 
                 if (foundMethod != null)
                 {
@@ -581,8 +594,8 @@ namespace Mirror.Weaver
 
                     // 'this.' for 'this.SyncVarEqual'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    // 'tmpValue'
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
+                    // 'oldValue'
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
                     // 'ref this.syncVar'
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
@@ -595,16 +608,12 @@ namespace Mirror.Weaver
                     // call the hook
                     serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
                     serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, newValue));
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
                     serWorker.Append(syncVarEqualLabel);
                 }
-                // set the property
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
-                serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
             }
         }
 
