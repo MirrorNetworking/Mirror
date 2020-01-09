@@ -464,7 +464,7 @@ namespace Mirror.Weaver
                 ___qNetId = num;
                 if (!SyncVarEqual(num, ref q))
                 {
-                    OnSetQ(GetSyncVarGameObject(num, ref q));
+                    OnSetQ(oldValue, GetSyncVarGameObject(num, ref q));
                 }
              */
             if (syncVar.FieldType.FullName == Weaver.gameObjectType.FullName ||
