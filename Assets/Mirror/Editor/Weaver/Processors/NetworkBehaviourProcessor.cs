@@ -449,13 +449,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            // T oldValue = value;
-            VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldValue);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-            serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
-
             // [SyncVar] GameObject/NetworkIdentity?
             /*
              Generates code like:
@@ -476,6 +469,14 @@ namespace Mirror.Weaver
                 //     lookups in the getter (so it still works if objects
                 //     move in and out of range repeatedly)
                 FieldDefinition netIdField = syncVarNetIds[syncVar];
+
+
+                // T oldValue = value;
+                VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
+                deserialize.Body.Variables.Add(oldValue);
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
                 // read id and store in a local variable
                 VariableDefinition tmpValue = new VariableDefinition(Weaver.uint32Type);
@@ -565,6 +566,13 @@ namespace Mirror.Weaver
                     Weaver.Error($"{syncVar} has unsupported type. Use a supported Mirror type instead");
                     return;
                 }
+
+                // T oldValue = value;
+                VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
+                deserialize.Body.Variables.Add(oldValue);
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
+                serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
                 // read value and put it in a local variable
                 VariableDefinition newValue = new VariableDefinition(syncVar.FieldType);
