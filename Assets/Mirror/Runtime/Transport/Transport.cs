@@ -171,11 +171,6 @@ namespace Mirror
         #endregion
 
         /// <summary>
-        /// Shut down the transport, both as client and server
-        /// </summary>
-        public abstract void Shutdown();
-
-        /// <summary>
         /// The maximum packet size for a given channel.  Unreliable transports
         /// usually can only deliver small packets. Reliable fragmented channels
         /// can usually deliver large ones.
@@ -188,6 +183,11 @@ namespace Mirror
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
         public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
+
+        /// <summary>
+        /// Shut down the transport, both as client and server
+        /// </summary>
+        public abstract void Shutdown();
 
         // block Update() to force Transports to use LateUpdate to avoid race
         // conditions. messages should be processed after all the game state
