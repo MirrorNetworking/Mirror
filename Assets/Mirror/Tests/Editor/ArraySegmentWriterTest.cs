@@ -19,7 +19,7 @@ namespace Mirror.Tests
         [Test]
         public void TestEmptyByteArray()
         {
-            ByteArraySegmentMessage message = new ByteArraySegmentMessage
+            var message = new ByteArraySegmentMessage
             {
                 array = new ArraySegment<byte>(new byte[0])
             };
@@ -48,7 +48,7 @@ namespace Mirror.Tests
         [Test]
         public void TestNullByteArray()
         {
-            ByteArraySegmentMessage message = new ByteArraySegmentMessage
+            var message = new ByteArraySegmentMessage
             {
                 array = default
             };
@@ -67,7 +67,7 @@ namespace Mirror.Tests
         {
             byte[] sourcedata = { 0, 1, 2, 3, 4, 5, 6 };
 
-            ByteArraySegmentMessage message = new ByteArraySegmentMessage
+            var message = new ByteArraySegmentMessage
             {
                 array = new ArraySegment<byte>(sourcedata, 3, 2)
             };
@@ -92,7 +92,7 @@ namespace Mirror.Tests
         [Test]
         public void TestEmptyIntArray()
         {
-            IntArraySegmentMessage message = new IntArraySegmentMessage
+            var message = new IntArraySegmentMessage
             {
                 array = new ArraySegment<int>(new int[0])
             };
@@ -108,7 +108,7 @@ namespace Mirror.Tests
         [Test]
         public void TestNullIntArray()
         {
-            IntArraySegmentMessage message = new IntArraySegmentMessage
+            var message = new IntArraySegmentMessage
             {
                 array = default
             };
@@ -126,7 +126,7 @@ namespace Mirror.Tests
         {
             int[] sourcedata = { 0, 1, 2, 3, 4, 5, 6 };
 
-            IntArraySegmentMessage message = new IntArraySegmentMessage
+            var message = new IntArraySegmentMessage
             {
                 array = new ArraySegment<int>(sourcedata, 3, 2)
             };
