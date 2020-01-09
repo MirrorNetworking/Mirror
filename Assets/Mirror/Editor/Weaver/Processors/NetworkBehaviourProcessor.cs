@@ -549,11 +549,10 @@ namespace Mirror.Weaver
             /*
              Generates code like:
                 int oldValue = a; // for hook
-                int num = reader.ReadPackedInt32();
-                Networka = num;
+                Networka = reader.ReadPackedInt32();
                 if (!SyncVarEqual(oldValue, ref a))
                 {
-                    OnSetA(oldValue, num);
+                    OnSetA(oldValue, Networka);
                 }
              */
             else
@@ -572,14 +571,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
-                // read value and put it in a local variable
-                VariableDefinition newValue = new VariableDefinition(syncVar.FieldType);
-                deserialize.Body.Variables.Add(newValue);
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
-                serWorker.Append(serWorker.Create(OpCodes.Stloc, newValue));
-
-                // set the property BEFORE calling the hook
+                // read value and store in syncvar BEFORE calling the hook
                 // -> this makes way more sense. by definition, the hook is
                 //    supposed to be called after it was changed. not before.
                 // -> setting it BEFORE calling the hook fixes the following bug:
@@ -588,9 +580,10 @@ namespace Mirror.Weaver
                 //    the host server, and they would all happen and compare
                 //    values BEFORE the hook even returned and hence BEFORE the
                 //    actual value was even set.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, newValue));
-                serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // put 'this.' onto stack for 'this.syncvar' below
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // reader. for 'reader.Read()' below
+                serWorker.Append(serWorker.Create(OpCodes.Call, readFunc)); // reader.Read()
+                serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar)); // syncvar
 
                 if (foundMethod != null)
                 {
@@ -617,9 +610,10 @@ namespace Mirror.Weaver
                     serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
 
                     // call the hook
-                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
-                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, newValue));
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
+                    serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue)); // oldvalue
+                    serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // this.
+                    serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar)); // syncvar.get
                     serWorker.Append(serWorker.Create(OpCodes.Call, foundMethod));
 
                     // Generates: end if (!SyncVarEqual);
