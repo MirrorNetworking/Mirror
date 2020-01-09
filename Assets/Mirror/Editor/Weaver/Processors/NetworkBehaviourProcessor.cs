@@ -454,8 +454,7 @@ namespace Mirror.Weaver
              Generates code like:
                 uint oldNetId = ___qNetId;
                 GameObject oldSyncVar = syncvar.getter; // returns GetSyncVarGameObject(___qNetId)
-                uint num = reader.ReadPackedUInt32();
-                ___qNetId = num;
+                ___qNetId = reader.ReadPackedUInt32();
                 if (!SyncVarEqual(oldNetId, ref ___goNetId))
                 {
                     OnSetQ(oldSyncVar, syncvar.getter); // getter returns GetSyncVarGameObject(___qNetId)
@@ -485,14 +484,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
                 serWorker.Append(serWorker.Create(OpCodes.Stloc, oldSyncVar));
 
-                // read id and store in a local variable
-                VariableDefinition tmpValue = new VariableDefinition(Weaver.uint32Type);
-                deserialize.Body.Variables.Add(tmpValue);
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-                serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint32Type)));
-                serWorker.Append(serWorker.Create(OpCodes.Stloc, tmpValue));
-
-                // set the netid field BEFORE calling the hook
+                // read id and store in netId field BEFORE calling the hook
                 // -> this makes way more sense. by definition, the hook is
                 //    supposed to be called after it was changed. not before.
                 // -> setting it BEFORE calling the hook fixes the following bug:
@@ -501,9 +493,10 @@ namespace Mirror.Weaver
                 //    the host server, and they would all happen and compare
                 //    values BEFORE the hook even returned and hence BEFORE the
                 //    actual value was even set.
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, tmpValue));
-                serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField));
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0)); // put 'this.' onto stack for 'this.netId' below
+                serWorker.Append(serWorker.Create(OpCodes.Ldarg_1)); // reader. for 'reader.Read()' below
+                serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.uint32Type))); // Read()
+                serWorker.Append(serWorker.Create(OpCodes.Stfld, netIdField)); // netId
 
                 if (foundMethod != null)
                 {
