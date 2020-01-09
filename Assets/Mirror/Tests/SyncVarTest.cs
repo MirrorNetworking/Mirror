@@ -16,6 +16,45 @@ namespace Mirror.Tests
 
     }
 
+    // https://github.com/vis2k/Mirror/issues/1151
+    class MockPlayerForIssue1151 : NetworkBehaviour
+    {
+        [SyncVar(hook = nameof(Hook))]
+        public int x = 5;
+
+        public override void OnStartAuthority() {
+            Debug.LogWarning("1 Authority started");
+            CmdSet();
+        }
+
+        [Command]
+        void CmdSet()
+        {
+            Debug.LogWarning("2 CmdSet: " + x);
+            // set x to 10. setting it will call the Hook immediately.
+            // -> the hook will call CmdCheck
+            // -> CmdCheck returns
+            // -> Hook() returns
+            // then we are back in CmdSet
+            x = 10;
+        }
+
+        void Hook(int newX)
+        {
+            Debug.LogWarning("3 Hook:" + newX);
+            CmdCheck(newX);
+        }
+
+        public int result;
+        [Command]
+        void CmdCheck(int newX)
+        {
+            // x should be 10, new X should be 10
+            Debug.LogWarning("4 CmdCheck x=" + x + " newX=" + newX);
+            this.result = newX;
+        }
+    }
+
     public class SyncVarTest
     {
 
@@ -155,6 +194,17 @@ namespace Mirror.Tests
             player3.syncMode = SyncMode.Observers;
 
             Assert.That(identity.GetSyncModeObserversMask(), Is.EqualTo(0b101));
+        }
+
+        [Test]
+        public void TestHostModeValueIsSetBeforeHook()
+        {
+            // test to prevent issue https://github.com/vis2k/Mirror/issues/1151
+
+            GameObject gameObject = new GameObject();
+            MockPlayerForIssue1151 player = gameObject.AddComponent<MockPlayerForIssue1151>();
+            Assert.That(player.x, Is.EqualTo(10));
+            Assert.That(player.result, Is.EqualTo(10));
         }
     }
 }
