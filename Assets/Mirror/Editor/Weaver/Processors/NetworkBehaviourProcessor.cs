@@ -462,7 +462,7 @@ namespace Mirror.Weaver
                 GameObject oldValue = syncvar.getter; // returns GetSyncVarGameObject(___qNetId)
                 uint num = reader.ReadPackedUInt32();
                 ___qNetId = num;
-                if (!SyncVarEqual(num, ref q))
+                if (!SyncVarEqual(num, ref ___goNetId)) TODO compare old value with ref goNetId. we still compare the same.
                 {
                     OnSetQ(oldValue, syncvar.getter); // getter returns GetSyncVarGameObject(___qNetId)
                 }
