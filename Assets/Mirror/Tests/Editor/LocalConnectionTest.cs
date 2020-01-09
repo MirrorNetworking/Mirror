@@ -19,9 +19,10 @@ namespace Mirror.Tests
         public void SetUpConnections()
         {
             connectionToServer = new ULocalConnectionToServer();
-            connectionToClient = new ULocalConnectionToClient();
-
-            connectionToClient.connectionToServer = connectionToServer;
+            connectionToClient = new ULocalConnectionToClient
+            {
+                connectionToServer = connectionToServer
+            };
             connectionToServer.connectionToClient = connectionToClient;
         }
 
@@ -34,7 +35,7 @@ namespace Mirror.Tests
         [Test]
         public void ServerToClientTest()
         {
-            MyMessage myMessage = new MyMessage()
+            var myMessage = new MyMessage
             {
                 id = 3,
                 name = "hello"
@@ -51,8 +52,10 @@ namespace Mirror.Tests
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            var handlers = new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<MyMessage>(), handler }
+            };
 
             connectionToClient.SetHandlers(handlers);
             connectionToServer.Send(myMessage);
@@ -82,8 +85,10 @@ namespace Mirror.Tests
                 invoked = true;
             }
 
-            var handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            var handlers = new Dictionary<int, NetworkMessageDelegate>
+            {
+                { MessagePacker.GetId<MyMessage>(), handler }
+            };
 
             connectionToServer.SetHandlers(handlers);
             connectionToClient.Send(myMessage);
