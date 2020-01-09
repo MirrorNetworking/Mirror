@@ -39,7 +39,7 @@ namespace Mirror.Tests
             x = 10;
         }
 
-        void Hook(int newX)
+        void Hook(int oldX, int newX)
         {
             Debug.LogWarning("3 Hook:" + newX);
             CmdCheck(newX);
