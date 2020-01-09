@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 114118589361100106}
   - component: {fileID: 2240606817507776182}
   - component: {fileID: 114250499875391520}
-  - component: {fileID: 7257542793140390888}
-  - component: {fileID: 3483500070893305303}
   - component: {fileID: 6900008319038825817}
   - component: {fileID: 5194388907919410155}
   - component: {fileID: 114654712548978148}
@@ -54,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverOnly: 0
-  m_AssetId: 6f43bf5488a7443d19ab2a83c6b91f35
+  m_AssetId: 
   m_SceneId: 0
 --- !u!95 &2240606817507776182
 Animator:
@@ -91,34 +89,6 @@ MonoBehaviour:
   syncInterval: 0.1
   compressRotation: 1
   clientAuthority: 1
---- !u!114 &7257542793140390888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916082411674582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b6be33745b1c49caa8b5534fc7d7172, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
---- !u!114 &3483500070893305303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916082411674582}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc510b474d7004b1a907ba67021723e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
 --- !u!195 &6900008319038825817
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -281,6 +251,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4492442352427800}
     m_Modifications:
+    - target: {fileID: 100010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
+      propertyPath: m_Name
+      value: 3D Model
+      objectReference: {fileID: 0}
     - target: {fileID: 400010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -324,10 +298,6 @@ PrefabInstance:
     - target: {fileID: 400010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 100010, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
-      propertyPath: m_Name
-      value: 3D Model
       objectReference: {fileID: 0}
     - target: {fileID: 13700000, guid: 38b49695fc0a4418bbc350f2366660c5, type: 3}
       propertyPath: m_Materials.Array.data[0]
