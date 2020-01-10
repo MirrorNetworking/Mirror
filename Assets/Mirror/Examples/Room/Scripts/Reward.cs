@@ -41,7 +41,7 @@ namespace Mirror.Examples.NetworkRoom
                 spawner.SpawnPrize();
 
                 // destroy this one
-                NetworkManager.singleton.server.Destroy(gameObject);
+                netIdentity.server.Destroy(gameObject);
             }
         }
     }

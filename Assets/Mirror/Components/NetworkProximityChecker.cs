@@ -68,7 +68,7 @@ namespace Mirror
 
         void Update()
         {
-            if (!NetworkManager.singleton.server.active)
+            if (!netIdentity.server.active)
                 return;
 
             if (Time.time - lastUpdateTime > visUpdateInterval)

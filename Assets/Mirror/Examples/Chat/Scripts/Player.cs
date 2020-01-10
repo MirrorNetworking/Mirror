@@ -8,8 +8,8 @@ namespace Mirror.Examples.Chat
     {
         [SyncVar]
         public string playerName;
-
-        public ChatWindow chatWindow => ((ChatNetworkManager)NetworkManager.singleton).chatWindow;
+        
+        public ChatWindow chatWindow => ((ChatNetworkManager)FindObjectOfType<NetworkManager>()).chatWindow;
 
         [Command]
         public void CmdSend(string message)
@@ -31,7 +31,7 @@ namespace Mirror.Examples.Chat
                 $"<color=blue>{playerName}: </color> {message}";
 
             chatWindow.AppendMessage(prettyMessage);
-
+            
             Debug.Log(message);
         }
     }

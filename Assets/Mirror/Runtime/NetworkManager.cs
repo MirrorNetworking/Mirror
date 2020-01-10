@@ -135,11 +135,6 @@ namespace Mirror
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         /// <summary>
-        /// NetworkManager singleton
-        /// </summary>
-        public static NetworkManager singleton;
-
-        /// <summary>
         /// True if the server or client is started and running
         /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
         /// </summary>
@@ -251,7 +246,7 @@ namespace Mirror
             // if client connection to server fails.
             networkSceneName = offlineScene;
 
-            InitializeSingleton();
+            Initialize();
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -304,7 +299,7 @@ namespace Mirror
         void SetupServer()
         {
             if (LogFilter.Debug) Debug.Log("NetworkManager SetupServer");
-            InitializeSingleton();
+            Initialize();
 
             if (runInBackground)
                 Application.runInBackground = true;
@@ -383,7 +378,7 @@ namespace Mirror
         {
             mode = NetworkManagerMode.ClientOnly;
 
-            InitializeSingleton();
+            Initialize();
 
             if (authenticator != null)
             {
@@ -419,7 +414,7 @@ namespace Mirror
         {
             mode = NetworkManagerMode.ClientOnly;
 
-            InitializeSingleton();
+            Initialize();
 
             if (authenticator != null)
             {
@@ -680,36 +675,10 @@ namespace Mirror
 #endif
         }
 
-        void InitializeSingleton()
+        void Initialize()
         {
-            if (singleton != null && singleton == this)
-            {
-                return;
-            }
-
-            // do this early
             LogFilter.Debug = showDebugMessages;
 
-            if (dontDestroyOnLoad)
-            {
-                if (singleton != null)
-                {
-                    Debug.LogWarning("Multiple NetworkManagers detected in the scene. Only one NetworkManager can exist at a time. The duplicate NetworkManager will be destroyed.");
-                    Destroy(gameObject);
-                    return;
-                }
-                if (LogFilter.Debug) Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
-                singleton = this;
-                if (Application.isPlaying) DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                if (LogFilter.Debug) Debug.Log("NetworkManager created singleton (ForScene)");
-                singleton = this;
-            }
-
-            // set active transport AFTER setting singleton.
-            // so only if we didn't destroy ourselves.
             Transport.activeTransport = transport;
         }
 
@@ -751,22 +720,6 @@ namespace Mirror
             {
                 identity.MarkForReset();
             }
-        }
-
-        /// <summary>
-        /// This is the only way to clear the singleton, so another instance can be created.
-        /// </summary>
-        public static void Shutdown()
-        {
-            if (singleton == null)
-                return;
-
-            startPositions.Clear();
-            startPositionIndex = 0;
-            clientReadyConnection = null;
-
-            singleton.StopHost();
-            singleton = null;
         }
 
         /// <summary>
@@ -906,12 +859,12 @@ namespace Mirror
             }
         }
 
-        static void UpdateScene()
+        void UpdateScene()
         {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
+            if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
                 if (LogFilter.Debug) Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                singleton.FinishLoadScene();
+                FinishLoadScene();
                 loadingSceneAsync.allowSceneActivation = true;
                 loadingSceneAsync = null;
             }

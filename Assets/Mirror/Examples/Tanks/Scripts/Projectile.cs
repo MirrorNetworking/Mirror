@@ -24,7 +24,7 @@ namespace Mirror.Examples.Tanks
         [Server]
         void DestroySelf()
         {
-            NetworkManager.singleton.server.Destroy(gameObject);
+            netIdentity.server.Destroy(gameObject);
         }
 
         // ServerCallback because we don't want a warning if OnTriggerEnter is
@@ -32,7 +32,7 @@ namespace Mirror.Examples.Tanks
         [ServerCallback]
         void OnTriggerEnter(Collider co)
         {
-            NetworkManager.singleton.server.Destroy(gameObject);
+            netIdentity.server.Destroy(gameObject);
         }
     }
 }

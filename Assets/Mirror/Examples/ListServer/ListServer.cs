@@ -38,6 +38,7 @@ namespace Mirror.Examples.ListServer
     public class ListServer : MonoBehaviour
     {
         [Header("List Server Connection")]
+        public NetworkManager manager;
         public string listServerIp = "127.0.0.1";
         public ushort gameServerToListenPort = 8887;
         public ushort clientToListenPort = 8888;
@@ -78,19 +79,19 @@ namespace Mirror.Examples.ListServer
             InvokeRepeating(nameof(Tick), 0, 1);
         }
 
-        bool IsConnecting() => NetworkManager.singleton.client.active && !ClientScene.ready;
-        bool FullyConnected() => NetworkManager.singleton.client.active && ClientScene.ready;
+        bool IsConnecting() => manager.client.active && !ClientScene.ready;
+        bool FullyConnected() => manager.client.active && ClientScene.ready;
 
         // should we use the client to listen connection?
         bool UseClientToListen()
         {
-            return !NetworkManager.isHeadless && !NetworkManager.singleton.server.active && !FullyConnected();
+            return !NetworkManager.isHeadless && !manager.server.active && !FullyConnected();
         }
 
         // should we use the game server to listen connection?
         bool UseGameServerToListen()
         {
-            return NetworkManager.singleton.server.active;
+            return manager.server.active;
         }
 
         void Tick()
@@ -105,8 +106,8 @@ namespace Mirror.Examples.ListServer
             BinaryWriter writer = new BinaryWriter(new MemoryStream());
 
             // create message
-            writer.Write((ushort)NetworkManager.singleton.server.connections.Count);
-            writer.Write((ushort)NetworkManager.singleton.maxConnections);
+            writer.Write((ushort)manager.server.connections.Count);
+            writer.Write((ushort)manager.maxConnections);
             byte[] titleBytes = Encoding.UTF8.GetBytes(gameServerTitle);
             writer.Write((ushort)titleBytes.Length);
             writer.Write(titleBytes);
@@ -253,7 +254,7 @@ namespace Mirror.Examples.ListServer
         void OnUI()
         {
             // only show while client not connected and server not started
-            if (!NetworkManager.singleton.isNetworkActive || IsConnecting())
+            if (!manager.isNetworkActive || IsConnecting())
             {
                 mainPanel.SetActive(true);
 
@@ -291,8 +292,8 @@ namespace Mirror.Examples.ListServer
                     slot.joinButton.onClick.RemoveAllListeners();
                     slot.joinButton.onClick.AddListener(() =>
                     {
-                        NetworkManager.singleton.networkAddress = server.ip;
-                        NetworkManager.singleton.StartClient();
+                        manager.networkAddress = server.ip;
+                        manager.StartClient();
                     });
                 }
 
@@ -301,14 +302,14 @@ namespace Mirror.Examples.ListServer
                 serverAndPlayButton.onClick.RemoveAllListeners();
                 serverAndPlayButton.onClick.AddListener(() =>
                 {
-                    NetworkManager.singleton.StartHost();
+                    manager.StartHost();
                 });
 
                 serverOnlyButton.interactable = !IsConnecting();
                 serverOnlyButton.onClick.RemoveAllListeners();
                 serverOnlyButton.onClick.AddListener(() =>
                 {
-                    NetworkManager.singleton.StartServer();
+                    manager.StartServer();
                 });
             }
             else mainPanel.SetActive(false);
@@ -324,7 +325,7 @@ namespace Mirror.Examples.ListServer
 
                 // cancel button
                 connectingCancelButton.onClick.RemoveAllListeners();
-                connectingCancelButton.onClick.AddListener(NetworkManager.singleton.StopClient);
+                connectingCancelButton.onClick.AddListener(manager.StopClient);
             }
             else connectingPanel.SetActive(false);
         }
