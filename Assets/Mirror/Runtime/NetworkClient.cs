@@ -103,7 +103,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal void ConnectHost()
+        internal void ConnectHost(NetworkServer server)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
@@ -121,15 +121,15 @@ namespace Mirror
             connection.SetHandlers(handlers);
 
             // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
+            server.SetLocalConnection(connectionToClient);
         }
         /// <summary>
         /// connect host mode
         /// </summary>
-        internal void ConnectLocalServer()
+        internal void ConnectLocalServer(NetworkServer server)
         {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
+            server.OnConnected(server.localConnection);
+            server.localConnection.Send(new ConnectMessage());
         }
 
         void InitializeTransportHandlers()
@@ -183,7 +183,7 @@ namespace Mirror
         /// Disconnect from server.
         /// <para>The disconnect message will be invoked.</para>
         /// </summary>
-        public void Disconnect()
+        public void Disconnect(NetworkServer server)
         {
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
@@ -193,9 +193,9 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    server.localConnection.Send(new DisconnectMessage());
                 }
-                NetworkServer.RemoveLocalConnection();
+                server.RemoveLocalConnection();
             }
             else
             {

@@ -39,6 +39,8 @@ namespace Mirror
         /// </summary>
         public static NetworkConnection readyConnection { get; private set; }
 
+        public static NetworkServer server { get; internal set; }
+
         public static NetworkClient client { get; internal set; }
 
         /// <summary>
@@ -484,6 +486,7 @@ namespace Mirror
             identity.transform.localScale = msg.scale;
             identity.hasAuthority = msg.isOwner;
             identity.netId = msg.netId;
+            identity.server = server;
             identity.client = client;
 
             if (msg.isLocalPlayer)

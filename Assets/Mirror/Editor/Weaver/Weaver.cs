@@ -79,6 +79,7 @@ namespace Mirror.Weaver
         public static MethodReference NetworkClientGetActive;
 
         public static MethodReference NetworkBehaviourGetIdentity;
+        public static MethodReference NetworkIdentityGetServer;
         public static MethodReference NetworkIdentityGetClient;
 
         // custom attribute types
@@ -271,6 +272,7 @@ namespace Mirror.Weaver
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
 
             NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_netIdentity");
+            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_server");
             NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_client");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
