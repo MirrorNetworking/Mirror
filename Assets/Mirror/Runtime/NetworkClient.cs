@@ -460,6 +460,11 @@ namespace Mirror
             ClientScene.Shutdown();
             connectState = ConnectState.None;
             handlers.Clear();
+            // disconnect the client connection.
+            // we do NOT call Transport.Shutdown, because someone only called
+            // NetworkClient.Shutdown. we can't assume that the server is
+            // supposed to be shut down too!
+            Transport.activeTransport.ClientDisconnect();
         }
 
         /// <summary>
