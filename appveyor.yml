@@ -10,7 +10,7 @@ install:
   - choco install unitypackager
   - choco install docfx
   - choco install lftp
-  - npm install -g semantic-release@15 @semantic-release/exec
+  - npm install -g semantic-release @semantic-release/exec
 
 #build:
 #  project: Mirror/Networking.sln
