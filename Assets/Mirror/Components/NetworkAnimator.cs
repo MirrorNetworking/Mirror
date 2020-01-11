@@ -88,10 +88,11 @@ namespace Mirror
                     continue;
                 }
 
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
                 WriteParameters(writer);
 
                 SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
+                NetworkWriterPool.Recycle(writer);
             }
         }
 
@@ -136,11 +137,12 @@ namespace Mirror
             {
                 sendTimer = Time.time + syncInterval;
 
-                NetworkWriter writer = new NetworkWriter();
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
                 if (WriteParameters(writer))
                 {
                     SendAnimationParametersMessage(writer.ToArray());
                 }
+                NetworkWriterPool.Recycle(writer);
             }
         }
 
