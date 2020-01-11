@@ -347,10 +347,6 @@ namespace Mirror
             bool rotated = Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > sensitivity.localEulerAngles;
             bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > sensitivity.localScale;
 
-            //bool moved = lastPosition != targetComponent.transform.localPosition;
-            //bool rotated = lastRotation != targetComponent.transform.localRotation;
-            //bool scaled = lastScale != targetComponent.transform.localScale;
-
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
             //  never sync because of C#'s float comparison tolerance. see also:
