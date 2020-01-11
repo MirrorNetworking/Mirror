@@ -395,11 +395,8 @@ namespace Mirror
 
                 if (ClientScene.readyConnection != null)
                     CmdOnAnimationTriggerServerMessage(hash);
-
-                return;
             }
-
-            if (!clientAuthority)
+            else
             {
                 if (!isServer)
                 {
@@ -433,11 +430,8 @@ namespace Mirror
 
                 if (ClientScene.readyConnection != null)
                     CmdOnAnimationResetTriggerServerMessage(hash);
-
-                return;
             }
-
-            if (!clientAuthority)
+            else
             {
                 if (!isServer)
                 {
