@@ -1,4 +1,5 @@
-git subtree push --prefix=Assets/Mirror origin upm 
-git fetch
-git tag $1 origin/upm
-git push --tags
+#!/bin/sh
+git subtree split --prefix=Assets/Mirror -b upm 
+git filter-branch --prune-empty --tree-filter 'rm -rf Tests' upm
+git tag $1 upm
+git push -u origin upm --tags
