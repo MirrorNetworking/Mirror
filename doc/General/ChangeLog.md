@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version 7.x.x - In Progress
-- Added: NetworkAnimator now has a ResetTrigger function
+- Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
