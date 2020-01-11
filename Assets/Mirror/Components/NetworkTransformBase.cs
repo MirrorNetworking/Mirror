@@ -380,11 +380,12 @@ namespace Mirror
                         {
                             // serialize
                             // local position/rotation for VR support
-                            var writer = new NetworkWriter();
+                            NetworkWriter writer = NetworkWriterPool.GetWriter();
                             SerializeIntoWriter(writer, TargetComponent.transform.localPosition, TargetComponent.transform.localRotation, compressRotation, TargetComponent.transform.localScale);
 
                             // send to server
                             CmdClientToServerSync(writer.ToArray());
+                            NetworkWriterPool.Recycle(writer);
                         }
                         lastClientSendTime = Time.time;
                     }
@@ -403,6 +404,10 @@ namespace Mirror
                         {
                             // local position/rotation for VR support
                             ApplyPositionRotationScale(goal.LocalPosition, goal.LocalRotation, goal.LocalScale);
+
+                            // reset data points so we don't keep interpolating
+                            start = null;
+                            goal = null;
                         }
                         else
                         {

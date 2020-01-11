@@ -53,11 +53,11 @@ namespace Mirror.Weaver
             if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
                 SessionState.SetBool("MIRROR_WEAVED", true);
-                WeaveExisingAssemblies();
+                WeaveExistingAssemblies();
             }
         }
 
-        static void WeaveExisingAssemblies()
+        static void WeaveExistingAssemblies()
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {

@@ -86,10 +86,11 @@ namespace Mirror
                     continue;
                 }
 
-                var writer = new NetworkWriter();
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
                 WriteParameters(writer);
 
                 SendAnimationMessage(stateHash, normalizedTime, i, writer.ToArray());
+                NetworkWriterPool.Recycle(writer);
             }
         }
 
@@ -134,11 +135,12 @@ namespace Mirror
             {
                 sendTimer = Time.time + syncInterval;
 
-                var writer = new NetworkWriter();
+                NetworkWriter writer = NetworkWriterPool.GetWriter();
                 if (WriteParameters(writer))
                 {
                     SendAnimationParametersMessage(writer.ToArray());
                 }
+                NetworkWriterPool.Recycle(writer);
             }
         }
 
@@ -193,6 +195,11 @@ namespace Mirror
         void HandleAnimTriggerMsg(int hash)
         {
             Animator.SetTrigger(hash);
+        }
+
+        void HandleAnimResetTriggerMsg(int hash)
+        {
+            Animator.ResetTrigger(hash);
         }
 
         ulong NextDirtyBits()
@@ -355,27 +362,87 @@ namespace Mirror
         }
 
         /// <summary>
+        /// Causes an animation trigger to be reset for a networked object.
+        /// <para>If local authority is set, and this is called from the client, then the trigger will be reset on the server and all clients. If not, then this is called on the server, and the trigger will be reset on all clients.</para>
+        /// </summary>
+        /// <param name="triggerName">Name of trigger.</param>
+        public void ResetTrigger(string triggerName)
+        {
+            ResetTrigger(Animator.StringToHash(triggerName));
+        }
+
+        /// <summary>
         /// Causes an animation trigger to be invoked for a networked object.
         /// </summary>
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void SetTrigger(int hash)
         {
-            if (hasAuthority && ClientAuthority)
+            if (ClientAuthority)
             {
-                if (ClientScene.readyConnection != null)
+                if (!isClient)
                 {
-                    CmdOnAnimationTriggerServerMessage(hash);
+                    Debug.LogWarning("Tried to set animation in the server for a client-controlled animator");
+                    return;
                 }
-                return;
-            }
 
-            if (isServer && !ClientAuthority)
+                if (!hasAuthority)
+                {
+                    Debug.LogWarning("Only the client with authority can set animations");
+                    return;
+                }
+
+                if (ClientScene.readyConnection != null)
+                    CmdOnAnimationTriggerServerMessage(hash);
+            }
+            else
             {
+                if (!isServer)
+                {
+                    Debug.LogWarning("Tried to set animation in the client for a server-controlled animator");
+                    return;
+                }
+
                 RpcOnAnimationTriggerClientMessage(hash);
             }
         }
 
+        /// <summary>
+        /// Causes an animation trigger to be reset for a networked object.
+        /// </summary>
+        /// <param name="hash">Hash id of trigger (from the Animator).</param>
+        public void ResetTrigger(int hash)
+        {
+            if (ClientAuthority)
+            {
+                if (!isClient)
+                {
+                    Debug.LogWarning("Tried to reset animation in the server for a client-controlled animator");
+                    return;
+                }
+
+                if (!hasAuthority)
+                {
+                    Debug.LogWarning("Only the client with authority can reset animations");
+                    return;
+                }
+
+                if (ClientScene.readyConnection != null)
+                    CmdOnAnimationResetTriggerServerMessage(hash);
+            }
+            else
+            {
+                if (!isServer)
+                {
+                    Debug.LogWarning("Tried to reset animation in the client for a server-controlled animator");
+                    return;
+                }
+
+                RpcOnAnimationResetTriggerClientMessage(hash);
+            }
+        }
+
         #region server message handlers
+
         [Command]
         void CmdOnAnimationServerMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
@@ -401,9 +468,19 @@ namespace Mirror
             HandleAnimTriggerMsg(hash);
             RpcOnAnimationTriggerClientMessage(hash);
         }
+
+        [Command]
+        void CmdOnAnimationResetTriggerServerMessage(int hash)
+        {
+            // handle and broadcast
+            HandleAnimResetTriggerMsg(hash);
+            RpcOnAnimationResetTriggerClientMessage(hash);
+        }
+
         #endregion
 
         #region client message handlers
+
         [ClientRpc]
         void RpcOnAnimationClientMessage(int stateHash, float normalizedTime, int layerId, byte[] parameters)
         {
@@ -416,12 +493,18 @@ namespace Mirror
             HandleAnimParamsMsg(new NetworkReader(parameters));
         }
 
-        // server sends this to one client
         [ClientRpc]
         void RpcOnAnimationTriggerClientMessage(int hash)
         {
             HandleAnimTriggerMsg(hash);
         }
+
+        [ClientRpc]
+        void RpcOnAnimationResetTriggerClientMessage(int hash)
+        {
+            HandleAnimResetTriggerMsg(hash);
+        }
+
         #endregion
     }
 }

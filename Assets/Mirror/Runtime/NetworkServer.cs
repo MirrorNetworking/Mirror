@@ -83,6 +83,10 @@ namespace Mirror
                 }
                 else
                 {
+                    // stop the server.
+                    // we do NOT call Transport.Shutdown, because someone only
+                    // called NetworkServer.Shutdown. we can't assume that the
+                    // client is supposed to be shut down too!
                     Transport.activeTransport.ServerStop();
                 }
 

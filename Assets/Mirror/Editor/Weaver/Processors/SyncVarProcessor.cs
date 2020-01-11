@@ -27,21 +27,22 @@ namespace Mirror.Weaver
                             {
                                 if (m.Name == hookFunctionName)
                                 {
-                                    if (m.Parameters.Count == 1)
+                                    if (m.Parameters.Count == 2)
                                     {
-                                        if (m.Parameters[0].ParameterType != syncVar.FieldType)
+                                        if (m.Parameters[0].ParameterType != syncVar.FieldType ||
+                                            m.Parameters[1].ParameterType != syncVar.FieldType)
                                         {
-                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                                            Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                             return false;
                                         }
                                         foundMethod = m;
                                         return true;
                                     }
-                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                                    Weaver.Error($"{m} should have signature:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                                     return false;
                                 }
                             }
-                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} value) {{ }}");
+                            Weaver.Error($"No hook implementation found for {syncVar}. Add this method to your class:\npublic void {hookFunctionName}({syncVar.FieldType} oldValue, {syncVar.FieldType} newValue) {{ }}");
                             return false;
                         }
                     }
@@ -147,38 +148,13 @@ namespace Mirror.Weaver
 
             setWorker.Append(setWorker.Create(OpCodes.Brtrue, endOfMethod));
 
-            CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
-
-            if (hookFunctionMethod != null)
-            {
-                //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
-                Instruction label = setWorker.Create(OpCodes.Nop);
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
-                setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.getSyncVarHookGuard));
-                setWorker.Append(setWorker.Create(OpCodes.Brtrue, label));
-
-                // setSyncVarHookGuard(dirtyBit, true);
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
-                setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
-
-                // call hook
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
-                setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
-
-                // setSyncVarHookGuard(dirtyBit, false);
-                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
-                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
-                setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_0));
-                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
-
-                setWorker.Append(label);
-            }
+            // T oldValue = value;
+            // TODO for GO/NI we need to backup the netId don't we?
+            VariableDefinition oldValue = new VariableDefinition(fd.FieldType);
+            set.Body.Variables.Add(oldValue);
+            setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+            setWorker.Append(setWorker.Create(OpCodes.Ldfld, fd));
+            setWorker.Append(setWorker.Create(OpCodes.Stloc, oldValue));
 
             // this
             setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
@@ -217,6 +193,40 @@ namespace Mirror.Weaver
 
                 // invoke SetSyncVar
                 setWorker.Append(setWorker.Create(OpCodes.Call, gm));
+            }
+
+            CheckForHookFunction(td, fd, out MethodDefinition hookFunctionMethod);
+
+            if (hookFunctionMethod != null)
+            {
+                //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
+                Instruction label = setWorker.Create(OpCodes.Nop);
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.NetworkServerGetLocalClientActive));
+                setWorker.Append(setWorker.Create(OpCodes.Brfalse, label));
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.getSyncVarHookGuard));
+                setWorker.Append(setWorker.Create(OpCodes.Brtrue, label));
+
+                // setSyncVarHookGuard(dirtyBit, true);
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_1));
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
+
+                // call hook (oldValue, newValue)
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldloc, oldValue));
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_1));
+                setWorker.Append(setWorker.Create(OpCodes.Call, hookFunctionMethod));
+
+                // setSyncVarHookGuard(dirtyBit, false);
+                setWorker.Append(setWorker.Create(OpCodes.Ldarg_0));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I8, dirtyBit));
+                setWorker.Append(setWorker.Create(OpCodes.Ldc_I4_0));
+                setWorker.Append(setWorker.Create(OpCodes.Call, Weaver.setSyncVarHookGuard));
+
+                setWorker.Append(label);
             }
 
             setWorker.Append(endOfMethod);
