@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/MirrorNG/MirrorNG/compare/3.0.1-master...3.0.2-master) (2020-01-12)
+
+
+### Bug Fixes
+
+* remove Tests from upm package ([#34](https://github.com/MirrorNG/MirrorNG/issues/34)) ([8d8ea0f](https://github.com/MirrorNG/MirrorNG/commit/8d8ea0f10743044e4a9a3d6c5b9f9973cf48e28b))
+
 ## [3.0.1](https://github.com/MirrorNG/MirrorNG/compare/3.0.0-master...3.0.1-master) (2020-01-11)
 
 
