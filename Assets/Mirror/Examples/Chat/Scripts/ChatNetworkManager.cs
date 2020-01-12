@@ -46,7 +46,7 @@ namespace Mirror.Examples.Chat
             playergo.GetComponent<Player>().playerName = createPlayerMessage.name;
 
             // set it as the player
-            NetworkServer.AddPlayerForConnection(connection, playergo);
+            server.AddPlayerForConnection(connection, client, playergo);
 
             chatWindow.gameObject.SetActive(true);
         }
