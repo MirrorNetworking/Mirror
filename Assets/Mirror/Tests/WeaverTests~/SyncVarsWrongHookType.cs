@@ -16,7 +16,7 @@ namespace MirrorTest
             health -= amount;
         }
 
-        void OnChangeHealth(bool health)
+        void OnChangeHealth(bool oldHealth, bool newHealth)
         {
             // do things with your health bar
         }
