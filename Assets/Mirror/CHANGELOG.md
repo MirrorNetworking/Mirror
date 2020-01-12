@@ -1,3 +1,11 @@
+## [3.0.3](https://github.com/MirrorNG/MirrorNG/compare/3.0.2-master...3.0.3-master) (2020-01-12)
+
+
+### Bug Fixes
+
+* auto reference mirrorng assembly ([93f8688](https://github.com/MirrorNG/MirrorNG/commit/93f8688b39822bb30ed595ca36f44a8a556bec85))
+* MirrorNG works with 2019.2 ([9f35d6b](https://github.com/MirrorNG/MirrorNG/commit/9f35d6be427843aa7dd140cde32dd843c62147ce))
+
 ## [3.0.2](https://github.com/MirrorNG/MirrorNG/compare/3.0.1-master...3.0.2-master) (2020-01-12)
 
 
