@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Mirror.Examples.Chat
         [SyncVar]
         public string playerName;
 
-        public ChatWindow chatWindow => ((ChatNetworkManager)NetworkManager.singleton).chatWindow;
+        public static event Action<Player, string> OnMessage;
 
         [Command]
         public void CmdSend(string message)
@@ -18,21 +19,10 @@ namespace Mirror.Examples.Chat
                 RpcReceive(message.Trim());
         }
 
-        public override void OnStartLocalPlayer()
-        {
-            chatWindow.gameObject.SetActive(true);
-        }
-
         [ClientRpc]
         public void RpcReceive(string message)
         {
-            string prettyMessage = isLocalPlayer ?
-                $"<color=red>{playerName}: </color> {message}" :
-                $"<color=blue>{playerName}: </color> {message}";
-
-            chatWindow.AppendMessage(prettyMessage);
-
-            Debug.Log(message);
+            OnMessage?.Invoke(this, message);
         }
     }
 }
