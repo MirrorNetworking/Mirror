@@ -22,7 +22,7 @@
             "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
         }],
         ["@semantic-release/exec", {
-            "publishCmd": "./publish_upm.sh ${nextRelease.version}"
+            "publishCmd": "./publish_upm.sh upm ${nextRelease.version}"
         }]
     ]
 }
