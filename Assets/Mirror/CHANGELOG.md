@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/MirrorNG/MirrorNG/compare/3.0.3-master...3.0.4-master) (2020-01-12)
+
+
+### Bug Fixes
+
+* comply with MIT license in upm package ([b879bef](https://github.com/MirrorNG/MirrorNG/commit/b879bef4295e48c19d96a1d45536a11ea47380f3))
+
 ## [3.0.3](https://github.com/MirrorNG/MirrorNG/compare/3.0.2-master...3.0.3-master) (2020-01-12)
 
 
