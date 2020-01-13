@@ -141,7 +141,7 @@ namespace Mirror
         [NonSerialized]
         public bool isNetworkActive;
 
-        static NetworkConnection clientReadyConnection;
+        NetworkConnection clientReadyConnection;
 
         /// <summary>
         /// This is true if the client loaded a new scene when connecting to the server.
@@ -166,7 +166,7 @@ namespace Mirror
         /// </summary>
         /// <returns></returns>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use isHeadless instead of IsHeadless()")]
-        public static bool IsHeadless()
+        public bool IsHeadless()
         {
             return isHeadless;
         }
@@ -174,7 +174,7 @@ namespace Mirror
         /// <summary>
         /// headless mode detection
         /// </summary>
-        public static bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
+        public bool isHeadless => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
 
         public NetworkManagerMode mode { get; private set; }
         //    during FinishLoadScene.
@@ -747,9 +747,9 @@ namespace Mirror
         /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
         /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
         /// </remarks>
-        public static string networkSceneName = "";
+        public string networkSceneName = "";
 
-        public static UnityEngine.AsyncOperation loadingSceneAsync;
+        public UnityEngine.AsyncOperation loadingSceneAsync;
 
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
@@ -999,19 +999,19 @@ namespace Mirror
 
         #region Start Positions
 
-        public static int startPositionIndex;
+        public int startPositionIndex;
 
         /// <summary>
         /// List of transforms populted by NetworkStartPosition components found in the scene.
         /// </summary>
-        public static List<Transform> startPositions = new List<Transform>();
+        public List<Transform> startPositions = new List<Transform>();
 
         /// <summary>
         /// Registers the transform of a game object as a player spawn location.
         /// <para>This is done automatically by NetworkStartPosition components, but can be done manually from user script code.</para>
         /// </summary>
         /// <param name="start">Transform to register.</param>
-        public static void RegisterStartPosition(Transform start)
+        public void RegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Add(start);
@@ -1028,7 +1028,7 @@ namespace Mirror
         /// <para>This is done automatically by the <see cref="NetworkStartPosition">NetworkStartPosition</see> component, but can be done manually from user code.</para>
         /// </summary>
         /// <param name="start">Transform to unregister.</param>
-        public static void UnRegisterStartPosition(Transform start)
+        public void UnRegisterStartPosition(Transform start)
         {
             if (LogFilter.Debug) Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Remove(start);

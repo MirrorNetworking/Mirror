@@ -11,14 +11,17 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkStartPosition.html")]
     public class NetworkStartPosition : MonoBehaviour
     {
+        public NetworkManager manager;
+
         public void Awake()
         {
-            NetworkManager.RegisterStartPosition(transform);
+            manager = FindObjectOfType<NetworkManager>();
+            manager.RegisterStartPosition(transform);
         }
 
         public void OnDestroy()
         {
-            NetworkManager.UnRegisterStartPosition(transform);
+            manager.UnRegisterStartPosition(transform);
         }
     }
 }
