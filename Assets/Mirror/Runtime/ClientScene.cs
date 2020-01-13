@@ -39,8 +39,14 @@ namespace Mirror
         /// </summary>
         public static NetworkConnection readyConnection { get; private set; }
 
+        /// <summary>
+        /// The current NetworkServer used to set NetworkIdentity.server when applying the spawn payload.
+        /// </summary>
         public static NetworkServer server { get; internal set; }
 
+        /// <summary>
+        /// The current NetworkClient used to set NetworkIdentity.client when applying the spawn payload.
+        /// </summary>
         public static NetworkClient client { get; internal set; }
 
         /// <summary>
