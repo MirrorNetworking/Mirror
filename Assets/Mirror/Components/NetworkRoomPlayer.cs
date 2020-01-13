@@ -40,6 +40,7 @@ namespace Mirror
         /// </summary>
         public void Start()
         {
+            roomManager = FindObjectOfType<NetworkRoomManager>();
             if (roomManager != null)
             {
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
@@ -47,7 +48,7 @@ namespace Mirror
                 // have undesireable effects.
                 if (roomManager.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
-
+                
                 OnClientEnterRoom();
             }
             else
