@@ -12,11 +12,33 @@ namespace Mirror
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
-        readonly MemoryStream stream = new MemoryStream();
+        byte[] buffer = new byte[256];
 
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        public int Position { get { return (int)stream.Position; } set { stream.Position = value; } }
+        public int Position;
+
+        int length = 0;
+
+        public int Length {
+            get => length;
+            private set
+            {
+                EnsureCapacity(value);
+                this.length = value;
+                if (Position > length)
+                    Position = length;
+            }
+        }
+
+        private void EnsureCapacity(int value)
+        {
+            if (buffer.Length < value)
+            {
+                int capacity = Math.Max(value, buffer.Length * 2);
+                Array.Resize(ref buffer, capacity);
+            }
+        }
 
         // MemoryStream has 3 values: Position, Length and Capacity.
         // Position is used to indicate where we are writing
@@ -25,8 +47,9 @@ namespace Mirror
         // ToArray returns all the data we have written,  regardless of the current position
         public byte[] ToArray()
         {
-            stream.Flush();
-            return stream.ToArray();
+            byte[] data = new byte[Length];
+            Array.ConstrainedCopy(buffer, 0, data, 0, Length);
+            return data;
         }
 
         // Gets the serialized data in an ArraySegment<byte>
@@ -36,29 +59,38 @@ namespace Mirror
         // while you are using the ArraySegment
         public ArraySegment<byte> ToArraySegment()
         {
-            stream.Flush();
-            if (stream.TryGetBuffer(out ArraySegment<byte> data))
-            {
-                return data;
-            }
-            throw new Exception("Cannot expose contents of memory stream. Make sure that MemoryStream buffer is publicly visible (see MemoryStream source code).");
+            return new ArraySegment<byte>(buffer, 0, length);
         }
 
         // reset both the position and length of the stream,  but leaves the capacity the same
         // so that we can reuse this writer without extra allocations
-        public void SetLength(long value)
+        public void SetLength(int value)
         {
-            stream.SetLength(value);
+            this.Length = value;
         }
 
-        public void WriteByte(byte value) => stream.WriteByte(value);
+        public void WriteByte(byte value)
+        {
+            if (Position >= Length)
+            {
+                Length += 1;
+            }
+
+            buffer[Position++] = value;
+        }
+            
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
             // no null check because we would need to write size info for that too (hence WriteBytesAndSize)
-            stream.Write(buffer, offset, count);
+            if (Position + count > Length)
+            {
+                Length = Position + count;
+            }
+            Array.ConstrainedCopy(buffer, offset, this.buffer, Position, count);
+            Position += count;
         }
 
         public void WriteUInt32(uint value)
