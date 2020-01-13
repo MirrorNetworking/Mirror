@@ -162,7 +162,7 @@ namespace Mirror
 
         /// <summary>
         /// Obsolete: Use <see cref="isHeadless"/> instead.
-        /// <para>This is a static property now. This method will be removed by summer 2019.</para>
+        /// <para>This is a property now. This method will be removed by summer 2019.</para>
         /// </summary>
         /// <returns></returns>
         [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use isHeadless instead of IsHeadless()")]

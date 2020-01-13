@@ -92,7 +92,7 @@ namespace Mirror.Weaver
             // generates code like:
             protected static void InvokeCmdCmdThrust(NetworkBehaviour obj, NetworkReader reader)
             {
-                if (!NetworkServer.active)
+                if (!obj.netIdentity.server.active)
                 {
                     return;
                 }

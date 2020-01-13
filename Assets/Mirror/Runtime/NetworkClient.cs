@@ -26,7 +26,7 @@ namespace Mirror
         /// A list of all the active network clients in the current process.
         /// <para>This is NOT a list of all clients that are connected to the remote server, it is client instances on the local game.</para>
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly instead. There is always exactly one client.")]
+        [EditorBrowsable(EditorBrowsableState.Never), Obsolete("Use NetworkClient directly instead. There is always exactly one client per component.")]
         public List<NetworkClient> allClients => new List<NetworkClient>();
 
         /// <summary>
