@@ -681,6 +681,9 @@ namespace Mirror
         {
             LogFilter.Debug = showDebugMessages;
 
+            if (dontDestroyOnLoad)
+                DontDestroyOnLoad(gameObject);
+
             Transport.activeTransport = transport;
         }
 
