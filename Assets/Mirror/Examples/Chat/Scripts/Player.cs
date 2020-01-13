@@ -10,8 +10,6 @@ namespace Mirror.Examples.Chat
         [SyncVar]
         public string playerName;
         
-        public ChatWindow chatWindow => ((ChatNetworkManager)FindObjectOfType<NetworkManager>()).chatWindow;
-
         public static event Action<Player, string> OnMessage;
 
         [Command]
