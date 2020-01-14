@@ -295,6 +295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c102f62d739545269250f48327d4429, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  manager: {fileID: 1783103025}
   chatMessage: {fileID: 1231350851}
   chatHistory: {fileID: 827598817}
   scrollbar: {fileID: 423302021}
@@ -2895,6 +2896,8 @@ GameObject:
   - component: {fileID: 1783103026}
   - component: {fileID: 1783103025}
   - component: {fileID: 1783103024}
+  - component: {fileID: 1783103027}
+  - component: {fileID: 1783103023}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -2902,6 +2905,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1783103023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783103022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1783103024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2961,6 +2976,8 @@ MonoBehaviour:
   showDebugMessages: 0
   offlineScene: 
   onlineScene: 
+  server: {fileID: 1783103027}
+  client: {fileID: 1783103023}
   transport: {fileID: 1783103024}
   networkAddress: localhost
   maxConnections: 4
@@ -2985,6 +3002,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1783103027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1783103022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5f5ec068f5604c32b160bc49ee97b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontListen: 0
 --- !u!1 &1863915624
 GameObject:
   m_ObjectHideFlags: 0

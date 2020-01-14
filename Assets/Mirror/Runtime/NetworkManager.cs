@@ -682,7 +682,19 @@ namespace Mirror
             LogFilter.Debug = showDebugMessages;
 
             if (dontDestroyOnLoad)
+            {
+                NetworkManager[] managers = FindObjectsOfType<NetworkManager>();
+                if (managers.Length > 1)
+                {
+                    foreach (NetworkManager manager in managers)
+                    {
+                        if (manager != this && manager.dontDestroyOnLoad)
+                            Destroy(manager.gameObject);
+                    }
+                }
+
                 DontDestroyOnLoad(gameObject);
+            }                
 
             Transport.activeTransport = transport;
         }
