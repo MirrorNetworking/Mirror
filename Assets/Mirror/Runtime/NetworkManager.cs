@@ -585,7 +585,7 @@ namespace Mirror
 
             // If this is a headless server, changing to offline scene would put it into a locked state
             // unable to receive connections, but still running. If StopServer is called from
-            // OnApplicationQuit the server is about to exit anyway, so no scene change needed.
+            // OnApplicationQuit the headless server is about to exit anyway, so no scene change needed.
             if (!string.IsNullOrEmpty(offlineScene) && !isHeadless)
             {
                 ServerChangeScene(offlineScene);
