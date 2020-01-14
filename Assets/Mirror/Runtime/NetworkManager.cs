@@ -583,7 +583,7 @@ namespace Mirror
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
 
-            // if this is a headless server, changing to offline would put it into a locked state
+            // If this is a headless server, changing to offline scene would put it into a locked state
             // unable to receive connections, but still running. If StopServer is called from
             // OnApplicationQuit the server is about to exit anyway, so no scene change needed.
             if (!string.IsNullOrEmpty(offlineScene) && !isHeadless)
