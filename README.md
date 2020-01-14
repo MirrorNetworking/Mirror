@@ -1,4 +1,4 @@
-![Mirror Logo](https://i.imgur.com/MBpESqo.png)
+![Mirror Logo](https://i.imgur.com/ikP9eYs.png)
 
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://www.assetstore.unity3d.com/#!/content/129321)
 [![Documentation](https://img.shields.io/badge/documentation-brightgreen.svg)](https://mirror-networking.com/docs)
