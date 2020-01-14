@@ -682,7 +682,21 @@ namespace Mirror
             LogFilter.Debug = showDebugMessages;
 
             if (dontDestroyOnLoad)
+            {
+                // using FindObjectsOfType here is not a big deal, since it is not a hot path
+                // it would occur only on a scene change AND when a new NetworkManager awakens
+                NetworkManager[] managers = FindObjectsOfType<NetworkManager>();
+                if (managers.Length > 1)
+                {
+                    foreach (NetworkManager manager in managers)
+                    {
+                        if (manager != this && manager.dontDestroyOnLoad)
+                            Destroy(manager.gameObject);
+                    }
+                }
+
                 DontDestroyOnLoad(gameObject);
+            }                
 
             Transport.activeTransport = transport;
         }
