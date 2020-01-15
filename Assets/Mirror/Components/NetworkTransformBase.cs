@@ -39,11 +39,9 @@ namespace Mirror
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
-        [Header("Sensitivity")]
-
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
-
+        [Header("Sensitivity")]
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localPositionSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
