@@ -21,14 +21,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [Serializable]
-    public struct Sensitivity
-    {
-        public float localPosition;
-        public float localEulerAngles;
-        public float localScale;
-    }
-
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         // rotation compression. not public so that other scripts can't modify
@@ -48,14 +40,15 @@ namespace Mirror
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
+        [Header("Sensitivity")]
+
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         [SyncVar]
-        public Sensitivity sensitivity = new Sensitivity
-        {
-            localPosition = .01f,
-            localEulerAngles = .01f,
-            localScale = .01f,
-        };
+        public float localPositionSensitivity = .01f;
+        [SyncVar]
+        public float localEulerAnglesSensitivity = .01f;
+        [SyncVar]
+        public float localScaleSensitivity = .01f;
 
         // server
         Vector3 lastPosition;
@@ -343,9 +336,9 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > sensitivity.localPosition;
-            bool rotated = Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > sensitivity.localEulerAngles;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > sensitivity.localScale;
+            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
+            bool rotated = Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > localEulerAnglesSensitivity;
+            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
