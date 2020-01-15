@@ -95,24 +95,28 @@ namespace Mirror
 
         public void WriteUInt32(uint value)
         {
-            WriteByte((byte)(value & 0xFF));
-            WriteByte((byte)((value >> 8) & 0xFF));
-            WriteByte((byte)((value >> 16) & 0xFF));
-            WriteByte((byte)((value >> 24) & 0xFF));
+            EnsureCapacity(Position + 4);
+            buffer[Position++] = (byte)(value & 0xFF);
+            buffer[Position++] = (byte)((value >> 8) & 0xFF);
+            buffer[Position++] = (byte)((value >> 16) & 0xFF);
+            buffer[Position++] = (byte)((value >> 24) & 0xFF);
+            Length = Length < Position ? Position : Length;
         }
 
         public void WriteInt32(int value) => WriteUInt32((uint)value);
 
         public void WriteUInt64(ulong value)
         {
-            WriteByte((byte)(value & 0xFF));
-            WriteByte((byte)((value >> 8) & 0xFF));
-            WriteByte((byte)((value >> 16) & 0xFF));
-            WriteByte((byte)((value >> 24) & 0xFF));
-            WriteByte((byte)((value >> 32) & 0xFF));
-            WriteByte((byte)((value >> 40) & 0xFF));
-            WriteByte((byte)((value >> 48) & 0xFF));
-            WriteByte((byte)((value >> 56) & 0xFF));
+            EnsureCapacity(Position + 8);
+            buffer[Position++] = (byte)(value & 0xFF);
+            buffer[Position++] = (byte)((value >> 8) & 0xFF);
+            buffer[Position++] = (byte)((value >> 16) & 0xFF);
+            buffer[Position++] = (byte)((value >> 24) & 0xFF);
+            buffer[Position++] = (byte)((value >> 32) & 0xFF);
+            buffer[Position++] = (byte)((value >> 40) & 0xFF);
+            buffer[Position++] = (byte)((value >> 48) & 0xFF);
+            buffer[Position++] = (byte)((value >> 56) & 0xFF);
+            Length = Length < Position ? Position : Length;
         }
 
         public void WriteInt64(long value) => WriteUInt64((ulong)value);
@@ -128,7 +132,7 @@ namespace Mirror
         public void Write(ulong value) => WriteUInt64(value);
 
         [Obsolete("Use WriteByte instead")]
-        public void Write(byte value) => stream.WriteByte(value);
+        public void Write(byte value) => WriteByte(value);
 
         [Obsolete("Use WriteSByte instead")]
         public void Write(sbyte value) => WriteByte((byte)value);
