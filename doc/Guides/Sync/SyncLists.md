@@ -26,9 +26,9 @@ public struct Item
 }
 
 [System.Serializable]
-class SyncListItem : SyncList<Item> {}
+public class SyncListItem : SyncList<Item> {}
 
-class Player : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     readonly SyncListItem inventory = new SyncListItem();
 
