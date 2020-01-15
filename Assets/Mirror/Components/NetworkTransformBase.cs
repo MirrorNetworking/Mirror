@@ -43,11 +43,10 @@ namespace Mirror
         [Header("Sensitivity")]
 
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        [SyncVar]
         public float localPositionSensitivity = .01f;
-        [SyncVar]
+        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localEulerAnglesSensitivity = .01f;
-        [SyncVar]
+        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
 
         // server
