@@ -20,7 +20,7 @@ namespace Mirror.Examples.NetworkRoom
 
         void SetColor(Color32 oldColor, Color32 newColor)
         {
-            if (cachedMaterial == null) cachedMaterial = GetComponent<Renderer>().material;
+            if (cachedMaterial == null) cachedMaterial = GetComponentInChildren<Renderer>().material;
             cachedMaterial.color = newColor;
         }
 

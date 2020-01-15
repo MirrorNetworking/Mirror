@@ -1,7 +1,7 @@
 # Change Log
 
 ## Version 7.x.x - In Progress
-- Added: NetworkAnimator now has a ResetTrigger function
+- Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
@@ -11,6 +11,7 @@
 - Fixed: Starting server immediately after cancelling client connection attempt no longer throws a NRE
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server
 - Fixed: SyncVars are now set for Host player before hook is invoked
+- Fixed: StopHost no longer tries to change to the Offline scene twice
 - Changed: Shutdown logic has been streamlined
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
 - Changed: **Breaking** SyncVar Hooks now require **two** parameters, one each for the old and new value, and the property value is now set **before** the hook is called.
