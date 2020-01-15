@@ -22,17 +22,20 @@ To use it, create a class that derives from SyncDictionary for your specific typ
 using UnityEngine;
 using Mirror;
 
+[System.Serializable]
+public struct Item
+{
+    public string name;
+    public int hitPoints;
+    public int durability;
+}
+
+[System.Serializable]
+public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
+
 public class ExamplePlayer : NetworkBehaviour
 {
-    public class SyncDictionaryStringItem : SyncDictionary<string, Item> {}
-
-    public struct Item
-    {
-        public string name;
-        public int hitPoints;
-        public int durability;
-    }
-
+    [SerializeField]
     public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 
     public override void OnStartServer()
