@@ -64,13 +64,15 @@ public class ExamplePlayer : NetworkBehaviour
 By default, SyncDictionary uses a Dictionary to store it's data. If you want to use a different `IDictionary `implementation such as `SortedList` or `SortedDictionary`, add a constructor to your SyncDictionary implementation and pass a dictionary to the base class. For example:
 
 ```cs
+[System.Serializable]
+public class SyncDictionaryStringItem : SyncDictionary<string, Item> 
+{
+    public SyncDictionaryStringItem() : base (new SortedList<string,Item>()) {}
+}
+    
 public class ExamplePlayer : NetworkBehaviour
 {
-    public class SyncDictionaryStringItem : SyncDictionary<string, Item> 
-    {
-        public SyncDictionaryStringItem() : base (new SortedList<string,Item>()) {}
-    }
-    
+    [SerializeField]
     public readonly SyncDictionaryStringItem Equipment = new SyncDictionaryStringItem();
 }
 ```
