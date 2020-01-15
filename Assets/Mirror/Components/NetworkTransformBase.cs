@@ -16,7 +16,6 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -41,6 +40,9 @@ namespace Mirror
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
         [Header("Sensitivity")]
+
+        // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
+        // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
 
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localPositionSensitivity = .01f;
