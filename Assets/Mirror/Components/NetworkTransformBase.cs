@@ -39,6 +39,16 @@ namespace Mirror
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
+        // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
+        // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
+        [Header("Sensitivity")]
+        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        public float localPositionSensitivity = .01f;
+        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        public float localEulerAnglesSensitivity = .01f;
+        [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
+        public float localScaleSensitivity = .01f;
+
         // server
         Vector3 lastPosition;
         Quaternion lastRotation;
@@ -325,9 +335,9 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = lastPosition != targetComponent.transform.localPosition;
-            bool rotated = lastRotation != targetComponent.transform.localRotation;
-            bool scaled = lastScale != targetComponent.transform.localScale;
+            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
+            bool rotated = Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > localEulerAnglesSensitivity;
+            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
