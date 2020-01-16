@@ -1,3 +1,17 @@
+# [3.1.0](https://github.com/MirrorNG/MirrorNG/compare/3.0.4-master...3.1.0-master) (2020-01-16)
+
+
+### Bug Fixes
+
+* Decouple ChatWindow from player ([#1429](https://github.com/MirrorNG/MirrorNG/issues/1429)) ([42a2f9b](https://github.com/MirrorNG/MirrorNG/commit/42a2f9b853667ef9485a1d4a31979fcf1153c0d7))
+* StopHost with offline scene calls scene change twice ([#1409](https://github.com/MirrorNG/MirrorNG/issues/1409)) ([a0c96f8](https://github.com/MirrorNG/MirrorNG/commit/a0c96f85189bfc9b5a936a8a33ebda34b460f17f))
+* Telepathy works on .net core again ([cb3d9f0](https://github.com/MirrorNG/MirrorNG/commit/cb3d9f0d08a961b345ce533d1ce64602f7041e1c))
+
+
+### Features
+
+* Add Sensitivity to NetworkTransform ([#1425](https://github.com/MirrorNG/MirrorNG/issues/1425)) ([f69f174](https://github.com/MirrorNG/MirrorNG/commit/f69f1743c54aa7810c5a218e2059c115760c54a3))
+
 ## [3.0.4](https://github.com/MirrorNG/MirrorNG/compare/3.0.3-master...3.0.4-master) (2020-01-12)
 
 
