@@ -34,40 +34,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot pass {variable} by reference");
                 return null;
             }
-
             TypeDefinition td = variable.Resolve();
-
-            MethodDefinition newWriterFunc;
-
-            #region Before it was below the Error handeling part of the function.So it doesn't get executed if Class inherits from scriptableObject
-
-            if (variable.IsArray)
-            {
-                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
-            }
-            else if (variable.Resolve().IsEnum)
-            {
-                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
-            }
-            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-            {
-                newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
-            }
-            else
-            {
-                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
-            }
-
-            if (newWriterFunc != null)
-            {
-                RegisterWriteFunc(variable.FullName, newWriterFunc);
-                return newWriterFunc;
-            }
-
-            #endregion
-
-            #region I shifted this code to lower part of the Function so That it Logs error only when newWriterFunc==null 
-
             if (td == null)
             {
                 Weaver.Error($"{variable} is not a supported type. Use a supported type or provide a custom writer");
@@ -94,10 +61,34 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            #endregion
+            MethodDefinition newWriterFunc;
 
-            return null;
+            if (variable.IsArray)
+            {
+                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
+            }
+            else if (variable.Resolve().IsEnum)
+            {
+                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
+            }
+            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            {
+                newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
+            }
+            else
+            {
+                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
+            }
+
+            if (newWriterFunc == null)
+            {
+                return null;
+            }
+
+            RegisterWriteFunc(variable.FullName, newWriterFunc);
+            return newWriterFunc;
         }
+
         static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
         {
             writeFuncs[name] = newWriterFunc;

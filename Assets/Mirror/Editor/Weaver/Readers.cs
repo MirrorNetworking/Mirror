@@ -28,38 +28,6 @@ namespace Mirror.Weaver
             }
 
             TypeDefinition td = variable.Resolve();
-
-            #region  Before it was below the Error handeling part of the function.So it doesn't get executed if Class inherits from scriptableObject
-
-            MethodDefinition newReaderFunc;
-
-            if (variable.IsArray)
-            {
-                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
-            }
-            else if (td.IsEnum)
-            {
-                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
-            }
-            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-            {
-                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
-            }
-            else
-            {
-                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
-            }
-
-            if (newReaderFunc != null)
-            {
-                RegisterReadFunc(variable.FullName, newReaderFunc);
-                return newReaderFunc;
-            }
-
-            #endregion
-
-            #region MyRegion
-
             if (td == null)
             {
                 Weaver.Error($"{variable} is not a supported type");
@@ -92,11 +60,34 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            #endregion
+            MethodDefinition newReaderFunc;
 
-            Weaver.Error($"{variable} is not a supported type");
-            return null;
+            if (variable.IsArray)
+            {
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
+            }
+            else if (td.IsEnum)
+            {
+                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
+            }
+            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            {
+                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
+            }
+            else
+            {
+                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
+            }
+
+            if (newReaderFunc == null)
+            {
+                Weaver.Error($"{variable} is not a supported type");
+                return null;
+            }
+            RegisterReadFunc(variable.FullName, newReaderFunc);
+            return newReaderFunc;
         }
+
         static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)
         {
             readFuncs[name] = newReaderFunc;
