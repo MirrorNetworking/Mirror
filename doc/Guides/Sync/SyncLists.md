@@ -17,6 +17,7 @@ HLAPI also supports SyncLists, but we have redesigned them to better suit our ne
 Create a class that derives from SyncList for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncList field to your NetworkBehaviour class. For example:
 
 ```cs
+[System.Serializable]
 public struct Item
 {
     public string name;
@@ -24,9 +25,10 @@ public struct Item
     public Color32 color;
 }
 
-class SyncListItem : SyncList<Item> {}
+[System.Serializable]
+public class SyncListItem : SyncList<Item> {}
 
-class Player : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
     readonly SyncListItem inventory = new SyncListItem();
 

@@ -178,3 +178,6 @@ MonoBehaviour:
   syncInterval: 0
   compressRotation: 1
   clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localEulerAnglesSensitivity: 0.01
+  localScaleSensitivity: 0.01
