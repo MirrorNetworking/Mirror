@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -28,6 +29,38 @@ namespace Mirror.Weaver
             }
 
             TypeDefinition td = variable.Resolve();
+            #region function generator code
+
+            MethodDefinition newReaderFunc;
+
+            if (variable.IsArray)
+            {
+                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
+            }
+            else if (td.IsEnum)
+            {
+                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
+            }
+            else if (variable.FullName.StartsWith("System.ArraySegment`1", StringComparison.Ordinal))
+            {
+                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
+            }
+            else
+            {
+                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
+            }
+
+            if (newReaderFunc != null)
+            {
+                RegisterReadFunc(variable.FullName, newReaderFunc);
+                return newReaderFunc;
+            }
+
+            #endregion
+
+
+            #region Put this after function generator code
+
             if (td == null)
             {
                 Weaver.Error($"{variable} is not a supported type");
@@ -49,7 +82,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot pass type {variable} by reference");
                 return null;
             }
-            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", StringComparison.Ordinal))
             {
                 Weaver.Error($"Cannot generate reader for generic variable {variable}. Use a concrete type or provide a custom reader");
                 return null;
@@ -60,32 +93,12 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newReaderFunc;
 
-            if (variable.IsArray)
-            {
-                newReaderFunc = GenerateArrayReadFunc(variable, recursionCount);
-            }
-            else if (td.IsEnum)
-            {
-                return GetReadFunc(td.GetEnumUnderlyingType(), recursionCount);
-            }
-            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-            {
-                newReaderFunc = GenerateArraySegmentReadFunc(variable, recursionCount);
-            }
-            else
-            {
-                newReaderFunc = GenerateStructReadFunction(variable, recursionCount);
-            }
+            #endregion
+            Weaver.Error($"{variable} is not a supported type");
 
-            if (newReaderFunc == null)
-            {
-                Weaver.Error($"{variable} is not a supported type");
-                return null;
-            }
-            RegisterReadFunc(variable.FullName, newReaderFunc);
-            return newReaderFunc;
+            return null;
+
         }
 
         static void RegisterReadFunc(string name, MethodDefinition newReaderFunc)

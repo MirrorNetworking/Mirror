@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -35,6 +36,39 @@ namespace Mirror.Weaver
                 return null;
             }
             TypeDefinition td = variable.Resolve();
+            
+            #region function generator code
+
+            MethodDefinition newWriterFunc;
+
+            if (variable.IsArray)
+            {
+                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
+            }
+            else if (variable.Resolve().IsEnum)
+            {
+                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
+            }
+            else if (variable.FullName.StartsWith("System.ArraySegment`1", StringComparison.Ordinal))
+            {
+                newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
+            }
+            else
+            {
+                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
+            }
+
+            if (newWriterFunc != null)
+            {
+                RegisterWriteFunc(variable.FullName, newWriterFunc);
+                return newWriterFunc;
+            }
+
+            #endregion
+           
+            
+            #region Put this after Function generator
+
             if (td == null)
             {
                 Weaver.Error($"{variable} is not a supported type. Use a supported type or provide a custom writer");
@@ -50,7 +84,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot generate writer for component type {variable}. Use a supported type or provide a custom writer");
                 return null;
             }
-            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
+            if (td.HasGenericParameters && !td.FullName.StartsWith("System.ArraySegment`1", StringComparison.Ordinal))
             {
                 Weaver.Error($"Cannot generate writer for generic type {variable}. Use a concrete type or provide a custom writer");
                 return null;
@@ -61,32 +95,14 @@ namespace Mirror.Weaver
                 return null;
             }
 
-            MethodDefinition newWriterFunc;
+            #endregion
 
-            if (variable.IsArray)
-            {
-                newWriterFunc = GenerateArrayWriteFunc(variable, recursionCount);
-            }
-            else if (variable.Resolve().IsEnum)
-            {
-                return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType(), recursionCount);
-            }
-            else if (variable.FullName.StartsWith("System.ArraySegment`1", System.StringComparison.Ordinal))
-            {
-                newWriterFunc = GenerateArraySegmentWriteFunc(variable, recursionCount);
-            }
-            else
-            {
-                newWriterFunc = GenerateStructWriterFunction(variable, recursionCount);
-            }
+          
 
-            if (newWriterFunc == null)
-            {
-                return null;
-            }
 
-            RegisterWriteFunc(variable.FullName, newWriterFunc);
-            return newWriterFunc;
+
+            return null;
+
         }
 
         static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
