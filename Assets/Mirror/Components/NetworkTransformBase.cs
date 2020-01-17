@@ -22,16 +22,6 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
-        // rotation compression. not public so that other scripts can't modify
-        // it at runtime. alternatively we could send 1 extra byte for the mode
-        // each time so clients know how to decompress, but the whole point was
-        // to save bandwidth in the first place.
-        // -> can still be modified in the Inspector while the game is running,
-        //    but would cause errors immediately and be pretty obvious.
-        [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
-        [SerializeField] Compression compressRotation = Compression.Much;
-        public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
-
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
@@ -48,6 +38,20 @@ namespace Mirror
         public float localEulerAnglesSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
+
+        // rotation compression. not public so that other scripts can't modify
+        // it at runtime. alternatively we could send 1 extra byte for the mode
+        // each time so clients know how to decompress, but the whole point was
+        // to save bandwidth in the first place.
+        // -> can still be modified in the Inspector while the game is running,
+        //    but would cause errors immediately and be pretty obvious.
+        [Header("Compression")]
+        [Tooltip("Compresses 16 Byte Quaternion into None=12, Much=3, Lots=2 Byte")]
+        [SerializeField] Compression compressRotation = Compression.Much;
+        public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
+
+        // target transform to sync. can be on a child.
+        protected abstract Transform targetComponent { get; }
 
         // server
         Vector3 lastPosition;
@@ -70,9 +74,6 @@ namespace Mirror
 
         // local authority send time
         float lastClientSendTime;
-
-        // target transform to sync. can be on a child.
-        protected abstract Transform targetComponent { get; }
 
         // serialization is needed by OnSerialize and by manual sending from authority
         static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
