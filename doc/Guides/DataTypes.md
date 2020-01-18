@@ -140,3 +140,37 @@ public static class ItemSerializer
     }
 }
 ```
+
+## Scriptable Objects
+
+People often want to send scriptable objects from the client or server. Mirror will not generate a reader and writer for scriptable objects because there is no generic way to tell how to create or load the scriptable object.
+
+A typical use case case is to have scriptable objects saved in the Resources folder.  The scriptable objects may have arbitrarily large amount of data in them.  If you pass it in a Command or Rpc,  what you want is that both sides load the same scriptable object from the Resources folder. To do this, just create a custom Reader and Writer for your type.  For example:
+
+```cs
+[CreateAssetMenu(fileName = "New Armor", menuName = "Armor Data")]
+class Armor : ScriptableObject
+{
+    public int Hitpoints;
+    public int Weight;
+    public string Description;
+    // ...
+}
+
+public static class ArmorSerializer 
+{
+    public static void WriteArmor(this NetworkWriter writer, Armor armor)
+    {
+       // no need to serialize the data, just which armor it is
+       writer.WriteString(armor.name);
+    }
+
+    public static Armor ReadArmor(this NetworkReader reader)
+    {
+        // load the same armor.  The data will come from the asset in Resources folder
+        return Resources.Load<Armor>(reader.ReadString());
+    }
+}
+```
+
+```
