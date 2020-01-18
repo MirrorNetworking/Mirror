@@ -46,6 +46,8 @@ namespace Mirror
                 if (room.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
 
+                room.roomSlots.Add(this);
+
                 OnClientEnterRoom();
             }
             else
