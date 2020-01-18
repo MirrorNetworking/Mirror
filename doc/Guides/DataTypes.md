@@ -145,7 +145,7 @@ public static class ItemSerializer
 
 People often want to send scriptable objects from the client or server. Mirror will not generate a reader and writer for scriptable objects because there is no generic way to tell how to create or load the scriptable object.
 
-A typical use case is to create scriptable objects in the Resources folder.  The scriptable objects may have arbitrarily large amount of data in them.  If you pass them in a Command or Rpc,  what you want is that both sides load the same scriptable object from the Resources folder. To do this, just create a custom Reader and Writer for your type.  For example:
+A typical use case is to create scriptable objects in the Resources folder.  The scriptable objects may have arbitrarily large amount of data.  If you pass them in a `Command` or `Rpc`,  typically you want both sides to load the same scriptable object from the Resources folder. To do this, create a custom Reader and Writer for your type.  For example:
 
 ```cs
 [CreateAssetMenu(fileName = "New Armor", menuName = "Armor Data")]
