@@ -8,6 +8,7 @@ namespace Mirror.Examples.Chat
 {
     public class ChatWindow : MonoBehaviour
     {
+        public NetworkManager manager;
         public InputField chatMessage;
         public Text chatHistory;
         public Scrollbar scrollbar;
@@ -34,7 +35,7 @@ namespace Mirror.Examples.Chat
             if (chatMessage.text.Trim() == "") return;
 
             // get our player
-            Player player = NetworkClient.connection.identity.GetComponent<Player>();
+            Player player = manager.client.connection.identity.GetComponent<Player>();
 
             // send a message
             player.CmdSend(chatMessage.text.Trim());

@@ -19,47 +19,48 @@ namespace Mirror
     /// <para><see cref="NetworkClient">NetworkClient</see> has an internal update function where it handles events from the transport layer. This includes asynchronous connect events, disconnect events and incoming data from a server.</para>
     /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
     /// </summary>
-    public static class NetworkClient
+    [DisallowMultipleComponent]
+    public class NetworkClient : MonoBehaviour
     {
         /// <summary>
         /// The registered network message handlers.
         /// </summary>
-        static readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
+        readonly Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
         /// The NetworkConnection object this client is using.
         /// </summary>
-        public static NetworkConnection connection { get; internal set; }
+        public NetworkConnection connection { get; internal set; }
 
-        internal static ConnectState connectState = ConnectState.None;
+        internal ConnectState connectState = ConnectState.None;
 
         /// <summary>
         /// The IP address of the server that this client is connected to.
         /// <para>This will be empty if the client has not connected yet.</para>
         /// </summary>
-        public static string serverIp => connection.address;
+        public string serverIp => connection.address;
 
         /// <summary>
         /// active is true while a client is connecting/connected
         /// (= while the network is active)
         /// </summary>
-        public static bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
+        public bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
 
         /// <summary>
         /// This gives the current connection status of the client.
         /// </summary>
-        public static bool isConnected => connectState == ConnectState.Connected;
+        public bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
-        public static bool isLocalClient => connection is ULocalConnectionToServer;
+        public bool isLocalClient => connection is ULocalConnectionToServer;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public static void Connect(string address)
+        public void Connect(string address)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
@@ -79,7 +80,7 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="uri">Address of the server to connect to</param>
-        public static void Connect(Uri uri)
+        public void Connect(Uri uri)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + uri);
 
@@ -95,7 +96,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal static void ConnectHost()
+        internal void ConnectHost(NetworkServer server)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
@@ -113,18 +114,18 @@ namespace Mirror
             connection.SetHandlers(handlers);
 
             // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
+            server.SetLocalConnection(connectionToClient);
         }
         /// <summary>
         /// connect host mode
         /// </summary>
-        internal static void ConnectLocalServer()
+        internal void ConnectLocalServer(NetworkServer server)
         {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
+            server.OnConnected(server.localConnection);
+            server.localConnection.Send(new ConnectMessage());
         }
 
-        static void InitializeTransportHandlers()
+        void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
             Transport.activeTransport.OnClientDataReceived.AddListener(OnDataReceived);
@@ -132,12 +133,12 @@ namespace Mirror
             Transport.activeTransport.OnClientError.AddListener(OnError);
         }
 
-        static void OnError(Exception exception)
+        void OnError(Exception exception)
         {
             Debug.LogException(exception);
         }
 
-        static void OnDisconnected()
+        void OnDisconnected()
         {
             connectState = ConnectState.Disconnected;
 
@@ -146,7 +147,7 @@ namespace Mirror
             connection?.InvokeHandler(new DisconnectMessage(), -1);
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
+        internal void OnDataReceived(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
@@ -155,7 +156,7 @@ namespace Mirror
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
-        static void OnConnected()
+        void OnConnected()
         {
             if (connection != null)
             {
@@ -165,7 +166,7 @@ namespace Mirror
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
-                NetworkTime.UpdateClient();
+                NetworkTime.UpdateClient(this);
                 connection.InvokeHandler(new ConnectMessage(), -1);
             }
             else Debug.LogError("Skipped Connect message handling because connection is null.");
@@ -175,7 +176,7 @@ namespace Mirror
         /// Disconnect from server.
         /// <para>The disconnect message will be invoked.</para>
         /// </summary>
-        public static void Disconnect()
+        public void Disconnect(NetworkServer server)
         {
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
@@ -185,9 +186,9 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    server.localConnection.Send(new DisconnectMessage());
                 }
-                NetworkServer.RemoveLocalConnection();
+                server.RemoveLocalConnection();
             }
             else
             {
@@ -201,7 +202,7 @@ namespace Mirror
             }
         }
 
-        static void RemoveTransportHandlers()
+        void RemoveTransportHandlers()
         {
             // so that we don't register them more than once
             Transport.activeTransport.OnClientConnected.RemoveListener(OnConnected);
@@ -219,7 +220,7 @@ namespace Mirror
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns>True if message was sent.</returns>
-        public static bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
+        public bool Send<T>(T message, int channelId = Channels.DefaultReliable) where T : IMessageBase
         {
             if (connection != null)
             {
@@ -234,7 +235,7 @@ namespace Mirror
             return false;
         }
 
-        internal static void Update()
+        internal void Update()
         {
             // local connection?
             if (connection is ULocalConnectionToServer localConnection)
@@ -247,12 +248,12 @@ namespace Mirror
                 // only update things while connected
                 if (active && connectState == ConnectState.Connected)
                 {
-                    NetworkTime.UpdateClient();
+                    NetworkTime.UpdateClient(this);
                 }
             }
         }
 
-        internal static void RegisterSystemHandlers(bool hostMode)
+        internal void RegisterSystemHandlers(bool hostMode)
         {
             // host mode client / regular client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
@@ -288,7 +289,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<NetworkConnectionToServer, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<NetworkConnectionToServer, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
@@ -305,7 +306,7 @@ namespace Mirror
         /// <typeparam name="T">The message type to unregister.</typeparam>
         /// <param name="handler"></param>
         /// <param name="requireAuthentication">true if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
+        public void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             RegisterHandler((NetworkConnectionToServer _, T value) => { handler(value); }, requireAuthentication);
         }
@@ -314,7 +315,7 @@ namespace Mirror
         /// Unregisters a network message handler.
         /// </summary>
         /// <typeparam name="T">The message type to unregister.</typeparam>
-        public static void UnregisterHandler<T>() where T : IMessageBase
+        public void UnregisterHandler<T>() where T : IMessageBase
         {
             // use int to minimize collisions
             int msgType = MessagePacker.GetId<T>();
@@ -325,7 +326,7 @@ namespace Mirror
         /// Shut down a client.
         /// <para>This should be done when a client is no longer going to be used.</para>
         /// </summary>
-        public static void Shutdown()
+        public void Shutdown()
         {
             if (LogFilter.Debug) Debug.Log("Shutting down client.");
             ClientScene.Shutdown();

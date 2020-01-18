@@ -25,7 +25,7 @@ namespace Mirror.Examples.Chat
         public override void OnStartServer()
         {
             base.OnStartServer();
-            NetworkServer.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
+            server.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
         public override void OnClientConnect(NetworkConnection conn)
@@ -46,7 +46,7 @@ namespace Mirror.Examples.Chat
             playergo.GetComponent<Player>().playerName = createPlayerMessage.name;
 
             // set it as the player
-            NetworkServer.AddPlayerForConnection(connection, playergo);
+            server.AddPlayerForConnection(connection, client, playergo);
 
             chatWindow.gameObject.SetActive(true);
         }

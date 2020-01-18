@@ -12,6 +12,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkRoomPlayer.html")]
     public class NetworkRoomPlayer : NetworkBehaviour
     {
+        public NetworkRoomManager roomManager;
+
         /// <summary>
         /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
@@ -38,12 +40,13 @@ namespace Mirror
         /// </summary>
         public void Start()
         {
-            if (NetworkManager.singleton is NetworkRoomManager room)
+            roomManager = FindObjectOfType<NetworkRoomManager>();
+            if (roomManager != null)
             {
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
                 // in server and all clients, otherwise it will be respawned in the game scene which would
                 // have undesireable effects.
-                if (room.dontDestroyOnLoad)
+                if (roomManager.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
 
                 OnClientEnterRoom();
@@ -60,10 +63,9 @@ namespace Mirror
         public void CmdChangeReadyState(bool readyState)
         {
             ReadyToBegin = readyState;
-            var room = NetworkManager.singleton as NetworkRoomManager;
-            if (room != null)
+            if (roomManager != null)
             {
-                room.ReadyStatusChanged();
+                roomManager.ReadyStatusChanged();
             }
         }
 
@@ -110,13 +112,12 @@ namespace Mirror
             if (!ShowRoomGUI)
                 return;
 
-            var room = NetworkManager.singleton as NetworkRoomManager;
-            if (room)
+            if (roomManager)
             {
-                if (!room.showRoomGUI)
+                if (!roomManager.showRoomGUI)
                     return;
 
-                if (SceneManager.GetActiveScene().name != room.RoomScene)
+                if (SceneManager.GetActiveScene().name != roomManager.RoomScene)
                     return;
 
                 GUILayout.BeginArea(new Rect(20f + (Index * 100), 200f, 90f, 130f));
@@ -138,7 +139,7 @@ namespace Mirror
 
                 GUILayout.EndArea();
 
-                if (NetworkClient.active && isLocalPlayer)
+                if (client.active && isLocalPlayer)
                 {
                     GUILayout.BeginArea(new Rect(20f, 300f, 120f, 20f));
 

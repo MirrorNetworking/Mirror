@@ -78,6 +78,10 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
 
+        public static MethodReference NetworkBehaviourGetIdentity;
+        public static MethodReference NetworkIdentityGetServer;
+        public static MethodReference NetworkIdentityGetClient;
+
         // custom attribute types
         public static TypeReference SyncVarType;
         public static TypeReference CommandType;
@@ -266,6 +270,10 @@ namespace Mirror.Weaver
             NetworkBehaviourType = NetAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
             NetworkBehaviourType2 = CurrentAssembly.MainModule.ImportReference(NetworkBehaviourType);
             NetworkConnectionType = NetAssembly.MainModule.GetType("Mirror.NetworkConnection");
+
+            NetworkBehaviourGetIdentity = Resolvers.ResolveMethod(NetworkBehaviourType, CurrentAssembly, "get_netIdentity");
+            NetworkIdentityGetServer = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_server");
+            NetworkIdentityGetClient = Resolvers.ResolveMethod(NetworkIdentityType, CurrentAssembly, "get_client");
 
             MonoBehaviourType = UnityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
             ScriptableObjectType = UnityAssembly.MainModule.GetType("UnityEngine.ScriptableObject");

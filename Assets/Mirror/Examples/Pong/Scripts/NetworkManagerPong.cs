@@ -17,13 +17,13 @@ namespace Mirror.Examples.Pong
             // add player at correct spawn position
             Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
             GameObject player = Instantiate(playerPrefab, start.position, start.rotation);
-            NetworkServer.AddPlayerForConnection(conn, player);
+            server.AddPlayerForConnection(conn, client, player);
 
             // spawn ball if two players
             if (numPlayers == 2)
             {
                 ball = Instantiate(spawnPrefabs.Find(prefab => prefab.name == "Ball"));
-                NetworkServer.Spawn(ball);
+                server.Spawn(ball, client);
             }
         }
 
@@ -31,7 +31,7 @@ namespace Mirror.Examples.Pong
         {
             // destroy ball
             if (ball != null)
-                NetworkServer.Destroy(ball);
+                server.Destroy(ball);
 
             // call base functionality (actually destroys the player)
             base.OnServerDisconnect(conn);

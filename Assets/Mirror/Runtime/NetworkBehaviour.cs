@@ -77,6 +77,16 @@ namespace Mirror
         public uint netId => netIdentity.netId;
 
         /// <summary>
+        /// The <see cref="NetworkServer">NetworkClient</see> associated to this object.
+        /// </summary>
+        public NetworkServer server => netIdentity.server;
+
+        /// <summary>
+        /// The <see cref="NetworkClient">NetworkClient</see> associated to this object.
+        /// </summary>
+        public NetworkClient client => netIdentity.client;
+
+        /// <summary>
         /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
         /// </summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
@@ -183,7 +193,7 @@ namespace Mirror
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
             //       to avoid Wrapper functions. a lot of people requested this.
-            if (!NetworkClient.active)
+            if (!client.active)
             {
                 Debug.LogError("Command Function " + cmdName + " called on server without an active client.");
                 return;
@@ -231,7 +241,7 @@ namespace Mirror
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!NetworkServer.active)
+            if (!server.active)
             {
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
@@ -252,14 +262,14 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, channelId);
+            server.SendToReady(netIdentity, message, channelId);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
         {
             // this was in Weaver before
-            if (!NetworkServer.active)
+            if (!server.active)
             {
                 Debug.LogError("TargetRPC Function " + rpcName + " called on client.");
                 return;
@@ -311,7 +321,7 @@ namespace Mirror
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void SendEventInternal(Type invokeClass, string eventName, NetworkWriter writer, int channelId)
         {
-            if (!NetworkServer.active)
+            if (!server.active)
             {
                 Debug.LogWarning("SendEvent no server?");
                 return;
@@ -326,7 +336,7 @@ namespace Mirror
                 payload = writer.ToArraySegment() // segment to avoid reader allocations
             };
 
-            NetworkServer.SendToReady(netIdentity, message, channelId);
+            server.SendToReady(netIdentity, message, channelId);
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ namespace Mirror.Authenticators
     public class BasicAuthenticator : NetworkAuthenticator
     {
         [Header("Custom Properties")]
+        public NetworkManager manager;
 
         // set these in the inspector
         public string Username;
@@ -29,13 +30,13 @@ namespace Mirror.Authenticators
         public override void OnStartServer()
         {
             // register a handler for the authentication request we expect from client
-            NetworkServer.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
+            manager.server.RegisterHandler<AuthRequestMessage>(OnAuthRequestMessage, false);
         }
 
         public override void OnStartClient()
         {
             // register a handler for the authentication response we expect from server
-            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
+            manager.client.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
         }
 
         public override void OnServerAuthenticate(NetworkConnectionToClient conn)
@@ -51,7 +52,7 @@ namespace Mirror.Authenticators
                 AuthPassword = Password
             };
 
-            NetworkClient.Send(authRequestMessage);
+            manager.client.Send(authRequestMessage);
         }
 
         public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)

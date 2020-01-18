@@ -40,6 +40,16 @@ namespace Mirror
         public static NetworkConnection readyConnection { get; private set; }
 
         /// <summary>
+        /// The current NetworkServer used to set NetworkIdentity.server when applying the spawn payload.
+        /// </summary>
+        public static NetworkServer server { get; internal set; }
+
+        /// <summary>
+        /// The current NetworkClient used to set NetworkIdentity.client when applying the spawn payload.
+        /// </summary>
+        public static NetworkClient client { get; internal set; }
+
+        /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
         /// <para>The key to the dictionary is the prefab asset Id.</para>
         /// </summary>
@@ -455,6 +465,8 @@ namespace Mirror
             identity.transform.localScale = msg.scale;
             identity.hasAuthority = msg.isOwner;
             identity.netId = msg.netId;
+            identity.server = server;
+            identity.client = client;
 
             if (msg.isLocalPlayer)
                 InternalAddPlayer(identity);

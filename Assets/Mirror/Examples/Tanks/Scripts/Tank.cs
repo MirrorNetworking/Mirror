@@ -44,7 +44,7 @@ namespace Mirror.Examples.Tanks
         void CmdFire()
         {
             GameObject projectile = Instantiate(projectilePrefab, projectileMount.position, transform.rotation);
-            NetworkServer.Spawn(projectile);
+            server.Spawn(projectile, client);
             RpcOnFire();
         }
 
