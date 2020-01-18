@@ -46,7 +46,7 @@ These are some notable differences between Mirror and MirrorNG:
 * [WIP] Remove singletons, make it work in unity 2019.3.0 with domain reload turned off, and allow connection to multiple servers simultaneously
 
 ## Documentation
-Check out our [Documentation](https://mirror-networking.com/docs/).
+Check out our [Documentation](https://mirrorng.github.io/MirrorNG/).
 
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirrorng.github.io/MirrorNG//General/Migration.html). Don't panic, it's very easy and won't take more than 5 minutes.
 
