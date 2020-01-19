@@ -29,6 +29,15 @@ namespace Mirror
         // This component could be on the player object or any object that has been assigned authority to this client.
         bool isClientWithAuthority => hasAuthority && clientAuthority;
 
+        // Selection of which values to synchronize
+        [Header("Selection")]
+        [Tooltip("Should local position be synchronized over the network?")]
+        public bool syncLocalPosition = true;
+        [Tooltip("Should local rotation be synchronized over the network?")]
+        public bool syncLocalRotation = true;
+        [Tooltip("Should local scale be synchronized over the network?")]
+        public bool syncLocalScale = true;
+
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
         [Header("Sensitivity")]
@@ -336,9 +345,9 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
-            bool rotated = Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > localEulerAnglesSensitivity;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
+            bool moved = syncLocalPosition && Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
+            bool rotated = syncLocalRotation && Vector3.Distance(lastRotation.eulerAngles, targetComponent.transform.localRotation.eulerAngles) > localEulerAnglesSensitivity;
+            bool scaled = syncLocalScale && Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
@@ -359,12 +368,12 @@ namespace Mirror
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            targetComponent.transform.localPosition = position;
-            if (Compression.NoRotation != compressRotation)
-            {
+            if (syncLocalPosition)
+                targetComponent.transform.localPosition = position;
+            if (syncLocalRotation)
                 targetComponent.transform.localRotation = rotation;
-            }
-            targetComponent.transform.localScale = scale;
+            if (syncLocalScale)
+                targetComponent.transform.localScale = scale;
         }
 
         void Update()
