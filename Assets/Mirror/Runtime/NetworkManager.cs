@@ -409,7 +409,7 @@ namespace Mirror
             RegisterClientMessages();
 
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + uri);
-            this.networkAddress = uri.Host;
+            networkAddress = uri.Host;
 
             client.Connect(uri);
 
@@ -1064,7 +1064,7 @@ namespace Mirror
             // proceed with the login handshake by calling OnServerConnect
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
+                var msg = new SceneMessage() { sceneName = networkSceneName };
                 conn.Send(msg);
             }
 
@@ -1426,9 +1426,7 @@ namespace Mirror
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public virtual void OnStartClient()
-        {
-        }
+        public virtual void OnStartClient() { }
 
         /// <summary>
         /// This is called when a server is stopped - including when a host is stopped.

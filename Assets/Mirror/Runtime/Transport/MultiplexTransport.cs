@@ -266,7 +266,7 @@ namespace Mirror
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             foreach (Transport transport in transports)
             {
                 builder.AppendLine(transport.ToString());

@@ -115,7 +115,7 @@ namespace Mirror
 
         public static void WriteSingle(this NetworkWriter writer, float value)
         {
-            UIntFloat converter = new UIntFloat
+            var converter = new UIntFloat
             {
                 floatValue = value
             };
@@ -124,7 +124,7 @@ namespace Mirror
 
         public static void WriteDouble(this NetworkWriter writer, double value)
         {
-            UIntDouble converter = new UIntDouble
+            var converter = new UIntDouble
             {
                 doubleValue = value
             };
@@ -136,7 +136,7 @@ namespace Mirror
             // the only way to read it without allocations is to both read and
             // write it with the FloatConverter (which is not binary compatible
             // to writer.Write(decimal), hence why we use it here too)
-            UIntDecimal converter = new UIntDecimal
+            var converter = new UIntDecimal
             {
                 decimalValue = value
             };

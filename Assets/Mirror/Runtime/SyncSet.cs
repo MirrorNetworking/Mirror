@@ -5,7 +5,6 @@ using System.ComponentModel;
 
 namespace Mirror
 {
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SyncSet<T> : ISet<T>, ISyncObject
     {
@@ -58,7 +57,7 @@ namespace Mirror
                 throw new InvalidOperationException("SyncSets can only be modified at the server");
             }
 
-            Change change = new Change
+            var change = new Change
             {
                 operation = op,
                 item = item
@@ -146,7 +145,7 @@ namespace Mirror
 
             for (int i = 0; i < changesCount; i++)
             {
-                Operation operation = (Operation)reader.ReadByte();
+                var operation = (Operation)reader.ReadByte();
 
                 // apply the operation only if it is a new change
                 // that we have not applied yet
@@ -256,14 +255,14 @@ namespace Mirror
             }
             else
             {
-                HashSet<T> otherAsSet = new HashSet<T>(other);
+                var otherAsSet = new HashSet<T>(other);
                 IntersectWithSet(otherAsSet);
             }
         }
 
         void IntersectWithSet(ISet<T> otherSet)
         {
-            List<T> elements = new List<T>(objects);
+            var elements = new List<T>(objects);
 
             foreach (T element in elements)
             {

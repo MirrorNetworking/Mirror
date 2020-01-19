@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -265,7 +264,7 @@ namespace Mirror
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             // unpack message
-            NetworkReader reader = new NetworkReader(buffer);
+            var reader = new NetworkReader(buffer);
             if (MessagePacker.UnpackMessage(reader, out int msgType))
             {
                 // logging
@@ -297,7 +296,7 @@ namespace Mirror
         internal void DestroyOwnedObjects()
         {
             // create a copy because the list might be modified when destroying
-            HashSet<NetworkIdentity> tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
+            var tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
             foreach (NetworkIdentity netIdentity in tmp)
             {
                 if (netIdentity != null)

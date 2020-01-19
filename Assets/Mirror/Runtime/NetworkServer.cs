@@ -228,7 +228,7 @@ namespace Mirror
 
                 // pack message into byte[] once
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                var segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
@@ -274,7 +274,7 @@ namespace Mirror
 
             // pack message only once
             MessagePacker.Pack(msg, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
+            var segment = writer.ToArraySegment();
 
             // filter and then send to all internet connections at once
             // -> makes code more complicated, but is HIGHLY worth it to
@@ -322,7 +322,7 @@ namespace Mirror
 
                 // pack message only once
                 MessagePacker.Pack(msg, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
+                var segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
@@ -451,7 +451,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
+                var conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
@@ -817,7 +817,7 @@ namespace Mirror
 
         internal void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            ObjectHideMessage msg = new ObjectHideMessage
+            var msg = new ObjectHideMessage
             {
                 netId = identity.netId
             };
@@ -947,7 +947,7 @@ namespace Mirror
             ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
             ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
-            SpawnMessage msg = new SpawnMessage
+            var msg = new SpawnMessage
             {
                 netId = identity.netId,
                 isLocalPlayer = conn?.identity == identity,
@@ -1108,7 +1108,7 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage msg = new ObjectDestroyMessage
+            var msg = new ObjectDestroyMessage
             {
                 netId = identity.netId
             };

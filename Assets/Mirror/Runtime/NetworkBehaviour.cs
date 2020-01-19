@@ -212,7 +212,7 @@ namespace Mirror
             }
 
             // construct the message
-            CommandMessage message = new CommandMessage
+            var message = new CommandMessage
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
@@ -254,7 +254,7 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage
+            var message = new RpcMessage
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
@@ -293,7 +293,7 @@ namespace Mirror
             }
 
             // construct the message
-            RpcMessage message = new RpcMessage
+            var message = new RpcMessage
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
@@ -328,7 +328,7 @@ namespace Mirror
             }
 
             // construct the message
-            SyncEventMessage message = new SyncEventMessage
+            var message = new SyncEventMessage
             {
                 netId = netId,
                 componentIndex = ComponentIndex,
@@ -387,7 +387,7 @@ namespace Mirror
 
                 Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} have the same hash.  Please rename one of them");
             }
-            Invoker invoker = new Invoker
+            var invoker = new Invoker
             {
                 invokeType = invokerType,
                 invokeClass = invokeClass,

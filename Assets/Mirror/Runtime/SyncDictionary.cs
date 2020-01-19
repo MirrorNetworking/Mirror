@@ -68,7 +68,7 @@ namespace Mirror
                 throw new System.InvalidOperationException("SyncDictionaries can only be modified by the server");
             }
 
-            Change change = new Change
+            var change = new Change
             {
                 operation = op,
                 key = key,
@@ -155,7 +155,7 @@ namespace Mirror
 
             for (int i = 0; i < changesCount; i++)
             {
-                Operation operation = (Operation)reader.ReadByte();
+                var operation = (Operation)reader.ReadByte();
 
                 // apply the operation only if it is a new change
                 // that we have not applied yet
@@ -258,11 +258,11 @@ namespace Mirror
         {
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new System.ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Array Index Out of Range");
             }
             if (array.Length - arrayIndex < Count)
             {
-                throw new System.ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
+                throw new ArgumentException("The number of items in the SyncDictionary is greater than the available space from arrayIndex to the end of the destination array");
             }
 
             int i = arrayIndex;

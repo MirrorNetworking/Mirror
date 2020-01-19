@@ -300,7 +300,7 @@ namespace Mirror
         static uint GetRandomUInt()
         {
             // use Crypto RNG to avoid having time based duplicates
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            using (var rng = new RNGCryptoServiceProvider())
             {
                 byte[] bytes = new byte[4];
                 rng.GetBytes(bytes);
@@ -707,7 +707,7 @@ namespace Mirror
                     //    OnSerialize again
                     if (comp.syncMode == SyncMode.Observers)
                     {
-                        ArraySegment<byte> segment = ownerWriter.ToArraySegment();
+                        var segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
                         ++observersWritten;

@@ -102,7 +102,7 @@ namespace Mirror
                 throw new InvalidOperationException("Synclists can only be modified at the server");
             }
 
-            Change change = new Change
+            var change = new Change
             {
                 operation = op,
                 index = itemIndex,
@@ -196,7 +196,7 @@ namespace Mirror
 
             for (int i = 0; i < changesCount; i++)
             {
-                Operation operation = (Operation)reader.ReadByte();
+                var operation = (Operation)reader.ReadByte();
 
                 // apply the operation only if it is a new change
                 // that we have not applied yet

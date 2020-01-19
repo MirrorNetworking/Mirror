@@ -47,6 +47,7 @@ namespace Mirror
             }
             return buffer.Array[buffer.Offset + Position++];
         }
+
         public int ReadInt32() => (int)ReadUInt32();
         public uint ReadUInt32()
         {
@@ -96,7 +97,7 @@ namespace Mirror
             }
 
             // return the segment
-            ArraySegment<byte> result = new ArraySegment<byte>(buffer.Array, buffer.Offset + Position, count);
+            var result = new ArraySegment<byte>(buffer.Array, buffer.Offset + Position, count);
             Position += count;
             return result;
         }
@@ -154,21 +155,25 @@ namespace Mirror
         }
         public static float ReadSingle(this NetworkReader reader)
         {
-            UIntFloat converter = new UIntFloat();
-            converter.intValue = reader.ReadUInt32();
+            var converter = new UIntFloat
+            {
+                intValue = reader.ReadUInt32()
+            };
             return converter.floatValue;
         }
         public static double ReadDouble(this NetworkReader reader)
         {
-            UIntDouble converter = new UIntDouble();
-            converter.longValue = reader.ReadUInt64();
+            var converter = new UIntDouble {
+                longValue = reader.ReadUInt64()
+            };
             return converter.doubleValue;
         }
         public static decimal ReadDecimal(this NetworkReader reader)
         {
-            UIntDecimal converter = new UIntDecimal();
-            converter.longValue1 = reader.ReadUInt64();
-            converter.longValue2 = reader.ReadUInt64();
+            var converter = new UIntDecimal {
+                longValue1 = reader.ReadUInt64(),
+                longValue2 = reader.ReadUInt64()
+            };
             return converter.decimalValue;
         }
 

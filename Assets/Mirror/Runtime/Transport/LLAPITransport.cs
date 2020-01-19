@@ -112,14 +112,12 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-
-
         void ClientConnect(string address, int port)
         {
             // LLAPI can't handle 'localhost'
             if (address.ToLower() == "localhost") address = "127.0.0.1";
 
-            HostTopology hostTopology = new HostTopology(connectionConfig, 1);
+            var hostTopology = new HostTopology(connectionConfig, 1);
 
             // important:
             //   AddHost(topology) doesn't work in WebGL.
@@ -191,7 +189,7 @@ namespace Mirror
                     OnClientConnected.Invoke();
                     break;
                 case NetworkEventType.DataEvent:
-                    ArraySegment<byte> data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
+                    var data = new ArraySegment<byte>(clientReceiveBuffer, 0, receivedSize);
                     OnClientDataReceived.Invoke(data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:
@@ -230,13 +228,13 @@ namespace Mirror
         {
             if (useWebsockets)
             {
-                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
+                var topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddWebsocketHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStartWebsockets port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
             else
             {
-                HostTopology topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
+                var topology = new HostTopology(connectionConfig, ushort.MaxValue - 1);
                 serverHostId = NetworkTransport.AddHost(topology, port);
                 //Debug.Log("LLAPITransport.ServerStart port=" + port + " max=" + maxConnections + " hostid=" + serverHostId);
             }
@@ -299,7 +297,7 @@ namespace Mirror
                     OnServerConnected.Invoke(connectionId);
                     break;
                 case NetworkEventType.DataEvent:
-                    ArraySegment<byte> data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
+                    var data = new ArraySegment<byte>(serverReceiveBuffer, 0, receivedSize);
                     OnServerDataReceived.Invoke(connectionId, data, channel);
                     break;
                 case NetworkEventType.DisconnectEvent:

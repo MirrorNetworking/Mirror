@@ -57,7 +57,7 @@ namespace Mirror
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
+                var pingMessage = new NetworkPingMessage(LocalTime());
                 client.Send(pingMessage);
                 lastPingTime = Time.time;
             }
@@ -70,7 +70,7 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("OnPingServerMessage  conn=" + conn);
 
-            NetworkPongMessage pongMsg = new NetworkPongMessage
+            var pongMsg = new NetworkPongMessage
             {
                 clientTime = msg.clientTime,
                 serverTime = LocalTime()

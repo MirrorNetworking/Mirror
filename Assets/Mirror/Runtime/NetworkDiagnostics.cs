@@ -52,7 +52,7 @@ namespace Mirror
         {
             if (count > 0 && OutMessageEvent != null)
             {
-                MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
+                var outMessage = new MessageInfo(message, channel, bytes, count);
                 OutMessageEvent?.Invoke(outMessage);
             }
         }
@@ -70,7 +70,7 @@ namespace Mirror
         {
             if (InMessageEvent != null)
             {
-                MessageInfo inMessage = new MessageInfo(message, channel, bytes, 1);
+                var inMessage = new MessageInfo(message, channel, bytes, 1);
                 InMessageEvent?.Invoke(inMessage);
             }
         }
