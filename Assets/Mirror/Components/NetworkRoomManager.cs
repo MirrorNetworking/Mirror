@@ -282,11 +282,9 @@ namespace Mirror
 
             NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
 
-            roomSlots.Add(newRoomPlayer);
+            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
 
             RecalculateRoomPlayerIndices();
-
-            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
         void RecalculateRoomPlayerIndices()
