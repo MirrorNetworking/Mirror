@@ -326,6 +326,8 @@ namespace Mirror
                         NetworkServer.ReplacePlayerForConnection(identity.connectionToClient, roomPlayer.gameObject);
                     }
                 }
+            
+                allPlayersReady = false;
             }
 
             base.ServerChangeScene(sceneName);
