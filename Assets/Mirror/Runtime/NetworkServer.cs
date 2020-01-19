@@ -1062,26 +1062,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Use <see cref="Spawn(GameObject, NetworkConnection)"/> instead
-        /// </summary>
-        [Obsolete("Use Spawn(obj, connection) instead")]
-        public bool SpawnWithClientAuthority(GameObject obj, NetworkClient client, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, client, ownerConnection);
-            return true;
-        }
-
-        /// <summary>
-        /// Use <see cref="Spawn(GameObject, Guid, NetworkConnection)"/> instead
-        /// </summary>
-        [Obsolete("Use Spawn(obj, assetId, connection) instead")]
-        public bool SpawnWithClientAuthority(GameObject obj, NetworkClient client, Guid assetId, NetworkConnection ownerConnection)
-        {
-            Spawn(obj, assetId, client, ownerConnection);
-            return true;
-        }
-
-        /// <summary>
         /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
         /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
         /// </summary>
