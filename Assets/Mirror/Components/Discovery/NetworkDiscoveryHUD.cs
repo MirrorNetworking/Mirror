@@ -12,8 +12,6 @@ namespace Mirror.Discovery
         readonly Dictionary<long, ServerInfo> discoveredServers = new Dictionary<long, ServerInfo>();
         Vector2 scrollViewPos = Vector2.zero;
 
-        GUIStyle centeredLabelStyle;
-
         public NetworkDiscovery networkDiscovery;
 
 
@@ -42,12 +40,6 @@ namespace Mirror.Discovery
             if (NetworkManager.singleton == null) return;
 
             if (NetworkServer.active || NetworkClient.active) return;
-
-            if (centeredLabelStyle == null)
-            {
-                centeredLabelStyle = new GUIStyle(GUI.skin.label);
-                centeredLabelStyle.alignment = TextAnchor.MiddleCenter;
-            }
 
             // In my own game I ripped this out, this is just as an example (wanted to avoid adding a NetworkManager to the sample)
             if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
