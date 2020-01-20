@@ -37,15 +37,15 @@ namespace Mirror
         {
             List<IPAddress> ips = new List<IPAddress>();
 
-            var nifs = NetworkInterface.GetAllNetworkInterfaces()
+            IEnumerable<NetworkInterface> nifs = NetworkInterface.GetAllNetworkInterfaces()
                 .Where(nif => nif.OperationalStatus == OperationalStatus.Up)
                 .Where(nif => nif.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 || nif.NetworkInterfaceType == NetworkInterfaceType.Ethernet);
 
-            foreach (var nif in nifs)
+            foreach (NetworkInterface nif in nifs)
             {
                 foreach (UnicastIPAddressInformation ipInfo in nif.GetIPProperties().UnicastAddresses)
                 {
-                    var ip = ipInfo.Address;
+                    IPAddress ip = ipInfo.Address;
                     if (ip.AddressFamily == AddressFamily.InterNetwork)
                     {
                         if (ToBroadcastAddress(ref ip, ipInfo.IPv4Mask))
@@ -59,22 +59,22 @@ namespace Mirror
 
         static IPAddress[] GetBroadcastAdressesFromHostEntry()
         {
-            var ips = new List<IPAddress>();
+            List<IPAddress> ips = new List<IPAddress>();
 
             IPHostEntry hostEntry = Dns.GetHostEntry(Dns.GetHostName());
 
-            foreach (var address in hostEntry.AddressList)
+            foreach (IPAddress address in hostEntry.AddressList)
             {
                 if (address.AddressFamily == AddressFamily.InterNetwork)
                 {
                     // this is IPv4 address
                     // convert it to broadcast address
                     // use default subnet
-                    var subnetMask = GetDefaultSubnetMask(address);
+                    IPAddress subnetMask = GetDefaultSubnetMask(address);
 
                     if (subnetMask != null)
                     {
-                        var broadcastAddress = address;
+                        IPAddress broadcastAddress = address;
                         if (ToBroadcastAddress(ref broadcastAddress, subnetMask))
                         {
                             ips.Add(broadcastAddress);
