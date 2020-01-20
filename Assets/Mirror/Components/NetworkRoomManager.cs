@@ -278,9 +278,7 @@ namespace Mirror
 
             GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
             if (newRoomGameObject == null)
-                newRoomGameObject = (GameObject)Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-            NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
+                newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
 
