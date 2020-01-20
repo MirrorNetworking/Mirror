@@ -18,9 +18,9 @@ namespace MirrorTest
         public override void Serialize(NetworkWriter writer)
         {
             writer.WritePackedUInt32(netId);
-            writer.Write(assetId);
-            writer.Write(position);
-            writer.Write(rotation);
+            writer.WriteGuid(assetId);
+            writer.WriteVector3(position);
+            writer.WriteQuaternion(rotation);
             writer.WriteBytesAndSize(payload);
         }
     }

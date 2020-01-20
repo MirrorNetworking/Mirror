@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 namespace Mirror.Authenticators
@@ -25,31 +25,17 @@ namespace Mirror.Authenticators
         {
             authenticator.OnClientAuthenticate(conn);
             if (timeout > 0)
-                StartCoroutine(BeginClientAuthentication(conn));
-        }
-
-        IEnumerator BeginClientAuthentication(NetworkConnection conn)
-        {
-            if (LogFilter.Debug) Debug.Log($"Authentication countdown started {conn} {timeout}");
-
-            yield return new WaitForSecondsRealtime(timeout);
-
-            if (!conn.isAuthenticated)
-            {
-                if (LogFilter.Debug) Debug.Log($"Authentication Timeout {conn}");
-                
-                conn.Disconnect();
-            }
+                StartCoroutine(BeginAuthentication(conn));
         }
 
         public override void OnServerAuthenticate(NetworkConnection conn)
         {
             authenticator.OnServerAuthenticate(conn);
             if (timeout > 0)
-                StartCoroutine(BeginServerAuthentication(conn));
+                StartCoroutine(BeginAuthentication(conn));
         }
 
-        IEnumerator BeginServerAuthentication(NetworkConnection conn)
+        IEnumerator BeginAuthentication(NetworkConnection conn)
         {
             if (LogFilter.Debug) Debug.Log($"Authentication countdown started {conn} {timeout}");
 
@@ -58,7 +44,7 @@ namespace Mirror.Authenticators
             if (!conn.isAuthenticated)
             {
                 if (LogFilter.Debug) Debug.Log($"Authentication Timeout {conn}");
-                
+
                 conn.Disconnect();
             }
         }

@@ -82,7 +82,7 @@ namespace Mirror.Weaver
                     }
                 }
 
-                for (int iCount= 0; iCount < md.Body.Instructions.Count;)
+                for (int iCount = 0; iCount < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[iCount];
                     iCount += ProcessInstruction(md, instr, iCount);
@@ -284,7 +284,6 @@ namespace Mirror.Weaver
                 }
             }
         }
-
 
         // this is required to early-out from a function with "ref" or "out" parameters
         static void InjectGuardParameters(MethodDefinition md, ILProcessor worker, Instruction top)

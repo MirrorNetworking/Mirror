@@ -112,7 +112,7 @@ namespace Mirror
             return clientConnectionId != -1;
         }
 
-        
+
 
         void ClientConnect(string address, int port)
         {
@@ -341,8 +341,8 @@ namespace Mirror
         public void LateUpdate()
         {
             // process all messages
-            while (ProcessClientMessage()) {}
-            while (ProcessServerMessage()) {}
+            while (ProcessClientMessage()) { }
+            while (ProcessServerMessage()) { }
         }
 
         public override void Shutdown()

@@ -52,7 +52,7 @@ namespace Mirror
 
         // member used to mark a identity for future reset
         // check MarkForReset for more information.
-        bool m_Reset;
+        bool reset;
 
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
@@ -62,7 +62,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
         /// </summary>
-        public bool isServer =>  NetworkServer.active && netId != 0;
+        public bool isServer => NetworkServer.active && netId != 0;
 
         /// <summary>
         /// This returns true if this object is the one that represents the player on the local machine.
@@ -112,11 +112,25 @@ namespace Mirror
         /// </summary>
         public NetworkConnection connectionToServer { get; internal set; }
 
+
+        private NetworkConnectionToClient _connectionToClient;
         /// <summary>
         /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
         /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
         /// </summary>
-        public NetworkConnectionToClient connectionToClient { get; internal set; }
+        public NetworkConnectionToClient connectionToClient
+        {
+            get => _connectionToClient;
+
+            internal set
+            {
+                if (_connectionToClient != null)
+                    _connectionToClient.RemoveOwnedObject(this);
+
+                _connectionToClient = value;
+                _connectionToClient?.AddOwnedObject(this);
+            }
+        }
 
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
@@ -125,7 +139,7 @@ namespace Mirror
 
         public NetworkBehaviour[] NetworkBehaviours => networkBehavioursCache = networkBehavioursCache ?? GetComponents<NetworkBehaviour>();
 
-        [SerializeField] string m_AssetId;
+        [SerializeField, HideInInspector] string m_AssetId;
 
         // the AssetId trick:
         // - ideally we would have a serialized 'Guid m_AssetId' but Unity can't
@@ -168,7 +182,7 @@ namespace Mirror
         //  suppress "Field 'NetworkIdentity.m_SceneId' is never assigned to, and will always have its default value 0"
         // when building standalone
 #pragma warning disable CS0649
-        [SerializeField] ulong m_SceneId;
+        [SerializeField, HideInInspector] ulong m_SceneId;
 #pragma warning restore CS0649
 
         // keep track of all sceneIds to detect scene duplicates
@@ -184,7 +198,6 @@ namespace Mirror
                 Debug.LogError($"Object {this} netId={netId} already has an owner", this);
             }
             connectionToClient = (NetworkConnectionToClient)conn;
-            connectionToClient.AddOwnedObject(this);
         }
 
         static uint nextNetworkId = 1;
@@ -1055,7 +1068,6 @@ namespace Mirror
 
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
-                connectionToClient.RemoveOwnedObject(this);
                 connectionToClient = null;
 
                 // we need to resynchronize the entire object
@@ -1109,16 +1121,16 @@ namespace Mirror
         // marks the identity for future reset, this is because we cant reset the identity during destroy
         // as people might want to be able to read the members inside OnDestroy(), and we have no way
         // of invoking reset after OnDestroy is called.
-        internal void MarkForReset() => m_Reset = true;
+        internal void MarkForReset() => reset = true;
 
         // if we have marked an identity for reset we do the actual reset.
         internal void Reset()
         {
-            if (!m_Reset)
+            if (!reset)
                 return;
 
             clientStarted = false;
-            m_Reset = false;
+            reset = false;
 
             netId = 0;
             connectionToServer = null;

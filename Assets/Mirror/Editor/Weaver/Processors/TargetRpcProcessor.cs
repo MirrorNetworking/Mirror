@@ -83,11 +83,11 @@ namespace Mirror.Weaver
             and replaces the body of the original method with the send message code.
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
-            
+
         */
         public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
         {
-            MethodDefinition rpc = new MethodDefinition("Call" +  md.Name, MethodAttributes.Public |
+            MethodDefinition rpc = new MethodDefinition("Call" + md.Name, MethodAttributes.Public |
                     MethodAttributes.HideBySig,
                     Weaver.voidType);
 

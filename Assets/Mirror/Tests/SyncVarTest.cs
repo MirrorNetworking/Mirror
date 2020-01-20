@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections;
-using Mirror;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -17,7 +15,6 @@ namespace Mirror.Tests
         public Guild guild;
 
     }
-
 
     public class SyncVarTest
     {

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -144,7 +143,7 @@ namespace Mirror.Websocket
                 }
 
             }
-            catch(IOException)
+            catch (IOException)
             {
                 // do nothing. This will be thrown if the transport is closed
             }
@@ -189,7 +188,6 @@ namespace Mirror.Websocket
             {
                 // someone connected,  raise event
                 Connected?.Invoke(connectionId);
-
 
                 while (true)
                 {
@@ -279,7 +277,8 @@ namespace Mirror.Websocket
                 {
                     await client.SendAsync(segment, WebSocketMessageType.Binary, true, cancellation.Token);
                 }
-                catch (ObjectDisposedException) {
+                catch (ObjectDisposedException)
+                {
                     // connection has been closed,  swallow exception
                     Disconnect(connectionId);
                 }

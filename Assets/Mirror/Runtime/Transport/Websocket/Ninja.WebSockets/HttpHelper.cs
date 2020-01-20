@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -77,7 +76,7 @@ namespace Ninja.WebSockets
         /// <returns>The HTTP header</returns>
         public static async Task<string> ReadHttpHeaderAsync(Stream stream, CancellationToken token)
         {
-            int length = 1024*16; // 16KB buffer more than enough for http header
+            int length = 1024 * 16; // 16KB buffer more than enough for http header
             byte[] buffer = new byte[length];
             int offset = 0;
             int bytesRead = 0;

@@ -2,7 +2,8 @@
     "name": "Mirror.Tests",
     "references": [
         "Mirror",
-        "Mirror.Weaver"
+        "Mirror.Weaver",
+        "Mirror.Components"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
@@ -12,8 +13,12 @@
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NSubstitute.dll",
+        "Castle.Core.dll",
+        "System.Threading.Tasks.Extensions.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": []
 }

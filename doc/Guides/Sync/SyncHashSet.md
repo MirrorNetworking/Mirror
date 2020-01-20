@@ -9,10 +9,12 @@ A SyncHashSet can contain any [supported mirror type](../DataTypes.md)
 Create a class that derives from SyncHashSet for your specific type. This is necessary because Mirror will add methods to that class with the weaver. Then add a SyncHashSet field to your NetworkBehaviour class. For example:
 
 ```cs
-class Player : NetworkBehaviour {
+[System.Serializable]
+public class SyncSkillSet : SyncHashSet<string> {}
 
-    class SyncSkillSet : SyncHashSet<string> {}
+public class Player : NetworkBehaviour {
 
+    [SerializeField]
     readonly SyncSkillSet skills = new SyncSkillSet();
 
     int skillPoints = 10;
@@ -38,10 +40,12 @@ Subscribe to the Callback event typically during `Start`, `OnClientStart` or `On
 >Note SyncSets must be initialized in the constructor, not in Startxxx().  You can make them readonly to ensure correct usage.
 
 ```cs
-class Player : NetworkBehaviour
-{
-    class SyncSetBuffs : SyncHashSet<string> {};
+[System.Serializable]
+public class SyncSetBuffs : SyncHashSet<string> {};
 
+public class Player : NetworkBehaviour
+{
+    [SerializeField]
     public readonly SyncSetBuffs buffs = new SyncSetBuffs();
 
     // this will add the delegate on the client.

@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverOnly: 0
-  m_AssetId: b1651eaf8c7564a1c86031dfbb8a7b28
+  m_AssetId: 
   m_SceneId: 0
 --- !u!114 &114626868563338794
 MonoBehaviour:
@@ -177,3 +177,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   compressRotation: 1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localEulerAnglesSensitivity: 0.01
+  localScaleSensitivity: 0.01

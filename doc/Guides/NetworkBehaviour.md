@@ -19,8 +19,8 @@ With the server-authoritative system of Mirror, the server must use the `Network
     Returns true if this client has [ownership](Authority.md) over this game object.  It is normally false in the server,  except if the server is also a client (host mode).
 -   **netId**  
     The unique network ID of this game object. The server assigns this at run time. It is unique for all game objects in that network session.
--   **playerControllerId**  
-    The ID of the player associated with this NetworkBehaviour script. This is only valid if the object is a local player.
+-   **netIdentity**  
+    Returns the NetworkIdentity of this object
 -   **connectionToServer**  
     The NetworkConnection associated with the Network Identity component attached to this game object. This is only valid for **player objects** on the client.
 -   **connectionToClient**  
@@ -62,6 +62,7 @@ The built-in callbacks are:
 -   **OnDeSerialize** called to apply state to game objects on clients
 -   **OnNetworkDestroy** called on clients when the server destroys the game object
 -   **OnStartLocalPlayer** called on clients for player game objects on the local client (only)
+-   **OnStartAuthority** called on clients for behaviours that have authority, based on context and hasAuthority.
 -   **OnRebuildObservers** called on the server when the set of observers for a game objects is rebuilt
 -   **OnSetLocalVisibility** called on the client and/or server when the visibility of a game object changes for the local client
 -   **OnCheckObserver** called on the server to check visibility state for a new client
@@ -104,7 +105,7 @@ Client RPC calls are not restricted to player game objects, and may be called on
 
 To define a Client RPC call in your code, you must write a function which:
 -   Has a name that begins with `Rpc`
--   Has the `ClientRPC` attribute
+-   Has the `ClientRpc` attribute
 
 See [Communications](Communications/index.md) and related sections for more information.
 
