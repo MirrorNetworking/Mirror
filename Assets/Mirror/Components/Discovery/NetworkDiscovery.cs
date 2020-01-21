@@ -233,12 +233,23 @@ namespace Mirror.Discovery
         {
             while (true)
             {
-                if (clientUdpClient == null)
-                    continue;
+                try
+                {
 
-                ServerInfo info = await ReceiveGameBroadcastAsync(clientUdpClient);
-                if (info != null)
-                    OnServerFound?.Invoke(info);
+                    ServerInfo info = await ReceiveGameBroadcastAsync(clientUdpClient);
+                    if (info != null)
+                        OnServerFound?.Invoke(info);
+
+                }
+                catch (ObjectDisposedException)
+                {
+                    // socket was closed, no problem
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
             }
         }
 
