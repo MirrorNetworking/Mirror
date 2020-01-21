@@ -5,7 +5,7 @@ namespace Mirror.Discovery
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscoveryHUD")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Transports/NetworkDiscovery.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     [RequireComponent(typeof(NetworkDiscovery))]
     public class NetworkDiscoveryHUD : MonoBehaviour
     {
@@ -14,14 +14,11 @@ namespace Mirror.Discovery
 
         public NetworkDiscovery networkDiscovery;
 
-
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (networkDiscovery == null)
-            {
                 networkDiscovery = GetComponent<NetworkDiscovery>();
-            }
         }
 #endif
 
@@ -37,19 +34,18 @@ namespace Mirror.Discovery
 
         void OnGUI()
         {
-            if (NetworkManager.singleton == null) return;
+            if (NetworkManager.singleton == null)
+                return;
 
-            if (NetworkServer.active || NetworkClient.active) return;
+            if (NetworkServer.active || NetworkClient.active)
+                return;
 
             // In my own game I ripped this out, this is just as an example (wanted to avoid adding a NetworkManager to the sample)
             if (!NetworkClient.isConnected && !NetworkServer.active && !NetworkClient.active)
-            {
-                LobbyGUI();
-            }
-
+                DrawGUI();
         }
 
-        private void LobbyGUI()
+        private void DrawGUI()
         {
             GUILayout.BeginHorizontal();
 
@@ -86,13 +82,10 @@ namespace Mirror.Discovery
             scrollViewPos = GUILayout.BeginScrollView(scrollViewPos);
 
             foreach (ServerInfo info in discoveredServers.Values)
-            {
                 if (GUILayout.Button(info.EndPoint.Address.ToString()))
                     Connect(info);
-            }
 
             GUILayout.EndScrollView();
-
         }
 
         void Connect(ServerInfo info)

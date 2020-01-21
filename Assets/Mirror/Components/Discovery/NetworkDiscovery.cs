@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
-using Guid = System.Guid;
-using UnityEngine.Profiling;
 using System;
 using System.Threading.Tasks;
 
 namespace Mirror.Discovery
 {
-    // Based on https://github.com/in0finite/MirrorNetworkDiscovery (license missing, contacted in0finite confirmed MIT license)
+    // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
+    // forked from https://github.com/in0finite/MirrorNetworkDiscovery
+    // Both are MIT Licensed
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscovery")]
-    [HelpURL("https://mirror-networking.com/xmldocs/articles/Transports/NetworkDiscovery.html")]
+    [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     public class NetworkDiscovery : MonoBehaviour
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
@@ -62,7 +62,6 @@ namespace Mirror.Discovery
             return value1 + ((long)value2 << 32);
         }
 
-
         // Ensure the ports are cleared no matter when Game/Unity UI exits
         void OnApplicationQuit()
         {
@@ -77,10 +76,11 @@ namespace Mirror.Discovery
                 {
                     serverUdpClient.Close();
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     // it is just close, swallow the error
                 }
+
                 serverUdpClient = null;
             }
 
@@ -94,6 +94,7 @@ namespace Mirror.Discovery
                 {
                     // it is just close, swallow the error
                 }
+
                 clientUdpClient = null;
             }
 
@@ -109,14 +110,11 @@ namespace Mirror.Discovery
         public void AdvertiseServer()
         {
             if (!SupportedOnThisPlatform)
-            {
                 throw new PlatformNotSupportedException("Network discovery not supported in this platform");
-            }
 
             StopDiscovery();
 
-            // Setup port
-            // may throw exception
+            // Setup port -- may throw exception
             serverUdpClient = new UdpClient(serverBroadcastListenPort)
             {
                 EnableBroadcast = true,
@@ -131,14 +129,11 @@ namespace Mirror.Discovery
         {
             while (true)
             {
-
                 try
                 {
                     ServerRequest request = await ReceiveRequestAsync(serverUdpClient);
                     if (request.secretHandshake == secretHandshake)
-                    {
                         ReplyToClient(request);
-                    }
                 }
                 catch (ObjectDisposedException)
                 {
@@ -169,7 +164,6 @@ namespace Mirror.Discovery
         private void ReplyToClient(ServerRequest request)
         {
             // a client just sent a request,  send it our info
-
             ServerInfo info = new ServerInfo
             {
                 age = Time.time,
@@ -188,15 +182,13 @@ namespace Mirror.Discovery
 
         #endregion
 
-
         #region Client
+
         // I call this when the Lobby screen is loaded in my game
         public void StartDiscovery()
         {
             if (!SupportedOnThisPlatform)
-            {
                 throw new PlatformNotSupportedException("Network discovery not supported in this platform");
-            }
 
             StopDiscovery();
 
@@ -219,7 +211,6 @@ namespace Mirror.Discovery
             _ = ClientListenAsync();
 
             InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoverySecondInterval);
-
         }
 
         // I call this when I leave the lobby menu and in my override of NetworkManager::OnStopServer
