@@ -282,10 +282,10 @@ namespace Mirror
 
             NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
 
-            RecalculateRoomPlayerIndices();
+            //RecalculateRoomPlayerIndices();
         }
 
-        void RecalculateRoomPlayerIndices()
+        public void RecalculateRoomPlayerIndices()
         {
             if (roomSlots.Count > 0)
             {
@@ -446,6 +446,7 @@ namespace Mirror
         {
             OnRoomStopClient();
             CallOnClientExitRoom();
+            roomSlots.Clear();
         }
 
         /// <summary>
