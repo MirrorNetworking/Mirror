@@ -22,14 +22,6 @@ namespace Mirror.Tests
             NetworkWriter writer = new NetworkWriter();
             errorMessage.Serialize(writer);
             Assert.That(writer.ToArray()[0], Is.EqualTo(123));
-
-
-            //ErrorMessage errorMessage = new ErrorMessage();
-            //errorMessage.value = 123;
-            //NetworkWriter writer = new NetworkWriter();
-            //errorMessage.Serialize(writer);
-            //errorMessage.Deserialize(new NetworkReader(writer.ToArray()));
-            //Assert.That(errorMessage.value, Is.EqualTo(123));
         }
     }
 }
