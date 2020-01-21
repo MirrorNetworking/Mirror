@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class MessageTests : MonoBehaviour
+    public class MessageTests
     {
         [Test]
         public void ErrorMessageTest()
