@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Linq;
+using System;
 
-namespace Mirror
+namespace Mirror.Discovery
 {
     public sealed class IPAddressUtility
     {
@@ -15,20 +16,32 @@ namespace Mirror
             // try multiple methods - because some of them may fail on some devices, especially if IL2CPP comes into play
             IPAddress[] ips = null;
 
-            NetworkDiscoveryUtility.RunSafe(() => ips = GetBroadcastAdressesFromNetworkInterfaces(), false);
+            try
+            {
+                ips = GetBroadcastAdressesFromNetworkInterfaces();
+                if (ips.Length > 0)
+                    return ips;
+            }
+            catch (Exception)
+            {
+                // Just try other method
+            }
 
-            if (ips == null || ips.Length < 1)
+            try
+            { 
+                // try another method
+                ips = GetBroadcastAdressesFromHostEntry();
+                if (ips.Length > 0)
+                    return ips;
+            }
+            catch (Exception)
             {
                 // try another method
-                NetworkDiscoveryUtility.RunSafe(() => ips = GetBroadcastAdressesFromHostEntry(), false);
             }
 
-            if (ips == null || ips.Length < 1)
-            {
-                // all methods failed, or there is no network interface on this device
-                // just use full-broadcast address
-                ips = new IPAddress[] { IPAddress.Broadcast };
-            }
+            // all methods failed, or there is no network interface on this device
+            // just use full-broadcast address
+            ips = new IPAddress[] { IPAddress.Broadcast };
 
             return ips;
         }
