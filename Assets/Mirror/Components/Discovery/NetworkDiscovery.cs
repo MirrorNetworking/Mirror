@@ -36,9 +36,6 @@ namespace Mirror.Discovery
         UdpClient serverUdpClient = null;
         UdpClient clientUdpClient = null;
 
-        // This is a list of the NIC's found on start-up, I restart the client when the lobby screen loads and am not worried about refreshing this periodically
-        IPAddress[] cachedIPs = null;
-
         [Tooltip("Port where the transport is listening,  set this to the same thing you set your transport")]
         public int transportPort = 7777;
 
@@ -203,9 +200,6 @@ namespace Mirror.Discovery
 
             StopDiscovery();
 
-            // Refresh the NIC list on entry to the lobby screen, could refresh on a timer if desired
-            cachedIPs = IPAddressUtility.GetBroadcastAdresses();
-
             try
             {
                 // Setup port
@@ -253,9 +247,7 @@ namespace Mirror.Discovery
             if (clientUdpClient == null)
                 return;
 
-            // We can't just send packet to 255.255.255.255 - the OS will only broadcast it to the network interface which the socket is bound to.
-            // We need to broadcast packet on every network interface.
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, serverBroadcastListenPort);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
             ServerRequest request = new ServerRequest
             {
@@ -264,18 +256,13 @@ namespace Mirror.Discovery
 
             byte[] packet = MessagePacker.Pack(request);
 
-            foreach (IPAddress address in cachedIPs)
+            try
             {
-                endPoint.Address = address;
-
-                try
-                {
-                    clientUdpClient.SendAsync(packet, packet.Length, endPoint);
-                }
-                catch (Exception)
-                {
-                    // It is ok if we can't broadcast to one of the addresses
-                }
+                clientUdpClient.SendAsync(packet, packet.Length, endPoint);
+            }
+            catch (Exception)
+            {
+                // It is ok if we can't broadcast to one of the addresses
             }
         }
 
