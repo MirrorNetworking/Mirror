@@ -280,16 +280,10 @@ namespace Mirror
             if (newRoomGameObject == null)
                 newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
-            NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
-
-            RoomSlots.Add(newRoomPlayer);
-
-            RecalculateRoomPlayerIndices();
-
-            server.AddPlayerForConnection(conn, client, newRoomGameObject);
+            server.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
-        void RecalculateRoomPlayerIndices()
+        public void RecalculateRoomPlayerIndices()
         {
             if (RoomSlots.Count > 0)
             {
@@ -326,6 +320,8 @@ namespace Mirror
                         server.ReplacePlayerForConnection(identity.connectionToClient, client, roomPlayer.gameObject);
                     }
                 }
+            
+                allPlayersReady = false;
             }
 
             base.ServerChangeScene(sceneName);
@@ -448,6 +444,7 @@ namespace Mirror
         {
             OnRoomStopClient();
             CallOnClientExitRoom();
+            roomSlots.Clear();
         }
 
         /// <summary>

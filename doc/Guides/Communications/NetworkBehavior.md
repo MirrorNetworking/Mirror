@@ -1,6 +1,6 @@
 # NetworkBehaviour Callbacks
 
-[![Network behaviour callbacks start cycle video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=5Oj4lPPIfps&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=4)
+[![Network behaviour callbacks start cycle video tutorial](../../images/video_tutorial.png)](https://www.youtube.com/watch?v=SNgYIhBHW1w&list=PLkx8oFug638oBYF5EOwsSS-gOVBXj1dkP&index=5)
 
 **See also <xref:Mirror.NetworkBehaviour> in the API Reference.**
 

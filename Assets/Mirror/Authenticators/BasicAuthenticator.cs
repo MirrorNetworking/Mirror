@@ -52,7 +52,7 @@ namespace Mirror.Authenticators
                 AuthPassword = Password
             };
 
-            manager.client.Send(authRequestMessage);
+            conn.Send(authRequestMessage);
         }
 
         public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)

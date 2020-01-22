@@ -2,7 +2,8 @@
     "name": "Mirror.Tests",
     "references": [
         "Mirror",
-        "Mirror.Weaver"
+        "Mirror.Weaver",
+        "Mirror.Components"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
