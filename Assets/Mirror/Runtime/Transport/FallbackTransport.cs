@@ -73,6 +73,7 @@ namespace Mirror
                     {
                         transport.ClientConnect(uri);
                         available = transport;
+                        return;
                     }
                     catch (ArgumentException)
                     {
