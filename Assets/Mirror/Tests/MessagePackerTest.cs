@@ -51,5 +51,29 @@ namespace Mirror.Tests
                 // GOOD
             }
         }
+
+        [Test]
+        public void TestUnpackMessageNonGeneric()
+        {
+            // try a regular message
+            SceneMessage message = new SceneMessage()
+            {
+                sceneName = "Hello world",
+                sceneOperation = SceneOperation.LoadAdditive
+            };
+
+            byte[] data = MessagePacker.Pack(message);
+            NetworkReader reader = new NetworkReader(data);
+
+            bool result = MessagePacker.UnpackMessage(reader, out int msgType);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
+
+            // try an invalid message
+            NetworkReader reader2 = new NetworkReader(new byte[0]);
+            bool result2 = MessagePacker.UnpackMessage(reader2, out int msgType2);
+            Assert.That(result2, Is.EqualTo(false));
+            Assert.That(msgType2, Is.EqualTo(0));
+        }
     }
 }
