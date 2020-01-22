@@ -1,3 +1,12 @@
+# [6.0.0](https://github.com/MirrorNG/MirrorNG/compare/5.0.0-master...6.0.0-master) (2020-01-22)
+
+
+### Bug Fixes
+
+* compilation error ([df7baa4](https://github.com/MirrorNG/MirrorNG/commit/df7baa4db0d347ee69c17bad9f9e56ccefb54fab))
+* compilation error ([dc74256](https://github.com/MirrorNG/MirrorNG/commit/dc74256fc380974ad6df59b5d1dee3884b879bd7))
+* Fix Room Slots for clients ([#1439](https://github.com/MirrorNG/MirrorNG/issues/1439)) ([268753c](https://github.com/MirrorNG/MirrorNG/commit/268753c3bd0a9c0695d8d4510a129685be364a11))
+
 # [5.0.0](https://github.com/MirrorNG/MirrorNG/compare/4.0.0-master...5.0.0-master) (2020-01-19)
 
 # [4.0.0](https://github.com/MirrorNG/MirrorNG/compare/3.1.0-master...4.0.0-master) (2020-01-18)
