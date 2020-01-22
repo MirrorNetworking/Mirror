@@ -52,7 +52,7 @@ namespace Mirror
         public enum Compression { None, Much, Lots, NoRotation }; // easily understandable and funny
 
         // target transform to sync. can be on a child.
-        protected abstract Transform targetComponent { get; }
+        protected abstract Transform TargetComponent { get; }
 
         // server
         Vector3 lastPosition;
