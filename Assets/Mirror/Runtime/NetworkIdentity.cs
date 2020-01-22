@@ -102,12 +102,6 @@ namespace Mirror
         public bool serverOnly;
 
         /// <summary>
-        /// Obsolete: Use <see cref="connectionToClient" /> instead
-        /// </summary>
-        [Obsolete("Use connectionToClient instead")]
-        public NetworkConnectionToClient clientAuthorityOwner => connectionToClient;
-
-        /// <summary>
         /// The NetworkServer associated with this NetworkIdentity.
         /// </summary>
         public NetworkServer server { get; internal set; }

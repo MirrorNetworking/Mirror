@@ -52,12 +52,8 @@ namespace Mirror
             OP_ADD,
             OP_CLEAR,
             OP_INSERT,
-            [Obsolete("Lists now pass OP_REMOVEAT")]
-            OP_REMOVE,
             OP_REMOVEAT,
-            OP_SET,
-            [Obsolete("Lists now use OP_SET instead of OP_DIRTY")]
-            OP_DIRTY
+            OP_SET
         }
 
         struct Change
