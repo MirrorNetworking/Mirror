@@ -24,21 +24,21 @@ namespace Mirror
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        public bool clientAuthority;
+        public bool ClientAuthority;
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool isClientWithAuthority => hasAuthority && clientAuthority;
+        bool isClientWithAuthority => hasAuthority && ClientAuthority;
 
         // Sensitivity is added for VR where human players tend to have micro movements so this can quiet down
         // the network traffic.  Additionally, rigidbody drift should send less traffic, e.g very slow sliding / rolling.
         [Header("Sensitivity")]
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        public float localPositionSensitivity = .01f;
+        public float LocalPositionSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        public float localEulerAnglesSensitivity = .01f;
+        public float LocalEulerAnglesSensitivity = .01f;
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
-        public float localScaleSensitivity = .01f;
+        public float LocalScaleSensitivity = .01f;
 
         // rotation compression. not public so that other scripts can't modify
         // it at runtime. alternatively we could send 1 extra byte for the mode
@@ -338,9 +338,9 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, TargetComponent.transform.localPosition) > localPositionSensitivity;
-            bool rotated = Vector3.Distance(lastRotation.eulerAngles, TargetComponent.transform.localRotation.eulerAngles) > localEulerAnglesSensitivity;
-            bool scaled = Vector3.Distance(lastScale, TargetComponent.transform.localScale) > localScaleSensitivity;
+            bool moved = Vector3.Distance(lastPosition, TargetComponent.transform.localPosition) > LocalPositionSensitivity;
+            bool rotated = Vector3.Distance(lastRotation.eulerAngles, TargetComponent.transform.localRotation.eulerAngles) > LocalEulerAnglesSensitivity;
+            bool scaled = Vector3.Distance(lastScale, TargetComponent.transform.localScale) > LocalScaleSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
