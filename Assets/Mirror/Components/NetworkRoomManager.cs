@@ -278,16 +278,14 @@ namespace Mirror
 
             GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
             if (newRoomGameObject == null)
-                newRoomGameObject = (GameObject)Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-            NetworkRoomPlayer newRoomPlayer = newRoomGameObject.GetComponent<NetworkRoomPlayer>();
+                newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
 
-            RecalculateRoomPlayerIndices();
+            //RecalculateRoomPlayerIndices();
         }
 
-        void RecalculateRoomPlayerIndices()
+        public void RecalculateRoomPlayerIndices()
         {
             if (roomSlots.Count > 0)
             {
@@ -448,6 +446,7 @@ namespace Mirror
         {
             OnRoomStopClient();
             CallOnClientExitRoom();
+            roomSlots.Clear();
         }
 
         /// <summary>
