@@ -13,6 +13,7 @@
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server
 - Fixed: SyncVars are now set for Host player before hook is invoked
 - Fixed: StopHost no longer tries to change to the Offline scene twice
+- Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
 - Changed: Shutdown logic has been streamlined
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
 - Changed: **Breaking** SyncVar Hooks now require **two** parameters, one each for the old and new value, and the property value is now set **before** the hook is called.
