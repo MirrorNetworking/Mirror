@@ -16,6 +16,7 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
+using System.ComponentModel;
 using UnityEngine;
 
 namespace Mirror
@@ -76,7 +77,8 @@ namespace Mirror
         float lastClientSendTime;
 
         // serialization is needed by OnSerialize and by manual sending from authority
-        void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
+        [EditorBrowsable(EditorBrowsableState.Never)] // public only for tests
+        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Compression compressRotation, Vector3 scale)
         {
             // serialize position
             writer.WriteVector3(position);
@@ -123,7 +125,7 @@ namespace Mirror
         // => if this is the first time ever then we use our best guess:
         //    -> delta based on transform.localPosition
         //    -> elapsed based on send interval hoping that it roughly matches
-        float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
+        static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from != null ? from.localPosition : transform.localPosition);
             float elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
@@ -263,7 +265,7 @@ namespace Mirror
         }
 
         // where are we in the timeline between start and goal? [0,1]
-        float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
+        static float CurrentInterpolationFactor(DataPoint start, DataPoint goal)
         {
             if (start != null)
             {
@@ -277,7 +279,7 @@ namespace Mirror
             return 0;
         }
 
-        Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
+        static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
         {
             if (start != null)
             {
@@ -296,7 +298,7 @@ namespace Mirror
             return currentPosition;
         }
 
-        Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
+        static Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
         {
             if (start != null)
             {
@@ -306,7 +308,7 @@ namespace Mirror
             return defaultRotation;
         }
 
-        Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
+        static Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
             if (start != null)
             {

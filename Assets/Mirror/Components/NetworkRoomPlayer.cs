@@ -47,6 +47,7 @@ namespace Mirror
                     DontDestroyOnLoad(gameObject);
 
                 room.roomSlots.Add(this);
+                room.RecalculateRoomPlayerIndices();
 
                 OnClientEnterRoom();
             }
