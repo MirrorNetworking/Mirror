@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror.Tests
 {
@@ -10,6 +12,24 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkReaderTest
     {
+        [Test]
+        public void Benchmark()
+        {
+            // 10 million reads, Unity 2019.3, code coverage disabled
+            //   4096ms (+GC later)
+            byte[] bytes = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C};
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            for (int i = 0; i < 10000000; ++i)
+            {
+                ArraySegment<byte> segment = new ArraySegment<byte>(bytes);
+                NetworkReader reader = new NetworkReader(segment);
+                Vector3 value = reader.ReadVector3();
+            }
+            watch.Stop();
+            Debug.Log("NetworkReaderTest Benchmark: " + watch.ElapsedMilliseconds + " ms");
+        }
+
         [Test]
         public void ReadBytesCountTooBigTest()
         {
