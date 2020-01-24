@@ -1,5 +1,10 @@
 version: '{branch}-{build}'
 
+environment:
+    nodejs_version: "10"
+    LFTP_PASSWORD:
+        secure: sH23IC4a98S5uTtgYNHNvg==
+
 #init:
 #  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
@@ -10,7 +15,8 @@ install:
   - choco install unitypackager
   - choco install docfx
   - choco install lftp
-  - npm install -g semantic-release@15 @semantic-release/exec
+  - ps: Install-Product node $env:nodejs_version
+  - npm install -g semantic-release @semantic-release/exec
 
 #build:
 #  project: Mirror/Networking.sln
@@ -38,10 +44,6 @@ artifacts:
     name: ScriptTemplates
 
 image: Visual Studio 2017
-
-environment:
-  LFTP_PASSWORD:
-    secure: sH23IC4a98S5uTtgYNHNvg==
 
 deploy_script:
   - semantic-release

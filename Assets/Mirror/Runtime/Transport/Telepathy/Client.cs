@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
@@ -76,6 +76,14 @@ namespace Telepathy
                 // add 'Disconnected' event to message queue so that the caller
                 // knows that the Connect failed. otherwise they will never know
                 receiveQueue.Enqueue(new Message(0, EventType.Disconnected, null));
+            }
+            catch (ThreadInterruptedException)
+            {
+                // expected if Disconnect() aborts it
+            }
+            catch (ThreadAbortException)
+            {
+                // expected if Disconnect() aborts it
             }
             catch (Exception exception)
             {

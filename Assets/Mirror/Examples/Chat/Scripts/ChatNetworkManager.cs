@@ -17,7 +17,7 @@ namespace Mirror.Examples.Chat
 
         public ChatWindow chatWindow;
 
-        public class CreatePlayerMessage: MessageBase
+        public class CreatePlayerMessage : MessageBase
         {
             public string name;
         }
@@ -47,6 +47,8 @@ namespace Mirror.Examples.Chat
 
             // set it as the player
             NetworkServer.AddPlayerForConnection(connection, playergo);
+
+            chatWindow.gameObject.SetActive(true);
         }
     }
 }

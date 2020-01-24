@@ -9,11 +9,11 @@ using UnityEngine.Events;
 namespace Mirror
 {
     // UnityEvent definitions
-    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> {}
-    [Serializable] public class UnityEventException : UnityEvent<Exception> {}
-    [Serializable] public class UnityEventInt : UnityEvent<int> {}
-    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> {}
-    [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> {}
+    [Serializable] public class ClientDataReceivedEvent : UnityEvent<ArraySegment<byte>, int> { }
+    [Serializable] public class UnityEventException : UnityEvent<Exception> { }
+    [Serializable] public class UnityEventInt : UnityEvent<int> { }
+    [Serializable] public class ServerDataReceivedEvent : UnityEvent<int, ArraySegment<byte>, int> { }
+    [Serializable] public class UnityEventIntException : UnityEvent<int, Exception> { }
 
     public abstract class Transport : MonoBehaviour
     {
@@ -171,11 +171,6 @@ namespace Mirror
         #endregion
 
         /// <summary>
-        /// Shut down the transport, both as client and server
-        /// </summary>
-        public abstract void Shutdown();
-
-        /// <summary>
         /// The maximum packet size for a given channel.  Unreliable transports
         /// usually can only deliver small packets. Reliable fragmented channels
         /// can usually deliver large ones.
@@ -188,6 +183,11 @@ namespace Mirror
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
         public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
+
+        /// <summary>
+        /// Shut down the transport, both as client and server
+        /// </summary>
+        public abstract void Shutdown();
 
         // block Update() to force Transports to use LateUpdate to avoid race
         // conditions. messages should be processed after all the game state
@@ -203,6 +203,19 @@ namespace Mirror
         //            e.g. in uSurvival Transport would apply Cmds before
         //            ShoulderRotation.LateUpdate, resulting in projectile
         //            spawns at the point before shoulder rotation.
-        public void Update() {}
+        public void Update() { }
+
+        /// <summary>
+        /// called when quitting the application by closing the window / pressing stop in the editor
+        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
+        /// </summary>
+        public virtual void OnApplicationQuit()
+        {
+            // stop transport (e.g. to shut down threads)
+            // (when pressing Stop in the Editor, Unity keeps threads alive
+            //  until we press Start again. so if Transports use threads, we
+            //  really want them to end now and not after next start)
+            Shutdown();
+        }
     }
 }

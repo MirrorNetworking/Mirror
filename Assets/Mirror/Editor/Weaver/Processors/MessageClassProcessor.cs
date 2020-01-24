@@ -31,7 +31,7 @@ namespace Mirror.Weaver
         static void GenerateSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateSerialization");
-            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Serialize");
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md => md.Name == "Serialize");
             if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
                 return;
@@ -108,7 +108,7 @@ namespace Mirror.Weaver
         static void GenerateDeSerialization(TypeDefinition td)
         {
             Weaver.DLog(td, "  GenerateDeserialization");
-            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md=>md.Name == "Deserialize");
+            MethodDefinition existingMethod = td.Methods.FirstOrDefault(md => md.Name == "Deserialize");
             if (existingMethod != null && !existingMethod.Body.IsEmptyDefault())
             {
                 return;
@@ -119,7 +119,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            MethodDefinition serializeFunc = existingMethod??new MethodDefinition("Deserialize",
+            MethodDefinition serializeFunc = existingMethod ?? new MethodDefinition("Deserialize",
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
                     Weaver.voidType);
 

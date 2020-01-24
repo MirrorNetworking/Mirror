@@ -50,14 +50,14 @@ namespace Mirror.Weaver
 
             // We only need to run this once per session
             // after that, all assemblies will be weaved by the event
-            if (!SessionState.GetBool("MIRROR_WEAVED", false) )
+            if (!SessionState.GetBool("MIRROR_WEAVED", false))
             {
                 SessionState.SetBool("MIRROR_WEAVED", true);
-                WeaveExisingAssemblies();
+                WeaveExistingAssemblies();
             }
         }
 
-        static void WeaveExisingAssemblies()
+        static void WeaveExistingAssemblies()
         {
             foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
             {

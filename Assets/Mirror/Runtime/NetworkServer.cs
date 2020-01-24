@@ -43,7 +43,7 @@ namespace Mirror
         /// <para>Dictionary of the message handlers registered with the server.</para>
         /// <para>The key to the dictionary is the message Id.</para>
         /// </summary>
-        public static Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
+        static Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
@@ -83,6 +83,10 @@ namespace Mirror
                 }
                 else
                 {
+                    // stop the server.
+                    // we do NOT call Transport.Shutdown, because someone only
+                    // called NetworkServer.Shutdown. we can't assume that the
+                    // client is supposed to be shut down too!
                     Transport.activeTransport.ServerStop();
                 }
 
@@ -128,7 +132,7 @@ namespace Mirror
         /// </summary>
         /// <param name="maxConns">Maximum number of allowed connections</param>
         /// <returns></returns>
-        public static bool Listen(int maxConns)
+        public static void Listen(int maxConns)
         {
             Initialize();
             maxConnections = maxConns;
@@ -142,7 +146,6 @@ namespace Mirror
 
             active = true;
             RegisterMessageHandlers();
-            return true;
         }
 
         /// <summary>
@@ -213,7 +216,7 @@ namespace Mirror
 
         // this is like SendToReady - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
-        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T: IMessageBase
+        static bool SendToObservers<T>(NetworkIdentity identity, T msg) where T : IMessageBase
         {
             if (LogFilter.Debug) Debug.Log("Server.SendToObservers id:" + typeof(T));
 
@@ -581,7 +584,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked for when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T: IMessageBase, new()
+        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true) where T : IMessageBase, new()
         {
             int msgType = MessagePacker.GetId<T>();
             if (handlers.ContainsKey(msgType))
@@ -693,7 +696,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity"></param>
         /// <param name="msg"></param>
-        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T: IMessageBase
+        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg) where T : IMessageBase
         {
             if (identity != null)
             {
@@ -701,7 +704,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity.name);
+                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity);
             }
         }
 
@@ -1062,7 +1065,7 @@ namespace Mirror
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
-            ArraySegment<byte> ownerSegment     =     ownerWritten > 0 ?     ownerWriter.ToArraySegment() : default;
+            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
             ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
 
             SpawnMessage msg = new SpawnMessage
@@ -1094,15 +1097,8 @@ namespace Mirror
         /// <param name="conn">The connections object to clean up for.</param>
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
-            // => destroy what we can destroy.
-            HashSet<uint> tmp = new HashSet<uint>(conn.clientOwnedObjects);
-            foreach (uint netId in tmp)
-            {
-                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-                {
-                    Destroy(identity.gameObject);
-                }
-            }
+            // destroy all objects owned by this connection
+            conn.DestroyOwnedObjects();
 
             if (conn.identity != null)
             {

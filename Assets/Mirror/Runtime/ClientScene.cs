@@ -55,8 +55,6 @@ namespace Mirror
         static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
 
-        // this is never called, and if we do call it in NetworkClient.Shutdown
-        // then the client's player object won't be removed after disconnecting!
         internal static void Shutdown()
         {
             ClearSpawners();
@@ -578,7 +576,7 @@ namespace Mirror
                 }
             }
 
-            if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId.gameObject.name);
+            if (LogFilter.Debug) Debug.Log("Client spawn for [netId:" + msg.netId + "] [sceneId:" + msg.sceneId + "] obj:" + spawnedId);
             return spawnedId;
         }
 

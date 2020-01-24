@@ -12,6 +12,23 @@ namespace Mirror.Examples.Chat
         public Text chatHistory;
         public Scrollbar scrollbar;
 
+        public void Awake()
+        {
+
+            Player.OnMessage += OnPlayerMessage;
+
+        }
+
+        private void OnPlayerMessage(Player player, string message)
+        {
+            string prettyMessage = player.isLocalPlayer ?
+                $"<color=red>{player.playerName}: </color> {message}" :
+                $"<color=blue>{player.playerName}: </color> {message}";
+            AppendMessage(prettyMessage);
+
+            Debug.Log(message);
+        }
+
         public void OnSend()
         {
             if (chatMessage.text.Trim() == "") return;
