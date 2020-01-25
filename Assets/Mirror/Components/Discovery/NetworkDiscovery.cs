@@ -39,10 +39,13 @@ namespace Mirror.Discovery
         [Tooltip("Transport exposed for discovery")]
         public Transport transport;
 
-        public void Awake()
+        public void Start()
         {
             ServerId = RandomLong();
 
+            // active transport gets initialized in awake
+            // so make sure we set it here in Start()  (after awakes)
+            // Or just let the user assign it in the inspector
             if (transport == null)
                 transport = Transport.activeTransport;
         }
@@ -283,8 +286,10 @@ namespace Mirror.Discovery
 
             packet.EndPoint = udpReceiveResult.RemoteEndPoint;
 
-            // although we got a supposedly valid url,
-            // we know the real ip address of the serveer,  so use that as host
+            // although we got a supposedly valid url, we may not be able to resolve
+            // the provided host
+            // However we know the real ip address of the server because we just
+            // received a packet from it,  so use that as host.
 
             UriBuilder realUri = new UriBuilder(packet.uri)
             {
