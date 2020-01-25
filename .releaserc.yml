@@ -3,13 +3,7 @@
     "plugins": [
         "@semantic-release/github",
         "@semantic-release/release-notes-generator", 
-        ["@semantic-release/commit-analyzer", {
-            "preset": "angular",
-            "releaseRules": [
-                {"type": "breaking", "release": "major"},
-                {"type": "feature", "release": "minor"},
-            ]
-        }],
+        "@semantic-release/commit-analyzer",
         ["@semantic-release/changelog", {
             "changelogFile": "Assets/Mirror/CHANGELOG.md",
         }],
