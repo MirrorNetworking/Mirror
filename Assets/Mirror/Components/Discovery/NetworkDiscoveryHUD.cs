@@ -93,10 +93,12 @@ namespace Mirror.Discovery
             NetworkManager.singleton.StartClient(info.uri);
         }
 
-        void OnDiscoveredServer(ServerInfo info)
+        void OnDiscoveredServer(IMessageBase info)
         {
+            ServerInfo serverInfo = (ServerInfo)info;
+
             // Note that you can check the versioning to decide if you can connect to the server or not using this method
-            discoveredServers[info.serverId] = info;
+            discoveredServers[serverInfo.serverId] = (ServerInfo)info;
         }
     }
 }

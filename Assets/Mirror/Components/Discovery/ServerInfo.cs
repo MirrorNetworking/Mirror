@@ -18,8 +18,5 @@ namespace Mirror.Discovery
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs
         public long serverId;
-
-        // unique per game
-        public long secretHandshake;
     }
 }
