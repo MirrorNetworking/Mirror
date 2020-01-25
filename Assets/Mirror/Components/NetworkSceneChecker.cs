@@ -21,8 +21,6 @@ namespace Mirror
         [Tooltip("Enable to force this object to be hidden from all observers.")]
         public bool forceHidden;
 
-        //float lastUpdateTime;
-
         static Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects;
 
         [Scene, SerializeField]
