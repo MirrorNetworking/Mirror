@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -117,6 +118,15 @@ namespace Mirror
             // (https://github.com/vis2k/Mirror/pull/379)
             while (enabled && ProcessClientMessage()) { }
             while (enabled && ProcessServerMessage()) { }
+        }
+
+        public override Uri ServerUri()
+        {
+            UriBuilder builder = new UriBuilder();
+            builder.Scheme = Scheme;
+            builder.Host = Dns.GetHostName();
+            builder.Port = port;
+            return builder.Uri;
         }
 
         // server

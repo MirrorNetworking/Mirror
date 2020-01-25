@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
@@ -221,6 +222,18 @@ namespace Mirror
         #endregion
 
         #region server
+
+        // right now this just returns the first available uri,
+        // should we return the list of all available uri?
+        public override Uri ServerUri()
+        {
+            UriBuilder builder = new UriBuilder();
+            builder.Scheme = Scheme;
+            builder.Host = Dns.GetHostName();
+            builder.Port = port;
+            return builder.Uri;
+        }
+
         public override bool ServerActive()
         {
             return serverHostId != -1;
