@@ -47,30 +47,30 @@ namespace Mirror
         [ServerCallback]
         void Update()
         {
-            if (currentScene != gameObject.scene)
-            {
-                // This object is in a new scene so observers in the prior scene
-                // and the new scene need to rebuild their respective observers lists.
+            if (currentScene == gameObject.scene)
+                return;
 
-                // Remove this object from the hashset of the scene it just left
-                sceneCheckerObjects[currentScene].Remove(netIdentity);
+            // This object is in a new scene so observers in the prior scene
+            // and the new scene need to rebuild their respective observers lists.
 
-                // RebuildObservers of all NetworkIdentity's in the scene this object just left
-                RebuildSceneObservers();
+            // Remove this object from the hashset of the scene it just left
+            sceneCheckerObjects[currentScene].Remove(netIdentity);
 
-                // Set this to the new scene this object just entered
-                currentScene = gameObject.scene;
+            // RebuildObservers of all NetworkIdentity's in the scene this object just left
+            RebuildSceneObservers();
 
-                // Make sure this new scene is in the dictionary
-                if (!sceneCheckerObjects.ContainsKey(currentScene))
-                    sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
+            // Set this to the new scene this object just entered
+            currentScene = gameObject.scene;
 
-                // Add this object to the hashset of the new scene
-                sceneCheckerObjects[currentScene].Add(netIdentity);
+            // Make sure this new scene is in the dictionary
+            if (!sceneCheckerObjects.ContainsKey(currentScene))
+                sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
 
-                // RebuildObservers of all NetworkIdentity's in the scene this object just entered
-                RebuildSceneObservers();
-            }
+            // Add this object to the hashset of the new scene
+            sceneCheckerObjects[currentScene].Add(netIdentity);
+
+            // RebuildObservers of all NetworkIdentity's in the scene this object just entered
+            RebuildSceneObservers();
         }
 
         void RebuildSceneObservers()
