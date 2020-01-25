@@ -32,6 +32,12 @@ namespace Mirror
         public NetworkClient localClient;
 
         /// <summary>
+        /// <para>True is a local client is currently active on the server.</para>
+        /// <para>This will be true for "Hosts" on hosted server games.</para>
+        /// </summary>
+        public bool LocalClientActive => localClient != null & localClient.active;
+
+        /// <summary>
         /// A list of local connections on the server.
         /// </summary>
         public Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
@@ -986,21 +992,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Spawn the given game object on all clients which are ready.
-        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
-        /// </summary>
-        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        /// <param name="client">Client associated to the object.</param>
-        /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
-        {
-            if (VerifyCanSpawn(obj))
-            {
-                SpawnObject(obj, ownerConnection);
-            }
-        }
-
         bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
@@ -1071,6 +1062,21 @@ namespace Mirror
             }
         }
 
+        /// <summary>
+        /// Spawn the given game object on all clients which are ready.
+        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
+        /// </summary>
+        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
+        /// <param name="client">Client associated to the object.</param>
+        /// <param name="ownerConnection">The connection that has authority over the object</param>
+        public void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
+        {
+            if (VerifyCanSpawn(obj))
+            {
+                SpawnObject(obj, ownerConnection);
+            }
+        }
+
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
             if (LogFilter.Debug) Debug.Log("DestroyObject instance:" + identity.netId);
@@ -1085,7 +1091,7 @@ namespace Mirror
             SendToObservers(identity, msg);
 
             identity.ClearObservers();
-            if (localClient != null && localClient.active)
+            if (LocalClientActive)
             {
                 identity.OnNetworkDestroy();
             }
