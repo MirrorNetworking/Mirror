@@ -28,11 +28,14 @@ namespace Mirror
         // => removed it for easier code. use .localConnection now!
         public NetworkConnectionToClient localConnection { get; private set; }
 
+        // The host client for this server 
+        public NetworkClient localClient;
+
         /// <summary>
         /// <para>True is a local client is currently active on the server.</para>
         /// <para>This will be true for "Hosts" on hosted server games.</para>
         /// </summary>
-        public bool localClientActive => localConnection != null;
+        public bool localClientActive => localClient.active;
 
         /// <summary>
         /// A list of local connections on the server.
@@ -107,6 +110,9 @@ namespace Mirror
         {
             if (initialized)
                 return;
+
+            if (localClient == null)
+                localClient = GetComponent<NetworkClient>();
 
             initialized = true;
             if (LogFilter.Debug) Debug.Log("NetworkServer Created version " + Version.Current);
@@ -720,7 +726,7 @@ namespace Mirror
             if (identity.netId == 0)
             {
                 // If the object has not been spawned, then do a full spawn and update observers
-                Spawn(identity.gameObject, identity.client, identity.connectionToClient);
+                Spawn(identity.gameObject, identity.connectionToClient);
             }
             else
             {
@@ -896,7 +902,7 @@ namespace Mirror
             identity.HandleCommand(msg.componentIndex, msg.functionHash, new NetworkReader(msg.payload));
         }
 
-        internal void SpawnObject(GameObject obj, NetworkClient client, NetworkConnection ownerConnection)
+        internal void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             if (!active)
             {
@@ -913,7 +919,7 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
             identity.server = this;
-            identity.client = client;
+            identity.client = localClient;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
@@ -993,11 +999,11 @@ namespace Mirror
         /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
         /// <param name="client">Client associated to the object.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public void Spawn(GameObject obj, NetworkClient client, NetworkConnection ownerConnection = null)
+        public void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
-                SpawnObject(obj, client, ownerConnection);
+                SpawnObject(obj, ownerConnection);
             }
         }
 
@@ -1048,7 +1054,7 @@ namespace Mirror
                 return;
             }
 
-            Spawn(obj, identity.client, identity.connectionToClient);
+            Spawn(obj, identity.connectionToClient);
         }
 
         /// <summary>
@@ -1059,7 +1065,7 @@ namespace Mirror
         /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
         /// <param name="client">The client associated to the object.</param>
         /// <param name="ownerConnection">The connection that has authority over the object</param>
-        public void Spawn(GameObject obj, Guid assetId, NetworkClient client, NetworkConnection ownerConnection = null)
+        public void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
             {
@@ -1067,7 +1073,7 @@ namespace Mirror
                 {
                     identity.assetId = assetId;
                 }
-                SpawnObject(obj, client, ownerConnection);
+                SpawnObject(obj, ownerConnection);
             }
         }
 
@@ -1157,7 +1163,7 @@ namespace Mirror
         /// </summary>
         /// <param name="client">The client associated to the objects.</param>
         /// <returns>Success if objects where spawned.</returns>
-        public bool SpawnObjects(NetworkClient client)
+        public bool SpawnObjects()
         {
             if (!active)
                 return true;
@@ -1176,7 +1182,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
-                    Spawn(identity.gameObject, client);
+                    Spawn(identity.gameObject);
             }
             return true;
         }

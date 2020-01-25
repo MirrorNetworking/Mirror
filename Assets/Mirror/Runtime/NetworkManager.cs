@@ -344,7 +344,7 @@ namespace Mirror
             // otherwise spawn directly
             else
             {
-                server.SpawnObjects(client);
+                server.SpawnObjects();
             }
         }
 
@@ -474,7 +474,7 @@ namespace Mirror
             client.ConnectHost(server);
 
             // server scene was loaded. now spawn all the objects
-            server.SpawnObjects(client);
+            server.SpawnObjects();
 
             // connect client and call OnStartClient AFTER server scene was
             // loaded and all objects were spawned.
@@ -851,7 +851,7 @@ namespace Mirror
                 if (server.active)
                 {
                     // TODO only respawn the server objects from that scene later!
-                    server.SpawnObjects(client);
+                    server.SpawnObjects();
                     Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
                 }
                 if (client.active)
@@ -944,7 +944,7 @@ namespace Mirror
             else
             {
                 // spawn server objects
-                server.SpawnObjects(client);
+                server.SpawnObjects();
 
                 // call OnServerSceneChanged
                 OnServerSceneChanged(networkSceneName);
@@ -989,7 +989,7 @@ namespace Mirror
             // it's very obvious to notice.
             Debug.Log("Finished loading scene in server-only mode.");
 
-            server.SpawnObjects(client);
+            server.SpawnObjects();
             OnServerSceneChanged(networkSceneName);
         }
 

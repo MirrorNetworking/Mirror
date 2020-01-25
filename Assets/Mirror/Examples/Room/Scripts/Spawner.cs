@@ -21,7 +21,7 @@ namespace Mirror.Examples.NetworkRoom
             Reward reward = newPrize.gameObject.GetComponent<Reward>();
             reward.spawner = this;
 
-            server.Spawn(newPrize, client);
+            server.Spawn(newPrize);
         }
     }
 }
