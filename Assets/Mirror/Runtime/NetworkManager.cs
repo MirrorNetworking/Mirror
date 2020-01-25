@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -742,7 +741,7 @@ namespace Mirror
         /// </remarks>
         public string networkSceneName = "";
 
-        public UnityEngine.AsyncOperation loadingSceneAsync;
+        public AsyncOperation loadingSceneAsync;
 
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
