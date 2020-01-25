@@ -90,21 +90,7 @@ namespace Mirror.Discovery
 
         void Connect(ServerInfo info)
         {
-            if (NetworkManager.singleton == null || Transport.activeTransport == null)
-                return;
-
-            if (!(Transport.activeTransport is TelepathyTransport))
-            {
-                Debug.LogErrorFormat("Only {0} is supported", typeof(TelepathyTransport));
-                return;
-            }
-
-            // assign address and port
-            NetworkManager.singleton.networkAddress = info.EndPoint.Address.ToString();
-
-            ((TelepathyTransport)Transport.activeTransport).port = (ushort)info.port;
-
-            NetworkManager.singleton.StartClient();
+            NetworkManager.singleton.StartClient(info.uri);
         }
 
         void OnDiscoveredServer(ServerInfo info)

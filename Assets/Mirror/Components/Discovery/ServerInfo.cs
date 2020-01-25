@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Mirror.Discovery
 {
@@ -11,7 +12,8 @@ namespace Mirror.Discovery
         // The server that sent this
         public IPEndPoint EndPoint { get; set; }
 
-        public int port;
+        public Uri uri;
+
         public ushort totalPlayers;
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs

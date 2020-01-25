@@ -36,12 +36,15 @@ namespace Mirror.Discovery
         UdpClient serverUdpClient = null;
         UdpClient clientUdpClient = null;
 
-        [Tooltip("Port where the transport is listening,  set this to the same thing you set your transport")]
-        public int transportPort = 7777;
+        [Tooltip("Transport exposed for discovery")]
+        public Transport transport;
 
         public void Awake()
         {
             ServerId = RandomLong();
+
+            if (transport == null)
+                transport = Transport.activeTransport;
         }
 
 #if UNITY_EDITOR
@@ -163,6 +166,7 @@ namespace Mirror.Discovery
 
         private void ReplyToClient(ServerRequest request)
         {
+
             // a client just sent a request,  send it our info
             ServerInfo info = new ServerInfo
             {
@@ -170,7 +174,7 @@ namespace Mirror.Discovery
                 secretHandshake = secretHandshake,
                 totalPlayers = (ushort)NetworkServer.connections.Count,
                 serverId = this.ServerId,
-                port = transportPort,
+                uri = transport.ServerUri()
             };
 
             byte[] data = MessagePacker.Pack(info);
@@ -278,6 +282,18 @@ namespace Mirror.Discovery
             ServerInfo packet = MessagePacker.Unpack<ServerInfo>(udpReceiveResult.Buffer);
 
             packet.EndPoint = udpReceiveResult.RemoteEndPoint;
+
+            // although we got a supposedly valid url,
+            // we know the real ip address of the serveer,  so use that as host
+
+            UriBuilder realUri = new UriBuilder(packet.uri)
+            {
+                Host = packet.EndPoint.Address.ToString()
+            };
+
+            packet.uri = realUri.Uri;
+
+            Debug.Log("Detected server at" + packet.uri);
 
             return packet;
         }
