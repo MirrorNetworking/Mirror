@@ -32,8 +32,7 @@ namespace Mirror
         public NetworkClient localClient;
 
         /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
+        /// <para>True if there is a local client connected to this server (host mode)</para>
         /// </summary>
         public bool LocalClientActive => localClient != null & localClient.active;
 
@@ -100,6 +99,7 @@ namespace Mirror
 
                 initialized = false;
             }
+
             dontListen = false;
             active = false;
 
