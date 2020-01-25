@@ -32,12 +32,6 @@ namespace Mirror
         public NetworkClient localClient;
 
         /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
-        public bool localClientActive => localClient.active;
-
-        /// <summary>
         /// A list of local connections on the server.
         /// </summary>
         public Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
@@ -1091,7 +1085,7 @@ namespace Mirror
             SendToObservers(identity, msg);
 
             identity.ClearObservers();
-            if (identity.client.active && localClientActive)
+            if (localClient != null && localClient.active)
             {
                 identity.OnNetworkDestroy();
             }
