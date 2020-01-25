@@ -10,6 +10,8 @@
   href: NetworkManagerHUD.md
 - name: NetworkProximityChecker
   href: NetworkProximityChecker.md
+- name: NetworkSceneChecker
+  href: NetworkSceneChecker.md
 - name: NetworkRoomManager
   href: NetworkRoomManager.md
 - name: NetworkRoomPlayer
