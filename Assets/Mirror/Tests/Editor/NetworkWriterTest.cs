@@ -1138,5 +1138,18 @@ namespace Mirror.Tests
 
             Assert.That(reader.ReadBytesAndSize(), Is.EqualTo(new byte[] { 22, 23 }));
         }
+
+        [Test]
+        public void TestWritingUri()
+        {
+
+            Uri testUri = new Uri("https://www.mirror-networking.com?somthing=other");
+
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUri(testUri);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadUri(), Is.EqualTo(testUri));
+        }
     }
 }

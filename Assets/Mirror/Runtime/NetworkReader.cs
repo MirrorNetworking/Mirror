@@ -351,5 +351,10 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("ReadNetworkIdentity netId:" + netId + " not found in spawned");
             return null;
         }
+
+        public static Uri ReadUri(this NetworkReader reader)
+        {
+            return new Uri(reader.ReadString());
+        }
     }
 }
