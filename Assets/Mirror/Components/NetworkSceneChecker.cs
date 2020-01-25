@@ -15,48 +15,68 @@ namespace Mirror
     public class NetworkSceneChecker : NetworkBehaviour
     {
         /// <summary>
-        /// How often (in seconds) that this object should update the list of observers that can see it.
-        /// </summary>
-        [Tooltip("How often (in seconds) that this object should check for scene change. Set to zero to disable.")]
-        public float updateInterval = 1;
-
-        /// <summary>
         /// Flag to force this object to be hidden from all observers.
         /// <para>If this object is a player object, it will not be hidden for that client.</para>
         /// </summary>
         [Tooltip("Enable to force this object to be hidden from all observers.")]
         public bool forceHidden;
 
-        float lastUpdateTime;
+        //float lastUpdateTime;
+
+        static Dictionary<Scene, HashSet<NetworkIdentity>> sceneCheckerObjects;
 
         Scene currentScene;
 
+        [ServerCallback]
+        void Awake()
+        {
+            if (sceneCheckerObjects == null)
+                sceneCheckerObjects = new Dictionary<Scene, HashSet<NetworkIdentity>>();
+
+            currentScene = gameObject.scene;
+        }
+
+        public override void OnStartServer()
+        {
+            if (!sceneCheckerObjects.ContainsKey(currentScene))
+                sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
+
+            sceneCheckerObjects[currentScene].Add(netIdentity);
+        }
+
+        [ServerCallback]
         void Update()
         {
-            if (!NetworkServer.active || updateInterval == 0)
-                return;
+            if (currentScene != gameObject.scene)
+            {
+                // This object is in a new scene so observers in the prior scene
+                // and the new scene need to rebuild their respective observers lists.
 
-            if (currentScene == null)
+                // Remove this object from the hashset of the scene it just left
+                sceneCheckerObjects[currentScene].Remove(netIdentity);
+
+                // RebuildObservers of all NetworkIdentity's in the scene this object just left
+                RebuildSceneObservers();
+
+                // Set this to the new scene this object just entered
                 currentScene = gameObject.scene;
 
-            if (Time.time - lastUpdateTime > updateInterval)
-            {
-                if (currentScene != gameObject.scene)
-                {
-                    // This object is in a new scene so potential observers in the prior scene
-                    // and the new scene need to rebuild their respective observers lists.
-                    foreach (NetworkIdentity networkIdentity in NetworkIdentity.spawned.Values)
-                    {
-                        Scene objectScene = networkIdentity.gameObject.scene;
-                        if (objectScene == currentScene || objectScene == gameObject.scene)
-                            networkIdentity.RebuildObservers(false);
-                    }
+                // Make sure this new scene is in the dictionary
+                if (!sceneCheckerObjects.ContainsKey(currentScene))
+                    sceneCheckerObjects.Add(currentScene, new HashSet<NetworkIdentity>());
 
-                    currentScene = gameObject.scene;
-                }
+                // Add this object to the hashset of the new scene
+                sceneCheckerObjects[currentScene].Add(netIdentity);
 
-                lastUpdateTime = Time.time;
+                // RebuildObservers of all NetworkIdentity's in the scene this object just entered
+                RebuildSceneObservers();
             }
+        }
+
+        void RebuildSceneObservers()
+        {
+            foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
+                networkIdentity.RebuildObservers(false);
         }
 
         public override bool OnCheckObserver(NetworkConnection conn)
@@ -67,22 +87,19 @@ namespace Mirror
             return (conn.identity.gameObject.scene == gameObject.scene);
         }
 
+        // Always return true when overriding OnRebuildObservers so that
+        // Mirror knows not to use the built in rebuild method.
         public override bool OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
-            // if force hidden then return without adding any observers.
+            // If forceHidden then return true without adding any observers.
             if (forceHidden)
-                // always return true when overwriting OnRebuildObservers so that
-                // Mirror knows not to use the built in rebuild method.
                 return true;
 
-            foreach (NetworkConnection conn in NetworkServer.connections.Values)
-            {
-                if (conn.identity.gameObject.scene == gameObject.scene)
-                    observers.Add(conn);
-            }
+            // Add everything in the hashset for this object's current scene
+            foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
+                if (networkIdentity != null && networkIdentity.connectionToClient != null)
+                    observers.Add(networkIdentity.connectionToClient);
 
-            // always return true when overwriting OnRebuildObservers so that
-            // Mirror knows not to use the built in rebuild method.
             return true;
         }
 
@@ -90,15 +107,13 @@ namespace Mirror
         /// Called when hiding and showing objects on the host.
         /// On regular clients, objects simply spawn/despawn.
         /// On host, objects need to remain in scene because the host is also the server.
-        ///    In that case, we simply hide/show meshes for the host player.
+        /// In that case, we simply hide/show meshes for the host player.
         /// </summary>
         /// <param name="visible"></param>
         public override void OnSetHostVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-            {
                 rend.enabled = visible;
-            }
         }
     }
 }
