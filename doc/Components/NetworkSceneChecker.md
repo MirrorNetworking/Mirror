@@ -2,7 +2,7 @@
 
 The Network Scene Checker component controls the visibility of game objects for network clients, based on which scene they're in.
 
-![Network Scene Checker component](NetworkSceneCheck.png)
+![Network Scene Checker component](NetworkSceneChecker.png)
 
 -   **Force Hidden**  
     Tick this checkbox to hide this object from all players.
