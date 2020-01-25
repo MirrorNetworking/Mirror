@@ -4,9 +4,6 @@ The Network Scene Checker component controls the visibility of game objects for 
 
 ![Network Scene Checker component](NetworkSceneCheck.png)
 
--   **Update Interval**  
-    Define how often (in seconds) the game object should check for scene change.  Set to zero for objects that never change scenes, such as static scene objects or NPC's that are confined to their scene.
-
 -   **Force Hidden**  
     Tick this checkbox to hide this object from all players.
 
@@ -16,4 +13,4 @@ This component would typically be used when the server has several subscenes loa
 
 A game object with a Network Scene Checker component must also have a Network Identity component. When you create a Network Scene Checker component on a game object, Mirror also creates a Network Identity component on that game object if it does not already have one.
 
-Scene objects with a Network Scene Checker component are disabled when they're out of range, and spawned objects are destroyed when they're out of range.
+Scene objects with a Network Scene Checker component are disabled when they're not in the same scene, and spawned objects are destroyed when they're not in the same scene.
