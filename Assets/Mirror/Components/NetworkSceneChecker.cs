@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
@@ -23,17 +23,18 @@ namespace Mirror
 
         //float lastUpdateTime;
 
-        static Dictionary<Scene, HashSet<NetworkIdentity>> sceneCheckerObjects;
+        static Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects;
 
-        Scene currentScene;
+        [Scene, SerializeField]
+        string currentScene;
 
         [ServerCallback]
         void Awake()
         {
             if (sceneCheckerObjects == null)
-                sceneCheckerObjects = new Dictionary<Scene, HashSet<NetworkIdentity>>();
+                sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
 
-            currentScene = gameObject.scene;
+            currentScene = gameObject.scene.name;
         }
 
         public override void OnStartServer()
@@ -47,7 +48,7 @@ namespace Mirror
         [ServerCallback]
         void Update()
         {
-            if (currentScene == gameObject.scene)
+            if (currentScene == gameObject.scene.name)
                 return;
 
             // This object is in a new scene so observers in the prior scene
@@ -60,7 +61,7 @@ namespace Mirror
             RebuildSceneObservers();
 
             // Set this to the new scene this object just entered
-            currentScene = gameObject.scene;
+            currentScene = gameObject.scene.name;
 
             // Make sure this new scene is in the dictionary
             if (!sceneCheckerObjects.ContainsKey(currentScene))
@@ -76,7 +77,7 @@ namespace Mirror
         void RebuildSceneObservers()
         {
             foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
-                networkIdentity.RebuildObservers(false);
+                    networkIdentity.RebuildObservers(false);
         }
 
         public override bool OnCheckObserver(NetworkConnection conn)
