@@ -23,8 +23,8 @@ namespace Mirror.Examples.Basic
         [SyncVar(hook = nameof(OnPlayerDataChanged))]
         public int playerData;
 
-        // This is called by the hook of playerData SyncVar above 
-        void OnPlayerDataChanged(int newPlayerData)
+        // This is called by the hook of playerData SyncVar above
+        void OnPlayerDataChanged(int oldPlayerData, int newPlayerData)
         {
             // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);

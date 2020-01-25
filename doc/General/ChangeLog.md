@@ -1,12 +1,40 @@
 # Change Log
 
-## Version 7.x.x - In progress
-- Added: Script Templates -- See the new Mirror section in the Assets > Create menu.
+## Version 7.x.x - In Progress
+- Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
+- Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
+- Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
+- Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
+- Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
+- Fixed: NetworkTransform will now correctly teleport if time / distance are too large
+- Fixed: NetworkAnimator now correctly syncs when clientAuthority is false
+- Fixed: Client owned objects are now destroyed when client disconnects (regression)
+- Fixed: Client authority is now preserved for networked objects carried through scene change in DDOL
+- Fixed: Starting server immediately after cancelling client connection attempt no longer throws a NRE
+- Fixed: IL2CPP builds no longer trigger an assert when stopping server
+- Fixed: SyncVars are now set for Host player before hook is invoked
+- Fixed: StopHost no longer tries to change to the Offline scene twice
+- Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
+- Changed: Shutdown logic has been streamlined
+- Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
+- Changed: **Breaking** SyncVar Hooks now require **two** parameters, one each for the old and new value, and the property value is now set **before** the hook is called.
+
+## Version 6.7.7 - 2020-Jan-01
+- Added: [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: Full Text Search added to docs
+- Added: Basic Chat example
+- Added: Some youtube videos have been created and linked from various doc pages where appropriate
 - Added: Transports can now support using a URI for connection including port
+- Added: version.txt file is now included with the release version in it.
+- Added: Structs that inherit from IMessageBase now generate serializers
 - Fixed: Components now appear in docs under API Reference
 - Fixed: Delayed disconnect in Basic Authenticator
-- Changed: NetworkManager startPositionIndex is now public
+- Fixed: Multiplexer now handles OnClientConnect and GetMaxMessageSize correctly
+- Fixed: NetworkRoomManager OnRoomServerCreateGamePlayer now includes the Room Player Object as parameter
+- Changed: Room example now has NetworkRoomManager in the Offline scene and correctly switches to the Room scene when server / client is started
+- Changed: NetworkManager startPositionIndex and loadingSceneAsync are now public
+- Changed: SceneMessage now has an optional customHandling flag so devs can handle their own custom scene loading, e.g. using Addressables.
+- Changed: **Breaking** NetworkTransform now defaults to server authority and has a Client Authority checkbox.
 
 ## Version 6.3.0 - 2019-Dec-09
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets

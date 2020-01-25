@@ -24,6 +24,9 @@
   href: Visibility.md
 - name: Custom Visibility
   href: VisibilityCustom.md
+- name: Development Servers
+  href: DevServer/toc.yml
+  topicHref: DevServer/
 - name: Synchronization
   href: Sync/toc.yml
   topicHref: Sync/

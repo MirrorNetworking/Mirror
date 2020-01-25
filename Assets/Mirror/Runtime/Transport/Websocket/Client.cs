@@ -1,14 +1,11 @@
 #if !UNITY_WEBGL || UNITY_EDITOR
 
 using System;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Ninja.WebSockets;
-using UnityEngine;
 
 namespace Mirror.Websocket
 {
@@ -143,7 +140,7 @@ namespace Mirror.Websocket
             if (webSocket != null)
             {
                 // close client
-                webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure,"", CancellationToken.None);
+                webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
                 webSocket = null;
                 Connecting = false;
                 IsConnected = false;
@@ -172,7 +169,7 @@ namespace Mirror.Websocket
 
         public override string ToString()
         {
-            if (IsConnected )
+            if (IsConnected)
             {
                 return $"Websocket connected to {uri}";
             }

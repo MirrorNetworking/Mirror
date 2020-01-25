@@ -3,11 +3,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIServerStatusSlot : MonoBehaviour
+namespace Mirror.Examples.ListServer
 {
-    public Text titleText;
-    public Text playersText;
-    public Text latencyText;
-    public Text addressText;
-    public Button joinButton;
+    public class UIServerStatusSlot : MonoBehaviour
+    {
+        public Text titleText;
+        public Text playersText;
+        public Text latencyText;
+        public Text addressText;
+        public Button joinButton;
+    }
 }

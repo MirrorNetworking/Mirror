@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Ninja.WebSockets
 {
@@ -30,7 +29,7 @@ namespace Ninja.WebSockets
         /// <summary>
         /// Add any additional http headers to this dictionary
         /// </summary>
-        public Dictionary<string,string> AdditionalHttpHeaders { get; set; }
+        public Dictionary<string, string> AdditionalHttpHeaders { get; set; }
 
         /// <summary>
         /// Include the full exception (with stack trace) in the close response

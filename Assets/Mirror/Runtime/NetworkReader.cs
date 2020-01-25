@@ -201,7 +201,7 @@ namespace Mirror
         public static byte[] ReadBytesAndSize(this NetworkReader reader)
         {
             // count = 0 means the array was null
-            // otherwise count -1 is the length of the array 
+            // otherwise count -1 is the length of the array
             uint count = reader.ReadPackedUInt32();
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }

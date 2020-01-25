@@ -41,10 +41,13 @@ namespace Mirror
             if (NetworkManager.singleton is NetworkRoomManager room)
             {
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
-                // in server and all clients, otherwise it will be respawned in the game scene which would 
+                // in server and all clients, otherwise it will be respawned in the game scene which would
                 // have undesireable effects.
                 if (room.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
+
+                room.roomSlots.Add(this);
+                room.RecalculateRoomPlayerIndices();
 
                 OnClientEnterRoom();
             }
@@ -71,7 +74,7 @@ namespace Mirror
 
         #region SyncVar Hooks
 
-        void ReadyStateChanged(bool newReadyState)
+        void ReadyStateChanged(bool oldReadyState, bool newReadyState)
         {
             OnClientReady(newReadyState);
         }

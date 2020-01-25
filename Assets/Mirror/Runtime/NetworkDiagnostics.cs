@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using UnityEngine.Events;
 
 namespace Mirror
 {
@@ -67,7 +65,7 @@ namespace Mirror
         /// Subscribe to this if you want to profile the network
         /// </summary>
         public static event Action<MessageInfo> InMessageEvent;
-        
+
         internal static void OnReceive<T>(T message, int channel, int bytes) where T : IMessageBase
         {
             if (InMessageEvent != null)

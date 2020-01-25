@@ -21,7 +21,7 @@ namespace Telepathy
         {
             get
             {
-                lock(queue)
+                lock (queue)
                 {
                     return queue.Count;
                 }
@@ -30,7 +30,7 @@ namespace Telepathy
 
         public void Enqueue(T item)
         {
-            lock(queue)
+            lock (queue)
             {
                 queue.Enqueue(item);
             }
@@ -40,7 +40,7 @@ namespace Telepathy
         // so we need a TryDequeue
         public bool TryDequeue(out T result)
         {
-            lock(queue)
+            lock (queue)
             {
                 result = default(T);
                 if (queue.Count > 0)
@@ -56,7 +56,7 @@ namespace Telepathy
         // locking every single TryDequeue.
         public bool TryDequeueAll(out T[] result)
         {
-            lock(queue)
+            lock (queue)
             {
                 result = queue.ToArray();
                 queue.Clear();
@@ -66,7 +66,7 @@ namespace Telepathy
 
         public void Clear()
         {
-            lock(queue)
+            lock (queue)
             {
                 queue.Clear();
             }

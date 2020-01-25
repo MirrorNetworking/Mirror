@@ -136,7 +136,7 @@ namespace Mirror
                 {
                     EditorGUI.EndDisabledGroup();
                 }
-                
+
                 expanded = false;
             }
             serializedObject.ApplyModifiedProperties();

@@ -116,7 +116,7 @@ namespace Ninja.WebSockets.Internal
         public static void WriteULong(ulong value, Stream stream, bool isLittleEndian)
         {
             byte[] buffer = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian && ! isLittleEndian)
+            if (BitConverter.IsLittleEndian && !isLittleEndian)
             {
                 Array.Reverse(buffer);
             }

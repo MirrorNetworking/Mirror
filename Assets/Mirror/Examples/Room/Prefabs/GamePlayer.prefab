@@ -195,16 +195,15 @@ MonoBehaviour:
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
   moveSpeed: 8
-  turnSpeedAccel: 5
-  turnSpeedDecel: 5
+  turnSensitivity: 5
   maxTurnSpeed: 150
-  jumpSpeed: 0
-  jumpFactor: 0.025
   horizontal: 0
   vertical: 0
   turn: 0
+  jumpSpeed: 0
   isGrounded: 1
   isFalling: 0
+  velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &6261579163786439309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,3 +267,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   compressRotation: 1
+  clientAuthority: 1
+  localPositionSensitivity: 0.01
+  localEulerAnglesSensitivity: 0.01
+  localScaleSensitivity: 0.01
