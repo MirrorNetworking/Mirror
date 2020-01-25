@@ -3,6 +3,7 @@
 ## Version 7.x.x - In Progress
 - Added: NetworkAnimator now has a ResetTrigger function and server / client authority warnings
 - Added: NetworkTransform now has 3 new floats for Sensitivity to quiet down message traffic from micro changes.
+- Added: Network Observer added to [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Fixed: NetworkTransform and NetworkAnimator now uses NetworkWriterPool
 - Fixed: NetworkTransform and NetworkAnimator now respect `hasAuthority` for client owned objects
 - Fixed: NetworkTransform will now correctly teleport if time / distance are too large
@@ -13,7 +14,9 @@
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server
 - Fixed: SyncVars are now set for Host player before hook is invoked
 - Fixed: StopHost no longer tries to change to the Offline scene twice
+- Fixed: NetworkRoomManager roomSlots are now correctly managed on both server and clients
 - Changed: Shutdown logic has been streamlined
+- Changed: NetworkIdentity `GetSceneIdenity` method renamed to `GetSceneIdentity` (name typo)
 - Changed: OnApplicationQuit virtual method added to Transport class and `Transport.activeTransport.Shutdown()` is no longer called from Network Manager
 - Changed: **Breaking** SyncVar Hooks now require **two** parameters, one each for the old and new value, and the property value is now set **before** the hook is called.
 
