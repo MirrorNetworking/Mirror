@@ -77,6 +77,7 @@ namespace Mirror
         void RebuildSceneObservers()
         {
             foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
+                if (networkIdentity != null)
                     networkIdentity.RebuildObservers(false);
         }
 
