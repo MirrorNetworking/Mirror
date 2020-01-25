@@ -21,7 +21,7 @@ namespace Mirror
         [Tooltip("Enable to force this object to be hidden from all observers.")]
         public bool forceHidden;
 
-        static Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects;
+        static Dictionary<string, HashSet<NetworkIdentity>> sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
 
         [Scene, SerializeField]
         string currentScene;
@@ -29,9 +29,6 @@ namespace Mirror
         [ServerCallback]
         void Awake()
         {
-            if (sceneCheckerObjects == null)
-                sceneCheckerObjects = new Dictionary<string, HashSet<NetworkIdentity>>();
-
             currentScene = gameObject.scene.name;
         }
 
