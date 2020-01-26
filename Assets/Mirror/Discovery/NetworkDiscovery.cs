@@ -56,8 +56,6 @@ namespace Mirror.Discovery
             // to include whatever is relevant for your game
             return new ServerResponse
             {
-                age = Time.time,
-                totalPlayers = (ushort)NetworkServer.connections.Count,
                 serverId = ServerId,
                 uri = transport.ServerUri()
             };
