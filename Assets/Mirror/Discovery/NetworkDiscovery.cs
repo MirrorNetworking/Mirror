@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Net;
 using System;
 using UnityEngine.Events;
@@ -16,12 +16,14 @@ namespace Mirror.Discovery
     public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
         #region Server
+
         public long ServerId { get; private set; }
 
-        public ServerFoundUnityEvent ServerFound;
-
-        [Tooltip("Transport exposed for discovery")]
+        [Tooltip("Transport used for discovery")]
         public Transport transport;
+
+        [Tooltip("Event handler to invoke when a server is found")]
+        public ServerFoundUnityEvent ServerFound;
 
         public void Start()
         {
