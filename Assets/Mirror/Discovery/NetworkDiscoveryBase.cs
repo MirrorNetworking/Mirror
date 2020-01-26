@@ -35,7 +35,7 @@ namespace Mirror.Discovery
         protected UdpClient clientUdpClient = null;
 
 #if UNITY_EDITOR
-        private void OnValidate()
+        void OnValidate()
         {
             if (secretHandshake == 0)
             {

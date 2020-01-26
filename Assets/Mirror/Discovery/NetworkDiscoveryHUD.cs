@@ -15,7 +15,7 @@ namespace Mirror.Discovery
         public NetworkDiscovery networkDiscovery;
 
 #if UNITY_EDITOR
-        private void OnValidate()
+        void OnValidate()
         {
             if (networkDiscovery == null)
             {
@@ -39,7 +39,7 @@ namespace Mirror.Discovery
                 DrawGUI();
         }
 
-        private void DrawGUI()
+        void DrawGUI()
         {
             GUILayout.BeginHorizontal();
 
