@@ -168,7 +168,7 @@ namespace Mirror.Discovery
         /// <param name="request"></param>
         protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
-            Response info = ProcessRequest(request);
+            Response info = ProcessRequest(request, endpoint);
 
             if (info == null)
                 return;
@@ -204,7 +204,7 @@ namespace Mirror.Discovery
         /// such as the name of the host player
         /// </remarks>
         /// <returns></returns>
-        protected abstract Response ProcessRequest(Request reader);
+        protected abstract Response ProcessRequest(Request reader, IPEndPoint endpoint);
 
         #endregion
 
