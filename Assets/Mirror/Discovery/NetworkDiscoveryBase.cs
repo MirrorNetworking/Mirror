@@ -30,7 +30,7 @@ namespace Mirror.Discovery
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
         [Range(1, 60)]
-        float ActiveDiscoverySecondInterval = 3;
+        float ActiveDiscoveryInterval = 3;
 
         protected UdpClient serverUdpClient = null;
         protected UdpClient clientUdpClient = null;
@@ -236,7 +236,7 @@ namespace Mirror.Discovery
 
             _ = ClientListenAsync();
 
-            InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoverySecondInterval);
+            InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
         // I call this when I leave the lobby menu and in my override of NetworkManager::OnStopServer
