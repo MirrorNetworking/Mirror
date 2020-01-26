@@ -43,6 +43,8 @@ namespace Mirror.Discovery
         /// Override if you wish to provide more information to the clients
         /// such as the name of the host player
         /// </remarks>
+        /// <param name="_"></param>
+        /// <param name="endpoint"></param>
         /// <returns>A message containing information about this server</returns>
         protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint)
         {
@@ -80,7 +82,7 @@ namespace Mirror.Discovery
         /// A client receives a reply from a server, this method processes the
         /// reply and raises an event
         /// </remarks>
-        /// <param name="reader"></param>
+        /// <param name="packet"></param>
         /// <param name="remoteEndPoint"></param>
         protected override void ProcessResponse(ServerResponse packet, IPEndPoint remoteEndPoint)
         {
