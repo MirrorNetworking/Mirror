@@ -94,6 +94,17 @@ namespace Mirror
 
         #region Server
 
+
+        /// <summary>
+        /// Retrieves the address of this server.
+        /// Useful for network discovery
+        /// </summary>
+        /// <returns>the url at which this server can be reached</returns>
+        public virtual Uri ServerUri()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Notify subscribers when a client connects to this server
         /// </summary>
