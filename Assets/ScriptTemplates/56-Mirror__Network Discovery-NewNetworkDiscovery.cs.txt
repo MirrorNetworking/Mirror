@@ -1,4 +1,5 @@
 using System.Net;
+using Mirror;
 using Mirror.Discovery;
 
 /*
@@ -73,7 +74,10 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
     /// </remarks>
     /// <param name="response">Response that came from the server</param>
     /// <param name="endpoint">Address of the server that replied</param>
-    protected override void ProcessResponse(DiscoveryResponse response, IPEndPoint endpoint) { }
+    protected override DiscoveryResponse ProcessRequest(DiscoveryRequest request, IPEndPoint endpoint)
+    {
+        return new DiscoveryResponse();
+    }
 
     #endregion
 }
