@@ -34,11 +34,13 @@ I have worked on Mirror for over a year, I am the one that came up with the name
 
 However, the project is not moving forward as fast as I would like. There is a big emphasis on keeping backwards compatiblity, which is really good for many users, but it is seriously slowing me down.
 
-In addition, Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the date I should be able to reduce the amount of defects significantly.
+In addition, Mirror relies heavily on manual testing.  Manual testing does not scale. I can cover so much more code with automated tests, and have much more confidence on my changes. This will require large breaking changes that will be hard to swallow for many people,  but at the end of the day I should be able to reduce the amount of defects significantly.
 
-Mirror employes some anti-patterns that I am not happy with. I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Mirror employs singletons heavily because they are easy,  but they are plain evil. They are much more evil in light of the upcoming Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons.
+Mirror makes heavy use of singletons, which I consider to be an [anti-pattern](https://www.dotnetcurry.com/patterns-practices/1350/singleton-design-anti-pattern-csharp). Singletons are especially problematic in the upcoming Unity 2019.3.  A lot of people will disable domain reloading which completely breaks singletons. 
 
-Mirror has it's own code conventions based on one person's preference.  I prefer following official C# code conventions.  Anybody that speaks C# should feel right at home with this code.
+I want to adhere as much as possible to the [SOLID principles](https://en.wikipedia.org/wiki/SOLID). Many things in Mirror do not.
+
+Mirror has it's own code conventions based on one person's preference.  I would rather follow official C# code conventions.  Anybody that speaks C# should feel right at home with this code.
 
 Code review takes too long in Mirror.  I think code reviews are top priority.
 
@@ -59,16 +61,20 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ## Installation
 The preferred installation method is Unity Package manager.
 
-1) Open your project in unity 2019.1 or later
+If you are using unity 2019.3 or later: 
+
+1) Open your project in unity
 2) Click on Windows -> Package Manager
 3) Click on the plus sign on the left and click on "Add package from git URL..."
 4) enter https://github.com/MirrorNG/MirrorNG.git#upm
 5) Unity will download and install MirrorNG
 
-Alternatively you can it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
+If you are using unity 2019.2, you can use [openupm](https://openupm.com/packages/com.mirrorng.mirrorng/) or you can manually add the url to your [packages.json](https://docs.unity3d.com/Manual/upm-git.html) file. 
+
+Alternatively you can download it from [Download Mirror](https://github.com/MirrorNG/MirrorNG/releases) 
 
 ## Examples
-We included several smaller example projects.
+We included several small example projects.
 
 ## Transports
 MirrorNG supports many different low level networking transports:
@@ -82,7 +88,7 @@ So many quotes to chose from.  This one in particular really encapsulates why th
 
 > _“All code is guilty, until proven innocent.” – Anonymous
 
-I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. 
+I assume every line of code I write is broken in some random obscure corner case. The only way to ensure it's quality is by testing. I don't have time to test my software,  I would rather the machine tested it for me while I work on something else. So the big theme of MirrorNG is to improve on automated testing. 
 
 ## Contributing
 
@@ -93,6 +99,7 @@ There are several ways to contribute to this project:
 * Make tutorials on how to use this
 * Test it and open issues
 * Review existing pull requests
+* Donations
 
 When contributing code, please keep these things in mind:
 
