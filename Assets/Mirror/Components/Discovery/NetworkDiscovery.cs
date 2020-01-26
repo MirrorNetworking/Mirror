@@ -5,9 +5,6 @@ using UnityEngine.Events;
 
 namespace Mirror.Discovery
 {
-    // Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
-    // forked from https://github.com/in0finite/MirrorNetworkDiscovery
-    // Both are MIT Licensed
     [Serializable]
     public class ServerFoundUnityEvent : UnityEvent<ServerResponse> { };
 
