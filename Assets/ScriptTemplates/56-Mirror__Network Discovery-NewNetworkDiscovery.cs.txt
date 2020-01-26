@@ -56,9 +56,9 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     /// A client receives a reply from a server, this method processes the
     /// reply and raises an event
     /// </remarks>
-    /// <param name="packet"></param>
-    /// <param name="remoteEndPoint"></param>
-    protected override void ProcessResponse(ServerResponse packet, IPEndPoint remoteEndPoint) { }
+    /// <param name="response">Response that came from the server</param>
+    /// <param name="endpoint">Address of the server that replied</param>
+    protected override void ProcessResponse(Response response, IPEndPoint endpoint) { }
 
     #endregion
 }
