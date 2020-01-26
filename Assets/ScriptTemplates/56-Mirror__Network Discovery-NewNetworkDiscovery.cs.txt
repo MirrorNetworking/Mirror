@@ -10,15 +10,38 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
 {
     #region Server
 
-    // optional,  if you don't have data, base class has a default implementation
-    protected override ServerRequest GetRequest() => new ServerRequest();
-
+    /// <summary>
+    /// Process the request from a client
+    /// </summary>
+    /// <remarks>
+    /// Override if you wish to provide more information to the clients
+    /// such as the name of the host player
+    /// </remarks>
+    /// <returns>A message containing information about this server</returns>
     protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint) => new ServerResponse();
 
     #endregion
 
     #region Client
 
+    /// <summary>
+    /// Create a message that will be broadcasted on the network to discover servers
+    /// </summary>
+    /// <remarks>
+    /// Override if you wish to include additional data in the discovery message
+    /// such as desired game mode, language, difficulty, etc... </remarks>
+    /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
+    protected override ServerRequest GetRequest() => new ServerRequest();
+
+    /// <summary>
+    /// Process the answer from a server
+    /// </summary>
+    /// <remarks>
+    /// A client receives a reply from a server, this method processes the
+    /// reply and raises an event
+    /// </remarks>
+    /// <param name="reader"></param>
+    /// <param name="remoteEndPoint"></param>
     protected override void ProcessResponse(ServerResponse response, IPEndPoint remoteEndPoint) { }
 
     #endregion
