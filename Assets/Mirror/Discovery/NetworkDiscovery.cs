@@ -16,14 +16,16 @@ namespace Mirror.Discovery
     public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
 
+
         #region Server
+        public long ServerId { get; private set; }
 
         [Tooltip("Transport exposed for discovery")]
         public Transport transport;
 
-        public new void Start()
+        public void Start()
         {
-            base.Start();
+            ServerId = RandomLong();
 
             // active transport gets initialized in awake
             // so make sure we set it here in Start()  (after awakes)
@@ -53,7 +55,7 @@ namespace Mirror.Discovery
             {
                 age = Time.time,
                 totalPlayers = (ushort)NetworkServer.connections.Count,
-                serverId = this.ServerId,
+                serverId = ServerId,
                 uri = transport.ServerUri()
             };
         }

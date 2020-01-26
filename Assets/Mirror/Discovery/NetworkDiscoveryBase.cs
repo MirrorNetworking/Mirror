@@ -21,8 +21,6 @@ namespace Mirror.Discovery
 
         public static event Action<Response> OnServerFound;
 
-        public long ServerId { get; private set; }
-
         // each game should have a random unique handshake,  this way you can tell if this is the same game or not
         [HideInInspector]
         public long secretHandshake;
@@ -38,11 +36,6 @@ namespace Mirror.Discovery
         protected UdpClient serverUdpClient = null;
         protected UdpClient clientUdpClient = null;
 
-        public void Start()
-        {
-            ServerId = RandomLong();
-        }
-
 #if UNITY_EDITOR
         private void OnValidate()
         {
@@ -54,7 +47,7 @@ namespace Mirror.Discovery
         }
 #endif
 
-        private static long RandomLong()
+        public static long RandomLong()
         {
             int value1 = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
             int value2 = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
