@@ -46,7 +46,7 @@ namespace Mirror.Discovery
         /// such as the name of the host player
         /// </remarks>
         /// <returns>A message containing information about this server</returns>
-        protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint remoteEndPoint)
+        protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint)
         {
             // In this case we don't do anything with the request
             // but other discovery implementations might want to use the data
