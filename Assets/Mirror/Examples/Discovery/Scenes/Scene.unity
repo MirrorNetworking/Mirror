@@ -504,8 +504,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   secretHandshake: 1558261479176021378
   serverBroadcastListenPort: 47777
-  ActiveDiscoverySecondInterval: 3
-  ServerFound:
+  ActiveDiscoveryInterval: 3
+  transport: {fileID: 0}
+  OnServerFound:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1556883246}
@@ -513,13 +514,12 @@ MonoBehaviour:
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  transport: {fileID: 0}
 --- !u!1 &1611696151
 GameObject:
   m_ObjectHideFlags: 0

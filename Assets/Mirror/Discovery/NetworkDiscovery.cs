@@ -19,11 +19,11 @@ namespace Mirror.Discovery
 
         public long ServerId { get; private set; }
 
-        [Tooltip("Transport used for discovery")]
+        [Tooltip("Transport to be advertised during discovery")]
         public Transport transport;
 
-        [Tooltip("Event handler to invoke when a server is found")]
-        public ServerFoundUnityEvent ServerFound;
+        [Tooltip("Invoked when a server is found")]
+        public ServerFoundUnityEvent OnServerFound;
 
         public void Start()
         {
@@ -99,7 +99,7 @@ namespace Mirror.Discovery
             };
             response.uri = realUri.Uri;
 
-            ServerFound.Invoke(response);
+            OnServerFound.Invoke(response);
         }
 
         #endregion
