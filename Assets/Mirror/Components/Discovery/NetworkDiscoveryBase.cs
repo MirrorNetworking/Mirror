@@ -1,8 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System;
 using System.Threading.Tasks;
+
+// Based on https://github.com/EnlightenedOne/MirrorNetworkDiscovery
+// forked from https://github.com/in0finite/MirrorNetworkDiscovery
+// Both are MIT Licensed
 
 namespace Mirror.Discovery
 {
@@ -165,7 +169,8 @@ namespace Mirror.Discovery
         /// Override if you wish to ignore server requests based on
         /// custom criteria such as language, full server game mode or difficulty
         /// </remarks>
-        /// <param name="request"></param>
+        /// <param name="request">Request comming from client</param>
+        /// <param name="endpoint">Address of the client that sent the request</param>
         protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
             Response info = ProcessRequest(request, endpoint);
@@ -212,7 +217,9 @@ namespace Mirror.Discovery
 
         #region Client
 
-        // I call this when the Lobby screen is loaded in my game
+        /// <summary>
+        /// Start Active Discovery
+        /// </summary>
         public void StartDiscovery()
         {
             if (!SupportedOnThisPlatform)
@@ -241,13 +248,18 @@ namespace Mirror.Discovery
             InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
-        // I call this when I leave the lobby menu and in my override of NetworkManager::OnStopServer
-        // Note that if plugged into a Mirrror sample the game continues being broadcast in the background
+        /// <summary>
+        /// Start Active Discovery
+        /// </summary>
         public void StopDiscovery()
         {
             Shutdown();
         }
 
+        /// <summary>
+        /// Awaits for server response
+        /// </summary>
+        /// <returns>ClientListenAsync Task</returns>
         public async Task ClientListenAsync()
         {
             while (true)
@@ -268,6 +280,9 @@ namespace Mirror.Discovery
             }
         }
 
+        /// <summary>
+        /// Sends discovery request from client
+        /// </summary>
         public void BroadcastDiscoveryRequest()
         {
             if (clientUdpClient == null)
