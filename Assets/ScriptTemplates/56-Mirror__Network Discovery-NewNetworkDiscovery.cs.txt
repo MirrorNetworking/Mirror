@@ -1,0 +1,25 @@
+using System.Net;
+using Mirror.Discovery;
+
+/*
+    Documentation: https://mirror-networking.com/docs/Components/NetworkDiscovery.html
+    API Reference: https://mirror-networking.com/docs/api/Mirror.Discovery.NetworkDiscovery.html
+*/
+
+public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
+{
+    #region Server
+
+    // optional,  if you don't have data, base class has a default implementation
+    protected override ServerRequest GetRequest() => new ServerRequest();
+
+    protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint) => new ServerResponse();
+
+    #endregion
+
+    #region Client
+
+    protected override void ProcessResponse(ServerResponse response, IPEndPoint remoteEndPoint) { }
+
+    #endregion
+}
