@@ -15,8 +15,6 @@ namespace Mirror.Discovery
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkDiscovery.html")]
     public class NetworkDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     {
-
-
         #region Server
         public long ServerId { get; private set; }
 
@@ -103,8 +101,6 @@ namespace Mirror.Discovery
 
             NotifyServerFound(packet);
         }
-
-
         #endregion
     }
 }
