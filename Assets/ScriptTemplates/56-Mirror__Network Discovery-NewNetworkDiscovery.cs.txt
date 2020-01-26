@@ -17,6 +17,8 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     /// Override if you wish to provide more information to the clients
     /// such as the name of the host player
     /// </remarks>
+    /// <param name="_"></param>
+    /// <param name="endpoint"></param>
     /// <returns>A message containing information about this server</returns>
     protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint) => new ServerResponse();
 
