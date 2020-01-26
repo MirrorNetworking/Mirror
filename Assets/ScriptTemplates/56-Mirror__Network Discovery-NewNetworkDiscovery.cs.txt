@@ -11,16 +11,30 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<ServerRequest, ServerResponse>
     #region Server
 
     /// <summary>
+    /// Reply to the client to inform it of this server
+    /// </summary>
+    /// <remarks>
+    /// Override if you wish to ignore server requests based on
+    /// custom criteria such as language, full server game mode or difficulty
+    /// </remarks>
+    /// <param name="request">Request comming from client</param>
+    /// <param name="endpoint">Address of the client that sent the request</param>
+    protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
+    {
+        base.ProcessClientRequest(request, endpoint)
+    }
+
+    /// <summary>
     /// Process the request from a client
     /// </summary>
     /// <remarks>
     /// Override if you wish to provide more information to the clients
     /// such as the name of the host player
     /// </remarks>
-    /// <param name="_"></param>
-    /// <param name="endpoint"></param>
+    /// <param name="request">Request comming from client</param>
+    /// <param name="endpoint">Address of the client that sent the request</param>
     /// <returns>A message containing information about this server</returns>
-    protected override ServerResponse ProcessRequest(ServerRequest _, IPEndPoint endpoint) => new ServerResponse();
+    protected override ServerResponse ProcessRequest(ServerRequest request, IPEndPoint endpoint) => new ServerResponse();
 
     #endregion
 

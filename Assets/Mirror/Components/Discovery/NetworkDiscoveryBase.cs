@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System;
@@ -165,7 +165,8 @@ namespace Mirror.Discovery
         /// Override if you wish to ignore server requests based on
         /// custom criteria such as language, full server game mode or difficulty
         /// </remarks>
-        /// <param name="request"></param>
+        /// <param name="request">Request comming from client</param>
+        /// <param name="endpoint">Address of the client that sent the request</param>
         protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
             Response info = ProcessRequest(request, endpoint);
